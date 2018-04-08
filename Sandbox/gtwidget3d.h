@@ -6,7 +6,7 @@
 #include "SharedGui/gt_decl.h"
 #include "Shared/stack.h"
 
-#include "GraphicsToolsModule/Objects/gtmaterialbase.h"
+#include "GraphicsToolsModule/Objects/gtmaterialparameterbase.h"
 
 class ComputeNodeVolcanoRecognition;
 
@@ -18,7 +18,7 @@ class GtFramebufferObjectBase;
 class GtCamera;
 class GtMeshSurface;
 class GtMeshCircle2D;
-class GtViewBase;
+class GtMaterial;
 class QOpenGLDebugLogger;
 class GtShadowMapTechnique;
 class InputFrameStream;
@@ -33,9 +33,9 @@ class GtWidget3D : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
     ScopedPointer<GtFramebufferObjectBase> fbo;
-    ScopedPointer<GtViewBase> depth_view;
-    ScopedPointer<GtViewBase> surface_view;
-    ScopedPointer<GtViewBase> colored_view;
+    ScopedPointer<GtMaterial> depth_view;
+    ScopedPointer<GtMaterial> surface_view;
+    ScopedPointer<GtMaterial> colored_view;
     ScopedPointer<GtMeshSurface> surface_mesh;
     ScopedPointer<GtMeshCircle2D> circle_mesh;
     ScopedPointer<class GtPlayerControllerBase> camera_controller;

@@ -1,16 +1,16 @@
-#include "gtmaterialframetexture.h"
+#include "gtmaterialparameterframetexture.h"
 
 #include <QOpenGLShaderProgram>
 
 #include "../gtframetexture.h"
 
-GtMaterialFrameTexture::GtMaterialFrameTexture(const QString& name, const QString& resource)
+GtMaterialParameterFrameTexture::GtMaterialParameterFrameTexture(const QString& name, const QString& resource)
     : Super(name, resource)
 {
 
 }
 
-GtMaterialFrameTexture::F_Delegate GtMaterialFrameTexture::apply()
+GtMaterialParameterFrameTexture::FDelegate GtMaterialParameterFrameTexture::apply()
 {
     frame_texture = ResourcesSystem::getResource<GtFrameTexture>(resource);
     gTexID texture = frame_texture->data()->getOutput()->getID();

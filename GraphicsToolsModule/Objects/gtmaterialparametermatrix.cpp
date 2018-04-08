@@ -1,15 +1,15 @@
-#include "gtmaterialmatrix.h"
+#include "gtmaterialparametermatrix.h"
 
 #include <QOpenGLShaderProgram>
 #include "ResourcesModule/resourcessystem.h"
 
 #include "../internal.hpp"
 
-GtMaterialMatrix::GtMaterialMatrix(const QString& name, const QString& resource)
-    : GtMaterialBase(name, resource)
+GtMaterialParameterMatrix::GtMaterialParameterMatrix(const QString& name, const QString& resource)
+    : GtMaterialParameterBase(name, resource)
 {}
 
-GtMaterialBase::F_Delegate GtMaterialMatrix::apply()
+GtMaterialParameterBase::FDelegate GtMaterialParameterMatrix::apply()
 {
     matrix = ResourcesSystem::getResource<Matrix4>(resource);
     return  [this](QOpenGLShaderProgram* program, gLocID loc, OpenGLFunctions*) {

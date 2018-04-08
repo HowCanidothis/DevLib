@@ -10,7 +10,7 @@
 #include "GraphicsToolsModule/gtmeshquad2D.h"
 #include "GraphicsToolsModule/gtmeshcircle2D.h"
 #include "GraphicsToolsModule/gtmeshsurface.h"
-#include "GraphicsToolsModule/Objects/gtviewbase.h"
+#include "GraphicsToolsModule/Objects/gtmaterial.h"
 #include "GraphicsToolsModule/gttexture2D.h"
 #include "GraphicsToolsModule/gtframebufferobject.h"
 #include "GraphicsToolsModule/gtshadowmaptechnique.h"
@@ -18,10 +18,10 @@
 #include "GraphicsToolsModule/gtplayercontrollercamera.h"
 #include "GraphicsToolsModule/gtcamera.h"
 
-#include "GraphicsToolsModule/Objects/gtmaterialmatrix.h"
-#include "GraphicsToolsModule/Objects/gtmaterialshadow.h"
-#include "GraphicsToolsModule/Objects/gtmaterialtexture.h"
-#include "GraphicsToolsModule/Objects/gtmaterialframetexture.h"
+#include "GraphicsToolsModule/Objects/gtmaterialparametermatrix.h"
+#include "GraphicsToolsModule/Objects/gtmaterialparametershadow.h"
+#include "GraphicsToolsModule/Objects/gtmaterialparametertexture.h"
+#include "GraphicsToolsModule/Objects/gtmaterialparameterframetexture.h"
 
 #include "ComputeGraphModule/computenodethreadsafe.h"
 #include "ComputeGraphModule/computegraphbase.h"
@@ -149,20 +149,20 @@ void GtWidget3D::initializeGL()
     surface_mesh = new GtMeshSurface(3000, 2400, 320);
     surface_mesh->initialize(this);
 
-    surface_view = new GtViewBase();
+    surface_view = new GtMaterial();
     surface_view->addMesh(surface_mesh.data());
 
-    surface_view->addMaterial(new GtMaterialTexture("SandTex", "sand_tex"));
-    surface_view->addMaterial(new GtMaterialTexture("GrassTex", "grass_tex"));
-    surface_view->addMaterial(new GtMaterialTexture("MountainTex", "mountain_tex"));
+    surface_view->addParameter(new GtMaterialParameterTexture("SandTex", "sand_tex"));
+    surface_view->addParameter(new GtMaterialParameterTexture("GrassTex", "grass_tex"));
+    surface_view->addParameter(new GtMaterialParameterTexture("MountainTex", "mountain_tex"));
     if(shadow_mapping) {
-        surface_view->addMaterial(new GtMaterialShadow("ShadowMap", "shadow_map_technique"));
+        surface_view->addParameter(new GtMaterialParameterShadow("ShadowMap", "shadow_map_technique"));
     }
 
-    surface_view->addMaterial(new GtMaterialMatrix("MVP", "mvp"));
-    surface_view->addMaterial(new GtMaterialMatrix("ShadowMVP", "mvp_shadow"));
-    surface_view->addMaterial(new GtMaterialFrameTexture("HeightMap", "output_texture"));
-    surface_view->addMaterial(new GtMaterialBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+    surface_view->addParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
+    surface_view->addParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
+    surface_view->addParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
+    surface_view->addParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
       program->setUniformValue(loc, shadow_map_technique->data()->getCam()->getForward().normalized());
     }));
 
@@ -177,10 +177,10 @@ void GtWidget3D::initializeGL()
 
     if(shadow_mapping) {
 
-        depth_view = new GtViewBase();
+        depth_view = new GtMaterial();
         depth_view->addMesh(&GtMeshQuad2D::instance());
         gTexID texture = shadow_map_technique->data()->getDepthTexture();
-        depth_view->addMaterial(new GtMaterialBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
+        depth_view->addParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
             program->setUniformValue(loc, 0);
         }));
@@ -190,10 +190,10 @@ void GtWidget3D::initializeGL()
     circle_mesh = new GtMeshCircle2D();
     circle_mesh->initialize(this);
 
-    colored_view = new GtViewBase();
+    colored_view = new GtMaterial();
     colored_view->addMesh(circle_mesh.data());
-    colored_view->addMaterial(new GtMaterialMatrix("MVP", "mvp"));
-    colored_view->addMaterial(new GtMaterialBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+    colored_view->addParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
+    colored_view->addParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
         program->setUniformValue(loc, 400.0f);
     }));
     colored_view->setShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");

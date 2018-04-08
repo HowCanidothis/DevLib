@@ -1,38 +1,38 @@
-#include "gtviewbase.h"
+#include "gtmaterial.h"
 
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 
-#include "gtmaterialbase.h"
+#include "gtmaterialparameterbase.h"
 #include "../gtmeshbase.h"
 
-GtViewBase::GtViewBase()
+GtMaterial::GtMaterial()
 {
 
 }
 
-GtViewBase::~GtViewBase()
+GtMaterial::~GtMaterial()
 {
 
 }
 
-void GtViewBase::addMaterial(GtMaterialBase* delegate)
+void GtMaterial::addParameter(GtMaterialParameterBase* delegate)
 {
-    materials.push(delegate);
+    parameters.push(delegate);
 }
 
-void GtViewBase::addMesh(GtMeshBase* mesh)
+void GtMaterial::addMesh(GtMeshBase* mesh)
 {
     meshs.append(mesh);
 }
 
-void GtViewBase::draw(OpenGLFunctions* f)
+void GtMaterial::draw(OpenGLFunctions* f)
 {
     Q_ASSERT(shader_program != nullptr);
     shader_program->bind();
 
-    for(GtMaterialBase* material : materials)
-        material->bind(shader_program.data(), f);
+    for(GtMaterialParameterBase* parameter : parameters)
+        parameter->bind(shader_program.data(), f);
 
     for(GtMeshBase* mesh : meshs) {
         if(mesh->isVisible())
@@ -42,13 +42,13 @@ void GtViewBase::draw(OpenGLFunctions* f)
     shader_program->release();
 }
 
-GtViewBase&GtViewBase::addShader(GtViewBase::ShaderType type, const QString& file)
+GtMaterial&GtMaterial::addShader(GtMaterial::ShaderType type, const QString& file)
 {
     shaders.append(new Shader({file, type}));
     return *this;
 }
 
-void GtViewBase::setShaders(const QString& path, const QString& vert_file, const QString& frag_file)
+void GtMaterial::setShaders(const QString& path, const QString& vert_file, const QString& frag_file)
 {
     setDir(path);
     addShader(Vertex, vert_file).
@@ -56,7 +56,7 @@ void GtViewBase::setShaders(const QString& path, const QString& vert_file, const
     update();
 }
 
-void GtViewBase::update()
+void GtMaterial::update()
 {
     LOGOUT;
     shader_program.reset(new QOpenGLShaderProgram);
@@ -76,14 +76,14 @@ void GtViewBase::update()
 
     gTexUnit unit = 0;
 
-    for(GtMaterialBase* material : materials) {
-        material->updateLocation(shader_program.data());
-        material->updateTextureUnit(unit);
-        material->installDelegate();
+    for(GtMaterialParameterBase* parameter : parameters) {
+        parameter->updateLocation(shader_program.data());
+        parameter->updateTextureUnit(unit);
+        parameter->installDelegate();
     }
 }
 
-void GtViewBase::mapProperties(Observer* observer)
+void GtMaterial::mapProperties(Observer* observer)
 {
     qint32 counter = 0;
     for(Shader* shader : shaders) {
@@ -93,9 +93,9 @@ void GtViewBase::mapProperties(Observer* observer)
         });
     }
 
-    GtMaterialBase::view() = this;
+    GtMaterialParameterBase::material() = this;
 
-    for(GtMaterialBase* material : materials) {
-        material->mapProperties(observer);
+    for(GtMaterialParameterBase* parameter : parameters) {
+        parameter->mapProperties(observer);
     }
 }

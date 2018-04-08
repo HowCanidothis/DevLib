@@ -4,8 +4,9 @@
 ComputeNodeVolcanoRecognition::ComputeNodeVolcanoRecognition(const QString& name)
     : GtComputeNodeBase(name)
     , ideal_frames_per_second(name+"/ideal frame time", 30, 0, 30)
-    , start_recongnize_height(name+"/start recognize height", 2050, 2000, 3000)
-    , range_recongnize(name+"/range recognize", 100, 10, 150)
+    , start_recognize_height(name+"/start recognize height", 2050, 2000, 3000)
+    , range_recognize(name+"/range recognize", 100, 10, 150)
+    , epsilon_recognize(name+"/epsilon recognize", 0, -10, 10)
     , current_frame(0)
 {
     ideal_frames_per_second.onChange() = [this]{ current_frame = 0; };
@@ -23,8 +24,8 @@ void ComputeNodeVolcanoRecognition::update(const cv::Mat* input)
     auto it_gray = gray_scale_input.begin<quint8>();
     for(quint16 pix : adapters::range(input->begin<quint16>(), input->end<quint16>())) {
         quint8& v = *it_gray;
-        quint16 dif = pix - start_recongnize_height;
-        v = dif > range_recongnize ? range_recongnize : dif;
+        quint16 dif = pix - start_recognize_height;
+        v = dif > range_recognize ? range_recognize : dif;
         it_gray++;
     }
 
@@ -54,12 +55,10 @@ void ComputeNodeVolcanoRecognition::update(const cv::Mat* input)
 
             qint32* max = std::max_element(sides, sides + 4);
 
-            if(*max && height_center > *max) {
+            if(*max && (height_center - *max + epsilon_recognize) > 0) {
                 Circles.push_back(circle);
             }
         }
-//        if(Circles.size())
-//            qDebug() << "draws" << Circles.size() << "circles";
     }
 
     *output = gray_scale_input;

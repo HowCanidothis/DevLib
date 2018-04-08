@@ -1,17 +1,17 @@
-#include "gtmaterialshadow.h"
+#include "gtmaterialparametershadow.h"
 
 #include <QOpenGLShaderProgram>
 #include "../gtshadowmaptechnique.h"
 #include "../internal.hpp"
 #include "ResourcesModule/resourcessystem.h"
 
-GtMaterialShadow::GtMaterialShadow(const QString& name, const QString& resource)
+GtMaterialParameterShadow::GtMaterialParameterShadow(const QString& name, const QString& resource)
     : Super(name, resource)
 {
 
 }
 
-GtMaterialBase::F_Delegate GtMaterialShadow::apply()
+GtMaterialParameterBase::FDelegate GtMaterialParameterShadow::apply()
 {
     technique = ResourcesSystem::getResource<GtShadowMapTechnique>(resource);
     auto tech = technique->data();

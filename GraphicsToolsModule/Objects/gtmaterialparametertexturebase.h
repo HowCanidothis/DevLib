@@ -1,14 +1,14 @@
 #ifndef GTMATERIALTEXTUREBASE_H
 #define GTMATERIALTEXTUREBASE_H
 
-#include "gtmaterialbase.h"
+#include "gtmaterialparameterbase.h"
 
-class GtMaterialTextureBase : public GtMaterialBase
+class GtMaterialParameterTextureBase : public GtMaterialParameterBase
 {
 protected:
     gTexUnit unit;
 public:
-    GtMaterialTextureBase(const QString& name, const QString& resource);
+    GtMaterialParameterTextureBase(const QString& name, const QString& resource);
 
     // GtMaterialBase interface
 protected:

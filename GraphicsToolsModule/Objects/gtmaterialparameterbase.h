@@ -19,31 +19,31 @@ typedef Resource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
 #endif
 
 class QOpenGLShaderProgram;
-class GtViewBase;
+class GtMaterial;
 
-class GtMaterialBase : public GtObjectBase
+class GtMaterialParameterBase : public GtObjectBase
 {
 public:
-    typedef std::function<void(QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions* f)> F_Delegate;
-    GtMaterialBase(const QString& name, const QString& resource);
-    GtMaterialBase(const QString& name, const F_Delegate& delegate);
-    virtual ~GtMaterialBase();
+    typedef std::function<void(QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions* f)> FDelegate;
+    GtMaterialParameterBase(const QString& name, const QString& resource);
+    GtMaterialParameterBase(const QString& name, const FDelegate& delegate);
+    virtual ~GtMaterialParameterBase();
 protected:
-    friend class GtViewBase;
+    friend class GtMaterial;
     void bind(QOpenGLShaderProgram*, OpenGLFunctions* f);
 
     void installDelegate();
-    virtual F_Delegate apply();
+    virtual FDelegate apply();
     virtual void updateTextureUnit(gTexUnit&) {}
     void updateLocation(QOpenGLShaderProgram* program);
 
     template<class T> T* asObject() const { return (T*)ptr; }
 protected:
-    F_Delegate delegate;
+    FDelegate delegate;
     gLocID location;
     QString name;
     QString resource;
-    static GtViewBase*& view() { static GtViewBase* res; return res; }
+    static GtMaterial*& material() { static GtMaterial* res; return res; }
 };
 
 #endif // GTVIEWDELEGATE_H

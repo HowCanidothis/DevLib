@@ -7,9 +7,9 @@
 
 class GtMeshBase;
 class GtCamera;
-class GtMaterialBase;
+class GtMaterialParameterBase;
 
-class GtViewBase : public GtObjectBase
+class GtMaterial : public GtObjectBase
 {
 public:
     enum ShaderType {
@@ -21,26 +21,26 @@ public:
         Compute                = 0x0020
     };
 
-    GtViewBase();
-    virtual ~GtViewBase();
+    GtMaterial();
+    virtual ~GtMaterial();
 
-    void addMaterial(GtMaterialBase* );
+    void addParameter(GtMaterialParameterBase*);
     void addMesh(GtMeshBase* mesh);
     void draw(OpenGLFunctions* f);
 
     void setDir(const QString& path) { shaders_path = path; }
-    GtViewBase& addShader(ShaderType type, const QString& file);
+    GtMaterial& addShader(ShaderType type, const QString& file);
     void setShaders(const QString& path, const QString& vert_file, const QString& frag_file);
 
     void update();
 protected:
-    friend class GtMaterialBase;
+    friend class GtMaterialParameterBase;
     struct Shader {
         QString file;
         qint32 type;
     };
 
-    Stack<GtMaterialBase*> materials;
+    Stack<GtMaterialParameterBase*> parameters;
     Array<GtMeshBase*> meshs;
     ScopedPointer<class QOpenGLShaderProgram> shader_program;
     ArrayPointers<Shader> shaders;

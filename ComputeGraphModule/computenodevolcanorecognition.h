@@ -25,8 +25,9 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
     UIntProperty ideal_frames_per_second;
-    UIntProperty start_recongnize_height;
-    UIntProperty range_recongnize;
+    UIntProperty start_recognize_height;
+    UIntProperty range_recognize;
+    IntProperty epsilon_recognize;
     quint32 current_frame;
 };
 

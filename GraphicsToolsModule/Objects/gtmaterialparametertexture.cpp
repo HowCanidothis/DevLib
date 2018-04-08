@@ -1,15 +1,15 @@
-#include "gtmaterialtexture.h"
+#include "gtmaterialparametertexture.h"
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include "../internal.hpp"
 #include "ResourcesModule/resourcessystem.h"
 
-GtMaterialTexture::GtMaterialTexture(const QString& name, const QString& resource)
+GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, const QString& resource)
     : Super(name, resource)
 {}
 
-GtMaterialBase::F_Delegate GtMaterialTexture::apply()
+GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 {
     gt_texture = ResourcesSystem::getResource<GtTexture>(this->resource);
     if(gt_texture != nullptr) {
@@ -24,12 +24,12 @@ GtMaterialBase::F_Delegate GtMaterialTexture::apply()
     return [](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){};
 }
 
-void GtMaterialTexture::mapProperties(Observer* observer)
+void GtMaterialParameterTexture::mapProperties(Observer* observer)
 {
     QString path = "Materials/" + QString::number(unit);
     new StringPropertyPtr(path + "/Name", &name);
     new StringPropertyPtr(path + "/Resource", &resource);
 
-    observer->addStringObserver(&name,[]{ GtMaterialTexture::view()->update(); });
-    observer->addStringObserver(&resource, []{ GtMaterialTexture::view()->update(); });
+    observer->addStringObserver(&name,[]{ GtMaterialParameterTexture::material()->update(); });
+    observer->addStringObserver(&resource, []{ GtMaterialParameterTexture::material()->update(); });
 }
