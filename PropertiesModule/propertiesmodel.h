@@ -9,6 +9,7 @@
 #endif
 
 class Property;
+class Name;
 
 class PropertiesModel : public QAbstractItemModel
 {
@@ -52,7 +53,7 @@ private:
                      const Item* root,
                      const std::function<void (const QString& path, const Item*)>& handle) const;
     void reset();
-    void reset(const QHash<QString, Property*>& tree);
+    void reset(const QHash<Name, Property*>& tree);
 private:
     ScopedPointer<Item> root;
 };

@@ -3,7 +3,7 @@
 
 #include "gtobjectbase.h"
 
-class GtObjectTerrain : public GtObjectActor
+class GtObjectTerrain : public GtActor
 {
     ScopedPointer<class GtMeshSurface> surface_mesh;
 public:

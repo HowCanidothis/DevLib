@@ -18,8 +18,12 @@ protected:
 public:
     Property(const QString& path);
     void setValue(QVariant value);
-    FHandle& handle() { return fhandle; }
 
+    FHandle& handle() { return fhandle; }
+    FValidator& validator() { return fvalidator; }
+    FOnChange& onChange() { return fonset; }
+
+    void invoke() { fhandle([]{}); }
 
     virtual bool isTextFileName() const { return false; }
 
@@ -36,19 +40,14 @@ protected:
 };
 
 template<class T>
-class TPropertyBase : protected Property
+class TPropertyBase : public Property
 {
 public:
     TPropertyBase(const QString& path, const T& initial)
         : Property(path)
         , value(initial)
     {}
-    void setReadOnly(bool flag) { read_only = flag; }
 
-    FHandle& handle() { return fhandle; }
-    FValidator& validator() { return fvalidator; }
-    FOnChange& onChange() { return fonset; }
-    void invoke() { fhandle([]{}); }
     T* ptr() { return &value; }
     operator const T&() const { return value; }
     operator T&() { return value; }

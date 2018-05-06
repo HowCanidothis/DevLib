@@ -6,13 +6,14 @@ Property::Property(const QString& path)
     , fvalidator([](const QVariant&, QVariant&){})
     , read_only(false)
 {
-    PropertiesSystem::addProperty(path, this);
+    PropertiesSystem::addProperty(Name(path), this);
 }
 
 void Property::setValue(QVariant value) // copied as it could be validated
 {
-    if(getValue() != value) {
-        fvalidator(getValue(),value);
+    QVariant old_value = getValue();
+    if(old_value != value) {
+        fvalidator(old_value,value);
         fhandle([this,value] {
             this->setValueInternal(value);
             fonset();

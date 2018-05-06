@@ -6,7 +6,12 @@ GtScene::GtScene()
 
 }
 
-void GtScene::addObject(GtObjectActor* object)
+GtScene::~GtScene()
+{
+
+}
+
+void GtScene::addObject(GtActor* object)
 {
     objects.append(object);
 }

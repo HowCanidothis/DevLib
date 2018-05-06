@@ -64,8 +64,8 @@ void GtMaterial::update()
     {
         DirBinder dir(shaders_path);
         for(Shader* shader : shaders) {
-            QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->type, shader_program.data());
-            if(shader_object->compileSourceFile(shader->file)) {
+            QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, shader_program.data());
+            if(shader_object->compileSourceFile(shader->File)) {
                 shader_program->addShader(shader_object);
             }
         }
@@ -87,8 +87,8 @@ void GtMaterial::mapProperties(Observer* observer)
 {
     qint32 counter = 0;
     for(Shader* shader : shaders) {
-        new TextFileNamePropertyPtr("Shaders/" + QString::number(counter++), &shader->file);
-        observer->addFileObserver(&shaders_path, &shader->file, [this]{
+        new TextFileNamePropertyPtr("Shaders/" + QString::number(counter++), &shader->File);
+        observer->addFileObserver(&shaders_path, &shader->File, [this]{
             this->update();
         });
     }

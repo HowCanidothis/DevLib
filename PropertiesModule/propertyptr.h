@@ -3,19 +3,13 @@
 #include "property.h"
 
 template<class T>
-class TPropertyPtrBase : protected Property
+class TPropertyPtrBase : public Property
 {
 public:
     TPropertyPtrBase(const QString& path, T* initial)
         : Property(path)
         , value(initial)
     {}
-    void setReadOnly(bool flag) { read_only = flag; }
-
-    FHandle& handle() { return fhandle; }
-    FValidator& validator() { return fvalidator; }
-    FOnChange& onChange() { return fonset; }
-    void invoke() { fhandle([]{}); }
     operator const T&() const { return *value; }
     operator T&() { return *value; }
 protected:

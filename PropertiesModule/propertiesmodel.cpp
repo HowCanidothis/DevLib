@@ -40,7 +40,7 @@ void PropertiesModel::reset()
     root = new Item { "", nullptr, 0, nullptr };
 }
 
-void PropertiesModel::reset(const QHash<QString, Property*>& tree)
+void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 {
     reset();
 
@@ -49,9 +49,9 @@ void PropertiesModel::reset(const QHash<QString, Property*>& tree)
     qint32 row=0;
 
     for(auto it(tree.begin()), e(tree.end()); it != e; it++, row++) {
-        QString path = it.key();
+        const Name& path = it.key();
         Item* current = root.data();
-        QStringList paths = path.split('/', QString::SkipEmptyParts);
+        QStringList paths = path.asString().split('/', QString::SkipEmptyParts);
         for(const QString& path : adapters::range(paths.begin(), paths.end() - 1)) {
             auto find = nodes.find(path);
 
@@ -98,7 +98,7 @@ void PropertiesModel::load(const QString& file_name)
     const auto& tree = PropertiesSystem::context();
 
     for(const QString& key : settings.allKeys()) {
-        auto find = tree.find(key);
+        auto find = tree.find(Name(key));
         if(find == tree.end()) {
             log.warning() << "unknown property" << key;
         } else {
@@ -215,7 +215,6 @@ PropertiesModel::Item* PropertiesModel::asItem(const QModelIndex& index) const
 {
     return (Item*)index.internalPointer();
 }
-
 
 Qt::ItemFlags PropertiesModel::flags(const QModelIndex& index) const
 {

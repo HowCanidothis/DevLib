@@ -12,6 +12,7 @@ class GtShadowMapTechnique
     ScopedPointer<GtCamera> camera;
     ScopedPointer<GtFramebufferObject> framebuffer;
     OpenGLFunctions* f;
+
 public:
     GtShadowMapTechnique(OpenGLFunctions* f, const SizeI& resolution);
 

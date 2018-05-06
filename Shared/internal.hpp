@@ -9,6 +9,7 @@
 #include "flags.h"
 #include "profile_utils.h"
 #include "shared_decl.h"
+#include "name.h"
 #endif
 
 #endif // INTERNAL_H

@@ -6,6 +6,7 @@
 #include <QVariant>
 
 class Property;
+class Name;
 
 class PropertiesSystem
 {
@@ -17,8 +18,8 @@ public:
     typedef std::function<void ()> FSetter;
     typedef std::function<void (const FSetter&)> FHandle;
 
-    static void setValue(const QString& path, const QVariant& value);
-    static QVariant getValue(const QString& path);
+    static void setValue(const Name& path, const QVariant& value);
+    static QVariant getValue(const Name& path);
 
     static FHandle& begin(Type type=Global);
     static void end();
@@ -29,9 +30,9 @@ private:
     PropertiesSystem();
     Q_DISABLE_COPY(PropertiesSystem)
 
-    static void addProperty(const QString& path, Property* property);
+    static void addProperty(const Name& path, Property* property);
 
-    static QHash<QString, Property*>& context();
+    static QHash<Name, Property*>& context();
     static FHandle defaultHandle();
     static Type& currentType();
 };

@@ -36,8 +36,8 @@ public:
 protected:
     friend class GtMaterialParameterBase;
     struct Shader {
-        QString file;
-        qint32 type;
+        QString File;
+        qint32 Type;
     };
 
     Stack<GtMaterialParameterBase*> parameters;

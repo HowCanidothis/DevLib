@@ -39,54 +39,80 @@ typedef Vector2F Point2F;
 
 class BoundingRect
 {
-    Point2F left;
-    Point2F right;
+    Point2F p_left;
+    Point2F p_right;
 public:
     BoundingRect() {}
-    BoundingRect(const Point2F& left, const Point2F& right) : left(left), right(right) {}
+    BoundingRect(const Point2F& left, const Point2F& right) : p_left(left), p_right(right) {}
 
-    const Point2F& getLeft() const { return left; }
-    const Point2F& getRight() const { return right; }
+    const Point2F& getLeft() const { return p_left; }
+    const Point2F& getRight() const { return p_right; }
     float width() const { return getWidth(); }
     float height() const { return getHeight(); }
-    float getWidth() const { return right.x() - left.x(); }
-    float getHeight() const { return right.y() - right.y(); }
+    float getWidth() const { return p_right.x() - p_left.x(); }
+    float getHeight() const { return p_right.y() - p_right.y(); }
 
     bool intersects(const BoundingRect& other) const {
-        return !(right.x() < other.left.x() || left.x() > other.right.x() ||
-                 right.y() < other.left.y() || left.y() > other.right.y()
+        return !(p_right.x() < other.p_left.x() || p_left.x() > other.p_right.x() ||
+                 p_right.y() < other.p_left.y() || p_left.y() > other.p_right.y()
                  );
     }
 };
 
 class BoundingBox
 {
-    Point3F _left;
-    Point3F _right;
+    Point3F p_left;
+    Point3F p_right;
 public:
     BoundingBox() {}
     BoundingBox(const Point3F& left, const Point3F& right) :
-        _left(left),
-        _right(right)
+        p_left(left),
+        p_right(right)
     {}
 
-    const Point3F& getLeft() const { return _left; }
-    const Point3F& getRight() const { return _right; }
-    float x() const { return _left.x(); }
-    float y() const { return _left.y(); }
-    float right() const { return _right.x(); }
-    float bottom() const { return _right.y(); }
-    float farthest() const { return _left.z(); }
-    float nearest() const { return _right.z(); }
+    void setNull() { p_left = p_right; }
+
+    const Point3F& getLeft() const { return p_left; }
+    const Point3F& getRight() const { return p_right; }
+    float x() const { return p_left.x(); }
+    float y() const { return p_left.y(); }
+    float right() const { return p_right.x(); }
+    float bottom() const { return p_right.y(); }
+    float farthest() const { return p_left.z(); }
+    float nearest() const { return p_right.z(); }
 
     bool intersects(const BoundingBox& other) const {
-        return !(_right.x() < other._left.x() || _left.x() > other._right.x() ||
-                 _right.y() < other._left.y() || _left.y() > other._right.y() ||
-                 _right.z() < other._left.z() || _left.z() > other._right.z()
+        return !(p_right.x() < other.p_left.x() || p_left.x() > other.p_right.x() ||
+                 p_right.y() < other.p_left.y() || p_left.y() > other.p_right.y() ||
+                 p_right.z() < other.p_left.z() || p_left.z() > other.p_right.z()
                  );
     }
+    BoundingBox& unite(const BoundingBox& other) {
+        const auto& otl = other.getLeft();
+        const auto& obr = other.getRight();
+        if(otl.x() < p_left.x()) {
+            p_left.setX(otl.x());
+        }
+        if(otl.y() < p_left.y()) {
+            p_left.setY(otl.y());
+        }
+        if(otl.z() < p_left.z()) {
+            p_left.setZ(otl.z());
+        }
 
-    bool isNull() const { return _left.isNull() && _right.isNull(); }
+        if(obr.x() > p_right.x()) {
+            p_right.setX(obr.x());
+        }
+        if(obr.y() > p_right.y()) {
+            p_right.setY(obr.y());
+        }
+        if(obr.z() > p_right.z()) {
+            p_right.setZ(obr.z());
+        }
+        return *this;
+    }
+
+    bool isNull() const { return p_right == p_left; }
 };
 
 typedef quint32 gTexID;

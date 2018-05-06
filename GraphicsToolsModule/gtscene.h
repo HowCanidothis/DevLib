@@ -3,15 +3,17 @@
 
 #include "Shared/internal.hpp"
 
-class GtObjectActor;
+class GtActor;
 
 class GtScene
 {
-    ArrayPointers<GtObjectActor> objects;
+    ArrayPointers<GtActor> objects;
+
 public:
     GtScene();
+    ~GtScene();
 
-    void addObject(GtObjectActor* object);
+    void addObject(GtActor* object);
 };
 
 #endif // GTSCENE_H

@@ -2,17 +2,17 @@
 #include "property.h"
 #include "Shared/stack.h"
 
-void PropertiesSystem::setValue(const QString& path, const QVariant& value)
+void PropertiesSystem::setValue(const Name& path, const QVariant& value)
 {
     auto find = context().find(path);
-    Q_ASSERT_X(find == context().end(), "PropertiesSystem::setValue", path.toLatin1().constData());
+    Q_ASSERT_X(find == context().end(), "PropertiesSystem::setValue", path.asString().toLatin1().constData());
     find.value()->setValue(value);
 }
 
-QVariant PropertiesSystem::getValue(const QString& path)
+QVariant PropertiesSystem::getValue(const Name& path)
 {
     auto find = context().find(path);
-    Q_ASSERT_X(find != context().end(), "PropertiesSystem::getValue", path.toLatin1().constData());
+    Q_ASSERT_X(find != context().end(), "PropertiesSystem::getValue", path.asString().toLatin1().constData());
     return find.value()->getValue();
 }
 
@@ -30,16 +30,16 @@ void PropertiesSystem::end()
     currentType() = Global;
 }
 
-void PropertiesSystem::addProperty(const QString& path, Property* property) {
+void PropertiesSystem::addProperty(const Name& path, Property* property) {
 
-    Q_ASSERT_X(!context().contains(path), "PropertiesSystem::setValue", path.toLatin1().constData());
+    Q_ASSERT_X(!context().contains(path), "PropertiesSystem::setValue", path.asString().toLatin1().constData());
     property->handle() = begin();
     context().insert(path, property);
 }
 
-QHash<QString, Property*>& PropertiesSystem::context()
+QHash<Name, Property*>& PropertiesSystem::context()
 {
-    static StackPointers<QHash<QString, Property*>> res(Max); return *res[currentType()];
+    static StackPointers<QHash<Name, Property*>> res(Max); return *res[currentType()];
 }
 
 PropertiesSystem::FHandle PropertiesSystem::defaultHandle()
