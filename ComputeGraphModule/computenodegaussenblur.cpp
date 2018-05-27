@@ -4,22 +4,22 @@
 
 ComputeNodeGaussenBlur::ComputeNodeGaussenBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , x_kernels(name+"/x_kernels", 21, 1, 255)
-    , y_kernels(name+"/y_kernels", 21, 1, 255)
+    , _xKernels(name+"/x_kernels", 21, 1, 255)
+    , _yKernels(name+"/y_kernels", 21, 1, 255)
 {
     PropertiesValidators v;
-    x_kernels.Validator() = v.OddValidator<quint32>();
-    y_kernels.Validator() = v.OddValidator<quint32>();
+    _xKernels.Validator() = v.OddValidator<quint32>();
+    _yKernels.Validator() = v.OddValidator<quint32>();
 }
 
 bool ComputeNodeGaussenBlur::onInputChanged(const cv::Mat* input)
 {
-    *output = input->clone();
+    *_output = input->clone();
     return true;
 }
 
 void ComputeNodeGaussenBlur::update(const cv::Mat* input)
 {
-    cv::Mat& mat = *output;
-    cv::GaussianBlur(*input, mat, {x_kernels,y_kernels}, 0,0);
+    cv::Mat& mat = *_output;
+    cv::GaussianBlur(*input, mat, {_xKernels,_yKernels}, 0,0);
 }

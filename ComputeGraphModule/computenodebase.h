@@ -23,27 +23,27 @@ protected:
     };
     DECL_FLAGS(Flags, Flag)
 
-    GtComputeNodeBase* input_node;
-    Array<GtComputeNodeBase*> linked_outputs;
-    ScopedPointer<cv::Mat> output;
-    Flags flags;
-    QString name;
-    BoolProperty enabled;
+    GtComputeNodeBase* _inputNode;
+    Array<GtComputeNodeBase*> _linkedOutputs;
+    ScopedPointer<cv::Mat> _output;
+    Flags _flags;
+    QString _name;
+    BoolProperty _enabled;
 
 public:
     GtComputeNodeBase(const QString& name, qint32 flags = F_Default);
     ~GtComputeNodeBase();
 
-    void setName(const QString& name);
-    const QString& getName() const;
+    void SetName(const QString& name);
+    const QString& GetName() const;
 
-    void setEnabled(bool flag);
-    bool isSkippeable() const { return input_node != nullptr; }
-    bool isEnabled() const { return enabled; }
+    void SetEnabled(bool flag);
+    bool IsSkippeable() const { return _inputNode != nullptr; }
+    bool IsEnabled() const { return _enabled; }
 
-    void compute(const cv::Mat* input);
-    void setInput(GtComputeNodeBase* node);
-    virtual const cv::Mat* getOutput() const;
+    void Compute(const cv::Mat* input);
+    void SetInput(GtComputeNodeBase* node);
+    virtual const cv::Mat* GetOutput() const;
 
 private:
     friend class GtComputeNodesTreeModel;

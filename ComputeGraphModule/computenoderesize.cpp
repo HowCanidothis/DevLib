@@ -4,20 +4,20 @@
 
 ComputeNodeResize::ComputeNodeResize(const QString& name)
     : GtComputeNodeBase(name)
-    , width(name+"/width", 64, 1, 600)
-    , height(name+"/height", 64, 1, 600)
+    , _width(name+"/width", 64, 1, 600)
+    , _height(name+"/height", 64, 1, 600)
 {
-    width.OnChange() = [this]{ updateLater(); };
-    height.OnChange() = [this]{ updateLater(); };
+    _width.OnChange() = [this]{ updateLater(); };
+    _height.OnChange() = [this]{ updateLater(); };
 }
 
 bool ComputeNodeResize::onInputChanged(const cv::Mat* input)
 {
-    output->create(cv::Size(width, height), input->type());
+    _output->create(cv::Size(_width, _height), input->type());
     return true;
 }
 
 void ComputeNodeResize::update(const cv::Mat* input)
 {
-    cv::resize(*input, *output, cv::Size(width, height), 0, 0, cv::INTER_LINEAR);
+    cv::resize(*input, *_output, cv::Size(_width, _height), 0, 0, cv::INTER_LINEAR);
 }

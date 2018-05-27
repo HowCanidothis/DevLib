@@ -15,7 +15,7 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    IntProperty ksize;
+    IntProperty _kSize;
 };
 
 #endif // COMPUTENODEMEDIUMBLUR_H

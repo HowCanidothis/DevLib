@@ -14,8 +14,8 @@ protected:
     bool onInputChanged(const cv::Mat* input);
 
 private:
-    ScopedPointer<class OpenniSensor> sensor;
-    bool initialized;
+    ScopedPointer<class OpenniSensor> _sensor;
+    bool _initialized;
 };
 
 

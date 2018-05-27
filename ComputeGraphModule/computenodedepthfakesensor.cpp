@@ -5,13 +5,13 @@
 
 ComputeNodeDepthFakeSensor::ComputeNodeDepthFakeSensor(const QString& name)
     : GtComputeNodeBase(name)
-    , input(nullptr)
+    , _input(nullptr)
 {
 }
 
-void ComputeNodeDepthFakeSensor::setInputStream(InputFrameStream* stream)
+void ComputeNodeDepthFakeSensor::SetInputStream(InputFrameStream* stream)
 {
-    input = stream;
+    _input = stream;
     onInputChanged(0);
 }
 
@@ -22,12 +22,12 @@ bool ComputeNodeDepthFakeSensor::onInputChanged(const cv::Mat*)
 
 void ComputeNodeDepthFakeSensor::update(const cv::Mat*)
 {
-    if(input->readFrame()) {
-        cv::Mat& output = *this->output;
-        qint32 old_type = output.type();
-        cv::MatSize old_size = output.size;
-        output = input->getOutput();
-        if(input->isValid() && old_type != output.type() || old_size != output.size) {
+    if(_input->ReadFrame()) {
+        cv::Mat& output = *this->_output;
+        qint32 oldType = output.type();
+        cv::MatSize oldSize = output.size;
+        output = _input->GetOutput();
+        if(_input->IsValid() && oldType != output.type() || oldSize != output.size) {
             outputChanged();
         }
     }

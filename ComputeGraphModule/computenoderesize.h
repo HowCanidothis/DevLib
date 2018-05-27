@@ -15,8 +15,8 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    UIntProperty width;
-    UIntProperty height;
+    UIntProperty _width;
+    UIntProperty _height;
 };
 
 #endif // COMPUTENODERESIZE_H

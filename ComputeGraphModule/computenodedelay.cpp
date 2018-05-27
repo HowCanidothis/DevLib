@@ -4,74 +4,74 @@
 
 ComputeNodeDelay::ComputeNodeDelay(const QString& name)
     : GtComputeNodeBase(name)
-    , back_buffer(new cv::Mat)
-    , motion_mask(nullptr)
-    , intensity(name+"/intensity", 0.1f, 0.f, 1.f)
+    , _backBuffer(new cv::Mat)
+    , _motionMask(nullptr)
+    , _intensity(name+"/intensity", 0.1f, 0.f, 1.f)
 {
 
 }
 
-void ComputeNodeDelay::setMotionMask(const cv::Mat* mask)
+void ComputeNodeDelay::SetMotionMask(const cv::Mat* mask)
 {
-    this->motion_mask = mask;
+    this->_motionMask = mask;
 }
 
 bool ComputeNodeDelay::onInputChanged(const cv::Mat* input)
 {
-    *output = input->clone();
-    back_buffer->create(input->size(), input->type());
+    *_output = input->clone();
+    _backBuffer->create(input->size(), input->type());
     return true;
 }
 
 void ComputeNodeDelay::update(const cv::Mat* in)
 {
-    const cv::Mat& previous = *this->output;
+    const cv::Mat& previous = *this->_output;
     const cv::Mat& input = *in;
-    cv::Mat& output = *back_buffer;
+    cv::Mat& output = *_backBuffer;
 
-    auto it_in = input.begin<quint16>();
-    auto it_in_e = input.end<quint16>();
-    auto it_prev = previous.begin<quint16>();
-    auto it_out = output.begin<quint16>();
+    auto itIn = input.begin<quint16>();
+    auto itInE = input.end<quint16>();
+    auto itPrev = previous.begin<quint16>();
+    auto itOut = output.begin<quint16>();
 
-    if(motion_mask == nullptr) {
-        for(; it_in != it_in_e; it_in++, it_prev++, it_out++) {
-            quint16& out_value = *it_out;
-            quint16 in_value = *it_in;
-            quint16 prev_value = *it_prev;
+    if(_motionMask == nullptr) {
+        for(; itIn != itInE; itIn++, itPrev++, itOut++) {
+            quint16& outValue = *itOut;
+            quint16 in_value = *itIn;
+            quint16 prevValue = *itPrev;
 
-            quint16 offset = (intensity * (in_value - prev_value));
-            out_value = prev_value + offset;
+            quint16 offset = (_intensity * (in_value - prevValue));
+            outValue = prevValue + offset;
         }
     }
     else {
-        const cv::Mat& mask = *this->motion_mask;
-        float x_ratio = float(mask.rows) / input.rows;
-        float y_ratio = float(mask.cols) / input.cols;
+        const cv::Mat& mask = *this->_motionMask;
+        float xRatio = float(mask.rows) / input.rows;
+        float yRatio = float(mask.cols) / input.cols;
         qint32 r = 0;
-        for(; it_in != it_in_e; it_in++, it_prev++, it_out++, r++) {
+        for(; itIn != itInE; itIn++, itPrev++, itOut++, r++) {
             qint32 row = r / input.cols;
             qint32 col = r % input.cols;
-            quint16 prev_value = *it_prev;
-            quint16& out_value = *it_out;
+            quint16 prevValue = *itPrev;
+            quint16& outValue = *itOut;
 
-            quint8 mask_value = mask.at<quint8>(x_ratio * row, y_ratio * col);
-            if(mask_value) {
-                quint16 in_value = *it_in;
+            quint8 maskValue = mask.at<quint8>(xRatio * row, yRatio * col);
+            if(maskValue) {
+                quint16 in_value = *itIn;
 
-                quint16 offset = (intensity * (in_value - prev_value));
-                out_value = prev_value + offset;
+                quint16 offset = (_intensity * (in_value - prevValue));
+                outValue = prevValue + offset;
             }
             else {
-                out_value = prev_value;
+                outValue = prevValue;
             }
         }
     }
 
-    cv::swap(*this->output, output);
+    cv::swap(*this->_output, output);
 }
 
 size_t ComputeNodeDelay::getMemoryUsage() const
 {
-    return GtComputeNodeBase::getMemoryUsage() + back_buffer->total() * back_buffer->elemSize();
+    return GtComputeNodeBase::getMemoryUsage() + _backBuffer->total() * _backBuffer->elemSize();
 }

@@ -11,92 +11,92 @@ void GtComputeGraphEvent::call()
     handler();
 }
 
-GtComputeGraph::GtComputeGraph(qint32 ideal_frame_time)
-    : ideal_frame_time(ideal_frame_time)
-    , fps_counter(new TimerClocks)
+GtComputeGraph::GtComputeGraph(qint32 idealFrameTime)
+    : _idealFrameTime(idealFrameTime)
+    , _fpsCounter(new TimerClocks)
 {
 
 }
 
 GtComputeGraph::~GtComputeGraph()
 {
-    events.Clear();
-    quit();
+    _events.Clear();
+    Quit();
 }
 
-void GtComputeGraph::asynch(GtComputeGraphEvent::FEventHandler handler)
+void GtComputeGraph::Asynch(GtComputeGraphEvent::FEventHandler handler)
 {
-    QMutexLocker locker(&events_mutex);
-    events.Push(new GtComputeGraphEvent(handler));
+    QMutexLocker locker(&_eventsMutex);
+    _events.Push(new GtComputeGraphEvent(handler));
 }
 
-void GtComputeGraph::processEvents()
+void GtComputeGraph::ProcessEvents()
 {
-    QMutexLocker locker(&events_mutex);
-    events_notified = false;
-    while(!events_notified) { // from spurious wakeups
-        events_processed.wait(&events_mutex);
+    QMutexLocker locker(&_eventsMutex);
+    _eventsNotified = false;
+    while(!_eventsNotified) { // from spurious wakeups
+        _eventsProcessed.wait(&_eventsMutex);
     }
 }
 
-void GtComputeGraph::start()
+void GtComputeGraph::Start()
 {
-    stoped = false;
+    _stoped = false;
     QThread::start();
 }
 
-void GtComputeGraph::quit()
+void GtComputeGraph::Quit()
 {
-    stoped = true;
+    _stoped = true;
     wait();
 }
 
-void GtComputeGraph::addCalculationGraph(GtComputeNodeBase* calculation_graph)
+void GtComputeGraph::AddCalculationGraph(GtComputeNodeBase* calculationGraph)
 {
     if(isRunning()) {
-        QMutexLocker locker(&mutex);
-        calculation_graphs.Append(calculation_graph);
+        QMutexLocker locker(&_mutex);
+        _calculationGraphs.Append(calculationGraph);
     } else {
-        calculation_graphs.Append(calculation_graph);
+        _calculationGraphs.Append(calculationGraph);
     }
 
 }
 
-double GtComputeGraph::getComputeTime()
+double GtComputeGraph::GetComputeTime()
 {
-    QMutexLocker locker(&fps_locker);
+    QMutexLocker locker(&_fpsLocker);
     return _computeTime;
 }
 
 void GtComputeGraph::run()
 {
-    while (!stoped) {
+    while (!_stoped) {
 
-        fps_counter->Bind();
+        _fpsCounter->Bind();
 
         {
-            QMutexLocker locker(&events_mutex);
-            for(GtComputeGraphEvent* event : events) {
+            QMutexLocker locker(&_eventsMutex);
+            for(GtComputeGraphEvent* event : _events) {
                 event->call();
             }
-            events.Clear();
-            events_notified = true;
-            events_processed.wakeAll();
+            _events.Clear();
+            _eventsNotified = true;
+            _eventsProcessed.wakeAll();
         }
         {
-            QMutexLocker locker(&mutex);
-            for(GtComputeNodeBase* node : calculation_graphs) {
-                node->compute(0);
+            QMutexLocker locker(&_mutex);
+            for(GtComputeNodeBase* node : _calculationGraphs) {
+                node->Compute(0);
             }
         }
 
         ;
 
-        qint32 msecs = Timer::ToMsecs(fps_counter->Release());
-        qint32 dif = ideal_frame_time - msecs;
+        qint32 msecs = Timer::ToMsecs(_fpsCounter->Release());
+        qint32 dif = _idealFrameTime - msecs;
         {
-            QMutexLocker locker(&fps_locker);
-            _computeTime = fps_counter->CalculateMeanValue();
+            QMutexLocker locker(&_fpsLocker);
+            _computeTime = _fpsCounter->CalculateMeanValue();
         }
 
         if(dif > 0) {

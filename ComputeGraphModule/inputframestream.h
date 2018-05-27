@@ -12,30 +12,30 @@ namespace cv {
 class InputFrameStream
 {
 public:
-    InputFrameStream(quint32 outputs_count);
+    InputFrameStream(quint32 outputsCount);
     ~InputFrameStream();
 
-    void moveToThread(QThread* thread);
-    void setFileName(const QString& name);
-    void setPause(bool flag) { paused = flag; }
-    bool isPaused() const { return paused; }
-    bool readFrame();
-    void repeat();
-    bool isFinished() const;
-    bool isValid() const;
+    void MoveToThread(QThread* thread);
+    void SetFileName(const QString& name);
+    void SetPause(bool flag) { _paused = flag; }
+    bool IsPaused() const { return _paused; }
+    bool ReadFrame();
+    void Repeat();
+    bool IsFinished() const;
+    bool IsValid() const;
 
-    const cv::Mat& getOutput() const;
+    const cv::Mat& GetOutput() const;
 
-    static QStringList getAvailableInputs();
+    static QStringList GetAvailableInputs();
 
 private:
-    ScopedPointer<cv::Mat> output;
-    ScopedPointer<QFile> input_file;
-    ScopedPointer<QDataStream> input_stream;
+    ScopedPointer<cv::Mat> _output;
+    ScopedPointer<QFile> _inputFile;
+    ScopedPointer<QDataStream> _inputStream;
 
-    quint32 outputs_count;
-    quint32 reading_counter;
-    bool paused;
+    quint32 _outputsCount;
+    quint32 _readingCounter;
+    bool _paused;
 };
 
 #endif // INPUTFRAMESTREAM_H

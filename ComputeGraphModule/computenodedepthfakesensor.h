@@ -10,7 +10,7 @@ class ComputeNodeDepthFakeSensor : public GtComputeNodeBase
 public:
     ComputeNodeDepthFakeSensor(const QString& name="ComputeNodeDepthFakeSensor");
 
-    void setInputStream(InputFrameStream* stream);
+    void SetInputStream(InputFrameStream* stream);
 
     // GtComputeNodeBase interface
 protected:
@@ -18,7 +18,7 @@ protected:
     virtual void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    InputFrameStream* input;
+    InputFrameStream* _input;
 };
 
 #endif // COMPUTENODEDEPTHFAKESENSOR_H

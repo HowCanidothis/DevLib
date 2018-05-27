@@ -3,19 +3,19 @@
 
 ComputeNodeBlur::ComputeNodeBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , x_kernels(name+"/x_kernels", 6, 1, 250)
-    , y_kernels(name+"/y_kernels", 6, 1, 250)
+    , _xKernels(name+"/x_kernels", 6, 1, 250)
+    , _yKernels(name+"/y_kernels", 6, 1, 250)
 {
 }
 
 bool ComputeNodeBlur::onInputChanged(const cv::Mat* input)
 {
-    *output = input->clone();
+    *_output = input->clone();
     return true;
 }
 
 void ComputeNodeBlur::update(const cv::Mat* input)
 {
-    cv::Mat& mat = *output;
-    cv::blur(*input, mat, {x_kernels,y_kernels}, {-1, -1});
+    cv::Mat& mat = *_output;
+    cv::blur(*input, mat, {_xKernels,_yKernels}, {-1, -1});
 }

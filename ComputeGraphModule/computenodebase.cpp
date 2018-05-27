@@ -2,14 +2,14 @@
 #include <opencv2/opencv.hpp>
 
 GtComputeNodeBase::GtComputeNodeBase(const QString& name, qint32 flags)
-    : input_node(nullptr)
-    , output(new cv::Mat)
-    , name(name)
-    , enabled(name+"/enabled", true)
+    : _inputNode(nullptr)
+    , _output(new cv::Mat)
+    , _name(name)
+    , _enabled(name+"/enabled", true)
 {
-    this->flags = flags;
+    this->_flags = flags;
 
-    enabled.OnChange() = [this]{ setEnabled(enabled); };
+    _enabled.OnChange() = [this]{ SetEnabled(_enabled); };
 }
 
 GtComputeNodeBase::~GtComputeNodeBase()
@@ -17,22 +17,22 @@ GtComputeNodeBase::~GtComputeNodeBase()
 
 }
 
-void GtComputeNodeBase::setName(const QString& name)
+void GtComputeNodeBase::SetName(const QString& name)
 {
-    this->name = name;
+    this->_name = name;
 }
 
-const QString&GtComputeNodeBase::getName() const
+const QString&GtComputeNodeBase::GetName() const
 {
-    return name;
+    return _name;
 }
 
-void GtComputeNodeBase::setEnabled(bool flag)
+void GtComputeNodeBase::SetEnabled(bool flag)
 {
-    if(isSkippeable()) {
+    if(IsSkippeable()) {
         LOGOUT;
-        log.Warning() << name << flag;
-        enabled = flag;
+        log.Warning() << _name << flag;
+        _enabled = flag;
         updateLater();
     }
     else {
@@ -40,69 +40,69 @@ void GtComputeNodeBase::setEnabled(bool flag)
     }
 }
 
-void GtComputeNodeBase::compute(const cv::Mat* input)
+void GtComputeNodeBase::Compute(const cv::Mat* input)
 {
 #ifndef QT_NO_DEBUG
-    QString name = this->name.section('(', 0, 0);
+    QString name = this->_name.section('(', 0, 0);
     name += QString("(%1 MB)").arg(QString::number(double(getMemoryUsage()) / 1000000));
-    setName(name);
+    SetName(name);
 #endif
-    if(flags.TestFlag(F_NeedUpdate)) {
-        if(!onInputChanged(input) && !isSkippeable()) {
+    if(_flags.TestFlag(F_NeedUpdate)) {
+        if(!onInputChanged(input) && !IsSkippeable()) {
             return;
         }
         outputChanged();
-        flags.UnsetFlag(F_NeedUpdate);
+        _flags.UnsetFlag(F_NeedUpdate);
     }
-    if(enabled) {
+    if(_enabled) {
         update(input);
     }
-    else if(!isSkippeable()) {
+    else if(!IsSkippeable()) {
         return;
     }
-    for(GtComputeNodeBase* node : linked_outputs)
-        node->compute(this->getOutput());
+    for(GtComputeNodeBase* node : _linkedOutputs)
+        node->Compute(this->GetOutput());
 
 }
 
-void GtComputeNodeBase::setInput(GtComputeNodeBase* node)
+void GtComputeNodeBase::SetInput(GtComputeNodeBase* node)
 {
-    if(input_node) {
-        input_node->linked_outputs.RemoveByPredicate([this](const GtComputeNodeBase* cn) {
+    if(_inputNode) {
+        _inputNode->_linkedOutputs.RemoveByPredicate([this](const GtComputeNodeBase* cn) {
 
             return cn == this;
         });
     }
-    input_node = node;
-    node->linked_outputs.Append(this);
+    _inputNode = node;
+    node->_linkedOutputs.Append(this);
     updateLater();
 }
 
-const cv::Mat* GtComputeNodeBase::getOutput() const
+const cv::Mat* GtComputeNodeBase::GetOutput() const
 {
-    return enabled ? output.data() : input_node ? input_node->getOutput() : nullptr;
+    return _enabled ? _output.data() : _inputNode ? _inputNode->GetOutput() : nullptr;
 }
 
 size_t GtComputeNodeBase::getMemoryUsage() const
 {
-    if(!isSkippeable()) {
-        size_t total = output->total() * output->elemSize();
+    if(!IsSkippeable()) {
+        size_t total = _output->total() * _output->elemSize();
         totalMemoryUsage(this, total);
         return total;
     }
-    return output->total() * output->elemSize();
+    return _output->total() * _output->elemSize();
 }
 
 void GtComputeNodeBase::updateLater()
 {
-    flags.SetFlag(F_NeedUpdate);
+    _flags.SetFlag(F_NeedUpdate);
 }
 
 void GtComputeNodeBase::outputChanged()
 {
-    for(GtComputeNodeBase* node : linked_outputs) {
-        if(!node->onInputChanged(this->getOutput()))
-            node->setEnabled(false);
+    for(GtComputeNodeBase* node : _linkedOutputs) {
+        if(!node->onInputChanged(this->GetOutput()))
+            node->SetEnabled(false);
         else
             node->outputChanged();
     }
@@ -110,15 +110,15 @@ void GtComputeNodeBase::outputChanged()
 
 void GtComputeNodeBase::setEnabledAllOutputs()
 {
-    for(GtComputeNodeBase* node : linked_outputs) {
-        node->setEnabled(!node->isEnabled());
+    for(GtComputeNodeBase* node : _linkedOutputs) {
+        node->SetEnabled(!node->IsEnabled());
         node->setEnabledAllOutputs();
     }
 }
 
 void GtComputeNodeBase::totalMemoryUsage(const GtComputeNodeBase* parent, size_t& result) const
 {
-    for(GtComputeNodeBase* node : parent->linked_outputs) {
+    for(GtComputeNodeBase* node : parent->_linkedOutputs) {
         result += node->getMemoryUsage();
         totalMemoryUsage(node, result);
     }

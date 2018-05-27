@@ -2,45 +2,45 @@
 #include <opencv2/opencv.hpp>
 
 MatGuard::MatGuard(const cv::Mat* target, QMutex& mutex)
-    : target(target)
-    , mutex(&mutex)
+    : _target(target)
+    , _mutex(&mutex)
 {
     mutex.lock();
 }
 
 MatGuard::~MatGuard()
 {
-    mutex->unlock();
+    _mutex->unlock();
 }
 
 GtComputeNodeThreadSafe::GtComputeNodeThreadSafe(const QString& name)
     : GtComputeNodeBase(name)
-    , back_buffer(new cv::Mat)
+    , _backBuffer(new cv::Mat)
 {
 
 }
 
 size_t GtComputeNodeThreadSafe::getMemoryUsage() const
 {
-    return GtComputeNodeBase::getMemoryUsage() + back_buffer->total() * back_buffer->elemSize();
+    return GtComputeNodeBase::getMemoryUsage() + _backBuffer->total() * _backBuffer->elemSize();
 }
 
 bool GtComputeNodeThreadSafe::onInputChanged(const cv::Mat* input)
 {
-    if(input->size() != output->size()) {
-        QMutexLocker locker(&mutex);
-        *output = input->clone();
-        *back_buffer = input->clone();
+    if(input->size() != _output->size()) {
+        QMutexLocker locker(&_mutex);
+        *_output = input->clone();
+        *_backBuffer = input->clone();
     }
     return true;
 }
 
 void GtComputeNodeThreadSafe::update(const cv::Mat* input)
 {
-    *back_buffer = input->clone();
+    *_backBuffer = input->clone();
 
     {
-        QMutexLocker locker(&mutex);
-        cv::swap(*back_buffer, *output);
+        QMutexLocker locker(&_mutex);
+        cv::swap(*_backBuffer, *_output);
     }
 }

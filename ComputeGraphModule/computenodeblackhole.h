@@ -15,7 +15,7 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    IntProperty min_height;
+    IntProperty _minHeight;
 };
 
 #endif // COMPUTENODEBLACKHOLE_H

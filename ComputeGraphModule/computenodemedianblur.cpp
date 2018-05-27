@@ -4,19 +4,19 @@
 
 ComputeNodeMedianBlur::ComputeNodeMedianBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , ksize(name+"/ksize", 5, 1, 7)
+    , _kSize(name+"/ksize", 5, 1, 7)
 {
-    ksize.Validator() = PropertiesValidators::OddValidator<qint32>();
+    _kSize.Validator() = PropertiesValidators::OddValidator<qint32>();
 }
 
 bool ComputeNodeMedianBlur::onInputChanged(const cv::Mat* input)
 {
-    *output = input->clone();
+    *_output = input->clone();
     return true;
 }
 
 void ComputeNodeMedianBlur::update(const cv::Mat* input)
 {
-    cv::Mat& mat = *output;
-    cv::medianBlur(*input, mat, ksize);
+    cv::Mat& mat = *_output;
+    cv::medianBlur(*input, mat, _kSize);
 }

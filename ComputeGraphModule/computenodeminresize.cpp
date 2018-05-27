@@ -3,37 +3,37 @@
 
 ComputeNodeMinResize::ComputeNodeMinResize(const QString& name)
     : GtComputeNodeBase(name)
-    , width(name+"/width", 64, 1, 600)
-    , height(name+"/height", 64, 1, 600)
+    , _width(name+"/width", 64, 1, 600)
+    , _height(name+"/height", 64, 1, 600)
 {
-    width.OnChange() = [this]{ updateLater(); };
-    height.OnChange() = [this]{ updateLater(); };
+    _width.OnChange() = [this]{ updateLater(); };
+    _height.OnChange() = [this]{ updateLater(); };
 }
 
 bool ComputeNodeMinResize::onInputChanged(const cv::Mat* input)
 {
-    output->create(cv::Size(width, height), input->type());
-    x_ratio = float(output->rows) / input->rows;
-    y_ratio = float(output->cols) / input->cols;
-    *output = UINT16_MAX;
+    _output->create(cv::Size(_width, _height), input->type());
+    _xRatio = float(_output->rows) / input->rows;
+    _yRatio = float(_output->cols) / input->cols;
+    *_output = UINT16_MAX;
     return true;
 }
 
 void ComputeNodeMinResize::update(const cv::Mat* in)
 {
     const cv::Mat& input = *in;
-    cv::Mat& output = *this->output;
+    cv::Mat& output = *this->_output;
     output = UINT16_MAX;
 
     qint32 r = 0;
-    auto it_in = input.begin<quint16>();
-    auto it_in_e = input.end<quint16>();
+    auto itIn = input.begin<quint16>();
+    auto itInE = input.end<quint16>();
 
-    for(; it_in != it_in_e; it_in++, r++) {
+    for(; itIn != itInE; itIn++, r++) {
         qint32 row = r / input.cols;
         qint32 col = r % input.cols;
-        const quint16& in_value = *it_in;
-        quint16& out_value = output.at<quint16>(x_ratio * row, y_ratio * col);
-        out_value = std::min(in_value, out_value);
+        const quint16& inValue = *itIn;
+        quint16& outValue = output.at<quint16>(_xRatio * row, _yRatio * col);
+        outValue = std::min(inValue, outValue);
     }
 }

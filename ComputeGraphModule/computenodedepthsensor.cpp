@@ -5,16 +5,16 @@
 
 ComputeNodeDepthSensor::ComputeNodeDepthSensor(const QString& name)
     : GtComputeNodeBase(name, F_Default | F_NeedUpdate)
-    , sensor(new OpenniSensor())
-    , initialized(false)
+    , _sensor(new OpenniSensor())
+    , _initialized(false)
 {
     qint32 tryings = 30;
-    while(tryings-- && !initialized) {
-        initialized = sensor->initialize() == openni::STATUS_OK;
+    while(tryings-- && !_initialized) {
+        _initialized = _sensor->Initialize() == openni::STATUS_OK;
         QThread::msleep(1);
     }
 
-    if(!initialized) {
+    if(!_initialized) {
         LOGOUT;
         log.Warning("Available sensors not detected");
     }
@@ -22,9 +22,9 @@ ComputeNodeDepthSensor::ComputeNodeDepthSensor(const QString& name)
 
 bool ComputeNodeDepthSensor::onInputChanged(const cv::Mat*)
 {
-    if(initialized) {
-        sensor->createOutput(openni::SENSOR_DEPTH, 0);
-        *output = sensor->getOutput(openni::SENSOR_DEPTH)->clone();
+    if(_initialized) {
+        _sensor->CreateOutput(openni::SENSOR_DEPTH, 0);
+        *_output = _sensor->GetOutput(openni::SENSOR_DEPTH)->clone();
         return true;
     }
     return false;
@@ -32,8 +32,8 @@ bool ComputeNodeDepthSensor::onInputChanged(const cv::Mat*)
 
 void ComputeNodeDepthSensor::update(const cv::Mat*)
 {
-    sensor->update();
-    sensor->getOutput(openni::SENSOR_DEPTH)->copyTo(*output);
+    _sensor->Update();
+    _sensor->GetOutput(openni::SENSOR_DEPTH)->copyTo(*_output);
 }
 
 

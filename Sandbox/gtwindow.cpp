@@ -51,18 +51,18 @@ GtWindow::GtWindow(QWidget *parent)
     ui->glout1->setShadowMapTechnique(true);
     ui->glout2->setShadowMapTechnique(true);
 
-    ui->cmbStream->addItems(input_file->getAvailableInputs());
+    ui->cmbStream->addItems(input_file->GetAvailableInputs());
 
     views.Push(ui->glout1);
     views.Push(ui->glout2);
 
-    ComputeGraphCore* compute_graph = ComputeGraphCore::instance();
-    compute_graph->initialize(input_file);
+    ComputeGraphCore* compute_graph = ComputeGraphCore::Instance();
+    compute_graph->Initialize(input_file);
 
-    ui->glout1->getOutputNode()->setInput(compute_graph->getComputeNodeBlurPost());
-    ui->glout2->getOutputNode()->setInput(compute_graph->getComputeNodeDelay());
+    ui->glout1->getOutputNode()->SetInput(compute_graph->GetComputeNodeBlurPost());
+    ui->glout2->getOutputNode()->SetInput(compute_graph->GetComputeNodeDelay());
 
-    ui->glout1->setVolcans(compute_graph->getComputeNodeVolcanoRecognition());
+    ui->glout1->setVolcans(compute_graph->GetComputeNodeVolcanoRecognition());
 
     ui->glout1->setFpsBoard(ui->lbl_fps1);
     ui->glout1->setCpsBoard(ui->lbl_cps);
@@ -81,14 +81,14 @@ GtWindow::GtWindow(QWidget *parent)
             SIGNAL(layoutChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)),
             ui->tree_nodes,
             SLOT(expandAll()));
-    model2->setRootNode(compute_graph->getRootNode(), compute_graph);
+    model2->setRootNode(compute_graph->GetRootNode(), compute_graph);
 
     for(GtWidget3D* w : views) {
         w->setContextMenuPolicy(Qt::ActionsContextMenu);
     }
 
-    for(GtComputeNodeBase* node : compute_graph->getNodes()) {
-        addChannel(node->getName(), node);
+    for(GtComputeNodeBase* node : compute_graph->GetNodes()) {
+        addChannel(node->GetName(), node);
     }
 
     QtQSSReader::InstallAndObserve(main_qss.ptr());
@@ -96,8 +96,8 @@ GtWindow::GtWindow(QWidget *parent)
 
 GtWindow::~GtWindow()
 {
-    ComputeGraphCore* compute_graph = ComputeGraphCore::instance();
-    compute_graph->quit();
+    ComputeGraphCore* compute_graph = ComputeGraphCore::Instance();
+    compute_graph->Quit();
     delete ui;
 }
 
@@ -113,7 +113,7 @@ void GtWindow::setCommonCamera(GtCamera* cam)
 
 void GtWindow::on_cmbStream_currentIndexChanged(const QString &arg1)
 {
-    input_file->setFileName(arg1);
+    input_file->SetFileName(arg1);
 }
 
 void GtWindow::onChannelTriggered()
@@ -122,8 +122,8 @@ void GtWindow::onChannelTriggered()
         QAction* action_channel = static_cast<QAction*>(sender());
         GtComputeNodeBase* compute_node = (GtComputeNodeBase*)action_channel->data().toLongLong();
         GtComputeNodeBase* out_node = w->getOutputNode();
-        ComputeGraphCore::instance()->asynch([compute_node,out_node](){ out_node->setInput(compute_node); });
-        ComputeGraphCore::instance()->processEvents();
+        ComputeGraphCore::Instance()->Asynch([compute_node,out_node](){ out_node->SetInput(compute_node); });
+        ComputeGraphCore::Instance()->ProcessEvents();
 
         GtComputeNodesTreeModel* model = (GtComputeNodesTreeModel*)ui->tree_nodes->model();
         model->update();
@@ -178,7 +178,7 @@ bool GtWindow::eventFilter(QObject* object, QEvent* event)
     case QEvent::KeyRelease: {
         QKeyEvent* key_event = static_cast<QKeyEvent*>(event);
         if(key_event->key() == Qt::Key_Return) {
-            input_file->setPause(!input_file->isPaused());
+            input_file->SetPause(!input_file->IsPaused());
             return true;
         }
         QWidget* view = static_cast<QWidget*>(object);

@@ -7,7 +7,7 @@
 class ComputeNodeMinResize : public GtComputeNodeBase
 {
 public:
-    ComputeNodeMinResize(const QString& name="ComputeNodeMinResize");
+    ComputeNodeMinResize(const QString& _name="ComputeNodeMinResize");
 
     // GtComputeNodeBase interface
 protected:
@@ -15,11 +15,11 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    UIntProperty width;
-    UIntProperty height;
+    UIntProperty _width;
+    UIntProperty _height;
 
-    float x_ratio;
-    float y_ratio;
+    float _xRatio;
+    float _yRatio;
 };
 
 

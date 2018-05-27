@@ -75,8 +75,8 @@ QVariant GtComputeNodesTreeModel::data(const QModelIndex& index, int role) const
     if(!index.isValid()) return QVariant();
 
     switch (role) {
-    case Qt::DisplayRole: return asNode(index)->node->getName();
-    case Qt::CheckStateRole: return asNode(index)->node->isEnabled() ? Qt::Checked : Qt::Unchecked;
+    case Qt::DisplayRole: return asNode(index)->node->GetName();
+    case Qt::CheckStateRole: return asNode(index)->node->IsEnabled() ? Qt::Checked : Qt::Unchecked;
     default:
         break;
     }
@@ -87,7 +87,7 @@ QVariant GtComputeNodesTreeModel::data(const QModelIndex& index, int role) const
 void GtComputeNodesTreeModel::addParentNode(TreeNode* parent_node)
 {
     auto& childs = getChilds(parent_node);
-    for(GtComputeNodeBase* child_node : parent_node->node->linked_outputs) {
+    for(GtComputeNodeBase* child_node : parent_node->node->_linkedOutputs) {
         TreeNode* tree_node = new TreeNode(parent_node, child_node);
         childs.InsertSortedUnique(tree_node);
         addParentNode(tree_node);
@@ -109,10 +109,10 @@ bool GtComputeNodesTreeModel::setData(const QModelIndex& index, const QVariant& 
     bool enabled = value.toBool();
 
     if(compute_graph) {
-        compute_graph->asynch([enabled, node]() { node->setEnabled(enabled); });
+        compute_graph->Asynch([enabled, node]() { node->SetEnabled(enabled); });
     }
     else {
-        node->setEnabled(enabled);
+        node->SetEnabled(enabled);
     }
 
     return true;

@@ -13,7 +13,7 @@ protected:
     bool onInputChanged(const cv::Mat* input);
 
 private:
-    void HorizontalInterpolation(const cv::Mat& input, cv::Mat& out);
+    void horizontalInterpolation(const cv::Mat& input, cv::Mat& out);
 };
 
 #endif // COMPUTENODEHOLESFILTER_H

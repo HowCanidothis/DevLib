@@ -4,15 +4,17 @@
 #include <QTimer>
 #include "Shared/shared_decl.h"
 
-OpenniSensor::OpenniSensor() : device(new openni::Device)
+OpenniSensor::OpenniSensor()
+    : _device(new openni::Device)
 {
-    for(openni::VideoStream*& input : inputs)
+    for(openni::VideoStream*& input : _inputs) {
         input = nullptr;
+    }
 }
 
 OpenniSensor::~OpenniSensor()
 {
-    for(openni::VideoStream* input : inputs) {
+    for(openni::VideoStream* input : _inputs) {
         if(input) {
             input->stop();
             input->destroy();
@@ -20,79 +22,79 @@ OpenniSensor::~OpenniSensor()
         }
     }
 
-    device->close();
+    _device->close();
 
     openni::OpenNI::shutdown();
 }
 
-openni::Status OpenniSensor::initialize()
+openni::Status OpenniSensor::Initialize()
 {
     LOGOUT;
-    rc = openni::OpenNI::initialize();
-    if (rc != openni::STATUS_OK)
+    _rc = openni::OpenNI::initialize();
+    if (_rc != openni::STATUS_OK)
     {
         log.Error("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
         openni::OpenNI::shutdown();
-        return rc;
+        return _rc;
     }
 
-    rc = device->open(openni::ANY_DEVICE);
-    if (rc != openni::STATUS_OK)
+    _rc = _device->open(openni::ANY_DEVICE);
+    if (_rc != openni::STATUS_OK)
     {
         log.Error("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
-        return rc;
+        return _rc;
     }
 
     log.Info("Openni initialized");
-    return rc;
+    return _rc;
 }
 
-bool OpenniSensor::createOutput(openni::SensorType type, qint32 video_mode_index)
+bool OpenniSensor::CreateOutput(openni::SensorType type, qint32 videoModeIndex)
 {
     LOGOUT;
-    if (device->getSensorInfo(type) != NULL)
+    if (_device->getSensorInfo(type) != NULL)
     {
         openni::VideoStream*& stream = input(type);
         if(stream != nullptr)
             return false;
         stream = new openni::VideoStream;
-        rc = stream->create(*device, type);
+        _rc = stream->create(*_device, type);
 
-        if (rc != openni::STATUS_OK)
+        if (_rc != openni::STATUS_OK)
         {
             log.Error("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
-        rc = stream->start();
-        if (rc != openni::STATUS_OK)
+        _rc = stream->start();
+        if (_rc != openni::STATUS_OK)
         {
             log.Error("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
-        const openni::SensorInfo& sensor_info = stream->getSensorInfo();
+        const openni::SensorInfo& sensorInfo = stream->getSensorInfo();
         log.Info("Supported video modes:\n");
-        const openni::Array<openni::VideoMode>& supported_modes = sensor_info.getSupportedVideoModes();
-        for(qint32 i(0); i < supported_modes.getSize(); i++) {
-            const openni::VideoMode& vm = supported_modes[i];
+        const openni::Array<openni::VideoMode>& supportedModes = sensorInfo.getSupportedVideoModes();
+        for(qint32 i(0); i < supportedModes.getSize(); i++) {
+            const openni::VideoMode& vm = supportedModes[i];
             log.Info("fps:%d pf:%d x:%d y:%d\n", vm.getFps(), vm.getPixelFormat(), vm.getResolutionX(), vm.getResolutionY());
         }
-        log.Info("chossed %d", video_mode_index);
+        log.Info("chossed %d", videoModeIndex);
 
-        stream->setVideoMode(supported_modes[video_mode_index]);
+        stream->setVideoMode(supportedModes[videoModeIndex]);
 
-        const openni::VideoMode& current_vm = supported_modes[video_mode_index];
+        const openni::VideoMode& currentVm = supportedModes[videoModeIndex];
         cv::Mat& img = output(type);
-        qint32 img_format;
-        switch(current_vm.getPixelFormat()) {
+        qint32 imgFormat;
+        switch(currentVm.getPixelFormat()) {
             case openni::PIXEL_FORMAT_DEPTH_1_MM:
             case openni::PIXEL_FORMAT_DEPTH_100_UM:
             case openni::PIXEL_FORMAT_SHIFT_9_2:
-            case openni::PIXEL_FORMAT_SHIFT_9_3: img_format = CV_16UC1; break;
+            case openni::PIXEL_FORMAT_SHIFT_9_3: imgFormat = CV_16UC1; break;
 
             // Color
-            case openni::PIXEL_FORMAT_RGB888: img_format = CV_8UC3; break;
+            case openni::PIXEL_FORMAT_RGB888: imgFormat = CV_8UC3; break;
             case openni::PIXEL_FORMAT_YUV422:
             case openni::PIXEL_FORMAT_GRAY8:
             case openni::PIXEL_FORMAT_GRAY16:
@@ -101,54 +103,53 @@ bool OpenniSensor::createOutput(openni::SensorType type, qint32 video_mode_index
 
             default: log.Error("unnacpected pixel format"); return false;
         };
-        img.create(cv::Size(current_vm.getResolutionX(), current_vm.getResolutionY()), img_format);
+        img.create(cv::Size(currentVm.getResolutionX(), currentVm.getResolutionY()), imgFormat);
 
         return true;
     }
     return false;
 }
 
-void OpenniSensor::start()
+void OpenniSensor::Start()
 {
-    for(openni::VideoStream* stream : inputs)
+    for(openni::VideoStream* stream : _inputs)
         if(stream != nullptr) {
             stream->start();
         }
 }
 
-void OpenniSensor::stop()
+void OpenniSensor::Stop()
 {
-    for(openni::VideoStream* stream : inputs)
+    for(openni::VideoStream* stream : _inputs)
         if(stream != nullptr) {
             stream->stop();
         }
 }
 
-void OpenniSensor::update()
+void OpenniSensor::Update()
 {
     int changedStreamDummy;
     for(qint32 i(0); i < MaxSensors; i++) {
 
-        openni::Status rc = openni::OpenNI::waitForAnyStream(inputs, MaxSensors, &changedStreamDummy, 0);
+        openni::Status rc = openni::OpenNI::waitForAnyStream(_inputs, MaxSensors, &changedStreamDummy, 0);
         if (rc != openni::STATUS_OK)
         {
             return;
         }
 
-        openni::VideoStream* stream = inputs[changedStreamDummy];
-        openni::VideoFrameRef frame_ref;
-        stream->readFrame(&frame_ref);
+        openni::VideoStream* stream = _inputs[changedStreamDummy];
+        openni::VideoFrameRef frameRef;
+        stream->readFrame(&frameRef);
         cv::Mat& img = output((openni::SensorType)(changedStreamDummy + 1));
         uchar* dst = img.data;
-        const openni::DepthPixel* src = (const openni::DepthPixel*)frame_ref.getData();
+        const openni::DepthPixel* src = (const openni::DepthPixel*)frameRef.getData();
 
         // Size
-        qint32 stride = frame_ref.getStrideInBytes();
+        qint32 stride = frameRef.getStrideInBytes();
 
         // Foreach lines.
-        for (int y = 0; y < frame_ref.getHeight(); ++y)
-        {
-            const openni::DepthPixel* p = src + frame_ref.getWidth() - 1;
+        for (int y = 0; y < frameRef.getHeight(); ++y) {
+            const openni::DepthPixel* p = src + frameRef.getWidth() - 1;
             const openni::DepthPixel* l = src - 1;
             openni::DepthPixel* linear = (openni::DepthPixel*)dst;
             while(p != l) {
@@ -158,7 +159,7 @@ void OpenniSensor::update()
             }
 
             // Offset.
-            src += frame_ref.getWidth();
+            src += frameRef.getWidth();
             dst += stride;
         }
     }

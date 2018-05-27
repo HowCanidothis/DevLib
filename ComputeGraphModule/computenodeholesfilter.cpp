@@ -9,16 +9,16 @@ ComputeNodeHolesFilter::ComputeNodeHolesFilter(const QString& name)
 
 void ComputeNodeHolesFilter::update(const cv::Mat* input)
 {
-    HorizontalInterpolation(*input, *output);
+    horizontalInterpolation(*input, *_output);
 }
 
 bool ComputeNodeHolesFilter::onInputChanged(const cv::Mat* input)
 {
-    *output = input->clone();
+    *_output = input->clone();
     return true;
 }
 
-void ComputeNodeHolesFilter::HorizontalInterpolation(const cv::Mat &input, cv::Mat &out)
+void ComputeNodeHolesFilter::horizontalInterpolation(const cv::Mat &input, cv::Mat &out)
 {
     // Sew the holes
     cv::Size s = input.size();

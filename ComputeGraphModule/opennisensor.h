@@ -16,25 +16,25 @@ public:
     OpenniSensor();
     ~OpenniSensor();
 
-    openni::Status initialize();
+    openni::Status Initialize();
 
-    bool createOutput(openni::SensorType, qint32 video_mode_index=0);
-    void update();
-    void start();
-    void stop();
+    bool CreateOutput(openni::SensorType, qint32 video_mode_index=0);
+    void Update();
+    void Start();
+    void Stop();
 
-    const cv::Mat* getOutput(openni::SensorType type) const { return &outputs[type - 1]; }
+    const cv::Mat* GetOutput(openni::SensorType type) const { return &_outputs[type - 1]; }
 
 private:
-    openni::VideoStream*& input(openni::SensorType type) { return inputs[type - 1]; }
-    cv::Mat& output(openni::SensorType type) { return outputs[type - 1]; }
+    openni::VideoStream*& input(openni::SensorType type) { return _inputs[type - 1]; }
+    cv::Mat& output(openni::SensorType type) { return _outputs[type - 1]; }
 
 private:
     enum { MaxSensors = openni::SENSOR_DEPTH };
-    openni::Device* device=nullptr;
-    openni::VideoStream* inputs[MaxSensors];
-    cv::Mat outputs[MaxSensors];
-    openni::Status rc;
+    openni::Device* _device=nullptr;
+    openni::VideoStream* _inputs[MaxSensors];
+    cv::Mat _outputs[MaxSensors];
+    openni::Status _rc;
 };
 
 #endif // OPENNITOIMAGE_H

@@ -7,7 +7,7 @@
 class ComputeNodeCrop : public GtComputeNodeBase
 {
 public:
-    ComputeNodeCrop(const QString& name="ComputeNodeCrop");
+    ComputeNodeCrop(const QString& _name="ComputeNodeCrop");
 
     // GtComputeNodeBase interface
 protected:
@@ -15,10 +15,10 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    IntProperty top;
-    IntProperty left;
-    IntProperty width;
-    IntProperty height;
+    IntProperty _top;
+    IntProperty _left;
+    IntProperty _width;
+    IntProperty _height;
 
     void validateRect(qint32& top, qint32& left, qint32& width, qint32& height, const cv::Mat* input);
 };

@@ -9,7 +9,7 @@ class ComputeNodeDelay : public GtComputeNodeBase
 public:
     ComputeNodeDelay(const QString& name="ComputeNodeDelay");
 
-    void setMotionMask(const cv::Mat* motion_mask);
+    void SetMotionMask(const cv::Mat* motionMask);
 
     // GtComputeNodeBase interface
 protected:
@@ -18,9 +18,9 @@ protected:
     size_t getMemoryUsage() const Q_DECL_OVERRIDE;
 
 private:
-    ScopedPointer<cv::Mat> back_buffer;
-    const cv::Mat* motion_mask;
-    FloatProperty intensity; // [0.f - 1.f]
+    ScopedPointer<cv::Mat> _backBuffer;
+    const cv::Mat* _motionMask;
+    FloatProperty _intensity; // [0.f - 1.f]
 };
 
 #endif // COMPUTENODEDELAY_H

@@ -243,11 +243,11 @@ void GtWidget3D::paintGL()
         {
             qint32 w, h;
             {
-                MatGuard guard = output_node->getThreadOutput();
-                static_frame_texture->Data()->setInput(guard.getOutput());
+                MatGuard guard = output_node->GetThreadOutput();
+                static_frame_texture->Data()->setInput(guard.GetOutput());
                 static_frame_texture->Data()->update();
-                w = guard.getOutput()->rows;
-                h = guard.getOutput()->cols;
+                w = guard.GetOutput()->rows;
+                h = guard.GetOutput()->cols;
             }
             if(vulcans) {
                 QMutexLocker locker(&vulcans->Mutex);
@@ -312,7 +312,7 @@ void GtWidget3D::paintGL()
         qint64 frame_time = fps_counter->Release();
         if(lft_board) lft_board->setText(Nanosecs(frame_time).ToString("lft:"));
         if(fps_board) fps_board->setText("fps: " + QString::number(fps_counter->CalculateMeanValue().TimesPerSecond(), 'f', 10));
-        if(compute_board) compute_board->setText("cps: " + QString::number(Nanosecs(ComputeGraphCore::instance()->getComputeTime()).TimesPerSecond(), 'f', 10));
+        if(compute_board) compute_board->setText("cps: " + QString::number(Nanosecs(ComputeGraphCore::Instance()->GetComputeTime()).TimesPerSecond(), 'f', 10));
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->getID());

@@ -20,47 +20,47 @@ ComputeGraphCore::ComputeGraphCore()
     : GtComputeGraph(30)
 {
     PropertiesSystem::Begin() = [this](const auto& setter) {
-        this->asynch(setter);
+        this->Asynch(setter);
     };
 
-    createNode<ComputeNodeBlackHole>(black_hole, "compute/ComputeNodeBlackHole");
-    createNode<ComputeNodeCrop>(crop, "compute/ComputeNodeCrop");
-    createNode<ComputeNodeDelay>(delay, "compute/ComputeNodeDelay");
-    createNode<ComputeNodeDepthFakeSensor>(sensor, "compute/ComputeNodeDepthFakeSensor");
-    createNode<ComputeNodeHolesFilter>(holes_filter, "compute/ComputeNodeHolesFilter");
-    createNode<ComputeNodeResize>(resize, "compute/ComputeNodeResize");
-    createNode<ComputeNodeVolcanoRecognition>(volcano, "compute/ComputeNodeVolcanoRecognition");
-    createNode<ComputeNodeBlur>(post_blur, "compute/ComputeNodeBlur");
-    createNode<ComputeNodeMinResize>(min_resize, "compute/ComputeNodeMinResize");
+    createNode<ComputeNodeBlackHole>(_blackHole, "compute/ComputeNodeBlackHole");
+    createNode<ComputeNodeCrop>(_crop, "compute/ComputeNodeCrop");
+    createNode<ComputeNodeDelay>(_delay, "compute/ComputeNodeDelay");
+    createNode<ComputeNodeDepthFakeSensor>(_sensor, "compute/ComputeNodeDepthFakeSensor");
+    createNode<ComputeNodeHolesFilter>(_holesFilter, "compute/ComputeNodeHolesFilter");
+    createNode<ComputeNodeResize>(_resize, "compute/ComputeNodeResize");
+    createNode<ComputeNodeVolcanoRecognition>(_volcano, "compute/ComputeNodeVolcanoRecognition");
+    createNode<ComputeNodeBlur>(_postBlur, "compute/ComputeNodeBlur");
+    createNode<ComputeNodeMinResize>(_minResize, "compute/ComputeNodeMinResize");
 
-    createNode<ComputeNodeDepthSensor>(depth_sensor, "compute/ComputeNodeDepthSensor");
+    createNode<ComputeNodeDepthSensor>(_depthSensor, "compute/ComputeNodeDepthSensor");
 
     PropertiesSystem::End();
 }
 
-void ComputeGraphCore::initialize(InputFrameStream* stream)
+void ComputeGraphCore::Initialize(InputFrameStream* stream)
 {
-    sensor->setInputStream(stream);
+    _sensor->SetInputStream(stream);
 
-    crop->setInput(getRootNode());
-    holes_filter->setInput(crop);
+    _crop->SetInput(GetRootNode());
+    _holesFilter->SetInput(_crop);
 
     // branch 1
-    min_resize->setInput(holes_filter);
-    black_hole->setInput(min_resize);
+    _minResize->SetInput(_holesFilter);
+    _blackHole->SetInput(_minResize);
 
     // branch 2
-    delay->setInput(holes_filter);
-    delay->setMotionMask(black_hole->getOutput());
+    _delay->SetInput(_holesFilter);
+    _delay->SetMotionMask(_blackHole->GetOutput());
 
-    volcano->setInput(delay);
+    _volcano->SetInput(_delay);
 
-    post_blur->setInput(delay);
+    _postBlur->SetInput(_delay);
 
-    addCalculationGraph(getRootNode());
+    AddCalculationGraph(GetRootNode());
 }
 
-GtComputeNodeBase* ComputeGraphCore::getRootNode() const
+GtComputeNodeBase* ComputeGraphCore::GetRootNode() const
 {
-    return sensor;
+    return _sensor;
 }

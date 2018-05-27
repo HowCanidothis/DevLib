@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     w.setCommonCamera(&cam);
     w.show();
 
-    ComputeGraphCore::instance()->start();
+    ComputeGraphCore::Instance()->Start();
 
     qInfo("Initializing windows completed");
 

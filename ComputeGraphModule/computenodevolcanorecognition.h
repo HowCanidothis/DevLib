@@ -11,11 +11,11 @@
 class ComputeNodeVolcanoRecognition : public GtComputeNodeBase
 {
 public:
-    ComputeNodeVolcanoRecognition(const QString& name="ComputeNodeVolcanoRecognition");
+    ComputeNodeVolcanoRecognition(const QString& _name="ComputeNodeVolcanoRecognition");
 
-    void setParams(qint32 ideal_frames_per_second);
+    void SetParams(qint32 idealFramesPerSecond);
 
-    qint32 getIdealFramesPerSecond() const { return ideal_frames_per_second; }
+    qint32 getIdealFramesPerSecond() const { return _idealFramesPerSecond; }
 
     QMutex Mutex;
     std::vector<cv::Vec3f> Circles;
@@ -26,11 +26,11 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    UIntProperty ideal_frames_per_second;
-    UIntProperty start_recognize_height;
-    UIntProperty range_recognize;
-    IntProperty epsilon_recognize;
-    quint32 current_frame;
+    UIntProperty _idealFramesPerSecond;
+    UIntProperty _startRecognizeHeight;
+    UIntProperty _rangeRecognize;
+    IntProperty _epsilonRecognize;
+    quint32 _currentFrame;
 };
 
 #endif // COMPUTENODEVOLCANORECOGNITION_H

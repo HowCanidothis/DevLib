@@ -15,8 +15,8 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    UIntProperty x_kernels;
-    UIntProperty y_kernels;
+    UIntProperty _xKernels;
+    UIntProperty _yKernels;
 };
 
 #endif // COMPUTENODEBLUR_H

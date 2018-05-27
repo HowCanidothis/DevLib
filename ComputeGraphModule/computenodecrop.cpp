@@ -4,26 +4,26 @@
 
 ComputeNodeCrop::ComputeNodeCrop(const QString& name)
     : GtComputeNodeBase(name)
-    , top(name+"/top", 0, 0, 600)
-    , left(name+"/left", 0, 0, 600)
-    , width(name+"/width", 300, 0, 600)
-    , height(name+"/height", 300, 0, 600)
+    , _top(name+"/top", 0, 0, 600)
+    , _left(name+"/left", 0, 0, 600)
+    , _width(name+"/width", 300, 0, 600)
+    , _height(name+"/height", 300, 0, 600)
 {
 }
 
 bool ComputeNodeCrop::onInputChanged(const cv::Mat* input)
 {
-    output->create(height, width, input->type());
+    _output->create(_height, _width, input->type());
 
     return true;
 }
 
 void ComputeNodeCrop::update(const cv::Mat* input)
 {
-    validateRect(top, left, width, height, input);
-    cv::Rect rect(left, top, width, height);
+    validateRect(_top, _left, _width, _height, input);
+    cv::Rect rect(_left, _top, _width, _height);
     cv::Mat roi = (*input)(rect);
-    *output = roi.clone();
+    *_output = roi.clone();
 }
 
 void ComputeNodeCrop::validateRect(qint32& top, qint32& left, qint32& width, qint32& height, const cv::Mat* input)
@@ -34,8 +34,8 @@ void ComputeNodeCrop::validateRect(qint32& top, qint32& left, qint32& width, qin
     top = qBound(0, top, max_height - 1);
     width = qBound(1, width, max_width - left);
     height = qBound(1, height, max_height - top);
-    if(output->rows != height || output->cols != width) {
-        output->create(height, width, input->type());
+    if(_output->rows != height || _output->cols != width) {
+        _output->create(height, width, input->type());
         outputChanged();
     }
 }

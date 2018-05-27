@@ -34,36 +34,38 @@ class GtComputeGraph : public QThread
 {
     Q_OBJECT
 public:
-    GtComputeGraph(qint32 ideal_frame_time = 30); //msecs
+    GtComputeGraph(qint32 idealFrameTime = 30); //msecs
     ~GtComputeGraph();
 
-    void asynch(GtComputeGraphEvent::FEventHandler handler);
-    void processEvents();
+    void Asynch(GtComputeGraphEvent::FEventHandler handler);
+    void ProcessEvents();
 
-    void start();
-    void quit();
+    void Start();
+    void Quit();
 
-    void addCalculationGraph(GtComputeNodeBase* calculation_graph);
+    void AddCalculationGraph(GtComputeNodeBase* calculationGraph);
 
-    double getComputeTime();
+    double GetComputeTime();
 
     // QThread interface
 protected:
     void run();
 
+    void start() {}
+
 private:
-    StackPointers<GtComputeGraphEvent> events;
-    Array<GtComputeNodeBase*> calculation_graphs;
-    QMutex mutex;
-    std::atomic_bool stoped;
-    qint32 ideal_frame_time;
+    StackPointers<GtComputeGraphEvent> _events;
+    Array<GtComputeNodeBase*> _calculationGraphs;
+    QMutex _mutex;
+    std::atomic_bool _stoped;
+    qint32 _idealFrameTime;
 
-    QWaitCondition events_processed;
-    QMutex events_mutex;
-    std::atomic_bool events_notified;
+    QWaitCondition _eventsProcessed;
+    QMutex _eventsMutex;
+    std::atomic_bool _eventsNotified;
 
-    QMutex fps_locker;
-    ScopedPointer<class TimerClocks> fps_counter;
+    QMutex _fpsLocker;
+    ScopedPointer<class TimerClocks> _fpsCounter;
     double _computeTime;
 };
 
