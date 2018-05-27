@@ -5,14 +5,14 @@
 void PropertiesSystem::setValue(const Name& path, const QVariant& value)
 {
     auto find = context().find(path);
-    Q_ASSERT_X(find == context().end(), "PropertiesSystem::setValue", path.asString().toLatin1().constData());
+    Q_ASSERT_X(find == context().end(), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
     find.value()->setValue(value);
 }
 
 QVariant PropertiesSystem::getValue(const Name& path)
 {
     auto find = context().find(path);
-    Q_ASSERT_X(find != context().end(), "PropertiesSystem::getValue", path.asString().toLatin1().constData());
+    Q_ASSERT_X(find != context().end(), "PropertiesSystem::getValue", path.AsString().toLatin1().constData());
     return find.value()->getValue();
 }
 
@@ -32,7 +32,7 @@ void PropertiesSystem::end()
 
 void PropertiesSystem::addProperty(const Name& path, Property* property) {
 
-    Q_ASSERT_X(!context().contains(path), "PropertiesSystem::setValue", path.asString().toLatin1().constData());
+    Q_ASSERT_X(!context().contains(path), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
     property->handle() = begin();
     context().insert(path, property);
 }

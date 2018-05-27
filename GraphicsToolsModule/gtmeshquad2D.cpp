@@ -3,16 +3,15 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 
-
-GtMeshQuad2D::GtMeshQuad2D()
+GtMeshQuad2D::GtMeshQuad2D(OpenGLFunctions* f)
     : GtMeshBase(GL_TRIANGLE_STRIP)
 {
-
+    initialize(f);
 }
 
-GtMeshQuad2D& GtMeshQuad2D::instance()
+GtMeshQuad2D* GtMeshQuad2D::instance(OpenGLFunctions* f)
 {
-    static GtMeshQuad2D res; return res;
+    static GtMeshQuad2D res(f); return &res;
 }
 
 bool GtMeshQuad2D::buildMesh()

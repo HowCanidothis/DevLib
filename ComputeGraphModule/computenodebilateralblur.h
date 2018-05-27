@@ -12,11 +12,13 @@ public:
 
     qint32 getD() const { return d; }
     qint32 getSigmas() const { return sigmas; }
+
     // GtComputeNodeBase interface
 protected:
     bool onInputChanged(const cv::Mat* input) Q_DECL_OVERRIDE;
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
+private:
     qint32 d;
     double sigmas;
 };

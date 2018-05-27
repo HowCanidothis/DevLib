@@ -25,10 +25,10 @@ public:
     Circle2D* add(float x, float y, float r, const Color3F& color);
     void remove(Circle2D* circle);
 
-    ArrayPointers<Circle2D>::iterator begin() { return circles.begin(); }
-    ArrayPointers<Circle2D>::iterator end() { return circles.end(); }
-    ArrayPointers<Circle2D>::const_iterator begin() const { return circles.begin(); }
-    ArrayPointers<Circle2D>::const_iterator end() const { return circles.end(); }
+    ArrayPointers<Circle2D>::iterator begin() { return circles.Begin(); }
+    ArrayPointers<Circle2D>::iterator end() { return circles.End(); }
+    ArrayPointers<Circle2D>::const_iterator begin() const { return circles.Begin(); }
+    ArrayPointers<Circle2D>::const_iterator end() const { return circles.End(); }
     // GtMeshBase interface
 protected:
     bool buildMesh() Q_DECL_OVERRIDE;

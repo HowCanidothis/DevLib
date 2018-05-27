@@ -34,7 +34,7 @@ void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
     LOGOUT;
     location = program->uniformLocation(name);
     if(location == -1) {
-        log.warning() << "location not found" << name;
+        log.Warning() << "location not found" << name;
     }
 }
 

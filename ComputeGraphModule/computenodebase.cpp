@@ -31,7 +31,7 @@ void GtComputeNodeBase::setEnabled(bool flag)
 {
     if(isSkippeable()) {
         LOGOUT;
-        log.warning() << name << flag;
+        log.Warning() << name << flag;
         enabled = flag;
         updateLater();
     }
@@ -47,12 +47,12 @@ void GtComputeNodeBase::compute(const cv::Mat* input)
     name += QString("(%1 MB)").arg(QString::number(double(getMemoryUsage()) / 1000000));
     setName(name);
 #endif
-    if(flags.testFlag(F_NeedUpdate)) {
+    if(flags.TestFlag(F_NeedUpdate)) {
         if(!onInputChanged(input) && !isSkippeable()) {
             return;
         }
         outputChanged();
-        flags.unsetFlag(F_NeedUpdate);
+        flags.UnsetFlag(F_NeedUpdate);
     }
     if(enabled) {
         update(input);
@@ -68,13 +68,13 @@ void GtComputeNodeBase::compute(const cv::Mat* input)
 void GtComputeNodeBase::setInput(GtComputeNodeBase* node)
 {
     if(input_node) {
-        input_node->linked_outputs.removeByPredicate([this](const GtComputeNodeBase* cn) {
+        input_node->linked_outputs.RemoveByPredicate([this](const GtComputeNodeBase* cn) {
 
             return cn == this;
         });
     }
     input_node = node;
-    node->linked_outputs.append(this);
+    node->linked_outputs.Append(this);
     updateLater();
 }
 
@@ -95,7 +95,7 @@ size_t GtComputeNodeBase::getMemoryUsage() const
 
 void GtComputeNodeBase::updateLater()
 {
-    flags.setFlag(F_NeedUpdate);
+    flags.SetFlag(F_NeedUpdate);
 }
 
 void GtComputeNodeBase::outputChanged()

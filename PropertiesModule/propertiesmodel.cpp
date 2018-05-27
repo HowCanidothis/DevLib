@@ -51,15 +51,15 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
     for(auto it(tree.begin()), e(tree.end()); it != e; it++, row++) {
         const Name& path = it.key();
         Item* current = root.data();
-        QStringList paths = path.asString().split('/', QString::SkipEmptyParts);
+        QStringList paths = path.AsString().split('/', QString::SkipEmptyParts);
         for(const QString& path : adapters::range(paths.begin(), paths.end() - 1)) {
             auto find = nodes.find(path);
 
             if(find == nodes.end()) {
                 Item* parent = current;
-                qint32 crow = current->childs.size();
+                qint32 crow = current->childs.Size();
                 current = new Item { path, parent, crow };
-                parent->childs.push(current);
+                parent->childs.Push(current);
                 nodes.insert(path, current);
             } else {
                 current = find.value();
@@ -67,9 +67,9 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
         }
 
         //Last editable item
-        qint32 crow = current->childs.size();
+        qint32 crow = current->childs.Size();
         Item* property_item = new Item { paths.last(), current, crow };
-        current->childs.push(property_item);
+        current->childs.Push(property_item);
         property_item->property = it.value();
     }
 }
@@ -100,7 +100,7 @@ void PropertiesModel::load(const QString& file_name)
     for(const QString& key : settings.allKeys()) {
         auto find = tree.find(Name(key));
         if(find == tree.end()) {
-            log.warning() << "unknown property" << key;
+            log.Warning() << "unknown property" << key;
         } else {
             find.value()->setValue(settings.value(key));
         }
@@ -112,9 +112,9 @@ void PropertiesModel::load(const QString& file_name)
 int PropertiesModel::rowCount(const QModelIndex& parent) const
 {
     if(parent.isValid()) {
-        return asItem(parent)->childs.size();
+        return asItem(parent)->childs.Size();
     }
-    return root->childs.size();
+    return root->childs.Size();
 }
 
 QVariant PropertiesModel::data(const QModelIndex& index, int role) const
@@ -191,10 +191,10 @@ QModelIndex PropertiesModel::index(int row, int column, const QModelIndex& paren
         return QModelIndex();
     }
     if(parent.isValid()) {
-        Item* item = asItem(parent)->childs.at(row);
+        Item* item = asItem(parent)->childs.At(row);
         return createIndex(row, column, item);
     }
-    Item* item = root->childs.at(row);
+    Item* item = root->childs.At(row);
     return createIndex(row, column, item);
 }
 

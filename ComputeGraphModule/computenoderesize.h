@@ -14,6 +14,7 @@ protected:
     bool onInputChanged(const cv::Mat* input) Q_DECL_OVERRIDE;
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
+private:
     UIntProperty width;
     UIntProperty height;
 };

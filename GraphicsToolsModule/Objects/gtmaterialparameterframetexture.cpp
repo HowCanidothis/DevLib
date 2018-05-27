@@ -1,5 +1,7 @@
 #include "gtmaterialparameterframetexture.h"
 
+#ifdef OPENCV
+
 #include <QOpenGLShaderProgram>
 
 #include "../gtframetexture.h"
@@ -19,3 +21,5 @@ GtMaterialParameterFrameTexture::FDelegate GtMaterialParameterFrameTexture::appl
         program->setUniformValue(loc, unit);
     };
 }
+
+#endif

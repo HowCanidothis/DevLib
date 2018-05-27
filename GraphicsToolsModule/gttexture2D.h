@@ -1,6 +1,6 @@
 #ifndef GTTEXTURE_H
 #define GTTEXTURE_H
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 #include "ResourcesModule/internal.hpp"
 
 struct GtTextureFormat

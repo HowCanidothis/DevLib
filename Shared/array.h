@@ -8,120 +8,212 @@
 template<class T>
 class MiddleAlgoData {
 public:
-    MiddleAlgoData(qint32 reserve) {
-        alloc(reserve, 0);
+    MiddleAlgoData(qint32 reserve)
+    {
+        Alloc(reserve, 0);
     }
-    MiddleAlgoData() : _begin(nullptr), _end(nullptr), _first(nullptr), _count(0) {}
-    MiddleAlgoData(std::initializer_list<T> args) : _begin(nullptr), _end(nullptr), _first(nullptr), _count(args.size()) {
+    MiddleAlgoData()
+        : _begin(nullptr)
+        , _end(nullptr)
+        , _first(nullptr)
+        , _count(0)
+    {}
+    MiddleAlgoData(std::initializer_list<T> args)
+        : _begin(nullptr)
+        , _end(nullptr)
+        , _first(nullptr)
+        , _count(args.size())
+    {
         if(args.size()) {
-            alloc(args.size(), 0);
-            memMove(_first, args.begin(), args.size());
+            Alloc(args.size(), 0);
+            MemMove(_first, args.begin(), args.size());
         }
     }
-    ~MiddleAlgoData() { free(begin());  }
+    ~MiddleAlgoData()
+    {
+        Free(Begin());
+    }
 
-    void clear() { _count = 0; _first = _begin + (reserved() >> 1); }
-    void alloc(count_t count, count_t offset) {
-        _begin = (T*)malloc(count * sizeof(T));
+    void Clear()
+    {
+        _count = 0;
+        _first = _begin + (Reserved() >> 1);
+    }
+    void Alloc(count_t count, count_t offset)
+    {
+        _begin = (T*)::malloc(count * sizeof(T));
         _end = _begin + count;
         _first = _begin + offset;
     }
-    void set(T* ptr, const T& value) { *ptr = value; } //convenient func
-    void free(T* mem) { ::free(mem); }
-    void memMove(T* dst, const T* src, count_t count) {
-        if(dst != src) ::memmove(dst, src, count * sizeof(T)); //'if' cans defend from unnecessary implicit calls from append(const T* v, count_t count)
+    //convenient func
+    void Set(T* ptr, const T& value)
+    {
+        *ptr = value;
     }
-    void realloc(count_t count, count_t offset) {
-        count = count ? count : defaultReserved();
-        if(!size()) {
-            free(begin());
-            alloc(count, offset);
+    void Free(T* mem)
+    {
+        ::free(mem);
+    }
+    void MemMove(T* dst, const T* src, count_t count)
+    {
+        if(dst != src) {
+            ::memmove(dst, src, count * sizeof(T)); //'if' cans defend from unnecessary implicit calls from append(const T* v, count_t count)
+        }
+    }
+    void Realloc(count_t count, count_t offset)
+    {
+        count = count ? count : DefaultReserved();
+        if(!Size()) {
+            Free(Begin());
+            Alloc(count, offset);
         }
         else {
-            T* old_begin = begin();
-            T* old_first = first();
-            alloc(count, offset);
-            alignMem(old_first, offset);
-            free(old_begin);
+            T* old_begin = Begin();
+            T* old_first = First();
+            Alloc(count, offset);
+            AlignMem(old_first, offset);
+            Free(old_begin);
         }
     }
-    void dblRealloc() {
-        count_t reserv = reserved();
-        if(reserv > 1000000)
-            realloc(reserv += 5000000, 250000);
-        else
-            realloc(reserv << 1, reserv >> 1);
+    void DblRealloc()
+    {
+        count_t reserv = Reserved();
+        if(reserv > 1000000) {
+            Realloc(reserv += 5000000, 250000);
+        }
+        else {
+            Realloc(reserv << 1, reserv >> 1);
+        }
     }
-    void resize(count_t size) { if(size > (reserved() - (first() - begin()))) realloc(size, 0); _count = size; }
-    void alignMem(T* oldf, count_t offset) { //align to center
+    void Resize(count_t size)
+    {
+        if(size > (Reserved() - (First() - Begin()))) {
+            Realloc(size, 0);
+        }
+        _count = size;
+    }
+    //align to center
+    void AlignMem(T* oldf, count_t offset)
+    {
         _first = _begin + offset;
-        memMove(first(), oldf, size());
+        MemMove(First(), oldf, Size());
     }
 
-    void ensureLeft(){ if(first() == begin()) dblRealloc(); }
-    void ensureRight(){ if(last() == end())  dblRealloc(); }
+    void EnsureLeft()
+    {
+        if(First() == Begin()) {
+            DblRealloc();
+        }
+    }
+    void EnsureRight()
+    {
+        if(Last() == End()) {
+            DblRealloc();
+        }
+    }
 
-    count_t reserved() const { return _end - _begin; }
-    count_t size() const { return _count; }
-    void truncate(count_t new_size) { _count = new_size; }
-    void insert(T* before, const T& v) {
-        if(before == last()) pushBack(v);
-        else if(before == first()) pushFront(v);
+    count_t Reserved() const { return _end - _begin; }
+    count_t Size() const { return _count; }
+    void Truncate(count_t newSize)
+    {
+        _count = newSize;
+    }
+    void Insert(T* before, const T& v)
+    {
+        if(before == Last()) {
+            PushBack(v);
+        }
+        else if(before == First()) {
+            PushFront(v);
+        }
         else {
-            ptrdiff_t to_left = before - first();
-            ptrdiff_t to_right = last() - before;
-            if(to_right < to_left) {
-                ensureRight();
-                memMove(first() + to_left + 1, first() + to_left, to_right);
+            ptrdiff_t toLeft = before - First();
+            ptrdiff_t toRight = Last() - before;
+            if(toRight < toLeft) {
+                EnsureRight();
+                MemMove(First() + toLeft + 1, First() + toLeft, toRight);
             }
             else {
-                ensureLeft();
-                memMove(first() - 1, first(), to_left);
+                EnsureLeft();
+                MemMove(First() - 1, First(), toLeft);
                 --_first;
             }
             _count++;
-            set(_first + to_left, v);
+            Set(_first + toLeft, v);
         }
     }
-    void append(const T* v, count_t count) {
-        if(!size()) { //empty
-            if(reserved() < count) realloc(count, 0);
-            else _first = begin();
+    void Append(const T* v, count_t count)
+    {
+        if(!Size()) { //empty
+            if(Reserved() < count) {
+                Realloc(count, 0);
+            }
+            else {
+                _first = Begin();
+            }
         }
-        else if(end() - last() < count) { //ensureRight return false
-            realloc(reserved() + count, 0);
+        else if(End() - Last() < count) { //ensureRight return false
+            Realloc(Reserved() + count, 0);
         }
-        memMove(_first + size(), v, count);
+        MemMove(_first + Size(), v, count);
         _count += count;
     }
-    void debug(const char *msg="") { qDebug() << msg; for(qint32 i : adapters::range(begin(), end())) qDebug() << i; }
-    void pushBack(const T& v) { ensureRight(); set(last(), v); _count++; }
-    void pushFront(const T& v) { ensureLeft(); set(--_first, v); _count++; }
-    void remove(T* target) {
-        if(target == last() - 1) popBack();
-        else if(target == first()) popFront();
+    void Debug(const char* msg="")
+    {
+        qDebug() << msg;
+        for(qint32 i : adapters::range(Begin(), End())) {
+            qDebug() << i;
+        }
+    }
+    void PushBack(const T& v)
+    {
+        EnsureRight(); Set(Last(), v);
+        _count++;
+    }
+    void PushFront(const T& v)
+    {
+        EnsureLeft();
+        Set(--_first, v);
+        _count++;
+    }
+    void Remove(T* target)
+    {
+        if(target == Last() - 1) {
+            PopBack();
+        }
+        else if(target == First()) {
+            PopFront();
+        }
         else {
-            ptrdiff_t to_left = target - first();
-            ptrdiff_t to_right = last() - target;
-            if(to_right < to_left)
-                memMove(target, target + 1, to_right);
+            ptrdiff_t toLeft = target - First();
+            ptrdiff_t toRight = Last() - target;
+            if(toRight < toLeft)
+                MemMove(target, target + 1, toRight);
             else {
-                memMove(first() + 1, first(), to_left);
+                MemMove(First() + 1, First(), toLeft);
                 ++_first;
             }
             _count--;
         }
     }
-    void popFront(){ _first++; _count--; }
-    void popBack(){ _count--; }
-    bool isEmpty() const { return !_count; }
+    void PopFront()
+    {
+        _first++;
+        _count--;
+    }
+    void PopBack()
+    {
+        _count--;
+    }
+    bool IsEmpty() const { return !_count; }
 
-    T* begin() const { return _begin; }
-    T* first() const { return _first; }
-    T* last() const { return _first + _count; }
-    T* end() const { return _end; }
+    T* Begin() const { return _begin; }
+    T* First() const { return _first; }
+    T* Last() const { return _first + _count; }
+    T* End() const { return _end; }
 
-    static count_t defaultReserved() { return 10; }
+    static count_t DefaultReserved() { return 10; }
+
 private:
     T* _begin;
     T* _end;
@@ -139,97 +231,209 @@ public:
     typedef T* iterator;
     typedef const T* const_iterator;
 
-    ArrayCommon() : d(new MiddleAlgoData<T>()) {}
-    ArrayCommon(std::initializer_list<T> args) : d(new MiddleAlgoData<T>(args)) {}
-    ArrayCommon(const ArrayCommon& other) : d(other.d) {}
+    ArrayCommon()
+        : _d(new MiddleAlgoData<T>())
+    {}
+    ArrayCommon(std::initializer_list<T> args)
+        : _d(new MiddleAlgoData<T>(args))
+    {}
+    ArrayCommon(const ArrayCommon& other)
+        : _d(other._d)
+    {}
 
-    void sort() { detachCopy(); std::sort(begin(), end()); }
-
-    template<typename Value, typename Predicate> iterator findSortedByPredicate(const Value& value, Predicate predicate) {
-        return std::lower_bound(begin(), end(), value, predicate);
-    }
-
-    template<typename Value, typename Predicate> const_iterator findSortedByPredicate(const Value& value, Predicate predicate) const {
-        return std::lower_bound(begin(), end(), value, predicate);
-    }
-
-    bool containsSorted(const T& value) const {
-        return this->findSorted(value) != this->end();
+    void Sort()
+    {
+        detachCopy();
+        std::sort(Begin(), End());
     }
 
-    iterator findSorted(const T& value) {
-        return std::lower_bound(begin(), end(), value);
+    template<typename Value, typename Predicate>
+    iterator FindSortedByPredicate(const Value& value, Predicate predicate)
+    {
+        return std::lower_bound(Begin(), End(), value, predicate);
     }
-    const_iterator findSorted(const T& value) const {
-        return std::lower_bound(begin(), end(), value);
+
+    template<typename Value, typename Predicate>
+    const_iterator FindSortedByPredicate(const Value& value, Predicate predicate) const
+    {
+        return std::lower_bound(Begin(), End(), value, predicate);
     }
-    void insertSortedUnique(const T& value) {
-        auto it = std::lower_bound(begin(), end(), value);
-        if(it == end() || *it != value)
-            insert(it, value);
+
+    bool ContainsSorted(const T& value) const
+    {
+        return this->FindSorted(value) != this->End();
     }
-    void insertSortedMulty(const T& value) {
-        auto it = std::lower_bound(begin(), end(), value);
-        insert(it, value);
+
+    iterator FindSorted(const T& value)
+    {
+        return std::lower_bound(Begin(), End(), value);
     }
-    void insert(iterator before, const T& value) { detachCopy(); d->insert(before, value); }
-    void append(const T* src, count_t count) {
-        if(count) {
-            detachCopy();
-            d->append(src, count);
+
+    const_iterator FindSorted(const T& value) const
+    {
+        return std::lower_bound(Begin(), End(), value);
+    }
+
+    void InsertSortedUnique(const T& value)
+    {
+        auto it = std::lower_bound(Begin(), End(), value);
+        if(it == End() || *it != value) {
+            Insert(it, value);
         }
     }
-    void append(const T& value) { detachCopy(); d->pushBack(value); }
-    void remove(const T& value) {
-        auto rm = std::find_if(begin(), end(), [value](const T& v) { return value == v; });
-        if(rm != end()){ detachCopy(); d->remove(rm); }
+    void InsertSortedMulty(const T& value)
+    {
+        auto it = std::lower_bound(Begin(), End(), value);
+        Insert(it, value);
     }
-    template<typename Predicate> void removeByPredicate(Predicate predicate) {
-        auto e = std::remove_if(begin(), end(), predicate);
-        if(e != end()){ detachCopy(); d->truncate(e - begin()); }
+    void Insert(iterator before, const T& value)
+    {
+        detachCopy();
+        _d->Insert(before, value);
     }
-    void removeByIndex(count_t index) { detachCopy(); Q_ASSERT(index >= 0 && index < size()); d->remove(begin() + index); }
-    void remove(iterator it) { detachCopy(); Q_ASSERT(it != this->end()); removeByIndex(std::distance(begin(), it)); }
-    void clear() { detachClear(); }
-    void resize(count_t size) { detachCopy(); d->resize(size); }
-    void reserve(count_t count) {
+    void Append(const T* src, count_t count) {
+        if(count) {
+            detachCopy();
+            _d->Append(src, count);
+        }
+    }
+    void Append(const T& value)
+    {
+        detachCopy();
+        _d->PushBack(value);
+    }
+    void Remove(const T& value)
+    {
+        auto rm = std::find_if(Begin(), End(), [value](const T& v) { return value == v; });
+        if(rm != End()) {
+            detachCopy();
+            _d->Remove(rm);
+        }
+    }
+    template<typename Predicate>
+    void RemoveByPredicate(Predicate predicate)
+    {
+        auto e = std::remove_if(Begin(), End(), predicate);
+        if(e != End()) {
+            detachCopy();
+            _d->Truncate(e - Begin());
+        }
+    }
+    void RemoveByIndex(count_t index)
+    {
+        Q_ASSERT(index >= 0 && index < Size());
+        detachCopy();
+        _d->Remove(Begin() + index);
+    }
+    void Remove(iterator it)
+    {
+        Q_ASSERT(it != this->End());
+        detachCopy();
+        RemoveByIndex(std::distance(Begin(), it));
+    }
+    void Clear()
+    {
+        detachClear();
+    }
+    void Resize(count_t size)
+    {
+        detachCopy();
+        _d->Resize(size);
+    }
+    void Reserve(count_t count)
+    {
         Q_ASSERT(count > 0);
-        if(count < size())
-            resize(count);
-        else
-            d->realloc(count, 0);
+        if(count < Size()) {
+            Resize(count);
+        }
+        else {
+            _d->Realloc(count, 0);
+        }
     }
 
-    bool isEmpty() const { return !size(); }
-    count_t size() const { return d->size(); }
-    count_t reserved() const { return d->reserved(); }
+    bool IsEmpty() const
+    {
+        return !Size();
+    }
+    count_t Size() const
+    {
+        return _d->Size();
+    }
+    count_t Reserved() const
+    {
+        return _d->Reserved();
+    }
 
-    T& at(count_t index) { detachCopy(); return *(begin() + index); }
-    const T& at(count_t index) const { return *(begin() + index); }
-    T& last() { detachCopy(); Q_ASSERT(!isEmpty()); return *(end() - 1); }
-    const T& last() const { Q_ASSERT(!isEmpty()); return *(end() - 1);  }
-    T& first() { detachCopy(); Q_ASSERT(!isEmpty()); return *begin(); }
-    const T& first() const { Q_ASSERT(!isEmpty()); return *begin();  }
+    T& At(count_t index)
+    {
+        detachCopy();
+        return *(Begin() + index);
+    }
+    const T& At(count_t index) const
+    {
+        return *(Begin() + index);
+    }
+    T& Last()
+    {
+        Q_ASSERT(!IsEmpty());
+        detachCopy();
+        return *(End() - 1);
+    }
+    const T& Last() const
+    {
+        Q_ASSERT(!IsEmpty());
+        return *(End() - 1);
+    }
+    T& First()
+    {
+        Q_ASSERT(!IsEmpty());
+        detachCopy();
+        return *Begin();
+    }
+    const T& First() const
+    {
+        Q_ASSERT(!IsEmpty());
+        return *Begin();
+    }
 
-    iterator begin() { detachCopy(); return d->first(); }
-    iterator end() { detachCopy(); return d->last(); }
-    const_iterator begin() const { return d->first(); }
-    const_iterator end() const { return d->last(); }
-    const_iterator cbegin() const { return d->first(); }
-    const_iterator cend() const { return d->last(); }
+    iterator Begin()
+    {
+        detachCopy();
+        return _d->First();
+    }
+    iterator End()
+    {
+        detachCopy();
+        return _d->Last();
+    }
+    const_iterator Begin() const { return _d->First(); }
+    const_iterator End() const { return _d->Last(); }
+    const_iterator CBegin() const { return _d->First(); }
+    const_iterator CEnd() const { return _d->Last(); }
+    iterator begin() { return Begin(); }
+    iterator end() { return End(); }
+    const_iterator begin() const { return Begin(); }
+    const_iterator end() const { return End(); }
 
-    T& operator[](qint32 index) { detachCopy(); return this->at(index); }
-    const T& operator[](qint32 index) const { return this->at(index); }
+    T& operator[](qint32 index)
+    {
+        detachCopy();
+        return this->At(index);
+    }
+    const T& operator[](qint32 index) const
+    {
+        return this->At(index);
+    }
 protected:
-    SharedPtr<MiddleAlgoData<T> > d;
+    SharedPtr<MiddleAlgoData<T> > _d;
 
 protected:
     void detachClear() {
-        if(d.use_count() > 1) d.reset(new MiddleAlgoData<T>(d->size()));
-        else d->clear();
+        if(_d.use_count() > 1) _d.reset(new MiddleAlgoData<T>(_d->Size()));
+        else _d->Clear();
     }
     void detachCopy() {
-        Q_ASSERT_X(!(d.use_count() > 1), "detachCopy", "restricted behavior");
+        Q_ASSERT_X(!(_d.use_count() > 1), "detachCopy", "restricted behavior");
     }
 };
 
@@ -238,9 +442,15 @@ class Array : public ArrayCommon<T>
 {
     typedef ArrayCommon<T> Super;
 public:
-    Array() : Super() {}
-    Array(std::initializer_list<T> args) : Super(args) {}
-    Array(const ArrayCommon<T>& other) : Super(other) {}
+    Array()
+        : Super()
+    {}
+    Array(std::initializer_list<T> args)
+        : Super(args)
+    {}
+    Array(const ArrayCommon<T>& other)
+        : Super(other)
+    {}
 };
 
 template<class T>
@@ -248,29 +458,37 @@ class ArrayPointers : public ArrayCommon<T*>
 {
     typedef ArrayCommon<T*> Super;
 public:
-    ArrayPointers() : Super() {}
+    ArrayPointers()
+        : Super()
+    {}
     ~ArrayPointers() {
-        for(T* v : *this)
+        for(T* v : *this) {
             delete v;
-    }
-
-    void clear() {
-        for(T* v : *this)
-            delete v;
-        Super::clear();
-    }
-
-    template<typename ... Args> void resizeAndAllocate(qint32 size, Args ... args) {
-        qint32 old = this->size();
-        if(size < old) {
-            for(T* ptr : adapters::range(begin() + size, end()))
-                delete ptr;
-            resize(size);
         }
-        else if(size > old){
-            resize(size);
-            for(T*& ptr : adapters::range(begin() + old, end()))
+    }
+
+    void Clear()
+    {
+        for(T* v : *this) {
+            delete v;
+        }
+        Super::Clear();
+    }
+
+    template<typename ... Args> void resizeAndAllocate(qint32 size, Args ... args)
+    {
+        qint32 old = this->Size();
+        if(size < old) {
+            for(T* ptr : adapters::range(Begin() + size, End())) {
+                delete ptr;
+            }
+            Resize(size);
+        }
+        else if(size > old) {
+            Resize(size);
+            for(T*& ptr : adapters::range(Begin() + old, End())) {
                 ptr = new T(args...);
+            }
         }
     }
 };

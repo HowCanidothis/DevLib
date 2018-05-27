@@ -1,41 +1,106 @@
-#ifndef FLAGS_H
-#define FLAGS_H
+#ifndef ATOMICFLAGS_H
+#define ATOMICFLAGS_H
 
 #include <Qt>
+#include <atomic>
 
-template<typename Enum>
+template<typename ValueType, typename Enum>
 class Flags{
-    qint32 i;
 public:
-    inline qint32 toInt() const { return i; }
     typedef Enum enum_type;
-    Q_CONSTEXPR Flags(qint32 _i=0): i(_i){}
-    Q_CONSTEXPR Flags(Enum e) : i(e){}
+
+    inline qint32 ToInt() const
+    {
+        return _value;
+    }
+
+    constexpr Flags(qint32 i=0)
+        : _value(i)
+    {}
+    constexpr Flags(Enum e)
+        : _value(e)
+    {}
 
 
-    void setValue(qint32 f) { i = f; }
+    void SetValue(qint32 value)
+    {
+        _value = value;
+    }
 
-    void setFlags(qint32 f){ i |= f; }
-    void unsetFlags(qint32 f) { i &= ~f; }
-    bool testFlagsAll(qint32 fs) const { return (i & fs) == fs; }
-    bool testFlagsAtLeastOne(qint32 fs) const { return (i & fs); }
+    void SetFlags(qint32 flags)
+    {
+        _value |= flags;
+    }
+    void UnsetFlags(qint32 flags)
+    {
+        _value &= ~flags;
+    }
+    bool TestFlagsAll(qint32 flags) const
+    {
+        return (_value & flags) == flags;
+    }
+    bool TestFlagsAtLeastOne(qint32 flags) const
+    {
+        return (_value & flags);
+    }
 
-    void setFlag(Enum f){ i |= f; }
-    void unsetFlag(Enum f) { i &= ~f; }
-    bool testFlag(Enum f) const { return i & f; }
+    void SwitchFlag(Enum flag)
+    {
+        _value ^= flag;
+    }
+    void SetFlag(Enum flag)
+    {
+        _value |= flag;
+    }
+    void UnsetFlag(Enum flag)
+    {
+        _value &= ~flag;
+    }
+    bool TestFlag(Enum flag) const
+    {
+        return _value & flag;
+    }
 
-    void changeFromBoolean(qint32 flags, bool flag) { flag ? setFlags(flags) : unsetFlags(flags); }
+    void ChangeFromBoolean(qint32 flags, bool flag)
+    {
+        flag ? SetFlags(flags) : UnsetFlags(flags);
+    }
 
-    Flags& operator |=(const Flags other) { this->i |= other.i; return *this; }
-    Flags& operator &=(const Flags other) { this->i &= other.i; return *this; }
-    Flags& operator ^=(const Flags other) { this->i ^= other.i; return *this; }
+    Flags& operator |=(const Flags other)
+    {
+        this->_value |= other._value;
+        return *this;
+    }
+    Flags& operator &=(const Flags other)
+    {
+        this->_value &= other._value;
+        return *this;
+    }
+    Flags& operator ^=(const Flags other)
+    {
+        this->_value ^= other._value;
+        return *this;
+    }
 
-    operator qint32() const { return this->i; }
+    Flags& operator =(const qint32 e)
+    {
+        this->_value = e;
+        return *this;
+    }
+
+    operator qint32() const
+    {
+        return this->_value;
+    }
+
+private:
+    ValueType _value;
 };
 
+#define DECL_ATOMIC_FLAGS(flags, Enum) \
+typedef Flags<std::atomic_int32_t, Enum> flags;
+
 #define DECL_FLAGS(flags, Enum) \
-typedef Flags<Enum> flags;
+typedef Flags<qint32, Enum> flags;
 
-
-#endif // FLAGS
-
+#endif // ATOMICFLAGS_H

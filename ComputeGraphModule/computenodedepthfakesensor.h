@@ -7,7 +7,6 @@ class InputFrameStream;
 
 class ComputeNodeDepthFakeSensor : public GtComputeNodeBase
 {
-    InputFrameStream* input;
 public:
     ComputeNodeDepthFakeSensor(const QString& name="ComputeNodeDepthFakeSensor");
 
@@ -17,6 +16,9 @@ public:
 protected:
     virtual bool onInputChanged(const cv::Mat* input) Q_DECL_OVERRIDE;
     virtual void update(const cv::Mat* input) Q_DECL_OVERRIDE;
+
+private:
+    InputFrameStream* input;
 };
 
 #endif // COMPUTENODEDEPTHFAKESENSOR_H

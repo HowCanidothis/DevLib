@@ -37,7 +37,7 @@ void InputFrameStream::setFileName(const QString& name)
     }
     input_file->setFileName(name);
     if(!input_file->open(QFile::ReadOnly))
-        log.warning() << input_file->errorString();
+        log.Warning() << input_file->errorString();
     input_stream->device()->seek(0);
 }
 

@@ -6,14 +6,16 @@
 
 class ComputeNodeDepthSensor : public GtComputeNodeBase
 {
-    ScopedPointer<class OpenniSensor> sensor;
-    bool initialized;
 public:
     ComputeNodeDepthSensor(const QString& name="ComputeNodeDepthSensor");
 
 protected:
     void update(const cv::Mat* input);
     bool onInputChanged(const cv::Mat* input);
+
+private:
+    ScopedPointer<class OpenniSensor> sensor;
+    bool initialized;
 };
 
 

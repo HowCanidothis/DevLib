@@ -10,7 +10,7 @@ class QKeyEvent;
 class GtPlayerControllerBase
 {
 protected:
-    bool control_modifier;
+    qint32 modifiers;
     QSet<qint32> pressed_keys;
 public:
     virtual void mouseMoveEvent(QMouseEvent*){}

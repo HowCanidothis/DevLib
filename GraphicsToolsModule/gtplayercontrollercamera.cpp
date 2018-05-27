@@ -61,7 +61,7 @@ void GtPlayerControllerCamera::keyReleaseEvent(QKeyEvent* e)
 void GtPlayerControllerCamera::inputHandle()
 {
     float move_dist = 50;
-    if(control_modifier) move_dist *= 10;
+    if(modifiers) move_dist *= 10;
     for(qint32 key : pressed_keys){
         switch (key)
         {

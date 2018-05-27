@@ -33,18 +33,6 @@ private:
 class GtComputeGraph : public QThread
 {
     Q_OBJECT
-    StackPointers<GtComputeGraphEvent> events;
-    Array<GtComputeNodeBase*> calculation_graphs;
-    QMutex mutex;
-    std::atomic_bool stoped;
-    qint32 ideal_frame_time;
-
-    QWaitCondition events_processed;
-    QMutex events_mutex;
-    std::atomic_bool events_notified;
-
-    QMutex fps_locker;
-    ScopedPointer<struct FPSCounter> fps_counter;
 public:
     GtComputeGraph(qint32 ideal_frame_time = 30); //msecs
     ~GtComputeGraph();
@@ -57,10 +45,26 @@ public:
 
     void addCalculationGraph(GtComputeNodeBase* calculation_graph);
 
-    float getComputeTime();
+    double getComputeTime();
+
     // QThread interface
 protected:
     void run();
+
+private:
+    StackPointers<GtComputeGraphEvent> events;
+    Array<GtComputeNodeBase*> calculation_graphs;
+    QMutex mutex;
+    std::atomic_bool stoped;
+    qint32 ideal_frame_time;
+
+    QWaitCondition events_processed;
+    QMutex events_mutex;
+    std::atomic_bool events_notified;
+
+    QMutex fps_locker;
+    ScopedPointer<class TimerClocks> fps_counter;
+    double _computeTime;
 };
 
 #endif // COMPUTEGRAPH_H

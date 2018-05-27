@@ -3,6 +3,8 @@
 
 #include <QMetaEnum>
 
+#include <QDebug>
+
 #ifndef STATIC_LINK
 #if defined(LIBRARY)
 #  define _Export Q_DECL_EXPORT
@@ -140,21 +142,20 @@ struct CastablePtr{
 
 Q_DECLARE_TYPEINFO(CastablePtr, Q_PRIMITIVE_TYPE);
 
-#include <QDebug>
 class Messager
 {
-    const char* label;
-    QByteArray location;
+    const char* _label;
+    QByteArray _location;
 public:
     Messager(const char* lbl, const char* file, qint32 line);
 
-    void error(const char* fmt, ...) const;
-    void warning(const char* fmt, ...) const;
-    void info(const char* fmt, ...) const;
+    void Error(const char* fmt, ...) const;
+    void Warning(const char* fmt, ...) const;
+    void Info(const char* fmt, ...) const;
 
-    QDebug error() const;
-    QDebug warning() const;
-    QDebug info() const;
+    QDebug Error() const;
+    QDebug Warning() const;
+    QDebug Info() const;
 };
 
 #define tDebug \
@@ -164,7 +165,7 @@ public:
 
 #define ASSURE(expression, message, what) \
     if(!expression) { \
-        tDebug << message << ": " << what; \
+        tDebug << __FUNCTION__ << message << ": " << what; \
     }
 
 //========================================================DEBUG ONLY================================================

@@ -3,7 +3,7 @@
 
 #include <QOpenGLWidget>
 #include <qopenglfunctions_4_5_core>
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 #include "Shared/stack.h"
 
 #include "GraphicsToolsModule/Objects/gtmaterialparameterbase.h"
@@ -23,7 +23,6 @@ class QOpenGLDebugLogger;
 class GtShadowMapTechnique;
 class InputFrameStream;
 class QLabel;
-struct Timer;
 
 namespace cv {
     class Mat;
@@ -45,7 +44,7 @@ class GtWidget3D : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
     QLabel* fps_board;
     QLabel* lft_board;
     QLabel* compute_board;
-    ScopedPointer<struct FPSCounter> fps_counter;
+    ScopedPointer<class TimerClocks> fps_counter;
     bool shadow_mapping;
 
     GtComputeNodeThreadSafe* output_node;

@@ -14,60 +14,73 @@ public:
     StackData(count_t reserve)
         : _reserved(reserve)
     {
-        realloc();
+        Realloc();
     }
-    StackData() : _begin(nullptr), _count(0), _reserved(0)
+    StackData()
+        : _begin(nullptr)
+        , _count(0)
+        , _reserved(0)
+    {}
+    StackData(std::initializer_list<T> args)
+        : _begin(nullptr)
+        , _count(args.size())
+        , _reserved(args.size())
     {
-    }
-    StackData(std::initializer_list<T> args) : _begin(nullptr), _count(args.size()), _reserved(args.size()) {
         if(args.size()) {
-            realloc();
-            memcpy(begin(), args.begin(), args.size() * sizeof(T));
+            Realloc();
+            ::memcpy(Begin(), args.begin(), args.size() * sizeof(T));
         }
     }
-    ~StackData() { ::free(_begin);  }
+    ~StackData()
+    {
+        ::free(_begin);
+    }
 
-
-
-    void resize(count_t count) {
+    void Resize(count_t count)
+    {
         if(count > _reserved) {
             _reserved = count;
-            realloc();
+            Realloc();
         }
         this->_count = count;
     }
-
-    void clear() {
+    void Clear()
+    {
         _count = 0;
     }
-
-    void dblRealloc() {
-        if(_reserved > 1000000)
+    void DblRealloc()
+    {
+        if(_reserved > 1000000) {
             _reserved += 5000000;
-        else
+        } else {
             _reserved <<= 1;
-        realloc();
+        }
+        Realloc();
     }
-    void realloc() {
-        _reserved = _reserved ? _reserved : defaultReserved();
+    void Realloc()
+    {
+        _reserved = _reserved ? _reserved : DefaultReserved();
         _begin = (T*)::realloc(_begin, _reserved * sizeof(T));
 
     }
-    void push(const T& value) {
-        if(_reserved == _count)
-            dblRealloc();
+    void Push(const T& value)
+    {
+        if(_reserved == _count) {
+            DblRealloc();
+        }
         Q_ASSERT(_reserved != _count);
-        *end() = value;
+        *End() = value;
         _count++;
     }
-    void pop() {
+    void Pop()
+    {
         _count--;
     }
 
-    T* begin() const { return _begin; }
-    T* end() const { return begin() + _count; }
-    count_t size() const { return _count; }
-    count_t defaultReserved() const { return 10; }
+    T* Begin() const { return _begin; }
+    T* End() const { return Begin() + _count; }
+    count_t Size() const { return _count; }
+    count_t DefaultReserved() const { return 10; }
 
 };
 
@@ -80,83 +93,126 @@ protected:
 public:
     typedef T* iterator;
     typedef const T* const_iterator;
-    Stack(count_t count) : Stack() { resize(count); }
-    Stack() : d(new StackData<T>()) {}
-    Stack(std::initializer_list<T> args) : d(new StackData<T>(args)) {}
-    Stack(const Stack& other) : d(other.d) {}
+    Stack(count_t count)
+        : Stack()
+    {
+        Resize(count);
+    }
+    Stack()
+        : d(new StackData<T>())
+    {}
+    Stack(std::initializer_list<T> args)
+        : d(new StackData<T>(args))
+    {}
+    Stack(const Stack& other)
+        : d(other.d)
+    {}
 
-    void push(const T& value) {
+    void Push(const T& value)
+    {
         detachCopy();
-        d->push(value);
+        d->Push(value);
     }
 
-    void append(const T& value) {
-        push(value);
+    void Append(const T& value)
+    {
+        Push(value);
     }
 
-    void pop() {
+    void Pop()
+    {
         detachCopy();
-        d->pop();
+        d->Pop();
     }
 
-    bool isEmpty() const { return size() == 0; }
+    bool IsEmpty() const { return Size() == 0; }
 
-    const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
-    T& first() { Q_ASSERT(!isEmpty()); detachCopy(); return *begin(); }
-    const T& last() const { Q_ASSERT(!isEmpty()); return *(end() - 1); }
-    T& last() { Q_ASSERT(!isEmpty()); detachCopy(); return *(end() - 1); }
-
-    const T& at(count_t index) const { Q_ASSERT(index >= 0 &&  index < size()); return *(begin() + index); }
-    T& at(count_t index) {
-        Q_ASSERT(index >= 0 &&  index < size());
+    const T& First() const
+    {
+        Q_ASSERT(!IsEmpty());
+        return *Begin();
+    }
+    T& First()
+    {
+        Q_ASSERT(!IsEmpty());
         detachCopy();
-        return *(begin() + index);
+        return *Begin();
+    }
+    const T& Last() const
+    {
+        Q_ASSERT(!IsEmpty());
+        return *(End() - 1);
+    }
+    T& Last()
+    {
+        Q_ASSERT(!IsEmpty());
+        detachCopy();
+        return *(End() - 1);
     }
 
-//    void reserve(count_t count) {
-//        if(count < size())
-//    }
-
-    void resize(count_t count) {
-        detachCopy(); d->resize(count);
+    const T& At(count_t index) const
+    {
+        Q_ASSERT(index >= 0 &&  index < Size());
+        return *(Begin() + index);
     }
-    void clear() {
-        detachClear(); d->clear();
-    }
-
-    T* data() { detachCopy(); return d->begin(); }
-    const T* data() const { detachCopy(); return d->begin(); }
-
-    count_t size() const { return d->size(); }
-
-    iterator begin() {
-        detachCopy(); return d->begin();
-    }
-    iterator end() {
-        detachCopy(); return d->end();
+    T& At(count_t index)
+    {
+        Q_ASSERT(index >= 0 &&  index < Size());
+        detachCopy();
+        return *(Begin() + index);
     }
 
-    const_iterator begin() const {
-        return d->begin();
+    void Resize(count_t count)
+    {
+        detachCopy();
+        d->Resize(count);
     }
-    const_iterator end() const {
-        return d->end();
-    }
-
-    const_iterator cbegin() const {
-        return begin();
-    }
-
-    const_iterator cend() const {
-        return end();
+    void Clear()
+    {
+        detachClear();
+        d->Clear();
     }
 
-    T& operator[](qint32 index) { detachCopy(); return this->at(index); }
-    const T& operator[](qint32 index) const { return this->at(index); }
+    T* data()
+    {
+        detachCopy();
+        return d->Begin();
+    }
+    const T* data() const
+    {
+        detachCopy();
+        return d->Begin();
+    }
+
+    iterator Begin()
+    {
+        detachCopy();
+        return d->Begin();
+    }
+    iterator End()
+    {
+        detachCopy();
+        return d->End();
+    }
+
+    count_t Size() const { return d->Size(); }
+
+    iterator begin() { return Begin(); }
+    iterator end() { return End(); }
+    const_iterator begin() const { return Begin(); }
+    const_iterator end() const { return End(); }
+
+    const_iterator Begin() const { return d->Begin(); }
+    const_iterator End() const { return d->End(); }
+    const_iterator CBegin() const { return Begin(); }
+    const_iterator CEnd() const { return End(); }
+
+    T& operator[](qint32 index) { detachCopy(); return this->At(index); }
+    const T& operator[](qint32 index) const { return this->At(index); }
 protected:
     void detachClear() {
-        if(d.use_count() > 1) d.reset(new StackData<T>(d->size()));
-        else d->clear();
+        if(d.use_count() > 1) d.reset(new StackData<T>(d->Size()));
+        else d->Clear();
     }
     void detachCopy() {
         Q_ASSERT_X(!(d.use_count() > 1), "detachCopy", "restricted behavior");
@@ -170,7 +226,7 @@ class StackPointers : public Stack<T*>
 public:
     StackPointers() : Super() {}
     StackPointers(count_t count) : StackPointers() {
-        resize(count);
+        Resize(count);
         for(T*& v : *this) {
             v = new T();
         }
@@ -182,25 +238,25 @@ public:
         }
     }
 
-    void clear() {
+    void Clear() {
         if(d.use_count() == 1) {
             for(T* v : *this)
                 delete v;
         }
-        Super::clear();
+        Super::Clear();
     }
 
-    template<typename ... Args> void resizeAndAllocate(qint32 size, Args ... args) {
+    template<typename ... Args> void ResizeAndAllocate(qint32 size, Args ... args) {
         Q_ASSERT(d.use_count() == 1);
-        qint32 old = this->size();
+        qint32 old = this->Size();
         if(size < old) {
-            for(T* ptr : adapters::range(begin() + size, end()))
+            for(T* ptr : adapters::Range(Begin() + size, End()))
                 delete ptr;
-            resize(size);
+            Resize(size);
         }
         else if(size > old){
-            resize(size);
-            for(T*& ptr : adapters::range(begin() + old, end()))
+            Resize(size);
+            for(T*& ptr : adapters::Range(Begin() + old, End()))
                 ptr = new T(args...);
         }
     }

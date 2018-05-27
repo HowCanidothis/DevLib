@@ -8,17 +8,17 @@ class ResourceBase
 {
     typedef std::function<void*()> LoadFunction;
 
-    void** _data;
-    qint32* _counter;
+    void** p_data;
+    qint32* counter;
     LoadFunction loader;
 public:
     ResourceBase(const LoadFunction& loader)
-        : _data((void**)malloc(sizeof(size_t)))
-        , _counter(new qint32)
+        : p_data((void**)malloc(sizeof(size_t)))
+        , counter(new qint32)
         , loader(loader)
     {
-        *_data = nullptr;
-        *_counter = 0;
+        *p_data = nullptr;
+        *counter = 0;
     }
 
     void setLoader(const LoadFunction& loader) {
@@ -26,12 +26,12 @@ public:
     }
 
     void load() const{
-        Q_ASSERT(*_data == nullptr);
-        *_data = loader();
+        Q_ASSERT(*p_data == nullptr);
+        *p_data = loader();
     }
 
     bool isNull() const {
-         return *_data == nullptr;
+         return *p_data == nullptr;
     }
 
     bool isValid() const {
@@ -44,35 +44,35 @@ public:
 template<typename T>
 class Resource
 {
-    T** _data;
-    qint32* _counter;
+    T** p_data;
+    qint32* counter;
     Resource() {}
 public:
     ~Resource() {
-        if(--(*_counter) == 0) {
-            delete *_data;
-            *_data = nullptr;
+        if(--(*counter) == 0) {
+            delete *p_data;
+            *p_data = nullptr;
         }
     }
 
     Resource(const ResourceBase* other)
-        : _data(reinterpret_cast<T**>(other->_data))
-        , _counter(other->_counter)
+        : p_data(reinterpret_cast<T**>(other->p_data))
+        , counter(other->counter)
     {
-        (*_counter)++;
-        if(*_data == nullptr) {
+        (*counter)++;
+        if(*p_data == nullptr) {
             other->load();
         }
     }
 
-    bool isNull() const { return *_data == nullptr; }
-    const T* data() const { return *_data; }
-    T* data() { return *_data; }
-    T& get() { return **_data; }
-    const T& get() const { return **_data; }
+    bool isNull() const { return *p_data == nullptr; }
+    const T* data() const { return *p_data; }
+    T* data() { return *p_data; }
+    T& get() { return **p_data; }
+    const T& get() const { return **p_data; }
     void create(T* data) {
-        Q_ASSERT(*_data == nullptr);
-        *_data = data;
+        Q_ASSERT(*p_data == nullptr);
+        *p_data = data;
     }
 private:
     Resource& operator=(const Resource& other) = delete;

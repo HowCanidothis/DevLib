@@ -5,7 +5,7 @@
 #include <functional>
 
 #include <QVector>
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 class QtObserver : public QObject
 {
@@ -13,26 +13,26 @@ class QtObserver : public QObject
     typedef std::function<void ()> Handle;
     typedef std::function<bool ()> Condition;
 
-    QVector<Condition> conditions;
-    QVector<Handle> handles;
-    QHash<const void*, qint64> counters;
+    QVector<Condition> _conditions;
+    QVector<Handle> _handles;
+    QHash<const void*, qint64> _counters;
 public:
-    QtObserver(qint32 ms_interval, QObject* parent=0);
+    QtObserver(qint32 msInterval, QObject* parent=0);
 
-    void add(const Condition& condition, const Handle& handle);
-    void addFileObserver(const QString* file, const Handle& handle);
-    void addFileObserver(const QString* dir, const QString* file, const Handle& handle);
-    void addFloatObserver(const float* value, const Handle& handle);
-    void addStringObserver(const QString* value, const Handle& handle);
+    void Add(const Condition& condition, const Handle& handle);
+    void AddFileObserver(const QString* file, const Handle& handle);
+    void AddFileObserver(const QString* dir, const QString* file, const Handle& handle);
+    void AddFloatObserver(const float* value, const Handle& handle);
+    void AddStringObserver(const QString* value, const Handle& handle);
 
-    void observe() { onTimeout(); }
+    void Observe() { onTimeout(); }
 
-    static QtObserver* instance() { static QtObserver* res = new QtObserver(1000); return res; }
+    static QtObserver* Instance() { static QtObserver* res = new QtObserver(1000); return res; }
 private Q_SLOTS:
     void onTimeout();
 
 private:
-    bool testValue(const void* value, qint64 as_int64);
+    bool testValue(const void* value, qint64 asInt64);
 };
 
 #endif // FILEOBSERVER_H

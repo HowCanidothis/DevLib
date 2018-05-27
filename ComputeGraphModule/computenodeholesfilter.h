@@ -7,9 +7,11 @@ class ComputeNodeHolesFilter : public GtComputeNodeBase
 {
 public:
     ComputeNodeHolesFilter(const QString& name="ComputeNodeHolesFilter");
+
 protected:
     void update(const cv::Mat* input);
     bool onInputChanged(const cv::Mat* input);
+
 private:
     void HorizontalInterpolation(const cv::Mat& input, cv::Mat& out);
 };

@@ -84,13 +84,13 @@ void GtTexture2D::loadImage(const QString& img_file)
 {
     LOGOUT;
     if(!create()) {
-        log.warning() << "Unable to create texture";
+        log.Warning() << "Unable to create texture";
         return;
     }
 
     QImage img(img_file);
     if(img.isNull()) {
-        log.warning() << "Cannot read image" << img_file;
+        log.Warning() << "Cannot read image" << img_file;
         return;
     }
 

@@ -2,7 +2,7 @@
 #define PROPERTY_H
 
 #include "Shared/shared_decl.h"
-#include "SharedGui/gt_decl.h" // Vector3f
+#include "SharedGui/decl.h" // Vector3f
 
 class Property {
 protected:

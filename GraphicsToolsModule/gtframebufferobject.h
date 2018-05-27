@@ -29,7 +29,7 @@ public:
     };
 
     void setDepthAttachment(AttachmentType type) { depth_attachment = type; }
-    void addColorAttachment(const GtFramebufferTextureFormat& format) { color_formats.push(format); }
+    void addColorAttachment(const GtFramebufferTextureFormat& format) { color_formats.Push(format); }
 private:
     friend class GtFramebufferObject;
     friend class GtFramebufferObjectMultisampled;
@@ -73,7 +73,7 @@ public:
 
     void create(const GtFramebufferFormat& format);
 
-    GtTexture* getColorTexture(qint32 index) const { return color_attachments.at(index); }
+    GtTexture* getColorTexture(qint32 index) const { return color_attachments.At(index); }
 private:
     StackPointers<GtTexture> color_attachments;
 };
@@ -86,7 +86,7 @@ public:
 
     void create(const GtFramebufferFormat& format);
 
-    gRenderbufferID getColorRenderbuffer(qint32 index) const { return color_attachments.at(index); }
+    gRenderbufferID getColorRenderbuffer(qint32 index) const { return color_attachments.At(index); }
 private:
     Stack<gRenderbufferID> color_attachments;
     qint32 samples;

@@ -53,8 +53,8 @@ GtWindow::GtWindow(QWidget *parent)
 
     ui->cmbStream->addItems(input_file->getAvailableInputs());
 
-    views.push(ui->glout1);
-    views.push(ui->glout2);
+    views.Push(ui->glout1);
+    views.Push(ui->glout2);
 
     ComputeGraphCore* compute_graph = ComputeGraphCore::instance();
     compute_graph->initialize(input_file);
@@ -91,7 +91,7 @@ GtWindow::GtWindow(QWidget *parent)
         addChannel(node->getName(), node);
     }
 
-    QtQSSReader::installAndObserve(main_qss.ptr());
+    QtQSSReader::InstallAndObserve(main_qss.ptr());
 }
 
 GtWindow::~GtWindow()

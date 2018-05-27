@@ -12,11 +12,6 @@ namespace openni {
 
 class OpenniSensor
 {
-    enum { MaxSensors = openni::SENSOR_DEPTH };
-    openni::Device* device=nullptr;
-    openni::VideoStream* inputs[MaxSensors];
-    cv::Mat outputs[MaxSensors];
-    openni::Status rc;
 public:
     OpenniSensor();
     ~OpenniSensor();
@@ -33,6 +28,13 @@ public:
 private:
     openni::VideoStream*& input(openni::SensorType type) { return inputs[type - 1]; }
     cv::Mat& output(openni::SensorType type) { return outputs[type - 1]; }
+
+private:
+    enum { MaxSensors = openni::SENSOR_DEPTH };
+    openni::Device* device=nullptr;
+    openni::VideoStream* inputs[MaxSensors];
+    cv::Mat outputs[MaxSensors];
+    openni::Status rc;
 };
 
 #endif // OPENNITOIMAGE_H

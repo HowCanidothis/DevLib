@@ -13,5 +13,5 @@ GtScene::~GtScene()
 
 void GtScene::addObject(GtActor* object)
 {
-    objects.append(object);
+    objects.Append(object);
 }

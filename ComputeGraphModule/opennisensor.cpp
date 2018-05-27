@@ -31,7 +31,7 @@ openni::Status OpenniSensor::initialize()
     rc = openni::OpenNI::initialize();
     if (rc != openni::STATUS_OK)
     {
-        log.error("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
+        log.Error("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
         openni::OpenNI::shutdown();
         return rc;
     }
@@ -39,11 +39,11 @@ openni::Status OpenniSensor::initialize()
     rc = device->open(openni::ANY_DEVICE);
     if (rc != openni::STATUS_OK)
     {
-        log.error("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
+        log.Error("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
         return rc;
     }
 
-    log.info("Openni initialized");
+    log.Info("Openni initialized");
     return rc;
 }
 
@@ -60,25 +60,25 @@ bool OpenniSensor::createOutput(openni::SensorType type, qint32 video_mode_index
 
         if (rc != openni::STATUS_OK)
         {
-            log.error("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
+            log.Error("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
         rc = stream->start();
         if (rc != openni::STATUS_OK)
         {
-            log.error("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
+            log.Error("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
         const openni::SensorInfo& sensor_info = stream->getSensorInfo();
-        log.info("Supported video modes:\n");
+        log.Info("Supported video modes:\n");
         const openni::Array<openni::VideoMode>& supported_modes = sensor_info.getSupportedVideoModes();
         for(qint32 i(0); i < supported_modes.getSize(); i++) {
             const openni::VideoMode& vm = supported_modes[i];
-            log.info("fps:%d pf:%d x:%d y:%d\n", vm.getFps(), vm.getPixelFormat(), vm.getResolutionX(), vm.getResolutionY());
+            log.Info("fps:%d pf:%d x:%d y:%d\n", vm.getFps(), vm.getPixelFormat(), vm.getResolutionX(), vm.getResolutionY());
         }
-        log.info("chossed %d", video_mode_index);
+        log.Info("chossed %d", video_mode_index);
 
         stream->setVideoMode(supported_modes[video_mode_index]);
 
@@ -99,7 +99,7 @@ bool OpenniSensor::createOutput(openni::SensorType type, qint32 video_mode_index
             case openni::PIXEL_FORMAT_JPEG:
             case openni::PIXEL_FORMAT_YUYV:
 
-            default: log.error("unnacpected pixel format"); return false;
+            default: log.Error("unnacpected pixel format"); return false;
         };
         img.create(cv::Size(current_vm.getResolutionX(), current_vm.getResolutionY()), img_format);
 

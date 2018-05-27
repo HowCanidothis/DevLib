@@ -42,7 +42,7 @@ protected:
     FDelegate delegate;
     gLocID location;
     QString name;
-    QString resource;
+    Name resource;
     static GtMaterial*& material() { static GtMaterial* res; return res; }
 };
 

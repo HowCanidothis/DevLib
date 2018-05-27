@@ -36,7 +36,7 @@ void GtFramebufferObject::create(const GtFramebufferFormat& format)
     for(const GtFramebufferTextureFormat& tex_format : color_formats) {
         GtTexture* texture = GtTexture::create(f, tex_format.target, tex_format.internal_format, resolution, &tex_format);
         f->glFramebufferTexture2D(GL_FRAMEBUFFER, attachments++, texture->getTarget(), texture->getID(), 0);
-        color_attachments.push(texture);
+        color_attachments.Push(texture);
     }
 
     switch (format.depth_attachment) {
@@ -65,7 +65,7 @@ void GtFramebufferObject::create(const GtFramebufferFormat& format)
 
     GLuint status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-        log.warning() << "incomplete framebuffer";
+        log.Warning() << "incomplete framebuffer";
     }
 }
 
@@ -78,7 +78,7 @@ GtFramebufferObjectMultisampled::GtFramebufferObjectMultisampled(OpenGLFunctions
 
 GtFramebufferObjectMultisampled::~GtFramebufferObjectMultisampled()
 {
-    f->glDeleteRenderbuffers(color_attachments.size(), color_attachments.data());
+    f->glDeleteRenderbuffers(color_attachments.Size(), color_attachments.data());
 }
 
 void GtFramebufferObjectMultisampled::create(const GtFramebufferFormat& format)
@@ -89,11 +89,11 @@ void GtFramebufferObjectMultisampled::create(const GtFramebufferFormat& format)
     GtFramebufferObjectBinder binder(this);
 
     const auto& color_formats = format.color_formats;
-    if(!color_formats.isEmpty()) {
-        color_attachments.resize(color_formats.size());
-        auto it_colors = color_attachments.begin();
+    if(!color_formats.IsEmpty()) {
+        color_attachments.Resize(color_formats.Size());
+        auto it_colors = color_attachments.Begin();
 
-        f->glGenRenderbuffers(color_formats.size(), it_colors);
+        f->glGenRenderbuffers(color_formats.Size(), it_colors);
         GLenum attachments = GL_COLOR_ATTACHMENT0;
 
         for(const GtFramebufferTextureFormat& tex_format : color_formats) {
@@ -128,6 +128,6 @@ void GtFramebufferObjectMultisampled::create(const GtFramebufferFormat& format)
 
     GLuint status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-        log.warning() << "incomplete framebuffer";
+        log.Warning() << "incomplete framebuffer";
     }
 }

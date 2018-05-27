@@ -3,117 +3,88 @@
 
 #include "shared_decl.h"
 
-class QTextStream;
-
-struct Timer{
-    typedef qint64 nsecs;
-    typedef qint32 msecs;
-
-    Timer(){ bind(); }
-    nsecs time;
-    void bind(){ time = now(); }
-    nsecs release()
-    {
-        nsecs res = now() - time;
-        this->bind();
-        return res;
-    }
-    static msecs toMsecs(nsecs nanosecs);
-
-    static void print(const QString& lbl, qint64 time);
-    static void print(QTextStream& stream, const QString& lbl, qint64 time);
-    static QString text(const QString& lbl, qint64 time);
-    QString text(const QString& lbl) const { return text(lbl, now() - time); }
-    static qint64 now();
-};
-
-class TimerEnum
-{
-    Q_GADGET
-public:
-enum Timers{
-    Apply,
-    Count
-};
-Q_ENUM(Timers)
-};
-
-
-#if !defined(QT_NO_DEBUG) || defined(PROFILE_BUILD)
-#define TIMER Timer local_timer
-#define TIMER_RESTART(message) Timer::print(#message, local_timer.release())
-
-class Timers
-{
-    struct SubTimer{
-        Timer timer;
-        qint64 total=0;
-    };
-    static SubTimer*& current(){ static SubTimer* res; return res; }
-    static SubTimer* timers() { static SubTimer res[TimerEnum::Count]; return res; }
-public:
-    static void bind(qint32 j);
-    static void add(qint32 j);
-    static void set(qint32 j);
-    static void reset(qint32 j);
-    static qint64 get(qint32 j);
-
-    static void reset();
-    static void print();
-    static void print(QTextStream& stream);
-};
-
-template<TimerEnum::Timers v>
-struct TimerFunction
-{
-    TimerFunction(){ Timers::bind(v); }
-    ~TimerFunction(){ Timers::set(v); }
-};
-
-template<TimerEnum::Timers v>
-struct TimerFunctionAdder
-{
-    TimerFunctionAdder(){ Timers::bind(v); }
-    ~TimerFunctionAdder(){ Timers::add(v); }
-};
-
-#define PROFILE_FUNCTION_ADD(Enum) TimerFunctionAdder<Enum> local_ftimer
-#define PROFILE_FUNCTION_SET(Enum) TimerFunction<Enum> local_ftimer
-
-#else
-class Timers
-{
-public:
-    static void bind(qint32){}
-    static void add(qint32){}
-    static void set(qint32){}
-    static void reset(qint32){}
-    static qint64 get(qint32) { return 0; }
-
-    static void reset(){}
-    static void print(){}
-    static void print(QTextStream&){}
-};
-
-#define PROFILE_FUNCTION_ADD(Enum)
-#define PROFILE_FUNCTION_SET(Enum)
-
+#ifndef CLOCKS_COUNT
+#define CLOCKS_COUNT 30
 #endif
 
-struct FPSCounter
+class Timer;
+
+class Nanosecs
 {
-#define FRAMES_COUNT 30
-    ScopedPointer<Timer> timer;
-    qint64 last_30_frames_time[FRAMES_COUNT];
-    qint32 current_frame_id;
+public:
+    Nanosecs(double nsecs)
+        : _nsecs(nsecs)
+    {}
 
-    FPSCounter();
+    double TimesPerSecond() const;
+    QString ToString(const QString& caption) const;
 
-    void add(qint64 frame_time);
-    void bind();
-    qint64 release();
+    operator double() const { return _nsecs; }
 
-    double findMeanFPS() const;
+private:
+    double _nsecs;
 };
+
+class TimerClocks
+{
+public:
+    class Guard
+    {
+        TimerClocks* _timerClocks;
+    public:
+        Guard(TimerClocks* timerClocks)
+            : _timerClocks(timerClocks)
+        {
+            _timerClocks->Bind();
+        }
+        ~Guard()
+        {
+            _timerClocks->Release();
+        }
+    };
+
+    TimerClocks();
+    ~TimerClocks();
+
+    Guard Clock()
+    {
+        return Guard(this);
+    }
+
+    void Bind();
+    qint64 Release();
+
+    Nanosecs CalculateMeanValue() const;
+    Nanosecs CalculateMinValue() const;
+    Nanosecs CalculateMaxValue() const;
+
+private:
+    ScopedPointer<Timer> _timer;
+    qint64 _clocks[CLOCKS_COUNT];
+    qint32 _currentClockIndex;
+};
+
+template<class T, template<typename> class Ptr> class Stack;
+
+class PerformanceClocks : public TimerClocks
+{
+    Messager _messager;
+public:
+    PerformanceClocks(const char* caption, const char* file, quint32 line);
+
+    static void PrintReport();
+
+private:
+    void printReport() const;
+    static Stack<PerformanceClocks*>& getPerfomanceClocksInstances();
+};
+
+#if !defined(QT_NO_DEBUG) || defined(PROFILE_BUILD)
+#define __PERFOMANCE__ \
+    static PerformanceClocks pClock##__LINE__(__FUNCTION__, __FILE__, __LINE__); \
+    pClock##__LINE__.Clock();
+#else
+#define __PERFOMANCE__
+#endif
 
 #endif // PROFILE_UTILS_H

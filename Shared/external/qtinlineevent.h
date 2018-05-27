@@ -10,15 +10,15 @@ public:
     typedef std::function<void ()> Function;
     QtInlineEvent(const Function& function)
         : QEvent(QEvent::None)
-        , function(function)
+        , _function(function)
     {}
     ~QtInlineEvent() {
-        function();
+        _function();
     }
 
-    static void post(const Function& function);
+    static void Post(const Function& function);
 private:
-    Function function;
+    Function _function;
 };
 
 #endif // QTCUSTOMEVENTS_H

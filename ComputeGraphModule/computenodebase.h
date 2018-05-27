@@ -3,7 +3,7 @@
 
 #include "Shared/array.h"
 #include "Shared/flags.h"
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 #include "PropertiesModule/property.h"
 
@@ -29,6 +29,7 @@ protected:
     Flags flags;
     QString name;
     BoolProperty enabled;
+
 public:
     GtComputeNodeBase(const QString& name, qint32 flags = F_Default);
     ~GtComputeNodeBase();
@@ -51,6 +52,7 @@ private:
 
     void setEnabledAllOutputs();
     void totalMemoryUsage(const GtComputeNodeBase* parent, size_t& result) const;
+
 protected:
     void outputChanged();
     void updateLater();

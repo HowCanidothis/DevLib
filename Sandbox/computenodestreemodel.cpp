@@ -26,7 +26,7 @@ void GtComputeNodesTreeModel::setRootNode(GtComputeNodeBase* node, GtComputeGrap
 
     this->compute_graph = compute_graph;
     TreeNode* root = new TreeNode(nullptr, node);
-    tree[nullptr].append(root);
+    tree[nullptr].Append(root);
     addParentNode(root);
     layoutChanged();
 }
@@ -36,8 +36,8 @@ void GtComputeNodesTreeModel::update()
     auto find = tree.find(nullptr);
     if(find != tree.end()) {
         const Array<TreeNode*>& ar = find.value();
-        if(!ar.isEmpty()) {
-            setRootNode(ar.first()->node, compute_graph);
+        if(!ar.IsEmpty()) {
+            setRootNode(ar.First()->node, compute_graph);
         }
     }
 }
@@ -45,7 +45,7 @@ void GtComputeNodesTreeModel::update()
 
 QModelIndex GtComputeNodesTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
-    return hasIndex(row, column, parent) ? createIndex(row, column, getChilds(asNode(parent)).at(row)) : QModelIndex();
+    return hasIndex(row, column, parent) ? createIndex(row, column, getChilds(asNode(parent)).At(row)) : QModelIndex();
 }
 
 QModelIndex GtComputeNodesTreeModel::parent(const QModelIndex& child) const
@@ -54,14 +54,14 @@ QModelIndex GtComputeNodesTreeModel::parent(const QModelIndex& child) const
     if(node->parent == nullptr)
         return QModelIndex();
     const Array<TreeNode*>& childs = getChilds(node->parent->parent);
-    auto find = childs.findSorted(node->parent);
-    return createIndex(std::distance(childs.begin(), find), 0, node->parent);
+    auto find = childs.FindSorted(node->parent);
+    return createIndex(std::distance(childs.Begin(), find), 0, node->parent);
 }
 
 int GtComputeNodesTreeModel::rowCount(const QModelIndex& parent) const
 {
     if(tree.isEmpty()) return 0;
-    qint32 result = getChilds(asNode(parent)).size();
+    qint32 result = getChilds(asNode(parent)).Size();
     return result;
 }
 
@@ -89,7 +89,7 @@ void GtComputeNodesTreeModel::addParentNode(TreeNode* parent_node)
     auto& childs = getChilds(parent_node);
     for(GtComputeNodeBase* child_node : parent_node->node->linked_outputs) {
         TreeNode* tree_node = new TreeNode(parent_node, child_node);
-        childs.insertSortedUnique(tree_node);
+        childs.InsertSortedUnique(tree_node);
         addParentNode(tree_node);
     }
 }

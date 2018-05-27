@@ -1,7 +1,7 @@
 #ifndef GTOBJECTBASE_H
 #define GTOBJECTBASE_H
 
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 #include "PropertiesModule/internal.hpp"
 #include "Shared/external/external.hpp"
 #include "Shared/array.h"
@@ -17,7 +17,7 @@ class GtPrimitiveActor : public GtObjectBase
     BoundingBox bounding_box;
 
 public:
-    void addComponent(GtPrimitiveActor* actor) { components.append(actor); }
+    void addComponent(GtPrimitiveActor* actor) { components.Append(actor); }
     const BoundingBox& getBoundingBox() const { return bounding_box; }
 public:
     virtual void initialize(OpenGLFunctions*)=0;

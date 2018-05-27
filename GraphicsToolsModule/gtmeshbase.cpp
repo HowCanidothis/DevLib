@@ -4,9 +4,7 @@
 #include <QOpenGLBuffer>
 
 GtMeshBase::GtMeshBase(gRenderType type)
-    : vbo(nullptr)
-    , vao(nullptr)
-    , vertices_count(0)
+    : vertices_count(0)
     , render_type(type)
     , visible(true)
 {
@@ -15,8 +13,6 @@ GtMeshBase::GtMeshBase(gRenderType type)
 
 GtMeshBase::~GtMeshBase()
 {
-    delete vbo;
-    delete vao;
 }
 
 void GtMeshBase::update()
@@ -31,7 +27,7 @@ void GtMeshBase::initialize(OpenGLFunctions* f)
 
     if(vbo->create() && vao->create()) {
         visible = buildMesh();
-        QOpenGLVertexArrayObject::Binder binder(vao);
+        QOpenGLVertexArrayObject::Binder binder(vao.data());
         bindVAO(f);
     }
     else {
@@ -41,13 +37,12 @@ void GtMeshBase::initialize(OpenGLFunctions* f)
 
 void GtMeshBase::draw(OpenGLFunctions* f)
 {
-    QOpenGLVertexArrayObject::Binder binder(vao);
+    QOpenGLVertexArrayObject::Binder binder(vao.data());
     f->glDrawArrays(render_type, 0, vertices_count);
 }
 
 GtMeshIndicesBase::GtMeshIndicesBase(gRenderType type, gIndicesType itype)
     : GtMeshBase(type)
-    , vbo_indices(nullptr)
     , indices_count(0)
     , indices_type(itype)
 {
@@ -56,7 +51,6 @@ GtMeshIndicesBase::GtMeshIndicesBase(gRenderType type, gIndicesType itype)
 
 GtMeshIndicesBase::~GtMeshIndicesBase()
 {
-    delete vbo_indices;
 }
 
 void GtMeshIndicesBase::initialize(OpenGLFunctions* f)
@@ -67,7 +61,7 @@ void GtMeshIndicesBase::initialize(OpenGLFunctions* f)
 
     if(vbo->create() && vbo_indices->create() && vao->create()) {
         visible = buildMesh();
-        QOpenGLVertexArrayObject::Binder binder(vao);
+        QOpenGLVertexArrayObject::Binder binder(vao.data());
         bindVAO(f);
     }
     else {

@@ -26,29 +26,29 @@ void GtMeshCircle2D::resize(qint32 size)
 
 void GtMeshCircle2D::clear()
 {
-    circles.clear();
+    circles.Clear();
 }
 
 Circle2D* GtMeshCircle2D::add(float x, float y, float r, const Color3F& color)
 {
     Circle2D* result = new Circle2D(Point2F(x,y),Point2F(r,r), color);
-    circles.insertSortedUnique(result);
+    circles.InsertSortedUnique(result);
     return result;
 }
 
 void GtMeshCircle2D::remove(Circle2D* circle)
 {
     delete circle;
-    auto find = circles.findSorted(circle);
-    circles.remove(find);
+    auto find = circles.FindSorted(circle);
+    circles.Remove(find);
 }
 
 bool GtMeshCircle2D::buildMesh()
 {
-    if(!circles.size())
+    if(!circles.Size())
         return false;
     qint32 vertices_per_circle = 12 + 1 + 1;
-    vertices_count = vertices_per_circle * circles.size();
+    vertices_count = vertices_per_circle * circles.Size();
     ScopedPointer<ColoredVertex2F> vertices(new ColoredVertex2F[vertices_count]);
     ColoredVertex2F* ptr = vertices.data();
     for(Circle2D* circle : circles) {

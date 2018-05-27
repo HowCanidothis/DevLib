@@ -1,6 +1,8 @@
 #ifndef GTMATERIALFRAMETEXTURE_H
 #define GTMATERIALFRAMETEXTURE_H
 
+#ifdef OPENCV
+
 #include "gtmaterialparametertexturebase.h"
 
 class GtMaterialParameterFrameTexture : public GtMaterialParameterTextureBase
@@ -14,5 +16,7 @@ public:
 protected:
     FDelegate apply() Q_DECL_OVERRIDE;
 };
+
+#endif
 
 #endif // GTMATERIALFRAMETEXTURE_H

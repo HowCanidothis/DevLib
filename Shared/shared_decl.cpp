@@ -3,48 +3,48 @@
 #include <QDir>
 
 Messager::Messager(const char* lbl, const char* file, qint32 line)
-    : label(lbl)
+    : _label(lbl)
 {
-    QTextStream stream(&location, QIODevice::WriteOnly);
-    stream << "   Loc: [" << file << ":" << line << "] " << label << ":";
+    QTextStream stream(&_location, QIODevice::WriteOnly);
+    stream << "   Loc: [" << file << ":" << line << "] " << _label << ":";
 }
 
-void Messager::error(const char* fmt, ...) const
-{
-    va_list vl;
-    va_start(vl, fmt);
-    error() << QString::vasprintf(fmt, vl);
-    va_end(vl);
-}
-
-void Messager::warning(const char* fmt, ...) const
+void Messager::Error(const char* fmt, ...) const
 {
     va_list vl;
     va_start(vl, fmt);
-    warning() << QString::vasprintf(fmt, vl);
+    Error() << QString::vasprintf(fmt, vl);
     va_end(vl);
 }
 
-void Messager::info(const char* fmt, ...) const {
+void Messager::Warning(const char* fmt, ...) const
+{
     va_list vl;
     va_start(vl, fmt);
-    info() << QString::vasprintf(fmt, vl);
+    Warning() << QString::vasprintf(fmt, vl);
     va_end(vl);
 }
 
-QDebug Messager::error() const
-{
-    return qCritical() << location.data();
+void Messager::Info(const char* fmt, ...) const {
+    va_list vl;
+    va_start(vl, fmt);
+    Info() << QString::vasprintf(fmt, vl);
+    va_end(vl);
 }
 
-QDebug Messager::warning() const
+QDebug Messager::Error() const
 {
-    return qWarning() << location.data();
+    return qCritical() << _location.data();
 }
 
-QDebug Messager::info() const
+QDebug Messager::Warning() const
 {
-    return qInfo() << location.data();
+    return qWarning() << _location.data();
+}
+
+QDebug Messager::Info() const
+{
+    return qInfo() << _location.data();
 }
 
 

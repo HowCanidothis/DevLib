@@ -1,7 +1,9 @@
 #ifndef DEPTHSMOOTHCOMPUTENODE_H
 #define DEPTHSMOOTHCOMPUTENODE_H
 
-#include "SharedGui/gt_decl.h"
+#ifdef OPENCV
+
+#include "SharedGui/decl.h"
 #include "gttexture2D.h"
 
 namespace cv {
@@ -36,5 +38,7 @@ protected:
     void update(const cv::Mat* input);
     gTexInternalFormat cv2glInternalFormat(qint32 type);
 };
+
+#endif
 
 #endif // DEPTHSMOOTHCOMPUTENODE_H

@@ -14,6 +14,22 @@ class InputFrameStream;
 
 class ComputeGraphCore : public GtComputeGraph
 {
+public:
+    static ComputeGraphCore* instance() { static ComputeGraphCore res; return &res; }
+
+    void initialize(InputFrameStream* stream);
+
+    GtComputeNodeBase* getRootNode() const;
+
+    const Stack<GtComputeNodeBase*>& getNodes() const { return compute_nodes; }
+
+private:
+    template<class T, typename ... Args> void createNode(T*& ptr, Args ... args) {
+        ptr = new T(args...);
+        compute_nodes.Push(ptr);
+    }
+
+private:
     ComputeGraphCore();
     ADD_PROPERTY_NODE(ComputeNodeBlackHole, black_hole)
     ADD_PROPERTY_NODE(ComputeNodeCrop, crop)
@@ -29,20 +45,6 @@ class ComputeGraphCore : public GtComputeGraph
     ADD_PROPERTY_NODE(ComputeNodeDepthSensor, depth_sensor)
 
     Stack<GtComputeNodeBase*> compute_nodes;
-public:
-
-    static ComputeGraphCore* instance() { static ComputeGraphCore res; return &res; }
-
-    void initialize(InputFrameStream* stream);
-
-    GtComputeNodeBase* getRootNode() const;
-
-    const Stack<GtComputeNodeBase*>& getNodes() const { return compute_nodes; }
-private:
-    template<class T, typename ... Args> void createNode(T*& ptr, Args ... args) {
-        ptr = new T(args...);
-        compute_nodes.push(ptr);
-    }
 };
 
 #endif // COMPUTEGRAPHCORE_H

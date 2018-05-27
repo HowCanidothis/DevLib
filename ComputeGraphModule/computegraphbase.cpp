@@ -4,6 +4,7 @@
 #include <QThread>
 
 #include "Shared/profile_utils.h"
+#include "Shared/timer.h"
 
 void GtComputeGraphEvent::call()
 {
@@ -12,21 +13,21 @@ void GtComputeGraphEvent::call()
 
 GtComputeGraph::GtComputeGraph(qint32 ideal_frame_time)
     : ideal_frame_time(ideal_frame_time)
-    , fps_counter(new FPSCounter)
+    , fps_counter(new TimerClocks)
 {
 
 }
 
 GtComputeGraph::~GtComputeGraph()
 {
-    events.clear();
+    events.Clear();
     quit();
 }
 
 void GtComputeGraph::asynch(GtComputeGraphEvent::FEventHandler handler)
 {
     QMutexLocker locker(&events_mutex);
-    events.push(new GtComputeGraphEvent(handler));
+    events.Push(new GtComputeGraphEvent(handler));
 }
 
 void GtComputeGraph::processEvents()
@@ -52,29 +53,33 @@ void GtComputeGraph::quit()
 
 void GtComputeGraph::addCalculationGraph(GtComputeNodeBase* calculation_graph)
 {
-    QMutexLocker locker(&mutex);
-    calculation_graphs.append(calculation_graph);
+    if(isRunning()) {
+        QMutexLocker locker(&mutex);
+        calculation_graphs.Append(calculation_graph);
+    } else {
+        calculation_graphs.Append(calculation_graph);
+    }
+
 }
 
-float GtComputeGraph::getComputeTime()
+double GtComputeGraph::getComputeTime()
 {
     QMutexLocker locker(&fps_locker);
-    return fps_counter->findMeanFPS();
+    return _computeTime;
 }
 
 void GtComputeGraph::run()
 {
     while (!stoped) {
-        Timer local_timer;
-//        Timers::print();
 
-        Timers::bind(TimerEnum::Apply);
+        fps_counter->Bind();
+
         {
             QMutexLocker locker(&events_mutex);
             for(GtComputeGraphEvent* event : events) {
                 event->call();
             }
-            events.clear();
+            events.Clear();
             events_notified = true;
             events_processed.wakeAll();
         }
@@ -84,13 +89,16 @@ void GtComputeGraph::run()
                 node->compute(0);
             }
         }
-        qint32 msecs = Timer::toMsecs(local_timer.release());
+
+        ;
+
+        qint32 msecs = Timer::ToMsecs(fps_counter->Release());
         qint32 dif = ideal_frame_time - msecs;
-        Timers::set(TimerEnum::Apply);
         {
             QMutexLocker locker(&fps_locker);
-            fps_counter->add(Timers::get(TimerEnum::Apply));
+            _computeTime = fps_counter->CalculateMeanValue();
         }
+
         if(dif > 0) {
             msleep(dif);
         }

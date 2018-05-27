@@ -1,4 +1,7 @@
 #include "gtframetexture.h"
+
+#ifdef OPENCV
+
 #include <opencv2/opencv.hpp>
 
 GtFrameTexture::GtFrameTexture(OpenGLFunctions* f)
@@ -64,3 +67,5 @@ gTexInternalFormat GtFrameTexture::cv2glInternalFormat(qint32 type)
     }
     return 0;
 }
+
+#endif

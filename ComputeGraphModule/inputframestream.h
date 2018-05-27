@@ -11,13 +11,6 @@ namespace cv {
 
 class InputFrameStream
 {
-    ScopedPointer<cv::Mat> output;
-    ScopedPointer<QFile> input_file;
-    ScopedPointer<QDataStream> input_stream;
-
-    quint32 outputs_count;
-    quint32 reading_counter;
-    bool paused;
 public:
     InputFrameStream(quint32 outputs_count);
     ~InputFrameStream();
@@ -34,6 +27,15 @@ public:
     const cv::Mat& getOutput() const;
 
     static QStringList getAvailableInputs();
+
+private:
+    ScopedPointer<cv::Mat> output;
+    ScopedPointer<QFile> input_file;
+    ScopedPointer<QDataStream> input_stream;
+
+    quint32 outputs_count;
+    quint32 reading_counter;
+    bool paused;
 };
 
 #endif // INPUTFRAMESTREAM_H

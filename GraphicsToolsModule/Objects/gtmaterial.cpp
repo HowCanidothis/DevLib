@@ -18,12 +18,12 @@ GtMaterial::~GtMaterial()
 
 void GtMaterial::addParameter(GtMaterialParameterBase* delegate)
 {
-    parameters.push(delegate);
+    parameters.Push(delegate);
 }
 
 void GtMaterial::addMesh(GtMeshBase* mesh)
 {
-    meshs.append(mesh);
+    meshs.Append(mesh);
 }
 
 void GtMaterial::draw(OpenGLFunctions* f)
@@ -44,7 +44,7 @@ void GtMaterial::draw(OpenGLFunctions* f)
 
 GtMaterial&GtMaterial::addShader(GtMaterial::ShaderType type, const QString& file)
 {
-    shaders.append(new Shader({file, type}));
+    shaders.Append(new Shader({file, type}));
     return *this;
 }
 
@@ -71,7 +71,7 @@ void GtMaterial::update()
         }
     }
     if(!shader_program->link()) {
-        log.error() << "unable to link program" << shader_program->log();
+        log.Error() << "unable to link program" << shader_program->log();
     }
 
     gTexUnit unit = 0;
@@ -88,7 +88,7 @@ void GtMaterial::mapProperties(Observer* observer)
     qint32 counter = 0;
     for(Shader* shader : shaders) {
         new TextFileNamePropertyPtr("Shaders/" + QString::number(counter++), &shader->File);
-        observer->addFileObserver(&shaders_path, &shader->File, [this]{
+        observer->AddFileObserver(&shaders_path, &shader->File, [this]{
             this->update();
         });
     }

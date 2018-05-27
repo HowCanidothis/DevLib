@@ -1,7 +1,7 @@
 #include "gtmeshsurface.h"
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 GtMeshSurface::GtMeshSurface(qint32 width, qint32 height, qint32 sections)
     : GtMeshIndicesBase(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT)

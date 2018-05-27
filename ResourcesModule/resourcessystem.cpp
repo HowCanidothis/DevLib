@@ -3,14 +3,14 @@
 
 #include "resource.h"
 
-typedef QHash<QString, ResourceBase*> ResourceCache;
+typedef QHash<Name, ResourceBase*> ResourceCache;
 
 static ResourceCache& getResourcesCache() {
     static ResourceCache result;
     return result;
 }
 
-ResourceBase* ResourcesSystem::getResourceData(const QString& name)
+ResourceBase* ResourcesSystem::getResourceData(const Name& name)
 {
     ResourceCache& cache = getResourcesCache();
     auto find = cache.find(name);
@@ -20,8 +20,9 @@ ResourceBase* ResourcesSystem::getResourceData(const QString& name)
     return find.value();
 }
 
-void ResourcesSystem::registerResource(const QString& name, const std::function<void*()>& on_create)
+void ResourcesSystem::registerResource(const Name& name, const std::function<void*()>& on_create)
 {
+    LOGOUT;
     ResourceCache& cache = getResourcesCache();
     auto find = cache.find(name);
     if(find == cache.end()) {
@@ -29,6 +30,6 @@ void ResourcesSystem::registerResource(const QString& name, const std::function<
         cache.insert(name,resource);
     }
     else {
-        find.value()->setLoader(on_create);
+        log.Warning() << "resource" << name.AsString() << "already exists. Ignored";
     }
 }

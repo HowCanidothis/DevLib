@@ -40,7 +40,7 @@ GtWidget3D::GtWidget3D(QWidget *parent)
     , fps_board(nullptr)
     , lft_board(nullptr)
     , compute_board(nullptr)
-    , fps_counter(new FPSCounter)
+    , fps_counter(new TimerClocks)
     , vulcans(nullptr)
     , logger(nullptr)
     , shadow_mapping(false)
@@ -101,7 +101,7 @@ void GtWidget3D::initializeGL()
 {
     LOGOUT;
     if(!initializeOpenGLFunctions()) {
-        log.error() << "initialize functions failed";
+        log.Error() << "initialize functions failed";
     }
 
     if(logger && logger->initialize()) {
@@ -112,6 +112,8 @@ void GtWidget3D::initializeGL()
          result->createOutput();
          return result;
     });
+    static_frame_texture = ResourcesSystem::getResource<GtFrameTexture>("output_texture");
+
     ResourcesSystem::registerResource("shadow_map_technique",[this]{
         GtShadowMapTechnique* result = new GtShadowMapTechnique(this, SizeI(1024,1024));
         result->create();
@@ -144,8 +146,6 @@ void GtWidget3D::initializeGL()
     MVP = ResourcesSystem::getResource<Matrix4>("mvp");
     MVP_shadow = ResourcesSystem::getResource<Matrix4>("mvp_shadow");
 
-    GtMeshQuad2D::instance().initialize(this);
-
     surface_mesh = new GtMeshSurface(3000, 2400, 320);
     surface_mesh->initialize(this);
 
@@ -166,11 +166,11 @@ void GtWidget3D::initializeGL()
       program->setUniformValue(loc, shadow_map_technique->data()->getCam()->getForward().normalized());
     }));
 
-    surface_material->setShaders("",GT_SHADERS_PATH "Depth/sensor.vert", GT_SHADERS_PATH "Depth/sensor.frag");
+    surface_material->setShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
 
     static bool added = false;
     if(!added) {
-        surface_material->mapProperties(Observer::instance());
+        surface_material->mapProperties(Observer::Instance());
         added = true;
     }
 
@@ -178,7 +178,7 @@ void GtWidget3D::initializeGL()
     if(shadow_mapping) {
 
         depth_material = new GtMaterial();
-        depth_material->addMesh(&GtMeshQuad2D::instance());
+        depth_material->addMesh(GtMeshQuad2D::instance(this));
         gTexID texture = shadow_map_technique->data()->getDepthTexture();
         depth_material->addParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
@@ -234,10 +234,12 @@ static float getYFromCircleCoordinate(float y, const SizeF& ratio, float width)
 
 void GtWidget3D::paintGL()
 {
+    __PERFOMANCE__
+
     camera_controller->inputHandle();
 
     if(true) {
-        fps_counter->bind();
+        fps_counter->Bind();
         {
             qint32 w, h;
             {
@@ -307,10 +309,10 @@ void GtWidget3D::paintGL()
             fbo->release();
         }
 
-        qint64 frame_time = fps_counter->release();
-        if(lft_board) lft_board->setText(Timer::text("lft:", frame_time));
-        if(fps_board) fps_board->setText("fps: " + QString::number(fps_counter->findMeanFPS(), 'f', 10));
-        if(compute_board) compute_board->setText("cps: " + QString::number(ComputeGraphCore::instance()->getComputeTime(), 'f', 10));
+        qint64 frame_time = fps_counter->Release();
+        if(lft_board) lft_board->setText(Nanosecs(frame_time).ToString("lft:"));
+        if(fps_board) fps_board->setText("fps: " + QString::number(fps_counter->CalculateMeanValue().TimesPerSecond(), 'f', 10));
+        if(compute_board) compute_board->setText("cps: " + QString::number(Nanosecs(ComputeGraphCore::instance()->getComputeTime()).TimesPerSecond(), 'f', 10));
     }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->getID());

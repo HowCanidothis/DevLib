@@ -28,8 +28,8 @@ void GtMaterialParameterTexture::mapProperties(Observer* observer)
 {
     QString path = "Materials/" + QString::number(unit);
     new StringPropertyPtr(path + "/Name", &name);
-    new StringPropertyPtr(path + "/Resource", &resource);
+    new NamePropertyPtr(path + "/Resource", &resource);
 
-    observer->addStringObserver(&name,[]{ GtMaterialParameterTexture::material()->update(); });
-    observer->addStringObserver(&resource, []{ GtMaterialParameterTexture::material()->update(); });
+    observer->AddStringObserver(&name,[]{ GtMaterialParameterTexture::material()->update(); });
+    observer->AddStringObserver(&resource.AsString(), []{ GtMaterialParameterTexture::material()->update(); });
 }

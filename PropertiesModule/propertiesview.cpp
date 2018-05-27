@@ -12,7 +12,7 @@
 
 #include "PropertiesModule/propertiessystem.h"
 #include "propertiesmodel.h"
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 class OnEditorValueChangedListener : public QObject
 {
@@ -183,10 +183,10 @@ void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
         index_under_cursor = this->indexAt(event->pos());
         validateActionsVisiblity();
     }
-    QAbstractItemView::State preState = state();
+    QAbstractItemView::State pre_state = state();
     QTreeView::mouseReleaseEvent(event);
-    if (preState == QAbstractItemView::AnimatingState)
-        setState(preState);
+    if (pre_state == QAbstractItemView::AnimatingState)
+        setState(pre_state);
 }
 
 void PropertiesView::validateActionsVisiblity()
@@ -206,8 +206,10 @@ void PropertiesView::on_OpenWithTextEditor_triggered()
 
     QStringList arguments { open_file };
 
-    QProcess *myProcess = new QProcess(this);
-    myProcess->start(text_editor, arguments);
+    QProcess *process = new QProcess(this);
+    process->start(text_editor, arguments);
+
+    log.Warning() << "Opening" << text_editor << arguments;
 }
 
 #include "propertiesview.moc"

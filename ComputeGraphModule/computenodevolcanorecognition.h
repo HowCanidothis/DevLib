@@ -19,11 +19,13 @@ public:
 
     QMutex Mutex;
     std::vector<cv::Vec3f> Circles;
+
     // GtComputeNodeBase interface
 protected:
     bool onInputChanged(const cv::Mat* input) Q_DECL_OVERRIDE;
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
+private:
     UIntProperty ideal_frames_per_second;
     UIntProperty start_recognize_height;
     UIntProperty range_recognize;

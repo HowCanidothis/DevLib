@@ -5,14 +5,20 @@
 
 class Name
 {
-    qint32 value;
-    QString transcription;
 public:
+    Name();
     Name(const char* name);
+    Name(const Name& other);
     explicit Name(const QString& name);
 
-    operator qint32() const { return value; }
-    const QString& asString() const;
+    void SetName(const QString& str);
+
+    operator qint32() const { return _value; }
+    const QString& AsString() const;
+
+private:
+    QString _text;
+    qint32 _value;
 };
 
 #endif // NAME_H

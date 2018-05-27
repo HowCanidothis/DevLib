@@ -1,7 +1,7 @@
 #ifndef GTSHADOWMAPTECHNIQUE_H
 #define GTSHADOWMAPTECHNIQUE_H
 
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 #include "Shared/array.h"
 
 class GtFramebufferObject;

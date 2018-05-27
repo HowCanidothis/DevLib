@@ -1,7 +1,7 @@
 #ifndef GTMESHBASE_H
 #define GTMESHBASE_H
 
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 class QOpenGLVertexArrayObject;
 class QOpenGLBuffer;
@@ -32,8 +32,8 @@ protected:
     };
     #pragma pack()
 
-    QOpenGLBuffer* vbo;
-    QOpenGLVertexArrayObject* vao;
+    ScopedPointer<QOpenGLBuffer> vbo;
+    ScopedPointer<QOpenGLVertexArrayObject> vao;
 
     qint32 vertices_count;
     gRenderType render_type;
@@ -54,7 +54,7 @@ public:
 
     virtual void draw(OpenGLFunctions* f) final;
 protected:
-    QOpenGLBuffer* vbo_indices;
+    ScopedPointer<QOpenGLBuffer> vbo_indices;
 
     qint32 indices_count;
     gIndicesType indices_type;

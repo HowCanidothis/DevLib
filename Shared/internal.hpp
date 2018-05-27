@@ -5,7 +5,6 @@
 #include "array.h"
 #include "stack.h"
 
-#include "atomicflags.h"
 #include "flags.h"
 #include "profile_utils.h"
 #include "shared_decl.h"

@@ -53,12 +53,24 @@ template<>
 class TPropertyPtr<QString> : public TPropertyPtrBase<QString>
 {
 public:
-    TPropertyPtr<QString>(const QString& path, QString* initial)
+    TPropertyPtr(const QString& path, QString* initial)
         : TPropertyPtrBase<QString>(path, initial)
     {}
 protected:
     virtual QVariant getValue() const Q_DECL_OVERRIDE{ return *value; }
     virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->value = value.toString(); }
+};
+
+template<>
+class TPropertyPtr<Name> : public TPropertyPtrBase<Name>
+{
+public:
+    TPropertyPtr<Name>(const QString& path, Name* initial)
+        : TPropertyPtrBase<Name>(path, initial)
+    {}
+protected:
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return value->AsString(); }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->value->SetName(value.toString()); }
 };
 
 class TextFileNamePropertyPtr : public TPropertyPtr<QString>
@@ -76,6 +88,7 @@ typedef TPropertyPtr<float> FloatPropertyPtr;
 typedef TPropertyPtr<qint32> IntPropertyPtr;
 typedef TPropertyPtr<quint32> UIntPropertyPtr;
 typedef TPropertyPtr<QString> StringPropertyPtr;
+typedef TPropertyPtr<Name> NamePropertyPtr;
 
 class Vector3FPropertyPtr
 {

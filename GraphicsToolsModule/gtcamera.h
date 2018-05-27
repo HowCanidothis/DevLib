@@ -2,7 +2,7 @@
 #define GTCAMERA_H
 
 #include "Shared/flags.h"
-#include "SharedGui/gt_decl.h"
+#include "SharedGui/decl.h"
 
 #include "Shared/external/external.hpp"
 
@@ -112,6 +112,7 @@ public:
     const Matrix4& getWorldInverted() { updateWorld(); return world_inv; }
 
     void installObserver(const QString& path);
+
 private:
     friend class GtCameraStateProperties;
 
