@@ -107,44 +107,44 @@ void GtWidget3D::initializeGL()
     if(logger && logger->initialize()) {
         logger->startLogging();
     }
-    ResourcesSystem::registerResource("output_texture", [this]{
+    ResourcesSystem::RegisterResource("output_texture", [this]{
          GtFrameTexture* result = new GtFrameTexture(this);
          result->createOutput();
          return result;
     });
-    static_frame_texture = ResourcesSystem::getResource<GtFrameTexture>("output_texture");
+    static_frame_texture = ResourcesSystem::GetResource<GtFrameTexture>("output_texture");
 
-    ResourcesSystem::registerResource("shadow_map_technique",[this]{
+    ResourcesSystem::RegisterResource("shadow_map_technique",[this]{
         GtShadowMapTechnique* result = new GtShadowMapTechnique(this, SizeI(1024,1024));
         result->create();
         return result;
     });
-    ResourcesSystem::registerResource("sand_tex", [this]{
+    ResourcesSystem::RegisterResource("sand_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
         result->loadImage("sand2");
         return result;
     });
-    ResourcesSystem::registerResource("grass_tex", [this]{
+    ResourcesSystem::RegisterResource("grass_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
         result->loadImage("grass2");
         return result;
     });
-    ResourcesSystem::registerResource("mountain_tex", [this]{
+    ResourcesSystem::RegisterResource("mountain_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
         result->loadImage("mountain2");
         return result;
     });
-    ResourcesSystem::registerResource("mvp", [this]{
+    ResourcesSystem::RegisterResource("mvp", [this]{
         return new Matrix4();
     });
-    ResourcesSystem::registerResource("mvp_shadow", [this]{
+    ResourcesSystem::RegisterResource("mvp_shadow", [this]{
         return new Matrix4();
     });
 
-    static_frame_texture = ResourcesSystem::getResource<GtFrameTexture>("output_texture");
-    shadow_map_technique = ResourcesSystem::getResource<GtShadowMapTechnique>("shadow_map_technique");
-    MVP = ResourcesSystem::getResource<Matrix4>("mvp");
-    MVP_shadow = ResourcesSystem::getResource<Matrix4>("mvp_shadow");
+    static_frame_texture = ResourcesSystem::GetResource<GtFrameTexture>("output_texture");
+    shadow_map_technique = ResourcesSystem::GetResource<GtShadowMapTechnique>("shadow_map_technique");
+    MVP = ResourcesSystem::GetResource<Matrix4>("mvp");
+    MVP_shadow = ResourcesSystem::GetResource<Matrix4>("mvp_shadow");
 
     surface_mesh = new GtMeshSurface(3000, 2400, 320);
     surface_mesh->initialize(this);
@@ -163,7 +163,7 @@ void GtWidget3D::initializeGL()
     surface_material->addParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
     surface_material->addParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
     surface_material->addParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
-      program->setUniformValue(loc, shadow_map_technique->data()->getCam()->getForward().normalized());
+      program->setUniformValue(loc, shadow_map_technique->Data()->getCam()->getForward().normalized());
     }));
 
     surface_material->setShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
@@ -179,7 +179,7 @@ void GtWidget3D::initializeGL()
 
         depth_material = new GtMaterial();
         depth_material->addMesh(GtMeshQuad2D::instance(this));
-        gTexID texture = shadow_map_technique->data()->getDepthTexture();
+        gTexID texture = shadow_map_technique->Data()->getDepthTexture();
         depth_material->addParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
             program->setUniformValue(loc, 0);
@@ -244,8 +244,8 @@ void GtWidget3D::paintGL()
             qint32 w, h;
             {
                 MatGuard guard = output_node->getThreadOutput();
-                static_frame_texture->data()->setInput(guard.getOutput());
-                static_frame_texture->data()->update();
+                static_frame_texture->Data()->setInput(guard.getOutput());
+                static_frame_texture->Data()->update();
                 w = guard.getOutput()->rows;
                 h = guard.getOutput()->cols;
             }
@@ -268,14 +268,14 @@ void GtWidget3D::paintGL()
             }
         }
         if(shadow_mapping) {
-            shadow_map_technique->data()->bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
-            MVP->get() = shadow_map_technique->data()->getWorld();
+            shadow_map_technique->Data()->bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
+            MVP->Get() = shadow_map_technique->Data()->getWorld();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glViewport(0,0,1024,1024);
 
             surface_material->draw(this);
             color_material->draw(this);
-            shadow_map_technique->data()->release();
+            shadow_map_technique->Data()->release();
 
             static Matrix4 bias_matrix(
             0.5f, 0.0f, 0.0f, 0.5f,
@@ -283,11 +283,11 @@ void GtWidget3D::paintGL()
             0.0f, 0.0f, 0.5f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f
             );
-            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->data()->getWorld();
+            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->Data()->getWorld();
 
             fbo->bind();
-            MVP->get() = camera->getWorld();
-            MVP_shadow->get() = shadow_MVP;
+            MVP->Get() = camera->getWorld();
+            MVP_shadow->Get() = shadow_MVP;
 
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glViewport(0,0,fbo->getWidth(),fbo->getHeight());
@@ -298,7 +298,7 @@ void GtWidget3D::paintGL()
             fbo->release();
         }
         else {
-            MVP->get() = camera->getWorld();
+            MVP->Get() = camera->getWorld();
 
             fbo->bind();
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

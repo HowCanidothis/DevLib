@@ -14,9 +14,10 @@ public:
     MultiThreadResourceGuard(MultiThreadResource<T>* resource);
     ~MultiThreadResourceGuard();
 
-    T* data() { return p_resource->data(); }
+    T* Data() { return _resource->Data(); }
+
 private:
-    MultiThreadResource<T>* p_resource;
+    MultiThreadResource<T>* _resource;
 };
 
 template<typename T>
@@ -26,30 +27,30 @@ class MultiThreadResource : public Resource<T>
 public:
     using Resource::Resource;  
 
-    MultiThreadResourceGuard<T> lock() { return MultiThreadResourceGuard<T>(this); }
+    MultiThreadResourceGuard<T> Lock() { return MultiThreadResourceGuard<T>(this); }
 
 private:
-    QMutex mutex;
+    QMutex _mutex;
 
 private:
-    T* data() { return Super::data(); }
-    void lockInternal() { mutex.lock(); }
-    void unlock() { mutex.unlock(); }
+    T* Data() { return Super::Data(); }
+    void lockInternal() { _mutex.lock(); }
+    void unlock() { _mutex.unlock(); }
 
     friend class MultiThreadResourceGuard<T>;
 };
 
 template<typename T>
 MultiThreadResourceGuard<T>::MultiThreadResourceGuard(MultiThreadResource<T>* resource)
-    : p_resource(resource)
+    : _resource(resource)
 {
-    p_resource->lockInternal();
+    _resource->lockInternal();
 }
 
 template<typename T>
 MultiThreadResourceGuard<T>::~MultiThreadResourceGuard()
 {
-    p_resource->unlock();
+    _resource->unlock();
 }
 
 #endif // MULTITHREADRESOURCE_H

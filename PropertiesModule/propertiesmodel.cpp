@@ -10,7 +10,7 @@ PropertiesModel::PropertiesModel(QObject* parent)
     reset();
 }
 
-void PropertiesModel::update()
+void PropertiesModel::Update()
 {
     layoutAboutToBeChanged();
 
@@ -25,10 +25,10 @@ void PropertiesModel::forEachItem(QString& path,
                                   const Item* root,
                                   const std::function<void (const QString& path, const Item*)>& handle) const
 {
-    for(const Item* item : root->childs) {
-        if(item->property == nullptr) {
-            QString path_current = path + item->name + "/";
-            forEachItem(path_current, item, handle);
+    for(const Item* item : root->Childs) {
+        if(item->Prop == nullptr) {
+            QString pathCurrent = path + item->Name + "/";
+            forEachItem(pathCurrent, item, handle);
         } else {
             handle(path, item);
         }
@@ -37,7 +37,7 @@ void PropertiesModel::forEachItem(QString& path,
 
 void PropertiesModel::reset()
 {
-    root = new Item { "", nullptr, 0, nullptr };
+    _root = new Item { "", nullptr, 0, nullptr };
 }
 
 void PropertiesModel::reset(const QHash<Name, Property*>& tree)
@@ -50,16 +50,16 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
     for(auto it(tree.begin()), e(tree.end()); it != e; it++, row++) {
         const Name& path = it.key();
-        Item* current = root.data();
+        Item* current = _root.data();
         QStringList paths = path.AsString().split('/', QString::SkipEmptyParts);
         for(const QString& path : adapters::range(paths.begin(), paths.end() - 1)) {
             auto find = nodes.find(path);
 
             if(find == nodes.end()) {
                 Item* parent = current;
-                qint32 crow = current->childs.Size();
+                qint32 crow = current->Childs.Size();
                 current = new Item { path, parent, crow };
-                parent->childs.Push(current);
+                parent->Childs.Push(current);
                 nodes.insert(path, current);
             } else {
                 current = find.value();
@@ -67,30 +67,30 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
         }
 
         //Last editable item
-        qint32 crow = current->childs.Size();
-        Item* property_item = new Item { paths.last(), current, crow };
-        current->childs.Push(property_item);
-        property_item->property = it.value();
+        qint32 crow = current->Childs.Size();
+        Item* propertyItem = new Item { paths.last(), current, crow };
+        current->Childs.Push(propertyItem);
+        propertyItem->Prop = it.value();
     }
 }
 
-void PropertiesModel::save(const QString& file_name) const
+void PropertiesModel::Save(const QString& fileName) const
 {
-    Q_ASSERT(!file_name.isEmpty());
-    QSettings settings(file_name, QSettings::IniFormat);
+    Q_ASSERT(!fileName.isEmpty());
+    QSettings settings(fileName, QSettings::IniFormat);
     settings.setIniCodec("utf-8");
 
     QString path;
-    forEachItem(path, root.data(), [&settings](const QString& path, const Item* item) {
-        settings.setValue(path + item->name, item->property->getValue());
+    forEachItem(path, _root.data(), [&settings](const QString& path, const Item* item) {
+        settings.setValue(path + item->Name, item->Prop->getValue());
     });
 }
 
-void PropertiesModel::load(const QString& file_name)
+void PropertiesModel::Load(const QString& fileName)
 {
-    Q_ASSERT(!file_name.isEmpty());
+    Q_ASSERT(!fileName.isEmpty());
     LOGOUT;
-    QSettings settings(file_name, QSettings::IniFormat);
+    QSettings settings(fileName, QSettings::IniFormat);
     settings.setIniCodec("utf-8");
 
     beginResetModel();
@@ -102,7 +102,7 @@ void PropertiesModel::load(const QString& file_name)
         if(find == tree.end()) {
             log.Warning() << "unknown property" << key;
         } else {
-            find.value()->setValue(settings.value(key));
+            find.value()->SetValue(settings.value(key));
         }
     }
 
@@ -112,9 +112,9 @@ void PropertiesModel::load(const QString& file_name)
 int PropertiesModel::rowCount(const QModelIndex& parent) const
 {
     if(parent.isValid()) {
-        return asItem(parent)->childs.Size();
+        return asItem(parent)->Childs.Size();
     }
-    return root->childs.Size();
+    return _root->Childs.Size();
 }
 
 QVariant PropertiesModel::data(const QModelIndex& index, int role) const
@@ -127,29 +127,30 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
     case Qt::EditRole: {
         auto item = asItem(index);
-        if(item->property && index.column()) {
-            return item->property->getValue();
+        if(item->Prop && index.column()) {
+            return item->Prop->getValue();
         }
-        if(!index.column())
-            return item->name;
+        if(!index.column()) {
+            return item->Name;
+        }
     }
     case RoleHeaderItem:
-        return !asItem(index)->property;
+        return !asItem(index)->Prop;
     case RoleMinValue: {
-        auto property = asItem(index)->property;
+        auto property = asItem(index)->Prop;
         Q_ASSERT(property);
-        return property->getMin();
+        return property->GetMin();
     }
     case RoleMaxValue: {
-        auto property = asItem(index)->property;
+        auto property = asItem(index)->Prop;
         Q_ASSERT(property);
-        return property->getMax();
+        return property->GetMax();
     }
     case RoleIsTextFileName: {
         if(index.column()) {
-            auto property = asItem(index)->property;
+            auto property = asItem(index)->Prop;
             if(property) {
-                return property->isTextFileName();
+                return property->IsTextFileName();
             }
         }
         return false;
@@ -169,8 +170,8 @@ bool PropertiesModel::setData(const QModelIndex& index, const QVariant& value, i
     switch (role) {
     case Qt::EditRole: {
         Item* item = asItem(index);
-        if(auto prop = item->property) {
-            prop->setValue(value.toString());
+        if(auto prop = item->Prop) {
+            prop->SetValue(value.toString());
         }
         return true;
     }
@@ -191,19 +192,20 @@ QModelIndex PropertiesModel::index(int row, int column, const QModelIndex& paren
         return QModelIndex();
     }
     if(parent.isValid()) {
-        Item* item = asItem(parent)->childs.At(row);
+        Item* item = asItem(parent)->Childs.At(row);
         return createIndex(row, column, item);
     }
-    Item* item = root->childs.At(row);
+    Item* item = _root->Childs.At(row);
     return createIndex(row, column, item);
 }
 
 QModelIndex PropertiesModel::parent(const QModelIndex& child) const
 {
     Item* node = asItem(child);
-    if(node->parent == root.data())
+    if(node->Parent == _root.data()) {
         return QModelIndex();
-    return createIndex(node->parent_row, 0, node->parent);
+    }
+    return createIndex(node->ParentRow, 0, node->Parent);
 }
 
 int PropertiesModel::columnCount(const QModelIndex&) const
@@ -219,9 +221,10 @@ PropertiesModel::Item* PropertiesModel::asItem(const QModelIndex& index) const
 Qt::ItemFlags PropertiesModel::flags(const QModelIndex& index) const
 {
     if(index.column()) {
-        if(auto property = asItem(index)->property) {
-            if(!property->isReadOnly())
+        if(auto property = asItem(index)->Prop) {
+            if(!property->IsReadOnly()) {
                 return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+            }
         }
     }
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;

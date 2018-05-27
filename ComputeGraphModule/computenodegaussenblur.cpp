@@ -8,8 +8,8 @@ ComputeNodeGaussenBlur::ComputeNodeGaussenBlur(const QString& name)
     , y_kernels(name+"/y_kernels", 21, 1, 255)
 {
     PropertiesValidators v;
-    x_kernels.validator() = v.oddValidator<quint32>();
-    y_kernels.validator() = v.oddValidator<quint32>();
+    x_kernels.Validator() = v.OddValidator<quint32>();
+    y_kernels.Validator() = v.OddValidator<quint32>();
 }
 
 bool ComputeNodeGaussenBlur::onInputChanged(const cv::Mat* input)

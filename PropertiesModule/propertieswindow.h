@@ -15,7 +15,7 @@ public:
     explicit PropertiesWindow(QWidget *parent = 0, Qt::WindowFlags f=0);
     ~PropertiesWindow();
 
-    void loadDefault();
+    void LoadDefault();
 
 private slots:
     void on_actionSave_triggered();
@@ -30,8 +30,8 @@ private:
     void load();
     void save();
 
-    Ui::PropertiesWindow *ui;
-    QString file_name;
+    Ui::PropertiesWindow *_ui;
+    QString _fileName;
 };
 
 #endif // PROPERTIESWINDOW_H

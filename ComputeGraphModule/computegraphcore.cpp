@@ -19,7 +19,7 @@
 ComputeGraphCore::ComputeGraphCore()
     : GtComputeGraph(30)
 {
-    PropertiesSystem::begin() = [this](const auto& setter) {
+    PropertiesSystem::Begin() = [this](const auto& setter) {
         this->asynch(setter);
     };
 
@@ -35,7 +35,7 @@ ComputeGraphCore::ComputeGraphCore()
 
     createNode<ComputeNodeDepthSensor>(depth_sensor, "compute/ComputeNodeDepthSensor");
 
-    PropertiesSystem::end();
+    PropertiesSystem::End();
 }
 
 void ComputeGraphCore::initialize(InputFrameStream* stream)

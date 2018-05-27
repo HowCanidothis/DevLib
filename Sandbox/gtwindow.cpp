@@ -30,7 +30,7 @@ GtWindow::GtWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    full_screen.onChange() = [this]{
+    full_screen.OnChange() = [this]{
         if(full_screen) {
             this->showFullScreenInternal(ui->glout1);
         }
@@ -108,7 +108,7 @@ void GtWindow::setCommonCamera(GtCamera* cam)
 
     cam->installObserver("camera");
 
-    calibration_widget->loadDefault();
+    calibration_widget->LoadDefault();
 }
 
 void GtWindow::on_cmbStream_currentIndexChanged(const QString &arg1)

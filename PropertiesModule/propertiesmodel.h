@@ -4,23 +4,11 @@
 
 #include "Shared/stack.h"
 
-#ifdef WORK
-#include <functional>
-#endif
-
 class Property;
 class Name;
 
 class PropertiesModel : public QAbstractItemModel
 {
-    friend class PropertiesModelInitializer;
-    struct Item {
-        QString name;
-        Item* parent;
-        qint32 parent_row;
-        Property* property;
-        StackPointers<Item> childs;
-    };
 public:
     enum Role {
         RoleHeaderItem = Qt::UserRole,
@@ -30,10 +18,10 @@ public:
     };
     PropertiesModel(QObject* parent=0);
 
-    void update();
+    void Update();
 
-    void save(const QString& file_name) const;
-    void load(const QString& file_name);
+    void Save(const QString& fileName) const;
+    void Load(const QString& fileName);
 
     // QAbstractItemModel interface
 public:
@@ -48,14 +36,24 @@ public:
     int columnCount(const QModelIndex& parent) const Q_DECL_OVERRIDE;
 
 private:
+    friend class PropertiesModelInitializer;
+    struct Item {
+        QString Name;
+        Item* Parent;
+        qint32 ParentRow;
+        Property* Prop;
+        StackPointers<Item> Childs;
+    };
+
     Item* asItem(const QModelIndex& index) const;
     void forEachItem(QString& path,
-                     const Item* root,
+                     const Item* _root,
                      const std::function<void (const QString& path, const Item*)>& handle) const;
     void reset();
     void reset(const QHash<Name, Property*>& tree);
+
 private:
-    ScopedPointer<Item> root;
+    ScopedPointer<Item> _root;
 };
 
 #endif // PROPERTIESMODEL_H

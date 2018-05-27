@@ -20,13 +20,13 @@ ResourceBase* ResourcesSystem::getResourceData(const Name& name)
     return find.value();
 }
 
-void ResourcesSystem::registerResource(const Name& name, const std::function<void*()>& on_create)
+void ResourcesSystem::RegisterResource(const Name& name, const std::function<void*()>& fOnCreate)
 {
     LOGOUT;
     ResourceCache& cache = getResourcesCache();
     auto find = cache.find(name);
     if(find == cache.end()) {
-        ResourceBase* resource = new ResourceBase(on_create);
+        ResourceBase* resource = new ResourceBase(fOnCreate);
         cache.insert(name,resource);
     }
     else {

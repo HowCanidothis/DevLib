@@ -18,11 +18,12 @@ public:
     typedef std::function<void ()> FSetter;
     typedef std::function<void (const FSetter&)> FHandle;
 
-    static void setValue(const Name& path, const QVariant& value);
-    static QVariant getValue(const Name& path);
+    static void SetValue(const Name& path, const QVariant& value);
+    static QVariant GetValue(const Name& path);
 
-    static FHandle& begin(Type type=Global);
-    static void end();
+    static FHandle& Begin(Type type=Global);
+    static void End();
+
 private:
     friend class Property;
     friend class PropertiesModel;

@@ -11,8 +11,8 @@ GtMaterialParameterMatrix::GtMaterialParameterMatrix(const QString& name, const 
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterMatrix::apply()
 {
-    matrix = ResourcesSystem::getResource<Matrix4>(resource);
+    matrix = ResourcesSystem::GetResource<Matrix4>(resource);
     return  [this](QOpenGLShaderProgram* program, gLocID loc, OpenGLFunctions*) {
-        program->setUniformValue(loc, *matrix->data());
+        program->setUniformValue(loc, *matrix->Data());
     };
 }

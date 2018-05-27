@@ -8,7 +8,7 @@
 class GtMaterialParameterFrameTexture : public GtMaterialParameterTextureBase
 {
     typedef GtMaterialParameterTextureBase Super;
-    ScopedPointer<GtFrameTextureResource> frame_texture;
+    ScopedPointer<GtFrameTextureResource> _frameTexture;
 public:
     GtMaterialParameterFrameTexture(const QString& name, const QString& resource);
 

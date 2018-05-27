@@ -6,7 +6,7 @@ ComputeNodeMedianBlur::ComputeNodeMedianBlur(const QString& name)
     : GtComputeNodeBase(name)
     , ksize(name+"/ksize", 5, 1, 7)
 {
-    ksize.validator() = PropertiesValidators::oddValidator<qint32>();
+    ksize.Validator() = PropertiesValidators::OddValidator<qint32>();
 }
 
 bool ComputeNodeMedianBlur::onInputChanged(const cv::Mat* input)

@@ -9,7 +9,7 @@ ComputeNodeVolcanoRecognition::ComputeNodeVolcanoRecognition(const QString& name
     , epsilon_recognize(name+"/epsilon recognize", 0, -10, 10)
     , current_frame(0)
 {
-    ideal_frames_per_second.onChange() = [this]{ current_frame = 0; };
+    ideal_frames_per_second.OnChange() = [this]{ current_frame = 0; };
 }
 
 void ComputeNodeVolcanoRecognition::update(const cv::Mat* input)

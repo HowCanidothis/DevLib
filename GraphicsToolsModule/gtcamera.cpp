@@ -13,13 +13,13 @@ public:
         , up(path+"/up", &camera->up)
     {
         auto assignOnSet = [camera](Vector3FPropertyPtr& src, Vector3F& dst, bool read_only){
-            src.x.onChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
-            src.y.onChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
-            src.z.onChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
+            src.X.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
+            src.Y.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
+            src.Z.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
 
-            src.x.setReadOnly(read_only);
-            src.y.setReadOnly(read_only);
-            src.z.setReadOnly(read_only);
+            src.X.SetReadOnly(read_only);
+            src.Y.SetReadOnly(read_only);
+            src.Z.SetReadOnly(read_only);
         };
 
         assignOnSet(eye, camera->eye, false);

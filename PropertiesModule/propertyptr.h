@@ -8,12 +8,12 @@ class TPropertyPtrBase : public Property
 public:
     TPropertyPtrBase(const QString& path, T* initial)
         : Property(path)
-        , value(initial)
+        , _value(initial)
     {}
-    operator const T&() const { return *value; }
-    operator T&() { return *value; }
+    operator const T&() const { return *_value; }
+    operator T&() { return *_value; }
 protected:
-    T* value;
+    T* _value;
 };
 
 template<class T>
@@ -22,17 +22,17 @@ class TPropertyPtr : public TPropertyPtrBase<T>
 public:
     TPropertyPtr(const QString& path, T* initial, const T& min, const T& max)
         : TPropertyPtrBase<T>(path, initial)
-        , min(min)
-        , max(max)
+        , _min(min)
+        , _max(max)
     {}
-    virtual QVariant getMin() const Q_DECL_OVERRIDE { return min; }
-    virtual QVariant getMax() const Q_DECL_OVERRIDE { return max; }
+    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
+    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return *value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->value = clamp((T)value.toDouble(), min, max); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return *_value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->_value = clamp((T)value.toDouble(), _min, _max); }
 private:
-    T min;
-    T max;
+    T _min;
+    T _max;
 };
 
 template<>
@@ -43,10 +43,10 @@ public:
         : TPropertyPtrBase<bool>(path, initial)
     {}
 
-    bool& operator=(bool value) { *this->value = value; return *this->value; }
+    bool& operator=(bool value) { *this->_value = value; return *this->_value; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return *value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->value = value.toBool(); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return *_value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->_value = value.toBool(); }
 };
 
 template<>
@@ -57,8 +57,8 @@ public:
         : TPropertyPtrBase<QString>(path, initial)
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return *value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->value = value.toString(); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return *_value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { *this->_value = value.toString(); }
 };
 
 template<>
@@ -69,8 +69,8 @@ public:
         : TPropertyPtrBase<Name>(path, initial)
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return value->AsString(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->value->SetName(value.toString()); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return _value->AsString(); }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value->SetName(value.toString()); }
 };
 
 class TextFileNamePropertyPtr : public TPropertyPtr<QString>
@@ -79,7 +79,7 @@ public:
     TextFileNamePropertyPtr(const QString& path, QString* initial)
         : TPropertyPtr<QString>(path, initial)
     {}
-    bool isTextFileName() const Q_DECL_OVERRIDE { return true; }
+    bool IsTextFileName() const Q_DECL_OVERRIDE { return true; }
 };
 
 typedef TPropertyPtr<bool> BoolPropertyPtr;
@@ -93,9 +93,9 @@ typedef TPropertyPtr<Name> NamePropertyPtr;
 class Vector3FPropertyPtr
 {
 public:
-    FloatPropertyPtr x;
-    FloatPropertyPtr y;
-    FloatPropertyPtr z;
+    FloatPropertyPtr X;
+    FloatPropertyPtr Y;
+    FloatPropertyPtr Z;
 
     Vector3FPropertyPtr(const QString& path, Vector3F* vector);
 };

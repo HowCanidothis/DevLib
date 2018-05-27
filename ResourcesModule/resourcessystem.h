@@ -14,9 +14,10 @@ class ResourcesSystem
     static ResourceBase* getResourceData(const Name& name);
 
 public:
-    static void registerResource(const Name& name, const std::function<void*()>& on_create);
+    static void RegisterResource(const Name& name, const std::function<void*()>& fOnCreate);
 
-    template<class T> static Resource<T>* getResource(const Name& name) {
+    template<class T>
+    static Resource<T>* GetResource(const Name& name) {
         ResourceBase* data = getResourceData(name);
         if(data == nullptr) {
             ASSURE(false, "trying to access undeclared resource", name.AsString().toLatin1().data())
@@ -26,7 +27,8 @@ public:
         return result;
     }
 
-    template<class T> static MultiThreadResource<T>* getMultiThreadResource(const Name& name) {
+    template<class T>
+    static MultiThreadResource<T>* GetMultiThreadResource(const Name& name) {
         ResourceBase* data = getResourceData(name);
         if(data == nullptr) {
             ASSURE(false, "trying to access undeclared resource", name.AsString().toLatin1().data())

@@ -11,26 +11,26 @@ protected:
     typedef std::function<void ()> FOnChange;
     typedef std::function<void (const QVariant& property, QVariant& new_value)> FValidator;
 
-    FHandle fhandle;
-    FOnChange fonset;
-    FValidator fvalidator;
-    bool read_only;
+    FHandle _fHandle;
+    FOnChange _fOnset;
+    FValidator _fValidator;
+    bool _bReadOnly;
 public:
     Property(const QString& path);
-    void setValue(QVariant value);
+    void SetValue(QVariant value);
 
-    FHandle& handle() { return fhandle; }
-    FValidator& validator() { return fvalidator; }
-    FOnChange& onChange() { return fonset; }
+    FHandle& Handle() { return _fHandle; }
+    FValidator& Validator() { return _fValidator; }
+    FOnChange& OnChange() { return _fOnset; }
 
-    void invoke() { fhandle([]{}); }
+    void Invoke() { _fHandle([]{}); }
 
-    virtual bool isTextFileName() const { return false; }
+    virtual bool IsTextFileName() const { return false; }
 
-    void setReadOnly(bool flag) { read_only = flag; }
-    bool isReadOnly() const { return read_only; }
-    virtual QVariant getMin() const { return 0; }
-    virtual QVariant getMax() const { return 0; }
+    void SetReadOnly(bool flag) { _bReadOnly = flag; }
+    bool IsReadOnly() const { return _bReadOnly; }
+    virtual QVariant GetMin() const { return 0; }
+    virtual QVariant GetMax() const { return 0; }
 protected:
     friend class PropertiesSystem;
     friend class PropertiesModel;
@@ -45,14 +45,14 @@ class TPropertyBase : public Property
 public:
     TPropertyBase(const QString& path, const T& initial)
         : Property(path)
-        , value(initial)
+        , _value(initial)
     {}
 
-    T* ptr() { return &value; }
-    operator const T&() const { return value; }
-    operator T&() { return value; }
+    T* ptr() { return &_value; }
+    operator const T&() const { return _value; }
+    operator T&() { return _value; }
 protected:
-    T value;
+    T _value;
 };
 
 template<class T>
@@ -61,17 +61,17 @@ class TProperty : public TPropertyBase<T>
 public:
     TProperty(const QString& path, const T& initial, const T& min, const T& max)
         : TPropertyBase<T>(path, initial)
-        , min(min)
-        , max(max)
+        , _min(min)
+        , _max(max)
     {}
-    virtual QVariant getMin() const Q_DECL_OVERRIDE { return min; }
-    virtual QVariant getMax() const Q_DECL_OVERRIDE { return max; }
+    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
+    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->value = clamp((T)value.toDouble(), min, max); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = clamp((T)value.toDouble(), _min, _max); }
 private:
-    T min;
-    T max;
+    T _min;
+    T _max;
 };
 
 template<>
@@ -82,10 +82,10 @@ public:
         : TPropertyBase<bool>(path, initial)
     {}
 
-    bool& operator=(bool value) { this->value = value; return this->value; }
+    bool& operator=(bool value) { this->_value = value; return this->_value; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->value = value.toBool(); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return _value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = value.toBool(); }
 };
 
 template<>
@@ -96,8 +96,8 @@ public:
         : TPropertyBase<QString>(path, initial)
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return value; }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->value = value.toString(); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return _value; }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = value.toString(); }
 };
 
 class TextFileNameProperty : public TProperty<QString>
@@ -106,7 +106,7 @@ public:
     TextFileNameProperty(const QString& path, const QString& initial)
         : TProperty<QString>(path, initial)
     {}
-    bool isTextFileName() const Q_DECL_OVERRIDE { return true; }
+    bool IsTextFileName() const Q_DECL_OVERRIDE { return true; }
 };
 
 typedef TProperty<bool> BoolProperty;
@@ -119,9 +119,9 @@ typedef TProperty<QString> StringProperty;
 class Vector3FProperty
 {
 public:
-    FloatProperty x;
-    FloatProperty y;
-    FloatProperty z;
+    FloatProperty X;
+    FloatProperty Y;
+    FloatProperty Z;
 
     Vector3FProperty(const QString& path, const Vector3F& vector);
 };

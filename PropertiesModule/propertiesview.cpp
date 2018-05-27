@@ -49,8 +49,8 @@ public:
         if(index.data(PropertiesModel::RoleHeaderItem).toBool()){
             QRect orect = option.rect;
             painter->setPen(Qt::NoPen);
-            QRect row_rect(0,option.rect.y(),option.widget->width(),orect.height());
-            QLinearGradient lg(0,row_rect.y(), row_rect.width(),row_rect.y());
+            QRect rowRect(0,option.rect.y(),option.widget->width(),orect.height());
+            QLinearGradient lg(0,rowRect.y(), rowRect.width(),rowRect.y());
             lg.setColorAt(0, 0x567dbc);
             lg.setColorAt(0.7, 0x6ea1f1);
             painter->setBrush(lg);
@@ -126,7 +126,7 @@ public:
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
     : Super(parent)
-    , text_editor("Common/Text editor", "C:\\Windows\\system32\\notepad.exe")
+    , _textEditor("Common/Text editor", "C:\\Windows\\system32\\notepad.exe")
 {
     setWindowFlags(windowFlags() | flags);
     setItemDelegate(new PropertiesDelegate(this));
@@ -139,9 +139,9 @@ PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
     setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
 
-    properties_model = new PropertiesModel(this);
+    _propertiesModel = new PropertiesModel(this);
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
-    proxy->setSourceModel(properties_model);
+    proxy->setSourceModel(_propertiesModel);
     setModel(proxy);
 
     header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -153,63 +153,63 @@ PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
         return action;
     };
 
-    action_open_with_text_editor = addAction("OpenWithTextEditor", tr("Open with text editor"));
+    _actionOpenWithTextEditor = addAction("OpenWithTextEditor", tr("Open with text editor"));
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
     QMetaObject::connectSlotsByName(this);
 }
 
-void PropertiesView::save(const QString& file_name)
+void PropertiesView::Save(const QString& fileName)
 {
-    properties_model->save(file_name);
+    _propertiesModel->Save(fileName);
 }
 
-void PropertiesView::load(const QString& file_name)
+void PropertiesView::Load(const QString& fileName)
 {
-    properties_model->load(file_name);
+    _propertiesModel->Load(fileName);
 }
 
 void PropertiesView::showEvent(QShowEvent*)
 {
     if(!model()->rowCount()) {
-        properties_model->update();
+        _propertiesModel->Update();
     }
 }
 
 void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::RightButton) {
-        index_under_cursor = this->indexAt(event->pos());
+        _indexUnderCursor = this->indexAt(event->pos());
         validateActionsVisiblity();
     }
-    QAbstractItemView::State pre_state = state();
+    QAbstractItemView::State preState = state();
     QTreeView::mouseReleaseEvent(event);
-    if (pre_state == QAbstractItemView::AnimatingState)
-        setState(pre_state);
+    if (preState == QAbstractItemView::AnimatingState)
+        setState(preState);
 }
 
 void PropertiesView::validateActionsVisiblity()
 {
-    if(index_under_cursor.data(PropertiesModel::RoleIsTextFileName).toBool()) {
-        action_open_with_text_editor->setVisible(true);
+    if(_indexUnderCursor.data(PropertiesModel::RoleIsTextFileName).toBool()) {
+        _actionOpenWithTextEditor->setVisible(true);
     }
     else {
-        action_open_with_text_editor->setVisible(false);
+        _actionOpenWithTextEditor->setVisible(false);
     }
 }
 
 void PropertiesView::on_OpenWithTextEditor_triggered()
 {
     LOGOUT;
-    QString open_file = index_under_cursor.data().toString();
+    QString openFile = _indexUnderCursor.data().toString();
 
-    QStringList arguments { open_file };
+    QStringList arguments { openFile };
 
     QProcess *process = new QProcess(this);
-    process->start(text_editor, arguments);
+    process->start(_textEditor, arguments);
 
-    log.Warning() << "Opening" << text_editor << arguments;
+    log.Warning() << "Opening" << _textEditor << arguments;
 }
 
 #include "propertiesview.moc"

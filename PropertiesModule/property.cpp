@@ -2,29 +2,29 @@
 #include "propertiessystem.h"
 
 Property::Property(const QString& path)
-    : fonset([]{})
-    , fvalidator([](const QVariant&, QVariant&){})
-    , read_only(false)
+    : _fOnset([]{})
+    , _fValidator([](const QVariant&, QVariant&){})
+    , _bReadOnly(false)
 {
     PropertiesSystem::addProperty(Name(path), this);
 }
 
-void Property::setValue(QVariant value) // copied as it could be validated
+void Property::SetValue(QVariant value) // copied as it could be validated
 {
-    QVariant old_value = getValue();
-    if(old_value != value) {
-        fvalidator(old_value,value);
-        fhandle([this,value] {
+    QVariant oldValue = getValue();
+    if(oldValue != value) {
+        _fValidator(oldValue,value);
+        _fHandle([this,value] {
             this->setValueInternal(value);
-            fonset();
+            _fOnset();
         });
     }
 }
 
 Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
-    : x(path+"/x", vector.x(), -FLT_MAX, FLT_MAX)
-    , y(path+"/y", vector.y(), -FLT_MAX, FLT_MAX)
-    , z(path+"/z", vector.z(), -FLT_MAX, FLT_MAX)
+    : X(path+"/x", vector.x(), -FLT_MAX, FLT_MAX)
+    , Y(path+"/y", vector.y(), -FLT_MAX, FLT_MAX)
+    , Z(path+"/z", vector.z(), -FLT_MAX, FLT_MAX)
 {
 
 }

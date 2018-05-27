@@ -11,11 +11,11 @@ public:
     PropertiesValidators();
 
     template<typename T>
-    static FValidator oddValidator();
+    static FValidator OddValidator();
 };
 
 template<typename T>
-PropertiesValidators::FValidator PropertiesValidators::oddValidator()
+PropertiesValidators::FValidator PropertiesValidators::OddValidator()
 {
     return [](const QVariant& old, QVariant& v) {
         T new_value = v.value<T>();
