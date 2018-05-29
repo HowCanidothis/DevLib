@@ -28,8 +28,6 @@ private:
     QModelIndex _indexUnderCursor;
 
     QAction* _actionOpenWithTextEditor;
-    StringProperty _textEditor;
-
 };
 
 #endif // PROPERTIESVIEW_H

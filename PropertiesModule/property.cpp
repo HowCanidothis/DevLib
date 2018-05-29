@@ -28,3 +28,9 @@ Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
 {
 
 }
+
+void NamedUIntProperty::SetNames(const QStringList& names)
+{
+    _max = names.size() - 1;
+    _names = names;
+}

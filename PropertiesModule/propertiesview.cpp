@@ -80,7 +80,17 @@ public:
     }
 
     QWidget*createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE {
-        const QVariant& data = index.data(Qt::EditRole);
+        QVariant data = index.data(Qt::EditRole);
+        QVariant delegateValue = index.data(PropertiesModel::RoleDelegateValue);
+
+        if(delegateValue.toInt() == Property::DelegateNamedUInt) {
+            QVariant delegateData = index.data(PropertiesModel::RoleDelegateData);
+            QComboBox* result = new QComboBox(parent);
+            result->addItems(delegateData.toStringList());
+            result->setCurrentIndex(data.toUInt());
+            return result;
+        }
+
         switch (data.type()) {
         case QVariant::UInt:
         case QVariant::Int: {
@@ -122,12 +132,28 @@ public:
             connect(e, SIGNAL(valueChanged(double)), listener, SLOT(onEditorValueChanged()));
         }
     }
+
+    virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const Q_DECL_OVERRIDE
+    {
+        if(auto e = qobject_cast<QComboBox*>(editor)) {
+            model->setData(index, e->currentIndex());
+        } else {
+            Super::setModelData(editor, model, index);
+        }
+    }
 };
+
+static const StringProperty& textEditor(const char* path = nullptr, const char* value = nullptr)
+{
+    static StringProperty res(path, value);
+    return res;
+}
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
     : Super(parent)
-    , _textEditor("Common/Text editor", "C:\\Windows\\system32\\notepad.exe")
 {
+    textEditor("Common/Text editor", "C:\\Windows\\system32\\notepad.exe");
+
     setWindowFlags(windowFlags() | flags);
     setItemDelegate(new PropertiesDelegate(this));
     setRootIsDecorated(false);
@@ -191,7 +217,7 @@ void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
 
 void PropertiesView::validateActionsVisiblity()
 {
-    if(_indexUnderCursor.data(PropertiesModel::RoleIsTextFileName).toBool()) {
+    if(_indexUnderCursor.data(PropertiesModel::RoleDelegateValue).toInt() == Property::DelegateFileName) {
         _actionOpenWithTextEditor->setVisible(true);
     }
     else {
@@ -207,9 +233,9 @@ void PropertiesView::on_OpenWithTextEditor_triggered()
     QStringList arguments { openFile };
 
     QProcess *process = new QProcess(this);
-    process->start(_textEditor, arguments);
+    process->start(textEditor(), arguments);
 
-    log.Warning() << "Opening" << _textEditor << arguments;
+    log.Warning() << "Opening" << textEditor() << arguments;
 }
 
 #include "propertiesview.moc"

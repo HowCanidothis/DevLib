@@ -1,7 +1,7 @@
 #ifndef PROPERTIESMODEL_H
 #define PROPERTIESMODEL_H
 #include <QAbstractItemModel>
-
+#include <functional>
 #include "Shared/stack.h"
 
 class Property;
@@ -14,7 +14,8 @@ public:
         RoleHeaderItem = Qt::UserRole,
         RoleMinValue,
         RoleMaxValue,
-        RoleIsTextFileName
+        RoleDelegateValue,
+        RoleDelegateData
     };
     PropertiesModel(QObject* parent=0);
 

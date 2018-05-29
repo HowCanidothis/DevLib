@@ -79,7 +79,7 @@ public:
     TextFileNamePropertyPtr(const QString& path, QString* initial)
         : TPropertyPtr<QString>(path, initial)
     {}
-    bool IsTextFileName() const Q_DECL_OVERRIDE { return true; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
 
 typedef TPropertyPtr<bool> BoolPropertyPtr;

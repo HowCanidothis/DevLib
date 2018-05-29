@@ -1,8 +1,10 @@
 #ifndef PROPERTY_H
 #define PROPERTY_H
 
-#include "Shared/shared_decl.h"
-#include "SharedGui/decl.h" // Vector3f
+#include <functional>
+
+#include <Shared/shared_decl.h>
+#include <SharedGui/decl.h> // Vector3f
 
 class Property {
 protected:
@@ -16,6 +18,12 @@ protected:
     FValidator _fValidator;
     bool _bReadOnly;
 public:
+    enum DelegateValue {
+        DelegateDefault,
+        DelegateFileName,
+        DelegateNamedUInt
+    };
+
     Property(const QString& path);
     void SetValue(QVariant value);
 
@@ -25,7 +33,8 @@ public:
 
     void Invoke() { _fHandle([]{}); }
 
-    virtual bool IsTextFileName() const { return false; }
+    virtual DelegateValue GetDelegateValue() const { return DelegateDefault; }
+    virtual const QVariant* GetDelegateData() const { return nullptr; }
 
     void SetReadOnly(bool flag) { _bReadOnly = flag; }
     bool IsReadOnly() const { return _bReadOnly; }
@@ -51,6 +60,9 @@ public:
     T* ptr() { return &_value; }
     operator const T&() const { return _value; }
     operator T&() { return _value; }
+
+protected:
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _value; }
 protected:
     T _value;
 };
@@ -67,9 +79,8 @@ public:
     virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
     virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _value; }
     virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = clamp((T)value.toDouble(), _min, _max); }
-private:
+protected:
     T _min;
     T _max;
 };
@@ -84,7 +95,6 @@ public:
 
     bool& operator=(bool value) { this->_value = value; return this->_value; }
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return _value; }
     virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = value.toBool(); }
 };
 
@@ -96,7 +106,6 @@ public:
         : TPropertyBase<QString>(path, initial)
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE{ return _value; }
     virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->_value = value.toString(); }
 };
 
@@ -106,7 +115,23 @@ public:
     TextFileNameProperty(const QString& path, const QString& initial)
         : TProperty<QString>(path, initial)
     {}
-    bool IsTextFileName() const Q_DECL_OVERRIDE { return true; }
+    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
+};
+
+class NamedUIntProperty : public TProperty<quint32>
+{
+    typedef TProperty<quint32> Super;
+public:
+    NamedUIntProperty(const QString& path, const quint32& initial)
+        : Super(path, initial, 0, 0)
+    {}
+
+    void SetNames(const QStringList& names);
+
+    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
+    virtual const QVariant* GetDelegateData() const { return &_names; }
+private:
+    QVariant _names;
 };
 
 typedef TProperty<bool> BoolProperty;

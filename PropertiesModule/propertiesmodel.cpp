@@ -146,14 +146,23 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
         Q_ASSERT(property);
         return property->GetMax();
     }
-    case RoleIsTextFileName: {
+    case RoleDelegateValue: {
         if(index.column()) {
             auto property = asItem(index)->Prop;
             if(property) {
-                return property->IsTextFileName();
+                return property->GetDelegateValue();
             }
         }
-        return false;
+        return QVariant();
+    }
+    case RoleDelegateData: {
+        if(index.column()) {
+            auto property = asItem(index)->Prop;
+            if(property) {
+                return *property->GetDelegateData();
+            }
+        }
+        return QVariant();
     }
     default:
         break;
