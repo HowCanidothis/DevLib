@@ -291,6 +291,11 @@ public:
         detachCopy();
         _d->Insert(before, value);
     }
+    void Prepend(const T& value)
+    {
+        detachCopy();
+        _d->PushFront(value);
+    }
     void Append(const T* src, count_t count) {
         if(count) {
             detachCopy();
