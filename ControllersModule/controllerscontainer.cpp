@@ -1,7 +1,21 @@
 #include "controllerscontainer.h"
 #include "controllerbase.h"
+#include "controllerssystem.h"
+
+ControllersContainer::ControllersContainer(QObject* parent)
+    : QObject(parent)
+    , _currentController(nullptr)
+{
+
+}
+
+ControllersContainer::~ControllersContainer()
+{
+
+}
 
 void ControllersContainer::SetCurrent(ControllerBase* controller) {
+    Q_ASSERT(_currentController != nullptr);
     if(_currentController != controller) {
         ControllerBase* cp = findCommonParent(controller, _currentController);
         ControllerBase* c = _currentController;
@@ -12,6 +26,11 @@ void ControllersContainer::SetCurrent(ControllerBase* controller) {
         }
         _currentController = controller;
     }
+}
+
+void ControllersContainer::SetCurrent(const Name& name)
+{
+    SetCurrent(ControllersSystem::GetController(name));
 }
 
 void ControllersContainer::Accept()
@@ -29,57 +48,57 @@ void ControllersContainer::Abort()
     }
 }
 
-void ControllersContainer::undo()
+void ControllersContainer::Undo()
 {
     _currentController->Undo();
 }
 
-void ControllersContainer::redo()
+void ControllersContainer::Redo()
 {
     _currentController->Redo();
 }
 
-void ControllersContainer::draw(DrawEngineBase *engine)
+void ControllersContainer::Draw(DrawEngineBase* engine)
 {
     callFunctionRecursivly(&ControllerBase::Draw, engine);
 }
 
-void ControllersContainer::mouseMoveEvent(QMouseEvent *e)
+void ControllersContainer::MouseMoveEvent(QMouseEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::mouseMoveEvent, e);
 }
 
-void ControllersContainer::mousePressEvent(QMouseEvent *e)
+void ControllersContainer::MousePressEvent(QMouseEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::mousePressEvent, e);
 }
 
-void ControllersContainer::mouseReleaseEvent(QMouseEvent *e)
+void ControllersContainer::MouseReleaseEvent(QMouseEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::mouseReleaseEvent, e);
 }
 
-void ControllersContainer::mouseDoubleClickEvent(QMouseEvent *e)
+void ControllersContainer::MouseDoubleClickEvent(QMouseEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::mouseDoubleClickEvent, e);
 }
 
-void ControllersContainer::wheelEvent(QWheelEvent *e)
+void ControllersContainer::WheelEvent(QWheelEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::wheelEvent, e);
 }
 
-void ControllersContainer::keyPressEvent(QKeyEvent *e)
+void ControllersContainer::KeyPressEvent(QKeyEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::keyPressEvent, e);
 }
 
-void ControllersContainer::keyReleaseEvent(QKeyEvent *e)
+void ControllersContainer::KeyReleaseEvent(QKeyEvent* e)
 {
     callFunctionRecursivly(&ControllerBase::keyReleaseEvent, e);
 }
 
-void ControllersContainer::contextMenuEvent(QMenu *menu)
+void ControllersContainer::ContextMenuEvent(QMenu* menu)
 {
     callFunctionRecursivly(&ControllerBase::contextMenuEvent, menu);
 }

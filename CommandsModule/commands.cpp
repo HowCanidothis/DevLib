@@ -73,7 +73,7 @@ void CommandsContainer::BeginMacro(const QString& text)
 
 void CommandsContainer::EndMacro()
 {
-    CommandBase *tmp = _currentMacro;
+    CommandBase* tmp = _currentMacro;
     _currentMacro = nullptr;
     this->addCommandPrivate(tmp);
 }

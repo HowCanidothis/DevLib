@@ -29,7 +29,7 @@ public:
     {}
     ~MacroCommand()
     {}
-    void Push(CommandBase *cmd);
+    void Push(CommandBase* cmd);
 
     // ICommand interface
 public:
@@ -50,8 +50,8 @@ protected:
 public:
     CommandsContainer(capacity_type maxCommandsCount = 0xfffe);
     ~CommandsContainer();
-    void AddCommand(CommandBase *cmd);
-    void AddCommandAndDo(CommandBase *cmd);
+    void AddCommand(CommandBase* cmd);
+    void AddCommandAndDo(CommandBase* cmd);
 
     MacroCommand* ToMacro(const QString& name);
 
@@ -74,7 +74,7 @@ public Q_SLOTS:
 protected: //common element for visualable commands container
     void redoPrivate();
     void undoPrivate();
-    void addCommandPrivate(CommandBase *c);
+    void addCommandPrivate(CommandBase* c);
     capacity_type begin() const;
     void reset();
     void forEachAfterCurrent(const std::function<void (CommandBase*)>& toDo);

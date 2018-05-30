@@ -1,7 +1,7 @@
 #ifndef CONTROLLERBASEV2_H
 #define CONTROLLERBASEV2_H
 
-#include <Shared/stack.h>
+#include <Shared/internal.hpp>
 
 #ifdef VISUAL_COMMANDS
 #include "CommandsModule/commandsvisualcomponents.h"
@@ -22,19 +22,11 @@ class ControllerBase : public QObject
 protected:
     ControllerBase* _parentController;
     Commands _commands;
-    QString _name;
+    Name _name;
 
     StackPointers<ControllerBase> _childControllers;
 public:
-    ControllerBase(const QString& name, ControllerBase* parent=0)
-        : QObject(parent)
-        , _parentController(nullptr)
-        , _name(name)
-    {
-        if(parent != nullptr) {
-            parent->_childControllers.Append(this);
-        }
-    }
+    ControllerBase(const Name& name, ControllerBase* parent=0);
     virtual ~ControllerBase()
     {}
 
@@ -55,14 +47,14 @@ protected:
     friend class ControllersContainer;
 
     virtual bool Draw(DrawEngineBase*){ return false; }
-    virtual bool mouseDoubleClickEvent(QMouseEvent *){ return false; }
-    virtual bool mouseMoveEvent(QMouseEvent *){ return false; }
-    virtual bool mousePressEvent(QMouseEvent *){ return false; }
-    virtual bool mouseReleaseEvent(QMouseEvent *){ return false; }
-    virtual bool wheelEvent(QWheelEvent *){ return false; }
-    virtual bool keyPressEvent(QKeyEvent *){ return false; }
-    virtual bool keyReleaseEvent(QKeyEvent *){ return false; }
-    virtual bool contextMenuEvent(QMenu *){ return false; }
+    virtual bool mouseDoubleClickEvent(QMouseEvent* ){ return false; }
+    virtual bool mouseMoveEvent(QMouseEvent* ){ return false; }
+    virtual bool mousePressEvent(QMouseEvent* ){ return false; }
+    virtual bool mouseReleaseEvent(QMouseEvent* ){ return false; }
+    virtual bool wheelEvent(QWheelEvent* ){ return false; }
+    virtual bool keyPressEvent(QKeyEvent* ){ return false; }
+    virtual bool keyReleaseEvent(QKeyEvent* ){ return false; }
+    virtual bool contextMenuEvent(QMenu* ){ return false; }
 };
 
 #endif // CONTROLLERBASEV2_H
