@@ -13,24 +13,25 @@ class ControllerBase;
 class ControllersContainer: public QObject
 {
     typedef Array<ControllerBase*> Controllers;
-    StackPointers<ControllerBase> _controllers;
-    ControllerBase* _currentController;
 public:
     ControllersContainer(QObject* parent=0);
     ~ControllersContainer();
 
     template<class T>
-    T* AddMainController(T* controller)
+    void SetContext(T* context)
     {
-        Q_ASSERT(controller->GetParentController() == nullptr);
-        _controllers.Append(controller);
-        _currentController = (_currentController == nullptr) ? controller : _currentController;
-        return controller;
+        _context = new ControllersContext<T>();
+        _context->Data = context;
+        for(ControllerBase* controller : _controllers) {
+            controller->contextChanged();
+        }
     }
 
     void SetCurrent(ControllerBase* controller);
     void SetCurrent(const Name& name);
     ControllerBase* GetCurrent() const { return _currentController; }
+    template<class T> T& GetContext() { return _context->As<T>(); }
+    template<class T> const T& GetContext() const { return _context->As<T>(); }
 
     void Accept();
     void Abort();
@@ -48,8 +49,11 @@ public:
     void ContextMenuEvent(QMenu* );
 
 private:
+    friend class ControllerBase;
     ControllerBase* findCommonParent(ControllerBase* c1, ControllerBase* c2) const;
     Controllers findAllParents(ControllerBase* c) const;
+
+    void addMainController(ControllerBase* controller);
 
     // CurrentController call function, if function return false call parentController(if has) function and so on
     template<typename ... Args>
@@ -65,6 +69,30 @@ private:
             }
         }
     }
+
+    struct ControllersContextBase
+    {
+        void* Data;
+
+        template<class T> T& As() { return *(T*)Data; }
+        template<class T> const T& As() const { return *(T*)Data; }
+
+        ControllersContextBase(){}
+        virtual ~ControllersContextBase(){}
+    };
+
+    template<class T>
+    struct ControllersContext : ControllersContextBase
+    {
+        virtual ~ControllersContext() {
+            delete (T*)Data;
+        }
+    };
+
+private:
+    StackPointers<ControllerBase> _controllers;
+    ControllerBase* _currentController;
+    ScopedPointer<ControllersContextBase> _context;
 };
 
 #endif // CONTROLLERSCONTAINER_H

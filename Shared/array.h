@@ -81,8 +81,11 @@ public:
         if(reserv > 1000000) {
             Realloc(reserv += 5000000, 250000);
         }
-        else {
+        else if(reserv) {
             Realloc(reserv << 1, reserv >> 1);
+        }
+        else {
+            Alloc(DefaultReserved(),DefaultReserved() >> 1);
         }
     }
     void Resize(count_t size)

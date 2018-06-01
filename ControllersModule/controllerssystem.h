@@ -4,6 +4,7 @@
 #include <Shared/name.h>
 
 class ControllerBase;
+class ControllersContainer;
 
 class ControllersSystem
 {

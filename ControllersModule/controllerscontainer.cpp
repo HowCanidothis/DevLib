@@ -60,7 +60,7 @@ void ControllersContainer::Redo()
 
 void ControllersContainer::Draw(DrawEngineBase* engine)
 {
-    callFunctionRecursivly(&ControllerBase::Draw, engine);
+    callFunctionRecursivly(&ControllerBase::draw, engine);
 }
 
 void ControllersContainer::MouseMoveEvent(QMouseEvent* e)
@@ -141,4 +141,11 @@ ControllersContainer::Controllers ControllersContainer::findAllParents(Controlle
         res.Prepend(c);
     }
     return res;
+}
+
+void ControllersContainer::addMainController(ControllerBase* controller)
+{
+    Q_ASSERT(controller->GetParentController() == nullptr);
+    _controllers.Append(controller);
+    _currentController = (_currentController == nullptr) ? controller : _currentController;
 }

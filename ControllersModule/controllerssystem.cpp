@@ -1,4 +1,6 @@
 #include "controllerssystem.h"
+#include "controllerscontainer.h"
+
 #include <QHash>
 
 static QHash<Name, ControllerBase*>& controllers()

@@ -3,6 +3,8 @@
 
 #include <Shared/internal.hpp>
 
+#include "controllerscontainer.h"
+
 #ifdef VISUAL_COMMANDS
 #include "CommandsModule/commandsvisualcomponents.h"
 typedef CommandsContainerVisual Commands;
@@ -14,27 +16,27 @@ class QMouseEvent;
 class QKeyEvent;
 class QWheelEvent;
 class QMenu;
-class ControllersContainer;
 class DrawEngineBase;
 
 class ControllerBase : public QObject
 {
 protected:
+    ControllersContainer* _container;
     ControllerBase* _parentController;
     Commands _commands;
     Name _name;
 
     StackPointers<ControllerBase> _childControllers;
 public:
-    ControllerBase(const Name& name, ControllerBase* parent=0);
+    ControllerBase(const Name& name, ControllersContainer* container, ControllerBase* parent=0);
     virtual ~ControllerBase()
     {}
 
+    void  SetCurrent();
     void ResetCommandsChain(){ _commands.Clear(); }
 
     virtual void Accept(Commands* upLvlCommands) { Q_UNUSED(upLvlCommands) }
-    virtual void Abort(){ }
-
+    virtual void Abort(){}
 
     Commands* GetCommands() { return &_commands; }
     ControllerBase* GetParentController() const { return static_cast<ControllerBase*>(parent()); }
@@ -46,7 +48,13 @@ public Q_SLOTS:
 protected:
     friend class ControllersContainer;
 
-    virtual bool Draw(DrawEngineBase*){ return false; }
+    void contextChanged();
+    void setCurrent(const Name& controller);
+    void setControllersContainer(ControllersContainer* container);
+    template<class T> const T& context() const { return _container->GetContext<T>(); }
+    template<class T> T& context() { return _container->GetContext<T>(); }
+
+    virtual bool draw(DrawEngineBase*){ return false; }
     virtual bool mouseDoubleClickEvent(QMouseEvent* ){ return false; }
     virtual bool mouseMoveEvent(QMouseEvent* ){ return false; }
     virtual bool mousePressEvent(QMouseEvent* ){ return false; }
@@ -55,6 +63,20 @@ protected:
     virtual bool keyPressEvent(QKeyEvent* ){ return false; }
     virtual bool keyReleaseEvent(QKeyEvent* ){ return false; }
     virtual bool contextMenuEvent(QMenu* ){ return false; }
+
+    virtual void onContextChanged() {}
+};
+
+template<class T>
+class ControllerContextedBase : public ControllerBase
+{
+    typedef ControllerBase Super;
+public:
+    using ControllerBase::ControllerBase;
+
+protected:
+    T& ctx() { return Super::context<T>(); }
+    const T& ctx() const { return Super::context<T>(); }
 };
 
 #endif // CONTROLLERBASEV2_H
