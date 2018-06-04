@@ -2,14 +2,18 @@
 
 #include <QKeyEvent>
 
-void GtPlayerControllerBase::keyReleaseEvent(QKeyEvent* e)
+bool GtPlayerControllerBase::keyReleaseEvent(QKeyEvent* e)
 {
-    pressed_keys -= e->key();
-    modifiers = e->modifiers();
+    _pressedKeys -= e->key();
+    _modifiers = e->modifiers();
+
+    return false;
 }
 
-void GtPlayerControllerBase::keyPressEvent(QKeyEvent* e)
+bool GtPlayerControllerBase::keyPressEvent(QKeyEvent* e)
 {
-    pressed_keys += e->key();
-    modifiers = e->modifiers();
+    _pressedKeys += e->key();
+    _modifiers = e->modifiers();
+
+    return false;
 }

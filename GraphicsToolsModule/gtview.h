@@ -16,10 +16,12 @@ protected:
     void paintGL() Q_DECL_OVERRIDE;
 
 private:
-    bool initialized;
+    bool _initialized;
 
-    ScopedPointer<class GtMeshQuad2D> mesh_quad;
-    ScopedPointer<class GtMaterial> texture_material;
+    ScopedPointer<class GtMeshQuad2D> _meshQuad;
+    ScopedPointer<class GtMaterial> _materialTexture;
+    ScopedPointer<class ControllersContainer> _controllers;
+    ScopedPointer<class GtCamera> _camera;
 };
 
 #endif // GTVIEW_H

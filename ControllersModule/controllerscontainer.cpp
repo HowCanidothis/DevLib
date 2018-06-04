@@ -58,6 +58,11 @@ void ControllersContainer::Redo()
     _currentController->Redo();
 }
 
+void ControllersContainer::Input()
+{
+    callFunctionRecursivly(&ControllerBase::inputHandle);
+}
+
 void ControllersContainer::Draw(DrawEngineBase* engine)
 {
     callFunctionRecursivly(&ControllerBase::draw, engine);

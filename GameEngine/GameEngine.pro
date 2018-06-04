@@ -12,6 +12,8 @@ include(../SharedGuiModule/SharedGuiModule.pri)
 include(../GraphicsToolsModule/GraphicsToolsModule.pri)
 include(../PropertiesModule/PropertiesModule.pri)
 include(../ResourcesModule/ResourcesModule.pri)
+include(../CommandsModule/CommandsModule.pri)
+include(../ControllersModule/ControllersModule.pri)
 
 INCLUDEPATH += ../
 

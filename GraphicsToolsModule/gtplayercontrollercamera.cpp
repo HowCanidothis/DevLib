@@ -3,74 +3,74 @@
 
 #include <QKeyEvent>
 
-GtPlayerControllerCamera::GtPlayerControllerCamera()
-    : camera(nullptr)
-{
-
-}
-
 Point2I GtPlayerControllerCamera::resolutional(const Point2I& p) const
 {
     return p;
 }
 
-void GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
+bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 {
     Point2I resolutional_screen_pos = resolutional(event->pos());
     if(event->buttons() == Qt::MiddleButton) {
-        camera->rotate(last_screen_position - resolutional_screen_pos);
+        ctx().Camera->rotate(_lastScreenPosition - resolutional_screen_pos);
     }
     else if(event->buttons() == Qt::RightButton) {
-        camera->rotateRPE(last_screen_position - resolutional_screen_pos);
+        ctx().Camera->rotateRPE(_lastScreenPosition - resolutional_screen_pos);
     }
     else {
-        Vector3F dist = last_plane_position - camera->unprojectPlane(resolutional_screen_pos);
-        camera->translate(dist.x(), dist.y());
+        Vector3F dist = _lastPlanePosition - ctx().Camera->unprojectPlane(resolutional_screen_pos);
+        ctx().Camera->translate(dist.x(), dist.y());
     }
-    last_screen_position = resolutional_screen_pos;
-    last_plane_position = camera->unprojectPlane(resolutional_screen_pos);
+    _lastScreenPosition = resolutional_screen_pos;
+    _lastPlanePosition = ctx().Camera->unprojectPlane(resolutional_screen_pos);
+    return true;
 }
 
-void GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
+bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 {
-    last_screen_position = resolutional(event->pos());
-    last_plane_position = camera->unprojectPlane(last_screen_position);
+    _lastScreenPosition = resolutional(event->pos());
+    _lastPlanePosition = ctx().Camera->unprojectPlane(_lastScreenPosition);
     if(event->buttons() == Qt::MiddleButton) {
-        camera->setRotationPoint(last_plane_position);
+        ctx().Camera->setRotationPoint(_lastPlanePosition);
+        return true;
     }
+    return false;
 }
 
-void GtPlayerControllerCamera::wheelEvent(QWheelEvent* event)
+bool GtPlayerControllerCamera::wheelEvent(QWheelEvent* event)
 {
-    camera->focusBind(event->pos());
-    camera->zoom(event->delta() > 0);
-    camera->focusRelease();
+    ctx().Camera->focusBind(event->pos());
+    ctx().Camera->zoom(event->delta() > 0);
+    ctx().Camera->focusRelease();
+    return true;
 }
 
-void GtPlayerControllerCamera::keyReleaseEvent(QKeyEvent* e)
+bool GtPlayerControllerCamera::keyReleaseEvent(QKeyEvent* e)
 {
     Super::keyReleaseEvent(e);
     switch(e->key())
     {
-    case Qt::Key_P: camera->setIsometric(false); break;
-    case Qt::Key_I: camera->setIsometric(true); break;
-    default: break;
+    case Qt::Key_P: ctx().Camera->setIsometric(false); break;
+    case Qt::Key_I: ctx().Camera->setIsometric(true); break;
+    default: return false;
     };
+    return true;
 }
 
-void GtPlayerControllerCamera::inputHandle()
+bool GtPlayerControllerCamera::inputHandle()
 {
     float move_dist = 50;
-    if(modifiers) move_dist *= 10;
-    for(qint32 key : pressed_keys){
+    if(_modifiers) move_dist *= 10;
+    for(qint32 key : _pressedKeys){
         switch (key)
         {
-            case Qt::Key_W: camera->moveForward(move_dist); break;
-            case Qt::Key_S: camera->moveForward(-move_dist); break;
-            case Qt::Key_A: camera->moveSide(move_dist); break;
-            case Qt::Key_D: camera->moveSide(-move_dist); break;
+            case Qt::Key_W: ctx().Camera->moveForward(move_dist); break;
+            case Qt::Key_S: ctx().Camera->moveForward(-move_dist); break;
+            case Qt::Key_A: ctx().Camera->moveSide(move_dist); break;
+            case Qt::Key_D: ctx().Camera->moveSide(-move_dist); break;
         default:
-            break;
+            return false;
         }
     }
+    return true;
 }

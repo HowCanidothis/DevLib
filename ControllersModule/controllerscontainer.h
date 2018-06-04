@@ -38,6 +38,7 @@ public:
     void Undo();
     void Redo();
 
+    void Input();
     void Draw(DrawEngineBase* );
     void MouseMoveEvent(QMouseEvent* );
     void MousePressEvent(QMouseEvent* );

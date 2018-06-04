@@ -2,6 +2,7 @@
 #define GT_INTERNAL_HPP
 
 #ifdef __cplusplus
+#include "decl.h"
 #include "gtcamera.h"
 #include "gtframebufferobject.h"
 #include "gttexture2D.h"
