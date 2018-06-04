@@ -1,7 +1,7 @@
 #ifndef CONTROLLERSCONTAINER_H
 #define CONTROLLERSCONTAINER_H
 
-#include <Shared/internal.hpp>
+#include <SharedModule/internal.hpp>
 
 class QMouseEvent;
 class QKeyEvent;

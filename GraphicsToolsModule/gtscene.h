@@ -1,7 +1,7 @@
 #ifndef GTSCENE_H
 #define GTSCENE_H
 
-#include "Shared/internal.hpp"
+#include "SharedModule/internal.hpp"
 
 class GtActor;
 

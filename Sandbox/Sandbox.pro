@@ -7,8 +7,8 @@
 QT       += core gui
 
 include(../Global.pri)
-include(../Shared/Shared.pri)
-include(../SharedGui/SharedGui.pri)
+include(../SharedModule/SharedModule.pri)
+include(../SharedGuiModule/SharedGuiModule.pri)
 include(../ComputeGraphModule/ComputeGraphModule.pri)
 include(../GraphicsToolsModule/GraphicsToolsModule.pri)
 include(../PropertiesModule/PropertiesModule.pri)

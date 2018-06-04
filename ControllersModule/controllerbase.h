@@ -1,7 +1,7 @@
 #ifndef CONTROLLERBASEV2_H
 #define CONTROLLERBASEV2_H
 
-#include <Shared/internal.hpp>
+#include <SharedModule/internal.hpp>
 
 #include "controllerscontainer.h"
 

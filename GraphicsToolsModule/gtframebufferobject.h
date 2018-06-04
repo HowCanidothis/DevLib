@@ -2,7 +2,7 @@
 #define GTFRAMEBUFFEROBJECT_H
 
 #include "gttexture2D.h"
-#include "Shared/stack.h"
+#include "SharedModule/stack.h"
 
 class GtFramebufferTextureFormat : GtTextureFormat
 {

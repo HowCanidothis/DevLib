@@ -1,10 +1,10 @@
 #ifndef GTCAMERA_H
 #define GTCAMERA_H
 
-#include "Shared/flags.h"
-#include "SharedGui/decl.h"
+#include "SharedModule/flags.h"
+#include "SharedGuiModule/decl.h"
 
-#include "Shared/external/external.hpp"
+#include "SharedModule/external/external.hpp"
 
 class GtCameraState
 {

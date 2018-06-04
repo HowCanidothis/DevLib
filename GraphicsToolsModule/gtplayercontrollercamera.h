@@ -2,7 +2,7 @@
 #define GTPLAYERCONTROLLERCAMERA_H
 
 #include "gtplayercontrollerbase.h"
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 
 class GtCamera;
 

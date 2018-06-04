@@ -31,7 +31,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "Shared/profile_utils.h"
+#include "SharedModule/profile_utils.h"
 
 GtWidget3D::GtWidget3D(QWidget *parent)
     : QOpenGLWidget(parent)

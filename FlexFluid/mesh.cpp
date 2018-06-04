@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-#include "Shared/profile_utils.h"
+#include "SharedModule/profile_utils.h"
 
 #include <QFileInfo>
 #include <map>

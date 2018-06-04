@@ -1,9 +1,9 @@
 #ifndef COMPUTENODEBASE_H
 #define COMPUTENODEBASE_H
 
-#include "Shared/array.h"
-#include "Shared/flags.h"
-#include "SharedGui/decl.h"
+#include "SharedModule/array.h"
+#include "SharedModule/flags.h"
+#include "SharedGuiModule/decl.h"
 
 #include "PropertiesModule/property.h"
 

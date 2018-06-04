@@ -2,8 +2,8 @@
 #define GTVIEWBASE_H
 
 #include "gtobjectbase.h"
-#include "Shared/array.h"
-#include "Shared/stack.h"
+#include "SharedModule/array.h"
+#include "SharedModule/stack.h"
 
 class GtMeshBase;
 class GtCamera;

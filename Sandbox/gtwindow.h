@@ -2,8 +2,8 @@
 #define GTWINDOW_H
 
 #include <QMainWindow>
-#include "SharedGui/decl.h"
-#include "Shared/stack.h"
+#include "SharedGuiModule/decl.h"
+#include "SharedModule/stack.h"
 
 #include "PropertiesModule/property.h"
 

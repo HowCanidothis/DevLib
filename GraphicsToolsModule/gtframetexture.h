@@ -3,7 +3,7 @@
 
 #ifdef OPENCV
 
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 #include "gttexture2D.h"
 
 namespace cv {

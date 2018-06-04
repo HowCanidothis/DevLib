@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 include (../GraphicsToolsModule/GraphicsToolsModule.pri)
-include (../SharedGui/SharedGui.pri)
-include (../Shared/Shared.pri)
+include (../SharedGuiModule/SharedGuiModule.pri)
+include (../SharedModule/SharedModule.pri)
 include (../PropertiesModule/PropertiesModule.pri)
 include (../ResourcesModule/ResourcesModule.pri)
 INCLUDEPATH += ../

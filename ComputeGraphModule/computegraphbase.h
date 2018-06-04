@@ -2,8 +2,8 @@
 #define COMPUTEGRAPHBASE_H
 
 #include <QMutex>
-#include "Shared/array.h"
-#include "Shared/stack.h"
+#include "SharedModule/array.h"
+#include "SharedModule/stack.h"
 #include <atomic>
 #include <QThread>
 #include <QWaitCondition>

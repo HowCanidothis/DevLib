@@ -3,7 +3,7 @@
 
 #include <QAbstractItemModel>
 
-#include "Shared/array.h"
+#include "SharedModule/array.h"
 
 class GtComputeNodeBase;
 class GtComputeGraph;

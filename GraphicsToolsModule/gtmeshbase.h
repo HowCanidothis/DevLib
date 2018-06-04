@@ -1,7 +1,7 @@
 #ifndef GTMESHBASE_H
 #define GTMESHBASE_H
 
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 
 class QOpenGLVertexArrayObject;
 class QOpenGLBuffer;

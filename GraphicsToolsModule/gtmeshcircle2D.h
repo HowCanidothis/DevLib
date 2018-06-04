@@ -2,7 +2,7 @@
 #define GTMESHCIRCLE2D_H
 
 #include "gtmeshbase.h"
-#include "Shared/array.h"
+#include "SharedModule/array.h"
 
 struct Circle2D
 {

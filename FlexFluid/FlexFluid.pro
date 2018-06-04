@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 include(../GraphicsTools/GtCamera.pri)
-include(../Shared/Shared.pri)
+include(../SharedModule/SharedModule.pri)
 
 INCLUDEPATH += ../
 

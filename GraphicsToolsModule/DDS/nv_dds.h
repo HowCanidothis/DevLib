@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 
 #ifndef NV_DDS_NO_GL_SUPPORT
     #ifdef __APPLE__

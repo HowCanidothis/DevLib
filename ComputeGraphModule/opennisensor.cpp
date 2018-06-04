@@ -2,7 +2,7 @@
 #include <OpenNI.h>
 #include <QDebug>
 #include <QTimer>
-#include "Shared/shared_decl.h"
+#include "SharedModule/decl.h"
 
 OpenniSensor::OpenniSensor()
     : _device(new openni::Device)

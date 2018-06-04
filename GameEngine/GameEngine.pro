@@ -7,8 +7,8 @@
 QT       += core gui concurrent
 
 include(../Global.pri)
-include(../Shared/Shared.pri)
-include(../SharedGui/SharedGui.pri)
+include(../SharedModule/SharedModule.pri)
+include(../SharedGuiModule/SharedGuiModule.pri)
 include(../GraphicsToolsModule/GraphicsToolsModule.pri)
 include(../PropertiesModule/PropertiesModule.pri)
 include(../ResourcesModule/ResourcesModule.pri)

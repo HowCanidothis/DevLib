@@ -2,7 +2,7 @@
 #define PROPERTIESMODEL_H
 #include <QAbstractItemModel>
 #include <functional>
-#include "Shared/stack.h"
+#include "SharedModule/stack.h"
 
 class Property;
 class Name;

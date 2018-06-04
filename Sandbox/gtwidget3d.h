@@ -3,8 +3,8 @@
 
 #include <QOpenGLWidget>
 #include <qopenglfunctions_4_5_core>
-#include "SharedGui/decl.h"
-#include "Shared/stack.h"
+#include "SharedGuiModule/decl.h"
+#include "SharedModule/stack.h"
 
 #include "GraphicsToolsModule/Objects/gtmaterialparameterbase.h"
 

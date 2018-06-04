@@ -1,7 +1,7 @@
 #ifndef GTVIEW_H
 #define GTVIEW_H
 
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 #include <QOpenGLWidget>
 
 class GtView : public QOpenGLWidget, protected OpenGLFunctions

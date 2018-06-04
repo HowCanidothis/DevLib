@@ -2,7 +2,7 @@
 #define FLUIDTESTWIDGET_H
 
 #include <QOpenGLWidget>
-#include "SharedGui/gt_decl.h"
+#include "SharedGuiModule/gt_decl.h"
 
 class FluidTestWidget : public QOpenGLWidget, protected OpenGLFunctions
 {

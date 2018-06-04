@@ -1,10 +1,10 @@
 #ifndef GTOBJECTBASE_H
 #define GTOBJECTBASE_H
 
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 #include "PropertiesModule/internal.hpp"
-#include "Shared/external/external.hpp"
-#include "Shared/array.h"
+#include "SharedModule/external/external.hpp"
+#include "SharedModule/array.h"
 
 class GtObjectBase
 {

@@ -1,7 +1,7 @@
 #ifndef INPUTFRAMESTREAM_H
 #define INPUTFRAMESTREAM_H
 
-#include "Shared/shared_decl.h"
+#include "SharedModule/decl.h"
 
 class QFile;
 

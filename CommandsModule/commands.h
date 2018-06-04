@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <QObject>
-#include <Shared/stack.h>
+#include <SharedModule/stack.h>
 
 typedef quint16 capacity_type;
 

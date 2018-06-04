@@ -12,7 +12,7 @@
 
 #include "PropertiesModule/propertiessystem.h"
 #include "propertiesmodel.h"
-#include "SharedGui/decl.h"
+#include "SharedGuiModule/decl.h"
 
 class OnEditorValueChangedListener : public QObject
 {

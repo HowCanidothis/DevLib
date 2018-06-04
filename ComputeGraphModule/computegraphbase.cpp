@@ -3,8 +3,8 @@
 #include <QTimer>
 #include <QThread>
 
-#include "Shared/profile_utils.h"
-#include "Shared/timer.h"
+#include "SharedModule/profile_utils.h"
+#include "SharedModule/timer.h"
 
 void GtComputeGraphEvent::call()
 {

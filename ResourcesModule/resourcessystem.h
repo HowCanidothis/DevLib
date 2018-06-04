@@ -6,7 +6,7 @@
 
 #include "resource.h"
 #include "multithreadresource.h"
-#include "Shared/shared_decl.h"
+#include "SharedModule/decl.h"
 
 class ResourcesSystem
 {

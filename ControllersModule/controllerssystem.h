@@ -1,7 +1,7 @@
 #ifndef CONTROLLERSSYSTEM_H
 #define CONTROLLERSSYSTEM_H
 
-#include <Shared/name.h>
+#include <SharedModule/name.h>
 
 class ControllerBase;
 class ControllersContainer;

@@ -18,7 +18,7 @@
 
 #include <QOpenGLDebugLogger>
 
-#include "Shared/external/qtqssreader.h"
+#include "SharedModule/external/qtqssreader.h"
 
 GtWindow::GtWindow(QWidget *parent)
     : QMainWindow(parent)

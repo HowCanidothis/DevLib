@@ -1,6 +1,6 @@
 #include "propertiessystem.h"
 #include "property.h"
-#include "Shared/stack.h"
+#include "SharedModule/stack.h"
 
 void PropertiesSystem::SetValue(const Name& path, const QVariant& value)
 {
