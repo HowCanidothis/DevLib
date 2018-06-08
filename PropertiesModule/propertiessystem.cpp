@@ -5,7 +5,7 @@
 void PropertiesSystem::SetValue(const Name& path, const QVariant& value)
 {
     auto find = context().find(path);
-    Q_ASSERT_X(find == context().end(), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
+    Q_ASSERT_X(find != context().end(), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
     find.value()->SetValue(value);
 }
 

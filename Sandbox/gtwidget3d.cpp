@@ -322,6 +322,8 @@ void GtWidget3D::paintGL()
 
 void GtWidget3D::mouseMoveEvent(QMouseEvent* event)
 {
+    __PERFOMANCE__
+
     camera_controller->mouseMoveEvent(event);
 }
 
