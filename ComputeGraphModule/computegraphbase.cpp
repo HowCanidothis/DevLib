@@ -6,11 +6,6 @@
 #include "SharedModule/profile_utils.h"
 #include "SharedModule/timer.h"
 
-void GtComputeGraphEvent::call()
-{
-    handler();
-}
-
 GtComputeGraph::GtComputeGraph(qint32 idealFrameTime)
     : _idealFrameTime(idealFrameTime)
     , _fpsCounter(new TimerClocks)
@@ -20,23 +15,7 @@ GtComputeGraph::GtComputeGraph(qint32 idealFrameTime)
 
 GtComputeGraph::~GtComputeGraph()
 {
-    _events.Clear();
     Quit();
-}
-
-void GtComputeGraph::Asynch(GtComputeGraphEvent::FEventHandler handler)
-{
-    QMutexLocker locker(&_eventsMutex);
-    _events.Push(new GtComputeGraphEvent(handler));
-}
-
-void GtComputeGraph::ProcessEvents()
-{
-    QMutexLocker locker(&_eventsMutex);
-    _eventsNotified = false;
-    while(!_eventsNotified) { // from spurious wakeups
-        _eventsProcessed.wait(&_eventsMutex);
-    }
 }
 
 void GtComputeGraph::Start()
@@ -74,15 +53,8 @@ void GtComputeGraph::run()
 
         _fpsCounter->Bind();
 
-        {
-            QMutexLocker locker(&_eventsMutex);
-            for(GtComputeGraphEvent* event : _events) {
-                event->call();
-            }
-            _events.Clear();
-            _eventsNotified = true;
-            _eventsProcessed.wakeAll();
-        }
+        CallEvents();
+
         {
             QMutexLocker locker(&_mutex);
             for(GtComputeNodeBase* node : _calculationGraphs) {

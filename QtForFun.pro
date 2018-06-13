@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-#    Sandbox \
+    Sandbox \
 #    FlexFluidRefactoring \
 #    PropertiesSystem \
 #    ResoursesModule
