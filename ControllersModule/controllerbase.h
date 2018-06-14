@@ -63,7 +63,7 @@ protected:
     virtual bool keyPressEvent(QKeyEvent* ){ return false; }
     virtual bool keyReleaseEvent(QKeyEvent* ){ return false; }
     virtual bool contextMenuEvent(QMenu* ){ return false; }
-    virtual bool inputHandle() { return false; }
+    virtual bool inputHandle(const QSet<qint32>*, qint32) { return false; }
 
     virtual void onContextChanged() {}
 };

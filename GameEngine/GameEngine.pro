@@ -6,6 +6,7 @@
 
 QT       += core gui concurrent
 
+
 include(../Global.pri)
 include(../SharedModule/SharedModule.pri)
 include(../SharedGuiModule/SharedGuiModule.pri)

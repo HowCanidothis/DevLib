@@ -1,16 +1,17 @@
 #ifndef GTPLAYERCONTROLLERCAMERA_H
 #define GTPLAYERCONTROLLERCAMERA_H
 
-#include "gtplayercontrollerbase.h"
+#include <ControllersModule/controllerbase.h>
 #include "SharedGuiModule/decl.h"
+#include "decl.h"
 
 class GtCamera;
 
-class GtPlayerControllerCamera : public GtPlayerControllerBase
+class GtPlayerControllerCamera : public ControllerContextedBase<GtControllersContext>
 {
-    typedef GtPlayerControllerBase Super;
+    typedef ControllerContextedBase<GtControllersContext> Super;
 public:
-    using GtPlayerControllerBase::GtPlayerControllerBase;
+    using Super::Super;
 
     // GtPlayerControllerBase interface
 public:
@@ -18,7 +19,7 @@ public:
     bool mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
     bool wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE;
     bool keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
-    bool inputHandle() Q_DECL_OVERRIDE;
+    bool inputHandle(const QSet<qint32>* inputKeys, qint32 modifiers) Q_DECL_OVERRIDE;
 
 private:
     Point2I resolutional(const Point2I& p) const;

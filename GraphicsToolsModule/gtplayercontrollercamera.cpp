@@ -47,7 +47,6 @@ bool GtPlayerControllerCamera::wheelEvent(QWheelEvent* event)
 
 bool GtPlayerControllerCamera::keyReleaseEvent(QKeyEvent* e)
 {
-    Super::keyReleaseEvent(e);
     switch(e->key())
     {
     case Qt::Key_P: ctx().Camera->setIsometric(false); break;
@@ -57,11 +56,11 @@ bool GtPlayerControllerCamera::keyReleaseEvent(QKeyEvent* e)
     return true;
 }
 
-bool GtPlayerControllerCamera::inputHandle()
+bool GtPlayerControllerCamera::inputHandle(const QSet<qint32>* inputKeys, qint32 modifiers)
 {
     float move_dist = 50;
-    if(_modifiers) move_dist *= 10;
-    for(qint32 key : _pressedKeys){
+    if(modifiers) move_dist *= 10;
+    for(qint32 key : *inputKeys){
         switch (key)
         {
             case Qt::Key_W: ctx().Camera->moveForward(move_dist); break;

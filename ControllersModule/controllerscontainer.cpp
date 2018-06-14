@@ -1,4 +1,7 @@
 #include "controllerscontainer.h"
+
+#include <QKeyEvent>
+
 #include "controllerbase.h"
 #include "controllerssystem.h"
 
@@ -60,52 +63,56 @@ void ControllersContainer::Redo()
 
 void ControllersContainer::Input()
 {
-    callFunctionRecursivly(&ControllerBase::inputHandle);
+    callFunctionRecursively(&ControllerBase::inputHandle, (const QSet<qint32>*) &getInputKeys(), getInputKeysModifiers());
 }
 
 void ControllersContainer::Draw(DrawEngineBase* engine)
 {
-    callFunctionRecursivly(&ControllerBase::draw, engine);
+    callFunctionRecursively(&ControllerBase::draw, engine);
 }
 
 void ControllersContainer::MouseMoveEvent(QMouseEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::mouseMoveEvent, e);
+    callFunctionRecursively(&ControllerBase::mouseMoveEvent, e);
 }
 
 void ControllersContainer::MousePressEvent(QMouseEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::mousePressEvent, e);
+    callFunctionRecursively(&ControllerBase::mousePressEvent, e);
 }
 
 void ControllersContainer::MouseReleaseEvent(QMouseEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::mouseReleaseEvent, e);
+    callFunctionRecursively(&ControllerBase::mouseReleaseEvent, e);
 }
 
 void ControllersContainer::MouseDoubleClickEvent(QMouseEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::mouseDoubleClickEvent, e);
+    callFunctionRecursively(&ControllerBase::mouseDoubleClickEvent, e);
 }
 
 void ControllersContainer::WheelEvent(QWheelEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::wheelEvent, e);
+    callFunctionRecursively(&ControllerBase::wheelEvent, e);
 }
 
 void ControllersContainer::KeyPressEvent(QKeyEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::keyPressEvent, e);
+    getInputKeys() += e->key();
+    getInputKeysModifiers() = e->modifiers();
+    callFunctionRecursively(&ControllerBase::keyPressEvent, e);
 }
 
 void ControllersContainer::KeyReleaseEvent(QKeyEvent* e)
 {
-    callFunctionRecursivly(&ControllerBase::keyReleaseEvent, e);
+    getInputKeys() -= e->key();
+    getInputKeysModifiers() = e->modifiers();
+    callFunctionRecursively(&ControllerBase::keyReleaseEvent, e);
 }
 
 void ControllersContainer::ContextMenuEvent(QMenu* menu)
 {
-    callFunctionRecursivly(&ControllerBase::contextMenuEvent, menu);
+    callFunctionRecursively(&ControllerBase::contextMenuEvent, menu);
 }
 
 ControllerBase* ControllersContainer::findCommonParent(ControllerBase* c1, ControllerBase* c2) const

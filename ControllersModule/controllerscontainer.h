@@ -51,14 +51,17 @@ public:
 
 private:
     friend class ControllerBase;
+    qint32& getInputKeysModifiers() { return _context->InputKeysModifiers; }
+    QSet<qint32>& getInputKeys() { return _context->InputKeys; }
+
     ControllerBase* findCommonParent(ControllerBase* c1, ControllerBase* c2) const;
     Controllers findAllParents(ControllerBase* c) const;
 
     void addMainController(ControllerBase* controller);
 
-    // CurrentController call function, if function return false call parentController(if has) function and so on
+    // Calls currentController's function, if the function has returned false then calls parentController's(if has) function and so on
     template<typename ... Args>
-    void callFunctionRecursivly(bool (ControllerBase::*function)(Args...), Args ... args)
+    void callFunctionRecursively(bool (ControllerBase::*function)(Args...), Args ... args)
     {
         Q_ASSERT(_currentController);
         if(!(_currentController->*function)(args...)) {
@@ -74,6 +77,9 @@ private:
     struct ControllersContextBase
     {
         void* Data;
+
+        qint32 InputKeysModifiers;
+        QSet<qint32> InputKeys;
 
         template<class T> T& As() { return *(T*)Data; }
         template<class T> const T& As() const { return *(T*)Data; }
