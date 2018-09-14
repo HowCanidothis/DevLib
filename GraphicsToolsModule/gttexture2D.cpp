@@ -82,15 +82,14 @@ GtTexture2D::GtTexture2D(OpenGLFunctions* f)
 
 void GtTexture2D::loadImage(const QString& img_file)
 {
-    LOGOUT;
     if(!create()) {
-        log.Warning() << "Unable to create texture";
+        qCWarning(LC_SYSTEM) << "Unable to create texture";
         return;
     }
 
     QImage img(img_file);
     if(img.isNull()) {
-        log.Warning() << "Cannot read image" << img_file;
+        qCWarning(LC_SYSTEM) << "Cannot read image" << img_file;
         return;
     }
 

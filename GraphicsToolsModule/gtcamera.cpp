@@ -1,30 +1,28 @@
 #include "gtcamera.h"
-#include "PropertiesModule/propertyptr.h"
+#include <PropertiesModule/internal.hpp>
 
 class GtCamera::CameraObserverProperties
 {
-    Vector3FPropertyPtr eye;
-    Vector3FPropertyPtr forward;
-    Vector3FPropertyPtr up;
+    ExternalVector3FProperty eye;
+    ExternalVector3FProperty forward;
+    ExternalVector3FProperty up;
 public:
     CameraObserverProperties(const QString& path, GtCamera* camera)
-        : eye(path+"/eye", &camera->eye)
-        , forward(path+"/forward", &camera->forward)
-        , up(path+"/up", &camera->up)
+        : eye(Name(path+"/eye"), camera->eye)
+        , forward(Name(path+"/forward"), camera->forward)
+        , up(Name(path+"/up"), camera->up)
     {
-        auto assignOnSet = [camera](Vector3FPropertyPtr& src, Vector3F& dst, bool read_only){
-            src.X.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
-            src.Y.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
-            src.Z.OnChange() = [&dst, &src, camera]{ camera->state.SetFlag(GtCamera::State_NeedUpdateView); };
+        auto assignOnSet = [camera](ExternalVector3FProperty& src, bool read_only){
+            src.Subscribe([camera]{
+                camera->state.AddFlag(GtCamera::State_NeedUpdateView);
+            });
 
-            src.X.SetReadOnly(read_only);
-            src.Y.SetReadOnly(read_only);
-            src.Z.SetReadOnly(read_only);
+            src.SetReadOnly(read_only);
         };
 
-        assignOnSet(eye, camera->eye, false);
-        assignOnSet(forward, camera->forward, true);
-        assignOnSet(up, camera->up, true);
+        assignOnSet(eye, false);
+        assignOnSet(forward, true);
+        assignOnSet(up, true);
     }
 };
 
@@ -41,7 +39,7 @@ class GtCameraStateSaver : protected GtCameraState
 {
     GtCamera* camera;
 public:
-    GtCameraStateSaver(GtCamera* camera) : camera(camera) { clone(this, camera); camera->state.SetFlag(State_PredictionMode); }
+    GtCameraStateSaver(GtCamera* camera) : camera(camera) { clone(this, camera); camera->state.AddFlag(State_PredictionMode); }
     ~GtCameraStateSaver() { clone(camera, this); }
 };
 
@@ -83,7 +81,7 @@ void GtCamera::normalize()
     if(up != Vector3F(0.f,-1.f,0.f)){
         forward = Vector3F(0.f,0.f,-1.f);
         up = Vector3F(0.f,-1.f,0.f);
-        state.SetFlag(State_NeedUpdateView);
+        state.AddFlag(State_NeedUpdateView);
     }
 }
 
@@ -92,7 +90,7 @@ void GtCamera::setPosition(const Point3F& eye, const Point3F& center)
     this->eye = eye;
     this->forward = (center - eye).normalized();
     this->up = Vector3F::crossProduct(Vector3F(forward.y(), -forward.x(), 0.f), forward);
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::setPosition(const Point3F& eye, const Point3F& forward, const Vector3F& up)
@@ -100,27 +98,27 @@ void GtCamera::setPosition(const Point3F& eye, const Point3F& forward, const Vec
     this->eye = eye;
     this->forward = forward;
     this->up = up;
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::moveForward(float value)
 {
     eye += forward * value;
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::moveSide(float value)
 {
     Vector3F side = Vector3F::crossProduct(-forward, up).normalized();
     eye += side * value;
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::translate(float dx, float dy)
 {
     eye.setX(eye.x() + dx);
     eye.setY(eye.y() + dy);
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::focusBind(const Point2I& screen_position)
@@ -143,7 +141,7 @@ void GtCamera::zoom(bool closer)
     Point3F neye = eye + ray / denum;
     eye = neye;
 
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::rotate(qint32 angleZ, qint32 angleX)
@@ -181,7 +179,7 @@ void GtCamera::rotate(qint32 angleZ, qint32 angleX)
         forward = (rm * Vector4F(forward, 0.f)).toVector3D();
         up = (rm * Vector4F(up, 0.f)).toVector3D();
     }
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::rotateRPE(qint32 angleZ, qint32 angleX)
@@ -209,17 +207,17 @@ void GtCamera::rotateRPE(qint32 angleZ, qint32 angleX)
         forward = (rm * Vector4F(forward, 0)).toVector3D();
         up = (rm * Vector4F(up, 0.0)).toVector3D();
     }
-    state.SetFlag(State_NeedUpdateView);
+    state.AddFlag(State_NeedUpdateView);
 }
 
 void GtCamera::setIsometricScale(float scale) {
     isometric_scale = scale;
-    state.UnsetFlag(State_AutoIsometricScaling);
-    state.SetFlag(State_NeedUpdateProjection);
+    state.RemoveFlag(State_AutoIsometricScaling);
+    state.AddFlag(State_NeedUpdateProjection);
 }
 
 void GtCamera::setIsometric(bool flag) {
-    state.SetFlag(State_NeedUpdate); state.ChangeFromBoolean(State_Isometric | State_AutoIsometricScaling, flag);
+    state.AddFlag(State_NeedUpdate); state.ChangeFromBoolean(State_Isometric | State_AutoIsometricScaling, flag);
 }
 
 
@@ -227,7 +225,7 @@ void GtCamera::resize(qint32 width, qint32 height)
 {
     viewport = SizeF(width,height);
     calculateIsometricCoef();
-    state.SetFlag(State_NeedUpdateProjection);
+    state.AddFlag(State_NeedUpdateProjection);
 }
 
 void GtCamera::setProjectionProperties(float angle, float _near, float _far)
@@ -235,7 +233,7 @@ void GtCamera::setProjectionProperties(float angle, float _near, float _far)
     this->angle = angle;
     this->nearc = _near;
     this->farc = _far;
-    state.SetFlag(State_NeedUpdateProjection);
+    state.AddFlag(State_NeedUpdateProjection);
 }
 
 Point3F GtCamera::unproject(float x, float y, float depth)
@@ -289,7 +287,7 @@ Point3F GtCamera::project(const Point3F& point)
 bool GtCamera::takeNewFrame()
 {
     bool res = isFrameChanged();
-    state.UnsetFlag(State_FrameChanged);
+    state.RemoveFlag(State_FrameChanged);
     return res;
 }
 
@@ -310,8 +308,8 @@ void GtCamera::updateWorld()
         adjustIsometricScale();
         world = getProjection() * getView();
         world_inv = world.inverted();
-        state.UnsetFlag(State_ChangedWorld);
-        state.SetFlag(State_FrameChanged);
+        state.RemoveFlag(State_ChangedWorld);
+        state.AddFlag(State_FrameChanged);
     }
 }
 
@@ -327,7 +325,7 @@ void GtCamera::updateProjection()
         else {
             projection.perspective(angle, float(viewport.width()) / viewport.height(), nearc, farc);
         }
-        state.UnsetFlag(State_ChangedProjection);
+        state.RemoveFlag(State_ChangedProjection);
     }
 }
 
@@ -347,7 +345,7 @@ void GtCamera::updateView()
         view.setRow(3, Vector4F(0,0,0,1));
         view.translate(-eye);
 
-        state.UnsetFlag(State_ChangedView);
+        state.RemoveFlag(State_ChangedView);
     }
 }
 
@@ -369,7 +367,7 @@ void GtCamera::adjustIsometricScale()
     if(state.TestFlagsAll(State_NeedAdjustScale) && isometric_coef != 0.f)
     {
         isometric_scale = eye.z() / isometric_coef;
-        state.SetFlag(State_NeedUpdateProjection);
+        state.AddFlag(State_NeedUpdateProjection);
     }
 }
 
@@ -389,7 +387,7 @@ BoundingRect GtCamera::predicateVisibleRectOnZ(const SizeF& _viewport, float z, 
     this->forward = Vector3F(0.f,0.f,-1.f);
     this->up = Vector3F(0.f,1.f,0.f);
 
-    this->state.SetFlag(State_NeedUpdate);
+    this->state.AddFlag(State_NeedUpdate);
     this->state.ChangeFromBoolean(State_Isometric, ortho);
     return getVisibleRect();
 }

@@ -3,8 +3,6 @@
 
 #include <QString>
 
-class QTextStream;
-
 class Timer{
     typedef qint64 nsecs;
     typedef qint32 msecs;

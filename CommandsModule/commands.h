@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <QObject>
-#include <SharedModule/stack.h>
+#include <SharedModule/internal.hpp>
 
 typedef quint16 capacity_type;
 
@@ -48,28 +48,30 @@ protected:
     capacity_type _maxCommandsCount;
     MacroCommand* _currentMacro;
 public:
-    CommandsContainer(capacity_type maxCommandsCount = 0xfffe);
-    ~CommandsContainer();
-    void AddCommand(CommandBase* cmd);
-    void AddCommandAndDo(CommandBase* cmd);
+    _Export CommandsContainer(capacity_type maxCommandsCount = 0xfffe);
+    _Export ~CommandsContainer();
+    _Export void AddCommand(CommandBase* cmd);
+    _Export void AddCommandAndDo(CommandBase* cmd);
 
-    MacroCommand* ToMacro(const QString& name);
+    _Export MacroCommand* ToMacro(const QString& name);
 
-    void Clear();
+    _Export void Clear();
+    bool IsEmpty() const { return _count == 0; }
 
-    void BeginMacro(const QString &text);
-    void EndMacro();
+    _Export void BeginMacro(const QString &text);
+    _Export void EndMacro();
 
     bool CanRedo() const { return _undone != 0; }
     bool CanUndo() const { return _undone != _count; }
 
     qint32 GetCurrentIndex() const { return _count - _undone - 1; }
     const CommandBase* GetCommand(capacity_type i) { return _commands[(begin() + i) % _maxCommandsCount]; }
-    capacity_type GetCount() const;
+    _Export capacity_type GetCount() const;
 
 public Q_SLOTS:
-    void Redo();
-    void Undo();
+    _Export void Redo();
+    _Export void Undo();
+    _Export void UndoAll();
 
 protected: //common element for visualable commands container
     void redoPrivate();

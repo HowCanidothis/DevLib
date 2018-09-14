@@ -27,8 +27,8 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 void GtMaterialParameterTexture::mapProperties(Observer* observer)
 {
     QString path = "Materials/" + QString::number(unit);
-    new StringPropertyPtr(path + "/Name", &name);
-    new NamePropertyPtr(path + "/Resource", &resource);
+    new ExternalStringProperty(Name(path + "/Name"), name);
+    new ExternalNameProperty(Name(path + "/Resource"), resource);
 
     observer->AddStringObserver(&name,[]{ GtMaterialParameterTexture::material()->update(); });
     observer->AddStringObserver(&resource.AsString(), []{ GtMaterialParameterTexture::material()->update(); });

@@ -6,7 +6,7 @@
 
 #include "resource.h"
 #include "multithreadresource.h"
-#include "SharedModule/decl.h"
+#include <SharedModule/internal.hpp>
 
 class ResourcesSystem
 {
@@ -20,7 +20,7 @@ public:
     static Resource<T>* GetResource(const Name& name) {
         ResourceBase* data = getResourceData(name);
         if(data == nullptr) {
-            ASSURE(false, "trying to access undeclared resource", name.AsString().toLatin1().data())
+            qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name.AsString();
             return nullptr;
         }
         Resource<T>* result = new Resource<T>(data);
@@ -31,7 +31,7 @@ public:
     static MultiThreadResource<T>* GetMultiThreadResource(const Name& name) {
         ResourceBase* data = getResourceData(name);
         if(data == nullptr) {
-            ASSURE(false, "trying to access undeclared resource", name.AsString().toLatin1().data())
+            qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name.AsString();
             return nullptr;
         }
         MultiThreadResource<T>* result = new MultiThreadResource<T>(data);

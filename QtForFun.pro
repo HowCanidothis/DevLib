@@ -4,7 +4,7 @@ SUBDIRS += \
 #    Sandbox \
 #    FlexFluidRefactoring \
 #    PropertiesSystem \
-#    ResoursesModule
-    GameEngine
-
+#    ResoursesModule \
+#    GameEngine
+    OpenGLMultithreadingTest
 

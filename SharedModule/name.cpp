@@ -1,5 +1,5 @@
 #include "name.h"
-#include <QHash>
+#include <QHashFunctions>
 
 Name::Name()
     : _value(0)

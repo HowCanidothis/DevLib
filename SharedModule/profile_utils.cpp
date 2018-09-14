@@ -2,7 +2,7 @@
 #include <chrono>
 
 #include "timer.h"
-#include "stack.h"
+#include "internal.hpp"
 
 TimerClocks::TimerClocks()
     : _timer(new Timer)
@@ -61,8 +61,10 @@ Nanosecs TimerClocks::CalculateMaxValue() const
     return max;
 }
 
-PerformanceClocks::PerformanceClocks(const char* caption, const char* file, quint32 line)
-    : _messager(caption, file, line)
+PerformanceClocks::PerformanceClocks(const char* function, const char* file, quint32 line)
+    : _function(function)
+    , _file(file)
+    , _line(line)
 {
     getPerfomanceClocksInstances().Append(this);
 }
@@ -76,7 +78,7 @@ void PerformanceClocks::PrintReport()
 
 void PerformanceClocks::printReport() const
 {
-    _messager.Info() << CalculateMinValue().ToString("Min")
+    QMessageLogger(_file, _line, _function).info() << CalculateMinValue().ToString("Min")
                      << CalculateMeanValue().ToString("Mean")
                      << CalculateMaxValue().ToString("Max");
 }

@@ -1,6 +1,5 @@
 #include "commands.h"
-#include "memory.h"
-
+#include <memory>
 void MacroCommand::Push(CommandBase* cmd)
 {
     _commands.Append(cmd);
@@ -21,9 +20,9 @@ void MacroCommand::Undo()
 
 CommandsContainer::CommandsContainer(capacity_type maxCommandsCount)
     : _commands(new CommandBase*[maxCommandsCount])
+    , _current(0)
     , _count(0)
     , _undone(0)
-    , _current(0)
     , _maxCommandsCount(maxCommandsCount)
     , _currentMacro(nullptr)
 {
@@ -32,7 +31,7 @@ CommandsContainer::CommandsContainer(capacity_type maxCommandsCount)
 
 CommandsContainer::~CommandsContainer()
 {
-    delete _commands;
+    delete[] _commands;
 }
 
 void CommandsContainer::AddCommand(CommandBase* cmd)
@@ -88,6 +87,13 @@ void CommandsContainer::Redo()
 void CommandsContainer::Undo()
 {
     if(CanUndo()){
+        undoPrivate();
+    }
+}
+
+void CommandsContainer::UndoAll()
+{
+    while(CanUndo()) {
         undoPrivate();
     }
 }

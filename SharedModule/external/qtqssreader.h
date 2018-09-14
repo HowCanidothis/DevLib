@@ -1,18 +1,25 @@
 #ifndef QTQSSREADER_H
 #define QTQSSREADER_H
 
-#include <QString>
+#ifndef NO_GUI
 
-class QtQSSReader
+#include <QString>
+#include "SharedModule/internal.hpp"
+
+class _Export QtQSSReader
 {
     QString _fileName;
+    ScopedPointer<class QtObserver> _observer;
 public:
-    QtQSSReader(const QString& mainQSSFile);
+    QtQSSReader();
+    ~QtQSSReader();
 
-    static void Install(const QString* mainQSSFile);
-    static void InstallAndObserve(const QString* mainQSSFile);
+    void SetEnableObserver(bool enable);
+    void Install(const QString& mainQSSFile);
 
-    QString ReadAll() const;
+    QString ReadAll();
 };
+
+#endif
 
 #endif // QTQSSREADER_H

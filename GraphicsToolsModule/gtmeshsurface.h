@@ -12,10 +12,12 @@ public:
     qint32 getWidth() const { return width; }
     qint32 getHeight() const { return height; }
     qint32 getSectionsCount() const { return sections; }
+
 private:
     bool buildMesh() Q_DECL_OVERRIDE;
     void bindVAO(OpenGLFunctions* functions) Q_DECL_OVERRIDE;
-private:
+
+protected:
     qint32 width;
     qint32 height;
     qint32 sections;

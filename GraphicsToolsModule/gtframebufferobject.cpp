@@ -25,8 +25,6 @@ GtFramebufferObject::GtFramebufferObject(OpenGLFunctions* f, const SizeI& resolu
 
 void GtFramebufferObject::create(const GtFramebufferFormat& format)
 {
-    LOGOUT;
-
     f->glGenFramebuffers(1, &id);
     GtFramebufferObjectBinder binder(this);
 
@@ -65,7 +63,7 @@ void GtFramebufferObject::create(const GtFramebufferFormat& format)
 
     GLuint status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-        log.Warning() << "incomplete framebuffer";
+        qCWarning(LC_SYSTEM) << "incomplete framebuffer";
     }
 }
 
@@ -83,8 +81,6 @@ GtFramebufferObjectMultisampled::~GtFramebufferObjectMultisampled()
 
 void GtFramebufferObjectMultisampled::create(const GtFramebufferFormat& format)
 {
-    LOGOUT;
-
     f->glGenFramebuffers(1, &id);
     GtFramebufferObjectBinder binder(this);
 
@@ -128,6 +124,6 @@ void GtFramebufferObjectMultisampled::create(const GtFramebufferFormat& format)
 
     GLuint status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-        log.Warning() << "incomplete framebuffer";
+        qCWarning(LC_SYSTEM) << "incomplete framebuffer";
     }
 }

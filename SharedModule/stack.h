@@ -1,8 +1,10 @@
 #ifndef STACK_H
 #define STACK_H
-#include "decl.h"
+
 #include <memory>
-#include <Qt>
+#include <type_traits>
+
+#include "namingconvention.h"
 
 template<class T>
 class StackData
@@ -88,7 +90,7 @@ template<class T, template<typename> class SharedPtr = std::shared_ptr>
 class Stack
 {
 protected:
-    Q_STATIC_ASSERT_X(!QTypeInfo<T>::isComplex, "Using complex objects restricts by code style use pointers instead");
+    static_assert(std::is_pod<T>::value, "Using complex objects is restricted by code style use pointers instead");
     SharedPtr<StackData<T>> d;
 public:
     typedef T* iterator;
@@ -207,8 +209,8 @@ public:
     const_iterator CBegin() const { return Begin(); }
     const_iterator CEnd() const { return End(); }
 
-    T& operator[](qint32 index) { detachCopy(); return this->At(index); }
-    const T& operator[](qint32 index) const { return this->At(index); }
+    T& operator[](count_t index) { detachCopy(); return this->At(index); }
+    const T& operator[](count_t index) const { return this->At(index); }
 protected:
     void detachClear() {
         if(d.use_count() > 1) d.reset(new StackData<T>(d->Size()));
@@ -246,9 +248,9 @@ public:
         Super::Clear();
     }
 
-    template<typename ... Args> void ResizeAndAllocate(qint32 size, Args ... args) {
+    template<typename ... Args> void ResizeAndAllocate(count_t size, Args ... args) {
         Q_ASSERT(d.use_count() == 1);
-        qint32 old = this->Size();
+        count_t old = this->Size();
         if(size < old) {
             for(T* ptr : adapters::Range(Begin() + size, End()))
                 delete ptr;

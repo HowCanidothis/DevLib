@@ -1,6 +1,8 @@
 #ifndef PROPERTIESWINDOW_H
 #define PROPERTIESWINDOW_H
 
+#ifndef NO_WIDGETS_INTERFACE
+
 #include <QMainWindow>
 
 namespace Ui {
@@ -33,5 +35,7 @@ private:
     Ui::PropertiesWindow *_ui;
     QString _fileName;
 };
+
+#endif
 
 #endif // PROPERTIESWINDOW_H

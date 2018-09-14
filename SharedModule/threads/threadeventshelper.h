@@ -3,40 +3,72 @@
 
 #include <QWaitCondition>
 #include <QMutex>
-
-#include "SharedModule/stack.h"
+#include <QHash>
+#include <queue>
+#include <functional>
+#include "SharedModule/name.h"
 
 class ThreadEvent
 {
 public:
     typedef std::function<void()> FEventHandler;
 
-    ThreadEvent(FEventHandler  handler)
-        : _handler(handler)
-    {}
-private:
+    ThreadEvent(FEventHandler  handler);
+    virtual ~ThreadEvent() {}
+
+
+
+protected:
     friend class ThreadEventsContainer;
     FEventHandler _handler;
 
-    void call();
+    virtual void removeTag() {}
+    virtual void call();
 };
 
-class ThreadEventsContainer
+class TagThreadEvent : public ThreadEvent
 {
 public:
-    ThreadEventsContainer();
+    typedef QHash<Name,ThreadEvent*> TagsCache;
+    TagThreadEvent(TagsCache* tagsCache, const Name& tag, FEventHandler handler);
 
+protected:
+    virtual void removeTag() Q_DECL_OVERRIDE;
+    virtual void call() Q_DECL_OVERRIDE;
+
+private:
+    Name _tag;
+    TagsCache* _tagsCache;
+};
+
+class _Export ThreadEventsContainer
+{
+public:
+    typedef std::function<void ()> FOnPause;
+    ThreadEventsContainer();
+    virtual ~ThreadEventsContainer() = default;
+
+    void Pause(const FOnPause& onPause);
+    void Continue();
+
+    void Asynch(const Name& tag, ThreadEvent::FEventHandler handler);
     void Asynch(ThreadEvent::FEventHandler handler);
     void ProcessEvents();
 
 protected:
-    void CallEvents();
+    void callEvents();
+    void callPauseableEvents();
 
 private:
-    StackPointers<ThreadEvent> _events;
+    std::queue<ThreadEvent*> _events;
     QWaitCondition _eventsProcessed;
+    QWaitCondition _eventsPaused;
     QMutex _eventsMutex;
     std::atomic_bool _eventsNotified;
+    std::atomic_bool _isPaused;
+    FOnPause _onPause;
+
+    QHash<Name,ThreadEvent*> _tagEventsMap;
 };
 
 #endif // THREADEVENTSHELPER_H

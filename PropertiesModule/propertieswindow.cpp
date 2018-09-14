@@ -1,4 +1,7 @@
 #include "propertieswindow.h"
+
+#ifndef NO_WIDGETS_INTERFACE
+
 #include "ui_propertieswindow.h"
 #include <QFileDialog>
 
@@ -67,3 +70,5 @@ void PropertiesWindow::save()
     setWindowTitle(_fileName);
     _ui->properties_view->Save(_fileName);
 }
+
+#endif

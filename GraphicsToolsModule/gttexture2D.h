@@ -1,6 +1,6 @@
 #ifndef GTTEXTURE_H
 #define GTTEXTURE_H
-#include "SharedGuiModule/decl.h"
+#include <SharedGuiModule/internal.hpp>
 #include "ResourcesModule/internal.hpp"
 
 struct GtTextureFormat
@@ -81,7 +81,7 @@ class GtTextureBinder
 {
     GtTexture* texture;
 public:
-    explicit GtTextureBinder(GtTexture* texture) NO_EXCEPT
+    explicit GtTextureBinder(GtTexture* texture) Q_DECL_NOEXCEPT
         : texture(texture)
     {
         texture->bind();

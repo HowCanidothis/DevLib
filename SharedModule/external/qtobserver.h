@@ -4,26 +4,36 @@
 #include <QObject>
 #include <functional>
 
-#include <QVector>
-#include "SharedGuiModule/decl.h"
+#include "SharedModule/internal.hpp"
 
 class QtObserver : public QObject
 {
     Q_OBJECT
-    typedef std::function<void ()> Handle;
-    typedef std::function<bool ()> Condition;
+    typedef std::function<void ()> FHandle;
+    typedef std::function<bool ()> FCondition;
 
-    QVector<Condition> _conditions;
-    QVector<Handle> _handles;
+    struct Observable
+    {
+        FCondition Condition;
+        FHandle Handle;
+    };
+
+    typedef std::function<void (const Observable*)> FObserve;
+
+    ArrayPointers<Observable> _observables;
     QHash<const void*, qint64> _counters;
+    FObserve _doObserve;
 public:
     QtObserver(qint32 msInterval, QObject* parent=0);
 
-    void Add(const Condition& condition, const Handle& handle);
-    void AddFileObserver(const QString* file, const Handle& handle);
-    void AddFileObserver(const QString* dir, const QString* file, const Handle& handle);
-    void AddFloatObserver(const float* value, const Handle& handle);
-    void AddStringObserver(const QString* value, const Handle& handle);
+    void Add(const FCondition& condition, const FHandle& handle);
+    void AddFilePtrObserver(const QString* fileName, const FHandle& handle);
+    void AddFilePtrObserver(const QString* dir, const QString* file, const FHandle& handle);
+    void AddFileObserver(const QString& file, const FHandle& handle);
+    void AddFileObserver(const QString& dir, const QString& file, const FHandle& handle);
+    void AddFloatObserver(const float* value, const FHandle& handle); // Where to use? Marked as deprecated. Use Properties Rx system instead
+    void AddStringObserver(const QString* value, const FHandle& handle); // Where to use? Marked as deprecated. Use Properties Rx system instead
+    void Clear();
 
     void Observe() { onTimeout(); }
 

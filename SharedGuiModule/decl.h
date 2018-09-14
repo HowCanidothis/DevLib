@@ -1,7 +1,7 @@
 #ifndef SHAREDMODULE_DECL_H
 #define SHAREDMODULE_DECL_H
 
-#include "SharedModule/decl.h"
+#include <SharedModule/internal.hpp>
 
 #include <QVector2D>
 #include <QVector3D>

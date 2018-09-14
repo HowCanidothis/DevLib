@@ -1,27 +1,51 @@
 #include "property.h"
 #include "propertiessystem.h"
 
-Property::Property(const QString& path)
-    : _fOnset([]{})
+Property::Property(const Name& path)
+    : _fOnChange([]{})
     , _fValidator([](const QVariant&, QVariant&){})
-    , _bReadOnly(false)
+    , _options(Options_Default)
+#ifdef DEBUG_BUILD
+    , _isSubscribed(false)
+#endif
 {
-    PropertiesSystem::addProperty(Name(path), this);
+    PropertiesSystem::addProperty(path, this);
 }
 
-void Property::SetValue(QVariant value) // copied as it could be validated
+bool Property::SetValue(QVariant value) // copied as it could be validated
 {
     QVariant oldValue = getValue();
+    _fValidator(oldValue,value);
     if(oldValue != value) {
-        _fValidator(oldValue,value);
         _fHandle([this,value] {
             this->setValueInternal(value);
-            _fOnset();
+            _fOnChange();
         });
+        return true;
     }
+    return false;
 }
 
-Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
+Property::FOnChange& Property::OnChange()
+{
+#ifdef DEBUG_BUILD
+    Q_ASSERT(!_isSubscribed);
+#endif
+    return _fOnChange;
+}
+
+void Property::Subscribe(const Property::FOnChange& onChange) {
+#ifdef DEBUG_BUILD
+    _isSubscribed = true;
+#endif
+    auto oldHandle = _fOnChange;
+    _fOnChange = [onChange, oldHandle]{
+        oldHandle();
+        onChange();
+    };
+}
+
+Vector3FProperty::Vector3FProperty(const Name& path, const Vector3F& vector)
     : X(path+"/x", vector.x(), -FLT_MAX, FLT_MAX)
     , Y(path+"/y", vector.y(), -FLT_MAX, FLT_MAX)
     , Z(path+"/z", vector.z(), -FLT_MAX, FLT_MAX)

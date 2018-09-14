@@ -22,7 +22,6 @@ ResourceBase* ResourcesSystem::getResourceData(const Name& name)
 
 void ResourcesSystem::RegisterResource(const Name& name, const std::function<void*()>& fOnCreate)
 {
-    LOGOUT;
     ResourceCache& cache = getResourcesCache();
     auto find = cache.find(name);
     if(find == cache.end()) {
@@ -30,6 +29,6 @@ void ResourcesSystem::RegisterResource(const Name& name, const std::function<voi
         cache.insert(name,resource);
     }
     else {
-        log.Warning() << "resource" << name.AsString() << "already exists. Ignored";
+        qCWarning(LC_SYSTEM) << "resource" << name.AsString() << "already exists. Ignored";
     }
 }

@@ -58,7 +58,6 @@ void GtMaterial::setShaders(const QString& path, const QString& vert_file, const
 
 void GtMaterial::update()
 {
-    LOGOUT;
     shader_program.reset(new QOpenGLShaderProgram);
     shader_program->create();
     {
@@ -71,7 +70,7 @@ void GtMaterial::update()
         }
     }
     if(!shader_program->link()) {
-        log.Error() << "unable to link program" << shader_program->log();
+        qCCritical(LC_SYSTEM) << "unable to link program" << shader_program->log();
     }
 
     gTexUnit unit = 0;
@@ -87,8 +86,8 @@ void GtMaterial::mapProperties(Observer* observer)
 {
     qint32 counter = 0;
     for(Shader* shader : shaders) {
-        new TextFileNamePropertyPtr("Shaders/" + QString::number(counter++), &shader->File);
-        observer->AddFileObserver(&shaders_path, &shader->File, [this]{
+        new ExternalTextFileNameProperty(Name("Shaders/" + QString::number(counter++)), shader->File);
+        observer->AddFilePtrObserver(&shaders_path, &shader->File, [this]{
             this->update();
         });
     }

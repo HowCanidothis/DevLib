@@ -10,7 +10,7 @@ class QMenu;
 class DrawEngineBase;
 class ControllerBase;
 
-class ControllersContainer: public QObject
+class _Export ControllersContainer: public QObject
 {
     typedef Array<ControllerBase*> Controllers;
 public:
@@ -20,8 +20,7 @@ public:
     template<class T>
     void SetContext(T* context)
     {
-        _context = new ControllersContext<T>();
-        _context->Data = context;
+        _context = context;
         for(ControllerBase* controller : _controllers) {
             controller->contextChanged();
         }
@@ -30,11 +29,12 @@ public:
     void SetCurrent(ControllerBase* controller);
     void SetCurrent(const Name& name);
     ControllerBase* GetCurrent() const { return _currentController; }
-    template<class T> T& GetContext() { return _context->As<T>(); }
-    template<class T> const T& GetContext() const { return _context->As<T>(); }
+    bool HasContext() const { return _context != nullptr; }
+    template<class T> T& GetContext() { Q_ASSERT(_context != nullptr); return *static_cast<T*>(_context); }
+    template<class T> const T& GetContext() const { Q_ASSERT(_context != nullptr); return *static_cast<T*>(_context); }
 
     void Accept();
-    void Abort();
+    void Cancel();
     void Undo();
     void Redo();
 
@@ -51,8 +51,8 @@ public:
 
 private:
     friend class ControllerBase;
-    qint32& getInputKeysModifiers() { return _context->InputKeysModifiers; }
-    QSet<qint32>& getInputKeys() { return _context->InputKeys; }
+    qint32& getInputKeysModifiers() { return _inputKeysModifiers; }
+    QSet<qint32>& getInputKeys() { return _inputKeys; }
 
     ControllerBase* findCommonParent(ControllerBase* c1, ControllerBase* c2) const;
     Controllers findAllParents(ControllerBase* c) const;
@@ -74,32 +74,12 @@ private:
         }
     }
 
-    struct ControllersContextBase
-    {
-        void* Data;
-
-        qint32 InputKeysModifiers;
-        QSet<qint32> InputKeys;
-
-        template<class T> T& As() { return *(T*)Data; }
-        template<class T> const T& As() const { return *(T*)Data; }
-
-        ControllersContextBase(){}
-        virtual ~ControllersContextBase(){}
-    };
-
-    template<class T>
-    struct ControllersContext : ControllersContextBase
-    {
-        virtual ~ControllersContext() {
-            delete (T*)Data;
-        }
-    };
-
 private:
     StackPointers<ControllerBase> _controllers;
     ControllerBase* _currentController;
-    ScopedPointer<ControllersContextBase> _context;
+    void* _context;
+    qint32 _inputKeysModifiers;
+    QSet<qint32> _inputKeys;
 };
 
 #endif // CONTROLLERSCONTAINER_H

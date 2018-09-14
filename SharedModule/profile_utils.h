@@ -1,7 +1,9 @@
 #ifndef PROFILE_UTILS_H
 #define PROFILE_UTILS_H
 
-#include "decl.h"
+#include "stack.h"
+#include "smartpointersadapters.h"
+#include "shared_decl.h"
 
 #ifndef CLOCKS_COUNT
 #define CLOCKS_COUNT 30
@@ -25,7 +27,7 @@ private:
     double _nsecs;
 };
 
-class TimerClocks
+class _Export TimerClocks
 {
 public:
     class Guard
@@ -66,11 +68,13 @@ private:
 
 template<class T, template<typename> class Ptr> class Stack;
 
-class PerformanceClocks : public TimerClocks
+class _Export PerformanceClocks : public TimerClocks
 {
-    Messager _messager;
+    const char* _function;
+    const char* _file;
+    quint32 _line;
 public:
-    PerformanceClocks(const char* caption, const char* file, quint32 line);
+    PerformanceClocks(const char* function, const char* file, quint32 line);
 
     static void PrintReport();
 
@@ -79,12 +83,15 @@ private:
     static Stack<PerformanceClocks*>& getPerfomanceClocksInstances();
 };
 
-#if !defined(QT_NO_DEBUG) || defined(PROFILE_BUILD)
-#define __PERFOMANCE__ \
-    static PerformanceClocks pClock##__LINE__(__FUNCTION__, __FILE__, __LINE__); \
-    pClock##__LINE__.Clock();
+#define COMBINE1(X,Y) X##Y  // helper macro
+#define COMBINE(X,Y) COMBINE1(X,Y)
+
+#ifdef SHOW_HIDDEN_FUNCTIONALITY
+#define __PERFORMANCE__ \
+    static PerformanceClocks COMBINE(pClock,__LINE__)(__FUNCTION__, __FILE__, __LINE__); \
+    auto COMBINE(pClock,__LINE__)##guard = COMBINE(pClock,__LINE__).Clock();
 #else
-#define __PERFOMANCE__
+#define __PERFORMANCE__
 #endif
 
 #endif // PROFILE_UTILS_H

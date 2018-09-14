@@ -11,15 +11,20 @@ Point2I GtPlayerControllerCamera::resolutional(const Point2I& p) const
 bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 {
     Point2I resolutional_screen_pos = resolutional(event->pos());
-    if(event->buttons() == Qt::MiddleButton) {
+    switch (event->buttons()) {
+    case Qt::MiddleButton:
         ctx().Camera->rotate(_lastScreenPosition - resolutional_screen_pos);
-    }
-    else if(event->buttons() == Qt::RightButton) {
+        break;
+    case Qt::RightButton:
         ctx().Camera->rotateRPE(_lastScreenPosition - resolutional_screen_pos);
-    }
-    else {
+        break;
+    case Qt::LeftButton: {
         Vector3F dist = _lastPlanePosition - ctx().Camera->unprojectPlane(resolutional_screen_pos);
         ctx().Camera->translate(dist.x(), dist.y());
+        break;
+    }
+    default:
+        break;
     }
     _lastScreenPosition = resolutional_screen_pos;
     _lastPlanePosition = ctx().Camera->unprojectPlane(resolutional_screen_pos);

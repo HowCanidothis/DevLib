@@ -2,23 +2,73 @@
 
 #include "propertiessystem.h"
 #include "property.h"
-#include <QSettings>
 
 PropertiesModel::PropertiesModel(QObject* parent)
     : QAbstractItemModel(parent)
+    , _contextIndex(PropertiesSystem::Global)
 {
     reset();
 }
 
-void PropertiesModel::Update()
+PropertiesModel::PropertiesModel(qint32 contextIndex, QObject* parent)
+    : QAbstractItemModel(parent)
+    , _contextIndex(contextIndex)
 {
-    layoutAboutToBeChanged();
+    reset();
+}
 
-    const auto& tree = PropertiesSystem::context();
+void PropertiesModel::Change(const std::function<void ()>& handle)
+{
+    beginResetModel();
+
+    handle();
+
+    const auto& tree = PropertiesSystem::context(_contextIndex);
 
     reset(tree);
 
-    layoutChanged();
+    endResetModel();
+}
+
+void PropertiesModel::SetContextIndex(qint32 contextIndex)
+{
+    if(_contextIndex != contextIndex) {
+        _contextIndex = contextIndex;
+
+        update();
+
+        emit contextIndexChanged();
+    }
+}
+
+qint32 PropertiesModel::GetContextIndex() const
+{
+    return _contextIndex;
+}
+
+void PropertiesModel::SetFileName(const QString& fileName)
+{
+    if(_fileName != fileName) {
+        _fileName = fileName;
+
+        emit fileNameChanged();
+    }
+}
+
+const QString& PropertiesModel::GetFileName() const
+{
+    return _fileName;
+}
+
+void PropertiesModel::update()
+{
+    beginResetModel();
+
+    const auto& tree = PropertiesSystem::context(_contextIndex);
+
+    reset(tree);
+
+    endResetModel();
 }
 
 void PropertiesModel::forEachItem(QString& path,
@@ -49,6 +99,9 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
     qint32 row=0;
 
     for(auto it(tree.begin()), e(tree.end()); it != e; it++, row++) {
+        if(!it.value()->GetOptions().TestFlag(Property::Option_IsPresentable)){
+            continue;
+        }
         const Name& path = it.key();
         Item* current = _root.data();
         QStringList paths = path.AsString().split('/', QString::SkipEmptyParts);
@@ -76,37 +129,12 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
 void PropertiesModel::Save(const QString& fileName) const
 {
-    Q_ASSERT(!fileName.isEmpty());
-    QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
-
-    QString path;
-    forEachItem(path, _root.data(), [&settings](const QString& path, const Item* item) {
-        settings.setValue(path + item->Name, item->Prop->getValue());
-    });
+    PropertiesSystem::Save(fileName, _contextIndex);
 }
 
 void PropertiesModel::Load(const QString& fileName)
-{
-    Q_ASSERT(!fileName.isEmpty());
-    LOGOUT;
-    QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
-
-    beginResetModel();
-
-    const auto& tree = PropertiesSystem::context();
-
-    for(const QString& key : settings.allKeys()) {
-        auto find = tree.find(Name(key));
-        if(find == tree.end()) {
-            log.Warning() << "unknown property" << key;
-        } else {
-            find.value()->SetValue(settings.value(key));
-        }
-    }
-
-    endResetModel();
+{    
+    PropertiesSystem::Load(fileName, _contextIndex);
 }
 
 int PropertiesModel::rowCount(const QModelIndex& parent) const
@@ -124,7 +152,16 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
     }
 
     switch (role) {
-    case Qt::DisplayRole:
+    case Qt::DisplayRole: {
+        auto item = asItem(index);
+        if(item->Prop && index.column()) {
+            return item->Prop->getDisplayValue();
+        }
+        if(!index.column()) {
+            return item->Name;
+        }
+        break;
+    }
     case Qt::EditRole: {
         auto item = asItem(index);
         if(item->Prop && index.column()) {
@@ -133,6 +170,7 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
         if(!index.column()) {
             return item->Name;
         }
+        break;
     }
     case RoleHeaderItem:
         return !asItem(index)->Prop;
@@ -159,7 +197,8 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
         if(index.column()) {
             auto property = asItem(index)->Prop;
             if(property) {
-                return *property->GetDelegateData();
+                auto delegateData = property->GetDelegateData();
+                return (delegateData != nullptr) ? *delegateData : QVariant();
             }
         }
         return QVariant();
@@ -222,6 +261,18 @@ int PropertiesModel::columnCount(const QModelIndex&) const
     return 2;
 }
 
+QHash<int, QByteArray> PropertiesModel::roleNames() const
+{
+    QHash<int, QByteArray> result;
+    result[RoleHeaderItem] = "headerItem";
+    result[RoleMinValue] = "minValue";
+    result[RoleMaxValue] = "maxValue";
+    result[RoleDelegateValue] = "delegateValue";
+    result[RoleDelegateData] = "delegateData";
+    result[Qt::DisplayRole] = "text";
+    return result;
+}
+
 PropertiesModel::Item* PropertiesModel::asItem(const QModelIndex& index) const
 {
     return (Item*)index.internalPointer();
@@ -231,7 +282,7 @@ Qt::ItemFlags PropertiesModel::flags(const QModelIndex& index) const
 {
     if(index.column()) {
         if(auto property = asItem(index)->Prop) {
-            if(!property->IsReadOnly()) {
+            if(!property->GetOptions().TestFlag(Property::Option_IsReadOnly)) {
                 return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
             }
         }

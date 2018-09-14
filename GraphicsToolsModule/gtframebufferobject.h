@@ -18,6 +18,12 @@ private:
     gTexInternalFormat internal_format;
 };
 Q_DECLARE_TYPEINFO(GtFramebufferTextureFormat, Q_PRIMITIVE_TYPE);
+namespace std
+{
+    template<>
+    struct is_pod<GtFramebufferTextureFormat> : bool_constant<true>
+    {};
+};
 
 class GtFramebufferFormat
 {
@@ -96,7 +102,7 @@ struct GtFramebufferObjectBinder
 {
     GtFramebufferObjectBase* fbo;
 public:
-    GtFramebufferObjectBinder(GtFramebufferObjectBase* frame_buffer) NO_EXCEPT
+    GtFramebufferObjectBinder(GtFramebufferObjectBase* frame_buffer) Q_DECL_NOEXCEPT
         : fbo(frame_buffer)
     {
         fbo->bind();

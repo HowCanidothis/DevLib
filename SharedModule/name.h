@@ -2,8 +2,9 @@
 #define NAME_H
 
 #include <QString>
+#include "shared_decl.h"
 
-class Name
+class _Export Name
 {
 public:
     Name();

@@ -31,10 +31,9 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
 
 void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
 {
-    LOGOUT;
     location = program->uniformLocation(name);
     if(location == -1) {
-        log.Warning() << "location not found" << name;
+        qCWarning(LC_SYSTEM) << "location not found" << name;
     }
 }
 
