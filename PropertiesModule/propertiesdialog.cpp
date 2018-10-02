@@ -8,8 +8,8 @@
 #include "propertiessystem.h"
 #include "propertiesview.h"
 
-PropertiesDialog::PropertiesDialog(const QString& name, qint32 contextIndex, QWidget* parent, Qt::WindowFlags flags)
-    : Super(name, contextIndex, new PropertiesView(contextIndex), parent, flags)
+PropertiesDialog::PropertiesDialog(const QString& name, qint32 contextIndex, QWidget* parent)
+    : Super(name, contextIndex, new PropertiesView(contextIndex), parent)
 {
 }
 

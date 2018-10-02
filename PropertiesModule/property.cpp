@@ -17,6 +17,7 @@ bool Property::SetValue(QVariant value) // copied as it could be validated
     QVariant oldValue = getValue();
     _fValidator(oldValue,value);
     if(oldValue != value) {
+        _previousValue = oldValue;
         _fHandle([this,value] {
             this->setValueInternal(value);
             _fOnChange();

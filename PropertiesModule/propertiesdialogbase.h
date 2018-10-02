@@ -5,6 +5,11 @@
 
 #include "propertypromise.h"
 
+/*
+ * PropertiesDialogBase provides logic for working with properties by ui.
+ * See also: PropertiesDialog
+*/
+
 class _Export PropertiesDialogBase : public QDialog
 {
     typedef QDialog Super;
@@ -13,11 +18,21 @@ protected:
     typedef std::function<void (qint32)> OnDoneHandle;
 
 public:
-    PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent = nullptr, Qt::WindowFlags flags= Qt::WindowFlags());
+    enum Option
+    {
+        Options_Default = 0x0,
+        Option_ClearContextOnDone = 0x1,
+        Option_ReadOnly = 0x2,
+    };
+    DECL_FLAGS(Options, Option)
 
-    void Initialize(const StdHandle& propertiesInitializeFunction, const StdHandle& onChange, bool isReadOnly);
+    PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent = nullptr);
+
+    void Initialize(const StdHandle& propertiesInitializeFunction = []{});
+    const Options& GetOptions() const { return _options; }
+    Options& ChangeOptions() { return  _options; }
+    bool IsDirty() const { return !_oldValues.isEmpty(); }
     void SetOnDone(const OnDoneHandle& onDone);
-    bool IsDirty() const { return _isDirty; }
     template<class T> T* GetView() const { return reinterpret_cast<T*>(_view); }
 
     // QDialog interface
@@ -32,11 +47,13 @@ protected:
     virtual void changeProperties(const StdHandle& changingProperties);
 
 protected:
-    bool _isDirty;
+    bool _isInitialized;
+    Options _options;
     qint32 _contextIndex;
     QWidget* _view;
-    ByteArrayPropertyPtr _savedGeometry;
+    ByteArrayProperty _savedGeometry;
     QMetaObject::Connection _connection;
+    QHash<Property*, QVariant> _oldValues;
 };
 
 #endif // PROPERTIESDIALOGBASE_H

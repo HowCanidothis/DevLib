@@ -25,10 +25,11 @@ properties_context_index_t& PropertiesConnectorContextIndexGuard::currentContext
     return ret;
 }
 
-PropertiesConnectorBase::PropertiesConnectorBase(const Name& name, const PropertiesConnectorBase::Setter& setter, QObject* target)
+PropertiesConnectorBase::PropertiesConnectorBase(const Name& name, const PropertiesConnectorBase::Setter& setter, QWidget* target)
     : QObject(target)
     , _setter(setter)
     , _propertyPtr(name, [this, target]{
+    Q_ASSERT(_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
     QSignalBlocker blocker(target);
     _setter(_propertyPtr.GetProperty()->GetValue());
 }, PropertiesConnectorContextIndexGuard::currentContextIndex())
@@ -67,21 +68,6 @@ void PropertiesConnectorsContainer::Clear()
     _connectors.Clear();
 }
 
-void PropertiesConnectorsContainer::Save()
-{
-    for(auto connector : _connectors) {
-        connector->Save();
-    }
-}
-
-void PropertiesConnectorsContainer::Restore()
-{
-    for(auto connector : _connectors) {
-        connector->Restore();
-    }
-}
-
-
 PropertiesCheckBoxConnector::PropertiesCheckBoxConnector(const Name& propertyName, QCheckBox* checkBox)
     : PropertiesConnectorBase(propertyName,
                               [checkBox](const QVariant& value){ checkBox->setChecked(value.toBool()); },
@@ -92,16 +78,6 @@ PropertiesCheckBoxConnector::PropertiesCheckBoxConnector(const Name& propertyNam
     });
 }
 
-void PropertiesCheckBoxConnector::Save()
-{
-    _oldValue = reinterpret_cast<QCheckBox*>(parent())->isChecked();
-}
-
-void PropertiesCheckBoxConnector::Restore()
-{
-    reinterpret_cast<QCheckBox*>(parent())->setChecked(_oldValue);
-}
-
 PropertiesLineEditConnector::PropertiesLineEditConnector(const Name& propertyName, QLineEdit* lineEdit)
     : PropertiesConnectorBase(propertyName,
                               [lineEdit](const QVariant& value){ lineEdit->setText(value.toString()); },
@@ -110,14 +86,4 @@ PropertiesLineEditConnector::PropertiesLineEditConnector(const Name& propertyNam
     _connection = connect(lineEdit, &QLineEdit::editingFinished, [this, lineEdit](){
         _propertyPtr.GetProperty()->SetValue(lineEdit->text());
     });
-}
-
-void PropertiesLineEditConnector::Save()
-{
-    _oldValue = reinterpret_cast<QLineEdit*>(parent())->text();
-}
-
-void PropertiesLineEditConnector::Restore()
-{
-    reinterpret_cast<QLineEdit*>(parent())->setText(_oldValue);
 }

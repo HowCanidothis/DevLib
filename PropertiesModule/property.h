@@ -35,6 +35,7 @@ public:
     };
 
     Property(const Name& path);
+    virtual ~Property() {}
     bool SetValue(QVariant value);
     const Options& GetOptions() const { return _options; }
     Options& ChangeOptions() { return _options; }
@@ -51,6 +52,7 @@ public:
     virtual const QVariant* GetDelegateData() const { return nullptr; }
     virtual void SetDelegateData(const QVariant& value) { SetValue(value); }
 
+    const QVariant& GetPreviousValue() const { return _previousValue; }
     QVariant GetValue() const { return getValue(); }
     virtual QVariant GetMin() const { return 0; }
     virtual QVariant GetMax() const { return 0; }
@@ -70,6 +72,7 @@ protected:
     FOnChange _fOnChange;
     FValidator _fValidator;
     Options _options;
+    QVariant _previousValue;
 #ifdef DEBUG_BUILD
     bool _isSubscribed;
 #endif
