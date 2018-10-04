@@ -1,5 +1,7 @@
 #include "glwidget.h"
 #include <QApplication>
+#include <SharedModule/internal.hpp>
+
 
 int main(int argc, char *argv[])
 {
