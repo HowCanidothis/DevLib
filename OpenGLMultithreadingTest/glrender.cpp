@@ -1,5 +1,6 @@
 #include "glrender.h"
 #include <GraphicsToolsModule/gtcamera.h>
+#include <ProgressModule/internal.hpp>
 
 GLRender::GLRender(QObject* parent)
     : QObject(parent)
@@ -41,7 +42,16 @@ void GLRender::Draw()
     glColor3f(0.f,0.f,0.f);
 
     static float p(0.f);
+
+    static Progress progress;
+    int value = (int)p % 1000;
+    if(value == 0) {
+        progress.BeginProgress("Progressing p", 1000);
+    }
+
     p += 1.f;
+
+    progress.IncrementProgress();
 
     glBegin(GL_TRIANGLES);
     glVertex2d(p, 0.f);
