@@ -1,6 +1,6 @@
-#include "resource.h"
+#include "resourcedata.h"
 
-ResourceBase::ResourceBase(const ResourceBase::LoadFunction& loader)
+ResourceDataBase::ResourceDataBase(const ResourceDataBase::LoadFunction& loader)
     : _data((void**)malloc(sizeof(size_t)))
     , _counter(new qint32)
     , _loader(loader)
@@ -9,10 +9,7 @@ ResourceBase::ResourceBase(const ResourceBase::LoadFunction& loader)
     *_counter = 0;
 }
 
-void ResourceBase::load() const{
+void ResourceDataBase::load() const{
     Q_ASSERT(*_data == nullptr);
     *_data = _loader();
 }
-
-
-

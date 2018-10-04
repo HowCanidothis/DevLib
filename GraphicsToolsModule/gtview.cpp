@@ -79,7 +79,7 @@ void GtView::paintGL()
         return;
     }
 
-    MVP->Get() = _camera->getWorld();
+    MVP->Data().Set(_camera->getWorld());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //    glViewport(0,0,width(),height());

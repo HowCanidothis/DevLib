@@ -13,8 +13,8 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 {
     gt_texture = ResourcesSystem::GetResource<GtTexture>(this->resource);
     if(gt_texture != nullptr) {
-        gTexID texture = gt_texture->Data()->getID();
-        gTexTarget target = gt_texture->Data()->getTarget();
+        gTexID texture = gt_texture->Data().Get().getID();
+        gTexTarget target = gt_texture->Data().Get().getTarget();
         return [this, texture, target](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             f->glActiveTexture(unit + GL_TEXTURE0);
             f->glBindTexture(target, texture);

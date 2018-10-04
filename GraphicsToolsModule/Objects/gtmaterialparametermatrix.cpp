@@ -13,6 +13,6 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterMatrix::apply()
 {
     matrix = ResourcesSystem::GetResource<Matrix4>(resource);
     return  [this](QOpenGLShaderProgram* program, gLocID loc, OpenGLFunctions*) {
-        program->setUniformValue(loc, *matrix->Data());
+        program->setUniformValue(loc, matrix->Data().Get());
     };
 }
