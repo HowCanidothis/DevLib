@@ -102,17 +102,19 @@ protected:
 template<class T>
 class TStdPropertyBase : public TPropertyBase<T>
 {
+    typedef TPropertyBase<T> Super;
 protected:
     TStdPropertyBase(const Name& path, const T& initial)
         : TPropertyBase<T>(path, initial)
     {}
 
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _value; }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return Super::_value; }
 };
 
 template<class T>
 class TProperty : public TStdPropertyBase<T>
 {
+    typedef TStdPropertyBase<T> Super;
 public:
     TProperty(const Name& path, const T& initial, const T& min, const T& max)
         : TStdPropertyBase<T>(path, initial)
@@ -124,8 +126,8 @@ public:
     {
         _min = min;
         _max = max;
-        if(_value < _min || _value > _max) {
-            SetValue(_value);
+        if(Super::_value < _min || Super::_value > _max) {
+            SetValue(Super::_value);
         }
     }
 
@@ -210,8 +212,8 @@ public:
 
     // Property interface
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return reinterpret_cast<size_t>(_value); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _value = reinterpret_cast<T*>(value.toLongLong()); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return reinterpret_cast<size_t>(Super::_value); }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::_value = reinterpret_cast<T*>(value.toLongLong()); }
 };
 
 class TextFileNameProperty : public TProperty<QString>

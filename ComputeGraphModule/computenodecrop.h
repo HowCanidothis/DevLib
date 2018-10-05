@@ -20,7 +20,7 @@ private:
     IntProperty _width;
     IntProperty _height;
 
-    void validateRect(qint32& top, qint32& left, qint32& width, qint32& height, const cv::Mat* input);
+    void validateRect(IntProperty& top, IntProperty& left, IntProperty& width, IntProperty& height, const cv::Mat* input);
 };
 
 #endif // COMPUTENODECROP_H

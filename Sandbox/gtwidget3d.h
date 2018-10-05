@@ -2,7 +2,7 @@
 #define GTTESTWIDGET_H
 
 #include <QOpenGLWidget>
-#include <qopenglfunctions_4_5_core>
+#include <QOpenGLFunctions_4_5_Core>
 #include "SharedGuiModule/decl.h"
 #include "SharedModule/stack.h"
 
@@ -37,7 +37,8 @@ class GtWidget3D : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
     ScopedPointer<GtMaterial> color_material;
     ScopedPointer<GtMeshSurface> surface_mesh;
     ScopedPointer<GtMeshCircle2D> circle_mesh;
-    ScopedPointer<class GtPlayerControllerBase> camera_controller;
+    ScopedPointer<class ControllersContainer> _controllers;
+    ScopedPointer<struct GtControllersContext> _controllersContext;
 
     GtCamera* camera;
 

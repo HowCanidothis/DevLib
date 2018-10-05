@@ -12,6 +12,11 @@ GtComputeGraph::GtComputeGraph(qint32 idealFrameTime)
 
 }
 
+GtComputeGraph::~GtComputeGraph()
+{
+
+}
+
 void GtComputeGraph::AddCalculationGraph(GtComputeNodeBase* calculationGraph)
 {
     if(isRunning()) {

@@ -26,6 +26,7 @@ GtWindow::GtWindow(QWidget *parent)
     , input_file(new InputFrameStream(1))
     , calibration_widget(new PropertiesWindow(this, Qt::Window))
     , main_qss("Common/QSS import file", GT_STYLES_PATH "main.qss")
+    , _qssReader(new QtQSSReader())
     , full_screen("Output/fullscreen", false)
 {
     ui->setupUi(this);
@@ -91,7 +92,11 @@ GtWindow::GtWindow(QWidget *parent)
         addChannel(node->GetName(), node);
     }
 
-    QtQSSReader::InstallAndObserve(main_qss.ptr());
+    _qssReader->Install(main_qss.Native());
+    main_qss.Subscribe([this]{
+        _qssReader->Install(main_qss.Native());
+    });
+    _qssReader->SetEnableObserver(true);
 }
 
 GtWindow::~GtWindow()

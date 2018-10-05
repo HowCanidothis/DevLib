@@ -15,8 +15,7 @@ ComputeNodeDepthSensor::ComputeNodeDepthSensor(const QString& name)
     }
 
     if(!_initialized) {
-        LOGOUT;
-        log.Warning("Available sensors not detected");
+        qCWarning(LC_SYSTEM) << "Available sensors not detected";
     }
 }
 

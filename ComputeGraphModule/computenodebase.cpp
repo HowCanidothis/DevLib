@@ -5,7 +5,7 @@ GtComputeNodeBase::GtComputeNodeBase(const QString& name, qint32 flags)
     : _inputNode(nullptr)
     , _output(new cv::Mat)
     , _name(name)
-    , _enabled(name+"/enabled", true)
+    , _enabled(Name(name+"/enabled"), true)
 {
     this->_flags = flags;
 
@@ -30,8 +30,7 @@ const QString&GtComputeNodeBase::GetName() const
 void GtComputeNodeBase::SetEnabled(bool flag)
 {
     if(IsSkippeable()) {
-        LOGOUT;
-        log.Warning() << _name << flag;
+        qCWarning(LC_SYSTEM) << _name << flag;
         _enabled = flag;
         updateLater();
     }
@@ -52,7 +51,7 @@ void GtComputeNodeBase::Compute(const cv::Mat* input)
             return;
         }
         outputChanged();
-        _flags.UnsetFlag(F_NeedUpdate);
+        _flags.RemoveFlag(F_NeedUpdate);
     }
     if(_enabled) {
         update(input);
@@ -95,7 +94,7 @@ size_t GtComputeNodeBase::getMemoryUsage() const
 
 void GtComputeNodeBase::updateLater()
 {
-    _flags.SetFlag(F_NeedUpdate);
+    _flags.AddFlag(F_NeedUpdate);
 }
 
 void GtComputeNodeBase::outputChanged()

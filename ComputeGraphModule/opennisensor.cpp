@@ -2,7 +2,7 @@
 #include <OpenNI.h>
 #include <QDebug>
 #include <QTimer>
-#include "SharedModule/decl.h"
+#include <SharedModule/internal.hpp>
 
 OpenniSensor::OpenniSensor()
     : _device(new openni::Device)
@@ -29,11 +29,10 @@ OpenniSensor::~OpenniSensor()
 
 openni::Status OpenniSensor::Initialize()
 {
-    LOGOUT;
     _rc = openni::OpenNI::initialize();
     if (_rc != openni::STATUS_OK)
     {
-        log.Error("Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
+        qCCritical(LC_SYSTEM, "Initialize failed\n%s\n", openni::OpenNI::getExtendedError());
         openni::OpenNI::shutdown();
         return _rc;
     }
@@ -41,17 +40,16 @@ openni::Status OpenniSensor::Initialize()
     _rc = _device->open(openni::ANY_DEVICE);
     if (_rc != openni::STATUS_OK)
     {
-        log.Error("Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
+        qCCritical(LC_SYSTEM, "Couldn't open device\n%s\n", openni::OpenNI::getExtendedError());
         return _rc;
     }
 
-    log.Info("Openni initialized");
+    qCInfo(LC_SYSTEM, "Openni initialized");
     return _rc;
 }
 
 bool OpenniSensor::CreateOutput(openni::SensorType type, qint32 videoModeIndex)
 {
-    LOGOUT;
     if (_device->getSensorInfo(type) != NULL)
     {
         openni::VideoStream*& stream = input(type);
@@ -62,25 +60,25 @@ bool OpenniSensor::CreateOutput(openni::SensorType type, qint32 videoModeIndex)
 
         if (_rc != openni::STATUS_OK)
         {
-            log.Error("Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
+            qCCritical(LC_SYSTEM, "Couldn't create depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
         _rc = stream->start();
         if (_rc != openni::STATUS_OK)
         {
-            log.Error("Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
+            qCCritical(LC_SYSTEM, "Couldn't start the depth stream\n%s\n", openni::OpenNI::getExtendedError());
             return false;
         }
 
         const openni::SensorInfo& sensorInfo = stream->getSensorInfo();
-        log.Info("Supported video modes:\n");
+        qCInfo(LC_SYSTEM, "Supported video modes:\n");
         const openni::Array<openni::VideoMode>& supportedModes = sensorInfo.getSupportedVideoModes();
         for(qint32 i(0); i < supportedModes.getSize(); i++) {
             const openni::VideoMode& vm = supportedModes[i];
-            log.Info("fps:%d pf:%d x:%d y:%d\n", vm.getFps(), vm.getPixelFormat(), vm.getResolutionX(), vm.getResolutionY());
+            qCInfo(LC_SYSTEM, "fps:%d pf:%d x:%d y:%d\n", vm.getFps(), vm.getPixelFormat(), vm.getResolutionX(), vm.getResolutionY());
         }
-        log.Info("chossed %d", videoModeIndex);
+        qCInfo(LC_SYSTEM, "chossed %d", videoModeIndex);
 
         stream->setVideoMode(supportedModes[videoModeIndex]);
 
@@ -101,7 +99,7 @@ bool OpenniSensor::CreateOutput(openni::SensorType type, qint32 videoModeIndex)
             case openni::PIXEL_FORMAT_JPEG:
             case openni::PIXEL_FORMAT_YUYV:
 
-            default: log.Error("unnacpected pixel format"); return false;
+            default: qCInfo(LC_SYSTEM, "unnacpected pixel format"); return false;
         };
         img.create(cv::Size(currentVm.getResolutionX(), currentVm.getResolutionY()), imgFormat);
 

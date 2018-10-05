@@ -15,7 +15,7 @@ GtMaterialParameterFrameTexture::GtMaterialParameterFrameTexture(const QString& 
 GtMaterialParameterFrameTexture::FDelegate GtMaterialParameterFrameTexture::apply()
 {
     _frameTexture = ResourcesSystem::GetResource<GtFrameTexture>(resource);
-    gTexID texture = _frameTexture->Data()->getOutput()->getID();
+    gTexID texture = _frameTexture->Data().Get().getOutput()->getID();
     return [this, texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
         GtTexture2D::bindTexture(f, unit, texture);
         program->setUniformValue(loc, unit);

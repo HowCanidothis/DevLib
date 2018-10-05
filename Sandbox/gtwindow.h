@@ -26,6 +26,7 @@ class GtWindow : public QMainWindow
     Stack<class GtWidget3D*> views;
 
     TextFileNameProperty main_qss;
+    ScopedPointer<class QtQSSReader> _qssReader;
 
     BoolProperty full_screen;
 public:

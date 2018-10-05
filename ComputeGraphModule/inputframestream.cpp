@@ -28,7 +28,6 @@ void InputFrameStream::MoveToThread(QThread* thread)
 
 void InputFrameStream::SetFileName(const QString& name)
 {
-    LOGOUT;
     if(_inputFile->isOpen())
     {
         if(_inputFile->fileName() == name)
@@ -37,7 +36,7 @@ void InputFrameStream::SetFileName(const QString& name)
     }
     _inputFile->setFileName(name);
     if(!_inputFile->open(QFile::ReadOnly))
-        log.Warning() << _inputFile->errorString();
+        qCWarning(LC_SYSTEM) << _inputFile->errorString();
     _inputStream->device()->seek(0);
 }
 

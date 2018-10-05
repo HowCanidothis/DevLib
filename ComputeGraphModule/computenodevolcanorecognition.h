@@ -15,7 +15,7 @@ public:
 
     void SetParams(qint32 idealFramesPerSecond);
 
-    qint32 getIdealFramesPerSecond() const { return _idealFramesPerSecond; }
+    qint32 getIdealFramesPerSecond() const { return _idealFramesPerSecond.Native(); }
 
     QMutex Mutex;
     std::vector<cv::Vec3f> Circles;
@@ -26,7 +26,7 @@ protected:
     void update(const cv::Mat* input) Q_DECL_OVERRIDE;
 
 private:
-    UIntProperty _idealFramesPerSecond;
+    IntProperty _idealFramesPerSecond;
     UIntProperty _startRecognizeHeight;
     UIntProperty _rangeRecognize;
     IntProperty _epsilonRecognize;

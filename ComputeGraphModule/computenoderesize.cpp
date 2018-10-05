@@ -4,8 +4,8 @@
 
 ComputeNodeResize::ComputeNodeResize(const QString& name)
     : GtComputeNodeBase(name)
-    , _width(name+"/width", 64, 1, 600)
-    , _height(name+"/height", 64, 1, 600)
+    , _width(Name(name+"/width"), 64, 1, 600)
+    , _height(Name(name+"/height"), 64, 1, 600)
 {
     _width.OnChange() = [this]{ updateLater(); };
     _height.OnChange() = [this]{ updateLater(); };

@@ -3,10 +3,10 @@
 
 ComputeNodeVolcanoRecognition::ComputeNodeVolcanoRecognition(const QString& name)
     : GtComputeNodeBase(name)
-    , _idealFramesPerSecond(name+"/ideal frame time", 30, 0, 30)
-    , _startRecognizeHeight(name+"/start recognize height", 2050, 2000, 3000)
-    , _rangeRecognize(name+"/range recognize", 100, 10, 150)
-    , _epsilonRecognize(name+"/epsilon recognize", 0, -10, 10)
+    , _idealFramesPerSecond(Name(name+"/ideal frame time"), 30, 0, 30)
+    , _startRecognizeHeight(Name(name+"/start recognize height"), 2050, 2000, 3000)
+    , _rangeRecognize(Name(name+"/range recognize"), 100, 10, 150)
+    , _epsilonRecognize(Name(name+"/epsilon recognize"), 0, -10, 10)
     , _currentFrame(0)
 {
     _idealFramesPerSecond.OnChange() = [this]{ _currentFrame = 0; };

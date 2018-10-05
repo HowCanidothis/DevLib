@@ -4,7 +4,7 @@
 
 ComputeNodeBlackHole::ComputeNodeBlackHole(const QString& name)
     : GtComputeNodeBase(name)
-    , _minHeight(name+"/min_height", 2000, 0, 3000)
+    , _minHeight(Name(name+"/min_height"), 2000, 0, 3000)
 {
 }
 

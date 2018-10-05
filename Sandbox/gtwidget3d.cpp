@@ -31,11 +31,10 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "SharedModule/profile_utils.h"
-
 GtWidget3D::GtWidget3D(QWidget *parent)
     : QOpenGLWidget(parent)
-    , camera_controller(new GtPlayerControllerCamera)
+    , _controllers(new ControllersContainer())
+    , _controllersContext(new GtControllersContext())
     , camera(nullptr)
     , fps_board(nullptr)
     , lft_board(nullptr)
@@ -45,6 +44,11 @@ GtWidget3D::GtWidget3D(QWidget *parent)
     , logger(nullptr)
     , shadow_mapping(false)
 {
+
+    auto cameraController = new GtPlayerControllerCamera(Name("CameraController" + QString::number((size_t)this)), _controllers.data());
+
+    _controllers->SetContext(_controllersContext.data());
+
     QSurfaceFormat surface_format;
 //    surface_format.setSamples(4);
     this->setFormat(surface_format);
@@ -94,14 +98,13 @@ GtComputeNodeBase* GtWidget3D::getOutputNode() const
 void GtWidget3D::setCamera(GtCamera* camera)
 {
     this->camera = camera;
-    reinterpret_cast<GtPlayerControllerCamera*>(this->camera_controller.data())->setCamera(camera);
+    _controllersContext->Camera = camera;
 }
 
 void GtWidget3D::initializeGL()
 {
-    LOGOUT;
     if(!initializeOpenGLFunctions()) {
-        log.Error() << "initialize functions failed";
+        qCCritical(LC_SYSTEM) << "initialize functions failed";
     }
 
     if(logger && logger->initialize()) {
@@ -163,7 +166,7 @@ void GtWidget3D::initializeGL()
     surface_material->addParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
     surface_material->addParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
     surface_material->addParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
-      program->setUniformValue(loc, shadow_map_technique->Data()->getCam()->getForward().normalized());
+      program->setUniformValue(loc, shadow_map_technique->Data().Get().getCam()->getForward().normalized());
     }));
 
     surface_material->setShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
@@ -179,7 +182,7 @@ void GtWidget3D::initializeGL()
 
         depth_material = new GtMaterial();
         depth_material->addMesh(GtMeshQuad2D::instance(this));
-        gTexID texture = shadow_map_technique->Data()->getDepthTexture();
+        gTexID texture = shadow_map_technique->Data().Get().getDepthTexture();
         depth_material->addParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
             program->setUniformValue(loc, 0);
@@ -234,9 +237,9 @@ static float getYFromCircleCoordinate(float y, const SizeF& ratio, float width)
 
 void GtWidget3D::paintGL()
 {
-    __PERFOMANCE__
+    // __PERFORMANCE__
 
-    camera_controller->inputHandle();
+    _controllers->Input();
 
     if(true) {
         fps_counter->Bind();
@@ -244,8 +247,8 @@ void GtWidget3D::paintGL()
             qint32 w, h;
             {
                 MatGuard guard = output_node->GetThreadOutput();
-                static_frame_texture->Data()->setInput(guard.GetOutput());
-                static_frame_texture->Data()->update();
+                static_frame_texture->Data().Change().setInput(guard.GetOutput());
+                static_frame_texture->Data().Change().update();
                 w = guard.GetOutput()->rows;
                 h = guard.GetOutput()->cols;
             }
@@ -268,14 +271,14 @@ void GtWidget3D::paintGL()
             }
         }
         if(shadow_mapping) {
-            shadow_map_technique->Data()->bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
-            MVP->Get() = shadow_map_technique->Data()->getWorld();
+            shadow_map_technique->Data().Change().bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
+            MVP->Data().Set(shadow_map_technique->Data().Change().getWorld());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glViewport(0,0,1024,1024);
 
             surface_material->draw(this);
             color_material->draw(this);
-            shadow_map_technique->Data()->release();
+            shadow_map_technique->Data().Change().release();
 
             static Matrix4 bias_matrix(
             0.5f, 0.0f, 0.0f, 0.5f,
@@ -283,11 +286,11 @@ void GtWidget3D::paintGL()
             0.0f, 0.0f, 0.5f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f
             );
-            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->Data()->getWorld();
+            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->Data().Change().getWorld();
 
             fbo->bind();
-            MVP->Get() = camera->getWorld();
-            MVP_shadow->Get() = shadow_MVP;
+            MVP->Data().Set(camera->getWorld());
+            MVP_shadow->Data().Set(shadow_MVP);
 
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glViewport(0,0,fbo->getWidth(),fbo->getHeight());
@@ -298,7 +301,7 @@ void GtWidget3D::paintGL()
             fbo->release();
         }
         else {
-            MVP->Get() = camera->getWorld();
+            MVP->Data().Set(camera->getWorld());
 
             fbo->bind();
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -322,25 +325,25 @@ void GtWidget3D::paintGL()
 
 void GtWidget3D::mouseMoveEvent(QMouseEvent* event)
 {
-    camera_controller->mouseMoveEvent(event);
+    _controllers->MouseMoveEvent(event);
 }
 
 void GtWidget3D::mousePressEvent(QMouseEvent* event)
 {
-    camera_controller->mousePressEvent(event);
+    _controllers->MousePressEvent(event);
 }
 
 void GtWidget3D::wheelEvent(QWheelEvent* event)
 {
-    camera_controller->wheelEvent(event);
+    _controllers->WheelEvent(event);
 }
 
 void GtWidget3D::keyPressEvent(QKeyEvent *event)
 {
-    camera_controller->keyPressEvent(event);
+    _controllers->KeyPressEvent(event);
 }
 
 void GtWidget3D::keyReleaseEvent(QKeyEvent *event)
 {
-    camera_controller->keyReleaseEvent(event);
+    _controllers->KeyReleaseEvent(event);
 }

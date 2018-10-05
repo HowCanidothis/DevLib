@@ -4,7 +4,7 @@
 
 ComputeNodeMedianBlur::ComputeNodeMedianBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , _kSize(name+"/ksize", 5, 1, 7)
+    , _kSize(Name(name+"/ksize"), 5, 1, 7)
 {
     _kSize.Validator() = PropertiesValidators::OddValidator<qint32>();
 }

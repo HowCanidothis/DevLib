@@ -7,7 +7,7 @@
 
 #include <SharedModule/internal.hpp>
 
-struct DescProccesValueState
+struct DescProcessValueState
 {
     std::wstring Title;
     int Depth;
@@ -27,7 +27,7 @@ class _Export ProcessValue
 public:
     virtual ~ProcessValue();
 
-    DescProccesValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected() }; }
+    DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected() }; }
     int GetDepth() const { return _valueDepth; }
     const std::wstring& GetTitle() const { return _title; }
     bool IsCanceled() const { return _isCanceled; }
@@ -55,7 +55,7 @@ private:
     bool _isFinished;
 };
 
-struct DescProcessDeterminateValueState : DescProccesValueState
+struct DescProcessDeterminateValueState : DescProcessValueState
 {
     int CurrentStep;
     int StepsCount;
@@ -75,9 +75,11 @@ public:
     virtual ProcessDeterminateValue* AsDeterminate() override{ return this; }
 
 private:
+    friend class ProcessFactory;
+    friend class ProcessBase;
+
     virtual void incrementStep() override;
 
-    friend class ProcessBase;
     void init(const std::wstring& title, int stepsCount);
     void increaseStepsCount(int value);
 

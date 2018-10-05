@@ -6,7 +6,7 @@ ComputeNodeDelay::ComputeNodeDelay(const QString& name)
     : GtComputeNodeBase(name)
     , _backBuffer(new cv::Mat)
     , _motionMask(nullptr)
-    , _intensity(name+"/intensity", 0.1f, 0.f, 1.f)
+    , _intensity(Name(name+"/intensity"), 0.1f, 0.f, 1.f)
 {
 
 }

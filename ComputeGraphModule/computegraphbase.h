@@ -10,6 +10,7 @@ class GtComputeGraph : public ThreadComputingBase
     Q_OBJECT
 public:
     GtComputeGraph(qint32 idealFrameTime = 30); //msecs
+    ~GtComputeGraph();
 
     void AddCalculationGraph(GtComputeNodeBase* calculationGraph);
 

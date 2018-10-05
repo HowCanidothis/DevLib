@@ -4,8 +4,8 @@
 
 ComputeNodeGaussenBlur::ComputeNodeGaussenBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , _xKernels(name+"/x_kernels", 21, 1, 255)
-    , _yKernels(name+"/y_kernels", 21, 1, 255)
+    , _xKernels(Name(name+"/x_kernels"), 21, 1, 255)
+    , _yKernels(Name(name+"/y_kernels"), 21, 1, 255)
 {
     PropertiesValidators v;
     _xKernels.Validator() = v.OddValidator<quint32>();

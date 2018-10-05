@@ -3,8 +3,8 @@
 
 ComputeNodeBlur::ComputeNodeBlur(const QString& name)
     : GtComputeNodeBase(name)
-    , _xKernels(name+"/x_kernels", 6, 1, 250)
-    , _yKernels(name+"/y_kernels", 6, 1, 250)
+    , _xKernels(Name(name+"/x_kernels"), 6, 1, 250)
+    , _yKernels(Name(name+"/y_kernels"), 6, 1, 250)
 {
 }
 

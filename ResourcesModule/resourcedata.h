@@ -77,6 +77,11 @@ public:
         *data() = value;
     }
 
+    T& Change()
+    {
+        return *data();
+    }
+
     const T& Get() const
     {
         return *data();

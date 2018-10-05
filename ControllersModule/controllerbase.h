@@ -30,7 +30,7 @@ protected:
 
     StackPointers<ControllerBase> _childControllers;
 public:
-    ControllerBase(const Name& name, ControllersContainer* container, ControllerBase* parent=0);
+    ControllerBase(const Name& name, ControllersContainer* container, ControllerBase* parent=nullptr);
     virtual ~ControllerBase()
     {}
 

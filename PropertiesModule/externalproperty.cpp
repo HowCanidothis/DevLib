@@ -9,9 +9,9 @@ void ExternalNamedUIntProperty::SetNames(const QStringList& names)
 }
 
 ExternalVector3FProperty::ExternalVector3FProperty(const Name& path, Vector3F& vector)
-    : X(path+"/x", vector[0], -FLT_MAX, FLT_MAX)
-    , Y(path+"/y", vector[1], -FLT_MAX, FLT_MAX)
-    , Z(path+"/z", vector[2], -FLT_MAX, FLT_MAX)
+    : X(Name(path.AsString() + "/x"), vector[0], -FLT_MAX, FLT_MAX)
+    , Y(Name(path.AsString() + "/y"), vector[1], -FLT_MAX, FLT_MAX)
+    , Z(Name(path.AsString() + "/z"), vector[2], -FLT_MAX, FLT_MAX)
 {
 
 }

@@ -5,16 +5,22 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG += c++17
+QMAKE_CXXFLAGS += /std:c++17
 
-include(../Global.pri)
-include(../SharedModule/SharedModule.pri)
-include(../SharedGuiModule/SharedGuiModule.pri)
-include(../ComputeGraphModule/ComputeGraphModule.pri)
-include(../GraphicsToolsModule/GraphicsToolsModule.pri)
-include(../PropertiesModule/PropertiesModule.pri)
-include(../ResourcesModule/ResourcesModule.pri)
+CABOODLE = ../
 
-INCLUDEPATH += ../
+include($$CABOODLE/Global.pri)
+include($$CABOODLE/SharedModule/SharedModule.pri)
+include($$CABOODLE/SharedGuiModule/SharedGuiModule.pri)
+include($$CABOODLE/CommandsModule/CommandsModule.pri)
+include($$CABOODLE/ControllersModule/ControllersModule.pri)
+include($$CABOODLE/ComputeGraphModule/ComputeGraphModule.pri)
+include($$CABOODLE/GraphicsToolsModule/GraphicsToolsModule.pri)
+include($$CABOODLE/PropertiesModule/PropertiesModule.pri)
+include($$CABOODLE/ResourcesModule/ResourcesModule.pri)
+
+INCLUDEPATH += $$CABOODLE
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,7 +31,7 @@ TEMPLATE = app
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS HOME OPENCV
+DEFINES += QT_DEPRECATED_WARNINGS HOME OPENCV STATIC_LINK
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
