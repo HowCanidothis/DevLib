@@ -27,9 +27,9 @@ void ResourcesSystem::RegisterResource(const Name& name, const std::function<voi
     if(find == cache.end()) {
         ResourceDataBase* data;
         if(multiThread) {
-            data = new ResourceDataBase(fOnCreate);
-        } else {
             data = new ResourceDataMultiThread(fOnCreate);
+        } else {
+            data = new ResourceDataBase(fOnCreate);
         }
         cache.insert(name,data);
     }

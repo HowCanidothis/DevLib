@@ -176,7 +176,7 @@ struct _Export ExternalVector3FProperty
     ExternalFloatProperty Y;
     ExternalFloatProperty Z;
 
-    ExternalVector3FProperty(const Name& path, Vector3F& vector);
+    ExternalVector3FProperty(const QString& path, Vector3F& vector);
 
     void Subscribe(const Property::FOnChange& handle);
     void SetReadOnly(bool readOnly);

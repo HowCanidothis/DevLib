@@ -46,10 +46,10 @@ void Property::Subscribe(const Property::FOnChange& onChange) {
     };
 }
 
-Vector3FProperty::Vector3FProperty(const Name& path, const Vector3F& vector)
-    : X(path+"/x", vector.x(), -FLT_MAX, FLT_MAX)
-    , Y(path+"/y", vector.y(), -FLT_MAX, FLT_MAX)
-    , Z(path+"/z", vector.z(), -FLT_MAX, FLT_MAX)
+Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
+    : X(Name(path+"/x"), vector.x(), -FLT_MAX, FLT_MAX)
+    , Y(Name(path+"/y"), vector.y(), -FLT_MAX, FLT_MAX)
+    , Z(Name(path+"/z"), vector.z(), -FLT_MAX, FLT_MAX)
 {
 
 }

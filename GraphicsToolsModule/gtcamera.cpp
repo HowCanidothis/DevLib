@@ -8,9 +8,9 @@ class GtCamera::CameraObserverProperties
     ExternalVector3FProperty up;
 public:
     CameraObserverProperties(const QString& path, GtCamera* camera)
-        : eye(Name(path+"/eye"), camera->eye)
-        , forward(Name(path+"/forward"), camera->forward)
-        , up(Name(path+"/up"), camera->up)
+        : eye(path+"/eye", camera->eye)
+        , forward(path+"/forward", camera->forward)
+        , up(path+"/up", camera->up)
     {
         auto assignOnSet = [camera](ExternalVector3FProperty& src, bool read_only){
             src.Subscribe([camera]{

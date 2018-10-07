@@ -262,7 +262,7 @@ public:
     FloatProperty Y;
     FloatProperty Z;
 
-    Vector3FProperty(const Name& path, const Vector3F& vector);
+    Vector3FProperty(const QString& path, const Vector3F& vector);
 };
 
 #endif // PROPERTY_H
