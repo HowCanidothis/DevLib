@@ -3,16 +3,16 @@
 
 #ifndef NO_QT
 
-#include <QObject>
-#define TR_W(text) \
-    QObject::tr(text).toStdWString().c_str()
-#define TR(text) \
-    QObject::tr(text)
+#include <QCoreApplication>
+
+#define Q_DECLARE_TR_FUNCTIONS_W(context) \
+protected: \
+    std::wstring tr(const char* text) const { return QCoreApplication::translate(#context, text, nullptr, -1).toStdWString(); }
 
 #else
 
-#define TR_W(text) L##text
-#define TR(text) text
+#define Q_DECLARE_TR_FUNCTIONS_W(context)
+#define tr(text) L##text
 
 #endif
 

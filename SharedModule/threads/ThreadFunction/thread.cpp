@@ -29,8 +29,15 @@ void Thread::run()
         }
     }
 
-    _task->Task();
-    _task->OnFinish();
+    try
+    {
+        _task->Task();
+        _task->Result.Resolve(true);
+    }
+    catch (...)
+    {
+        _task->Result.Resolve(false);
+    }
 
     ThreadTaskDesc* nextTask = _pool->takeTask();
     if(nextTask != nullptr) {

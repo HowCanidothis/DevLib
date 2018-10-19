@@ -5,6 +5,7 @@
 
 #include "qtinlineevent.h"
 #include "qtobserver.h"
+#include "qtqssreader.h"
 #include "utils.h"
 
 typedef QtObserver Observer;

@@ -41,13 +41,25 @@ public:
         , _max(max)
     {}
 
-    virtual QVariant GetMin() const { return _min; }
-    virtual QVariant GetMax() const { return _max; }
+    void SetMinMax(T min, T max)
+    {
+        _min = min;
+        _max = max;
+        T value = _getter();
+        if(value < _min) {
+            SetValue(_min);
+        }else if(value > _max) {
+            SetValue(_max);
+        }
+    }
+
+    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
+    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }
 
     // Property interface
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _getter(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _setter(value.toDouble(), _getter()); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return Super::_getter(); }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE {  Super::_setter(value.toDouble(),  Super::_getter()); }
     T _min;
     T _max;
 };

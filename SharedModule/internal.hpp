@@ -29,6 +29,7 @@
 #include "Threads/threadcomputingbase.h"
 #include "Threads/threadeventshelper.h"
 #include "Threads/ThreadFunction/threadfunction.h"
+#include "Threads/Promises/promise.h"
 #include "flags.h"
 #include "profile_utils.h"
 #include "timer.h"

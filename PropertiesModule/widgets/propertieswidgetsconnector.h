@@ -24,6 +24,7 @@ public:
     void AddConnector(PropertiesConnectorBase* connector);
     void Update();
     void Clear();
+    bool IsEmpty() const { return _connectors.IsEmpty(); }
 
 private:
     StackPointers<PropertiesConnectorBase> _connectors;
@@ -71,32 +72,16 @@ public:
     PropertiesLineEditConnector(const Name& propertyName, QLineEdit* lineEdit);
 };
 
-template<class SpinType, typename valueType>
-class PropertiesSpinBoxConnectorBase : public PropertiesConnectorBase
+class _Export PropertiesSpinBoxConnector : public PropertiesConnectorBase
 {
 public:
-    PropertiesSpinBoxConnectorBase(const Name& propertyName, SpinType* spinBox)
-        : PropertiesConnectorBase(propertyName,
-                                  [spinBox, this](const QVariant& value){
-                                    auto property = _propertyPtr.GetProperty();
-                                    spinBox->setMinimum(property->GetMin().toDouble());
-                                    spinBox->setMaximum(property->GetMax().toDouble());
-                                    spinBox->setValue(value.toDouble());
-                                    auto singleStep = (spinBox->maximum() - spinBox->minimum()) / 100.0;
-                                    singleStep = (singleStep > 1.0) ? 1.0 : singleStep;
-                                    spinBox->setSingleStep(singleStep);
-                                    spinBox->setFocusPolicy(Qt::StrongFocus);
-                                  },
-                                  spinBox)
-    {
-        _connection = connect(spinBox, static_cast<void (SpinType::*)(valueType)>(&SpinType::valueChanged), [this](valueType value){
-            _propertyPtr.GetProperty()->SetValue(value);
-        });
-    }
+    PropertiesSpinBoxConnector(const Name& propertyName, QSpinBox* spinBox);
 };
 
-typedef PropertiesSpinBoxConnectorBase<QSpinBox, qint32> PropertiesSpinBoxConnector;
-typedef PropertiesSpinBoxConnectorBase<QDoubleSpinBox, double> PropertiesDoubleSpinBoxConnector;
-
+class _Export PropertiesDoubleSpinBoxConnector : public PropertiesConnectorBase
+{
+public:
+    PropertiesDoubleSpinBoxConnector(const Name& propertyName, QDoubleSpinBox* spinBox);
+};
 
 #endif // PROPERTIESWIDGETSCONNECTOR_H

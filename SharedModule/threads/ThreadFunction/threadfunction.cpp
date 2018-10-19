@@ -3,14 +3,11 @@
 #include "threadpool.h"
 #include "thread.h"
 
-void ThreadFunction::Async(const FTask& function)
+AsyncResult* ThreadFunction::Async(const FTask& function)
 {
-    threadPool().pushTask(new ThreadTaskDesc{ function, []{} });
-}
-
-void ThreadFunction::Async(const FTask& function, const FOnFinish& onFinish)
-{
-    threadPool().pushTask(new ThreadTaskDesc{ function, onFinish });
+    auto desc = new ThreadTaskDesc{ function };
+    threadPool().pushTask(desc);
+    return &desc->Result;
 }
 
 ThreadPool& ThreadFunction::threadPool()

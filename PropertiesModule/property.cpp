@@ -59,3 +59,21 @@ void NamedUIntProperty::SetNames(const QStringList& names)
     _max = names.size() - 1;
     _names = names;
 }
+
+void UrlListProperty::AddUniqueUrl(const QUrl& url)
+{
+    auto urlList = Super::_value; // Copy
+    auto find = std::find(urlList.begin(), urlList.end(), url);
+    if(find != urlList.end()) {
+        urlList.erase(find);
+        urlList.push_front(url);
+    } else {
+        urlList.prepend(url);
+        if(_maxCount != -1) {
+            if(urlList.size() > _maxCount) {
+                urlList.pop_back();
+            }
+        }
+    }
+    SetValue(QUrl::toStringList(urlList));
+}

@@ -11,7 +11,7 @@
 struct ThreadTaskDesc
 {
     FTask Task;
-    FOnFinish OnFinish;
+    AsyncResult Result;
 };
 
 class Thread : public QThread

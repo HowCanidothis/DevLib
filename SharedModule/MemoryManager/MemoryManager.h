@@ -3,15 +3,33 @@
 
 #include <QHash>
 #include <QString>
+#include <QMutex>
 #include <typeinfo>
 
 template<class T> class MemorySpy;
 
 class MemoryManager {
 private:
-    static QHash<size_t,const char*> transcription;
-    static QHash<size_t,qint32> constructed;
-    static QHash<size_t,qint32> destroyed;
+    static QMutex& mutex()
+    {
+        static QMutex mutex;
+        return mutex;
+    };
+    static QHash<size_t,const char*>& dictionary()
+    {
+        static QHash<size_t,const char*> ret;
+        return ret;
+    }
+    static QHash<size_t,qint32>& created()
+    {
+        static QHash<size_t,qint32> ret;
+        return ret;
+    }
+    static QHash<size_t,qint32>& destroyed()
+    {
+        static QHash<size_t,qint32> ret;
+        return ret;
+    }
 
     static qint32 shouldBe(size_t index);
     static const char* typeName(size_t _type);
@@ -27,14 +45,23 @@ class MemorySpy
 {
 public:
     MemorySpy(){
+        MemoryManager::mutex().lock();
         size_t id = typeid(T).hash_code();
-        if(!MemoryManager::transcription.contains(id))
-            MemoryManager::transcription[id] = typeid(T).name();
-        MemoryManager::constructed[id]++;
+        if(!MemoryManager::dictionary().contains(id))
+            MemoryManager::dictionary()[id] = typeid(T).name();
+        MemoryManager::created()[id]++;
+        MemoryManager::mutex().unlock();
+    }
+
+    MemorySpy(const MemorySpy&)
+        : MemorySpy()
+    {
     }
 
     virtual ~MemorySpy(){
-        MemoryManager::destroyed[typeid(T).hash_code()]++;
+        MemoryManager::mutex().lock();
+        MemoryManager::destroyed()[typeid(T).hash_code()]++;
+        MemoryManager::mutex().unlock();
     }
 };
 

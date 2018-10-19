@@ -48,7 +48,7 @@ class CommandsView : public QListView
 {
     Q_OBJECT
 public:
-    CommandsView(QWidget* p=0);
+    CommandsView(QWidget* p=nullptr);
     void SetModel(CommandsModel* cmd_model);
     CommandsModel* GetModel() const;
 
@@ -58,8 +58,8 @@ private Q_SLOTS:
 
 private:
     friend class CommandsModel;
-    void setModel(QAbstractItemModel* model) Q_DECL_OVERRIDE;
-    void mousePressEvent(QMouseEvent* e);
+    virtual void setModel(QAbstractItemModel* model) Q_DECL_OVERRIDE;
+    virtual void mousePressEvent(QMouseEvent* e) Q_DECL_OVERRIDE;
 
 private:
     qint32 _lIndex=-1;

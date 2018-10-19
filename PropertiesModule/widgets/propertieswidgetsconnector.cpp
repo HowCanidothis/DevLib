@@ -1,6 +1,8 @@
 #include "propertieswidgetsconnector.h"
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 PropertiesConnectorContextIndexGuard::PropertiesConnectorContextIndexGuard(properties_context_index_t contextIndex)
     : _before(currentContextIndex())
@@ -87,3 +89,40 @@ PropertiesLineEditConnector::PropertiesLineEditConnector(const Name& propertyNam
         _propertyPtr.GetProperty()->SetValue(lineEdit->text());
     });
 }
+
+PropertiesSpinBoxConnector::PropertiesSpinBoxConnector(const Name& propertyName, QSpinBox* spinBox)
+    : PropertiesConnectorBase(propertyName,
+                              [spinBox, this](const QVariant& value){
+                                  auto property = _propertyPtr.GetProperty();
+                                  spinBox->setMinimum(property->GetMin().toDouble());
+                                  spinBox->setMaximum(property->GetMax().toDouble());
+                                  spinBox->setValue(value.toDouble());
+                                  spinBox->setSingleStep(1);
+                                  spinBox->setFocusPolicy(Qt::StrongFocus);
+                              },
+                              spinBox)
+{
+    _connection = connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value){
+            _propertyPtr.GetProperty()->SetValue(value);
+    });
+}
+
+PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& propertyName, QDoubleSpinBox* spinBox)
+    : PropertiesConnectorBase(propertyName,
+                              [spinBox, this](const QVariant& value){
+                                  auto property = _propertyPtr.GetProperty();
+                                  spinBox->setMinimum(property->GetMin().toDouble());
+                                  spinBox->setMaximum(property->GetMax().toDouble());
+                                  spinBox->setValue(value.toDouble());
+                                  auto singleStep = (spinBox->maximum() - spinBox->minimum()) / 100.0;
+                                  singleStep = (singleStep > 1.0) ? 1.0 : singleStep;
+                                  spinBox->setSingleStep(singleStep);
+                                  spinBox->setFocusPolicy(Qt::StrongFocus);
+                              },
+                              spinBox)
+{
+    _connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double value){
+            _propertyPtr.GetProperty()->SetValue(value);
+    });
+}
+
