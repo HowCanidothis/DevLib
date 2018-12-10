@@ -9,8 +9,12 @@ PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIn
     , _options(Options_Default)
     , _contextIndex(contextIndex)
     , _view(view)
-    , _savedGeometry(Name("PropertiesDialogGeometry/" + name), QByteArray())
+    , _savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
 {
+    if(!_savedGeometry.IsValid()) {
+        qCWarning(LC_SYSTEM) << name << "dialog doesn't have geometry property";
+    }
+
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(view);
@@ -18,8 +22,13 @@ PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIn
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
 
-    _savedGeometry.ChangeOptions().SetFlags(Property::Option_IsExportable);
+void PropertiesDialogBase::CreateGeometryProperty(const QString& dialogName)
+{
+    // TODO. Memory leak, but this property is global and live until the application close
+    auto property = new ByteArrayProperty(Name("PropertiesDialogGeometry/" + dialogName), QByteArray());
+    property->ChangeOptions().SetFlags(Property::Option_IsExportable);
 }
 
 void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& propertiesInitializeFunction)
@@ -65,7 +74,9 @@ void PropertiesDialogBase::SetOnDone(const PropertiesDialogBase::OnDoneHandle& o
 void PropertiesDialogBase::done(int result)
 {
     Q_ASSERT(_isInitialized == true);
-    _savedGeometry = saveGeometry();
+    if(_savedGeometry.IsValid()) {
+        _savedGeometry = saveGeometry();
+    }
     Super::done(result);
     if(result == Rejected) {
         auto it = _oldValues.begin();
@@ -83,7 +94,7 @@ void PropertiesDialogBase::done(int result)
 
 void PropertiesDialogBase::showEvent(QShowEvent* event)
 {
-    if(!_savedGeometry.Native().isEmpty()) {
+    if(_savedGeometry.IsValid() && !_savedGeometry.Native().isEmpty()) {
         restoreGeometry(_savedGeometry);
     } else {
         Super::showEvent(event);

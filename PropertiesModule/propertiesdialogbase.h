@@ -28,6 +28,7 @@ public:
 
     PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent = nullptr);
 
+    static void CreateGeometryProperty(const QString& dialogName);
     void Initialize(const StdHandle& propertiesInitializeFunction = []{});
     const Options& GetOptions() const { return _options; }
     Options& ChangeOptions() { return  _options; }
@@ -51,7 +52,7 @@ protected:
     Options _options;
     qint32 _contextIndex;
     QWidget* _view;
-    ByteArrayProperty _savedGeometry;
+    ByteArrayPropertyPtr _savedGeometry;
     QMetaObject::Connection _connection;
     QHash<Property*, QVariant> _oldValues;
 };

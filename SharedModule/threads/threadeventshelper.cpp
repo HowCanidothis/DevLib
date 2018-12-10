@@ -3,17 +3,23 @@
 
 #include "SharedModule/internal.hpp"
 
-ThreadEvent::ThreadEvent(ThreadEvent::FEventHandler handler)
+ThreadEvent::ThreadEvent(ThreadEvent::FEventHandler handler, const AsyncResult& result)
     : _handler(handler)
+    , _result(result)
 {}
 
 void ThreadEvent::call()
 {
-    _handler();
+    try {
+        _handler();
+        _result.Resolve(true);
+    } catch (...) {
+        _result.Resolve(false);
+    }
 }
 
-TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name& tag, ThreadEvent::FEventHandler handler)
-    : ThreadEvent(handler)
+TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name& tag, ThreadEvent::FEventHandler handler, const AsyncResult& result)
+    : ThreadEvent(handler, result)
     , _tag(tag)
     , _tagsCache(tagsCache)
 {
@@ -28,7 +34,12 @@ void TagThreadEvent::removeTag()
 
 void TagThreadEvent::call()
 {
-    _handler();
+    try {
+        _handler();
+        _result.Resolve(true);
+    } catch (...) {
+        _result.Resolve(false);
+    }
 }
 
 ThreadEventsContainer::ThreadEventsContainer()
@@ -46,17 +57,20 @@ void ThreadEventsContainer::Continue()
     _eventsPaused.wakeAll();
 }
 
-void ThreadEventsContainer::Asynch(const Name& tag, ThreadEvent::FEventHandler handler)
+AsyncResult ThreadEventsContainer::Asynch(const Name& tag, ThreadEvent::FEventHandler handler)
 {
     QMutexLocker locker(&_eventsMutex);
+    AsyncResult result;
 
     auto find = _tagEventsMap.find(tag);
     if(find == _tagEventsMap.end()) {
-        auto tagEvent = new TagThreadEvent(&_tagEventsMap, tag, handler);
+        auto tagEvent = new TagThreadEvent(&_tagEventsMap, tag, handler, result);
         _events.push(tagEvent);
     } else {
         find.value()->_handler = handler;
+        result = find.value()->_result;
     }
+    return result;
 }
 
 void ThreadEventsContainer::Pause(const FOnPause& onPause)
@@ -76,10 +90,12 @@ void ThreadEventsContainer::Pause(const FOnPause& onPause)
     }
 }
 
-void ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
+AsyncResult ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
 {
     QMutexLocker locker(&_eventsMutex);
-    _events.push(new ThreadEvent(handler));
+    AsyncResult result;
+    _events.push(new ThreadEvent(handler, result));
+    return result;
 }
 
 void ThreadEventsContainer::ProcessEvents()

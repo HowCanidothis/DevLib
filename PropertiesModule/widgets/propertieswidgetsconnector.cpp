@@ -2,7 +2,9 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QTextEdit>
 #include <QDoubleSpinBox>
+#include <QGroupBox>
 
 PropertiesConnectorContextIndexGuard::PropertiesConnectorContextIndexGuard(properties_context_index_t contextIndex)
     : _before(currentContextIndex())
@@ -32,9 +34,12 @@ PropertiesConnectorBase::PropertiesConnectorBase(const Name& name, const Propert
     , _setter(setter)
     , _propertyPtr(name, [this, target]{
     Q_ASSERT(_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
-    QSignalBlocker blocker(target);
-    _setter(_propertyPtr.GetProperty()->GetValue());
+    if(!_ignorePropertyChange) {
+        QSignalBlocker blocker(target);
+        _setter(_propertyPtr.GetProperty()->GetValue());
+    }
 }, PropertiesConnectorContextIndexGuard::currentContextIndex())
+    , _ignorePropertyChange(false)
 {
     if(_propertyPtr.IsValid()) {
         QSignalBlocker blocker(target);
@@ -76,6 +81,7 @@ PropertiesCheckBoxConnector::PropertiesCheckBoxConnector(const Name& propertyNam
                               checkBox)
 {
     _connection = connect(checkBox, &QCheckBox::clicked, [this](bool value){
+        PropertyChangeGuard guard(this);
         _propertyPtr.GetProperty()->SetValue(value);
     });
 }
@@ -86,6 +92,7 @@ PropertiesLineEditConnector::PropertiesLineEditConnector(const Name& propertyNam
                               lineEdit)
 {
     _connection = connect(lineEdit, &QLineEdit::editingFinished, [this, lineEdit](){
+        PropertyChangeGuard guard(this);
         _propertyPtr.GetProperty()->SetValue(lineEdit->text());
     });
 }
@@ -103,7 +110,8 @@ PropertiesSpinBoxConnector::PropertiesSpinBoxConnector(const Name& propertyName,
                               spinBox)
 {
     _connection = connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value){
-            _propertyPtr.GetProperty()->SetValue(value);
+        PropertyChangeGuard guard(this);
+        _propertyPtr.GetProperty()->SetValue(value);
     });
 }
 
@@ -122,7 +130,40 @@ PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& p
                               spinBox)
 {
     _connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double value){
-            _propertyPtr.GetProperty()->SetValue(value);
+        PropertyChangeGuard guard(this);
+        _propertyPtr.GetProperty()->SetValue(value);
     });
 }
 
+PropertiesTextEditConnector::PropertiesTextEditConnector(const Name& propertyName, QTextEdit* textEdit)
+    : PropertiesConnectorBase(propertyName,
+                              [textEdit, this](const QVariant& value){ textEdit->setText(value.toString()); },
+                              textEdit)
+{
+    _connection = connect(textEdit, &QTextEdit::textChanged, [this, textEdit](){
+        PropertyChangeGuard guard(this);
+        _propertyPtr.GetProperty()->SetValue(textEdit->toPlainText());
+    });
+}
+
+PropertiesGroupBoxConnector::PropertiesGroupBoxConnector(const Name& propertyName, QGroupBox* groupBox)
+    : PropertiesConnectorBase(propertyName,
+                              [groupBox](const QVariant& value){ groupBox->setChecked(value.toBool()); },
+                              groupBox)
+{
+    _connection = connect(groupBox, &QGroupBox::clicked, [this](bool value){
+        PropertyChangeGuard guard(this);
+        _propertyPtr.GetProperty()->SetValue(value);
+    });
+}
+
+PropertiesConnectorBase::PropertyChangeGuard::PropertyChangeGuard(PropertiesConnectorBase* connector)
+    : _ignorePropertyChange(connector->_ignorePropertyChange)
+{
+    _ignorePropertyChange = true;
+}
+
+PropertiesConnectorBase::PropertyChangeGuard::~PropertyChangeGuard()
+{
+    _ignorePropertyChange = false;
+}

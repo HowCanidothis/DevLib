@@ -7,20 +7,20 @@
 #include <queue>
 #include <functional>
 #include "SharedModule/name.h"
+#include "SharedModule/threads/Promises/promise.h"
 
 class ThreadEvent
 {
 public:
     typedef std::function<void()> FEventHandler;
 
-    ThreadEvent(FEventHandler  handler);
+    ThreadEvent(FEventHandler handler, const AsyncResult& result);
     virtual ~ThreadEvent() {}
-
-
 
 protected:
     friend class ThreadEventsContainer;
     FEventHandler _handler;
+    AsyncResult _result;
 
     virtual void removeTag() {}
     virtual void call();
@@ -30,7 +30,7 @@ class TagThreadEvent : public ThreadEvent
 {
 public:
     typedef QHash<Name,ThreadEvent*> TagsCache;
-    TagThreadEvent(TagsCache* tagsCache, const Name& tag, FEventHandler handler);
+    TagThreadEvent(TagsCache* tagsCache, const Name& tag, FEventHandler handler, const AsyncResult& result);
 
 protected:
     virtual void removeTag() Q_DECL_OVERRIDE;
@@ -51,8 +51,8 @@ public:
     void Pause(const FOnPause& onPause);
     void Continue();
 
-    void Asynch(const Name& tag, ThreadEvent::FEventHandler handler);
-    void Asynch(ThreadEvent::FEventHandler handler);
+    AsyncResult Asynch(const Name& tag, ThreadEvent::FEventHandler handler);
+    AsyncResult Asynch(ThreadEvent::FEventHandler handler);
     void ProcessEvents();
 
 protected:

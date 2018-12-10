@@ -62,6 +62,27 @@ struct Serializer<std::wstring>
     }
 };
 
+template<>
+struct Serializer<std::string>
+{
+    typedef std::string target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        Serializer<uint32_t>::Write(buffer, static_cast<uint32_t>(data.size()));
+        Serializer<PlainData>::Write(buffer, PlainData(data.c_str(), data.size() * sizeof(target_type::value_type)));
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        uint32_t size;
+        Serializer<uint32_t>::Read(buffer, size);
+        data.resize(size);
+        buffer << PlainData(data.data(), data.size() * sizeof(target_type::value_type));
+    }
+};
+
 #define DECL_POINTER_SERIALIZER(type) \
 template<> \
 struct Serializer<type*> \

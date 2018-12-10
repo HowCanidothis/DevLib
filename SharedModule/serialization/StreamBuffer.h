@@ -21,22 +21,28 @@ struct Serializer
 template<class Stream>
 class StreamBufferBase
 {
-    Stream _stream;
     bool _isValid;
+    int32_t _version;
+    Stream _stream;
 public:
     template<class ... Args>
-    StreamBufferBase(int64_t magicKey, Args ... args)
+    StreamBufferBase(int64_t magicKey, int32_t version, Args ... args)
         : _stream(args...)
+        , _version(version)
     {
         int64_t testKey = magicKey;
         if(_stream.good()) {
             *this << testKey;
             _isValid = (testKey == magicKey);
+            if(_isValid) {
+                *this << _version;
+            }
         } else {
             _isValid = false;
         }
     }
 
+    int32_t GetVersion() const { return _version; }
     bool IsValid() const { return _isValid; }
 
     Stream& GetStream() { return _stream; }

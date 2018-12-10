@@ -9,12 +9,16 @@ class TExternalPropertyBase : public Property
 protected:
     typedef std::function<T ()> FGetter;
     typedef std::function<void (T value, T oldValue)> FSetter;
+
 public:
+    typedef T value_type;
     TExternalPropertyBase(const Name& path,const FGetter& getter, const FSetter& setter)
         : Property(path)
         , _getter(getter)
         , _setter(setter)
     {}
+
+    operator T() const { return _getter(); }
 
 protected:
     FGetter defaultGetter(T& ref) { return [&ref]{ return ref; }; }
@@ -52,6 +56,9 @@ public:
             SetValue(_max);
         }
     }
+
+    T GetMinValue() const { return _min; }
+    T GetMaxValue() const { return _max; }
 
     virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
     virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }

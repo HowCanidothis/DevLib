@@ -38,6 +38,11 @@ public:
     explicit PropertiesConnectorContextIndexGuard();
     ~PropertiesConnectorContextIndexGuard();
 
+    template<class T> static PropertyPromise<T> GetProperty(const Name& name)
+    {
+        return PropertiesSystem::GetProperty<T>(name, currentContextIndex());
+    }
+
 private:
     friend class PropertiesConnectorBase;
     static properties_context_index_t& currentContextIndex();
@@ -45,7 +50,7 @@ private:
 
 class _Export PropertiesConnectorBase : public QObject
 {
-    typedef std::function<void (const QVariant& )> Setter;
+    typedef std::function<void (const QVariant& )> Setter;   
 public:
     PropertiesConnectorBase(const Name& name, const Setter& setter, QWidget* target);
     virtual ~PropertiesConnectorBase();
@@ -58,6 +63,16 @@ protected:
     Setter _setter;
     PropertyPtr _propertyPtr;
     QMetaObject::Connection _connection;
+    bool _ignorePropertyChange;
+
+protected:
+    class PropertyChangeGuard
+    {
+        bool& _ignorePropertyChange;
+    public:
+        PropertyChangeGuard(PropertiesConnectorBase* connector);
+        ~PropertyChangeGuard();
+    };
 };
 
 class _Export PropertiesCheckBoxConnector : public PropertiesConnectorBase
@@ -82,6 +97,19 @@ class _Export PropertiesDoubleSpinBoxConnector : public PropertiesConnectorBase
 {
 public:
     PropertiesDoubleSpinBoxConnector(const Name& propertyName, QDoubleSpinBox* spinBox);
+};
+
+class _Export PropertiesTextEditConnector : public PropertiesConnectorBase
+{
+public:
+    PropertiesTextEditConnector(const Name& propertyName, class QTextEdit* textEdit);
+};
+
+// Bool property
+class _Export PropertiesGroupBoxConnector : public PropertiesConnectorBase
+{
+public:
+    PropertiesGroupBoxConnector(const Name& propertyName, class QGroupBox* groupBox);
 };
 
 #endif // PROPERTIESWIDGETSCONNECTOR_H

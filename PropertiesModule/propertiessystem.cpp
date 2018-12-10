@@ -13,6 +13,7 @@ static StackPointers<QHash<Name, Property*>>& contexts()
     return res;
 }
 
+// TODO. ContextIndex is not used
 static QHash<Name, QVector<Property::FOnChange>>& delayedSubscribes()
 {
     static QHash<Name, QVector<Property::FOnChange>> res;
