@@ -1,10 +1,10 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    Sandbox \
+    DatabaseBrowser \
+#    Sandbox \
 #    FlexFluidRefactoring \
 #    PropertiesSystem \
 #    ResoursesModule \
 #    GameEngine
 #    OpenGLMultithreadingTest
-

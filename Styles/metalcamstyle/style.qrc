@@ -1,0 +1,37 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/Segoe.ttf</file>
+        <file alias="CheckBox_unchecked">icons/baseline-check_box_outline_blank-24px.svg</file>
+        <file alias="CheckBox_checked">icons/baseline-check_box-24px.svg</file>
+        <file alias="Expand">icons/baseline-indeterminate_check_box-24px.svg</file>
+        <file alias="RadioButton_checked">icons/baseline-radio_button_checked-24px.svg</file>
+        <file alias="RadioButton_unchecked">icons/baseline-radio_button_unchecked-24px.svg</file>
+        <file alias="ToggleButton_off">icons/baseline-toggle_off-24px.svg</file>
+        <file alias="ToggleButton_on">icons/baseline-toggle_on-24px.svg</file>
+        <file alias="Collapse">icons/baseline-add_box-24px.svg</file>
+        <file alias="Eye_open">icons/icons8-eye-24.png</file>
+        <file alias="Eye_closed">icons/icons8-hide-24.png</file>
+        <file alias="DisplayMode_layers">icons/layers.png</file>
+        <file alias="DisplayMode_shaded">icons/shaded.png</file>
+        <file alias="DisplayMode_shadedWireframe">icons/shaded_wireframe.png</file>
+        <file alias="DisplayMode_wireframe">icons/wireframe.png</file>
+        <file alias="Arrow_left">icons/baseline-arrow_back_ios-24px.svg</file>
+        <file alias="Arrow_down">icons/baseline-arrow_drop_down-24px.svg</file>
+        <file alias="Arrow_up">icons/baseline-arrow_drop_up-24px.svg</file>
+        <file alias="Arrow_right">icons/baseline-arrow_forward_ios-24px.svg</file>
+        <file alias="SlicingGenerate">icons/play-circle.png</file>
+        <file alias="GCodeExport">icons/save-circle.png</file>
+        <file alias="TransformAlign">icons/transform-align.png</file>
+        <file alias="TransformMirror">icons/transform-mirror.png</file>
+        <file alias="TransformScale">icons/transform-scale.png</file>
+        <file alias="TransformRotate">icons/transform-rotate.png</file>
+        <file alias="TransformMove">icons/transform-move.png</file>
+        <file alias="TransformReset">icons/transform-reset.png</file>
+        <file alias="ViewLeft">icons/view-left.png</file>
+        <file alias="ViewRight">icons/view-right.png</file>
+        <file alias="ViewBottom">icons/view-bottom.png</file>
+        <file alias="ViewTop">icons/view-top.png</file>
+        <file alias="ViewFront">icons/view-front.png</file>
+        <file alias="ViewBack">icons/view-back.png</file>
+    </qresource>
+</RCC>

@@ -10,6 +10,7 @@ public:
     PropertyPromiseBase(const Name& name, qint32 contextIndex);
     PropertyPromiseBase(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex);
 
+    void Subscribe(const Property::FOnChange& onChange) { GetProperty()->Subscribe(onChange); }
     Property* GetProperty() const { return _getter(); }
     bool IsValid() const { return _isValid(); }
 protected:

@@ -208,8 +208,12 @@ class PointerProperty : public TPropertyBase<T*>
 public:
     PointerProperty(const Name& path, T* initial)
         : Super(path, initial)
-    {}
+    {
+        ChangeOptions().SetFlags(Options_InternalProperty);
+    }
 
+    T* operator->() { return Native(); }
+    const T* operator->() const { return Native(); }
     PointerProperty<T>& operator=(T* ptr) { SetValue(reinterpret_cast<size_t>(ptr)); return *this; }
 
     // Property interface
@@ -265,6 +269,18 @@ protected:
 
 private:
     qint32 _maxCount;
+};
+
+class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>
+{
+    typedef TProperty<QByteArray> Super;
+
+public:
+    PropertiesDialogGeometryProperty(const QString& name)
+        : Super(Name("PropertiesDialogGeometry/" + name), QByteArray())
+    {
+        ChangeOptions().SetFlags(Option_IsExportable);
+    }
 };
 
 // Internals

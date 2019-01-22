@@ -10,6 +10,7 @@ template<class T>
 class MiddleAlgoData {
 public:
     MiddleAlgoData(count_t reserve)
+        : _count(0)
     {
         Alloc(reserve, 0);
     }
@@ -162,13 +163,6 @@ public:
         MemMove(_first + Size(), v, count);
         _count += count;
     }
-    void Debug(const char* msg="")
-    {
-        qDebug() << msg;
-        for(auto i : adapters::range(Begin(), End())) {
-            qDebug() << i;
-        }
-    }
     void PushBack(const T& v)
     {
         EnsureRight(); Set(Last(), v);
@@ -229,7 +223,11 @@ private:
 template<class T,template<typename> class SharedPtr = std::shared_ptr>
 class ArrayCommon
 {
+#ifndef NO_QT
+    static_assert(!QTypeInfo<T>::isComplex, "Using complex objects is restricted by code style use pointers instead");
+#else
     static_assert(std::is_pod<T>::value, "Using complex objects is restricted by code style use pointers instead");
+#endif
 public:
     typedef T value_type;
     typedef T* iterator;
@@ -451,8 +449,11 @@ protected:
 
 protected:
     void detachClear() {
-        if(_d.use_count() > 1) _d.reset(new MiddleAlgoData<T>(_d->Size()));
-        else _d->Clear();
+        if(_d.use_count() > 1) {
+            _d.reset(new MiddleAlgoData<T>(_d->Size()));
+        } else {
+            _d->Clear();
+        }
     }
     void detachCopy() {
         Q_ASSERT_X(!(_d.use_count() > 1), "detachCopy", "restricted behavior");
@@ -473,6 +474,10 @@ public:
     Array(const ArrayCommon<T>& other)
         : Super(other)
     {}
+
+    const T* data() const { return begin(); }
+    T* data() { return begin(); }
+    count_t size() const { return Size(); }
 };
 
 template<class T>

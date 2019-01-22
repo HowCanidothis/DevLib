@@ -64,28 +64,6 @@ Range<It> range(It begin, It end) {
 
 }
 
-struct CastablePtr;
-struct ConstCastablePtr{
-    const void* data;
-    ConstCastablePtr(const void* d) : data(d) {}
-
-    template<class T> const T* asPtr() const { return (T*)data; }
-    template<class T> const T& as() const { return *(T*)data; }
-    const char *asCharPtr() const { return asPtr<const char>(); }
-
-    ConstCastablePtr operator+(quint16 v) const { return this->asCharPtr() + v; }
-    ConstCastablePtr operator+(quint32 v) const { return this->asCharPtr() + v; }
-    ConstCastablePtr operator+(quint64 v) const { return this->asCharPtr() + v; }
-
-    CastablePtr* constCastPtr() const { return (CastablePtr*)this; }
-    const CastablePtr& constCast() const { return *(CastablePtr*)this; }
-
-    static size_t difference(const void* p1, const void* p2) {
-        return (const char*)p1 - (const char*)p2;
-    }
-};
-Q_DECLARE_TYPEINFO(ConstCastablePtr, Q_PRIMITIVE_TYPE);
-
 enum Sides {
     Left,
     Right,
@@ -122,21 +100,30 @@ CommonGuard<Owner, BindFunc, ReleaseFunc> make(Owner* owner, BindFunc bind, Rele
 }
 
 struct CastablePtr{
-    void* data;
-    CastablePtr(void* d) : data(d) {}
+public:
+    CastablePtr(const void* d) : m_data(d) {}
 
-    template<class T> T& as() const { return *asPtr<T>(); }
-    template<class T> T* asPtr() const { return (T*)data; }
-    char* asCharPtr() const { return asPtr<char>(); }
+    template<class T> const T& As() const { return *AsPtr<T>(); }
+    template<class T> const T* AsPtr() const { return (T*)m_data; }
+    const char* AsCharPtr() const { return AsPtr<char>(); }
 
-    CastablePtr operator+(quint16 v) const { return this->asCharPtr() + v; }
-    CastablePtr operator+(quint32 v) const { return this->asCharPtr() + v; }
-    CastablePtr operator+(quint64 v) const { return this->asCharPtr() + v; }
+    template<class T> T& As() { return *AsPtr<T>(); }
+    template<class T> T* AsPtr() { return (T*)m_data; }
+    char* AsCharPtr() { return AsPtr<char>(); }
 
-    ConstCastablePtr* toConstPtr() const { return (ConstCastablePtr*)this; }
-    const ConstCastablePtr& toConst() const { return *(ConstCastablePtr*)this; }
+    void operator+=(qint32 bytes) { m_data = this->AsCharPtr() + bytes; }
+    CastablePtr operator+(quint16 bytes) const { return this->AsCharPtr() + bytes; }
+    CastablePtr operator+(quint32 bytes) const { return this->AsCharPtr() + bytes; }
+    CastablePtr operator+(quint64 bytes) const { return this->AsCharPtr() + bytes; }
 
-    operator size_t() const { return (size_t)this->data; }
+    operator size_t() const { return (size_t)this->m_data; }
+
+    static size_t Difference(const void* p1, const void* p2) {
+        return (const char*)p1 - (const char*)p2;
+    }
+
+private:
+    const void* m_data;
 };
 
 Q_DECLARE_TYPEINFO(CastablePtr, Q_PRIMITIVE_TYPE);

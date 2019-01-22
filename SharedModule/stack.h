@@ -15,6 +15,7 @@ class StackData
 public:
     StackData(count_t reserve)
         : _reserved(reserve)
+        , _count(0)
     {
         Realloc();
     }
@@ -90,7 +91,11 @@ template<class T, template<typename> class SharedPtr = std::shared_ptr>
 class Stack
 {
 protected:
+#ifndef NO_QT
+    static_assert(!QTypeInfo<T>::isComplex, "Using complex objects is restricted by code style use pointers instead");
+#else
     static_assert(std::is_pod<T>::value, "Using complex objects is restricted by code style use pointers instead");
+#endif
     SharedPtr<StackData<T>> d;
 public:
     typedef T* iterator;
