@@ -1,29 +1,15 @@
 #ifndef STREAMBUFFER_H
 #define STREAMBUFFER_H
 
-template<class T>
-struct Serializer
-{
-    template<class Buffer>
-    static void Write(Buffer& buffer, const T& data)
-    {
-        const_cast<T*>(&data)->Serialize(buffer);
-    }
-    template<class Buffer>
-    static void Read(Buffer& buffer, T& data)
-    {
-        data.Serialize(buffer);
-    }
-};
-
 #include "stdserializer.h"
 
 template<class Stream>
 class StreamBufferBase
 {
     bool _isValid;
-    int32_t _version;
     Stream _stream;
+    int32_t _version;
+
 public:
     template<class ... Args>
     StreamBufferBase(int64_t magicKey, int32_t version, Args ... args)
@@ -41,6 +27,22 @@ public:
             _isValid = false;
         }
     }
+
+    template<class Enum>
+    StreamBufferBase(QByteArray* array, Enum flags)
+        : _stream(array, flags)
+        , _version(-1)
+    {
+        _isValid = _stream.good();
+    }
+
+    StreamBufferBase(const QByteArray& array)
+        : _stream(array)
+        , _version(-1)
+    {
+        _isValid = _stream.good();
+    }
+
 
     int32_t GetVersion() const { return _version; }
     bool IsValid() const { return _isValid; }

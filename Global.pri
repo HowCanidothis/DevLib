@@ -43,3 +43,6 @@ includeFiles(precompiled, PRECOMPILED_HEADER)
 
 }#includeAll
 
+win32-g++ {
+    QMAKE_CXXFLAGS += -Wno-missing-field-initializers
+}

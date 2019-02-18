@@ -47,9 +47,9 @@ void Property::Subscribe(const Property::FOnChange& onChange) {
 }
 
 Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
-    : X(Name(path+"/x"), vector.x(), -FLT_MAX, FLT_MAX)
-    , Y(Name(path+"/y"), vector.y(), -FLT_MAX, FLT_MAX)
-    , Z(Name(path+"/z"), vector.z(), -FLT_MAX, FLT_MAX)
+    : X(Name(path+"/x"), vector.x(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Y(Name(path+"/y"), vector.y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Z(Name(path+"/z"), vector.z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
 {
 
 }

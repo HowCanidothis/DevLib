@@ -21,6 +21,7 @@ public:
         Option_IsReadOnly = 0x4, // if property cans be edited from gui
 
         Options_Default = Option_IsExportable | Option_IsPresentable,
+        Options_ReadOnlyPresentable = Option_IsPresentable | Option_IsReadOnly,
         Options_InternalProperty = 0
     };
     DECL_FLAGS(Options, Option)
@@ -88,6 +89,9 @@ public:
         : Property(path)
         , _value(initial)
     {}
+
+    // Avoid invoking. Sometimes it's helpfull
+    void SetDirect(const T& value) { _value = value; }
 
     const T& Native() const { return _value; }
     const T* Ptr() const { return &_value; }
@@ -209,12 +213,12 @@ public:
     PointerProperty(const Name& path, T* initial)
         : Super(path, initial)
     {
-        ChangeOptions().SetFlags(Options_InternalProperty);
+        this->ChangeOptions().SetFlags(Super::Options_InternalProperty);
     }
 
-    T* operator->() { return Native(); }
-    const T* operator->() const { return Native(); }
-    PointerProperty<T>& operator=(T* ptr) { SetValue(reinterpret_cast<size_t>(ptr)); return *this; }
+    T* operator->() { return this->Native(); }
+    const T* operator->() const { return this->Native(); }
+    PointerProperty<T>& operator=(T* ptr) { this->SetValue(reinterpret_cast<size_t>(ptr)); return *this; }
 
     // Property interface
 protected:

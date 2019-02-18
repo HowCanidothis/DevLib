@@ -12,6 +12,11 @@ PropertiesDelegateFactory::PropertiesDelegateFactory()
 
 }
 
+PropertiesDelegateFactory::~PropertiesDelegateFactory()
+{
+
+}
+
 void PropertiesDelegateFactory::SetFactory(PropertiesDelegateFactory* factory)
 {
     delete currentFactory();

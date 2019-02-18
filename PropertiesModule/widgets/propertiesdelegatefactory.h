@@ -24,6 +24,7 @@ public:
 
 protected:
     PropertiesDelegateFactory();
+    virtual ~PropertiesDelegateFactory();
 
 private:
     static PropertiesDelegateFactory*& currentFactory();

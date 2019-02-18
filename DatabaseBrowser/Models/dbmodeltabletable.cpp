@@ -87,7 +87,7 @@ case Type: return getValue<CppType>(index);
 
 #undef COMPLEX_SWITCH
 #define COMPLEX_SWITCH(CppType, DbType) \
-case DbType: return DbTableFieldTypeHelper<CppType>::toString(&getValue<DbTableFieldTypeHelper<CppType>::DbCppType>(index));
+case DbType: return DbTableFieldTypeHelper<CppType>::ToString(&getValue<DbTableFieldTypeHelper<CppType>::DbCppType>(index));
 
 #undef POD_SWITCH
 #define POD_SWITCH(CppType, Type) \

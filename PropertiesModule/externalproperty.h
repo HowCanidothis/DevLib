@@ -34,13 +34,13 @@ class TExternalProperty : public TExternalPropertyBase<T>
 {
     typedef TExternalPropertyBase<T> Super;
 public:
-    TExternalProperty(const Name& path,const FGetter& getter, const FSetter& setter, const T& min, const T& max)
+    TExternalProperty(const Name& path,const typename Super::FGetter& getter, const typename Super::FSetter& setter, const T& min, const T& max)
         : Super(path, getter, setter)
         , _min(min)
         , _max(max)
     {}
     TExternalProperty(const Name &path, T& ref, const T &min, const T &max)
-        : Super(path, defaultGetter(ref), defaultSetter(ref))
+        : Super(path, this->defaultGetter(ref), this->defaultSetter(ref))
         , _min(min)
         , _max(max)
     {}
@@ -49,7 +49,7 @@ public:
     {
         _min = min;
         _max = max;
-        T value = _getter();
+        T value = this->_getter();
         if(value < _min) {
             SetValue(_min);
         }else if(value > _max) {

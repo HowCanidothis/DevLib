@@ -10,6 +10,22 @@
 #include "SharedModule/smartpointersadapters.h"
 #include "SharedModule/array.h"
 #include "SharedModule/stack.h"
+#include "SharedModule/flags.h"
+
+template<class T>
+struct Serializer
+{
+    template<class Buffer>
+    static void Write(Buffer& buffer, const T& data)
+    {
+        const_cast<T*>(&data)->Serialize(buffer);
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, T& data)
+    {
+        data.Serialize(buffer);
+    }
+};
 
 struct PlainData
 {
@@ -143,12 +159,13 @@ struct Serializer<type> \
 };
 
 DECL_PRIMITIVE_SERIALIZER(bool)
-DECL_PRIMITIVE_SERIALIZER(int32_t)
-DECL_PRIMITIVE_SERIALIZER(int64_t)
-DECL_PRIMITIVE_SERIALIZER(double_t)
-DECL_PRIMITIVE_SERIALIZER(float_t)
-DECL_PRIMITIVE_SERIALIZER(uint32_t)
-DECL_PRIMITIVE_SERIALIZER(uint64_t)
+DECL_PRIMITIVE_SERIALIZER(int)
+DECL_PRIMITIVE_SERIALIZER(long int)
+DECL_PRIMITIVE_SERIALIZER(long long int)
+DECL_PRIMITIVE_SERIALIZER(double)
+DECL_PRIMITIVE_SERIALIZER(float)
+DECL_PRIMITIVE_SERIALIZER(unsigned long int)
+DECL_PRIMITIVE_SERIALIZER(unsigned long long int)
 
 #define DECL_STD_CONTAINER_SERIALIZER(ContainerType) \
 template<typename T> \
@@ -250,5 +267,22 @@ struct Serializer<std::pair<First, Second>>
         buffer << pair.second;
     }
 };
+
+template<typename Enum>
+struct Serializer<Flags<int32_t, Enum>>
+{
+    typedef Flags<int32_t, Enum> Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        buffer << reinterpret_cast<const qint32&>(type);
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        buffer << reinterpret_cast<qint32&>(type);
+    }
+};
+
 
 #endif

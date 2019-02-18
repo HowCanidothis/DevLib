@@ -132,7 +132,7 @@ void DbTableHeader::InitializeDefaultValues(CastablePtr& row) const
 }
 
 #define DECL_SWITCH(CppType, First) \
-    case First: stream << "\tciterator findFirst_" + field_names[f->Pos] + "(const " + DbTableFieldTypeHelper<CppType>::valueName() + "& s){ this->sort_" + field_names[f->Pos] + "(); return std::lower_bound(this->begin(), this->end(), s, [](const " + struct_name + " &s, const " + DbTableFieldTypeHelper<CppType>::valueName() + "& v){ return s." + field_names[f->Pos] + " < v; }); }\n"; break;
+    case First: stream << "\tciterator findFirst_" + field_names[f->Pos] + "(const " + DbTableFieldTypeHelper<CppType>::GetValueName() + "& s){ this->sort_" + field_names[f->Pos] + "(); return std::lower_bound(this->begin(), this->end(), s, [](const " + struct_name + " &s, const " + DbTableFieldTypeHelper<CppType>::GetValueName() + "& v){ return s." + field_names[f->Pos] + " < v; }); }\n"; break;
 void DbTableHeader::CreateConcreteTableDataHeader(QTextStream &stream,const OutCreateConcreteTableDataHeaderNameGenerator *name_gen) const
 {
     QString name_space = name_gen->NameSpace;

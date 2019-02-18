@@ -11,7 +11,7 @@ class PromiseData
     typedef std::function<void (const T&)> FCallback;
     typedef std::function<void ()> FOnError;
 
-    template<class T> friend class Promise;
+    template<class> friend class Promise;
     FCallback PromiseCallback;
     FOnError ErrorCallback;
     std::atomic_bool IsResolved;

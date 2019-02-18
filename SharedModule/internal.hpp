@@ -24,18 +24,21 @@
 #include "Serialization/qserializer.h"
 #include "array.h"
 #include "stack.h"
+#include "FileSystem/filesguard.h"
 #include "Process/qprocessbase.h"
 #include "Process/processbase.h"
 #include "Threads/threadcomputingbase.h"
 #include "Threads/threadeventshelper.h"
 #include "Threads/ThreadFunction/threadfunction.h"
 #include "Threads/Promises/promise.h"
+#include "Threads/threadsbase.h"
 #include "flags.h"
 #include "profile_utils.h"
 #include "timer.h"
 #include "shared_decl.h"
 #include "nativetranslates.h"
 #include "name.h"
+#include "logger/logger.h"
 
 #endif
 

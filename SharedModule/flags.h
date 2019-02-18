@@ -21,18 +21,21 @@ public:
     {}
 
 
-    void SetFlags(int32_t value)
+    Flags& SetFlags(int32_t value)
     {
         _value = value;
+        return *this;
     }
 
-    void AddFlags(int32_t flags)
+    Flags& AddFlags(int32_t flags)
     {
         _value |= flags;
+        return *this;
     }
-    void RemoveFlags(int32_t flags)
+    Flags& RemoveFlags(int32_t flags)
     {
         _value &= ~flags;
+        return *this;
     }
     bool TestFlagsAll(int32_t flags) const
     {
@@ -47,22 +50,25 @@ public:
     {
         _value ^= flag;
     }
-    void AddFlag(Enum flag)
+    Flags& AddFlag(Enum flag)
     {
         _value |= flag;
+        return *this;
     }
-    void RemoveFlag(Enum flag)
+    Flags& RemoveFlag(Enum flag)
     {
         _value &= ~flag;
+        return *this;
     }
     bool TestFlag(Enum flag) const
     {
         return _value & flag;
     }
 
-    void ChangeFromBoolean(int32_t flags, bool flag)
+    Flags& ChangeFromBoolean(int32_t flags, bool flag)
     {
         flag ? AddFlags(flags) : RemoveFlags(flags);
+        return *this;
     }
 
     Flags& operator |=(const Flags other)

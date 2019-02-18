@@ -178,7 +178,7 @@ DbModificationRule& DbModificationRule::AddField(DbTableFieldType type, const QS
     addFieldDelegate.FieldType = type;
     addFieldDelegate.Name = fieldName;
     addFieldDelegate.SourceOffset = 0;
-    addFieldDelegate.DestinationOffset = MDbTableField::TypeSize(type);
+    addFieldDelegate.DestinationOffset = static_cast<qint32>(MDbTableField::TypeSize(type));
     addFieldDelegate.DefaultValue = defaultValue;
     switch (type) {
     DB_FOREACH_PRIMITIVE_FIELDS(DECL_SWITCH);

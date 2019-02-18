@@ -10,6 +10,7 @@
 #include "propertiesview.h"
 #include "propertiesdialogbase.h"
 #include "propertiesdialog.h"
+#include "propertieslogger.h"
 #include "localproperty.h"
 #include "widgets/propertieswidgetsconnector.h"
 #endif

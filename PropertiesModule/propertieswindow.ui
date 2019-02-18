@@ -60,7 +60,7 @@
   <customwidget>
    <class>PropertiesView</class>
    <extends>QWidget</extends>
-   <header>propertiesview.h</header>
+   <header>PropertiesModule/propertiesview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

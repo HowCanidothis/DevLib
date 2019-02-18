@@ -3,9 +3,9 @@
 ProcessValue::ProcessValue(const FCallback& callback)
     : _valueDepth(depthCounter()++)
     , _callback(callback)
-    , _isCanceled(false)
-    , _isFinished(false)
     , _isNextProcessExpected(false)
+    , _isCanceled(false) 
+    , _isFinished(false)
 {
 }
 

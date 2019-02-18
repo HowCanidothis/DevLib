@@ -155,7 +155,7 @@ PropertiesSystem::FHandle& PropertiesSystem::Begin(Type type)
 
 void PropertiesSystem::Begin(ThreadEventsContainer* thread, PropertiesSystem::Type type)
 {
-    Begin(type) = [thread](const auto& setter){ thread->Asynch(setter); };
+    Begin(type) = [thread](const FSetter& setter){ thread->Asynch(setter); };
 }
 
 void PropertiesSystem::End()

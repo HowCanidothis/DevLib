@@ -1,5 +1,7 @@
 #include "externalproperty.h"
 
+#include <limits>
+
 #include <SharedGuiModule/internal.hpp>
 
 void ExternalNamedUIntProperty::SetNames(const QStringList& names)
@@ -9,9 +11,9 @@ void ExternalNamedUIntProperty::SetNames(const QStringList& names)
 }
 
 ExternalVector3FProperty::ExternalVector3FProperty(const QString& path, Vector3F& vector)
-    : X(Name(path + "/x"), vector[0], -FLT_MAX, FLT_MAX)
-    , Y(Name(path + "/y"), vector[1], -FLT_MAX, FLT_MAX)
-    , Z(Name(path + "/z"), vector[2], -FLT_MAX, FLT_MAX)
+    : X(Name(path + "/x"), vector[0], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Y(Name(path + "/y"), vector[1], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Z(Name(path + "/z"), vector[2], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
 {
 
 }

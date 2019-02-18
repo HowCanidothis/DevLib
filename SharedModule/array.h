@@ -249,16 +249,22 @@ public:
         std::sort(Begin(), End());
     }
 
-    template<typename Value, typename Predicate>
-    iterator FindSortedByPredicate(const Value& value, Predicate predicate)
+    template<typename Value, typename FComparator>
+    iterator FindSortedByPredicate(const Value& value, FComparator predicate)
     {
         return std::lower_bound(Begin(), End(), value, predicate);
     }
 
-    template<typename Value, typename Predicate>
-    const_iterator FindSortedByPredicate(const Value& value, Predicate predicate) const
+    template<typename Value, typename FComparator>
+    const_iterator FindSortedByPredicate(const Value& value, FComparator predicate) const
     {
         return std::lower_bound(Begin(), End(), value, predicate);
+    }
+
+    template<typename FComparator>
+    bool ContainsSorted(const T& value, const FComparator& comparator) const
+    {
+        return this->FindSorted(value, comparator) != this->End();
     }
 
     bool ContainsSorted(const T& value) const
@@ -275,6 +281,18 @@ public:
         return find;
     }
 
+    template<typename FComparator>
+    iterator FindSorted(const T& value, const FComparator& comparator)
+    {
+        return FindSortedByPredicate(value, comparator);
+    }
+
+    template<typename FComparator>
+    const_iterator FindSorted(const T& value, const FComparator& comparator) const
+    {
+        return FindSortedByPredicate(value, comparator);
+    }
+
     const_iterator FindSorted(const T& value) const
     {
         auto find = std::lower_bound(Begin(), End(), value);
@@ -287,6 +305,15 @@ public:
     count_t IndexOf(const T& value) const
     {
         return std::distance(begin(), std::find(begin(), end(), value));
+    }
+
+    template<typename FComparator>
+    void InsertSortedUnique(const T &value, const FComparator& comparator)
+    {
+        auto it = std::lower_bound(Begin(), End(), value, comparator);
+        if(it == End() || *it != value) {
+            Insert(it, value);
+        }
     }
 
     void InsertSortedUnique(const T& value)
@@ -475,9 +502,9 @@ public:
         : Super(other)
     {}
 
-    const T* data() const { return begin(); }
-    T* data() { return begin(); }
-    count_t size() const { return Size(); }
+    const T* data() const { return this->begin(); }
+    T* data() { return this->begin(); }
+    count_t size() const { return this->Size(); }
 };
 
 template<class T>
@@ -506,14 +533,14 @@ public:
     {
         count_t old = this->Size();
         if(size < old) {
-            for(T* ptr : adapters::range(Begin() + size, End())) {
+            for(T* ptr : adapters::range(this->Begin() + size, this->End())) {
                 delete ptr;
             }
-            Resize(size);
+            this->Resize(size);
         }
         else if(size > old) {
-            Resize(size);
-            for(T*& ptr : adapters::range(Begin() + old, End())) {
+            this->Resize(size);
+            for(T*& ptr : adapters::range(this->Begin() + old, this->End())) {
                 ptr = new T(args...);
             }
         }

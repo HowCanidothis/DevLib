@@ -19,6 +19,7 @@ class _Export PropertiesSystem
 public:
     enum Type {
         Global = 0,
+        InitProperties,
         Temp,
         Max = 0xff
     };

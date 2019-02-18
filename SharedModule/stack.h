@@ -5,13 +5,17 @@
 #include <type_traits>
 
 #include "namingconvention.h"
+#include "SharedModule/shared_decl.h"
+
+using namespace std;
 
 template<class T>
 class StackData
 {
     T* _begin;
-    count_t _count;
     count_t _reserved;
+    count_t _count;
+
 public:
     StackData(count_t reserve)
         : _reserved(reserve)
@@ -21,17 +25,17 @@ public:
     }
     StackData()
         : _begin(nullptr)
-        , _count(0)
         , _reserved(0)
+        , _count(0)
     {}
     StackData(std::initializer_list<T> args)
         : _begin(nullptr)
-        , _count(args.size())
         , _reserved(args.size())
+        , _count(args.size())
     {
         if(args.size()) {
             Realloc();
-            ::memcpy(Begin(), args.begin(), args.size() * sizeof(T));
+            memcpy(Begin(), args.begin(), args.size() * sizeof(T));
         }
     }
     ~StackData()
@@ -233,20 +237,20 @@ class StackPointers : public Stack<T*>
 public:
     StackPointers() : Super() {}
     StackPointers(count_t count) : StackPointers() {
-        Resize(count);
+        this->Resize(count);
         for(T*& v : *this) {
             v = new T();
         }
     }
     ~StackPointers() {
-        if(d.use_count() == 1) {
+        if(this->d.use_count() == 1) {
             for(T* v : *this)
                 delete v;
         }
     }
 
     void Clear() {
-        if(d.use_count() == 1) {
+        if(this->d.use_count() == 1) {
             for(T* v : *this)
                 delete v;
         }
@@ -254,16 +258,16 @@ public:
     }
 
     template<typename ... Args> void ResizeAndAllocate(count_t size, Args ... args) {
-        Q_ASSERT(d.use_count() == 1);
+        Q_ASSERT(this->d.use_count() == 1);
         count_t old = this->Size();
         if(size < old) {
-            for(T* ptr : adapters::Range(Begin() + size, End()))
+            for(T* ptr : adapters::Range<typename Super::const_iterator>(this->Begin() + size, this->End()))
                 delete ptr;
-            Resize(size);
+            this->Resize(size);
         }
         else if(size > old){
-            Resize(size);
-            for(T*& ptr : adapters::Range(Begin() + old, End()))
+            this->Resize(size);
+            for(T*& ptr : adapters::Range<typename Super::const_iterator>(this->Begin() + old, this->End()))
                 ptr = new T(args...);
         }
     }

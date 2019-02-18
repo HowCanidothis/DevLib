@@ -18,7 +18,8 @@ public:
         _function();
     }
 
-    static void Post(const Function& function, qint32 priority = Qt::NormalEventPriority);
+    static void Post(const Function& function, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void Post(const Function& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
 private:
     Function _function;
 };

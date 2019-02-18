@@ -83,15 +83,15 @@ template<> struct DbTableFieldTypeHelper<CppType>{ \
     enum{ \
         Type = First, \
         Size = sizeof(CppType), \
-        isComplex = false \
+        IsComplex = false \
     };\
     static const char* GetCppTypeString(){ return QT_STRINGIFY(CppType); } \
-    static void SetFromVariant(const QVariant& variant, CastablePtr& value) { DbPrivate::setFromVariant<CppType>(variant, value); } \
     static const char* GetDbTypeString(){ return #First; } \
-    static QString toString(const CastablePtr& value) { return QString::number(value.As<CppType>()); } \
-    static bool less(const CastablePtr& f, const CastablePtr& s){ return f.As<CppType>() < s.As<CppType>(); } \
-    static bool less_search(const CastablePtr& f, const CastablePtr& s){ return less(f,s); } \
-    static void assign(void* dst, const void* src){ *(CppType*)dst = *(const CppType*)src; } \
+    static void SetFromVariant(const QVariant& variant, CastablePtr& value) { DbPrivate::setFromVariant<CppType>(variant, value); } \
+    static QString ToString(const CastablePtr& value) { return QString::number(value.As<CppType>()); } \
+    static bool Less(const CastablePtr& f, const CastablePtr& s){ return f.As<CppType>() < s.As<CppType>(); } \
+    static bool LessSearch(const CastablePtr& f, const CastablePtr& s){ return Less(f,s); } \
+    static void Assign(void* dst, const void* src){ *(CppType*)dst = *(const CppType*)src; } \
 };
 
 DB_FOREACH_PRIMITIVE_FIELDS(DECL_PRIMITIVE_FIELD_TYPE_HELPER)
@@ -101,16 +101,16 @@ DB_FOREACH_PRIMITIVE_FIELDS(DECL_PRIMITIVE_FIELD_TYPE_HELPER)
     enum{ \
         Type = First, \
         Size = sizeof(MDbArrayBase), \
-        isComplex = true \
+        IsComplex = true \
     }; \
     static const char* GetCppTypeString(){ return QT_STRINGIFY(DbArray<CppType>); }  \
-    static const char* valueName(){ return QT_STRINGIFY(CppType); } \
+    static const char* GetValueName() { return QT_STRINGIFY(CppType); } \
     static const char* GetDbTypeString(){ return #First; } \
     static void SetFromVariant(const QVariant& variant, CastablePtr& value) { DbPrivate::setFromVariantArray<DbCppType>(variant, value); } \
-    static QString toString(const CastablePtr& value){ return DbPrivate::toString(value.As<DbCppType>()); } \
-    static bool less(const CastablePtr& f, const CastablePtr& s){ return f.As<DbCppType>() < s.As<DbCppType>(); } \
-    static bool less_search(const CastablePtr& f, const CastablePtr& s){ return f.As<DbCppType>() < s.As<CppType>(); } \
-    static void assign(void* dst, const void* src){ *(DbCppType*)dst = *(const CppType*)src; } \
+    static QString ToString(const CastablePtr& value){ return DbPrivate::toString(value.As<DbCppType>()); } \
+    static bool Less(const CastablePtr& f, const CastablePtr& s){ return f.As<DbCppType>() < s.As<DbCppType>(); } \
+    static bool LessSearch(const CastablePtr& f, const CastablePtr& s){ return f.As<DbCppType>() < s.As<CppType>(); } \
+    static void Assign(void* dst, const void* src){ *(DbCppType*)dst = *(const CppType*)src; } \
 };
 DB_FOREACH_COMPLEX_FIELDS(DECL_COMPLEX_FIELD_TYPE_HELPER)
 
@@ -120,15 +120,15 @@ template<> struct DbTableFieldTypeHelper<CppType>{ \
     enum{ \
         Type = First, \
         Size = sizeof(CppType), \
-        isComplex = false \
+        IsComplex = false \
     }; \
     static const char* GetCppTypeString(){ return QT_STRINGIFY(CppType); } \
     static const char* GetDbTypeString(){ return #First; } \
     static void SetFromVariant(const QVariant& variant, CastablePtr& value) { DbPrivate::setFromVariantPOD<CppType>(variant, value); } \
-    static QString toString(const CastablePtr& f){ return DbPrivate::toString(f.As<DbCppType>()); } \
-    static bool less(const CastablePtr& f, const CastablePtr& s){ return f.As<CppType>() < s.As<CppType>(); } \
-    static bool less_search(const CastablePtr& f, const CastablePtr& s){ return less(f,s); } \
-    static void assign(void* dst, const void* src){ *(CppType*)dst = *(const CppType*)src; } \
+    static QString ToString(const CastablePtr& f){ return DbPrivate::toString(f.As<DbCppType>()); } \
+    static bool Less(const CastablePtr& f, const CastablePtr& s){ return f.As<CppType>() < s.As<CppType>(); } \
+    static bool LessSearch(const CastablePtr& f, const CastablePtr& s){ return Less(f,s); } \
+    static void Assign(void* dst, const void* src){ *(CppType*)dst = *(const CppType*)src; } \
 };
 DB_FOREACH_POD_FIELDS(DECL_SPECIAL_FIELDS_TYPE_HELPER)
 

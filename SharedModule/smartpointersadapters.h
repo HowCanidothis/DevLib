@@ -10,7 +10,7 @@ class ScopedPointer : public std::unique_ptr<T>
 public:
     using Super::Super;
 
-    ScopedPointer& operator=(T* ptr) { reset(ptr); return *this; }
+    ScopedPointer& operator=(T* ptr) { this->reset(ptr); return *this; }
 
     T* get() { return Super::get(); }
     const T* get() const { return Super::get(); }

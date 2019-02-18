@@ -15,10 +15,18 @@ struct DescProcessValueState
     bool IsNextProcessExpected;
 
     bool IsShouldStayVisible() const { return !IsFinished || IsNextProcessExpected; }
+
+    DescProcessValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected)
+        : Title(title)
+        , Depth(depth)
+        , IsFinished(isFinished)
+        , IsNextProcessExpected(isNextProcessExpected)
+    {}
 };
 
 class _Export ProcessValue
 {
+protected:
     typedef std::function<void (ProcessValue*)> FCallback;
     ProcessValue(const FCallback& callback);
 
@@ -59,6 +67,12 @@ struct DescProcessDeterminateValueState : DescProcessValueState
 {
     int CurrentStep;
     int StepsCount;
+
+    DescProcessDeterminateValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected, int currentStep, int stepsCount)
+        : DescProcessValueState(title, depth, isFinished, isNextProcessExpected)
+        , CurrentStep(currentStep)
+        , StepsCount(stepsCount)
+    {}
 };
 
 class ProcessDeterminateValue : public ProcessValue

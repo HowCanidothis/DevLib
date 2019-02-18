@@ -9,11 +9,11 @@ DbTableFieldDelegate::DbTableFieldDelegate(const MDbTableField* field) : DbTable
 }
 
 #define DECL_SWITCH(CppType, First) \
-    case First: m_comparator = DbTableFieldTypeHelper<CppType>::less; \
-                m_searchComparator = DbTableFieldTypeHelper<CppType>::less_search; \
-                m_assigner = DbTableFieldTypeHelper<CppType>::assign; \
-                m_stringSerializer = DbTableFieldTypeHelper<CppType>::toString; \
-                m_isComplex = DbTableFieldTypeHelper<CppType>::isComplex; \
+    case First: m_comparator = DbTableFieldTypeHelper<CppType>::Less; \
+                m_searchComparator = DbTableFieldTypeHelper<CppType>::LessSearch; \
+                m_assigner = DbTableFieldTypeHelper<CppType>::Assign; \
+                m_stringSerializer = DbTableFieldTypeHelper<CppType>::ToString; \
+                m_isComplex = DbTableFieldTypeHelper<CppType>::IsComplex; \
                 m_size = DbTableFieldTypeHelper<CppType>::Size; \
                 m_offset = offset; \
     break;

@@ -52,60 +52,61 @@ public:
 template<class T>
 class LocalPropertySet : public LocalProperty<QSet<T>>
 {
+    typedef LocalProperty<QSet<T>> Super;
 public:
     LocalPropertySet()
     {}
     LocalPropertySet(const QSet<T>& value)
-        : m_value(value)
+        : Super(value)
     {}
 
-    bool IsEmpty() const { return m_value.isEmpty(); }
-    qint32 Size() const { return m_value.size(); }
-    bool IsContains(const T& value) const { return m_value.contains(value); }
+    bool IsEmpty() const { return this->m_value.isEmpty(); }
+    qint32 Size() const { return this->m_value.size(); }
+    bool IsContains(const T& value) const { return this->m_value.contains(value); }
 
     void Clear()
     {
-        if(!m_value.isEmpty()) {
-            m_value.clear();
-            m_onChange();
+        if(!this->m_value.isEmpty()) {
+            this->m_value.clear();
+            this->m_onChange();
         }
     }
 
     void SilentClear()
     {
-        m_value.clear();
+        this->m_value.clear();
     }
 
     void SilentInsert(const T& value)
     {
-        m_value.insert(value);
+        this->m_value.insert(value);
     }
 
     void SilentRemove(const T& value)
     {
-        m_value.remove(value);
+        this->m_value.remove(value);
     }
 
     void Insert(const T& value)
     {
-        auto find = m_value.find(value);
-        if(find != m_value.end()) {
-            m_value.insert(value);
-            m_onChange();
+        auto find = this->m_value.find(value);
+        if(find != this->m_value.end()) {
+            this->m_value.insert(value);
+            this->m_onChange();
         }
     }
 
     void Remove(const T& value)
     {
-        auto find = m_value.find(value);
-        if(find != m_value.end()) {
-            m_value.erase(find);
-            m_onChange();
+        auto find = this->m_value.find(value);
+        if(find != this->m_value.end()) {
+            this->m_value.erase(find);
+            this->m_onChange();
         }
     }
 
-    typename QSet<T>::const_iterator begin() const { return m_value.begin(); }
-    typename QSet<T>::const_iterator end() const { return m_value.end(); }
+    typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
+    typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
 };
 
 #endif // LOCALPROPERTY_H
