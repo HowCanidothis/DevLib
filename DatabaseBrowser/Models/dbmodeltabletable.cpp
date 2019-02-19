@@ -1,5 +1,5 @@
 #include "dbmodeltabletable.h"
-#include <DatabaseEngine/Core/private_objects/dbtablefielddelegate.h>
+#include <DatabaseEngine/Core/Private/dbtablefielddelegate.h>
 
 DbModelTableTable::DbModelTableTable(DbTable* table, QObject *p)
     : QAbstractTableModel(p)

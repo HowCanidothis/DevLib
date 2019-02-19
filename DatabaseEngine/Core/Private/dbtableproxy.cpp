@@ -1,9 +1,10 @@
 #include "dbtableproxy.h"
-#include "DatabaseEngine/Core/memory/dbmemorydeclarations.h"
+
 #include "DatabaseEngine/dbtable.h"
 #include "DatabaseEngine/dbtableheader.h"
-#include "DatabaseEngine/Core/private_objects/dbtablefielddelegate.h"
-#include "DatabaseEngine/Core/memory/dbmemory.h"
+#include "DatabaseEngine/Core/Private/dbtablefielddelegate.h"
+#include "DatabaseEngine/Core/Memory/dbmemory.h"
+#include "DatabaseEngine/Core/Memory/dbmemorydeclarations.h"
 
 DB_BEGIN_NAMESPACE
 

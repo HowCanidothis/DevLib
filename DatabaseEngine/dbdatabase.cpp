@@ -2,9 +2,9 @@
 
 #include <QDataStream>
 
-#include "Core/private_objects/dbobjectsarraymanager.h"
-#include "Core/memory/dbmemory.h"
-#include "Core/memory/dbmemorydeclarations.h"
+#include "Core/Private/dbobjectsarraymanager.h"
+#include "Core/Memory/dbmemory.h"
+#include "Core/Memory/dbmemorydeclarations.h"
 #include "dbmodificationrule.h"
 #include "dbtableheader.h"
 #include "dbtable.h"

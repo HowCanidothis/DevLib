@@ -1,7 +1,7 @@
 #include "dbmodificationrule.h"
 
 #include "dbtableheader.h"
-#include "Core/private_objects/dbtablefielddelegate.h"
+#include "Core/Private/dbtablefielddelegate.h"
 
 DbCopyFieldDelegate::DbCopyFieldDelegate()
     : CopyFieldFunction(nullptr)

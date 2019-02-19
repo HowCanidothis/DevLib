@@ -3,7 +3,7 @@
 
 #include <SharedGuiModule/internal.hpp>
 
-#include "Core/private_objects/dbarraybase.h"
+#include "Core/Private/dbarraybase.h"
 
 DB_BEGIN_NAMESPACE
 

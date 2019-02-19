@@ -28,8 +28,8 @@ struct DbDescImportAttributes
     QString dbhost;
     QString dbquery_get_tables;
 
-    DatabaseImportPropertiesBase(){}
-    DatabaseImportPropertiesBase(const QString& fName){ this->FromIniFile(fName); }
+    DbDescImportAttributes(){}
+    DbDescImportAttributes(const QString& fName){ this->FromIniFile(fName); }
 
     void ToIniFile(const QString& fname) const;
     void FromIniFile(const QString& fname);

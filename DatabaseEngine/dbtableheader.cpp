@@ -1,9 +1,9 @@
 #include "dbtableheader.h"
 
 #include "dbmodificationrule.h"
-#include "Core/memory/dbmemory.h"
-#include "Core/memory/dbmemorydeclarations.h"
-#include "Core/private_objects/dbtablefielddelegate.h"
+#include "Core/Memory/dbmemory.h"
+#include "Core/Memory/dbmemorydeclarations.h"
+#include "Core/Private/dbtablefielddelegate.h"
 
 DB_BEGIN_NAMESPACE
 

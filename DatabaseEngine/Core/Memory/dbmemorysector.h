@@ -2,7 +2,7 @@
 #define DBMEMORYSECTOR_H
 
 #include "dbmemoryfragment.h"
-#include "DatabaseEngine/Core/private_objects/dbarraybase.h"
+#include "DatabaseEngine/Core/Private/dbarraybase.h"
 #include <iterator>
 
 #define MAX_IDS 65555
