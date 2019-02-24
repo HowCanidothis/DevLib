@@ -6,7 +6,7 @@
 
 bool NetworkPackage::CheckSum() const
 {
-    return m_hashsum == GenerateCheckSum();
+    return m_header.Hashsum == GenerateCheckSum();
 }
 
 void NetworkPackage::Pack(const QByteArray& data)
@@ -26,13 +26,13 @@ qint32 NetworkPackage::GenerateCheckSum() const
 
 void NetworkPackage::write(NetworkConnection* connection) const
 {
-    connection->m_socket.write((const char*)this, sizeof(qint32) * 2);
+    connection->m_socket.write((const char*)this, sizeof(NetworkPackageHeader));
     connection->m_socket.write(m_data.data(), m_data.size());
 }
 
 void NetworkPackage::pack()
 {
-    m_size = m_data.size();
-    m_hashsum = GenerateCheckSum();
+    m_header.Size = m_data.size();
+    m_header.Hashsum = GenerateCheckSum();
 }
 

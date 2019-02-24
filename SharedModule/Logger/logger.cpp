@@ -60,36 +60,38 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
 {
     Logger* logger = instance();
 
+    QString currentDateTime = QTime::currentTime().toString() + ": ";
+
     logger->m_messageHandler(type, context, message);
 
     logger->checkDate();
 
     switch (type) {
     case QtCriticalMsg:
-        ThreadsBase::DoMain([logger, message]{
+        ThreadsBase::DoMain([logger, message, currentDateTime]{
             if(logger->m_severity >= Warning) {
-                logger->Print("Error: " + message.toLocal8Bit() + "\n");
+                logger->Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
             }
         });
         break;
     case QtWarningMsg:
         if(logger->m_severity >= Warning) {
-            ThreadsBase::DoMain([logger, message]{
-                logger->Print("Warning: " + message.toLocal8Bit() + "\n");
+            ThreadsBase::DoMain([logger, message, currentDateTime]{
+                logger->Print("Warning " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     case QtInfoMsg:
         if(logger->m_severity >= Info) {
-            ThreadsBase::DoMain([logger, message]{
-                logger->Print("Info: " + message.toLocal8Bit() + "\n");
+            ThreadsBase::DoMain([logger, message, currentDateTime]{
+                logger->Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     default:
         if(logger->m_severity >= Debug) {
-            ThreadsBase::DoMain([logger, message]{
-                logger->Print("Info: " + message.toLocal8Bit() + "\n");
+            ThreadsBase::DoMain([logger, message, currentDateTime]{
+                logger->Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;

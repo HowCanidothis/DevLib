@@ -3,6 +3,27 @@
 
 #include <QByteArray>
 
+#pragma pack(1)
+
+struct NetworkPackageHeader
+{
+    quint16 SyncBytes = 0xbad0;
+    qint32 Size = 0;
+    qint32 Hashsum;
+
+    bool IsSynchronized() const { return SyncBytes == 0xbad0; }
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer << SyncBytes;
+        buffer << Size;
+        buffer << Hashsum;
+    }
+};
+
+#pragma pack()
+
 class NetworkPackage
 {
 public:
@@ -34,8 +55,7 @@ public:
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer << m_size;
-        buffer << m_hashsum;
+        buffer << m_header;
         buffer << m_data;
     }
 
@@ -45,8 +65,7 @@ private:
 
 private:
     friend class NetworkConnection;
-    qint32 m_size = 0;
-    qint32 m_hashsum;
+    NetworkPackageHeader m_header;
     QByteArray m_data;
 };
 

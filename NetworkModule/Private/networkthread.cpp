@@ -9,6 +9,7 @@ NetworkThread::NetworkThread(NetworkServerBase* server)
     : QThread(server)
     , m_server(server)
     , m_removeInvalidConnectionsTimer(new QTimer())
+    , m_whileDeleting(false)
 {
     m_removeInvalidConnectionsTimer->start(2000);
 
@@ -17,6 +18,7 @@ NetworkThread::NetworkThread(NetworkServerBase* server)
 
 NetworkThread::~NetworkThread()
 {
+    m_whileDeleting = true;
     quit();
     wait();
 }
@@ -50,6 +52,10 @@ void NetworkThread::AddSocket(qintptr descriptor)
 void NetworkThread::onDisconnected()
 {
     // this function is processing only in this thread, as NetworkConnections are created there
+
+    if(m_whileDeleting) {
+        return;
+    }
     NetworkConnection* connection = reinterpret_cast<NetworkConnection*>(sender());
     qintptr socketDescriptor = connection->GetSocketDescriptor();
     ThreadsBase::DoMain([this, socketDescriptor]{

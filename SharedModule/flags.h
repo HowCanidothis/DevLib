@@ -98,6 +98,11 @@ public:
         return this->_value;
     }
 
+    friend QDebug operator<<(QDebug debug, const Flags& data)
+    {
+        return debug << data._value;
+    }
+
 private:
     ValueType _value;
 };

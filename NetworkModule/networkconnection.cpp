@@ -26,7 +26,7 @@ void NetworkConnection::Connect(const QHostAddress& host, quint16 port)
 {
     m_socket.connectToHost(host, port);
     QTimer* timer = new QTimer;
-    connect(timer, &QTimer::timeout, [this, timer, host, port]{
+    timer->singleShot(2000, [this, timer, host, port]{
         if(m_socket.state() != QTcpSocket::ConnectedState) {
             qCritical() << "Cannot connect to host, no response" << host << port;
         } else {
@@ -34,7 +34,6 @@ void NetworkConnection::Connect(const QHostAddress& host, quint16 port)
         }
         timer->deleteLater();
     });
-    timer->start(1000);
 }
 
 void NetworkConnection::SetSocketDescriptor(quintptr descriptor)
@@ -50,21 +49,26 @@ bool NetworkConnection::LessThan(NetworkConnection* f, NetworkConnection* s)
 
 void NetworkConnection::OnReadyRead()
 {
+    auto& header = m_currentPackage.m_header;
     auto& data = m_currentPackage.m_data;
-    auto& size = m_currentPackage.m_size;
-    auto& hashSum = m_currentPackage.m_hashsum;
 
-    if(size == 0) {
-        if(m_socket.bytesAvailable() >= (sizeof(qint32) * 2)) {
-            m_socket.read((char*)&size, sizeof(qint32));
-            m_socket.read((char*)&hashSum, sizeof(qint32));
-            m_currentPackage.m_data.resize(size);
+    if(header.Size == 0) {
+        if(m_socket.bytesAvailable() >= sizeof(NetworkPackageHeader)) {
+            m_socket.read((char*)&header.SyncBytes, sizeof(qint16));
+            if(!header.IsSynchronized()) {
+                OnReadyRead();
+                return;
+            }
+
+            m_socket.read((char*)&header.Size, sizeof(qint32));
+            m_socket.read((char*)&header.Hashsum, sizeof(qint32));
+            m_currentPackage.m_data.resize(header.Size);
         }
     }
     if(m_socket.bytesAvailable()){
-        qint64 bytesRed = m_socket.read(data.data(), size);
-        size -= bytesRed;
-        if(size == 0) {
+        qint64 bytesRed = m_socket.read(data.data(), header.Size);
+        header.Size -= bytesRed;
+        if(header.Size == 0) {
             if(m_currentPackage.CheckSum()) {
                 NetworkPackage packageCopy = m_currentPackage;
                 quintptr descriptor = m_socket.socketDescriptor();
@@ -72,7 +76,11 @@ void NetworkConnection::OnReadyRead()
                 ThreadsBase::DoMain([output, packageCopy, descriptor]{
                     output->onPackageRecieved(descriptor, packageCopy);
                 });
+
+                header.SyncBytes = 0x0;
             }
+
+            OnReadyRead();
         }
     }
 }

@@ -23,5 +23,6 @@ public:
     ArrayPointers<class NetworkConnection> m_connections;
     QSet<class NetworkConnection*> m_connectionsToRemove;
     ScopedPointer<class QTimer> m_removeInvalidConnectionsTimer;
+    std::atomic_bool m_whileDeleting;
 };
 #endif // NETWORKTHREAD_H
