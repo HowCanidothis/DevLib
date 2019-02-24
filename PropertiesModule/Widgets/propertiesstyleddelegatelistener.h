@@ -1,6 +1,8 @@
 #ifndef PROPERTIESSTYLEDDELEGATELISTENER_H
 #define PROPERTIESSTYLEDDELEGATELISTENER_H
 
+#ifdef QT_GUI_LIB
+
 #include <QObject>
 #include <QModelIndex>
 class QStyledItemDelegate;
@@ -17,4 +19,7 @@ public:
 public Q_SLOTS:
     void onEditorValueChanged();
 };
+
+#endif // QT_GUI_LIB
+
 #endif // ONEDITORVALUECHANGEDLISTENER_H

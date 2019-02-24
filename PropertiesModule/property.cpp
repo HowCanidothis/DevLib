@@ -46,14 +46,6 @@ void Property::Subscribe(const Property::FOnChange& onChange) {
     };
 }
 
-Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
-    : X(Name(path+"/x"), vector.x(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Y(Name(path+"/y"), vector.y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Z(Name(path+"/z"), vector.z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-{
-
-}
-
 void NamedUIntProperty::SetNames(const QStringList& names)
 {
     _max = names.size() - 1;
@@ -77,3 +69,15 @@ void UrlListProperty::AddUniqueUrl(const QUrl& url)
     }
     SetValue(QUrl::toStringList(urlList));
 }
+
+#ifdef QT_GUI_LIB
+
+Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
+    : X(Name(path+"/x"), vector.x(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Y(Name(path+"/y"), vector.y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Z(Name(path+"/z"), vector.z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+{
+
+}
+
+#endif

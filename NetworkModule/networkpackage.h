@@ -3,6 +3,8 @@
 
 #include <QByteArray>
 
+#include <SharedGuiModule/internal.hpp>
+
 #pragma pack(1)
 
 struct NetworkPackageHeader

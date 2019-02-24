@@ -10,6 +10,8 @@ void ExternalNamedUIntProperty::SetNames(const QStringList& names)
     _names = names;
 }
 
+#ifdef QT_GUI_LIB
+
 ExternalVector3FProperty::ExternalVector3FProperty(const QString& path, Vector3F& vector)
     : X(Name(path + "/x"), vector[0], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
     , Y(Name(path + "/y"), vector[1], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
@@ -37,3 +39,5 @@ void ExternalVector3FProperty::SetReadOnly(bool readOnly)
         Z.ChangeOptions().RemoveFlag(Property::Option_IsReadOnly);
     }
 }
+
+#endif

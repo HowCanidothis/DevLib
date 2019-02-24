@@ -7,6 +7,8 @@
  * Note: Usually there is no necessity to delete Connector, expecialy if it reffered to Global context index scope
 */
 
+#ifdef QT_GUI_LIB
+
 #include "PropertiesModule/propertypromise.h"
 
 class PropertiesConnectorBase;
@@ -111,5 +113,7 @@ class _Export PropertiesGroupBoxConnector : public PropertiesConnectorBase
 public:
     PropertiesGroupBoxConnector(const Name& propertyName, class QGroupBox* groupBox);
 };
+
+#endif // QT_GUI_LIB
 
 #endif // PROPERTIESWIDGETSCONNECTOR_H

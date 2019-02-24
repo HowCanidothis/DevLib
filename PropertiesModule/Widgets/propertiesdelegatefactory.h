@@ -1,6 +1,8 @@
 #ifndef PROPERTIESDELEGATEFACTORY_H
 #define PROPERTIESDELEGATEFACTORY_H
 
+#ifdef QT_GUI_LIB
+
 #include <QString>
 
 class QWidget;
@@ -29,5 +31,7 @@ protected:
 private:
     static PropertiesDelegateFactory*& currentFactory();
 };
+
+#endif // QT_GUI_LIB
 
 #endif // PROPERTIESDELEGATEWIDGETSFACTORY_H

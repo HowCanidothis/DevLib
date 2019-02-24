@@ -297,6 +297,8 @@ typedef TProperty<QString> StringProperty;
 typedef TProperty<QUrl> UrlProperty;
 typedef TProperty<QByteArray> ByteArrayProperty;
 
+#ifdef QT_GUI_LIB
+
 class _Export Vector3FProperty
 {
 public:
@@ -306,5 +308,7 @@ public:
 
     Vector3FProperty(const QString& path, const Vector3F& vector);
 };
+
+#endif // QT_GUI_LIB_LIB
 
 #endif // PROPERTY_H

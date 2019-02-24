@@ -1,6 +1,6 @@
 #include "qtqssreader.h"
 
-#ifndef NO_GUI
+#ifdef QT_GUI_LIB
 
 #include <QFile>
 #include <QFileInfo>

@@ -1,5 +1,7 @@
 #include "threadsbase.h"
 
+#include <QThread>
+
 #include "SharedModule/external/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
 

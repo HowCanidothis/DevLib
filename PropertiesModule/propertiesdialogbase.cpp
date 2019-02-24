@@ -1,4 +1,7 @@
 #include "propertiesdialogbase.h"
+
+#ifdef QT_GUI_LIB
+
 #include <QDialogButtonBox>
 #include <QBoxLayout>
 #include <QApplication>
@@ -105,3 +108,5 @@ void PropertiesDialogBase::changeProperties(const PropertiesDialogBase::StdHandl
 {
     changingProperties();
 }
+
+#endif

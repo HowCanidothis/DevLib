@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#ifndef NO_GUI
+#ifdef QT_GUI_LIB
 
 #include <QAbstractItemModel>
 #include "SharedModule/internal.hpp"

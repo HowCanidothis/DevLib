@@ -1,4 +1,7 @@
 #include "propertieswidgetsconnector.h"
+
+#ifdef QT_GUI_LIB
+
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -137,7 +140,7 @@ PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& p
 
 PropertiesTextEditConnector::PropertiesTextEditConnector(const Name& propertyName, QTextEdit* textEdit)
     : PropertiesConnectorBase(propertyName,
-                              [textEdit, this](const QVariant& value){ textEdit->setText(value.toString()); },
+                              [textEdit](const QVariant& value){ textEdit->setText(value.toString()); },
                               textEdit)
 {
     _connection = connect(textEdit, &QTextEdit::textChanged, [this, textEdit](){
@@ -167,3 +170,5 @@ PropertiesConnectorBase::PropertyChangeGuard::~PropertyChangeGuard()
 {
     _ignorePropertyChange = false;
 }
+
+#endif

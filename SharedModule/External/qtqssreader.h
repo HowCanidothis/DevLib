@@ -1,7 +1,7 @@
 #ifndef QTQSSREADER_H
 #define QTQSSREADER_H
 
-#ifndef NO_GUI
+#ifdef QT_GUI_LIB
 
 #include <QString>
 #include "SharedModule/internal.hpp"

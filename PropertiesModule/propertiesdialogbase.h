@@ -1,6 +1,8 @@
 #ifndef PROPERTIESDIALOGBASE_H
 #define PROPERTIESDIALOGBASE_H
 
+#ifdef QT_GUI_LIB
+
 #include <QDialog>
 
 #include "propertypromise.h"
@@ -56,5 +58,7 @@ protected:
     QMetaObject::Connection _connection;
     QHash<Property*, QVariant> _oldValues;
 };
+
+#endif // QT_GUI_LIB
 
 #endif // PROPERTIESDIALOGBASE_H

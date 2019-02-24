@@ -1,5 +1,7 @@
 #include "propertiesdialog.h"
 
+#ifdef QT_GUI_LIB
+
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -17,3 +19,5 @@ void PropertiesDialog::changeProperties(const StdHandle& changingProperties)
 {
     reinterpret_cast<PropertiesView*>(_view)->GetPropertiesModel()->Change(changingProperties);
 }
+
+#endif

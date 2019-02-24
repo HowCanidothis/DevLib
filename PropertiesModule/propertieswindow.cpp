@@ -1,6 +1,6 @@
 #include "propertieswindow.h"
 
-#ifndef NO_WIDGETS_INTERFACE
+#ifdef QT_GUI_LIB
 
 #include "ui_propertieswindow.h"
 #include <QFileDialog>

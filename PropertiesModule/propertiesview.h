@@ -1,7 +1,7 @@
 #ifndef PROPERTIESVIEW_H
 #define PROPERTIESVIEW_H
 
-#ifndef NO_WIDGETS_INTERFACE
+#ifdef QT_GUI_LIB
 
 #include <QTreeView>
 #include "propertypromise.h"
@@ -53,6 +53,6 @@ private:
     class PropertiesDelegate* propertiesDelegate() const { return reinterpret_cast<PropertiesDelegate*>(itemDelegate()); }
 };
 
-#endif
+#endif // QT_GUI_LIB
 
 #endif // PROPERTIESVIEW_H

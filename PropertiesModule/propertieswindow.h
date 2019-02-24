@@ -1,7 +1,7 @@
 #ifndef PROPERTIESWINDOW_H
 #define PROPERTIESWINDOW_H
 
-#ifndef NO_WIDGETS_INTERFACE
+#ifdef QT_GUI_LIB
 
 #include <QMainWindow>
 
@@ -36,6 +36,6 @@ private:
     QString _fileName;
 };
 
-#endif
+#endif // QT_GUI_LIB
 
 #endif // PROPERTIESWINDOW_H

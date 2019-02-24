@@ -7,6 +7,9 @@ class NetworkPackage;
 
 class INetworkConnectionOutput
 {
+public:
+    virtual ~INetworkConnectionOutput(){}
+
 protected:
     friend class NetworkConnection;
     virtual void onPackageRecieved(qintptr descriptor, const NetworkPackage& package) = 0;

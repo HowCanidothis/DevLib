@@ -1,5 +1,7 @@
 #include "propertiesdelegatefactory.h"
 
+#ifdef QT_GUI_LIB
+
 #include <QComboBox>
 #include <QModelIndex>
 
@@ -88,3 +90,5 @@ PropertiesDelegateFactory*&PropertiesDelegateFactory::currentFactory()
     static PropertiesDelegateFactory* currentFactory = new PropertiesDelegateFactory();
     return currentFactory;
 }
+
+#endif

@@ -189,6 +189,8 @@ typedef TExternalProperty<QString> ExternalStringProperty;
 typedef TExternalProperty<QUrl> ExternalUrlProperty;
 typedef TExternalProperty<QByteArray> ExternalByteArrayProperty;
 
+#ifdef QT_GUI_LIB
+
 struct _Export ExternalVector3FProperty
 {
     ExternalFloatProperty X;
@@ -200,5 +202,7 @@ struct _Export ExternalVector3FProperty
     void Subscribe(const Property::FOnChange& handle);
     void SetReadOnly(bool readOnly);
 };
+
+#endif // QT_GUI_LIB_LIB
 
 #endif // EXTERNALPROPERTY_H

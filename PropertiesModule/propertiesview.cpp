@@ -1,6 +1,6 @@
 #include "propertiesview.h"
 
-#ifndef NO_WIDGETS_INTERFACE
+#ifdef QT_GUI_LIB
 
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>

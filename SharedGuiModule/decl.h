@@ -3,6 +3,8 @@
 
 #include <SharedModule/internal.hpp>
 
+#ifdef QT_GUI_LIB
+
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -275,5 +277,7 @@ typedef quint32 gRenderbufferID;
 #define GT_CONTENT_PATH "../../Content/"
 #define GT_STYLES_PATH GT_CONTENT_PATH "CSS/"
 #define GT_SHADERS_PATH GT_CONTENT_PATH "Shaders/"
+
+#endif // QT_GUI_LIB
 
 #endif // GT_DECL_H
