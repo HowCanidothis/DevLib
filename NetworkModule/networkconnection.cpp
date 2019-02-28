@@ -64,8 +64,7 @@ void NetworkConnection::OnReadyRead()
             m_socket.read((char*)&header.Hashsum, sizeof(qint32));
             m_currentPackage.m_data.resize(header.Size);
         }
-    }
-    if(m_socket.bytesAvailable()){
+    } else if(m_socket.bytesAvailable()){
         qint64 bytesRed = m_socket.read(data.data(), header.Size);
         header.Size -= bytesRed;
         if(header.Size == 0) {
