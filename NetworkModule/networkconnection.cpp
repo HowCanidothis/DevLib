@@ -51,11 +51,16 @@ void NetworkConnection::OnReadyRead()
 {
     auto& header = m_currentPackage.m_header;
     auto& data = m_currentPackage.m_data;
+    auto socketDescriptor = m_socket.socketDescriptor();
 
     if(header.Size == 0) {
         if(m_socket.bytesAvailable() >= sizeof(NetworkPackageHeader)) {
             m_socket.read((char*)&header.SyncBytes, sizeof(qint16));
+
+            qInfo() << socketDescriptor << "reading sync bytes...";
+
             if(!header.IsSynchronized()) {
+                qWarning() << "incorrect sync bytes, finding a begin...";
                 OnReadyRead();
                 return;
             }
@@ -63,23 +68,34 @@ void NetworkConnection::OnReadyRead()
             m_socket.read((char*)&header.Size, sizeof(qint32));
             m_socket.read((char*)&header.Hashsum, sizeof(qint32));
             m_currentPackage.m_data.resize(header.Size);
+
+            qInfo() << socketDescriptor << "parsing header...\n" << header;
+
+            OnReadyRead();
         }
     } else if(m_socket.bytesAvailable()){
         qint64 bytesRed = m_socket.read(data.data(), header.Size);
         header.Size -= bytesRed;
+
+        qInfo() << socketDescriptor << "parsing package body...\n" << header;
+
         if(header.Size == 0) {
             if(m_currentPackage.CheckSum()) {
                 NetworkPackage packageCopy = m_currentPackage;
                 quintptr descriptor = m_socket.socketDescriptor();
                 INetworkConnectionOutput* output = m_output;
-                ThreadsBase::DoMain([output, packageCopy, descriptor]{
-                    output->onPackageRecieved(descriptor, packageCopy);
-                });
 
+                qInfo() << socketDescriptor << "package received...";
+                output->onPackageRecieved(descriptor, packageCopy);
                 header.SyncBytes = 0x0;
             }
-
-            OnReadyRead();
+            else
+            {
+                qWarning() << socketDescriptor << "incorrect hash sum\n" << m_currentPackage.m_header;
+                qWarning() << "Calculated checkSum:" << m_currentPackage.GenerateCheckSum();
+            }
         }
+
+        OnReadyRead();
     }
 }

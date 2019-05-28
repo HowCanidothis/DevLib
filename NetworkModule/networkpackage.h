@@ -11,7 +11,7 @@ struct NetworkPackageHeader
 {
     quint16 SyncBytes = 0xbad0;
     qint32 Size = 0;
-    qint32 Hashsum;
+    quint32 Hashsum;
 
     bool IsSynchronized() const { return SyncBytes == 0xbad0; }
 
@@ -21,6 +21,17 @@ struct NetworkPackageHeader
         buffer << SyncBytes;
         buffer << Size;
         buffer << Hashsum;
+    }
+
+    friend QDebug operator<<(QDebug out, const NetworkPackageHeader& header)
+    {
+        out << "NetworkPackageHeader\n";
+        out << "(\n";
+        out << "    Sync bytes:" << header.SyncBytes << "\n";
+        out << "    Size:" << header.Size << "\n";
+        out << "    HashSum:" << header.Hashsum << "\n";
+        out << ")\n";
+        return out;
     }
 };
 
@@ -49,10 +60,11 @@ public:
         return data;
     }
 
-    qint32 GenerateCheckSum() const;
+    quint32 GenerateCheckSum() const;
     const QByteArray& GetData() const { return m_data; }
     bool CheckSum() const;
     bool IsEmpty() const { return m_data.isEmpty(); }
+    QByteArray ToByteArray() const;
 
     template<class Buffer>
     void Serialize(Buffer& buffer)

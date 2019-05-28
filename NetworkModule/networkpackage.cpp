@@ -9,18 +9,30 @@ bool NetworkPackage::CheckSum() const
     return m_header.Hashsum == GenerateCheckSum();
 }
 
+QByteArray NetworkPackage::ToByteArray() const
+{
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+
+    stream.writeBytes((const char*)this, sizeof(NetworkPackageHeader));
+    stream.writeBytes(m_data.data(), m_data.size());
+
+    return array;
+}
+
 void NetworkPackage::Pack(const QByteArray& data)
 {
     m_data = data;
     pack();
 }
 
-qint32 NetworkPackage::GenerateCheckSum() const
+quint32 NetworkPackage::GenerateCheckSum() const
 {
-    qint32 hashSum = 0;
+    quint32 hashSum = 0;
     for(const char byte: m_data) {
-        hashSum ^= byte;
+        hashSum += byte;
     }
+    hashSum *= 0x1021;
     return hashSum;
 }
 
