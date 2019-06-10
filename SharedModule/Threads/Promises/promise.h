@@ -2,8 +2,10 @@
 #define PROMISE_H
 
 #include <functional>
-#include <SharedModule/smartpointersadapters.h>
 #include <atomic>
+#include <set>
+
+#include <SharedModule/smartpointersadapters.h>
 
 template<class T>
 class PromiseData
@@ -12,21 +14,21 @@ class PromiseData
     typedef std::function<void ()> FOnError;
 
     template<class> friend class Promise;
+    friend class FutureResult;
     FCallback PromiseCallback;
-    FOnError ErrorCallback;
-    std::atomic_bool IsResolved;
-    std::atomic_bool IsRejected;
+    std::atomic_bool IsCompleted;
+    std::mutex m_mutex;
     T ResolvedValue;
 
     PromiseData()
-        : IsResolved(false)
-        , IsRejected(false)
+        : IsCompleted(false)
     {}
 };
 
 template<class T>
 class Promise
 {
+    friend class FutureResult;
     SharedPointer<PromiseData<T>> m_data;
 public:
     Promise()
@@ -35,41 +37,92 @@ public:
 
     void Resolve(const T& value)
     {
+        std::unique_lock<std::mutex> lock(m_data->m_mutex);
+        m_data->ResolvedValue = value;
+        m_data->IsCompleted = true;
         if(m_data->PromiseCallback) {
             m_data->PromiseCallback(value);
-        } else {
-            m_data->IsResolved = true;
-            m_data->ResolvedValue = value;
         }
     }
 
     void Then(const typename PromiseData<T>::FCallback& then)
     {
-        if(m_data->IsResolved) {
+        std::unique_lock<std::mutex> lock(m_data->m_mutex);
+        Q_ASSERT(m_data->PromiseCallback == nullptr); // Only one "Then task" is supported
+        if(m_data->IsCompleted) {
             then(m_data->ResolvedValue);
-        }
-        m_data->PromiseCallback = then;
-    }
-
-    Promise<T>& Catch(const typename PromiseData<T>::FOnError& catchHandler)
-    {
-        if(m_data->IsRejected) {
-            catchHandler();
-        }
-        m_data->ErrorCallback = catchHandler;
-        return *this;
-    }
-
-    void Reject()
-    {
-        if(m_data->ErrorCallback) {
-            m_data->ErrorCallback();
         } else {
-            m_data->IsRejected = true;
+            m_data->PromiseCallback = then;
         }
     }
 };
 
 typedef Promise<bool> AsyncResult;
+
+class FutureResult
+{
+    std::atomic<bool> m_result;
+    std::atomic<int> m_promisesCounter;
+    std::condition_variable m_conditional;
+    std::mutex m_mutex;
+#ifndef QT_NO_DEBUG
+    std::set<PromiseData<bool>*> m_registeredPromises;
+#endif
+public:
+    FutureResult()
+        : m_result(false)
+        , m_promisesCounter(0)
+    {}
+
+    FutureResult& operator+=(AsyncResult promise)
+    {
+        if(promise.m_data->IsCompleted)
+        {
+            if(!promise.m_data->ResolvedValue) {
+                m_result = false;
+            }
+        }
+
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_promisesCounter++;
+#ifndef QT_NO_DEBUG
+            auto data = promise.m_data.get();
+            Q_ASSERT(m_registeredPromises.find(data) == m_registeredPromises.end());
+            m_registeredPromises.insert(data);
+#endif
+        }
+        promise.Then([this, promise](bool result){
+            if(!result) {
+                m_result = false;
+            }
+            *this -= promise;
+        });
+
+        return *this;
+    }
+
+    FutureResult& operator-=(const AsyncResult& promise)
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_promisesCounter--;
+#ifndef QT_NO_DEBUG
+        auto data = promise.m_data.get();
+        Q_ASSERT(m_registeredPromises.find(data) != m_registeredPromises.end());
+        m_registeredPromises.erase(data);
+#endif
+        m_conditional.notify_one();
+
+        return *this;
+    }
+
+    void Wait()
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        while(m_promisesCounter != 0) {
+            m_conditional.wait(lock);
+        }
+    }
+};
 
 #endif // PROMISE_H

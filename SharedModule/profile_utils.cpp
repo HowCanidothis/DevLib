@@ -78,7 +78,7 @@ void PerformanceClocks::PrintReport()
 
 void PerformanceClocks::printReport() const
 {
-    QMessageLogger(_file, _line, _function).info() << CalculateMinValue().ToString("Min")
+    QMessageLogger(_file, _line, _function).debug() << CalculateMinValue().ToString("Min")
                      << CalculateMeanValue().ToString("Mean")
                      << CalculateMaxValue().ToString("Max");
 }

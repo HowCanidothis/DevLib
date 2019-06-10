@@ -135,6 +135,7 @@ public:
         if(PropertiesDelegateFactory::Instance().SetModelData(editor, model, index)) {
             return;
         }
+
         Super::setModelData(editor, model, index);
     }
 

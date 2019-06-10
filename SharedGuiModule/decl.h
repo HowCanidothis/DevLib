@@ -21,6 +21,7 @@ typedef Point4F Vector4F;
 typedef QMatrix4x4 Matrix4;
 typedef QSizeF SizeF;
 typedef QSize SizeI;
+typedef QRect Rect;
 
 template<class T> inline static void point2DFromString(T& point, const QString& string){
     static QRegExp re("(\\()?([^,]+),([^,\\)]+)\\)?");

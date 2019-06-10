@@ -18,7 +18,7 @@ public:
         RoleMinValue,
         RoleMaxValue,
         RoleDelegateValue,
-        RoleDelegateData
+        RoleDelegateData,
     };
     PropertiesModel(QObject* parent=0);
     PropertiesModel(qint32 contextIndex, QObject* parent=0);

@@ -219,7 +219,7 @@ bool PropertiesModel::setData(const QModelIndex& index, const QVariant& value, i
     case Qt::EditRole: {
         Item* item = asItem(index);
         if(auto prop = item->Prop) {
-            prop->SetValue(value.toString());
+            prop->SetValue(value);
         }
         return true;
     }

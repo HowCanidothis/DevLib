@@ -31,6 +31,7 @@ public:
         DelegateFileName,
         DelegatePositionXYZ,
         DelegateNamedUInt,
+        DelegateRect,
 
         DelegateUser
     };
@@ -298,6 +299,21 @@ typedef TProperty<QUrl> UrlProperty;
 typedef TProperty<QByteArray> ByteArrayProperty;
 
 #ifdef QT_GUI_LIB
+#include <SharedGuiModule/internal.hpp>
+
+class RectProperty : public TStdPropertyBase<Rect>
+{
+    typedef TStdPropertyBase<Rect> Super;
+public:
+    RectProperty(const Name& name, const Rect& initial)
+        : Super(name, initial)
+    {}
+
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateRect; }
+    // Property interfaces
+protected:
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _value = value.toRect(); }
+};
 
 class _Export Vector3FProperty
 {

@@ -6,16 +6,6 @@
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/Threads/Promises/promise.h"
 
-class AsyncError : public AsyncResult
-{
-public:
-    AsyncError()
-    {
-        Resolve(false);
-    }
-};
-
-typedef std::function<void ()> FTask;
 
 class ThreadFunction
 {

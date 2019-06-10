@@ -15,6 +15,7 @@
 #endif
 
 typedef qint32 count_t;
+typedef std::function<void ()> FTask;
 
 class QTextStream;
 

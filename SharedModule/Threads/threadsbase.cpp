@@ -10,17 +10,17 @@ ThreadsBase::ThreadsBase()
 
 }
 
-void ThreadsBase::DoMain(const std::function<void ()>& function, Qt::EventPriority priority)
+void ThreadsBase::DoMain(const FTask& task, Qt::EventPriority priority)
 {
-    QtInlineEvent::Post(function, priority);
+    QtInlineEvent::Post(task, priority);
 }
 
-void ThreadsBase::DoQThread(QThread* thread, const std::function<void ()>& function, Qt::EventPriority priority)
+void ThreadsBase::DoQThread(QThread* thread, const FTask& task, Qt::EventPriority priority)
 {
-    QtInlineEvent::Post(function, thread, priority);
+    QtInlineEvent::Post(task, thread, priority);
 }
 
-void ThreadsBase::Async(const std::function<void ()>& function)
+AsyncResult ThreadsBase::Async(const FTask& task)
 {
-    ThreadFunction::Async(function);
+    return ThreadFunction::Async(task);
 }

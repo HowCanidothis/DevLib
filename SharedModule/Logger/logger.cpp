@@ -90,8 +90,9 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
         break;
     default:
         if(logger->m_severity >= Debug) {
-            ThreadsBase::DoMain([logger, message, currentDateTime]{
-                logger->Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
+            QString debugLineAndFile = QString("   Loc: [%1:%2] ").arg(context.file, QString::number(context.line));
+            ThreadsBase::DoMain([logger, message, currentDateTime, debugLineAndFile]{
+                logger->Print(debugLineAndFile + " Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;

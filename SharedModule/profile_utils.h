@@ -85,11 +85,12 @@ private:
 
 #define COMBINE1(X,Y) X##Y  // helper macro
 #define COMBINE(X,Y) COMBINE1(X,Y)
+#define COMBINE_3(X,Y,Z) COMBINE(COMBINE(X,Y), Z)
 
 #ifdef SHOW_HIDDEN_FUNCTIONALITY
 #define __PERFORMANCE__ \
     static PerformanceClocks COMBINE(pClock,__LINE__)(__FUNCTION__, __FILE__, __LINE__); \
-    auto COMBINE(pClock,__LINE__)##guard = COMBINE(pClock,__LINE__).Clock();
+    auto COMBINE_3(pClock,__LINE__,guard) = COMBINE(pClock,__LINE__).Clock()
 #else
 #define __PERFORMANCE__
 #endif

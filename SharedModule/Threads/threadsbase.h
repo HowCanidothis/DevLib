@@ -5,14 +5,17 @@
 
 #include <Qt>
 
-class ThreadsBase
+#include "SharedModule/shared_decl.h"
+#include "SharedModule/Threads/Promises/promise.h"
+
+class _Export ThreadsBase
 {
     ThreadsBase();
 public:
 
-    static void DoMain(const std::function<void ()>& function, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void DoQThread(class QThread* thread, const std::function<void ()>& function, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void Async(const std::function<void ()>& function);
+    static void DoMain(const FTask& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void DoQThread(class QThread* thread, const FTask& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult Async(const FTask& task);
 };
 
 #endif // THREADSBASE_H
