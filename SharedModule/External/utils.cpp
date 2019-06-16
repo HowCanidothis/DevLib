@@ -4,14 +4,14 @@
 
 QAction* createAction(const QString& title, const std::function<void ()>& handle)
 {
-    auto result = new QAction(title);
+    auto result = new QAction(title, nullptr);
     result->connect(result, &QAction::triggered, handle);
     return result;
 }
 
 QAction* createAction(const QString& title, const std::function<void (QAction*)>& handle)
 {
-    auto result = new QAction(title);
+    auto result = new QAction(title, nullptr);
     result->connect(result, &QAction::triggered, [handle, result]{
         handle(result);
     });

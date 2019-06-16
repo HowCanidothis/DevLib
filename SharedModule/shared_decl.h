@@ -4,6 +4,8 @@
 #include <QMetaEnum>
 #include <QLoggingCategory>
 
+#include <functional>
+
 #ifndef STATIC_LINK
 #if defined(LIBRARY)
 #  define _Export Q_DECL_EXPORT

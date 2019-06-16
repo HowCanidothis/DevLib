@@ -12,13 +12,13 @@
 #include <QProcess>
 #include <QAction>
 
-#include <SharedModule/external/utils.h>
+#include <SharedModule/External/utils.h>
 
 #include "PropertiesModule/propertiessystem.h"
 #include "propertiesmodel.h"
 #include "SharedGuiModule/decl.h"
-#include "widgets/propertiesdelegatefactory.h"
-#include "widgets/propertiesstyleddelegatelistener.h"
+#include "Widgets/propertiesdelegatefactory.h"
+#include "Widgets/propertiesstyleddelegatelistener.h"
 
 class PropertiesDelegate : public QStyledItemDelegate
 {

@@ -40,7 +40,7 @@ public:
     template<class T>
     static PropertyPromise<T> GetProperty(const Name& path, const FOnChange& onChange, qint32 type = Global);
 
-    static void Load(const QString& fileName, properties_context_index_t contextIndex);
+    static bool Load(const QString& fileName, properties_context_index_t contextIndex);
     static void Save(const QString& fileName, properties_context_index_t contextIndex);
     // clear current context
     static void Clear();

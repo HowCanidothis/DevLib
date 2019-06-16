@@ -7,7 +7,7 @@
 #include <queue>
 #include <functional>
 #include "SharedModule/name.h"
-#include "SharedModule/threads/Promises/promise.h"
+#include "SharedModule/Threads/Promises/promise.h"
 
 class ThreadEvent
 {

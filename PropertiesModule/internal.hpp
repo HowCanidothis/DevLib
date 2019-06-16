@@ -12,7 +12,7 @@
 #include "propertiesdialog.h"
 #include "propertieslogger.h"
 #include "localproperty.h"
-#include "widgets/propertieswidgetsconnector.h"
+#include "Widgets/propertieswidgetsconnector.h"
 #endif
 
 #endif // INTERNAL_HPP

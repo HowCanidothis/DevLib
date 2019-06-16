@@ -3,7 +3,7 @@
 #include <QSettings>
 
 #include <SharedModule/stack.h>
-#include <SharedModule/threads/threadeventshelper.h>
+#include <SharedModule/Threads/threadeventshelper.h>
 
 #include "property.h"
 
@@ -84,9 +84,13 @@ QVariant PropertiesSystem::GetValue(const Name& path, qint32 type)
     return find.value()->getValue();
 }
 
-void PropertiesSystem::Load(const QString& fileName, properties_context_index_t contextIndex)
+bool PropertiesSystem::Load(const QString& fileName, properties_context_index_t contextIndex)
 {
     Q_ASSERT(!fileName.isEmpty());
+    if(!QFile::exists(fileName))
+    {
+        return false;
+    }
     QSettings settings(fileName, QSettings::IniFormat);
     settings.setIniCodec("utf-8");
 
@@ -102,6 +106,7 @@ void PropertiesSystem::Load(const QString& fileName, properties_context_index_t 
             }
         }
     }
+    return true;
 }
 
 void PropertiesSystem::Save(const QString& fileName, properties_context_index_t contextIndex)

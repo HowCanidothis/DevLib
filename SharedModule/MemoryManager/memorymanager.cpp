@@ -1,4 +1,4 @@
-#include "MemoryManager.h"
+#include "memorymanager.h"
 #include "SharedModule/internal.hpp"
 
 qint32 MemoryManager::shouldBe(size_t index)

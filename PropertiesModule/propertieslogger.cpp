@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <SharedModule/logger/logger.h>
+#include <SharedModule/Logger/logger.h>
 
 PropertiesLogger::PropertiesLogger()
     : m_logSeverity("Log/Severity", Logger::Debug)

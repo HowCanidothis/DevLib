@@ -2,7 +2,7 @@
 
 #include <QThread>
 
-#include "SharedModule/external/qtinlineevent.h"
+#include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
 
 ThreadsBase::ThreadsBase()

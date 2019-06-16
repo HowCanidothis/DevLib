@@ -4,6 +4,8 @@
 #include <functional>
 #include <atomic>
 #include <set>
+#include <mutex>
+#include <condition_variable>
 
 #include <SharedModule/smartpointersadapters.h>
 
@@ -110,6 +112,8 @@ public:
         auto data = promise.m_data.get();
         Q_ASSERT(m_registeredPromises.find(data) != m_registeredPromises.end());
         m_registeredPromises.erase(data);
+#else
+        Q_UNUSED(promise);
 #endif
         m_conditional.notify_one();
 

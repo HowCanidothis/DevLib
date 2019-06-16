@@ -12,7 +12,9 @@
 #include <QDateTime>
 #include <QOpenGLFunctions_4_5_Core>
 
+#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
 typedef QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#endif
 typedef QQuaternion Quaternion;
 typedef QPoint Point2I;
 

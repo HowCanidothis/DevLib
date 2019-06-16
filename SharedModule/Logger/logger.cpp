@@ -6,8 +6,8 @@
 #endif
 
 #include <QDir>
-#include "SharedModule/external/external.hpp"
-#include "SharedModule/threads/threadsbase.h"
+#include "SharedModule/External/external.hpp"
+#include "SharedModule/Threads/threadsbase.h"
 #include "SharedModule/FileSystem/filesguard.h"
 
 Logger::Logger()

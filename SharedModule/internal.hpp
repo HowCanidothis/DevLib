@@ -16,7 +16,7 @@
 
 #else
 
-#include "MemoryManager/MemoryManager.h"
+#include "MemoryManager/memorymanager.h"
 #include "defaultfactorybase.h"
 #include "smartpointersadapters.h"
 #include "Serialization/StreamBuffer.h"
@@ -38,7 +38,7 @@
 #include "shared_decl.h"
 #include "nativetranslates.h"
 #include "name.h"
-#include "logger/logger.h"
+#include "Logger/logger.h"
 
 #endif
 
