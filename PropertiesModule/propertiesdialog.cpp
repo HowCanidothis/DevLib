@@ -17,7 +17,7 @@ PropertiesDialog::PropertiesDialog(const QString& name, qint32 contextIndex, QWi
 
 void PropertiesDialog::changeProperties(const StdHandle& changingProperties)
 {
-    reinterpret_cast<PropertiesView*>(_view)->GetPropertiesModel()->Change(changingProperties);
+    reinterpret_cast<PropertiesView*>(m_view)->GetPropertiesModel()->Change(changingProperties);
 }
 
 #endif

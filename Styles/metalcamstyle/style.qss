@@ -1,4 +1,4 @@
-* {
+*{
   font-family: Segoe UI;
   font-size: 12px;
   font-weight: Normal;
@@ -395,4 +395,20 @@ QPushButton#viewFront {
 
 QPushButton#viewBack {
     image: url(:/ViewBack);
+}
+
+QToolButton {
+    min-width: 50px;
+    min-height: 36px;
+    border-radius: 6px;
+    background: #C9E0FA;
+    padding: 0 0 0 0;
+}
+
+QToolButton:pressed {
+    border: 1px solid #1976D2;
+}
+
+QToolButton:hover {
+    background: #BBDEFB;
 }

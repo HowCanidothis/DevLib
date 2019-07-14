@@ -11,12 +11,14 @@ public:
     PropertyPromiseBase(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex);
 
     void Subscribe(const Property::FOnChange& onChange) { GetProperty()->Subscribe(onChange); }
-    Property* GetProperty() const { return _getter(); }
-    bool IsValid() const { return _isValid(); }
+    void InstallObserver(Dispatcher::Observer observer, const FAction& action) { GetProperty()->InstallObserver(observer, action); }
+    void RemoveObserver(Dispatcher::Observer observer) { GetProperty()->RemoveObserver(observer); }
+    Property* GetProperty() const { return m_getter(); }
+    bool IsValid() const { return m_isValid(); }
 protected:
-    std::function<Property* ()> _getter;
-    std::function<bool ()> _isValid;
-    std::function<void (const QVariant&)> _setter;
+    std::function<Property* ()> m_getter;
+    std::function<bool ()> m_isValid;
+    std::function<void (const QVariant&)> m_setter;
 };
 
 template<class T>
@@ -31,12 +33,12 @@ public:
         : PropertyPromiseBase(name, onChange, contextIndex)
     {}
 
-    T* GetProperty() const { return reinterpret_cast<T*>(_getter()); }
+    T* GetProperty() const { return reinterpret_cast<T*>(m_getter()); }
     const value_type& Native() const { return *GetProperty(); }
 
     const value_type& operator->() const { return *GetProperty(); }
     operator const value_type& () const { return *GetProperty(); }
-    PropertyPromise& operator=(const value_type& value) { _setter(value); return *this; }
+    PropertyPromise& operator=(const value_type& value) { m_setter(value); return *this; }
 };
 
 template<typename T>

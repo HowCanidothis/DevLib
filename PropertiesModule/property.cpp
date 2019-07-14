@@ -2,11 +2,11 @@
 #include "propertiessystem.h"
 
 Property::Property(const Name& path)
-    : _fOnChange([]{})
-    , _fValidator([](const QVariant&, QVariant&){})
-    , _options(Options_Default)
+    : m_fOnChange([]{})
+    , m_fValidator([](const QVariant&, QVariant&){})
+    , m_options(Options_Default)
 #ifdef DEBUG_BUILD
-    , _isSubscribed(false)
+    , m_isSubscribed(false)
 #endif
 {
     PropertiesSystem::addProperty(path, this);
@@ -15,54 +15,55 @@ Property::Property(const Name& path)
 bool Property::SetValue(QVariant value) // copied as it could be validated
 {
     QVariant oldValue = getValue();
-    _fValidator(oldValue,value);
+    m_fValidator(oldValue,value);
     if(oldValue != value) {
-        _previousValue = oldValue;
-        _fHandle([this,value] {
+        m_previousValue = oldValue;
+        m_fHandle([this,value] {
             this->setValueInternal(value);
-            _fOnChange();
+            Invoke();
         });
         return true;
     }
     return false;
 }
 
-Property::FOnChange& Property::OnChange()
-{
-#ifdef DEBUG_BUILD
-    Q_ASSERT(!_isSubscribed);
-#endif
-    return _fOnChange;
-}
-
 void Property::Subscribe(const Property::FOnChange& onChange) {
 #ifdef DEBUG_BUILD
-    _isSubscribed = true;
+    m_isSubscribed = true;
 #endif
-    auto oldHandle = _fOnChange;
-    _fOnChange = [onChange, oldHandle]{
+    auto oldHandle = m_fOnChange;
+    m_fOnChange = [onChange, oldHandle]{
         oldHandle();
         onChange();
     };
 }
 
+void Property::Invoke()
+{
+#ifdef DEBUG_BUILD
+    Q_ASSERT(!_isSubscribed);
+#endif
+    m_fOnChange();
+    m_onChangeDispatcher.Invoke();
+}
+
 void NamedUIntProperty::SetNames(const QStringList& names)
 {
-    _max = names.size() - 1;
-    _names = names;
+    m_max = names.size() - 1;
+    m_names = names;
 }
 
 void UrlListProperty::AddUniqueUrl(const QUrl& url)
 {
-    auto urlList = Super::_value; // Copy
+    auto urlList = Super::m_value; // Copy
     auto find = std::find(urlList.begin(), urlList.end(), url);
     if(find != urlList.end()) {
         urlList.erase(find);
         urlList.push_front(url);
     } else {
         urlList.prepend(url);
-        if(_maxCount != -1) {
-            if(urlList.size() > _maxCount) {
+        if(m_maxCount != -1) {
+            if(urlList.size() > m_maxCount) {
                 urlList.pop_back();
             }
         }

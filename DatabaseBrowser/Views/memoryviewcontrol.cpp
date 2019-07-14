@@ -15,8 +15,8 @@ MemoryViewControl::MemoryViewControl(QWidget *parent)
     m_currentDatabase.Subscribe([this] {
         auto model = ui->MemoryView->model();
         if(model != nullptr) {
-            ui->MemoryView->setModel(nullptr);
             delete model;
+            ui->MemoryView->setModel(nullptr);
         }
 
         if(m_currentDatabase != nullptr) {

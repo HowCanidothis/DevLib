@@ -26,9 +26,9 @@ class PropertiesDelegate : public QStyledItemDelegate
 public:
     PropertiesDelegate(QObject* parent)
         : Super(parent)
-        , _gradientLeft(0x567dbc)
-        , _gradientRight(0x6ea1f1)
-        , _gradientRightBorder(0.7)
+        , m_gradientLeft(0x567dbc)
+        , m_gradientRight(0x6ea1f1)
+        , m_gradientRightBorder(0.7)
     {}
 
     // QAbstractItemDelegate interface
@@ -40,8 +40,8 @@ public:
             painter->setPen(Qt::NoPen);
             QRect rowRect(0,option.rect.y(),option.widget->width(),orect.height());
             QLinearGradient lg(0,rowRect.y(), rowRect.width(),rowRect.y());
-            lg.setColorAt(0, _gradientLeft);
-            lg.setColorAt(_gradientRightBorder, _gradientRight);
+            lg.setColorAt(0, m_gradientLeft);
+            lg.setColorAt(m_gradientRightBorder, m_gradientRight);
             painter->setBrush(lg);
             if(!index.column())
                 painter->drawRect(orect.adjusted(-orect.x(),0,0,0));
@@ -149,9 +149,9 @@ public:
     }
 private:
     friend class PropertiesView;
-    QColor _gradientLeft;
-    QColor _gradientRight;
-    double _gradientRightBorder;
+    QColor m_gradientLeft;
+    QColor m_gradientRight;
+    double m_gradientRightBorder;
 };
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
@@ -162,7 +162,7 @@ PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
 
 PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowFlags flags)
     : Super(parent)
-    , _defaultTextEditor("Common/TextEditor", PropertiesSystem::Global)
+    , m_defaultTextEditor("Common/TextEditor", PropertiesSystem::Global)
 {
     setWindowFlags(windowFlags() | flags);
     setItemDelegate(new PropertiesDelegate(this));
@@ -175,60 +175,60 @@ PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowF
     setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
 
-    _propertiesModel = new PropertiesModel(contextIndex, this);
+    m_propertiesModel = new PropertiesModel(contextIndex, this);
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
-    proxy->setSourceModel(_propertiesModel);
+    proxy->setSourceModel(m_propertiesModel);
     setModel(proxy);
 
     header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-    _actionOpenWithTextEditor = createAction(tr("Open with text editor"), [this](){
-        QString openFile = _indexUnderCursor.data().toString();
+    m_actionOpenWithTextEditor = createAction(tr("Open with text editor"), [this](){
+        QString openFile = m_indexUnderCursor.data().toString();
 
         QStringList arguments { openFile };
 
         QProcess *process = new QProcess(this);
         connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-        process->start(_defaultTextEditor, arguments);
+        process->start(m_defaultTextEditor, arguments);
 
-        qCWarning(LC_SYSTEM) << "Opening" << _defaultTextEditor << arguments;
+        qCWarning(LC_SYSTEM) << "Opening" << m_defaultTextEditor << arguments;
     });
-    addAction(_actionOpenWithTextEditor);
+    addAction(m_actionOpenWithTextEditor);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void PropertiesView::SetContextIndex(qint32 contextIndex)
 {
-    _propertiesModel->SetContextIndex(contextIndex);
+    m_propertiesModel->SetContextIndex(contextIndex);
 }
 
 qint32 PropertiesView::GetContextIndex() const
 {
-    return _propertiesModel->GetContextIndex();
+    return m_propertiesModel->GetContextIndex();
 }
 
 void PropertiesView::Save(const QString& fileName)
 {
-    _propertiesModel->Save(fileName);
+    m_propertiesModel->Save(fileName);
 }
 
 void PropertiesView::Load(const QString& fileName)
 {
-    _propertiesModel->Load(fileName);
+    m_propertiesModel->Load(fileName);
 }
 
 void PropertiesView::showEvent(QShowEvent*)
 {
     if(!model()->rowCount()) {
-        _propertiesModel->Change([]{});
+        m_propertiesModel->Change([]{});
     }
 }
 
 void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::RightButton) {
-        _indexUnderCursor = this->indexAt(event->pos());
+        m_indexUnderCursor = this->indexAt(event->pos());
         validateActionsVisiblity();
     }
     QAbstractItemView::State preState = state();
@@ -239,24 +239,24 @@ void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
 
 void PropertiesView::validateActionsVisiblity()
 {
-    if(_defaultTextEditor.IsValid() && _indexUnderCursor.data(PropertiesModel::RoleDelegateValue).toInt() == Property::DelegateFileName) {
-        _actionOpenWithTextEditor->setVisible(true);
+    if(m_defaultTextEditor.IsValid() && m_indexUnderCursor.data(PropertiesModel::RoleDelegateValue).toInt() == Property::DelegateFileName) {
+        m_actionOpenWithTextEditor->setVisible(true);
     }
     else {
-        _actionOpenWithTextEditor->setVisible(false);
+        m_actionOpenWithTextEditor->setVisible(false);
     }
 }
 
-void PropertiesView::setLeftGradientColor(const QColor& color) { propertiesDelegate()->_gradientLeft = color; }
+void PropertiesView::setLeftGradientColor(const QColor& color) { propertiesDelegate()->m_gradientLeft = color; }
 
-void PropertiesView::setRightGradientColor(const QColor& color) { propertiesDelegate()->_gradientRight = color; }
+void PropertiesView::setRightGradientColor(const QColor& color) { propertiesDelegate()->m_gradientRight = color; }
 
-void PropertiesView::setRightGradientBorder(double border) { propertiesDelegate()->_gradientRightBorder = border; }
+void PropertiesView::setRightGradientBorder(double border) { propertiesDelegate()->m_gradientRightBorder = border; }
 
-const QColor&PropertiesView::getLeftGradientColor() const { return propertiesDelegate()->_gradientLeft; }
+const QColor&PropertiesView::getLeftGradientColor() const { return propertiesDelegate()->m_gradientLeft; }
 
-const QColor&PropertiesView::getRightGradientColor() const { return propertiesDelegate()->_gradientRight; }
+const QColor&PropertiesView::getRightGradientColor() const { return propertiesDelegate()->m_gradientRight; }
 
-double PropertiesView::getRightGradientBorder() const { return propertiesDelegate()->_gradientRightBorder; }
+double PropertiesView::getRightGradientBorder() const { return propertiesDelegate()->m_gradientRightBorder; }
 
 #endif

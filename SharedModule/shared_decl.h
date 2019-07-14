@@ -17,7 +17,7 @@
 #endif
 
 typedef qint32 count_t;
-typedef std::function<void ()> FTask;
+typedef std::function<void ()> FAction;
 
 class QTextStream;
 
@@ -128,8 +128,19 @@ public:
 private:
     const void* m_data;
 };
-
 Q_DECLARE_TYPEINFO(CastablePtr, Q_PRIMITIVE_TYPE);
+
+template<class T>
+class NamedClassReferenceWrapper
+{
+    T& m_reference;
+public:
+    NamedClassReferenceWrapper(T& reference)
+        : m_reference(reference)
+    {}
+
+    operator qint32() const { return m_reference; }
+};
 
 _Export Q_DECLARE_LOGGING_CATEGORY(LC_UI)
 _Export Q_DECLARE_LOGGING_CATEGORY(LC_SYSTEM)

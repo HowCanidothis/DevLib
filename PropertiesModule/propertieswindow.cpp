@@ -7,25 +7,25 @@
 
 PropertiesWindow::PropertiesWindow(QWidget *parent, Qt::WindowFlags f) :
     QMainWindow(parent, f),
-    _ui(new Ui::PropertiesWindow)
+    m_ui(new Ui::PropertiesWindow)
 {
-    _ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 PropertiesWindow::~PropertiesWindow()
 {
-    delete _ui;
+    delete m_ui;
 }
 
 void PropertiesWindow::LoadDefault()
 {
-    _fileName = "default.ini";
+    m_fileName = "default.ini";
     load();
 }
 
 void PropertiesWindow::on_actionSave_triggered()
 {
-    if(_fileName.isEmpty()) {
+    if(m_fileName.isEmpty()) {
         on_actionSave_as_triggered();
     }
     else {
@@ -39,7 +39,7 @@ void PropertiesWindow::on_actionSave_as_triggered()
     if(res.isEmpty()) {
         return;
     }
-    _fileName = res;
+    m_fileName = res;
     save();
 }
 
@@ -49,26 +49,26 @@ void PropertiesWindow::on_actionLoad_triggered()
     if(res.isEmpty()) {
         return;
     }
-    _fileName = res;
+    m_fileName = res;
     load();
 }
 
 void PropertiesWindow::on_actionNew_triggered()
 {
-    _fileName = "";
+    m_fileName = "";
     setWindowTitle("");
 }
 
 void PropertiesWindow::load()
 {
-    setWindowTitle(_fileName);
-    _ui->properties_view->Load(_fileName);
+    setWindowTitle(m_fileName);
+    m_ui->properties_view->Load(m_fileName);
 }
 
 void PropertiesWindow::save()
 {
-    setWindowTitle(_fileName);
-    _ui->properties_view->Save(_fileName);
+    setWindowTitle(m_fileName);
+    m_ui->properties_view->Save(m_fileName);
 }
 
 #endif

@@ -5,14 +5,14 @@
 
 PropertiesModel::PropertiesModel(QObject* parent)
     : QAbstractItemModel(parent)
-    , _contextIndex(PropertiesSystem::Global)
+    , m_contextIndex(PropertiesSystem::Global)
 {
     reset();
 }
 
 PropertiesModel::PropertiesModel(qint32 contextIndex, QObject* parent)
     : QAbstractItemModel(parent)
-    , _contextIndex(contextIndex)
+    , m_contextIndex(contextIndex)
 {
     reset();
 }
@@ -23,7 +23,7 @@ void PropertiesModel::Change(const std::function<void ()>& handle)
 
     handle();
 
-    const auto& tree = PropertiesSystem::context(_contextIndex);
+    const auto& tree = PropertiesSystem::context(m_contextIndex);
 
     reset(tree);
 
@@ -32,8 +32,8 @@ void PropertiesModel::Change(const std::function<void ()>& handle)
 
 void PropertiesModel::SetContextIndex(qint32 contextIndex)
 {
-    if(_contextIndex != contextIndex) {
-        _contextIndex = contextIndex;
+    if(m_contextIndex != contextIndex) {
+        m_contextIndex = contextIndex;
 
         update();
 
@@ -43,13 +43,13 @@ void PropertiesModel::SetContextIndex(qint32 contextIndex)
 
 qint32 PropertiesModel::GetContextIndex() const
 {
-    return _contextIndex;
+    return m_contextIndex;
 }
 
 void PropertiesModel::SetFileName(const QString& fileName)
 {
-    if(_fileName != fileName) {
-        _fileName = fileName;
+    if(m_fileName != fileName) {
+        m_fileName = fileName;
 
         emit fileNameChanged();
     }
@@ -57,14 +57,14 @@ void PropertiesModel::SetFileName(const QString& fileName)
 
 const QString& PropertiesModel::GetFileName() const
 {
-    return _fileName;
+    return m_fileName;
 }
 
 void PropertiesModel::update()
 {
     beginResetModel();
 
-    const auto& tree = PropertiesSystem::context(_contextIndex);
+    const auto& tree = PropertiesSystem::context(m_contextIndex);
 
     reset(tree);
 
@@ -87,7 +87,7 @@ void PropertiesModel::forEachItem(QString& path,
 
 void PropertiesModel::reset()
 {
-    _root = new Item { "", nullptr, 0, nullptr };
+    m_root = new Item { "", nullptr, 0, nullptr };
 }
 
 void PropertiesModel::reset(const QHash<Name, Property*>& tree)
@@ -103,7 +103,7 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
             continue;
         }
         const Name& path = it.key();
-        Item* current = _root.data();
+        Item* current = m_root.data();
         QStringList paths = path.AsString().split('/', QString::SkipEmptyParts);
         for(const QString& path : adapters::range(paths.begin(), paths.end() - 1)) {
             auto find = nodes.find(path);
@@ -129,12 +129,12 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
 void PropertiesModel::Save(const QString& fileName) const
 {
-    PropertiesSystem::Save(fileName, _contextIndex);
+    PropertiesSystem::Save(fileName, m_contextIndex);
 }
 
 void PropertiesModel::Load(const QString& fileName)
 {    
-    PropertiesSystem::Load(fileName, _contextIndex);
+    PropertiesSystem::Load(fileName, m_contextIndex);
 }
 
 int PropertiesModel::rowCount(const QModelIndex& parent) const
@@ -142,7 +142,7 @@ int PropertiesModel::rowCount(const QModelIndex& parent) const
     if(parent.isValid()) {
         return asItem(parent)->Childs.Size();
     }
-    return _root->Childs.Size();
+    return m_root->Childs.Size();
 }
 
 QVariant PropertiesModel::data(const QModelIndex& index, int role) const
@@ -243,14 +243,14 @@ QModelIndex PropertiesModel::index(int row, int column, const QModelIndex& paren
         Item* item = asItem(parent)->Childs.At(row);
         return createIndex(row, column, item);
     }
-    Item* item = _root->Childs.At(row);
+    Item* item = m_root->Childs.At(row);
     return createIndex(row, column, item);
 }
 
 QModelIndex PropertiesModel::parent(const QModelIndex& child) const
 {
     Item* node = asItem(child);
-    if(node->Parent == _root.data()) {
+    if(node->Parent == m_root.data()) {
         return QModelIndex();
     }
     return createIndex(node->ParentRow, 0, node->Parent);

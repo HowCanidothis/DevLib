@@ -23,7 +23,7 @@ public:
     void Save(const QString& fileName);
     void Load(const QString& fileName);
 
-    class PropertiesModel* GetPropertiesModel() const { return _propertiesModel; }
+    class PropertiesModel* GetPropertiesModel() const { return m_propertiesModel; }
 
     // QWidget interface
 protected:
@@ -33,13 +33,13 @@ protected:
     void validateActionsVisiblity();
 
 protected:
-    class PropertiesModel* _propertiesModel;
+    class PropertiesModel* m_propertiesModel;
 
 private:
-    QModelIndex _indexUnderCursor;
-    QAction* _actionOpenWithTextEditor;
+    QModelIndex m_indexUnderCursor;
+    QAction* m_actionOpenWithTextEditor;
 
-    StringPropertyPtr _defaultTextEditor;
+    StringPropertyPtr m_defaultTextEditor;
 
 private:
     void setLeftGradientColor(const QColor& color);

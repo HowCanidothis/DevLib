@@ -32,11 +32,11 @@ public:
 
     static void CreateGeometryProperty(const QString& dialogName);
     void Initialize(const StdHandle& propertiesInitializeFunction = []{});
-    const Options& GetOptions() const { return _options; }
-    Options& ChangeOptions() { return  _options; }
-    bool IsDirty() const { return !_oldValues.isEmpty(); }
+    const Options& GetOptions() const { return m_options; }
+    Options& ChangeOptions() { return  m_options; }
+    bool IsDirty() const { return !m_oldValues.isEmpty(); }
     void SetOnDone(const OnDoneHandle& onDone);
-    template<class T> T* GetView() const { return reinterpret_cast<T*>(_view); }
+    template<class T> T* GetView() const { return reinterpret_cast<T*>(m_view); }
 
     // QDialog interface
 public slots:
@@ -50,13 +50,13 @@ protected:
     virtual void changeProperties(const StdHandle& changingProperties);
 
 protected:
-    bool _isInitialized;
-    Options _options;
-    qint32 _contextIndex;
-    QWidget* _view;
-    ByteArrayPropertyPtr _savedGeometry;
-    QMetaObject::Connection _connection;
-    QHash<Property*, QVariant> _oldValues;
+    bool m_isInitialized;
+    Options m_options;
+    qint32 m_contextIndex;
+    QWidget* m_view;
+    ByteArrayPropertyPtr m_savedGeometry;
+    QMetaObject::Connection m_connection;
+    QHash<Property*, QVariant> m_oldValues;
 };
 
 #endif // QT_GUI_LIB

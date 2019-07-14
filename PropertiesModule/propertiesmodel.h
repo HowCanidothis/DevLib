@@ -67,15 +67,15 @@ private:
 
     Item* asItem(const QModelIndex& index) const;
     void forEachItem(QString& path,
-                     const Item* _root,
+                     const Item* root,
                      const std::function<void (const QString& path, const Item*)>& handle) const;
     void reset();
     void reset(const QHash<Name, Property*>& tree);
 
 private:
-    ScopedPointer<Item> _root;
-    qint32 _contextIndex;
-    QString _fileName;
+    ScopedPointer<Item> m_root;
+    qint32 m_contextIndex;
+    QString m_fileName;
 };
 
 #endif // PROPERTIESMODEL_H

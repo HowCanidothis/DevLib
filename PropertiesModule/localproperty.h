@@ -7,7 +7,6 @@ template<class T>
 class LocalProperty
 {
 protected:
-    Property::FOnChange m_onChange;
     T m_value;
 
 public:
@@ -19,34 +18,28 @@ public:
 
     void Invoke()
     {
-        Q_ASSERT(m_onChange);
-        m_onChange();
+        Q_ASSERT(!OnChange.IsEmpty());
+        OnChange.Invoke();
     }
 
-    void Subscribe(const Property::FOnChange& onChange)
+    void Subscribe(const FAction& subscribe)
     {
-        if(m_onChange) {
-            auto oldOnChange = m_onChange;
-            m_onChange = [onChange, oldOnChange]{
-                oldOnChange();
-                onChange();
-            };
-        } else {
-            m_onChange = onChange;
-        }
+        OnChange += { nullptr, subscribe };
     }
 
     void SetValue(const T& value)
     {
         if(value != m_value) {
             m_value = value;
-            m_onChange();
+            OnChange();
         }
     }
     const T& GetValue() const { return m_value; }
 
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
+
+    Dispatcher OnChange;
 };
 
 template<class T>
@@ -68,7 +61,7 @@ public:
     {
         if(!this->m_value.isEmpty()) {
             this->m_value.clear();
-            this->m_onChange();
+            this->OnChange();
         }
     }
 
@@ -92,7 +85,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.insert(value);
-            this->m_onChange();
+            this->OnChange();
         }
     }
 
@@ -101,7 +94,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.erase(find);
-            this->m_onChange();
+            this->OnChange();
         }
     }
 

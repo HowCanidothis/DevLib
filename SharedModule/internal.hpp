@@ -39,6 +39,7 @@
 #include "nativetranslates.h"
 #include "name.h"
 #include "Logger/logger.h"
+#include "dispatcher.h"
 
 #endif
 

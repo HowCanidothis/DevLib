@@ -10,7 +10,7 @@
 
 struct ThreadTaskDesc
 {
-    FTask Task;
+    FAction Task;
     AsyncResult Result;
 };
 

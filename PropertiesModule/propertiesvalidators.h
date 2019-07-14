@@ -18,13 +18,13 @@ template<typename T>
 PropertiesValidators::FValidator PropertiesValidators::OddValidator()
 {
     return [](const QVariant& old, QVariant& v) {
-        T new_value = v.value<T>();
-        if(!(new_value % 2)) {
-            if(new_value < old.value<T>()) {
-                v = new_value - 1;
+        T newValue = v.value<T>();
+        if(!(newValue % 2)) {
+            if(newValue < old.value<T>()) {
+                v = newValue - 1;
             }
             else {
-                v = new_value + 1;
+                v = newValue + 1;
             }
         }
     };

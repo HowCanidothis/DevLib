@@ -3,7 +3,7 @@
 #include "threadpool.h"
 #include "thread.h"
 
-AsyncResult ThreadFunction::Async(const FTask& function)
+AsyncResult ThreadFunction::Async(const FAction& function)
 {
     auto desc = new ThreadTaskDesc{ function };
     auto result = desc->Result;

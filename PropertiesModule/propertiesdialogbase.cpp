@@ -8,13 +8,13 @@
 
 PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent)
     : QDialog(parent)
-    , _isInitialized(false)
-    , _options(Options_Default)
-    , _contextIndex(contextIndex)
-    , _view(view)
-    , _savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
+    , m_isInitialized(false)
+    , m_options(Options_Default)
+    , m_contextIndex(contextIndex)
+    , m_view(view)
+    , m_savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
 {
-    if(!_savedGeometry.IsValid()) {
+    if(!m_savedGeometry.IsValid()) {
         qCWarning(LC_SYSTEM) << name << "dialog doesn't have geometry property";
     }
 
@@ -41,12 +41,12 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
         return;
     }
 
-    _oldValues.clear();
+    m_oldValues.clear();
 
     changeProperties([this,propertiesInitializeFunction]{
-        PropertiesSystem::Begin(_contextIndex);
+        PropertiesSystem::Begin(m_contextIndex);
         propertiesInitializeFunction();
-        if(_options.TestFlag(Option_ReadOnly)) {
+        if(m_options.TestFlag(Option_ReadOnly)) {
             PropertiesSystem::ForeachProperty([](Property* property){
                 property->ChangeOptions().AddFlag(Property::Option_IsReadOnly);
             });
@@ -54,9 +54,9 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
             PropertiesSystem::ForeachProperty([this](Property* property){
                 if(property->GetOptions().TestFlag(Property::Option_IsPresentable)) {
                     property->Subscribe([this, property]{
-                        auto find = _oldValues.find(property);
-                        if(find == _oldValues.end()) {
-                            _oldValues.insert(property, property->GetPreviousValue());
+                        auto find = m_oldValues.find(property);
+                        if(find == m_oldValues.end()) {
+                            m_oldValues.insert(property, property->GetPreviousValue());
                         }
                     });
                 }
@@ -65,40 +65,40 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
         PropertiesSystem::End();
     });
 
-    _isInitialized = true;
+    m_isInitialized = true;
 }
 
 void PropertiesDialogBase::SetOnDone(const PropertiesDialogBase::OnDoneHandle& onDone)
 {
-    disconnect(_connection);
-    _connection = connect(this, &QDialog::finished, onDone);
+    disconnect(m_connection);
+    m_connection = connect(this, &QDialog::finished, onDone);
 }
 
 void PropertiesDialogBase::done(int result)
 {
-    Q_ASSERT(_isInitialized == true);
-    if(_savedGeometry.IsValid()) {
-        _savedGeometry = saveGeometry();
+    Q_ASSERT(m_isInitialized == true);
+    if(m_savedGeometry.IsValid()) {
+        m_savedGeometry = saveGeometry();
     }
     Super::done(result);
     if(result == Rejected) {
-        auto it = _oldValues.begin();
-        auto e = _oldValues.end();
+        auto it = m_oldValues.begin();
+        auto e = m_oldValues.end();
         for(; it != e; it++) {
             it.key()->SetValue(it.value());
         }
     }
 
-    if(_options.TestFlag(Option_ClearContextOnDone)) {
-        PropertiesSystem::Clear(_contextIndex);
+    if(m_options.TestFlag(Option_ClearContextOnDone)) {
+        PropertiesSystem::Clear(m_contextIndex);
     }
-    _isInitialized = false;
+    m_isInitialized = false;
 }
 
 void PropertiesDialogBase::showEvent(QShowEvent* event)
 {
-    if(_savedGeometry.IsValid() && !_savedGeometry.Native().isEmpty()) {
-        restoreGeometry(_savedGeometry);
+    if(m_savedGeometry.IsValid() && !m_savedGeometry.Native().isEmpty()) {
+        restoreGeometry(m_savedGeometry);
     } else {
         Super::showEvent(event);
     }

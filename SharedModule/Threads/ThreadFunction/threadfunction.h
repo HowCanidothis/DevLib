@@ -10,7 +10,7 @@
 class ThreadFunction
 {
 public:
-    _Export static AsyncResult Async(const FTask& function);
+    _Export static AsyncResult Async(const FAction& function);
 
 private:
     static class ThreadPool& threadPool();

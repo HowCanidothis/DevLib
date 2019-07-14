@@ -27,8 +27,8 @@ HeadersViewControl::HeadersViewControl(QWidget *parent)
         m_currentField = nullptr;
         auto model = ui->HeadersView->model();
         if(model != nullptr) {
-            ui->HeadersView->setModel(nullptr);
             delete model;
+            ui->HeadersView->setModel(nullptr);
         }
 
         if(m_currentDatabase != nullptr) {
@@ -60,7 +60,7 @@ void HeadersViewControl::on_BtnAdd_clicked()
 
     if(header != nullptr) {
         QString name, defaultValue;
-        qint32 type;
+        static qint32 type = 0;
         if(execFieldDialog(tr("Creation field dialog"), name, type, defaultValue) == QDialog::Accepted) {
             emit modelAboutToBeChanged();
             model()->AddFieldToHeader(header, type, name, defaultValue);
@@ -200,7 +200,10 @@ void HeadersViewControl::validateControlsHeaders()
         ui->BtnAdd->setText(tr("Add new field"));
         ui->BtnEdit->setText(tr("Edit field"));
         ui->BtnRemove->setText(tr("Remove field"));
-        isSetControlsEnabled = true;
+        ui->BtnAdd->setEnabled(true);
+        ui->BtnEdit->setEnabled(m_currentField->IsPrimaryKey() ? false : true);
+        ui->BtnRemove->setEnabled(m_currentField->IsPrimaryKey() ? false : true);
+        isSetControlsEnabled = false;
     } else { // nothing is selected
         ui->BtnAdd->setText(tr("Add new header"));
         ui->BtnAdd->setEnabled(true);

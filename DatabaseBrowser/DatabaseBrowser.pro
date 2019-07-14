@@ -13,6 +13,7 @@ include(../global.pri)
 include(../SharedModule/SharedModule.pri)
 include(../DatabaseEngine/DatabaseEngine.pri)
 include(../PropertiesModule/PropertiesModule.pri)
+include(../ActionsModule/ActionsModule.pri)
 
 INCLUDEPATH += ../
 
@@ -36,4 +37,3 @@ includeAll()
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-

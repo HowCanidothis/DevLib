@@ -4,12 +4,13 @@
 #ifdef QT_GUI_LIB
 
 #include <QMainWindow>
+#include <SharedModule/internal.hpp>
 
 namespace Ui {
 class PropertiesWindow;
 }
 
-class PropertiesWindow : public QMainWindow
+class _Export PropertiesWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -32,8 +33,8 @@ private:
     void load();
     void save();
 
-    Ui::PropertiesWindow *_ui;
-    QString _fileName;
+    Ui::PropertiesWindow *m_ui;
+    QString m_fileName;
 };
 
 #endif // QT_GUI_LIB
