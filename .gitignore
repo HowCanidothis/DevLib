@@ -35,3 +35,10 @@
 /QtForFun.pro.user
 Build
 build-IMX-Desktop_Qt_5_12_1_GCC_64bit-Debug
+/Bin/Deploy/x32
+/Bin/Deploy/x64
+/Bin/build-Desktop_Qt_5_9_2_MSVC2015_32bit/IMX
+/Bin/build-Desktop_Qt_5_9_2_MSVC2015_64bit/IMX
+/IMX
+/build-IMX-Qt_5_6_GCC_Arm-Debug
+/build-IMX-Qt_5_6_GCC_Arm-Release
