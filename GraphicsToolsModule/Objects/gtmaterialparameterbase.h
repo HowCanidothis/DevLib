@@ -24,10 +24,11 @@ class GtMaterial;
 class GtMaterialParameterBase : public GtObjectBase
 {
 public:
-    typedef std::function<void(QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions* f)> FDelegate;
-    GtMaterialParameterBase(const QString& name, const QString& resource);
-    GtMaterialParameterBase(const QString& name, const FDelegate& delegate);
+    typedef std::function<void(QOpenGLShaderProgram* program, gLocID m_location, OpenGLFunctions* f)> FDelegate;
+    GtMaterialParameterBase(const QString& m_name, const QString& m_resource);
+    GtMaterialParameterBase(const QString& m_name, const FDelegate& m_delegate);
     virtual ~GtMaterialParameterBase();
+
 protected:
     friend class GtMaterial;
     void bind(QOpenGLShaderProgram*, OpenGLFunctions* f);
@@ -38,11 +39,12 @@ protected:
     void updateLocation(QOpenGLShaderProgram* program);
 
     template<class T> T* asObject() const { return (T*)ptr; }
+
 protected:
-    FDelegate delegate;
-    gLocID location;
-    QString name;
-    Name resource;
+    FDelegate m_delegate;
+    gLocID m_location;
+    QString m_name;
+    Name m_resource;
     static GtMaterial*& material() { static GtMaterial* res; return res; }
 };
 

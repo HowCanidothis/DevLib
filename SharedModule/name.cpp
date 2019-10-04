@@ -2,40 +2,66 @@
 #include <QHashFunctions>
 
 Name::Name()
-    : _value(0)
+    : m_value(0)
 {
 
 }
 
 Name::Name(const char* name)
-    : _text(name)
-    , _value(qHash(_text))
+    : m_text(name)
+    , m_value(qHash(m_text))
 
 {
 
 }
 
 Name::Name(const Name& other)
-    : _text(other._text)
-    , _value(other._value)
+    : m_text(other.m_text)
+    , m_value(other.m_value)
 {
 
 }
 
 Name::Name(const QString& name)
-    : _text(name)
-    , _value(qHash(_text))
+    : m_text(name)
+    , m_value(qHash(m_text))
 {
 
 }
 
 void Name::SetName(const QString& str)
 {
-    _value = qHash(str);
-    _text = str;
+    m_value = qHash(str);
+    m_text = str;
 }
 
 const QString& Name::AsString() const
 {
-    return _text;
+    return m_text;
+}
+
+Latin1Name::Latin1Name()
+    : m_value(0)
+{
+
+}
+
+Latin1Name::Latin1Name(const char* name)
+    : m_text(name)
+    , m_value(qHash(name))
+{
+
+}
+
+void Latin1Name::SetName(const QLatin1String& str)
+{
+    m_value = qHash(str);
+    m_text = str;
+}
+
+Latin1Name::Latin1Name(const QLatin1String& name)
+    : m_text(name)
+    , m_value(qHash(name))
+{
+
 }

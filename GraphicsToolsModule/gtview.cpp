@@ -12,21 +12,21 @@
 
 GtView::GtView(QWidget* parent, Qt::WindowFlags flags)
     : QOpenGLWidget(parent, flags)
-    , _initialized(false)
-    , _controllers(new ControllersContainer())
-    , _camera(new GtCamera())
+    , m_isInitialized(false)
+    , m_controllers(new ControllersContainer())
+    , m_camera(new GtCamera())
 {
-    _camera->setProjectionProperties(45.f, 10.f, 1000000.f);
+    m_camera->SetProjectionProperties(45.f, 10.f, 1000000.f);
 
     QTimer* render = new QTimer();
     connect(render, SIGNAL(timeout()), this, SLOT(update()));
     render->start(30);
 
-    new GtPlayerControllerCamera("GtPlayerControllerCamera", _controllers.data());
+    new GtPlayerControllerCamera("GtPlayerControllerCamera", m_controllers.data());
     auto context = new GtControllersContext();
-    context->Camera = _camera.data();
+    context->Camera = m_camera.data();
 
-    _controllers->SetContext(context);
+    m_controllers->SetContext(context);
 }
 #include <QOpenGLShaderProgram>
 void GtView::initializeGL()
@@ -40,25 +40,25 @@ void GtView::initializeGL()
         return new Matrix4();
     });
 
-    MVP = ResourcesSystem::GetResource<Matrix4>("mvp");
+    m_mvp = ResourcesSystem::GetResource<Matrix4>("mvp");
 
 //    _materialTexture = new GtMaterial();
 //    _materialTexture->addMesh(GtMeshQuad2D::instance(this));
 //    _materialTexture->addParameter(new GtMaterialParameterTexture("TextureMap", "post_render"));
 //    _materialTexture->setShaders(GT_SHADERS_PATH, "screen.vert", "screen.frag");
 
-    _surfaceMesh = new GtMeshGrid(50, 50, 5);
-    _surfaceMesh->initialize(this);
+    m_surfaceMesh = new GtMeshGrid(50, 50, 5);
+    m_surfaceMesh->Initialize(this);
 
-    _surfaceMaterial = new GtMaterial();
-    _surfaceMaterial->addMesh(_surfaceMesh.data());
+    m_surfaceMaterial = new GtMaterial();
+    m_surfaceMaterial->AddMesh(m_surfaceMesh.data());
 
-    _surfaceMaterial->addParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    _surfaceMaterial->addParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions*){
+    m_surfaceMaterial->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
+    m_surfaceMaterial->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions*){
         program->setUniformValue(location, 100.f);
     }));
 
-    _surfaceMaterial->setShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");
+    m_surfaceMaterial->SetShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -70,7 +70,7 @@ void GtView::initializeGL()
 void GtView::resizeGL(int w, int h)
 {
     glViewport(0,0,w,h);
-    _camera->resize(w, h);
+    m_camera->Resize(w, h);
 }
 
 void GtView::paintGL()
@@ -79,36 +79,36 @@ void GtView::paintGL()
         return;
     }
 
-    MVP->Data().Set(_camera->getWorld());
+    m_mvp->Data().Set(m_camera->GetWorld());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //    glViewport(0,0,width(),height());
 
-    _surfaceMaterial->draw(this);
+    m_surfaceMaterial->Draw(this);
 }
 
 void GtView::mouseMoveEvent(QMouseEvent* event)
 {
-    _controllers->MouseMoveEvent(event);
+    m_controllers->MouseMoveEvent(event);
 }
 
 void GtView::mousePressEvent(QMouseEvent* event)
 {
-    _controllers->MousePressEvent(event);
+    m_controllers->MousePressEvent(event);
 }
 
 void GtView::wheelEvent(QWheelEvent* event)
 {
-    _controllers->WheelEvent(event);
+    m_controllers->WheelEvent(event);
 }
 
 void GtView::keyPressEvent(QKeyEvent *event)
 {
-    _controllers->KeyPressEvent(event);
+    m_controllers->KeyPressEvent(event);
 }
 
 void GtView::keyReleaseEvent(QKeyEvent *event)
 {
-    _controllers->KeyReleaseEvent(event);
+    m_controllers->KeyReleaseEvent(event);
 }
 

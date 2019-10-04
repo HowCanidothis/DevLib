@@ -4,39 +4,39 @@
 #include "gtframebufferobject.h"
 
 GtShadowMapTechnique::GtShadowMapTechnique(OpenGLFunctions* f, const SizeI& resolution)
-    : camera(new GtCamera)
-    , framebuffer(new GtFramebufferObject(f, resolution))
+    : m_camera(new GtCamera)
+    , m_framebuffer(new GtFramebufferObject(f, resolution))
     , f(f)
 {
-    camera->setIsometric(true);
-    camera->resize(resolution.width(), resolution.height());
-    camera->setProjectionProperties(45.f, 1.f, 30000.f);
+    m_camera->SetIsometric(true);
+    m_camera->Resize(resolution.width(), resolution.height());
+    m_camera->SetProjectionProperties(45.f, 1.f, 30000.f);
 }
 
-void GtShadowMapTechnique::create()
+void GtShadowMapTechnique::Create()
 {
     GtFramebufferFormat format;
-    format.setDepthAttachment(GtFramebufferFormat::Texture);
-    framebuffer->create(format);
+    format.SetDepthAttachment(GtFramebufferFormat::Texture);
+    m_framebuffer->Create(format);
 }
 
-void GtShadowMapTechnique::bind(const Point3F& spot_position, const Vector3F& spot_center)
+void GtShadowMapTechnique::Bind(const Point3F& spot_position, const Vector3F& spot_center)
 {
-    camera->setPosition(spot_position, spot_center);
-    framebuffer->bind();
+    m_camera->SetPosition(spot_position, spot_center);
+    m_framebuffer->Bind();
 }
 
-void GtShadowMapTechnique::release()
+void GtShadowMapTechnique::Release()
 {
-    framebuffer->release();
+    m_framebuffer->Release();
 }
 
-const Matrix4& GtShadowMapTechnique::getWorld()
+const Matrix4& GtShadowMapTechnique::GetWorldMatrix()
 {
-    return camera->getWorld();
+    return m_camera->GetWorld();
 }
 
-gTexID GtShadowMapTechnique::getDepthTexture() const
+gTexID GtShadowMapTechnique::GetDepthTexture() const
 {
-    return framebuffer->getDepthTexture()->getID();
+    return m_framebuffer->GetDepthTexture()->GetId();
 }

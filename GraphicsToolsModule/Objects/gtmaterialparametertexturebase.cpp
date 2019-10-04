@@ -9,5 +9,5 @@ GtMaterialParameterTextureBase::GtMaterialParameterTextureBase(const QString& na
 
 void GtMaterialParameterTextureBase::updateTextureUnit(gTexUnit& unit)
 {
-    this->unit = unit++;
+    this->m_unit = unit++;
 }

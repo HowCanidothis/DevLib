@@ -11,7 +11,7 @@ struct NetworkPackageHeader
 {
     quint16 SyncBytes = 0xbad0;
     qint32 Size = 0;
-    quint32 Hashsum;
+    qint32 Hashsum;
 
     bool IsSynchronized() const { return SyncBytes == 0xbad0; }
 
@@ -60,7 +60,7 @@ public:
         return data;
     }
 
-    quint32 GenerateCheckSum() const;
+    qint32 GenerateCheckSum() const;
     const QByteArray& GetData() const { return m_data; }
     bool CheckSum() const;
     bool IsEmpty() const { return m_data.isEmpty(); }

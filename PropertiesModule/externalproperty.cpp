@@ -13,9 +13,9 @@ void ExternalNamedUIntProperty::SetNames(const QStringList& names)
 #ifdef QT_GUI_LIB
 
 ExternalVector3FProperty::ExternalVector3FProperty(const QString& path, Vector3F& vector)
-    : X(Name(path + "/x"), vector[0], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Y(Name(path + "/y"), vector[1], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Z(Name(path + "/z"), vector[2], -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    : X(Name(path + "/x"), vector.X(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Y(Name(path + "/y"), vector.Y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+    , Z(Name(path + "/z"), vector.Z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
 {
 
 }

@@ -3,9 +3,9 @@
 bool GtActor::updateBoundingBox(BoundingBox& result)
 {
     bool ret = false;
-    for(GtPrimitiveActor* actor : components) {
+    for(GtPrimitiveActor* actor : m_components) {
         if(actor->updateBoundingBox()) {
-            result.Unite(actor->getBoundingBox());
+            result.Unite(actor->GetBoundingBox());
             ret = true;
         }
     }

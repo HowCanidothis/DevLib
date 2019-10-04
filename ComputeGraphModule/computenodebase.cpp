@@ -9,7 +9,7 @@ GtComputeNodeBase::GtComputeNodeBase(const QString& name, qint32 flags)
 {
     this->_flags = flags;
 
-    _enabled.OnChange() = [this]{ SetEnabled(_enabled); };
+    _enabled.Subscribe([this]{ SetEnabled(_enabled); });
 }
 
 GtComputeNodeBase::~GtComputeNodeBase()

@@ -24,15 +24,16 @@ public:
     GtMaterial();
     virtual ~GtMaterial();
 
-    void addParameter(GtMaterialParameterBase*);
-    void addMesh(GtMeshBase* mesh);
-    void draw(OpenGLFunctions* f);
+    void AddParameter(GtMaterialParameterBase*);
+    void AddMesh(GtMeshBase* mesh);
+    void Draw(OpenGLFunctions* f);
 
-    void setDir(const QString& path) { shaders_path = path; }
-    GtMaterial& addShader(ShaderType type, const QString& file);
-    void setShaders(const QString& path, const QString& vert_file, const QString& frag_file);
+    void SetDir(const QString& path) { m_shadersPath = path; }
+    GtMaterial& AddShader(ShaderType type, const QString& file);
+    void SetShaders(const QString& path, const QString& vert_file, const QString& frag_file);
 
-    void update();
+    void Update();
+
 protected:
     friend class GtMaterialParameterBase;
     struct Shader {
@@ -40,14 +41,15 @@ protected:
         qint32 Type;
     };
 
-    Stack<GtMaterialParameterBase*> parameters;
-    Array<GtMeshBase*> meshs;
-    ScopedPointer<class QOpenGLShaderProgram> shader_program;
-    ArrayPointers<Shader> shaders;
-    QString shaders_path;
+    Stack<GtMaterialParameterBase*> m_parameters;
+    Array<GtMeshBase*> m_meshs;
+    ScopedPointer<class QOpenGLShaderProgram> m_shaderProgram;
+    ArrayPointers<Shader> m_shaders;
+    QString m_shadersPath;
+
     // GtObjectBase interface
 public:
-    void mapProperties(Observer* observer) Q_DECL_OVERRIDE;
+    void MapProperties(Observer* observer) Q_DECL_OVERRIDE;
 };
 
 #endif // GTVIEW_H

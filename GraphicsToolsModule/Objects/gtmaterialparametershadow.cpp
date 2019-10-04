@@ -13,11 +13,11 @@ GtMaterialParameterShadow::GtMaterialParameterShadow(const QString& name, const 
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterShadow::apply()
 {
-    technique = ResourcesSystem::GetResource<GtShadowMapTechnique>(resource);
-    const auto& tech = technique->Data().Get();
-    gTexID depth = tech.getDepthTexture();
+    m_technique = ResourcesSystem::GetResource<GtShadowMapTechnique>(m_resource);
+    const auto& tech = m_technique->Data().Get();
+    gTexID depth = tech.GetDepthTexture();
     return [this, depth](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
-        GtTexture2D::bindTexture(f, unit, depth);
-        program->setUniformValue(loc, unit);
+        GtTexture2D::bindTexture(f, m_unit, depth);
+        program->setUniformValue(loc, m_unit);
     };
 }

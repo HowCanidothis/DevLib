@@ -24,16 +24,16 @@ protected:
     void keyPressEvent(QKeyEvent* e) Q_DECL_OVERRIDE;
 
 private:
-    bool _initialized;
+    bool m_isInitialized;
 
-    ScopedPointer<Matrix4Resource> MVP;
-    ScopedPointer<class GtMeshQuad2D> _meshQuad;
-    ScopedPointer<class GtMaterial> _materialTexture;
-    ScopedPointer<class ControllersContainer> _controllers;
-    ScopedPointer<class GtCamera> _camera;
+    ScopedPointer<Matrix4Resource> m_mvp;
+    ScopedPointer<class GtMeshQuad2D> m_meshQuad;
+    ScopedPointer<class GtMaterial> m_materialTexture;
+    ScopedPointer<class ControllersContainer> m_controllers;
+    ScopedPointer<class GtCamera> m_camera;
 
-    ScopedPointer<class GtMaterial> _surfaceMaterial;
-    ScopedPointer<class GtMeshBase> _surfaceMesh;
+    ScopedPointer<class GtMaterial> m_surfaceMaterial;
+    ScopedPointer<class GtMeshBase> m_surfaceMesh;
 };
 
 #endif // GTVIEW_H

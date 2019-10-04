@@ -6,58 +6,58 @@
 
 GtTexture::~GtTexture()
 {
-    if(texture_id) f->glDeleteTextures(1, &texture_id);
+    if(m_textureId) f->glDeleteTextures(1, &m_textureId);
 }
 
-void GtTexture::setSize(quint32 w, quint32 h)
+void GtTexture::SetSize(quint32 w, quint32 h)
 {
     QSize new_size = QSize(w,h);
-    if(size != new_size) {
-        size = new_size;
-        allocated = false;
+    if(m_size != new_size) {
+        m_size = new_size;
+        m_allocated = false;
     }
 }
 
-void GtTexture::setInternalFormat(gTexInternalFormat internal_format)
+void GtTexture::SetInternalFormat(gTexInternalFormat internal_format)
 {
-    if(this->internal_format != internal_format)
+    if(this->m_internalFormat != internal_format)
     {
-        this->internal_format = internal_format;
-        allocated = false;
+        this->m_internalFormat = internal_format;
+        m_allocated = false;
     }
 }
 
-void GtTexture::bind()
+void GtTexture::Bind()
 {
-    f->glBindTexture(target, texture_id);
+    f->glBindTexture(m_target, m_textureId);
 }
 
-void GtTexture::bind(quint32 unit)
+void GtTexture::Bind(quint32 unit)
 {
     f->glActiveTexture(unit);
-    f->glBindTexture(target, texture_id);
+    f->glBindTexture(m_target, m_textureId);
 }
 
-void GtTexture::release()
+void GtTexture::Release()
 {
-    f->glBindTexture(getTarget(), texture_id);
+    f->glBindTexture(GetTarget(), m_textureId);
 }
 
-bool GtTexture::create()
+bool GtTexture::Create()
 {
 //    Q_ASSERT(QOpenGLContext::currentContext() && (OpenGLFunctions*)QOpenGLContext::currentContext()->functions() == f);
-    if(isCreated())
+    if(IsCreated())
         return true;
-    f->glGenTextures(1, &texture_id);
-    return isCreated();
+    f->glGenTextures(1, &m_textureId);
+    return IsCreated();
 }
 
-bool GtTexture::isValid() const
+bool GtTexture::IsValid() const
 {
-    return texture_id && !size.isNull();
+    return m_textureId && !m_size.isNull();
 }
 
-GtTexture* GtTexture::create(OpenGLFunctions* f, gTexTarget target, gTexInternalFormat internal_format, const SizeI& size, const GtTextureFormat* format)
+GtTexture* GtTexture::Create(OpenGLFunctions* f, gTexTarget target, gTexInternalFormat internal_format, const SizeI& size, const GtTextureFormat* format)
 {
     GtTexture* result = nullptr;
     switch (target) {
@@ -68,9 +68,9 @@ GtTexture* GtTexture::create(OpenGLFunctions* f, gTexTarget target, gTexInternal
         break;
     }
     Q_ASSERT(result);
-    result->setInternalFormat(internal_format);
-    result->setSize(size.width(), size.height());
-    result->allocate(*format);
+    result->SetInternalFormat(internal_format);
+    result->SetSize(size.width(), size.height());
+    result->Allocate(*format);
     return result;
 }
 
@@ -80,9 +80,9 @@ GtTexture2D::GtTexture2D(OpenGLFunctions* f)
 
 }
 
-void GtTexture2D::loadImage(const QString& img_file)
+void GtTexture2D::LoadImg(const QString& img_file)
 {
-    if(!create()) {
+    if(!Create()) {
         qCWarning(LC_SYSTEM) << "Unable to create texture";
         return;
     }
@@ -94,30 +94,30 @@ void GtTexture2D::loadImage(const QString& img_file)
     }
 
     QImage gl_img = img.convertToFormat(QImage::Format_RGBA8888);
-    setSize(img.width(), img.height());
-    setInternalFormat(GL_RGBA);
+    SetSize(img.width(), img.height());
+    SetInternalFormat(GL_RGBA);
     f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GtTextureFormat format;
-    format.pixels = gl_img.constBits();
-    format.pixels_format = GL_RGBA;
-    format.pixels_type = GL_UNSIGNED_BYTE;
-    format.wrap_s = GL_REPEAT;
-    format.wrap_t = GL_REPEAT;
-    allocate(format);
+    format.Pixels = gl_img.constBits();
+    format.PixelFormat = GL_RGBA;
+    format.PixelType = GL_UNSIGNED_BYTE;
+    format.WrapS = GL_REPEAT;
+    format.WrapT = GL_REPEAT;
+    Allocate(format);
 }
 
-void GtTexture2D::load(const QString& dds_file)
+void GtTexture2D::Load(const QString& dds_file)
 {
-    nv_dds::CDDSImage img(f);
-    img.load(dds_file.toStdString());
-    if(create()) {
-        bind();
-        size.setWidth(img.get_width());
-        size.setHeight(img.get_height());
-        internal_format = img.get_components();
-        img.upload_texture2D();
-        allocated = true;
-        release();
+    nv_dds::DDSImage img(f);
+    img.Load(dds_file.toStdString());
+    if(Create()) {
+        Bind();
+        m_size.setWidth(img.GetWidth());
+        m_size.setHeight(img.GetHeight());
+        m_internalFormat = img.GetComponents();
+        img.UploadTexture2D();
+        m_allocated = true;
+        Release();
     }
 }
 
@@ -127,20 +127,20 @@ void GtTexture2D::bindTexture(OpenGLFunctions* f, gTexUnit unit, gTexID id)
     f->glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void GtTexture2D::allocate(const GtTextureFormat& format)
+void GtTexture2D::Allocate(const GtTextureFormat& format)
 {
-    if(isCreated() || create()) {
+    if(IsCreated() || Create()) {
         GtTextureBinder binder(this);
-        if(!allocated) {
-            f->glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size.width(), size.height(), 0, format.pixels_format, format.pixels_type, format.pixels);
-            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, format.min_filter);
-            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, format.mag_filter);
-            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format.wrap_s);
-            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format.wrap_t);
-            allocated = true;
+        if(!m_allocated) {
+            f->glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_size.width(), m_size.height(), 0, format.PixelFormat, format.PixelType, format.Pixels);
+            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, format.MinFilter);
+            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, format.MagFilter);
+            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format.WrapS);
+            f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format.WrapT);
+            m_allocated = true;
         }
         else {
-            f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.width(), size.height(), format.pixels_format, format.pixels_type, format.pixels);
+            f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_size.width(), m_size.height(), format.PixelFormat, format.PixelType, format.Pixels);
         }
     }
 }
@@ -148,15 +148,15 @@ void GtTexture2D::allocate(const GtTextureFormat& format)
 
 GtTexture2DMultisampled::GtTexture2DMultisampled(OpenGLFunctions* f, quint32 samples)
     : GtTexture(f, GL_TEXTURE_2D_MULTISAMPLE)
-    , samples(samples)
+    , m_samples(samples)
 {
     Q_ASSERT(samples > 1 && (samples % 2) == 0);
 }
 
-void GtTexture2DMultisampled::allocate(const GtTextureFormat&)
+void GtTexture2DMultisampled::Allocate(const GtTextureFormat&)
 {
-    if(isCreated() || create()) {
+    if(IsCreated() || Create()) {
         GtTextureBinder binder(this);
-        f->glTexImage2DMultisample(GL_TEXTURE_2D, samples, internal_format, size.width(), size.height(), true);
+        f->glTexImage2DMultisample(GL_TEXTURE_2D, m_samples, m_internalFormat, m_size.width(), m_size.height(), true);
     }
 }

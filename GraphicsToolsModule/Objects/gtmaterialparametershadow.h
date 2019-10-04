@@ -8,10 +8,10 @@ class GtShadowMapTechnique;
 class GtMaterialParameterShadow : public GtMaterialParameterTextureBase
 {
     typedef GtMaterialParameterTextureBase Super;
-    ScopedPointer<GtShadowMapTechniqueResource> technique;
+    ScopedPointer<GtShadowMapTechniqueResource> m_technique;
     // GtObjectBase interface
 public:
-    GtMaterialParameterShadow(const QString& name, const QString& resource);
+    GtMaterialParameterShadow(const QString& m_name, const QString& m_resource);
 
 private:
     virtual FDelegate apply() Q_DECL_OVERRIDE;

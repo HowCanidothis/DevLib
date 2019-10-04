@@ -12,33 +12,35 @@ public:
     GtMeshBase(gRenderType type);
     virtual ~GtMeshBase();
 
-    bool isVisible() const { return visible; }
-    void update();
-    virtual void initialize(OpenGLFunctions* functions);
+    bool IsVisible() const { return m_visible; }
+    void Update();
 
-    virtual void draw(OpenGLFunctions* f);
+    virtual void Initialize(OpenGLFunctions* functions);
+    virtual void Draw(OpenGLFunctions* f);
+
 protected:
     #pragma pack(1)
     struct TexturedVertex2F
     {
-        Point2F position;
-        Point2F tex_coord;
+        Point2F Position;
+        Point2F TexCoord;
     };
 
     struct ColoredVertex2F
     {
-        Point2F position;
-        Color3F color;
+        Point2F Position;
+        Color3F Color;
     };
     #pragma pack()
 
-    ScopedPointer<QOpenGLBuffer> vbo;
-    ScopedPointer<QOpenGLVertexArrayObject> vao;
+    ScopedPointer<QOpenGLBuffer> m_vbo;
+    ScopedPointer<QOpenGLVertexArrayObject> m_vao;
 
-    qint32 vertices_count;
-    gRenderType render_type;
+    qint32 m_verticesCount;
+    gRenderType m_renderType;
 
-    bool visible;
+    bool m_visible;
+
 protected:
     virtual bool buildMesh() = 0;
     virtual void bindVAO(OpenGLFunctions*)=0;
@@ -50,14 +52,14 @@ public:
     GtMeshIndicesBase(gRenderType type, gIndicesType itype);
     ~GtMeshIndicesBase();
 
-    virtual void initialize(OpenGLFunctions* functions) final;
+    virtual void Initialize(OpenGLFunctions* functions) final;
+    virtual void Draw(OpenGLFunctions* f) final;
 
-    virtual void draw(OpenGLFunctions* f) final;
 protected:
-    ScopedPointer<QOpenGLBuffer> vbo_indices;
+    ScopedPointer<QOpenGLBuffer> m_vboIndices;
 
-    qint32 indices_count;
-    gIndicesType indices_type;
+    qint32 m_indicesCount;
+    gIndicesType m_indicesType;
 };
 
 #endif // GTMESH_H

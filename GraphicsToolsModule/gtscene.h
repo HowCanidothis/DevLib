@@ -7,13 +7,13 @@ class GtActor;
 
 class GtScene
 {
-    ArrayPointers<GtActor> objects;
+    ArrayPointers<GtActor> m_objects;
 
 public:
     GtScene();
     ~GtScene();
 
-    void addObject(GtActor* object);
+    void AddObject(GtActor* object);
 };
 
 #endif // GTSCENE_H

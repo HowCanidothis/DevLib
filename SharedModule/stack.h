@@ -7,8 +7,6 @@
 #include "namingconvention.h"
 #include "SharedModule/shared_decl.h"
 
-using namespace std;
-
 template<class T>
 class StackData
 {

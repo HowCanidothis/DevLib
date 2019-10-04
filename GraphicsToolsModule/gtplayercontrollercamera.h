@@ -25,8 +25,8 @@ private:
     Point2I resolutional(const Point2I& p) const;
 
 protected:
-    Point3F _lastPlanePosition;
-    Point2I _lastScreenPosition;
+    Point3F m_lastPlanePosition;
+    Point2I m_lastScreenPosition;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H

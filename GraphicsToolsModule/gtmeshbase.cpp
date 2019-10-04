@@ -4,9 +4,9 @@
 #include <QOpenGLBuffer>
 
 GtMeshBase::GtMeshBase(gRenderType type)
-    : vertices_count(0)
-    , render_type(type)
-    , visible(true)
+    : m_verticesCount(0)
+    , m_renderType(type)
+    , m_visible(true)
 {
 
 }
@@ -15,36 +15,36 @@ GtMeshBase::~GtMeshBase()
 {
 }
 
-void GtMeshBase::update()
+void GtMeshBase::Update()
 {
-    visible = buildMesh();
+    m_visible = buildMesh();
 }
 
-void GtMeshBase::initialize(OpenGLFunctions* f)
+void GtMeshBase::Initialize(OpenGLFunctions* f)
 {
-    vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vao = new QOpenGLVertexArrayObject();
+    m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    m_vao = new QOpenGLVertexArrayObject();
 
-    if(vbo->create() && vao->create()) {
-        visible = buildMesh();
-        QOpenGLVertexArrayObject::Binder binder(vao.data());
+    if(m_vbo->create() && m_vao->create()) {
+        m_visible = buildMesh();
+        QOpenGLVertexArrayObject::Binder binder(m_vao.data());
         bindVAO(f);
     }
     else {
-        visible = false;
+        m_visible = false;
     }
 }
 
-void GtMeshBase::draw(OpenGLFunctions* f)
+void GtMeshBase::Draw(OpenGLFunctions* f)
 {
-    QOpenGLVertexArrayObject::Binder binder(vao.data());
-    f->glDrawArrays(render_type, 0, vertices_count);
+    QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+    f->glDrawArrays(m_renderType, 0, m_verticesCount);
 }
 
 GtMeshIndicesBase::GtMeshIndicesBase(gRenderType type, gIndicesType itype)
     : GtMeshBase(type)
-    , indices_count(0)
-    , indices_type(itype)
+    , m_indicesCount(0)
+    , m_indicesType(itype)
 {
 
 }
@@ -53,26 +53,26 @@ GtMeshIndicesBase::~GtMeshIndicesBase()
 {
 }
 
-void GtMeshIndicesBase::initialize(OpenGLFunctions* f)
+void GtMeshIndicesBase::Initialize(OpenGLFunctions* f)
 {
-    vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vbo_indices = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
-    vao = new QOpenGLVertexArrayObject();
+    m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    m_vboIndices = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
+    m_vao = new QOpenGLVertexArrayObject();
 
-    if(vbo->create() && vbo_indices->create() && vao->create()) {
-        visible = buildMesh();
-        QOpenGLVertexArrayObject::Binder binder(vao.data());
+    if(m_vbo->create() && m_vboIndices->create() && m_vao->create()) {
+        m_visible = buildMesh();
+        QOpenGLVertexArrayObject::Binder binder(m_vao.data());
         bindVAO(f);
     }
     else {
-        visible = false;
+        m_visible = false;
     }
 }
 
-void GtMeshIndicesBase::draw(OpenGLFunctions* f)
+void GtMeshIndicesBase::Draw(OpenGLFunctions* f)
 {
-    vao->bind();
-    vbo_indices->bind();
-    f->glDrawElements(render_type, indices_count, indices_type, (const void*)0);
-    vao->release();
+    m_vao->bind();
+    m_vboIndices->bind();
+    f->glDrawElements(m_renderType, m_indicesCount, m_indicesType, (const void*)0);
+    m_vao->release();
 }

@@ -4,9 +4,9 @@
 
 GtMeshGrid::GtMeshGrid(qint32 width, qint32 height, qint32 sections)
     : GtMeshBase(GL_TRIANGLES)
-    , _width(width)
-    , _height(height)
-    , _sections(sections)
+    , m_width(width)
+    , m_height(height)
+    , m_sections(sections)
 
 {
 
@@ -57,12 +57,12 @@ bool GtMeshGrid::buildMesh()
 
     /**/
     /**/
-    qint32 sectionsPlusOne = _sections + 1;
-    float hStep = float(_height) / _sections;
-    float wStep = float(_width) / _sections;
+    qint32 sectionsPlusOne = m_sections + 1;
+    float hStep = float(m_height) / m_sections;
+    float wStep = float(m_width) / m_sections;
 
-    vertices_count = _sections * _sections * 6;
-    ColoredVertex2F* vertices = new ColoredVertex2F[vertices_count];
+    m_verticesCount = m_sections * m_sections * 6;
+    ColoredVertex2F* vertices = new ColoredVertex2F[m_verticesCount];
 
     bool white = false;
     auto getColor = [&white]() {
@@ -84,9 +84,9 @@ bool GtMeshGrid::buildMesh()
         }
     }
 
-    vbo->bind();
-    vbo->allocate(vertices, vertices_count * sizeof(ColoredVertex2F));
-    vbo->release();
+    m_vbo->bind();
+    m_vbo->allocate(vertices, m_verticesCount * sizeof(ColoredVertex2F));
+    m_vbo->release();
 
     delete [] vertices;
     /**/
@@ -95,7 +95,7 @@ bool GtMeshGrid::buildMesh()
 
 void GtMeshGrid::bindVAO(OpenGLFunctions* f)
 {
-    vbo->bind();
+    m_vbo->bind();
     f->glEnableVertexAttribArray(0);
     f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(ColoredVertex2F),nullptr);
     f->glEnableVertexAttribArray(1);

@@ -6,9 +6,9 @@ GtObjectTerrain::GtObjectTerrain()
 
 }
 
-void GtObjectTerrain::initialize(OpenGLFunctions* f)
+void GtObjectTerrain::Initialize(OpenGLFunctions* f)
 {
-    Q_ASSERT(surface_mesh.data());
-    surface_mesh = new GtMeshSurface(3000, 2400, 320);
-    surface_mesh->initialize(f);
+    Q_ASSERT(m_surfaceMesh.data());
+    m_surfaceMesh = new GtMeshSurface(3000, 2400, 320);
+    m_surfaceMesh->Initialize(f);
 }

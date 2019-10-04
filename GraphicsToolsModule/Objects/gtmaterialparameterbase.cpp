@@ -6,15 +6,15 @@
 #include "../gttexture2D.h"
 
 GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const QString& resource)
-    : name(name)
-    , resource(resource)
+    : m_name(name)
+    , m_resource(resource)
 {
 
 }
 
 GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const GtMaterialParameterBase::FDelegate& delegate)
-    : name(name)
-    , delegate(delegate)
+    : m_name(name)
+    , m_delegate(delegate)
 {
 
 }
@@ -26,23 +26,23 @@ GtMaterialParameterBase::~GtMaterialParameterBase()
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
 {
-    return delegate;
+    return m_delegate;
 }
 
 void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
 {
-    location = program->uniformLocation(name);
-    if(location == -1) {
-        qCWarning(LC_SYSTEM) << "location not found" << name;
+    m_location = program->uniformLocation(m_name);
+    if(m_location == -1) {
+        qCWarning(LC_SYSTEM) << "location not found" << m_name;
     }
 }
 
 void GtMaterialParameterBase::bind(QOpenGLShaderProgram* program, OpenGLFunctions* f)
 {
-    delegate(program, location, f);
+    m_delegate(program, m_location, f);
 }
 
 void GtMaterialParameterBase::installDelegate()
 {
-    this->delegate = apply();
+    this->m_delegate = apply();
 }

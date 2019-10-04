@@ -32,29 +32,29 @@ enum TextureType {
     #define GL_BGRA_EXT                       0x80E1
 #endif
 
-class CSurface {
+class DDSSurface {
 public:
-    CSurface();
-    CSurface(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t *pixels);
-    CSurface(const CSurface &copy);
-    CSurface &operator=(const CSurface &rhs);
-    virtual ~CSurface();
+    DDSSurface();
+    DDSSurface(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t* pixels);
+    DDSSurface(const DDSSurface& copy);
+    DDSSurface& operator=(const DDSSurface& rhs);
+    virtual ~DDSSurface();
 
     operator uint8_t*() const;
 
-    virtual void create(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t *pixels);
-    virtual void clear();
+    virtual void Create(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t* pixels);
+    virtual void Clear();
 
-    unsigned int get_width() const {
+    unsigned int GetWidth() const {
         return m_width;
     }
-    unsigned int get_height() const {
+    unsigned int GetHeight() const {
         return m_height;
     }
-    unsigned int get_depth() const {
+    unsigned int GetDepth() const {
         return m_depth;
     }
-    unsigned int get_size() const {
+    unsigned int GetSize() const {
         return m_size;
     }
 
@@ -64,39 +64,39 @@ private:
     unsigned int m_depth;
     unsigned int m_size;
 
-    uint8_t *m_pixels;
+    uint8_t* m_pixels;
 };
 
-class CTexture: public CSurface {
-    friend class CDDSImage;
+class DDSTexture: public DDSSurface {
+    friend class DDSImage;
 
 public:
-    CTexture();
-    CTexture(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t *pixels);
-    CTexture(const CTexture &copy);
-    CTexture &operator=(const CTexture &rhs);
-    ~CTexture();
+    DDSTexture();
+    DDSTexture(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t* pixels);
+    DDSTexture(const DDSTexture& copy);
+    DDSTexture& operator=(const DDSTexture& rhs);
+    ~DDSTexture();
 
-    void create(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t *pixels);
-    void clear();
+    void Create(unsigned int w, unsigned int h, unsigned int d, unsigned int imgsize, const uint8_t* pixels);
+    void Clear();
 
-    const CSurface &get_mipmap(unsigned int index) const {
+    const DDSSurface& GetMipmap(unsigned int index) const {
         assert(!m_mipmaps.empty());
         assert(index < m_mipmaps.size());
 
         return m_mipmaps[index];
     }
 
-    void add_mipmap(const CSurface &mipmap) {
+    void AddMipmap(const DDSSurface &mipmap) {
         m_mipmaps.push_back(mipmap);
     }
 
-    unsigned int get_num_mipmaps() const {
+    unsigned int GetNumMipmaps() const {
         return (unsigned int) m_mipmaps.size();
     }
 
 protected:
-    CSurface &get_mipmap(unsigned int index) {
+    DDSSurface& GetMipmap(unsigned int index) {
         assert(!m_mipmaps.empty());
         assert(index < m_mipmaps.size());
 
@@ -104,37 +104,37 @@ protected:
     }
 
 private:
-    std::deque<CSurface> m_mipmaps;
+    std::deque<DDSSurface> m_mipmaps;
 };
 
-class CDDSImage {
+class DDSImage {
 public:
-    CDDSImage(OpenGLFunctions* f);
-    ~CDDSImage();
+    DDSImage(OpenGLFunctions* f);
+    ~DDSImage();
 
-    void create_textureFlat(unsigned int format, unsigned int components, const CTexture &baseImage);
-    void create_texture3D(unsigned int format, unsigned int components, const CTexture &baseImage);
-    void create_textureCubemap(unsigned int format, unsigned int components, const CTexture &positiveX, const CTexture &negativeX, const CTexture &positiveY,
-            const CTexture &negativeY, const CTexture &positiveZ, const CTexture &negativeZ);
+    void CreateTextureFlat(unsigned int format, unsigned int components, const DDSTexture &baseImage);
+    void CreateTexture3D(unsigned int format, unsigned int components, const DDSTexture &baseImage);
+    void CreateTextureCubemap(unsigned int format, unsigned int components, const DDSTexture &positiveX, const DDSTexture &negativeX, const DDSTexture &positiveY,
+            const DDSTexture &negativeY, const DDSTexture &positiveZ, const DDSTexture &negativeZ);
 
-    void clear();
+    void Clear();
 
-    void load(std::istream& is, bool flipImage = true);
-    void load(const std::string& filename, bool flipImage = true);
-    void save(const std::string& filename, bool flipImage = true);
+    void Load(std::istream& is, bool flipImage = true);
+    void Load(const std::string& filename, bool flipImage = true);
+    void Save(const std::string& filename, bool flipImage = true);
 
 #ifndef NV_DDS_NO_GL_SUPPORT
 #if !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0)
-    void upload_texture1D();
+    void UploadTexture1D();
 #endif
 
-    void upload_texture2D(uint32_t imageIndex = 0, uint32_t target = GL_TEXTURE_2D);
+    void UploadTexture2D(uint32_t imageIndex = 0, uint32_t target = GL_TEXTURE_2D);
 
 #ifndef GL_ES_VERSION_2_0
-    void upload_texture3D();
+    void UploadTexture3D();
 #endif
 
-    void upload_textureCubemap();
+    void UploadTextureCubemap();
 #endif
 
     operator uint8_t*() {
@@ -144,50 +144,50 @@ public:
         return m_images[0];
     }
 
-    unsigned int get_width() {
+    unsigned int GetWidth() {
         assert(m_valid);
         assert(!m_images.empty());
 
-        return m_images[0].get_width();
+        return m_images[0].GetWidth();
     }
 
-    unsigned int get_height() {
+    unsigned int GetHeight() {
         assert(m_valid);
         assert(!m_images.empty());
 
-        return m_images[0].get_height();
+        return m_images[0].GetHeight();
     }
 
-    unsigned int get_depth() {
+    unsigned int GetDepth() {
         assert(m_valid);
         assert(!m_images.empty());
 
-        return m_images[0].get_depth();
+        return m_images[0].GetDepth();
     }
 
-    unsigned int get_size() {
+    unsigned int GetSize() {
         assert(m_valid);
         assert(!m_images.empty());
 
-        return m_images[0].get_size();
+        return m_images[0].GetSize();
     }
 
-    unsigned int get_num_mipmaps() {
+    unsigned int GetNumMipmaps() {
         assert(m_valid);
         assert(!m_images.empty());
 
-        return m_images[0].get_num_mipmaps();
+        return m_images[0].GetNumMipmaps();
     }
 
-    const CSurface &get_mipmap(unsigned int index) const {
+    const DDSSurface& GetMipmap(unsigned int index) const {
         assert(m_valid);
         assert(!m_images.empty());
-        assert(index < m_images[0].get_num_mipmaps());
+        assert(index < m_images[0].GetNumMipmaps());
 
-        return m_images[0].get_mipmap(index);
+        return m_images[0].GetMipmap(index);
     }
 
-    const CTexture &get_cubemap_face(unsigned int face) const {
+    const DDSTexture &GetCubemapFace(unsigned int face) const {
         assert(m_valid);
         assert(!m_images.empty());
         assert(m_images.size() == 6);
@@ -197,58 +197,58 @@ public:
         return m_images[face];
     }
 
-    unsigned int get_components() {
+    unsigned int GetComponents() {
         return m_components;
     }
-    unsigned int get_format() {
+    unsigned int GetFormat() {
         return m_format;
     }
-    TextureType get_type() {
+    TextureType GetType() {
         return m_type;
     }
 
-    bool is_compressed();
+    bool IsCompressed();
 
-    bool is_cubemap() {
+    bool IsCubemap() {
         return (m_type == TextureCubemap);
     }
-    bool is_volume() {
+    bool IsVolume() {
         return (m_type == Texture3D);
     }
-    bool is_valid() {
+    bool IsValid() {
         return m_valid;
     }
 
-    bool is_dword_aligned() {
+    bool IsDwordAligned() {
         assert(m_valid);
 
-        int dwordLineSize = get_dword_aligned_linesize(get_width(), m_components * 8);
-        int curLineSize = get_width() * m_components;
+        int dwordLineSize = getDwordAlignedLinesize(GetWidth(), m_components * 8);
+        int curLineSize = GetWidth() * m_components;
 
         return (dwordLineSize == curLineSize);
     }
 
 private:
-    unsigned int clamp_size(unsigned int size);
-    unsigned int size_dxtc(unsigned int width, unsigned int height);
-    unsigned int size_rgb(unsigned int width, unsigned int height);
+    unsigned int clampSize(unsigned int size);
+    unsigned int sizeDxtc(unsigned int width, unsigned int height);
+    unsigned int sizeRgb(unsigned int width, unsigned int height);
 
     // calculates 4-byte aligned width of image
-    unsigned int get_dword_aligned_linesize(unsigned int width, unsigned int bpp) {
+    unsigned int getDwordAlignedLinesize(unsigned int width, unsigned int bpp) {
         return ((width * bpp + 31) & -32) >> 3;
     }
 
-    void flip(CSurface &surface);
-    void flip_texture(CTexture &texture);
+    void flip(DDSSurface &surface);
+    void flipTexture(DDSTexture &texture);
 
-    void write_texture(const CTexture &texture, std::ostream& os);
+    void writeTexture(const DDSTexture &texture, std::ostream& os);
 
     unsigned int m_format;
     unsigned int m_components;
     TextureType m_type;
     bool m_valid;
 
-    std::deque<CTexture> m_images;
+    std::deque<DDSTexture> m_images;
 
     OpenGLFunctions* f;
 };

@@ -17,10 +17,11 @@ class GtFrameTexture
     OpenGLFunctions* f;
     ScopedPointer<GtTexture2D> output_texture;
     const cv::Mat* input;
-    GtTextureFormat gl_format;
+    GtTextureFormat m_glFormat;
 
     gLocID loc_sampler0;
     gLocID loc_resolution;
+
 public:
     GtFrameTexture(OpenGLFunctions* f);
     ~GtFrameTexture();
@@ -32,6 +33,7 @@ public:
     GtTexture2D* getOutput() { return output_texture.data(); }
 
     void update();
+
     // GtComputeNodeBase interface
 protected:
     bool onInputChanged(const cv::Mat* input);

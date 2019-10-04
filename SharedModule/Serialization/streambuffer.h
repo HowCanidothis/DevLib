@@ -46,6 +46,7 @@ public:
 
     int32_t GetVersion() const { return _version; }
     bool IsValid() const { return _isValid; }
+    bool IsGood() const { return _stream.good(); }
 
     Stream& GetStream() { return _stream; }
 

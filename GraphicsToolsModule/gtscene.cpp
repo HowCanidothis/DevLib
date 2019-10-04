@@ -11,7 +11,7 @@ GtScene::~GtScene()
 
 }
 
-void GtScene::addObject(GtActor* object)
+void GtScene::AddObject(GtActor* object)
 {
-    objects.Append(object);
+    m_objects.Append(object);
 }

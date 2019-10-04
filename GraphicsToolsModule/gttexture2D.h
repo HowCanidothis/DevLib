@@ -5,14 +5,14 @@
 
 struct GtTextureFormat
 {
-    quint32 min_filter = GL_NEAREST;
-    quint32 mag_filter = GL_NEAREST;
-    quint32 wrap_s = GL_CLAMP_TO_EDGE;
-    quint32 wrap_t = GL_CLAMP_TO_EDGE;
+    quint32 MinFilter = GL_NEAREST;
+    quint32 MagFilter = GL_NEAREST;
+    quint32 WrapS = GL_CLAMP_TO_EDGE;
+    quint32 WrapT = GL_CLAMP_TO_EDGE;
 
-    gPixFormat pixels_format = GL_RGBA;
-    gPixType pixels_type = GL_FLOAT;
-    const void* pixels = nullptr;
+    gPixFormat PixelFormat = GL_RGBA;
+    gPixType PixelType = GL_FLOAT;
+    const void* Pixels = nullptr;
 };
 Q_DECLARE_TYPEINFO(GtTextureFormat, Q_PRIMITIVE_TYPE);
 
@@ -21,38 +21,39 @@ class GtTexture
 public:
     GtTexture(OpenGLFunctions* f, gTexTarget target)
         : f(f)
-        , texture_id(0)
-        , internal_format(0)
-        , target(target)
-        , allocated(false)
+        , m_textureId(0)
+        , m_internalFormat(0)
+        , m_target(target)
+        , m_allocated(false)
     {}
     ~GtTexture();
 
-    void setSize(quint32 w, quint32 h);
-    void setInternalFormat(gTexInternalFormat internal_format);
+    void SetSize(quint32 w, quint32 h);
+    void SetInternalFormat(gTexInternalFormat m_internalFormat);
 
-    void bind();
-    void bind(quint32 unit);
+    void Bind();
+    void Bind(quint32 unit);
 
-    void release();
+    void Release();
 
-    bool create();
-    bool isCreated() const { return texture_id != 0; }
-    bool isValid() const;
+    bool Create();
+    bool IsCreated() const { return m_textureId != 0; }
+    bool IsValid() const;
 
-    const QSize& getSize() const { return size; }
-    gTexTarget getTarget() const { return target; }
-    gTexID getID() const { return texture_id; }
+    const QSize& GetSize() const { return m_size; }
+    gTexTarget GetTarget() const { return m_target; }
+    gTexID GetId() const { return m_textureId; }
 
-    virtual void allocate(const GtTextureFormat& format = GtTextureFormat())=0;
-    static GtTexture* create(OpenGLFunctions* f, gTexTarget target, gTexInternalFormat internal_format, const SizeI& size, const GtTextureFormat* format);
+    virtual void Allocate(const GtTextureFormat& format = GtTextureFormat())=0;
+    static GtTexture* Create(OpenGLFunctions* f, gTexTarget m_target, gTexInternalFormat m_internalFormat, const SizeI& m_size, const GtTextureFormat* format);
+
 protected:
     OpenGLFunctions* f;
-    gTexID texture_id;
-    gTexInternalFormat internal_format;
-    gTexTarget target;
-    bool allocated;
-    QSize size;
+    gTexID m_textureId;
+    gTexInternalFormat m_internalFormat;
+    gTexTarget m_target;
+    bool m_allocated;
+    QSize m_size;
 };
 
 class GtTexture2D : public GtTexture
@@ -60,35 +61,37 @@ class GtTexture2D : public GtTexture
 public:
     GtTexture2D(OpenGLFunctions *f);
 
-    void loadImage(const QString& img_file);
-    void load(const QString& dds_file);
+    void LoadImg(const QString& img_file);
+    void Load(const QString& dds_file);
     static void bindTexture(OpenGLFunctions* f, gTexUnit unit, gTexID id);
-    void allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+    void Allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+
 private:
 };
 
 class GtTexture2DMultisampled : public GtTexture
 {
 public:
-    GtTexture2DMultisampled(OpenGLFunctions* f, quint32 samples);
+    GtTexture2DMultisampled(OpenGLFunctions* f, quint32 m_samples);
 
-    void allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+    void Allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+
 private:
-    quint32 samples;
+    quint32 m_samples;
 };
 
 class GtTextureBinder
 {
-    GtTexture* texture;
+    GtTexture* m_texture;
 public:
     explicit GtTextureBinder(GtTexture* texture) Q_DECL_NOEXCEPT
-        : texture(texture)
+        : m_texture(texture)
     {
-        texture->bind();
+        texture->Bind();
     }
     ~GtTextureBinder()
     {
-        texture->release();
+        m_texture->Release();
     }
 };
 

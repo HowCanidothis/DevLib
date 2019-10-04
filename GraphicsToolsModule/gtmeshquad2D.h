@@ -5,9 +5,9 @@
 class GtMeshQuad2D : public GtMeshBase
 {
     GtMeshQuad2D(OpenGLFunctions* f);
-public:
 
-    static GtMeshQuad2D* instance(OpenGLFunctions* f);
+public:
+    static GtMeshQuad2D* Instance(OpenGLFunctions* f);
 
     // GtMeshBase interface
 protected:

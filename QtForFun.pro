@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    DatabaseBrowser \
+    DBusListener \
+#    DatabaseBrowser \
 #    Sandbox \
 #    FlexFluidRefactoring \
 #    PropertiesSystem \

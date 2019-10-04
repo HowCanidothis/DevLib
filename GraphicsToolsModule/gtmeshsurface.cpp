@@ -5,9 +5,9 @@
 
 GtMeshSurface::GtMeshSurface(qint32 width, qint32 height, qint32 sections)
     : GtMeshIndicesBase(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT)
-    , width(width)
-    , height(height)
-    , sections(sections)
+    , m_width(width)
+    , m_height(height)
+    , m_sections(sections)
 
 {
 
@@ -29,24 +29,24 @@ bool GtMeshSurface::buildMesh()
      *  w - real width
      *  h - real height
     */
-    qint32 sections_plus_one = sections + 1;
-    qint32 sections_minus_one = sections - 1;
+    qint32 sections_plus_one = m_sections + 1;
+    qint32 sections_minus_one = m_sections - 1;
 
-    vertices_count = pow(sections_plus_one, 2);
-    qint32 indexes_without_degenerate_count = sections * (2 * sections + 2);
-    indices_count = indexes_without_degenerate_count + (2 * sections - 2);
+    m_verticesCount = pow(sections_plus_one, 2);
+    qint32 indexes_without_degenerate_count = m_sections * (2 * m_sections + 2);
+    m_indicesCount = indexes_without_degenerate_count + (2 * m_sections - 2);
 
-    TexturedVertex2F* vertices = new TexturedVertex2F[vertices_count];
-    qint32* indices = new qint32[indices_count];
+    TexturedVertex2F* vertices = new TexturedVertex2F[m_verticesCount];
+    qint32* indices = new qint32[m_indicesCount];
 
     //        QVector<SurfaceVertex> vp(vertices_count);
     //        QVector<qint32> vi(indices_count);
     //        vertices = vp.data();
     //        indices = vi.data();
 
-    float h_step = float(width) / sections;
-    float v_step = float(height) / sections;
-    float tex_step = 1.f / sections;
+    float h_step = float(m_width) / m_sections;
+    float v_step = float(m_height) / m_sections;
+    float tex_step = 1.f / m_sections;
 
     for(qint32 i(0); i < sections_plus_one; i++) {
         for(qint32 j(0); j < sections_plus_one; j++) {
@@ -68,15 +68,15 @@ bool GtMeshSurface::buildMesh()
     qint32 offset = sections_minus_one * sections_plus_one;
     for(qint32 i(0); i < sections_plus_one; i++) {
         *indexed_ptr++ = i + offset;
-        *indexed_ptr++ = i + sections * sections_plus_one;
+        *indexed_ptr++ = i + m_sections * sections_plus_one;
     }
-    vbo->bind();
-    vbo->allocate(vertices, vertices_count * sizeof(TexturedVertex2F));
-    vbo->release();
+    m_vbo->bind();
+    m_vbo->allocate(vertices, m_verticesCount * sizeof(TexturedVertex2F));
+    m_vbo->release();
 
-    vbo_indices->bind();
-    vbo_indices->allocate(indices, indices_count * sizeof(qint32));
-    vbo_indices->release();
+    m_vboIndices->bind();
+    m_vboIndices->allocate(indices, m_indicesCount * sizeof(qint32));
+    m_vboIndices->release();
 
     delete [] vertices;
     delete [] indices;
@@ -86,7 +86,7 @@ bool GtMeshSurface::buildMesh()
 
 void GtMeshSurface::bindVAO(OpenGLFunctions* f)
 {
-    vbo->bind();
+    m_vbo->bind();
     f->glEnableVertexAttribArray(0);
     f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(TexturedVertex2F),nullptr);
     f->glEnableVertexAttribArray(1);

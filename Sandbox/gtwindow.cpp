@@ -1,24 +1,15 @@
 #include "gtwindow.h"
 #include "ui_gtwindow.h"
-#include "ComputeGraphModule/inputframestream.h"
-#include <QComboBox>
 
+#include <QComboBox>
+#include <QOpenGLDebugLogger>
 #include <QKeyEvent>
 
-#include "GraphicsToolsModule/gtcamera.h"
+#include <ComputeGraphModule/internal.hpp>
+#include <GraphicsToolsModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
+
 #include "computenodestreemodel.h"
-#include "ComputeGraphModule/computegraphcore.h"
-#include "ComputeGraphModule/computenodedepthfakesensor.h"
-#include "ComputeGraphModule/computenodedelay.h"
-#include "ComputeGraphModule/computenodevolcanorecognition.h"
-#include "ComputeGraphModule/computenodeblur.h"
-#include "ComputeGraphModule/computenodedepthsensor.h"
-
-#include "PropertiesModule/propertieswindow.h"
-
-#include <QOpenGLDebugLogger>
-
-#include "SharedModule/external/qtqssreader.h"
 
 GtWindow::GtWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,14 +22,14 @@ GtWindow::GtWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    full_screen.OnChange() = [this]{
+    full_screen.Subscribe([this]{
         if(full_screen) {
             this->showFullScreenInternal(ui->glout1);
         }
         else {
             this->showNormalInternal(ui->glout1);
         }
-    };
+    });
 
     QOpenGLDebugLogger* gllogger = new QOpenGLDebugLogger(this);
     connect(gllogger, &QOpenGLDebugLogger::messageLogged, [=](const QOpenGLDebugMessage& message){
@@ -111,7 +102,7 @@ void GtWindow::setCommonCamera(GtCamera* cam)
     ui->glout1->setCamera(cam);
     ui->glout2->setCamera(cam);
 
-    cam->installObserver("camera");
+    cam->InstallObserver("camera");
 
     calibration_widget->LoadDefault();
 }

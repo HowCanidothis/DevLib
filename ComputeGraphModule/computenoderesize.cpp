@@ -7,8 +7,8 @@ ComputeNodeResize::ComputeNodeResize(const QString& name)
     , _width(Name(name+"/width"), 64, 1, 600)
     , _height(Name(name+"/height"), 64, 1, 600)
 {
-    _width.OnChange() = [this]{ updateLater(); };
-    _height.OnChange() = [this]{ updateLater(); };
+    _width.Subscribe([this]{ updateLater(); });
+    _height.Subscribe([this]{ updateLater(); });
 }
 
 bool ComputeNodeResize::onInputChanged(const cv::Mat* input)

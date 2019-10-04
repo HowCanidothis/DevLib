@@ -50,6 +50,36 @@ struct Serializer<QString>
     }
 };
 
+template<class T>
+struct Serializer<QSet<T>>
+{
+    typedef QSet<T> target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        qint32 size = data.size();
+        buffer << size;
+        for(const T& value : data) {
+            buffer << value;
+        }
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        qint32 size;
+        buffer << size;
+        if(size) {
+            data.reserve(size);
+            while(size--) {
+                T value;
+                buffer << value;
+                data.insert(value);
+            }
+        }
+    }
+};
+
 template<>
 struct Serializer<QDateTime>
 {
@@ -91,6 +121,27 @@ struct Serializer<QVector<T>>
         for(T& value : type) {
             buffer << value;
         }
+    }
+};
+
+template<>
+struct Serializer<QByteArray>
+{
+    typedef QByteArray Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        qint32 size = type.size();
+        buffer << size;
+        buffer << PlainData(type.data(), size);
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        qint32 size;
+        buffer << size;
+        type.resize(size);
+        buffer << PlainData(type.data(), size);
     }
 };
 

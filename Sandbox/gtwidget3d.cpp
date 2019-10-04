@@ -119,22 +119,22 @@ void GtWidget3D::initializeGL()
 
     ResourcesSystem::RegisterResource("shadow_map_technique",[this]{
         GtShadowMapTechnique* result = new GtShadowMapTechnique(this, SizeI(1024,1024));
-        result->create();
+        result->Create();
         return result;
     });
     ResourcesSystem::RegisterResource("sand_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
-        result->loadImage("sand2");
+        result->LoadImg("sand2");
         return result;
     });
     ResourcesSystem::RegisterResource("grass_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
-        result->loadImage("grass2");
+        result->LoadImg("grass2");
         return result;
     });
     ResourcesSystem::RegisterResource("mountain_tex", [this]{
         GtTexture2D* result = new GtTexture2D(this);
-        result->loadImage("mountain2");
+        result->LoadImg("mountain2");
         return result;
     });
     ResourcesSystem::RegisterResource("mvp", [this]{
@@ -150,30 +150,30 @@ void GtWidget3D::initializeGL()
     MVP_shadow = ResourcesSystem::GetResource<Matrix4>("mvp_shadow");
 
     surface_mesh = new GtMeshSurface(3000, 2400, 320);
-    surface_mesh->initialize(this);
+    surface_mesh->Initialize(this);
 
     surface_material = new GtMaterial();
-    surface_material->addMesh(surface_mesh.data());
+    surface_material->AddMesh(surface_mesh.data());
 
-    surface_material->addParameter(new GtMaterialParameterTexture("SandTex", "sand_tex"));
-    surface_material->addParameter(new GtMaterialParameterTexture("GrassTex", "grass_tex"));
-    surface_material->addParameter(new GtMaterialParameterTexture("MountainTex", "mountain_tex"));
+    surface_material->AddParameter(new GtMaterialParameterTexture("SandTex", "sand_tex"));
+    surface_material->AddParameter(new GtMaterialParameterTexture("GrassTex", "grass_tex"));
+    surface_material->AddParameter(new GtMaterialParameterTexture("MountainTex", "mountain_tex"));
     if(shadow_mapping) {
-        surface_material->addParameter(new GtMaterialParameterShadow("ShadowMap", "shadow_map_technique"));
+        surface_material->AddParameter(new GtMaterialParameterShadow("ShadowMap", "shadow_map_technique"));
     }
 
-    surface_material->addParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    surface_material->addParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
-    surface_material->addParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
-    surface_material->addParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
-      program->setUniformValue(loc, shadow_map_technique->Data().Get().getCam()->getForward().normalized());
+    surface_material->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
+    surface_material->AddParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
+    surface_material->AddParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
+    surface_material->AddParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+      program->setUniformValue(loc, shadow_map_technique->Data().Get().GetCamera()->GetForward().normalized());
     }));
 
-    surface_material->setShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
+    surface_material->SetShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
 
     static bool added = false;
     if(!added) {
-        surface_material->mapProperties(Observer::Instance());
+        surface_material->MapProperties(Observer::Instance());
         added = true;
     }
 
@@ -181,25 +181,25 @@ void GtWidget3D::initializeGL()
     if(shadow_mapping) {
 
         depth_material = new GtMaterial();
-        depth_material->addMesh(GtMeshQuad2D::instance(this));
-        gTexID texture = shadow_map_technique->Data().Get().getDepthTexture();
-        depth_material->addParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
+        depth_material->AddMesh(GtMeshQuad2D::Instance(this));
+        gTexID texture = shadow_map_technique->Data().Get().GetDepthTexture();
+        depth_material->AddParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
             program->setUniformValue(loc, 0);
         }));
-        depth_material->setShaders(GT_SHADERS_PATH, "screen.vert", "screen.frag");
+        depth_material->SetShaders(GT_SHADERS_PATH, "screen.vert", "screen.frag");
     }
 
     circle_mesh = new GtMeshCircle2D();
-    circle_mesh->initialize(this);
+    circle_mesh->Initialize(this);
 
     color_material = new GtMaterial();
-    color_material->addMesh(circle_mesh.data());
-    color_material->addParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    color_material->addParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+    color_material->AddMesh(circle_mesh.data());
+    color_material->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
+    color_material->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
         program->setUniformValue(loc, 400.0f);
     }));
-    color_material->setShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");
+    color_material->SetShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");
 
     glPointSize(10.f);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -216,13 +216,13 @@ void GtWidget3D::resizeGL(int w, int h)
     Q_ASSERT(camera);
 
     GtFramebufferFormat fbo_format;
-    fbo_format.setDepthAttachment(GtFramebufferFormat::RenderBuffer);
-    fbo_format.addColorAttachment(GtFramebufferTextureFormat(GL_TEXTURE_2D, GL_RGBA8));
+    fbo_format.SetDepthAttachment(GtFramebufferFormat::RenderBuffer);
+    fbo_format.AddColorAttachment(GtFramebufferTextureFormat(GL_TEXTURE_2D, GL_RGBA8));
     auto fbo = new GtFramebufferObjectMultisampled(this, {w,h}, 4);
-    fbo->create(fbo_format);
+    fbo->Create(fbo_format);
     this->fbo.reset(fbo);
 
-    camera->resize(w,h);
+    camera->Resize(w,h);
 }
 
 static float getXFromCircleCoordinate(float x, const SizeF& ratio)
@@ -254,31 +254,31 @@ void GtWidget3D::paintGL()
             }
             if(vulcans) {
                 QMutexLocker locker(&vulcans->Mutex);
-                SizeF ratio(float(surface_mesh->getHeight()) / w, float(surface_mesh->getWidth()) / h);
+                SizeF ratio(float(surface_mesh->GetHeight()) / w, float(surface_mesh->GetWidth()) / h);
 
-                circle_mesh->resize(vulcans->Circles.size());
-                auto it_mesh = circle_mesh->begin();
+                circle_mesh->Resize(vulcans->Circles.size());
+                auto it_mesh = circle_mesh->Begin();
                 for(const cv::Vec3f& circle: vulcans->Circles) {
                     Circle2D* mesh_circle = *it_mesh;
                     float rx = getXFromCircleCoordinate(circle[0], ratio);
-                    float ry = getYFromCircleCoordinate(circle[1], ratio, surface_mesh->getHeight());
-                    mesh_circle->position = Point2F(rx, ry);
-                    mesh_circle->color = Color3F(1.f, 0.f, 1.f);
-                    mesh_circle->radius = Point2F(circle[2] * ratio.height(), circle[2] * ratio.width());
+                    float ry = getYFromCircleCoordinate(circle[1], ratio, surface_mesh->GetHeight());
+                    mesh_circle->Position = Point2F(rx, ry);
+                    mesh_circle->Color = Color3F(1.f, 0.f, 1.f);
+                    mesh_circle->Radius = Point2F(circle[2] * ratio.height(), circle[2] * ratio.width());
                     it_mesh++;
                 }
-                circle_mesh->update();
+                circle_mesh->Update();
             }
         }
         if(shadow_mapping) {
-            shadow_map_technique->Data().Change().bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
-            MVP->Data().Set(shadow_map_technique->Data().Change().getWorld());
+            shadow_map_technique->Data().Change().Bind({-11232.8f, -57.2747f, 10584.6f},{1766.52f, 1309.02f, 0.f});
+            MVP->Data().Set(shadow_map_technique->Data().Change().GetWorldMatrix());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glViewport(0,0,1024,1024);
 
-            surface_material->draw(this);
-            color_material->draw(this);
-            shadow_map_technique->Data().Change().release();
+            surface_material->Draw(this);
+            color_material->Draw(this);
+            shadow_map_technique->Data().Change().Release();
 
             static Matrix4 bias_matrix(
             0.5f, 0.0f, 0.0f, 0.5f,
@@ -286,30 +286,30 @@ void GtWidget3D::paintGL()
             0.0f, 0.0f, 0.5f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f
             );
-            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->Data().Change().getWorld();
+            Matrix4 shadow_MVP = bias_matrix * shadow_map_technique->Data().Change().GetWorldMatrix();
 
-            fbo->bind();
-            MVP->Data().Set(camera->getWorld());
+            fbo->Bind();
+            MVP->Data().Set(camera->GetWorld());
             MVP_shadow->Data().Set(shadow_MVP);
 
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                glViewport(0,0,fbo->getWidth(),fbo->getHeight());
+                glViewport(0,0,fbo->GetWidth(),fbo->GetHeight());
 
 //                depth_view->draw(this);
-                surface_material->draw(this);
-                color_material->draw(this);
-            fbo->release();
+                surface_material->Draw(this);
+                color_material->Draw(this);
+            fbo->Release();
         }
         else {
-            MVP->Data().Set(camera->getWorld());
+            MVP->Data().Set(camera->GetWorld());
 
-            fbo->bind();
+            fbo->Bind();
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                glViewport(0,0,fbo->getWidth(),fbo->getHeight());
+                glViewport(0,0,fbo->GetWidth(),fbo->GetHeight());
 
-                surface_material->draw(this);
-                color_material->draw(this);
-            fbo->release();
+                surface_material->Draw(this);
+                color_material->Draw(this);
+            fbo->Release();
         }
 
         qint64 frame_time = fps_counter->Release();
@@ -318,9 +318,9 @@ void GtWidget3D::paintGL()
         if(compute_board) compute_board->setText("cps: " + QString::number(Nanosecs(ComputeGraphCore::Instance()->GetComputeTime()).TimesPerSecond(), 'f', 10));
     }
 
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->getID());
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->GetID());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
-    glBlitFramebuffer(0,0,fbo->getWidth(),fbo->getHeight(),0,0,this->width(), this->height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0,0,fbo->GetWidth(),fbo->GetHeight(),0,0,this->width(), this->height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 void GtWidget3D::mouseMoveEvent(QMouseEvent* event)

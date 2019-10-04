@@ -8,16 +8,18 @@ class GtFramebufferTextureFormat : GtTextureFormat
 {
 public:
     GtFramebufferTextureFormat(gTexTarget target, gTexInternalFormat internal_format)
-        : target(target)
-        , internal_format(internal_format)
+        : m_target(target)
+        , m_internalFormat(internal_format)
     {}
+
 private:
     friend class GtFramebufferObject;
     friend class GtFramebufferObjectMultisampled;
-    gTexTarget target;
-    gTexInternalFormat internal_format;
+    gTexTarget m_target;
+    gTexInternalFormat m_internalFormat;
 };
 Q_DECLARE_TYPEINFO(GtFramebufferTextureFormat, Q_PRIMITIVE_TYPE);
+
 namespace std
 {
     template<>
@@ -34,13 +36,14 @@ public:
         Texture
     };
 
-    void setDepthAttachment(AttachmentType type) { depth_attachment = type; }
-    void addColorAttachment(const GtFramebufferTextureFormat& format) { color_formats.Push(format); }
+    void SetDepthAttachment(AttachmentType type) { m_depthAttachment = type; }
+    void AddColorAttachment(const GtFramebufferTextureFormat& format) { m_colorFormats.Push(format); }
+
 private:
     friend class GtFramebufferObject;
     friend class GtFramebufferObjectMultisampled;
-    Stack<GtFramebufferTextureFormat> color_formats;
-    AttachmentType depth_attachment;
+    Stack<GtFramebufferTextureFormat> m_colorFormats;
+    AttachmentType m_depthAttachment;
 };
 
 class GtFramebufferObjectBase
@@ -48,28 +51,29 @@ class GtFramebufferObjectBase
 public:
     GtFramebufferObjectBase(OpenGLFunctions* f, const SizeI& resolution)
         : f(f)
-        , id(0)
-        , depth_texture(nullptr)
-        , depth_render_buffer(0)
-        , resolution(resolution)
+        , m_id(0)
+        , m_depthTexture(nullptr)
+        , m_depthRenderBuffer(0)
+        , m_resolution(resolution)
     {}
     virtual ~GtFramebufferObjectBase();
 
-    void bind();
-    void release();
+    void Bind();
+    void Release();
 
-    quint32 getWidth() const { return resolution.width(); }
-    quint32 getHeight() const { return resolution.height(); }
+    quint32 GetWidth() const { return m_resolution.width(); }
+    quint32 GetHeight() const { return m_resolution.height(); }
 
-    const GtTexture* getDepthTexture() const { return depth_texture.data(); }
-    gRenderbufferID getDepthRenderbuffer() const { return depth_render_buffer; }
-    gFboID getID() const { return id; }
+    const GtTexture* GetDepthTexture() const { return m_depthTexture.data(); }
+    gRenderbufferID GetDepthRenderbuffer() const { return m_depthRenderBuffer; }
+    gFboID GetID() const { return m_id; }
+
 protected:
     OpenGLFunctions* f;
-    gFboID id;
-    ScopedPointer<GtTexture> depth_texture;
-    gRenderbufferID depth_render_buffer;
-    SizeI resolution;
+    gFboID m_id;
+    ScopedPointer<GtTexture> m_depthTexture;
+    gRenderbufferID m_depthRenderBuffer;
+    SizeI m_resolution;
 };
 
 class GtFramebufferObject : public GtFramebufferObjectBase
@@ -77,39 +81,39 @@ class GtFramebufferObject : public GtFramebufferObjectBase
 public:
     GtFramebufferObject(OpenGLFunctions* f, const SizeI& );
 
-    void create(const GtFramebufferFormat& format);
+    void Create(const GtFramebufferFormat& format);
+    GtTexture* GetColorTexture(qint32 index) const { return m_colorAttachments.At(index); }
 
-    GtTexture* getColorTexture(qint32 index) const { return color_attachments.At(index); }
 private:
-    StackPointers<GtTexture> color_attachments;
+    StackPointers<GtTexture> m_colorAttachments;
 };
 
 class GtFramebufferObjectMultisampled : public GtFramebufferObjectBase
 {
 public:
-    GtFramebufferObjectMultisampled(OpenGLFunctions* f, const SizeI& , quint32 samples);
+    GtFramebufferObjectMultisampled(OpenGLFunctions* f, const SizeI& , quint32 m_samples);
     ~GtFramebufferObjectMultisampled();
 
-    void create(const GtFramebufferFormat& format);
+    void Create(const GtFramebufferFormat& format);
+    gRenderbufferID GetColorRenderbuffer(qint32 index) const { return m_colorAttachments.At(index); }
 
-    gRenderbufferID getColorRenderbuffer(qint32 index) const { return color_attachments.At(index); }
 private:
-    Stack<gRenderbufferID> color_attachments;
-    qint32 samples;
+    Stack<gRenderbufferID> m_colorAttachments;
+    qint32 m_samples;
 };
 
-struct GtFramebufferObjectBinder
+struct GtFramebufferObjectBinderScopeGuard
 {
-    GtFramebufferObjectBase* fbo;
+    GtFramebufferObjectBase* m_fbo;
 public:
-    GtFramebufferObjectBinder(GtFramebufferObjectBase* frame_buffer) Q_DECL_NOEXCEPT
-        : fbo(frame_buffer)
+    GtFramebufferObjectBinderScopeGuard(GtFramebufferObjectBase* frame_buffer) Q_DECL_NOEXCEPT
+        : m_fbo(frame_buffer)
     {
-        fbo->bind();
+        m_fbo->Bind();
     }
-    ~GtFramebufferObjectBinder()
+    ~GtFramebufferObjectBinderScopeGuard()
     {
-        fbo->release();
+        m_fbo->Release();
     }
 };
 

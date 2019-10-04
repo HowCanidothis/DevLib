@@ -5,11 +5,11 @@
 
 class GtObjectTerrain : public GtActor
 {
-    ScopedPointer<class GtMeshSurface> surface_mesh;
+    ScopedPointer<class GtMeshSurface> m_surfaceMesh;
 public:
     GtObjectTerrain();
 
-    void initialize(OpenGLFunctions* f) Q_DECL_OVERRIDE;
+    void Initialize(OpenGLFunctions* f) Q_DECL_OVERRIDE;
 };
 
 #endif // GTOBJECTTERRAIN_H

@@ -26,13 +26,13 @@ typedef QSize SizeI;
 typedef QRect Rect;
 
 template<class T> inline static void point2DFromString(T& point, const QString& string){
-    static QRegExp re("(\\()?([^,]+),([^,\\)]+)\\)?");
+    static QRegExp re(R"((\()?([^,]+),([^,\)]+)\)?)");
     re.indexIn(string);
     point.X() = re.cap(2).toDouble();
     point.Y() = re.cap(3).toDouble();
 }
 template<class T> inline static void point3DFromString(T& point, const QString& string){
-    static QRegExp re("(\\()?([^,]+),([^,]+),([^,\\)]+)\\)?");
+    static QRegExp re(R"((\()?([^,]+),([^,]+),([^,\)]+)\)?)");
     re.indexIn(string);
     point.X() = re.cap(2).toDouble();
     point.Y() = re.cap(3).toDouble();
@@ -125,6 +125,12 @@ class Vector2F : public QVector2D
 {
     typedef QVector2D Super;
 public:
+    Vector2F()
+        : Super()
+    {}
+    Vector2F(const QVector2D&& another) // TODO. Bad performance, must be created own math library, or sometime c++ will allow us classes extending
+        : Super(std::move(another))
+    {}
     using Super::Super;
 
     float& X() { return operator[](0); }
@@ -133,14 +139,11 @@ public:
     float& Y() { return operator[](1); }
     float Y() const { return operator[](1); }
 
-    Vector2F ortho() const { return Vector2F(-y(), x()); }
-
-    operator QVector2D&() { return *(QVector2D*)this; }
-    operator const QVector2D&() const { return *(QVector2D*)this; }
+    Vector2F ortho() const { return Vector2F(-Y(), X()); }
 
     bool operator <(const Vector2F& other) const{
-        if(!qFuzzyIsNull(x() - other.x())) return x() < other.x();
-        return y() < other.y();
+        if(!qFuzzyIsNull(X() - other.X())) return X() < other.X();
+        return Y() < other.Y();
     }
     void FromString(const QString& v){ point2DFromString(*this,v); }
     QString ToString() const { return point2DToString(*this); }
@@ -154,6 +157,12 @@ class Vector3F : public QVector3D
     typedef QVector3D Super;
 public:
     using Super::Super;
+    Vector3F()
+        : Super()
+    {}
+    Vector3F(const QVector3D&& another) // TODO. Bad performance, must be created own math library, or sometime c++ will allow us classes extending
+        : Super(std::move(another))
+    {}
 
     float& X() { return operator[](0); }
     float X() const { return operator[](0); }
@@ -163,9 +172,6 @@ public:
 
     float& Z() { return operator[](2); }
     float Z() const { return operator[](2); }
-
-    operator QVector3D&() { return *(QVector3D*)this; }
-    operator const QVector3D&() const { return *(QVector3D*)this; }
 
     bool operator <(const Vector3F& other) const{
         if(!qFuzzyIsNull(x() - other.x())) return x() < other.x();
@@ -193,13 +199,13 @@ public:
     const Point2F& GetRight() const { return _right; }
     float Width() const { return GetWidth(); }
     float Height() const { return GetHeight(); }
-    float GetWidth() const { return _right.x() - _left.x(); }
-    float GetHeight() const { return _right.y() - _right.y(); }
+    float GetWidth() const { return _right.X() - _left.X(); }
+    float GetHeight() const { return _right.Y() - _right.Y(); }
 
     bool Intersects(const BoundingRect& other) const
     {
-        return !(_right.x() < other._left.x() || _left.x() > other._right.x() ||
-                 _right.y() < other._left.y() || _left.y() > other._right.y()
+        return !(_right.X() < other._left.X() || _left.X() > other._right.X() ||
+                 _right.Y() < other._left.Y() || _left.Y() > other._right.Y()
                  );
     }
 };
@@ -276,6 +282,8 @@ typedef quint32 gRenderType;
 typedef quint32 gIndicesType;
 typedef quint32 gFboID;
 typedef quint32 gRenderbufferID;
+
+typedef Point3F Color3F;
 
 #define GT_CONTENT_PATH "../../Content/"
 #define GT_STYLES_PATH GT_CONTENT_PATH "CSS/"

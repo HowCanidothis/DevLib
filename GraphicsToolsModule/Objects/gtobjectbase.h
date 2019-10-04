@@ -9,33 +9,34 @@
 class GtObjectBase
 {
 public:
-    virtual void mapProperties(Observer* ) {}
+    virtual void MapProperties(Observer* ) {}
 };
 
 class GtPrimitiveActor : public GtObjectBase
 {
-    BoundingBox bounding_box;
+    BoundingBox m_boundingBox;
 
 public:
-    void addComponent(GtPrimitiveActor* actor) { components.Append(actor); }
-    const BoundingBox& getBoundingBox() const { return bounding_box; }
+    void AddComponent(GtPrimitiveActor* actor) { m_components.Append(actor); }
+    const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
+
 public:
-    virtual void initialize(OpenGLFunctions*)=0;
+    virtual void Initialize(OpenGLFunctions*)=0;
 
 protected:
     friend class GtActor;
-    bool updateBoundingBox() { return updateBoundingBox(bounding_box); }
+    bool updateBoundingBox() { return updateBoundingBox(m_boundingBox); }
 
     virtual bool updateBoundingBox(BoundingBox&) { return false; }
-    virtual void UpdateTransform() {}
+    virtual void updateTransform() {}
 
 protected:
-    ArrayPointers<GtPrimitiveActor> components;
+    ArrayPointers<GtPrimitiveActor> m_components;
 };
 
 class GtActor : public GtPrimitiveActor
 {
-public:
+protected:
     virtual bool updateBoundingBox(BoundingBox&) Q_DECL_OVERRIDE;
 };
 

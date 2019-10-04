@@ -26,18 +26,18 @@ protected:
         State_NeedAdjustScale = State_Isometric | State_AutoIsometricScaling
     };
     DECL_FLAGS(State,StateFlags)
-    State state;
+    State m_state;
 
-    SizeF viewport;
-    Matrix4 projection;
-    Matrix4 view;
-    Matrix4 world;
-    Matrix4 world_inv;
+    SizeF m_viewport;
+    Matrix4 m_projection;
+    Matrix4 m_view;
+    Matrix4 m_world;
+    Matrix4 m_worldInverted;
 
-    Point3F eye;
-    Vector3F forward;
-    Vector3F up;
-    Point3F rotation_point;
+    Point3F m_eye;
+    Vector3F m_forward;
+    Vector3F m_up;
+    Point3F m_rotationPoint;
 
     void clone(GtCameraState* dst, GtCameraState* src) {
         *dst = *src;
@@ -52,66 +52,67 @@ class GtCamera : public GtCameraState
     friend class GtCameraStateSaver;
     class CameraObserverProperties;
 
-    float nearc;
-    float farc;
-    float angle;
-    float isometric_scale;
-    float isometric_coef;
+    float m_near;
+    float m_far;
+    float m_angle;
+    float m_isometricScale;
+    float m_isometricCoef;
 
-    BoundingBox scene_box;
-    ScopedPointer<GtCameraFocus> focus;
-    CameraObserverProperties* observer;
+    BoundingBox m_sceneBox;
+    ScopedPointer<GtCameraFocus> m_focus;
+    CameraObserverProperties* m_observer;
+
 public:
     GtCamera();
     ~GtCamera();
 
-    void normalize();
-    void setPosition(const Point3F& eye, const Point3F& center);
-    void setPosition(const Point3F& eye, const Point3F& forward, const Vector3F& up);
-    void moveForward(float value);
-    void moveSide(float value);
+    void Normalize();
+    void SetPosition(const Point3F& m_eye, const Point3F& center);
+    void SetPosition(const Point3F& m_eye, const Point3F& m_forward, const Vector3F& m_up);
+    void MoveForward(float value);
+    void MoveSide(float value);
 
-    void translate(float dx, float dy);
-    void setSceneBox(const BoundingBox& box) { this->scene_box = box; }
-    void focusBind(const Point2I& screen_position);
-    void focusRelease();
-    void setRotationPoint(const Point3F& position) { rotation_point = position; }
-    void zoom(bool closer);
-    void rotate(const Point2I& angles) { rotate(angles.x() , angles.y()); }
-    void rotate(qint32 angleZ, qint32 angleX);
-    void rotateRPE(const Point2I& angles) { rotateRPE(angles.x() , angles.y()); }
-    void rotateRPE(qint32 angleZ, qint32 angleX);
+    void Translate(float dx, float dy);
+    void SetSceneBox(const BoundingBox& box) { this->m_sceneBox = box; }
+    void FocusBind(const Point2I& screen_position);
+    void FocusRelease();
+    void SetRotationPoint(const Point3F& position) { m_rotationPoint = position; }
+    void Zoom(bool closer);
+    void Rotate(const Point2I& angles) { Rotate(angles.x() , angles.y()); }
+    void Rotate(qint32 angleZ, qint32 angleX);
+    void RotateRPE(const Point2I& angles) { RotateRPE(angles.x() , angles.y()); }
+    void RotateRPE(qint32 angleZ, qint32 angleX);
 
-    void setIsometricScale(float scale);
-    void setIsometric(bool flag);
-    void resize(qint32 width, qint32 height);
-    void setProjectionProperties(float angle, float near, float far);
+    void SetIsometricScale(float scale);
+    void SetIsometric(bool flag);
+    void Resize(qint32 width, qint32 height);
+    void SetProjectionProperties(float m_angle, float near, float far);
 
-    Point3F unproject(float x, float y, float depth);
-    Point3F unproject(const Point2I& screen, float depth) { return unproject(screen.x(), screen.y(), depth); }
-    Point3F unprojectPlane(float x, float y);
-    Point3F unprojectPlane(const Point2I& screen) { return unprojectPlane(screen.x(),screen.y()); }
+    Point3F Unproject(float x, float y, float depth);
+    Point3F Unproject(const Point2I& screen, float depth) { return Unproject(screen.x(), screen.y(), depth); }
+    Point3F UnprojectPlane(float x, float y);
+    Point3F UnprojectPlane(const Point2I& screen) { return UnprojectPlane(screen.x(),screen.y()); }
 
-    Point3F project(float x, float y, float z);
-    Point3F project(const Point3F& point);
+    Point3F Project(float x, float y, float z);
+    Point3F Project(const Point3F& point);
 
-    bool takeNewFrame();
-    bool isFrameChanged() const;
+    bool IsFrameChangedReset();
+    bool IsFrameChanged() const;
 
-    const Point3F& getEye() const { return eye; }
-    const Vector3F& getForward() const { return forward; }
-    const Vector3F& getUp() const { return up; }
-    const Point3F getCenter() const {
-        Point3F res = eye - forward * eye.z() / forward.z();
-        return res;
+    const Point3F& GetEye() const { return m_eye; }
+    const Vector3F& GetForward() const { return m_forward; }
+    const Vector3F& GetUp() const { return m_up; }
+    const Point3F GetCenter() const
+    {
+        return m_eye - m_forward * m_eye.z() / m_forward.z();
     }
 
-    const Matrix4& getProjection() { updateProjection(); return projection; }
-    const Matrix4& getView() { updateView(); return view; }
-    const Matrix4& getWorld() { updateWorld(); return world; }
-    const Matrix4& getWorldInverted() { updateWorld(); return world_inv; }
+    const Matrix4& GetProjection() { updateProjection(); return m_projection; }
+    const Matrix4& GetView() { updateView(); return m_view; }
+    const Matrix4& GetWorld() { updateWorld(); return m_world; }
+    const Matrix4& GetWorldInverted() { updateWorld(); return m_worldInverted; }
 
-    void installObserver(const QString& path);
+    void InstallObserver(const QString& path);
 
 private:
     friend class GtCameraStateProperties;

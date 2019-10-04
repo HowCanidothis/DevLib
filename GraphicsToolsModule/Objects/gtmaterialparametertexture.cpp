@@ -11,25 +11,25 @@ GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, cons
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 {
-    gt_texture = ResourcesSystem::GetResource<GtTexture>(this->resource);
-    if(gt_texture != nullptr) {
-        gTexID texture = gt_texture->Data().Get().getID();
-        gTexTarget target = gt_texture->Data().Get().getTarget();
+    m_texture = ResourcesSystem::GetResource<GtTexture>(this->m_resource);
+    if(m_texture != nullptr) {
+        gTexID texture = m_texture->Data().Get().GetId();
+        gTexTarget target = m_texture->Data().Get().GetTarget();
         return [this, texture, target](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
-            f->glActiveTexture(unit + GL_TEXTURE0);
+            f->glActiveTexture(m_unit + GL_TEXTURE0);
             f->glBindTexture(target, texture);
-            program->setUniformValue(loc, unit);
+            program->setUniformValue(loc, m_unit);
         };
     }
     return [](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){};
 }
 
-void GtMaterialParameterTexture::mapProperties(Observer* observer)
+void GtMaterialParameterTexture::MapProperties(Observer* observer)
 {
-    QString path = "Materials/" + QString::number(unit);
-    new ExternalStringProperty(Name(path + "/Name"), name);
-    new ExternalNameProperty(Name(path + "/Resource"), resource);
+    QString path = "Materials/" + QString::number(m_unit);
+    new ExternalStringProperty(Name(path + "/Name"), m_name);
+    new ExternalNameProperty(Name(path + "/Resource"), m_resource);
 
-    observer->AddStringObserver(&name,[]{ GtMaterialParameterTexture::material()->update(); });
-    observer->AddStringObserver(&resource.AsString(), []{ GtMaterialParameterTexture::material()->update(); });
+    observer->AddStringObserver(&m_name,[]{ GtMaterialParameterTexture::material()->Update(); });
+    observer->AddStringObserver(&m_resource.AsString(), []{ GtMaterialParameterTexture::material()->Update(); });
 }

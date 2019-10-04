@@ -9,21 +9,21 @@ class GtCamera;
 
 class GtShadowMapTechnique
 {   
-    ScopedPointer<GtCamera> camera;
-    ScopedPointer<GtFramebufferObject> framebuffer;
+    ScopedPointer<GtCamera> m_camera;
+    ScopedPointer<GtFramebufferObject> m_framebuffer;
     OpenGLFunctions* f;
 
 public:
     GtShadowMapTechnique(OpenGLFunctions* f, const SizeI& resolution);
 
-    void create();
+    void Create();
 
-    void bind(const Point3F& spot_position, const Vector3F& spot_center);
-    void release();
+    void Bind(const Point3F& spot_position, const Vector3F& spot_center);
+    void Release();
 
-    const GtCamera* getCam() const { return camera.data(); }
-    const Matrix4& getWorld();
-    gTexID getDepthTexture() const;
+    const GtCamera* GetCamera() const { return m_camera.data(); }
+    const Matrix4& GetWorldMatrix();
+    gTexID GetDepthTexture() const;
 };
 
 #endif // GTSHADOWMAPTECHNIQUE_H

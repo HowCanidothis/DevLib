@@ -6,29 +6,30 @@
 
 struct Circle2D
 {
-    Point2F position;
-    Point2F radius;
-    Color3F color;
+    Point2F Position;
+    Point2F Radius;
+    Color3F Color;
 
     Circle2D(){}
-    Circle2D(const Point2F& pos, const Point2F& radius, const Color3F& color);
+    Circle2D(const Point2F& pos, const Point2F& Radius, const Color3F& Color);
 };
 
 class GtMeshCircle2D : public GtMeshBase
 {
-    ArrayPointers<Circle2D> circles;
+    ArrayPointers<Circle2D> m_circles;
 public:
     GtMeshCircle2D();
 
-    void resize(qint32 size);
-    void clear();
-    Circle2D* add(float x, float y, float r, const Color3F& color);
-    void remove(Circle2D* circle);
+    void Resize(qint32 size);
+    void Clear();
+    Circle2D* Add(float x, float y, float r, const Color3F& color);
+    void Remove(Circle2D* circle);
 
-    ArrayPointers<Circle2D>::iterator begin() { return circles.Begin(); }
-    ArrayPointers<Circle2D>::iterator end() { return circles.End(); }
-    ArrayPointers<Circle2D>::const_iterator begin() const { return circles.Begin(); }
-    ArrayPointers<Circle2D>::const_iterator end() const { return circles.End(); }
+    ArrayPointers<Circle2D>::iterator Begin() { return m_circles.Begin(); }
+    ArrayPointers<Circle2D>::iterator End() { return m_circles.End(); }
+    ArrayPointers<Circle2D>::const_iterator Begin() const { return m_circles.Begin(); }
+    ArrayPointers<Circle2D>::const_iterator End() const { return m_circles.End(); }
+
     // GtMeshBase interface
 protected:
     bool buildMesh() Q_DECL_OVERRIDE;
