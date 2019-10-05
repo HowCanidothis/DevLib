@@ -2,6 +2,7 @@
 #define FILESGUARD_H
 
 #include <QDir>
+#include <QDate>
 #include <functional>
 
 class FilesGuard
