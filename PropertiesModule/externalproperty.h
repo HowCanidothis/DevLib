@@ -14,182 +14,159 @@ public:
     typedef T value_type;
     TExternalPropertyBase(const Name& path,const FGetter& getter, const FSetter& setter)
         : Property(path)
-        , _getter(getter)
-        , _setter(setter)
+        , m_getter(getter)
+        , m_setter(setter)
+    {}
+    TExternalPropertyBase(const Name& path, T& ref)
+        : Property(path)
+        , m_getter(defaultGetter(ref))
+        , m_setter(defaultSetter(ref))
     {}
 
-    operator T() const { return _getter(); }
+    operator T() const { return m_getter(); }
 
 protected:
     FGetter defaultGetter(T& ref) { return [&ref]{ return ref; }; }
     FSetter defaultSetter(T& ref) { return [&ref](const T& value, const T&) { ref = value; }; }
 
 protected:
-    FGetter _getter;
-    FSetter _setter;
+    FGetter m_getter;
+    FSetter m_setter;
 };
 
 template<class T>
 class TExternalProperty : public TExternalPropertyBase<T>
 {
-    typedef TExternalPropertyBase<T> Super;
+    using Super = TExternalPropertyBase<T>;
 public:
-    TExternalProperty(const Name& path,const typename Super::FGetter& getter, const typename Super::FSetter& setter, const T& min, const T& max)
+    using Super::Super;
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return Super::m_getter(); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE {  Super::m_setter(value.value<T>(),  Super::m_getter()); }
+};
+
+template<class T>
+class TExternalDecimalProperty : public TExternalProperty<T>
+{
+    typedef TExternalProperty<T> Super;
+public:
+    TExternalDecimalProperty(const Name& path,const typename Super::FGetter& getter, const typename Super::FSetter& setter, const T& min, const T& max)
         : Super(path, getter, setter)
-        , _min(min)
-        , _max(max)
+        , m_min(min)
+        , m_max(max)
     {}
-    TExternalProperty(const Name &path, T& ref, const T &min, const T &max)
+    TExternalDecimalProperty(const Name& path,const typename Super::FGetter& getter, const typename Super::FSetter& setter)
+        : Super(path, getter, setter)
+        , m_min(0)
+        , m_max(0)
+    {}
+    TExternalDecimalProperty(const Name& path, T& ref, const T& min, const T& max)
         : Super(path, this->defaultGetter(ref), this->defaultSetter(ref))
-        , _min(min)
-        , _max(max)
+        , m_min(min)
+        , m_max(max)
+    {}
+    TExternalDecimalProperty(const Name& path, T& ref)
+        : Super(path, this->defaultGetter(ref), this->defaultSetter(ref))
+        , m_min(0)
+        , m_max(0)
     {}
 
     void SetMinMax(T min, T max)
     {
-        _min = min;
-        _max = max;
-        T value = this->_getter();
-        if(value < _min) {
-            SetValue(_min);
-        }else if(value > _max) {
-            SetValue(_max);
+        m_min = min;
+        m_max = max;
+        T value = this->m_getter();
+        if(value < m_min) {
+            SetValue(m_min);
+        }else if(value > m_max) {
+            SetValue(m_max);
         }
     }
 
-    T GetMinValue() const { return _min; }
-    T GetMaxValue() const { return _max; }
+    T GetMinValue() const { return m_min; }
+    T GetMaxValue() const { return m_max; }
 
-    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return _min; }
-    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return _max; }
+    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
+    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
 
     // Property interface
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return Super::_getter(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE {  Super::_setter(value.toDouble(),  Super::_getter()); }
-    T _min;
-    T _max;
+    T m_min;
+    T m_max;
 };
 
-template<>
-class TExternalProperty<QString> : public TExternalPropertyBase<QString>
-{
-    typedef TExternalPropertyBase<QString> Super;
-public:
-    TExternalProperty(const Name& path,const FGetter& getter, const FSetter& setter)
-        : Super(path, getter, setter)
-    {}
-    TExternalProperty(const Name& path, QString& ref)
-        : Super(path, defaultGetter(ref), defaultSetter(ref))
-    {}
-protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _getter(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _setter(value.toString(), _getter()); }
-};
-
-template<>
-class TExternalProperty<Name> : public TExternalPropertyBase<Name>
+class ExternalNameProperty : public TExternalPropertyBase<Name>
 {
     typedef TExternalPropertyBase<Name> Super;
 public:
-    TExternalProperty(const Name& path,const FGetter& getter, const FSetter& setter)
+    ExternalNameProperty(const Name& path,const FGetter& getter, const FSetter& setter)
         : Super(path, getter, setter)
     {}
-    TExternalProperty(const Name& path, Name& ref)
+    ExternalNameProperty(const Name& path, Name& ref)
         : Super(path, defaultGetter(ref), defaultSetter(ref))
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _getter().AsString(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _setter(Name(value.toString()), _getter()); }
+    virtual QVariant getValue() const Q_DECL_OVERRIDE { return m_getter().AsString(); }
+    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { m_setter(Name(value.toString()), m_getter()); }
 };
 
-class ExternalStdWStringProperty : public TExternalProperty<QString>
+class _Export ExternalNamedUIntProperty : public TExternalDecimalProperty<quint32>
 {
-    typedef TExternalProperty<QString> Super;
+    typedef TExternalDecimalProperty<quint32> Super;
+public:
+    using Super::Super;
+
+    void SetNames(const QStringList& names);
+
+    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
+    virtual const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
+protected:
+    virtual QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(m_getter()); }
+
+private:
+    QVariant m_names;
+};
+
+// Externals
+typedef TExternalProperty<QString> ExternalStringProperty;
+typedef TExternalProperty<bool> ExternalBoolProperty;
+typedef TExternalDecimalProperty<double> ExternalDoubleProperty;
+typedef TExternalDecimalProperty<float> ExternalFloatProperty;
+typedef TExternalDecimalProperty<qint32> ExternalIntProperty;
+typedef TExternalDecimalProperty<quint32> ExternalUIntProperty;
+
+class ExternalStdWStringProperty : public ExternalStringProperty
+{
+    typedef ExternalStringProperty Super;
 public:
     ExternalStdWStringProperty(const Name& path, std::wstring& ref)
         : Super(path, [&ref]{ return QString::fromStdWString(ref); }, [&ref](const QString& value, const QString&){ ref = value.toStdWString(); } )
     {}
 };
 
-template<>
-class TExternalProperty<QByteArray> : public TExternalPropertyBase<QByteArray>
+class ExternalTextFileNameProperty : public ExternalStringProperty
 {
-    typedef TExternalPropertyBase<QByteArray> Super;
-public:
-    TExternalProperty(const Name& path,const FGetter& getter, const FSetter& setter)
-        : Super(path, getter, setter)
-    {}
-    TExternalProperty(const Name& path, QByteArray& ref)
-        : Super(path, defaultGetter(ref), defaultSetter(ref))
-    {}
-
-protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _getter(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _setter(value.toByteArray(), _getter()); }
-};
-
-template<>
-class TExternalProperty<bool> : public TExternalPropertyBase<bool>
-{
-    typedef TExternalPropertyBase<bool> Super;
-public:
-    TExternalProperty(const Name& path, const FGetter& getter, const FSetter& setter)
-        : Super(path, getter, setter)
-    {}
-    TExternalProperty(const Name& path, bool& ref)
-        : Super(path, defaultGetter(ref), defaultSetter(ref))
-    {}
-
-protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return _getter(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { _setter(value.toBool(), _getter()); }
-};
-
-class _Export ExternalNamedUIntProperty : public TExternalProperty<quint32>
-{
-    typedef TExternalProperty<quint32> Super;
-public:
-    ExternalNamedUIntProperty(const Name& path, const FGetter& getter, const FSetter& setter)
-        : Super(path, getter, setter, 0, 0)
-    {}
-    template<typename Enum>
-    ExternalNamedUIntProperty(const Name& path, Enum& ref)
-        : Super(path, defaultGetter(reinterpret_cast<quint32&>(ref)), defaultSetter(reinterpret_cast<quint32&>(ref)), 0, 0)
-    {}
-
-    void SetNames(const QStringList& names);
-
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
-    virtual const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &_names; }
-protected:
-    virtual QVariant getDisplayValue() const Q_DECL_OVERRIDE { return _names.value<QStringList>().at(_getter()); }
-
-private:
-    QVariant _names;
-};
-
-class ExternalTextFileNameProperty : public TExternalProperty<QString>
-{
+    typedef ExternalStringProperty Super;
 public:
     ExternalTextFileNameProperty(const Name& path, QString& ref)
-        : TExternalProperty(path, ref)
+        : ExternalStringProperty(path, ref)
     {}
     virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
 
-// Externals
-typedef TExternalProperty<bool> ExternalBoolProperty;
-typedef TExternalProperty<double> ExternalDoubleProperty;
-typedef TExternalProperty<float> ExternalFloatProperty;
-typedef TExternalProperty<qint32> ExternalIntProperty;
-typedef TExternalProperty<quint32> ExternalUIntProperty;
-typedef TExternalProperty<Name> ExternalNameProperty;
-typedef TExternalProperty<QString> ExternalStringProperty;
-typedef TExternalProperty<QUrl> ExternalUrlProperty;
-typedef TExternalProperty<QByteArray> ExternalByteArrayProperty;
-
 #ifdef QT_GUI_LIB
+
+#include <QColor>
+
+class ExternalColorProperty : public TExternalProperty<QColor>
+{
+    typedef TExternalProperty<QColor> Super;
+public:
+    using Super::Super;
+
+    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
+};
 
 struct _Export ExternalVector3FProperty
 {

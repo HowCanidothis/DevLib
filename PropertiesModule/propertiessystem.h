@@ -21,6 +21,7 @@ public:
         Global = 0,
         InitProperties,
         Temp,
+        ContextIndex_User,
         Max = 0xff
     };
     typedef std::function<void ()> FSetter;

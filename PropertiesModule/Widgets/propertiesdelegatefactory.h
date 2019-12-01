@@ -23,6 +23,7 @@ public:
     virtual bool SetModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
     virtual bool SetEditorData(QWidget* editor, const QModelIndex& index, const QStyledItemDelegate* delegate) const;
     virtual bool DisplayText(QString& ret, const QVariant& value, const QLocale& locale) const;
+    virtual bool Paint(class QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
 protected:
     PropertiesDelegateFactory();

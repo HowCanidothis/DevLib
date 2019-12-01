@@ -33,7 +33,7 @@ public:
 
     // QAbstractItemDelegate interface
 public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE
     {
         if(index.data(PropertiesModel::RoleHeaderItem).toBool()){
             QRect orect = option.rect;
@@ -64,8 +64,9 @@ public:
 
             widget->style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
         }
-        else
+        else if(!PropertiesDelegateFactory::Instance().Paint(painter, option, index)) {
             QStyledItemDelegate::paint(painter,option,index);
+        }
     }
 
     QWidget*createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE {

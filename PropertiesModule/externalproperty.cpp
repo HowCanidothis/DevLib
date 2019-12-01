@@ -6,8 +6,8 @@
 
 void ExternalNamedUIntProperty::SetNames(const QStringList& names)
 {
-    _max = names.size() - 1;
-    _names = names;
+    m_max = names.size() - 1;
+    m_names = names;
 }
 
 #ifdef QT_GUI_LIB

@@ -5,6 +5,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QModelIndex>
+#include <QColorDialog>
+#include <QPainter>
 
 #include "PropertiesModule/propertiesmodel.h"
 #include "PropertiesModule/property.h"
@@ -41,6 +43,12 @@ QWidget*PropertiesDelegateFactory::CreateEditor(QWidget* parent, const QStyleOpt
         result->addItems(delegateData.toStringList());
         return result;
     }
+    case Property::DelegateColor: {
+        QColorDialog* result = new QColorDialog(parent);
+        result->setCurrentColor(index.data().value<QColor>());
+        result->setOption(QColorDialog::ShowAlphaChannel);
+        return result;
+    }
     case Property::DelegateRect:
     case Property::DelegatePositionXYZ: {
 
@@ -69,6 +77,12 @@ bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel
                 auto width = regExp.cap(3).toInt();
                 auto height = regExp.cap(4).toInt();
                 model->setData(index, Rect(x,y,width,height));
+            }
+        }
+    case Property::DelegateColor:
+        if(auto e = qobject_cast<QColorDialog*>(editor)) {
+            if(e->selectedColor().isValid()) {
+                model->setData(index, e->selectedColor());
             }
         }
         return true;
@@ -115,6 +129,17 @@ bool PropertiesDelegateFactory::DisplayText(QString& text, const QVariant& value
         return true;
     default:
         break;
+    }
+
+    return false;
+}
+
+bool PropertiesDelegateFactory::Paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    QVariant delegateValue = index.data(PropertiesModel::RoleDelegateValue);
+    if(delegateValue.toInt() == Property::DelegateColor) {
+        painter->fillRect(option.rect, index.data().value<QColor>());
+        return true;
     }
 
     return false;

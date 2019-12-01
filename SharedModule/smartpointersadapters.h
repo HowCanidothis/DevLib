@@ -37,6 +37,8 @@ class SharedPointer : public std::shared_ptr<T>
     typedef std::shared_ptr<T> Super;
 public:
     using Super::Super;
+
+    SharedPointer& operator=(T* ptr) { this->reset(ptr); return *this; }
 };
 
 template<class T>

@@ -32,6 +32,7 @@ public:
         DelegatePositionXYZ,
         DelegateNamedUInt,
         DelegateRect,
+        DelegateColor,
 
         DelegateUser
     };
