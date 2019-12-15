@@ -6,23 +6,23 @@
 #include "smartpointersadapters.h"
 #include "shared_decl.h"
 
-template<class ObjectBase>
+template<class DelegateObject>
 class DefaultFactoryBase
 {
-    typedef std::function<ObjectBase* ()> ImporterCreator;
-    typedef QHash<QString, ImporterCreator> Delegates;
+    typedef std::function<DelegateObject* ()> DelegateCreator;
+    typedef QHash<QString, DelegateCreator> Delegates;
 
 public:
-    static ObjectBase* Create(const QString& extension);
-    static ScopedPointer<ObjectBase> CreateScoped(const QString& extension) {
-        return ScopedPointer<ObjectBase>(Create(extension));
+    static DelegateObject* Create(const QString& extension);
+    static ScopedPointer<DelegateObject> CreateScoped(const QString& extension) {
+        return ScopedPointer<DelegateObject>(Create(extension));
     }
 
     static bool IsSupport(const QString& extension) { return delegates().contains(extension); }
     static QString GetSupportedExtensions(const QString& suffix);
 
 protected:
-    static void assosiate(const QString& formats, const ImporterCreator& importerCreator);
+    static void assosiate(const QString& formats, const DelegateCreator& importerCreator);
 
 private:
     static Delegates& delegates()
@@ -32,8 +32,8 @@ private:
     }
 };
 
-template<class ObjectBase>
-ObjectBase* DefaultFactoryBase<ObjectBase>::Create(const QString& fileExtension)
+template<class DelegateObject>
+DelegateObject* DefaultFactoryBase<DelegateObject>::Create(const QString& fileExtension)
 {
     auto find = delegates().find(fileExtension.toLower());
     if(find == delegates().end()) {
@@ -42,8 +42,8 @@ ObjectBase* DefaultFactoryBase<ObjectBase>::Create(const QString& fileExtension)
     return find.value()();
 }
 
-template<class ObjectBase>
-QString DefaultFactoryBase<ObjectBase>::GetSupportedExtensions(const QString& suffix)
+template<class DelegateObject>
+QString DefaultFactoryBase<DelegateObject>::GetSupportedExtensions(const QString& suffix)
 {
     QString result;
     auto it = delegates().begin();
@@ -54,8 +54,8 @@ QString DefaultFactoryBase<ObjectBase>::GetSupportedExtensions(const QString& su
     return result;
 }
 
-template<class ObjectBase>
-void DefaultFactoryBase<ObjectBase>::assosiate(const QString& formats, const ImporterCreator& importerCreator)
+template<class DelegateObject>
+void DefaultFactoryBase<DelegateObject>::assosiate(const QString& formats, const DelegateCreator& importerCreator)
 {
     for(const auto& format : formats.split(" ", QString::SkipEmptyParts)) {
         delegates().insert(format, importerCreator);

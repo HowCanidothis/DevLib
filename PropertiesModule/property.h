@@ -100,6 +100,8 @@ public:
     const T* Ptr() const { return &m_value; }
     operator const T&() const { return m_value; }
 
+    TPropertyBase<T>& operator=(const T& value) { this->SetValue(value); return *this; }
+
     template<class T2> const T2& Cast() const { return (const T2&)m_value; }
 
 protected:
@@ -107,24 +109,26 @@ protected:
 };
 
 template<class T>
-class TStdPropertyBase : public TPropertyBase<T>
+class TProperty : public TPropertyBase<T>
 {
     typedef TPropertyBase<T> Super;
-protected:
-    TStdPropertyBase(const Name& path, const T& initial)
+public:
+    TProperty(const Name& path, const T& initial)
         : TPropertyBase<T>(path, initial)
     {}
 
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return Super::m_value; }
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return Super::m_value; }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = value.value<T>(); }
 };
 
 template<class T>
-class TProperty : public TStdPropertyBase<T>
+class TDecimalProperty : public TProperty<T>
 {
-    typedef TStdPropertyBase<T> Super;
+    typedef TProperty<T> Super;
 public:
-    TProperty(const Name& path, const T& initial, const T& min, const T& max)
-        : TStdPropertyBase<T>(path, initial)
+    TDecimalProperty(const Name& path, const T& initial, const T& min, const T& max)
+        : Super(path, initial)
         , m_min(min)
         , m_max(max)
     {}
@@ -143,69 +147,18 @@ public:
     const T& GetMinValue() const { return m_min; }
     const T& GetMaxValue() const { return m_max; }
 
-    TProperty<T>& operator=(const T& value) { this->SetValue(value); return *this; }
+    TDecimalProperty<T>& operator=(const T& value) { this->SetValue(value); return *this; }
 
-    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
-    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
+    QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
+    QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
+
 protected:
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->m_value = clamp((T)value.toDouble(), m_min, m_max); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->m_value = clamp(value.value<T>(), m_min, m_max); }
 protected:
     T m_min;
     T m_max;
 };
 
-template<>
-class TProperty<bool> : public TStdPropertyBase<bool>
-{
-public:
-    TProperty<bool>(const Name& path, bool initial)
-        : TStdPropertyBase<bool>(path, initial)
-    {}
-
-    TProperty<bool>& operator=(bool value) { this->SetValue(value); return *this; }
-protected:
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->m_value = value.toBool(); }
-};
-
-template<>
-class TProperty<QString> : public TStdPropertyBase<QString>
-{
-public:
-    TProperty<QString>(const Name& path, const QString& initial)
-        : TStdPropertyBase<QString>(path, initial)
-    {}
-
-    TProperty<QString>& operator=(const QString& value) { this->SetValue(value); return *this; }
-
-protected:
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->m_value = value.toString(); }
-};
-
-template<>
-class TProperty<QByteArray> : public TStdPropertyBase<QByteArray>
-{
-public:
-    TProperty<QByteArray>(const Name& path, const QByteArray& initial)
-        : TStdPropertyBase<QByteArray>(path, initial)
-    {}
-
-    TProperty<QByteArray>& operator=(const QByteArray& value) { this->SetValue(value); return *this; }
-protected:
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE{ this->m_value = value.toByteArray(); }
-};
-
-template<>
-class TProperty<QUrl> : public TStdPropertyBase<QUrl>
-{
-public:
-    TProperty<QUrl>(const Name& path, const QUrl& initial)
-        : TStdPropertyBase<QUrl>(path, initial)
-    {}
-
-    TProperty<QUrl>& operator=(const QUrl& value) { this->SetValue(value); return *this; }
-protected:
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE{ this->m_value = value.toUrl(); }
-};
 
 // Extended
 template<class T>
@@ -225,22 +178,22 @@ public:
 
     // Property interface
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return reinterpret_cast<size_t>(Super::m_value); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = reinterpret_cast<T*>(value.toLongLong()); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return reinterpret_cast<size_t>(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = reinterpret_cast<T*>(value.toLongLong()); }
 };
 
-class TextFileNameProperty : public TProperty<QString>
+class FileNameProperty : public TProperty<QString>
 {
 public:
-    TextFileNameProperty(const Name& path, const QString& initial)
+    FileNameProperty(const Name& path, const QString& initial)
         : TProperty<QString>(path, initial)
     {}
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
 
-class _Export NamedUIntProperty : public TProperty<quint32>
+class _Export NamedUIntProperty : public TDecimalProperty<quint32>
 {
-    typedef TProperty<quint32> Super;
+    typedef TDecimalProperty<quint32> Super;
 public:
     NamedUIntProperty(const Name& path, const quint32& initial)
         : Super(path, initial, 0, 0)
@@ -248,11 +201,11 @@ public:
 
     void SetNames(const QStringList& names);
 
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
-    virtual const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
+    const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
 
 protected:
-    virtual QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(Super::m_value); }
+    QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(Super::m_value); }
 
 private:
     QVariant m_names;
@@ -271,8 +224,8 @@ public:
 
     // Property interface
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return QUrl::toStringList(Super::m_value); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = QUrl::fromStringList(value.toStringList()); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return QUrl::toStringList(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = QUrl::fromStringList(value.toStringList()); }
 
 private:
     qint32 m_maxCount;
@@ -292,29 +245,39 @@ public:
 
 // Internals
 typedef TProperty<bool> BoolProperty;
-typedef TProperty<double> DoubleProperty;
-typedef TProperty<float> FloatProperty;
-typedef TProperty<qint32> IntProperty;
-typedef TProperty<quint32> UIntProperty;
+typedef TDecimalProperty<double> DoubleProperty;
+typedef TDecimalProperty<float> FloatProperty;
+typedef TDecimalProperty<qint32> IntProperty;
+typedef TDecimalProperty<quint32> UIntProperty;
 typedef TProperty<QString> StringProperty;
 typedef TProperty<QUrl> UrlProperty;
 typedef TProperty<QByteArray> ByteArrayProperty;
 
 #ifdef QT_GUI_LIB
+#include <QColor>
+
 #include <SharedGuiModule/internal.hpp>
 
-class RectProperty : public TStdPropertyBase<Rect>
+class ColorProperty : public TProperty<QColor>
 {
-    typedef TStdPropertyBase<Rect> Super;
+    typedef TProperty<QColor> Super;
+public:
+    ColorProperty(const Name& name, const QColor& initial)
+        : Super(name, initial)
+    {}
+
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
+};
+
+class RectProperty : public TProperty<Rect>
+{
+    typedef TProperty<Rect> Super;
 public:
     RectProperty(const Name& name, const Rect& initial)
         : Super(name, initial)
     {}
 
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateRect; }
-    // Property interfaces
-protected:
-    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { m_value = value.toRect(); }
 };
 
 class _Export Vector3FProperty

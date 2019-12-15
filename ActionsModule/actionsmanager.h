@@ -13,14 +13,17 @@ class ActionsManager
 public:
     static ActionsManager& GetInstance();
 
-private:
-    friend class ActionsScopeBase;
-    void registerActionsScope(ActionsScopeBase& actionsScope);
-    Action* createAction(const Name& actionName, const FAction& action);
+    void CreateActionsFromRegisteredScopes();
+    ActionsScopeBase* FindScope(const Latin1Name& scopeName);
 
 private:
-    std::set<Action> m_actions;
-    std::set<NamedClassReferenceWrapper<ActionsScopeBase>> m_actionsScopes;
+    friend class ActionsScopeBase;
+    void registerActionsScope(ActionsScopeBase* actionsScope);
+    Action* createAction(const Latin1Name& actionName, const FAction& action);
+
+private:
+    std::map<Latin1Name, Action*> m_actions;
+    std::map<Latin1Name, ActionsScopeBase*> m_actionsScopes;
 };
 
 #endif // ACTIONSMANAGER_H

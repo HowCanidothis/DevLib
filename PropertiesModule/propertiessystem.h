@@ -14,6 +14,13 @@ template<class T> class PropertyPromise;
 
 typedef quint8 properties_context_index_t;
 
+class PropertiesSystemContextIndexScopeGuard
+{
+public:
+    explicit PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT;
+    ~PropertiesSystemContextIndexScopeGuard();
+};
+
 class _Export PropertiesSystem
 {
 public:

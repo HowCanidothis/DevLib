@@ -8,20 +8,27 @@ class Action;
 class ActionsScopeBase : public QObject
 {
 public:
-    ActionsScopeBase(const Name& scopeName);
+    ActionsScopeBase(const Latin1Name& scopeName);
+    virtual ~ActionsScopeBase() {}
 
     virtual void CreateActions() = 0;
 
+    const Latin1Name& GetName() const { return m_name; }
+    Action* FindAction(const Latin1Name& actionName);
     const Stack<Action*>& GetActions() const { return m_actions; }
+    QList<class QAction*> GetActionsQList() const;
 
     operator qint32() const { return m_name; }
 
 protected:
-    Action* createAction(const QString& actionName, const FAction& action);
+    Action* createAction(const Latin1Name& actionName, const FAction& action);
+
+    Latin1Name GenerateFullActionName(const Latin1Name& actionName) const;
 
 private:
-    Name m_name;
+    Latin1Name m_name;
     Stack<Action*> m_actions;
+    std::map<Latin1Name, Action*> m_actionsMap;
 };
 
 #endif // IACTIONSSCOPE_H

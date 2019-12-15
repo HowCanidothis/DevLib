@@ -59,7 +59,7 @@ public:
     void MemMove(T* dst, const T* src, count_t count)
     {
         if(dst != src) {
-            ::memmove(dst, src, count * sizeof(T)); //'if' cans defend from unnecessary implicit calls from append(const T* v, count_t count)
+            ::memmove(dst, src, count * sizeof(T)); //'if' can defend from unnecessary implicit calls from append(const T* v, count_t count)
         }
     }
     void Realloc(count_t count, count_t offset)
@@ -307,6 +307,20 @@ public:
         return std::distance(begin(), std::find(begin(), end(), value));
     }
 
+    void Merge(qint32 insertIndex, const ArrayCommon& other) {
+        Resize(other.Size() + Size());
+        auto moveRangeIt = End() - other.Size() - 1;
+        auto moveRangeEnd = Begin() + insertIndex;
+        auto moveRangeNewIt = End() - 1;
+        for(;moveRangeIt >= moveRangeEnd; moveRangeIt--, moveRangeNewIt--) {
+            *moveRangeNewIt = *moveRangeIt;
+        }
+        auto startInsertIt = other.Begin();
+        auto startInsertNewIt = Begin() + insertIndex;
+        for(;startInsertIt < other.end(); startInsertNewIt++, startInsertIt++) {
+            *startInsertNewIt = *startInsertIt;
+        }
+    }
     template<typename FComparator>
     void InsertSortedUnique(const T &value, const FComparator& comparator)
     {
@@ -377,6 +391,10 @@ public:
         Q_ASSERT(it != this->End());
         detachCopy();
         RemoveByIndex(std::distance(Begin(), it));
+    }
+    void Swap(ArrayCommon& other)
+    {
+        std::swap(other._d, _d);
     }
     void Clear()
     {

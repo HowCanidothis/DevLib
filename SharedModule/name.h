@@ -3,6 +3,7 @@
 
 #include <QString>
 #include "shared_decl.h"
+#include "smartpointersadapters.h"
 
 class _Export Name
 {
@@ -27,15 +28,15 @@ class _Export Latin1Name
 public:
     Latin1Name();
     Latin1Name(const char* name);
-    Latin1Name(const QLatin1String& name);
+    Latin1Name(const std::string& name);
 
     operator qint32() const { return m_value; }
-    const QLatin1String& AsLatin1String() const { return m_text; }
+    const std::string& AsLatin1String() const { return *m_text; }
 
-    void SetName(const QLatin1String& str);
+    void SetName(const std::string& str);
 
 private:
-    QLatin1String m_text;
+    SharedPointer<std::string> m_text;
     qint32 m_value;
 };
 

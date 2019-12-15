@@ -211,3 +211,13 @@ PropertiesSystem::Type& PropertiesSystem::currentContextIndex()
 {
     static Type res = Global; return res;
 }
+
+PropertiesSystemContextIndexScopeGuard::PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT
+{
+    PropertiesSystem::Begin(contextIndex);
+}
+
+PropertiesSystemContextIndexScopeGuard::~PropertiesSystemContextIndexScopeGuard()
+{
+    PropertiesSystem::End();
+}

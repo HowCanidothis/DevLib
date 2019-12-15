@@ -87,8 +87,8 @@ public:
     T GetMinValue() const { return m_min; }
     T GetMaxValue() const { return m_max; }
 
-    virtual QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
-    virtual QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
+    QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
+    QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
 
     // Property interface
 protected:
@@ -107,8 +107,8 @@ public:
         : Super(path, defaultGetter(ref), defaultSetter(ref))
     {}
 protected:
-    virtual QVariant getValue() const Q_DECL_OVERRIDE { return m_getter().AsString(); }
-    virtual void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { m_setter(Name(value.toString()), m_getter()); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return m_getter().AsString(); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { m_setter(Name(value.toString()), m_getter()); }
 };
 
 class _Export ExternalNamedUIntProperty : public TExternalDecimalProperty<quint32>
@@ -119,10 +119,10 @@ public:
 
     void SetNames(const QStringList& names);
 
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
-    virtual const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
+    const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
 protected:
-    virtual QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(m_getter()); }
+    QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(m_getter()); }
 
 private:
     QVariant m_names;
@@ -152,7 +152,7 @@ public:
     ExternalTextFileNameProperty(const Name& path, QString& ref)
         : ExternalStringProperty(path, ref)
     {}
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
 
 #ifdef QT_GUI_LIB
@@ -165,7 +165,7 @@ class ExternalColorProperty : public TExternalProperty<QColor>
 public:
     using Super::Super;
 
-    virtual DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
 };
 
 struct _Export ExternalVector3FProperty

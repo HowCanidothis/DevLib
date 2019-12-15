@@ -8,12 +8,13 @@
 class Action : public QAction
 {
 public:
-    Action(const Name& actionName, const FAction& action);
+    explicit Action(const Latin1Name& actionName);
+    Action(const Latin1Name& actionName, const FAction& action);
 
-    operator qint32() const { return m_name; }
+    void AddActionHandler(const FAction& action);
 
 private:
-    Name m_name;
+    Latin1Name m_name;
     FAction m_action;
 };
 
