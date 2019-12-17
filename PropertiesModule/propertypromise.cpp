@@ -28,6 +28,7 @@ PropertyPromiseBase::PropertyPromiseBase(const Name& name, qint32 contextIndex)
         };
         property->SetValue(value);
     })
+    , m_propertyName(name)
 {
 
 }
@@ -36,4 +37,13 @@ PropertyPromiseBase::PropertyPromiseBase(const Name& name, const Property::FOnCh
     : PropertyPromiseBase(name, contextIndex)
 {
     PropertiesSystem::Subscribe(name, onChange);
+}
+
+void PropertyPromiseBase::Subscribe(const Property::FOnChange& onChange)
+{
+    if(IsValid()) {
+        GetProperty()->Subscribe(onChange);
+    } else {
+        PropertiesSystem::Subscribe(m_propertyName, onChange);
+    }
 }
