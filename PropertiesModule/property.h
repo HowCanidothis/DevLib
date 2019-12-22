@@ -117,6 +117,8 @@ public:
         : TPropertyBase<T>(path, initial)
     {}
 
+    TProperty<T>& operator=(const T& value) { this->SetValue(value); return *this; }
+
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return Super::m_value; }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = value.value<T>(); }

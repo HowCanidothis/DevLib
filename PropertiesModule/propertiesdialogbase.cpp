@@ -29,7 +29,7 @@ PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIn
 
 void PropertiesDialogBase::CreateGeometryProperty(const QString& dialogName)
 {
-    // TODO. Memory leak, but this property is global and live until the application close
+    // TODO. Memory leak, but this property is global and live until the application closes
     auto property = new ByteArrayProperty(Name("PropertiesDialogGeometry/" + dialogName), QByteArray());
     property->ChangeOptions().SetFlags(Property::Option_IsExportable);
 }
