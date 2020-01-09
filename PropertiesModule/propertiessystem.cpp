@@ -149,7 +149,7 @@ properties_context_index_t PropertiesSystem::GetCurrentContextIndex()
     return currentContextIndex();
 }
 
-PropertiesSystem::FHandle& PropertiesSystem::Begin(Type type)
+PropertiesSystem::FHandle& PropertiesSystem::Begin(Scope type)
 {
     Q_ASSERT(type >= 0 && type < Max);
     currentHandle() = defaultHandle();
@@ -158,7 +158,7 @@ PropertiesSystem::FHandle& PropertiesSystem::Begin(Type type)
     return currentHandle();
 }
 
-void PropertiesSystem::Begin(ThreadEventsContainer* thread, PropertiesSystem::Type type)
+void PropertiesSystem::Begin(ThreadEventsContainer* thread, PropertiesSystem::Scope type)
 {
     Begin(type) = [thread](const FSetter& setter){ thread->Asynch(setter); };
 }
@@ -207,9 +207,9 @@ PropertiesSystem::FHandle& PropertiesSystem::currentHandle()
     return res;
 }
 
-PropertiesSystem::Type& PropertiesSystem::currentContextIndex()
+PropertiesSystem::Scope& PropertiesSystem::currentContextIndex()
 {
-    static Type res = Global; return res;
+    static Scope res = Global; return res;
 }
 
 PropertiesSystemContextIndexScopeGuard::PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT

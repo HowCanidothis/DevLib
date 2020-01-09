@@ -1,5 +1,7 @@
 #include "actionsmanager.h"
 
+#include <QMenu>
+
 #include "actionsscopebase.h"
 
 ActionsManager::ActionsManager()
@@ -27,6 +29,32 @@ ActionsScopeBase* ActionsManager::FindScope(const Latin1Name& scopeName)
         return found->second;
     }
     return nullptr;
+}
+
+bool ActionsManager::AddTo(const Latin1Name& scopeName, QMenu* menu)
+{
+    auto* scope = FindScope(scopeName);
+    if(scope != nullptr) {
+        for(auto* action : scope->GetActions()) {
+            menu->addAction(action);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool ActionsManager::AddTo(const Latin1Name& scopeName, QWidget* widget)
+{
+    auto* scope = FindScope(scopeName);
+    if(scope != nullptr) {
+        widget->addActions(scope->GetActionsQList());
+
+        return true;
+    }
+
+    return false;
 }
 
 void ActionsManager::registerActionsScope(ActionsScopeBase* actionsScope)

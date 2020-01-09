@@ -37,7 +37,7 @@ struct Serializer<Latin1Name>
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
-        QLatin1String value;
+        std::string value;
         buffer << value;
         data.SetName(value);
     }

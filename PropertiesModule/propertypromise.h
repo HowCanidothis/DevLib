@@ -99,5 +99,6 @@ typedef PropertyPromise<DoubleProperty> DoublePropertyPtr;
 typedef PropertyPromise<ByteArrayProperty> ByteArrayPropertyPtr;
 typedef PropertyPromise<StringProperty> StringPropertyPtr;
 typedef PropertyPromise<ColorProperty> ColorPropertyPtr;
+typedef PropertyPromise<UrlListProperty> UrlListPropertyPtr;
 
 #endif // PROPERTYPROMISE_H

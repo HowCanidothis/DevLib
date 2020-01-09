@@ -24,7 +24,7 @@ public:
 class _Export PropertiesSystem
 {
 public:
-    enum Type {
+    enum Scope {
         Global = 0,
         InitProperties,
         Temp,
@@ -63,10 +63,10 @@ public:
     // change it for example for thread safety.
     // Example:
     // handle = [threadWherePropertyIs](const auto& setter){ threadWherePropertyIs->Asynch(setter); }
-    static FHandle& Begin(Type type=Global);
-    static FHandle& Begin(properties_context_index_t type) { return Begin((Type)type); }
+    static FHandle& Begin(Scope type=Global);
+    static FHandle& Begin(properties_context_index_t type) { return Begin((Scope)type); }
     // convenient Begin overload. Use it when property exists in different from the main thread
-    static void Begin(class ThreadEventsContainer* thread, Type type=Global);
+    static void Begin(class ThreadEventsContainer* thread, Scope type=Global);
     // call this to
     static void End();
 
@@ -84,7 +84,7 @@ private:
     static QHash<Name, Property*>& context();
     static FHandle defaultHandle();
     static FHandle& currentHandle();
-    static Type& currentContextIndex();
+    static Scope& currentContextIndex();
 };
 
 #endif // PROPS_H

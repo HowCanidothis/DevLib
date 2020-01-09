@@ -32,8 +32,9 @@ struct RIProtocholQueryBase
 
     friend QDebug operator<<(QDebug debug, const RIProtocholQueryBase& data)
     {
-        debug << "GPSData Values" << "\n";
+        debug << "RIProtochol Values" << "\n";
         debug << "(" << "\n";
+        debug << "PackageType" << data.PackageType << "\n";
         debug << "From" << data.From << "\n";
         debug << "To" << data.To << "\n";
         debug << "RequestId" << data.RequestId << "\n";

@@ -15,6 +15,8 @@ public:
 
     void CreateActionsFromRegisteredScopes();
     ActionsScopeBase* FindScope(const Latin1Name& scopeName);
+    bool AddTo(const Latin1Name& scopeName, QMenu* menu);
+    bool AddTo(const Latin1Name& scopeName, QWidget* widget);
 
 private:
     friend class ActionsScopeBase;
