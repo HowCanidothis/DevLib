@@ -242,6 +242,11 @@ public:
     ArrayCommon(const ArrayCommon& other)
         : _d(other._d)
     {}
+    ArrayCommon(ArrayCommon&& other)
+        : _d(other._d)
+    {
+        other._d.reset(new MiddleAlgoData<T>());
+    }
 
     void Sort()
     {
@@ -517,6 +522,9 @@ public:
         : Super(args)
     {}
     Array(const ArrayCommon<T>& other)
+        : Super(other)
+    {}
+    Array(ArrayCommon<T>&& other)
         : Super(other)
     {}
 

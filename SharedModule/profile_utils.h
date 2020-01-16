@@ -55,10 +55,14 @@ public:
 
     void Bind();
     qint64 Release();
+    Nanosecs ReleaseNanosecs();
 
     Nanosecs CalculateMeanValue() const;
     Nanosecs CalculateMinValue() const;
     Nanosecs CalculateMaxValue() const;
+
+    void ToTextStream(QTextStream& stream) const;
+    QString ToString() const;
 
 private:
     ScopedPointer<Timer> _timer;

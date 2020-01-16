@@ -30,6 +30,11 @@ qint64 TimerClocks::Release()
     return nsecs;
 }
 
+Nanosecs TimerClocks::ReleaseNanosecs()
+{
+    return Release();
+}
+
 Nanosecs TimerClocks::CalculateMeanValue() const
 {
     qint64 sum = 0;
@@ -59,6 +64,21 @@ Nanosecs TimerClocks::CalculateMaxValue() const
         }
     }
     return max;
+}
+
+void TimerClocks::ToTextStream(QTextStream& stream) const
+{
+    stream << CalculateMinValue().ToString("Min")
+           << CalculateMeanValue().ToString(" Mean")
+           << CalculateMaxValue().ToString(" Max");
+}
+
+QString TimerClocks::ToString() const
+{
+    QString result;
+    QTextStream stream(&result);
+    ToTextStream(stream);
+    return result;
 }
 
 PerformanceClocks::PerformanceClocks(const char* function, const char* file, quint32 line)
