@@ -7,6 +7,18 @@
 #include <SharedModule/internal.hpp>
 #include <SharedGuiModule/decl.h> // Vector3f
 
+template<typename T>
+struct PropertyValueExtractorPrivate
+{
+    static QVariant ExtractVariant(const T& value) { return value; }
+};
+
+template<typename T>
+struct PropertyValueExtractorPrivate<T*>
+{
+    static QVariant ExtractVariant(T* ptr) { return QVariant((qint64)(ptr)); }
+};
+
 class _Export Property {
 public:
     typedef std::function<void ()> FSetter;
@@ -180,7 +192,7 @@ public:
 
     // Property interface
 protected:
-    QVariant getValue() const Q_DECL_OVERRIDE { return reinterpret_cast<size_t>(Super::m_value); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return PropertyValueExtractorPrivate<typename Super::value_type>::ExtractVariant(Super::m_value); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = reinterpret_cast<T*>(value.toLongLong()); }
 };
 

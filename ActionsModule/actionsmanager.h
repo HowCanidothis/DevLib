@@ -1,6 +1,8 @@
 #ifndef ACTIONSMANAGER_H
 #define ACTIONSMANAGER_H
 
+#ifdef QT_GUI_LIB
+
 #include <SharedModule/internal.hpp>
 
 #include "action.h"
@@ -27,5 +29,7 @@ private:
     std::map<Latin1Name, Action*> m_actions;
     std::map<Latin1Name, ActionsScopeBase*> m_actionsScopes;
 };
+
+#endif
 
 #endif // ACTIONSMANAGER_H

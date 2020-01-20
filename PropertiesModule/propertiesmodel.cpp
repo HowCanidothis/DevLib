@@ -87,7 +87,7 @@ void PropertiesModel::forEachItem(QString& path,
 
 void PropertiesModel::reset()
 {
-    m_root = new Item { "", nullptr, 0, nullptr };
+    m_root = new Item { "", nullptr, 0, nullptr, {} };
 }
 
 void PropertiesModel::reset(const QHash<Name, Property*>& tree)
@@ -111,7 +111,7 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
             if(find == nodes.end()) {
                 Item* parent = current;
                 qint32 crow = current->Childs.Size();
-                current = new Item { path, parent, crow };
+                current = new Item { path, parent, crow, nullptr, {} };
                 parent->Childs.Push(current);
                 nodes.insert(path, current);
             } else {
@@ -121,7 +121,7 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
         //Last editable item
         qint32 crow = current->Childs.Size();
-        Item* propertyItem = new Item { paths.last(), current, crow };
+        Item* propertyItem = new Item { paths.last(), current, crow, nullptr, {} };
         current->Childs.Push(propertyItem);
         propertyItem->Prop = it.value();
     }

@@ -41,41 +41,7 @@ public:
 
     const value_type& operator->() const { return *GetProperty(); }
     operator const value_type& () const { return *GetProperty(); }
-    PropertyPromise& operator=(const value_type& value) { m_setter(value); return *this; }
-};
-
-template <typename T>
-class PointerPropertyPtr : public PropertyPromiseBase
-{
-    using Super = PropertyPromiseBase;
-    using value_type = typename PointerProperty<T>::value_type;
-
-public:
-    PointerPropertyPtr(const Name& name, qint32 contextIndex)
-        : Super(name, contextIndex)
-    {}
-    PointerPropertyPtr(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex)
-        : Super(name, onChange, contextIndex)
-    {}
-
-    PointerProperty<T>* GetProperty() const { return reinterpret_cast<PointerProperty<T>*>(m_getter()); }
-    const value_type& Native() const { return *GetProperty(); }
-
-    const value_type& operator->() const { return *GetProperty(); }
-    operator const value_type& () const { return *GetProperty(); }
-    PointerPropertyPtr& operator=(const value_type& value) { m_setter(reinterpret_cast<size_t>(value)); return *this; }
-};
-
-template<typename T>
-struct PropertyPromisePrivate
-{
-    static QVariant ExtractVariant(const T& value) { return value; }
-};
-
-template<typename T>
-struct PropertyPromisePrivate<T*>
-{
-    static QVariant ExtractVariant(T* ptr) { return reinterpret_cast<size_t>(ptr); }
+    PropertyPromise& operator=(const value_type& value) { m_setter(PropertyValueExtractorPrivate<value_type>::ExtractVariant(value)); return *this; }
 };
 
 template<class T>
@@ -98,7 +64,11 @@ typedef PropertyPromise<FloatProperty> FloatPropertyPtr;
 typedef PropertyPromise<DoubleProperty> DoublePropertyPtr;
 typedef PropertyPromise<ByteArrayProperty> ByteArrayPropertyPtr;
 typedef PropertyPromise<StringProperty> StringPropertyPtr;
-typedef PropertyPromise<ColorProperty> ColorPropertyPtr;
 typedef PropertyPromise<UrlListProperty> UrlListPropertyPtr;
+template<class T> using PointerPropertyPtr = PropertyPromise<PointerProperty<T>>;
+
+#ifdef QT_GUI_LIB
+typedef PropertyPromise<ColorProperty> ColorPropertyPtr;
+#endif
 
 #endif // PROPERTYPROMISE_H
