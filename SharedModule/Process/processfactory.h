@@ -13,14 +13,16 @@ struct DescProcessValueState
     int Depth;
     bool IsFinished;
     bool IsNextProcessExpected;
+    bool IsTitleChanged;
 
     bool IsShouldStayVisible() const { return !IsFinished || IsNextProcessExpected; }
 
-    DescProcessValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected)
+    DescProcessValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected, bool isTitleChanged)
         : Title(title)
         , Depth(depth)
         , IsFinished(isFinished)
         , IsNextProcessExpected(isNextProcessExpected)
+        , IsTitleChanged(isTitleChanged)
     {}
 };
 
@@ -35,12 +37,13 @@ protected:
 public:
     virtual ~ProcessValue();
 
-    DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected() }; }
+    DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected(), IsTitleChanged() }; }
     int GetDepth() const { return _valueDepth; }
     const std::wstring& GetTitle() const { return _title; }
     bool IsCanceled() const { return _isCanceled; }
     bool IsNextProcessExpected() const { return _isNextProcessExpected; }
     bool IsFinished() const { return _isFinished; }
+    bool IsTitleChanged() const { return _isTitleChanged; }
     virtual class ProcessDeterminateValue* AsDeterminate() { return nullptr; }
 
 protected:
@@ -48,10 +51,10 @@ protected:
     void finish();
     void setNextProcessExpected();
 
-    virtual void incrementStep();
+    virtual void incrementStep(int divider);
     void init(const std::wstring& title);
 
-private:
+protected:
     friend class ProcessFactory;
     friend class ProcessBase;
 
@@ -61,6 +64,7 @@ private:
     bool _isNextProcessExpected;
     bool _isCanceled;
     bool _isFinished;
+    bool _isTitleChanged;
 };
 
 struct DescProcessDeterminateValueState : DescProcessValueState
@@ -68,8 +72,8 @@ struct DescProcessDeterminateValueState : DescProcessValueState
     int CurrentStep;
     int StepsCount;
 
-    DescProcessDeterminateValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected, int currentStep, int stepsCount)
-        : DescProcessValueState(title, depth, isFinished, isNextProcessExpected)
+    DescProcessDeterminateValueState(const std::wstring& title, int depth, bool isFinished, bool isNextProcessExpected, int currentStep, int stepsCount, bool isTitleChanged)
+        : DescProcessValueState(title, depth, isFinished, isNextProcessExpected, isTitleChanged)
         , CurrentStep(currentStep)
         , StepsCount(stepsCount)
     {}
@@ -83,7 +87,7 @@ class ProcessDeterminateValue : public ProcessValue
 public:
     ~ProcessDeterminateValue();
 
-    DescProcessDeterminateValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected(), GetCurrentStep(), GetStepsCount() }; }
+    DescProcessDeterminateValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsNextProcessExpected(), GetCurrentStep(), GetStepsCount(), IsTitleChanged() }; }
     int GetCurrentStep() const { return _currentStep; }
     int GetStepsCount() const { return _stepsCount; }
     virtual ProcessDeterminateValue* AsDeterminate() override{ return this; }
@@ -92,7 +96,7 @@ private:
     friend class ProcessFactory;
     friend class ProcessBase;
 
-    virtual void incrementStep() override;
+    virtual void incrementStep(int divider) override;
 
     void init(const std::wstring& title, int stepsCount);
     void increaseStepsCount(int value);

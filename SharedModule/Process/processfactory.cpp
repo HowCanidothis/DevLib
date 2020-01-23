@@ -6,6 +6,7 @@ ProcessValue::ProcessValue(const FCallback& callback)
     , _isNextProcessExpected(false)
     , _isCanceled(false) 
     , _isFinished(false)
+    , _isTitleChanged(false)
 {
 }
 
@@ -24,7 +25,9 @@ ProcessValue::~ProcessValue()
 void ProcessValue::setTitle(const std::wstring& title)
 {
     _title = title;
+    _isTitleChanged = true;
     _callback(this);
+    _isTitleChanged = false;
 }
 
 void ProcessValue::finish()
@@ -40,15 +43,16 @@ void ProcessValue::setNextProcessExpected()
     _isNextProcessExpected = true;
 }
 
-void ProcessValue::incrementStep()
+void ProcessValue::incrementStep(int)
 {
-    _callback(this);
 }
 
 void ProcessValue::init(const std::wstring& title)
 {
     _title = title;
+    _isTitleChanged = true;
     _callback(this);
+    _isTitleChanged = false;
 }
 
 ProcessDeterminateValue::~ProcessDeterminateValue()
@@ -56,10 +60,16 @@ ProcessDeterminateValue::~ProcessDeterminateValue()
     finish();
 }
 
-void ProcessDeterminateValue::incrementStep()
+void ProcessDeterminateValue::incrementStep(int divider)
 {
     _currentStep++;
-    Super::incrementStep();
+    if(divider) {
+        if(!(_currentStep % divider)) {
+            _callback(this);
+        }
+    } else {
+        _callback(this);
+    }
 }
 
 void ProcessDeterminateValue::init(const std::wstring& title, int stepsCount)
@@ -72,7 +82,7 @@ void ProcessDeterminateValue::init(const std::wstring& title, int stepsCount)
 void ProcessDeterminateValue::increaseStepsCount(int value)
 {
     _stepsCount += value;
-    (void)Super::incrementStep();
+    _callback(this);
 }
 
 static bool DoNothingCallback(ProcessValue*) { return true; }

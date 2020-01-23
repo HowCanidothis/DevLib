@@ -14,6 +14,7 @@ class _Export ThreadsBase
 public:
 
     static void DoMain(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void DoMainAwait(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoQThread(class QThread* thread, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Async(const FAction& task);
 };

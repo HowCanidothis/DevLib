@@ -12,7 +12,7 @@ class ProcessDummy : public IProcess
 {
 public:
     virtual void BeginProcess(const wchar_t*, bool) final {}
-    virtual void BeginProcess(const wchar_t*, int, bool) final {}
+    virtual void BeginProcess(const wchar_t*, int, int, bool) final {}
     virtual void SetProcessTitle(const wchar_t*) final {}
     virtual void IncreaseProcessStepsCount(int) final {}
     virtual void IncrementProcess() final {}
@@ -28,7 +28,7 @@ public:
     ~ProcessBase();
 
     void BeginProcess(const wchar_t* title, bool shadow = false) override;
-    void BeginProcess(const wchar_t* title, int stepsCount, bool shadow = false) override;
+    void BeginProcess(const wchar_t* title, int stepsCount, int wantedCount, bool shadow = false) override;
     void SetProcessTitle(const wchar_t* title) override;
     void IncreaseProcessStepsCount(int stepsCount) override;
     void IncrementProcess() override;
@@ -36,6 +36,7 @@ public:
 
 private:
     std::unique_ptr<ProcessValue> _processValue;
+    int _divider;
 };
 
 

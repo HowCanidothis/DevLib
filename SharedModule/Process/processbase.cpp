@@ -23,10 +23,15 @@ void ProcessBase::BeginProcess(const wchar_t* title, bool shadow)
     _processValue->init(title);
 }
 
-void ProcessBase::BeginProcess(const wchar_t* title, int stepsCount, bool shadow)
+void ProcessBase::BeginProcess(const wchar_t* title, int stepsCount, int wantedCount, bool shadow)
 {
     if(_processValue != nullptr) {
         _processValue->setNextProcessExpected();
+    }
+    if((stepsCount != 0) && (wantedCount != 0) && (stepsCount > wantedCount)) {
+        _divider = stepsCount / wantedCount;
+    } else {
+        _divider = 0;
     }
     _processValue = nullptr;
     auto value = shadow ? ProcessFactory::Instance().createShadowDeterminate() : ProcessFactory::Instance().createDeterminate();
@@ -48,7 +53,7 @@ void ProcessBase::IncreaseProcessStepsCount(int stepsCount)
 
 void ProcessBase::IncrementProcess()
 {
-    _processValue->incrementStep();
+    _processValue->incrementStep(_divider);
 }
 
 bool ProcessBase::IsProcessCanceled() const
