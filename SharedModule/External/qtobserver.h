@@ -23,6 +23,7 @@ class QtObserver : public QObject
     ArrayPointers<Observable> _observables;
     QHash<const void*, qint64> _counters;
     FObserve _doObserve;
+
 public:
     QtObserver(qint32 msInterval, QObject* parent=0);
 
