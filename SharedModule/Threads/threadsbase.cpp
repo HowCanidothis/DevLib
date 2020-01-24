@@ -1,6 +1,8 @@
 #include "threadsbase.h"
 
 #include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 
 #include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
