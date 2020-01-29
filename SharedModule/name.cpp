@@ -41,8 +41,8 @@ const QString& Name::AsString() const
 }
 
 Latin1Name::Latin1Name()
-    : m_value(0)
-    , m_text(new std::string)
+    : m_text(new std::string)
+    , m_value(0)
 {
 
 }

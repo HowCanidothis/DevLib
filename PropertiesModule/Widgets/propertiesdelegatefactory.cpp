@@ -79,6 +79,7 @@ bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel
                 model->setData(index, Rect(x,y,width,height));
             }
         }
+        return true;
     case Property::DelegateColor:
         if(auto e = qobject_cast<QColorDialog*>(editor)) {
             if(e->selectedColor().isValid()) {

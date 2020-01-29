@@ -5,7 +5,8 @@
 #include "NetworkModule/networkserverbase.h"
 
 NetworkConnection::NetworkConnection(INetworkConnectionOutput* output)
-    : m_output(output)
+    : m_redOffset(0)
+    , m_output(output)
 {
     m_currentPackage.m_data.reserve(0xffff); // 65 kB
 
@@ -74,7 +75,8 @@ void NetworkConnection::OnReadyRead()
             OnReadyRead();
         }
     } else if(m_socket.bytesAvailable()){
-        qint64 bytesRed = m_socket.read(data.data(), header.Size);
+        qint64 bytesRed = m_socket.read(data.data() + m_redOffset, header.Size);
+        m_redOffset += bytesRed;
         header.Size -= bytesRed;
 
         qInfo() << socketDescriptor << "parsing package body...\n" << header;
@@ -94,6 +96,8 @@ void NetworkConnection::OnReadyRead()
                 qWarning() << socketDescriptor << "incorrect hash sum\n" << m_currentPackage.m_header;
                 qWarning() << "Calculated checkSum:" << m_currentPackage.GenerateCheckSum();
             }
+
+            m_redOffset = 0;
         }
 
         OnReadyRead();

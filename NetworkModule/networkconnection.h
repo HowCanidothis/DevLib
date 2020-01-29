@@ -34,6 +34,7 @@ private:
     qintptr m_socketDescriptor;
     QTcpSocket m_socket;
     NetworkPackage m_currentPackage;
+    qint32 m_redOffset;
     INetworkConnectionOutput* m_output;
 };
 

@@ -1,6 +1,8 @@
 #ifndef ACTIONSSCOPEBASE_H
 #define ACTIONSSCOPEBASE_H
 
+#ifdef QT_GUI_LIB
+
 #include <SharedModule/internal.hpp>
 
 class Action;
@@ -30,5 +32,7 @@ private:
     Stack<Action*> m_actions;
     std::map<Latin1Name, Action*> m_actionsMap;
 };
+
+#endif
 
 #endif // IACTIONSSCOPE_H

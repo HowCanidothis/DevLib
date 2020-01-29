@@ -4,6 +4,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+
 #include <QApplication>
 
 #include "external.hpp"

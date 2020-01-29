@@ -28,6 +28,7 @@
 #include "FileSystem/filesguard.h"
 #include "Process/qprocessbase.h"
 #include "Process/processbase.h"
+#include "Process/processfactory.h"
 #include "Threads/threadcomputingbase.h"
 #include "Threads/threadeventshelper.h"
 #include "Threads/ThreadFunction/threadfunction.h"

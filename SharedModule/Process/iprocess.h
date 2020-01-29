@@ -26,7 +26,7 @@ public:
     virtual ~IProcess() {}
 
     virtual void BeginProcess(const wchar_t*, bool) = 0;
-    virtual void BeginProcess(const wchar_t*, int, bool) = 0;
+    virtual void BeginProcess(const wchar_t*, int, int, bool) = 0;
     virtual void SetProcessTitle(const wchar_t*) = 0;
     virtual void IncreaseProcessStepsCount(int) = 0;
     virtual void IncrementProcess() = 0;

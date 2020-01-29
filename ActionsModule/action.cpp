@@ -1,5 +1,7 @@
 #include "action.h"
 
+#ifdef QT_GUI_LIB
+
 Action::Action(const Latin1Name& actionName)
     : m_name(actionName)
 {
@@ -20,3 +22,5 @@ void Action::AddActionHandler(const FAction& action)
         action();
     });
 }
+
+#endif
