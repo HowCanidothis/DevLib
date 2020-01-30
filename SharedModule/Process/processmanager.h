@@ -3,6 +3,8 @@
 
 #include <QMutex>
 
+#include <SharedModule/internal.hpp>
+
 class ProcessManager
 {
 private:

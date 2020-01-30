@@ -271,11 +271,11 @@ public:
         if(foundIt != hash.end()) {
             if(*foundIt != value) {
                 *foundIt = value;
-                Invoke();
+                Super::Invoke();
             }
         } else {
             hash.insert(key, value);
-            Invoke();
+            Super::Invoke();
         }
     }
 
