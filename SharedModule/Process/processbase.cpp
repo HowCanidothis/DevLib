@@ -2,7 +2,6 @@
 
 #include "processfactory.h"
 
-
 ProcessBase::ProcessBase()
 {
 

@@ -32,8 +32,6 @@ protected:
     typedef std::function<void (ProcessValue*)> FCallback;
     ProcessValue(const FCallback& callback);
 
-    static std::atomic_int& depthCounter();
-
 public:
     virtual ~ProcessValue();
 

@@ -2,6 +2,7 @@
 #define PROPERTY_H
 
 #include <QUrl>
+
 #include <functional>
 
 #include <SharedModule/internal.hpp>
@@ -243,6 +244,44 @@ protected:
 
 private:
     qint32 m_maxCount;
+};
+
+template <class T>
+class PropertiesValueToStringConverter
+{
+public:
+    static QString ToString(const T& value);
+    static T FromString(const QString& string);
+};
+
+template<class Key, class Value>
+class _Export HashProperty : public TPropertyBase<QHash<Key, Value>>
+{
+    using Super = TPropertyBase<QHash<Key, Value>>;
+
+public:
+    HashProperty(const Name& path)
+        : Super(path, {})
+    {}
+
+    void Insert(const Key& key, const Value& value)
+    {
+        QHash<Key, Value>& hash = Super::m_value;
+        auto foundIt = hash.find(key);
+        if(foundIt != hash.end()) {
+            if(*foundIt != value) {
+                *foundIt = value;
+                Invoke();
+            }
+        } else {
+            hash.insert(key, value);
+            Invoke();
+        }
+    }
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return PropertiesValueToStringConverter<typename Super::value_type>::ToString(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = PropertiesValueToStringConverter<typename Super::value_type>::FromString(value.toString()); }
 };
 
 class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>
