@@ -92,6 +92,7 @@ protected:
     QVariant m_previousValue;
 #ifdef DEBUG_BUILD
     bool m_isSubscribed;
+    Name m_propertyName;
 #endif
 };
 
@@ -246,14 +247,6 @@ private:
     qint32 m_maxCount;
 };
 
-template <class T>
-class PropertiesValueToStringConverter
-{
-public:
-    static QString ToString(const T& value);
-    static T FromString(const QString& string);
-};
-
 template<class Key, class Value>
 class _Export HashProperty : public TPropertyBase<QHash<Key, Value>>
 {
@@ -280,8 +273,8 @@ public:
     }
 
 protected:
-    QVariant getValue() const Q_DECL_OVERRIDE { return PropertiesValueToStringConverter<typename Super::value_type>::ToString(Super::m_value); }
-    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = PropertiesValueToStringConverter<typename Super::value_type>::FromString(value.toString()); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
 class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>

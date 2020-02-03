@@ -16,6 +16,9 @@ class ThreadPool
 public:
     ThreadPool();
 
+public:
+    void TerminateAll();
+
 private:
     friend class Thread;
     friend class ThreadFunction;

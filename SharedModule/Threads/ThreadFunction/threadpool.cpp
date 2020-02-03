@@ -11,6 +11,13 @@ ThreadPool::ThreadPool()
     }
 }
 
+void ThreadPool::TerminateAll()
+{
+    for(auto& thread : _threads) {
+        thread->terminate();
+    }
+}
+
 void ThreadPool::pushTask(ThreadTaskDesc* task)
 {
     QMutexLocker locker(&_taskMutex);

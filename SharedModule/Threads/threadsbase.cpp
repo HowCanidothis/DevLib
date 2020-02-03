@@ -6,6 +6,7 @@
 
 #include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
+#include "ThreadFunction/threadpool.h"
 
 ThreadsBase::ThreadsBase()
 {
@@ -34,6 +35,11 @@ void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
     while(!done) { // from spurious wakeups
         waitCondition.wait(&mutex);
     }
+}
+
+void ThreadsBase::TerminateAllAsyncTasks()
+{
+    ThreadFunction::threadPool().TerminateAll();
 }
 
 void ThreadsBase::DoQThread(QThread* thread, const FAction& task, Qt::EventPriority priority)

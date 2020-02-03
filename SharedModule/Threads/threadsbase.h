@@ -17,6 +17,7 @@ public:
     static void DoMainAwait(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoQThread(class QThread* thread, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Async(const FAction& task);
+    static void TerminateAllAsyncTasks();
 };
 
 #endif // THREADSBASE_H

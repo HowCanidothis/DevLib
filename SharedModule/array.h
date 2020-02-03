@@ -494,6 +494,12 @@ public:
     {
         return this->At(index);
     }
+
+    ArrayCommon& operator=(const ArrayCommon& another) {
+        _d = another._d;
+        return *this;
+    }
+
 protected:
     SharedPtr<MiddleAlgoData<T> > _d;
 

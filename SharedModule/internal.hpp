@@ -23,6 +23,8 @@
 #include "Serialization/stdserializer.h"
 #include "Serialization/qserializer.h"
 #include "Serialization/libserializer.h"
+#include "Serialization/string/textconverter.h"
+#include "Serialization/string/qtextconverters.h"
 #include "array.h"
 #include "stack.h"
 #include "FileSystem/filesguard.h"
