@@ -5,10 +5,7 @@
 
 AsyncResult ThreadFunction::Async(const FAction& function)
 {
-    auto desc = new ThreadTaskDesc{ function };
-    auto result = desc->Result;
-    threadPool().pushTask(desc);
-    return result;
+    return threadPool().PushTask(function);
 }
 
 ThreadPool& ThreadFunction::threadPool()

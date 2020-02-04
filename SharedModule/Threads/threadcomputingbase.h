@@ -30,18 +30,18 @@ protected:
     void fpsBind();
     void fpsRelease();
 
-    bool isStoped() const { return _stoped; }
+    bool isStoped() const { return m_stoped; }
 
 protected:
     virtual void compute();  
 
 private:
-    std::atomic_bool _stoped;
-    qint32 _idealFrameTime;
+    std::atomic_bool m_stoped;
+    qint32 m_idealFrameTime;
 
-    QMutex _fpsLocker;
-    ScopedPointer<TimerClocks> _fpsCounter;
-    double _computeTime;
+    QMutex m_fpsLocker;
+    ScopedPointer<TimerClocks> m_fpsCounter;
+    double m_computeTime;
 };
 
 #endif // THREADCOMPUTING_H

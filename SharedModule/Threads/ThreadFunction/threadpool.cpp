@@ -3,58 +3,67 @@
 
 #include <QMutexLocker>
 
-ThreadPool::ThreadPool()
+ThreadPool::ThreadPool(qint32 threadsCount)
 {
-    for(auto& thread : _threads) {
-        thread = new Thread(this);
-        _freeThreads.push_back(thread);
+    while(threadsCount--) {
+        auto* thread = new Thread(this);
+        m_threads.Push(thread);
+        m_freeThreads.push_back(thread);
     }
+}
+
+ThreadPool::~ThreadPool()
+{
+
 }
 
 void ThreadPool::TerminateAll()
 {
-    for(auto& thread : _threads) {
+    for(auto& thread : m_threads) {
         thread->terminate();
     }
 }
 
-void ThreadPool::pushTask(ThreadTaskDesc* task)
+AsyncResult ThreadPool::PushTask(const FAction& function)
 {
-    QMutexLocker locker(&_taskMutex);
-    if(!_freeThreads.empty()) {
-        auto thread = _freeThreads.front();
-        _freeThreads.pop_front();
+    auto* task = new ThreadTaskDesc { function };
+    auto result = task->Result;
+    QMutexLocker locker(&m_taskMutex);
+    if(!m_freeThreads.empty()) {
+        auto thread = m_freeThreads.front();
+        m_freeThreads.pop_front();
         thread->RunTask(task);
     } else {
-        _tasks.push_back(task);
+        m_tasks.push_back(task);
     }
+    return result;
 }
 
-void ThreadPool::await()
+void ThreadPool::Await()
 {
-    QMutexLocker locker(&_taskMutex);
-    while(!_tasks.empty()) {
-        _awaitCondition.wait(&_taskMutex);
+    QMutexLocker locker(&m_taskMutex);
+    while(!m_tasks.empty()) {
+        m_awaitCondition.wait(&m_taskMutex);
     }
 }
 
 ThreadTaskDesc* ThreadPool::takeTask()
 {
-    if(_tasks.empty()) {
+    if(m_tasks.empty()) {
         return nullptr;
     }
-    QMutexLocker locker(&_taskMutex);
-    auto result = _tasks.front();
-    _tasks.pop_front();
+    QMutexLocker locker(&m_taskMutex);
+    auto result = m_tasks.front();
+    m_tasks.pop_front();
     return result;
 }
 
 void ThreadPool::markFree(Thread* thread)
 {
-    QMutexLocker locker(&_taskMutex);
-    _freeThreads.push_back(thread);
+    QMutexLocker locker(&m_taskMutex);
+    m_freeThreads.push_back(thread);
 
-    if(_freeThreads.size() == ThreadsCount) {
-        _awaitCondition.wakeAll();
+    if(m_freeThreads.size() == m_threads.Size()) {
+        m_awaitCondition.wakeAll();
     }
 }

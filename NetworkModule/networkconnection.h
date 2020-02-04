@@ -30,7 +30,14 @@ private slots:
     void OnReadyRead();
 
 private:
+    void processInput();
+    void processInputThroughThreadPool();
+
+private:
     friend class NetworkPackage;
+
+    typedef void (NetworkConnection::*ProcessInputFunction)();
+
     qintptr m_socketDescriptor;
     QTcpSocket m_socket;
     NetworkPackage m_currentPackage;

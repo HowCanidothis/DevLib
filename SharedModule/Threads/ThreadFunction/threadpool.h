@@ -10,30 +10,29 @@ struct ThreadTaskDesc;
 
 class ThreadPool
 {
-    enum Threads{
-        ThreadsCount = 4
-    };
 public:
-    ThreadPool();
+    ThreadPool(qint32 threadsCount = 4);
+    ~ThreadPool();
 
 public:
     void TerminateAll();
+    // Note: ThreadTaskDesc is managed by ThreadPool and will be freed when task is performed
+    AsyncResult PushTask(const FAction& function);
+    void Await();
 
 private:
     friend class Thread;
     friend class ThreadFunction;
-    void pushTask(ThreadTaskDesc* task);
-    void await();
 
     ThreadTaskDesc* takeTask();
     void markFree(Thread* thread);
 
 private:
-    Thread* _threads[ThreadsCount];
-    std::deque<Thread*> _freeThreads; // TODO. Can be optimized in the future
-    std::deque<ThreadTaskDesc*> _tasks;
-    QMutex _taskMutex;
-    QWaitCondition _awaitCondition;
+    StackPointers<Thread> m_threads;
+    std::deque<Thread*> m_freeThreads; // TODO. Can be optimized in the future
+    std::deque<ThreadTaskDesc*> m_tasks;
+    QMutex m_taskMutex;
+    QWaitCondition m_awaitCondition;
 };
 
 #endif // THREADPOOL_H

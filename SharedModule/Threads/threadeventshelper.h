@@ -19,8 +19,8 @@ public:
 
 protected:
     friend class ThreadEventsContainer;
-    FEventHandler _handler;
-    AsyncResult _result;
+    FEventHandler m_handler;
+    AsyncResult m_result;
 
     virtual void removeTag() {}
     virtual void call();
@@ -37,8 +37,8 @@ protected:
     virtual void call() Q_DECL_OVERRIDE;
 
 private:
-    Name _tag;
-    TagsCache* _tagsCache;
+    Name m_tag;
+    TagsCache* m_tagsCache;
 };
 
 class _Export ThreadEventsContainer
@@ -60,15 +60,15 @@ protected:
     void callPauseableEvents();
 
 private:
-    std::queue<ThreadEvent*> _events;
-    QWaitCondition _eventsProcessed;
-    QWaitCondition _eventsPaused;
-    QMutex _eventsMutex;
-    std::atomic_bool _eventsNotified;
-    std::atomic_bool _isPaused;
-    FOnPause _onPause;
+    std::queue<ThreadEvent*> m_events;
+    QWaitCondition m_eventsProcessed;
+    QWaitCondition m_eventsPaused;
+    QMutex m_eventsMutex;
+    std::atomic_bool m_eventsNotified;
+    std::atomic_bool m_isPaused;
+    FOnPause m_onPause;
 
-    QHash<Name,ThreadEvent*> _tagEventsMap;
+    QHash<Name,ThreadEvent*> m_tagEventsMap;
 };
 
 #endif // THREADEVENTSHELPER_H

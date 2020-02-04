@@ -10,6 +10,7 @@ NetworkThread::NetworkThread(NetworkServerBase* server)
     , m_server(server)
     , m_removeInvalidConnectionsTimer(new QTimer())
     , m_whileDeleting(false)
+    , m_connectionsCounter(0)
 {
     m_removeInvalidConnectionsTimer->start(2000);
 
@@ -39,6 +40,8 @@ void NetworkThread::Write(qintptr descriptor, const NetworkPackage& package)
 
 void NetworkThread::AddSocket(qintptr descriptor)
 {
+    ++m_connectionsCounter;
+
     ThreadsBase::DoQThread(this, [descriptor, this]{
         NetworkConnection* connection = new NetworkConnection(m_server);
         connection->SetSocketDescriptor(descriptor);
@@ -51,7 +54,7 @@ void NetworkThread::AddSocket(qintptr descriptor)
 
 void NetworkThread::onDisconnected()
 {
-    // this function is processing only in this thread, as NetworkConnections are created there
+    // this function is processing only in this thread, since NetworkConnections are created here
 
     if(m_whileDeleting) {
         return;
@@ -63,10 +66,12 @@ void NetworkThread::onDisconnected()
     });
 
     m_connectionsToRemove.insert(connection);
+
+    --m_connectionsCounter;
 }
 
 void NetworkThread::onRemoveInvalidConnections()
-{
+{    
     ThreadsBase::DoQThread(this, [this]{
         m_connections.RemoveByPredicate([this](NetworkConnection* connection){
             if(m_connectionsToRemove.contains(connection)) {

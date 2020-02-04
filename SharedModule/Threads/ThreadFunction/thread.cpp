@@ -6,45 +6,57 @@
 #include "threadfunction.h"
 
 Thread::Thread(ThreadPool* pool)
-    : _pool(pool)
+    : m_pool(pool)
+    , m_aboutToBeDestroyed(false)
 {
-    Q_ASSERT(_pool != nullptr);
+    Q_ASSERT(m_pool != nullptr);
     start();
+}
+
+Thread::~Thread()
+{
+    m_aboutToBeDestroyed = true;
+    m_task = new ThreadTaskDesc{ []{} };
+    m_taskCondition.wakeAll();
+    wait();
 }
 
 void Thread::RunTask(ThreadTaskDesc* task)
 {
-    QMutexLocker locker(&_taskMutex);
-    _task = task;
-    _taskCondition.wakeAll();
+    QMutexLocker locker(&m_taskMutex);
+    m_task = task;
+    m_taskCondition.wakeAll();
 }
 
 void Thread::run()
 {
     {
     waitAgain:
-        QMutexLocker locker(&_taskMutex);
-        while(_task == nullptr) {
-            _taskCondition.wait(&_taskMutex);
+        QMutexLocker locker(&m_taskMutex);
+        while(m_task == nullptr) {
+            m_taskCondition.wait(&m_taskMutex);
+        }
+        if(m_aboutToBeDestroyed) {
+            return;
         }
     }
 
     try
     {
-        _task->Task();
-        _task->Result.Resolve(true);
+        m_task->Task();
+        m_task->Result.Resolve(true);
     }
     catch (...)
     {
-        _task->Result.Resolve(false);
+        m_task->Result.Resolve(false);
     }
 
-    ThreadTaskDesc* nextTask = _pool->takeTask();
+    ThreadTaskDesc* nextTask = m_pool->takeTask();
     if(nextTask != nullptr) {
         RunTask(nextTask);
     } else {
-        _task = nullptr;
-        _pool->markFree(this);
+        m_task = nullptr;
+        m_pool->markFree(this);
     }
 
     goto waitAgain;

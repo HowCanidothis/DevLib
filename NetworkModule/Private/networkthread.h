@@ -14,6 +14,7 @@ public:
     void Write(qintptr descriptor, const class NetworkPackage& package);
 
     void AddSocket(qintptr descriptor);
+    qint32 GetConnectionsCount() const { return m_connectionsCounter; }
 
 private slots:
     void onDisconnected();
@@ -24,5 +25,6 @@ public:
     QSet<class NetworkConnection*> m_connectionsToRemove;
     ScopedPointer<class QTimer> m_removeInvalidConnectionsTimer;
     std::atomic_bool m_whileDeleting;
+    std::atomic_int m_connectionsCounter;
 };
 #endif // NETWORKTHREAD_H

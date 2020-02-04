@@ -98,9 +98,7 @@ void PerformanceClocks::PrintReport()
 
 void PerformanceClocks::printReport() const
 {
-    QMessageLogger(_file, _line, _function).debug() << CalculateMinValue().ToString("Min")
-                     << CalculateMeanValue().ToString("Mean")
-                     << CalculateMaxValue().ToString("Max");
+    QMessageLogger(_file, _line, nullptr).debug("ASSERT: %s in file %s, line %d", ToString().toLatin1().data(), QString(_file).toLatin1().data(), _line);
 }
 
 Stack<PerformanceClocks*>&PerformanceClocks::getPerfomanceClocksInstances()
