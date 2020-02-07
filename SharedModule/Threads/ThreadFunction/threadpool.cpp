@@ -19,9 +19,8 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::TerminateAll()
 {
-    for(auto& thread : m_threads) {
-        thread->terminate();
-    }
+    m_threads.Clear();
+    m_freeThreads.clear();
 }
 
 AsyncResult ThreadPool::PushTask(const FAction& function)

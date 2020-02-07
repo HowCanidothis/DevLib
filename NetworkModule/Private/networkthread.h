@@ -26,5 +26,6 @@ public:
     ScopedPointer<class QTimer> m_removeInvalidConnectionsTimer;
     std::atomic_bool m_whileDeleting;
     std::atomic_int m_connectionsCounter;
+    QObject m_threadWorker;
 };
 #endif // NETWORKTHREAD_H

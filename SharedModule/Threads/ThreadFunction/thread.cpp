@@ -16,9 +16,10 @@ Thread::Thread(ThreadPool* pool)
 Thread::~Thread()
 {
     m_aboutToBeDestroyed = true;
-    m_task = new ThreadTaskDesc{ []{} };
-    m_taskCondition.wakeAll();
-    wait();
+    while(isRunning()) {
+        QMutexLocker locker(&m_taskMutex);
+        m_taskCondition.wakeAll();
+    }
 }
 
 void Thread::RunTask(ThreadTaskDesc* task)
@@ -33,12 +34,15 @@ void Thread::run()
     {
     waitAgain:
         QMutexLocker locker(&m_taskMutex);
-        while(m_task == nullptr) {
-            m_taskCondition.wait(&m_taskMutex);
-        }
         if(m_aboutToBeDestroyed) {
             return;
         }
+        while(m_task == nullptr) {
+            m_taskCondition.wait(&m_taskMutex);
+            if(m_aboutToBeDestroyed) {
+                return;
+            }
+        }        
     }
 
     try
@@ -53,7 +57,7 @@ void Thread::run()
 
     ThreadTaskDesc* nextTask = m_pool->takeTask();
     if(nextTask != nullptr) {
-        RunTask(nextTask);
+        m_task = nextTask;
     } else {
         m_task = nullptr;
         m_pool->markFree(this);

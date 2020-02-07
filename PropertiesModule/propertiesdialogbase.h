@@ -1,4 +1,4 @@
-#ifndef PROPERTIESDIALOGBASE_H
+﻿#ifndef PROPERTIESDIALOGBASE_H
 #define PROPERTIESDIALOGBASE_H
 
 #ifdef QT_GUI_LIB
@@ -57,6 +57,7 @@ protected:
     ByteArrayPropertyPtr m_savedGeometry;
     QMetaObject::Connection m_connection;
     QHash<Property*, QVariant> m_oldValues;
+    DispatchersConnections m_additonalPropertiesConnections;
 };
 
 #endif // QT_GUI_LIB

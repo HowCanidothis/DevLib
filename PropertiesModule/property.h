@@ -63,6 +63,7 @@ public:
     void Invoke();
     void InstallObserver(Dispatcher::Observer observer, const FAction& action) { m_onChangeDispatcher += {observer, action}; }
     void RemoveObserver(Dispatcher::Observer observer) { m_onChangeDispatcher -= observer; }
+    Dispatcher& GetDispatcher() { return m_onChangeDispatcher; }
 
     virtual DelegateValue GetDelegateValue() const { return DelegateDefault; }
     virtual const QVariant* GetDelegateData() const { return nullptr; }
