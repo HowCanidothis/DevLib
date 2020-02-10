@@ -5,6 +5,9 @@
 #include <QWaitCondition>
 #include <QMutex>
 
+#include "SharedModule/stack.h"
+#include "SharedModule/Threads/Promises/promise.h"
+
 class Thread;
 struct ThreadTaskDesc;
 

@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "SharedModule/shared_decl.h"
+#include "SharedModule/Threads/Promises/promise.h"
 
 class _Export QtInlineEvent : public QEvent
 {
