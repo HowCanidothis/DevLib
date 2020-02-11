@@ -90,12 +90,12 @@ void PropertiesDialogBase::done(int result)
         }
     }
 
+    m_additonalPropertiesConnections.Clear();
+
     if(m_options.TestFlag(Option_ClearContextOnDone)) {
         PropertiesSystem::Clear(m_contextIndex);
     }
     m_isInitialized = false;
-
-    m_additonalPropertiesConnections.Clear();
 }
 
 void PropertiesDialogBase::showEvent(QShowEvent* event)
