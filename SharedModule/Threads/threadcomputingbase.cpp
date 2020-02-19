@@ -6,8 +6,8 @@
 
 ThreadComputingBase::ThreadComputingBase(qint32 idealFrameTimeMsecs, QObject* parent)
     : QThread(parent)
-    , _idealFrameTime(idealFrameTimeMsecs)
-    , _fpsCounter(new TimerClocks)
+    , m_idealFrameTime(idealFrameTimeMsecs)
+    , m_fpsCounter(new TimerClocks)
 {
 
 }
@@ -19,25 +19,25 @@ ThreadComputingBase::~ThreadComputingBase()
 
 void ThreadComputingBase::Start()
 {
-    _stoped = false;
+    m_stoped = false;
     start();
 }
 
 void ThreadComputingBase::Quit()
 {
-    _stoped = true;
+    m_stoped = true;
     wait();
 }
 
 double ThreadComputingBase::GetComputeTime()
 {
-    QMutexLocker locker(&_fpsLocker);
-    return _computeTime;
+    QMutexLocker locker(&m_fpsLocker);
+    return m_computeTime;
 }
 
 void ThreadComputingBase::run()
 {
-    while (!_stoped) {
+    while (!m_stoped) {
         auto guard = guards::make(this, &ThreadComputingBase::fpsBind, &ThreadComputingBase::fpsRelease);
 
         callEvents();
@@ -53,16 +53,16 @@ void ThreadComputingBase::compute()
 
 void ThreadComputingBase::fpsBind()
 {
-    _fpsCounter->Bind();
+    m_fpsCounter->Bind();
 }
 
 void ThreadComputingBase::fpsRelease()
 {
-    qint32 msecs = Timer::ToMsecs(_fpsCounter->Release());
-    qint32 dif = _idealFrameTime - msecs;
+    qint32 msecs = Timer::ToMsecs(m_fpsCounter->Release());
+    qint32 dif = m_idealFrameTime - msecs;
     {
-        QMutexLocker locker(&_fpsLocker);
-        _computeTime = _fpsCounter->CalculateMeanValue();
+        QMutexLocker locker(&m_fpsLocker);
+        m_computeTime = m_fpsCounter->CalculateMeanValue();
     }
 
     if(dif > 0) {

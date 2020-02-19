@@ -4,24 +4,24 @@
 #include "SharedModule/internal.hpp"
 
 ThreadEvent::ThreadEvent(ThreadEvent::FEventHandler handler, const AsyncResult& result)
-    : _handler(handler)
-    , _result(result)
+    : m_handler(handler)
+    , m_result(result)
 {}
 
 void ThreadEvent::call()
 {
     try {
-        _handler();
-        _result.Resolve(true);
+        m_handler();
+        m_result.Resolve(true);
     } catch (...) {
-        _result.Resolve(false);
+        m_result.Resolve(false);
     }
 }
 
 TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name& tag, ThreadEvent::FEventHandler handler, const AsyncResult& result)
     : ThreadEvent(handler, result)
-    , _tag(tag)
-    , _tagsCache(tagsCache)
+    , m_tag(tag)
+    , m_tagsCache(tagsCache)
 {
     Q_ASSERT(!tagsCache->contains(tag));
     tagsCache->insert(tag, this);
@@ -29,117 +29,117 @@ TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name&
 
 void TagThreadEvent::removeTag()
 {
-    _tagsCache->remove(_tag);
+    m_tagsCache->remove(m_tag);
 }
 
 void TagThreadEvent::call()
 {
     try {
-        _handler();
-        _result.Resolve(true);
+        m_handler();
+        m_result.Resolve(true);
     } catch (...) {
-        _result.Resolve(false);
+        m_result.Resolve(false);
     }
 }
 
 ThreadEventsContainer::ThreadEventsContainer()
-    : _isPaused(false)
+    : m_isPaused(false)
 {
 
 }
 
 void ThreadEventsContainer::Continue()
 {
-    if(!_isPaused) {
+    if(!m_isPaused) {
         return;
     }
-    _isPaused = false;
-    _eventsPaused.wakeAll();
+    m_isPaused = false;
+    m_eventsPaused.wakeAll();
 }
 
 AsyncResult ThreadEventsContainer::Asynch(const Name& tag, ThreadEvent::FEventHandler handler)
 {
-    QMutexLocker locker(&_eventsMutex);
+    QMutexLocker locker(&m_eventsMutex);
     AsyncResult result;
 
-    auto find = _tagEventsMap.find(tag);
-    if(find == _tagEventsMap.end()) {
-        auto tagEvent = new TagThreadEvent(&_tagEventsMap, tag, handler, result);
-        _events.push(tagEvent);
+    auto find = m_tagEventsMap.find(tag);
+    if(find == m_tagEventsMap.end()) {
+        auto tagEvent = new TagThreadEvent(&m_tagEventsMap, tag, handler, result);
+        m_events.push(tagEvent);
     } else {
-        find.value()->_handler = handler;
-        result = find.value()->_result;
+        find.value()->m_handler = handler;
+        result = find.value()->m_result;
     }
     return result;
 }
 
 void ThreadEventsContainer::Pause(const FOnPause& onPause)
 {
-    if(_isPaused) {
+    if(m_isPaused) {
         return;
     }
-    _onPause = onPause;
-    _isPaused = true;
+    m_onPause = onPause;
+    m_isPaused = true;
 
-    if(_events.empty()) {
+    if(m_events.empty()) {
         Asynch([]{});
     }
 
-    while (!_events.empty() && _eventsMutex.tryLock()) {
-        _eventsMutex.unlock();
+    while (!m_events.empty() && m_eventsMutex.tryLock()) {
+        m_eventsMutex.unlock();
     }
 }
 
 AsyncResult ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
 {
-    QMutexLocker locker(&_eventsMutex);
+    QMutexLocker locker(&m_eventsMutex);
     AsyncResult result;
-    _events.push(new ThreadEvent(handler, result));
+    m_events.push(new ThreadEvent(handler, result));
     return result;
 }
 
 void ThreadEventsContainer::ProcessEvents()
 {
-    QMutexLocker locker(&_eventsMutex);
-    while(!_events.empty()) { // from spurious wakeups
-        _eventsProcessed.wait(&_eventsMutex);
+    QMutexLocker locker(&m_eventsMutex);
+    while(!m_events.empty()) { // from spurious wakeups
+        m_eventsProcessed.wait(&m_eventsMutex);
     }
 }
 
 void ThreadEventsContainer::callEvents()
 {
-    while(!_events.empty()) {
+    while(!m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {
-            QMutexLocker locker(&_eventsMutex);
-            event = _events.front();
-            _events.pop();
+            QMutexLocker locker(&m_eventsMutex);
+            event = m_events.front();
+            m_events.pop();
             event->removeTag();
         }
         event->call();
     }
 
-    _eventsProcessed.wakeAll();
+    m_eventsProcessed.wakeAll();
 }
 
 void ThreadEventsContainer::callPauseableEvents()
 {
-    while(!_events.empty()) {
+    while(!m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {
-            if(_isPaused) {
-                _onPause();
+            if(m_isPaused) {
+                m_onPause();
             }
-            QMutexLocker locker(&_eventsMutex);
-            event = _events.front();
-            _events.pop();
-            while(_isPaused) {
-                _eventsPaused.wait(&_eventsMutex);
+            QMutexLocker locker(&m_eventsMutex);
+            event = m_events.front();
+            m_events.pop();
+            while(m_isPaused) {
+                m_eventsPaused.wait(&m_eventsMutex);
             }
             event->removeTag();
         }
         event->call();
     }
 
-    _eventsProcessed.wakeAll();
+    m_eventsProcessed.wakeAll();
 }

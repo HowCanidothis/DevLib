@@ -5,23 +5,43 @@
 #include <functional>
 
 #include "SharedModule/shared_decl.h"
+#include "SharedModule/Threads/Promises/promise.h"
 
 class _Export QtInlineEvent : public QEvent
 {
 public:
-    typedef std::function<void ()> Function;
-    QtInlineEvent(const Function& function)
+    QtInlineEvent(const FAction& function)
         : QEvent(QEvent::User)
-        , _function(function)
+        , m_function(function)
     {}
     ~QtInlineEvent() {
-        _function();
+        m_function();
     }
 
-    static void Post(const Function& function, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void Post(const Function& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
 private:
-    Function _function;
+    FAction m_function;
+    FAction m_asyncResult;
+};
+
+class _Export QtInlineEventWithResult : public QtInlineEvent
+{
+    using Super = QtInlineEvent;
+public:
+    QtInlineEventWithResult(const FAction& function, const AsyncResult& result)
+        : Super(function)
+        , m_asyncResult(result)
+    {}
+    ~QtInlineEventWithResult() {
+        m_asyncResult.Resolve(true);
+    }
+
+    static AsyncResult Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
+
+private:
+    AsyncResult m_asyncResult;
 };
 
 #endif // QTCUSTOMEVENTS_H

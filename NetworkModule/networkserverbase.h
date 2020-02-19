@@ -11,7 +11,7 @@ class NetworkServerBase : public QTcpServer, INetworkConnectionOutput
 {
     Q_OBJECT
 public:
-    explicit NetworkServerBase(QObject* parent = 0);
+    explicit NetworkServerBase(qint32 threadsCount = 4, QObject* parent = 0);
     virtual ~NetworkServerBase() Q_DECL_OVERRIDE;
     void StartServer();
     bool IsRunning() const;
@@ -25,7 +25,7 @@ protected:
 
 private:
     friend class NetworkThread;
-    class NetworkThread* m_thread;
+    class NetworkThreadPool* m_threads;
     QHostAddress m_host;
     quint16 m_port;
 };

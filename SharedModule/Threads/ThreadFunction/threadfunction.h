@@ -13,6 +13,7 @@ public:
     _Export static AsyncResult Async(const FAction& function);
 
 private:
+    friend class ThreadsBase;
     static class ThreadPool& threadPool();
 };
 

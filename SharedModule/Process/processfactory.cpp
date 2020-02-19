@@ -1,7 +1,8 @@
 #include "processfactory.h"
+#include "processmanager.h"
 
 ProcessValue::ProcessValue(const FCallback& callback)
-    : _valueDepth(depthCounter()++)
+    : _valueDepth(ProcessManager::getInstance().registerNewProcessValue())
     , _callback(callback)
     , _isNextProcessExpected(false)
     , _isCanceled(false) 
@@ -10,16 +11,10 @@ ProcessValue::ProcessValue(const FCallback& callback)
 {
 }
 
-std::atomic_int& ProcessValue::depthCounter()
-{
-    static std::atomic_int res;
-    return res;
-}
-
 ProcessValue::~ProcessValue()
 {
     finish();
-    --depthCounter();
+    ProcessManager::getInstance().unregisterProcessValue(_valueDepth);
 }
 
 void ProcessValue::setTitle(const std::wstring& title)

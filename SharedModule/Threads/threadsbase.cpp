@@ -6,6 +6,7 @@
 
 #include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
+#include "ThreadFunction/threadpool.h"
 
 ThreadsBase::ThreadsBase()
 {
@@ -36,9 +37,23 @@ void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
     }
 }
 
-void ThreadsBase::DoQThread(QThread* thread, const FAction& task, Qt::EventPriority priority)
+void ThreadsBase::TerminateAllAsyncTasks()
 {
-    QtInlineEvent::Post(task, thread, priority);
+    ThreadFunction::threadPool().TerminateAll();
+}
+// Due to Qt arch we have to use threadWorker here
+void ThreadsBase::DoQThreadWorker(QObject* threadObject, const FAction& task, Qt::EventPriority priority)
+{
+    Q_ASSERT(!qobject_cast<QThread*>(threadObject));
+
+    QtInlineEvent::Post(task, threadObject, priority);
+}
+// Due to Qt arch we have to use threadWorker here
+AsyncResult ThreadsBase::DoQThreadWorkerWithResult(QObject* threadObject, const FAction& task, Qt::EventPriority priority)
+{
+    Q_ASSERT(!qobject_cast<QThread*>(threadObject));
+
+    return QtInlineEventWithResult::Post(task, threadObject, priority);
 }
 
 AsyncResult ThreadsBase::Async(const FAction& task)

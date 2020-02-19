@@ -2,6 +2,7 @@
 #define PROPERTY_H
 
 #include <QUrl>
+
 #include <functional>
 
 #include <SharedModule/internal.hpp>
@@ -62,6 +63,7 @@ public:
     void Invoke();
     void InstallObserver(Dispatcher::Observer observer, const FAction& action) { m_onChangeDispatcher += {observer, action}; }
     void RemoveObserver(Dispatcher::Observer observer) { m_onChangeDispatcher -= observer; }
+    Dispatcher& GetDispatcher() { return m_onChangeDispatcher; }
 
     virtual DelegateValue GetDelegateValue() const { return DelegateDefault; }
     virtual const QVariant* GetDelegateData() const { return nullptr; }
@@ -91,6 +93,7 @@ protected:
     QVariant m_previousValue;
 #ifdef DEBUG_BUILD
     bool m_isSubscribed;
+    Name m_propertyName;
 #endif
 };
 
@@ -243,6 +246,36 @@ protected:
 
 private:
     qint32 m_maxCount;
+};
+
+template<class Key, class Value>
+class _Export HashProperty : public TPropertyBase<QHash<Key, Value>>
+{
+    using Super = TPropertyBase<QHash<Key, Value>>;
+
+public:
+    HashProperty(const Name& path)
+        : Super(path, {})
+    {}
+
+    void Insert(const Key& key, const Value& value)
+    {
+        QHash<Key, Value>& hash = Super::m_value;
+        auto foundIt = hash.find(key);
+        if(foundIt != hash.end()) {
+            if(*foundIt != value) {
+                *foundIt = value;
+                Super::Invoke();
+            }
+        } else {
+            hash.insert(key, value);
+            Super::Invoke();
+        }
+    }
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
 class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>

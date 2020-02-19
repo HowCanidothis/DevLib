@@ -59,6 +59,8 @@ private:
 
 class DispatchersConnections : private Stack<Dispatcher*>
 {
+    using Super = Stack<Dispatcher*>;
+
     Dispatcher::Observer* m_observer;
 
     Q_DISABLE_COPY(DispatchersConnections);
@@ -87,6 +89,17 @@ public:
 
         dispatcher += { m_observer, action };
         this->Append(&dispatcher);
+    }
+
+    void Clear()
+    {
+        for(auto* dispatcher : *this) {
+            *dispatcher -= m_observer;
+        }
+        Super::Clear();
+#ifndef QT_NO_DEBUG
+        m_dispatchersGuard.clear();
+#endif
     }
 };
 

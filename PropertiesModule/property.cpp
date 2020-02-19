@@ -7,6 +7,7 @@ Property::Property(const Name& path)
     , m_options(Options_Default)
 #ifdef DEBUG_BUILD
     , m_isSubscribed(false)
+    , m_propertyName(path)
 #endif
 {
     PropertiesSystem::addProperty(path, this);
@@ -41,7 +42,7 @@ void Property::Subscribe(const Property::FOnChange& onChange) {
 void Property::Invoke()
 {
 #ifdef DEBUG_BUILD
-    Q_ASSERT(!_isSubscribed);
+    // Q_ASSERT(!m_isSubscribed);
 #endif
     m_fOnChange();
     m_onChangeDispatcher.Invoke();
@@ -58,6 +59,9 @@ void UrlListProperty::AddUniqueUrl(const QUrl& url)
     auto urlList = Super::m_value; // Copy
     auto find = std::find(urlList.begin(), urlList.end(), url);
     if(find != urlList.end()) {
+        if(find == urlList.begin()) {
+            return;
+        }
         urlList.erase(find);
         urlList.push_front(url);
     } else {
