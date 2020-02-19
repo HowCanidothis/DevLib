@@ -4,12 +4,18 @@
 #include <QOpenGLWidget>
 
 #include "Objects/gtmaterialparametertexturebase.h"
-#include <SharedGuiModule/decl.h>
+#include <SharedGuiModule/internal.hpp>
+
+struct GtViewParams
+{
+    bool DebugMode;
+};
 
 class GtView : public QOpenGLWidget, protected OpenGLFunctions
 {
 public:
-    GtView(QWidget* parent, Qt::WindowFlags flags=0);
+    GtView(ScopedPointer<GtViewParams>&& params, QWidget* parent, Qt::WindowFlags flags=0);
+    ~GtView();
 
     // QOpenGLWidget interface
 protected:
@@ -34,6 +40,12 @@ private:
 
     ScopedPointer<class GtMaterial> m_surfaceMaterial;
     ScopedPointer<class GtMeshBase> m_surfaceMesh;
+    ScopedPointer<class GtMeshBase> m_linesMesh;
+    ScopedPointer<class GtMaterial> m_linesMaterial;
+    ScopedPointer<class GtFramebufferObjectBase> m_fbo;
+    struct GtControllersContext* m_controllersContext;
+
+    ScopedPointer<GtViewParams> m_params;
 };
 
 #endif // GTVIEW_H

@@ -6,23 +6,23 @@
 template<typename T>
 class Resource
 {
-    ResourceDataBase* _data;
+    ResourceDataBase* m_data;
     Resource() {}
 public:
     Resource(ResourceDataBase* data)
-        : _data(data)
+        : m_data(data)
     {
-        _data->InitResourceIfNeed();
+        m_data->InitResourceIfNeeded();
     }
 
     virtual ~Resource()
     {
-        _data->FreeResourceIfNeed<T>();
+        m_data->FreeResourceIfNeeded<T>();
     }
 
-    ResourceDataGuard<T> Data() { return ResourceDataGuard<T>(_data); }
-    const ResourceDataGuard<T> Data() const { return ResourceDataGuard<T>(_data); }
-    bool IsNull() const { return  _data->IsNull(); }
+    ResourceDataGuard<T> Data() { return ResourceDataGuard<T>(m_data); }
+    const ResourceDataGuard<T> Data() const { return ResourceDataGuard<T>(m_data); }
+    bool IsNull() const { return  m_data->IsNull(); }
 private:
     Resource& operator=(const Resource& other) = delete;
 };

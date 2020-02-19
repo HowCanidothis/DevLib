@@ -1,5 +1,6 @@
 #include "gtplayercontrollercamera.h"
 #include "gtcamera.h"
+#include "gtdepthbuffer.h"
 
 #include <QKeyEvent>
 
@@ -39,6 +40,7 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
         ctx().Camera->SetRotationPoint(m_lastPlanePosition);
         return true;
     }
+
     return false;
 }
 

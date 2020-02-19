@@ -21,7 +21,7 @@ public:
         Compute                = 0x0020
     };
 
-    GtMaterial();
+    GtMaterial(gRenderType renderType);
     virtual ~GtMaterial();
 
     void AddParameter(GtMaterialParameterBase*);
@@ -30,7 +30,8 @@ public:
 
     void SetDir(const QString& path) { m_shadersPath = path; }
     GtMaterial& AddShader(ShaderType type, const QString& file);
-    void SetShaders(const QString& path, const QString& vert_file, const QString& frag_file);
+    void SetShaders(const QString& path, const QString& vertFile, const QString& fragFile);
+    void SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile);
 
     void Update();
 
@@ -46,6 +47,7 @@ protected:
     ScopedPointer<class QOpenGLShaderProgram> m_shaderProgram;
     ArrayPointers<Shader> m_shaders;
     QString m_shadersPath;
+    gRenderType m_renderType;
 
     // GtObjectBase interface
 public:

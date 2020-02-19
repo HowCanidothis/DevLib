@@ -152,7 +152,7 @@ void GtWidget3D::initializeGL()
     surface_mesh = new GtMeshSurface(3000, 2400, 320);
     surface_mesh->Initialize(this);
 
-    surface_material = new GtMaterial();
+    surface_material = new GtMaterial(GL_TRIANGLE_STRIP);
     surface_material->AddMesh(surface_mesh.data());
 
     surface_material->AddParameter(new GtMaterialParameterTexture("SandTex", "sand_tex"));
@@ -180,7 +180,7 @@ void GtWidget3D::initializeGL()
 
     if(shadow_mapping) {
 
-        depth_material = new GtMaterial();
+        depth_material = new GtMaterial(GL_TRIANGLE_STRIP);
         depth_material->AddMesh(GtMeshQuad2D::Instance(this));
         gTexID texture = shadow_map_technique->Data().Get().GetDepthTexture();
         depth_material->AddParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
@@ -193,7 +193,7 @@ void GtWidget3D::initializeGL()
     circle_mesh = new GtMeshCircle2D();
     circle_mesh->Initialize(this);
 
-    color_material = new GtMaterial();
+    color_material = new GtMaterial(GL_POINTS);
     color_material->AddMesh(circle_mesh.data());
     color_material->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
     color_material->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
@@ -295,7 +295,7 @@ void GtWidget3D::paintGL()
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glViewport(0,0,fbo->GetWidth(),fbo->GetHeight());
 
-//                depth_view->draw(this);
+                // depth_view->draw(this);
                 surface_material->Draw(this);
                 color_material->Draw(this);
             fbo->Release();

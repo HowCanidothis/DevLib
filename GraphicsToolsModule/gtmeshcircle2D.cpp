@@ -14,7 +14,6 @@ Circle2D::Circle2D(const Point2F& pos, const Point2F& radius, const Color3F& col
 }
 
 GtMeshCircle2D::GtMeshCircle2D()
-    : GtMeshBase(GL_POINTS)
 {
 
 }

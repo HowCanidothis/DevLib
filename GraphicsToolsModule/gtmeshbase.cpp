@@ -3,9 +3,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
-GtMeshBase::GtMeshBase(gRenderType type)
+GtMeshBase::GtMeshBase()
     : m_verticesCount(0)
-    , m_renderType(type)
     , m_visible(true)
 {
 
@@ -35,15 +34,14 @@ void GtMeshBase::Initialize(OpenGLFunctions* f)
     }
 }
 
-void GtMeshBase::Draw(OpenGLFunctions* f)
+void GtMeshBase::Draw(gRenderType renderType, OpenGLFunctions* f)
 {
     QOpenGLVertexArrayObject::Binder binder(m_vao.data());
-    f->glDrawArrays(m_renderType, 0, m_verticesCount);
+    f->glDrawArrays(renderType, 0, m_verticesCount);
 }
 
-GtMeshIndicesBase::GtMeshIndicesBase(gRenderType type, gIndicesType itype)
-    : GtMeshBase(type)
-    , m_indicesCount(0)
+GtMeshIndicesBase::GtMeshIndicesBase(gIndicesType itype)
+    : m_indicesCount(0)
     , m_indicesType(itype)
 {
 
@@ -69,10 +67,10 @@ void GtMeshIndicesBase::Initialize(OpenGLFunctions* f)
     }
 }
 
-void GtMeshIndicesBase::Draw(OpenGLFunctions* f)
+void GtMeshIndicesBase::Draw(gRenderType renderType, OpenGLFunctions* f)
 {
     m_vao->bind();
     m_vboIndices->bind();
-    f->glDrawElements(m_renderType, m_indicesCount, m_indicesType, (const void*)0);
+    f->glDrawElements(renderType, m_indicesCount, m_indicesType, (const void*)0);
     m_vao->release();
 }

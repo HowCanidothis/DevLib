@@ -9,14 +9,14 @@ class QOpenGLBuffer;
 class GtMeshBase
 {
 public:
-    GtMeshBase(gRenderType type);
+    GtMeshBase();
     virtual ~GtMeshBase();
 
     bool IsVisible() const { return m_visible; }
     void Update();
 
     virtual void Initialize(OpenGLFunctions* functions);
-    virtual void Draw(OpenGLFunctions* f);
+    virtual void Draw(gRenderType renderType, OpenGLFunctions* f);
 
 protected:
     #pragma pack(1)
@@ -37,7 +37,6 @@ protected:
     ScopedPointer<QOpenGLVertexArrayObject> m_vao;
 
     qint32 m_verticesCount;
-    gRenderType m_renderType;
 
     bool m_visible;
 
@@ -49,11 +48,11 @@ protected:
 class GtMeshIndicesBase : public GtMeshBase
 {
 public:
-    GtMeshIndicesBase(gRenderType type, gIndicesType itype);
+    GtMeshIndicesBase(gIndicesType itype);
     ~GtMeshIndicesBase();
 
     virtual void Initialize(OpenGLFunctions* functions) final;
-    virtual void Draw(OpenGLFunctions* f) final;
+    virtual void Draw(gRenderType renderType, OpenGLFunctions* f) final;
 
 protected:
     ScopedPointer<QOpenGLBuffer> m_vboIndices;

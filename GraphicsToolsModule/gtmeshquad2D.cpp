@@ -4,7 +4,6 @@
 #include <QOpenGLVertexArrayObject>
 
 GtMeshQuad2D::GtMeshQuad2D(OpenGLFunctions* f)
-    : GtMeshBase(GL_TRIANGLE_STRIP)
 {
     Initialize(f);
 }

@@ -6,7 +6,8 @@
 #include "gtmaterialparameterbase.h"
 #include "../gtmeshbase.h"
 
-GtMaterial::GtMaterial()
+GtMaterial::GtMaterial(gRenderType renderType)
+    : m_renderType(renderType)
 {
 
 }
@@ -36,7 +37,7 @@ void GtMaterial::Draw(OpenGLFunctions* f)
 
     for(GtMeshBase* mesh : m_meshs) {
         if(mesh->IsVisible())
-            mesh->Draw(f);
+            mesh->Draw(m_renderType, f);
     }
 
     m_shaderProgram->release();
@@ -51,8 +52,17 @@ GtMaterial&GtMaterial::AddShader(GtMaterial::ShaderType type, const QString& fil
 void GtMaterial::SetShaders(const QString& path, const QString& vert_file, const QString& frag_file)
 {
     SetDir(path);
-    AddShader(Vertex, vert_file).
-            AddShader(Fragment, frag_file);
+    AddShader(Vertex, vert_file);
+    AddShader(Fragment, frag_file);
+    Update();
+}
+
+void GtMaterial::SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile)
+{
+    SetDir(path);
+    AddShader(Vertex, vertFile);
+    AddShader(Geometry, geomFile);
+    AddShader(Fragment, fragFile);
     Update();
 }
 

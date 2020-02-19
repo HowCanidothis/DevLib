@@ -43,7 +43,7 @@ void GtComputeNodeBase::Compute(const cv::Mat* input)
 {
 #ifndef QT_NO_DEBUG
     QString name = this->_name.section('(', 0, 0);
-    name += QString("(%1 MB)").arg(QString::number(double(getMemoryUsage()) / 1000000));
+    // name += QString("(%1 MB)").arg(QString::number(double(getMemoryUsage()) / 1000000));
     SetName(name);
 #endif
     if(_flags.TestFlag(F_NeedUpdate)) {

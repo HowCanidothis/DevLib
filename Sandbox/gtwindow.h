@@ -5,7 +5,7 @@
 #include "SharedGuiModule/decl.h"
 #include "SharedModule/stack.h"
 
-#include "PropertiesModule/property.h"
+#include <PropertiesModule/internal.hpp>
 
 namespace Ui {
 class GtWindow;
@@ -25,7 +25,7 @@ class GtWindow : public QMainWindow
     Stack<GtComputeNodeBase*> channels;
     Stack<class GtWidget3D*> views;
 
-    TextFileNameProperty main_qss;
+    FileNameProperty main_qss;
     ScopedPointer<class QtQSSReader> _qssReader;
 
     BoolProperty full_screen;

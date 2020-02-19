@@ -17,7 +17,7 @@ public:
 
     bool IsNull() const { return  *_data == nullptr; } // TODO. it cans be unsafe
 
-    void InitResourceIfNeed()
+    void InitResourceIfNeeded()
     {
         lock();
         (*_counter)++;
@@ -27,7 +27,7 @@ public:
         unlock();
     }
 
-    template<class T> void FreeResourceIfNeed()
+    template<class T> void FreeResourceIfNeeded()
     {
         lock();
         if(--(*_counter) == 0) {

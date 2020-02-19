@@ -4,7 +4,7 @@
 #include "SharedGuiModule/decl.h"
 
 GtMeshSurface::GtMeshSurface(qint32 width, qint32 height, qint32 sections)
-    : GtMeshIndicesBase(GL_TRIANGLE_STRIP, GL_UNSIGNED_INT)
+    : GtMeshIndicesBase(GL_UNSIGNED_INT)
     , m_width(width)
     , m_height(height)
     , m_sections(sections)

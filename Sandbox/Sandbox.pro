@@ -43,11 +43,11 @@ DEFINES += PROFILE_BUILD
 }
 
 contains(DEFINES, HOME) {
-    win32:CONFIG(release, debug|release): LIBS += -LD:/ThirdParty/opencv_3_3_1/build/x64/vc14/lib/ -lopencv_world331
-    else:win32:CONFIG(debug, debug|release): LIBS += -LD:/ThirdParty/opencv_3_3_1/build/x64/vc14/lib/ -lopencv_world331d
+    win32:CONFIG(release, debug|release): LIBS += -LD:/ThirdParty/opencv/build/x64/vc15/lib/ -lopencv_world349
+    else:win32:CONFIG(debug, debug|release): LIBS += -LD:/ThirdParty/opencv/build/x64/vc15/lib/ -lopencv_world349d
 
-    INCLUDEPATH += D:/ThirdParty/opencv_3_3_1/build/include
-    DEPENDPATH += D:/ThirdParty/opencv_3_3_1/build/x64/vc14/bin
+    INCLUDEPATH += D:/ThirdParty/opencv/build/include
+    DEPENDPATH += D:/ThirdParty/opencv/build/x64/vc14/bin
 }
 contains(DEFINES, WORK) {
     win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../ExternalDir/opencv_3_2_vc12_x86_dll_world/x86/vc12/lib/ -lopencv_world320

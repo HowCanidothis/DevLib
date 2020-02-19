@@ -3,8 +3,7 @@
 #include <QOpenGLBuffer>
 
 GtMeshGrid::GtMeshGrid(qint32 width, qint32 height, qint32 sections)
-    : GtMeshBase(GL_TRIANGLES)
-    , m_width(width)
+    : m_width(width)
     , m_height(height)
     , m_sections(sections)
 
@@ -23,17 +22,17 @@ bool GtMeshGrid::buildMesh()
      *  w - real width
      *  h - real height
     */
-    /*
-    qint32 sectionsPlusOne = _sections + 1;
-    float hStep = float(_height) / _sections;
-    float wStep = float(_width) / _sections;
+    /**/
+    qint32 sectionsPlusOne = m_sections + 1;
+    float hStep = float(m_height) / m_sections;
+    float wStep = float(m_width) / m_sections;
 
-    vertices_count = _sections * (2 * _sections + 2) + (2 * _sections - 2);
-    ColoredVertex2F* vertices = new ColoredVertex2F[vertices_count];
+    m_verticesCount = m_sections * (2 * m_sections + 2) + (2 * m_sections - 2);
+    ColoredVertex2F* vertices = new ColoredVertex2F[m_verticesCount];
 
     bool white = false;
     auto getColor = [&white]() {
-        return white ? Quantity_Color(1.f, 1.f, 1.f, Quantity_TOC_RGB) : Quantity_Color(0.f, 0.f, 0.f, Quantity_TOC_RGB);
+        return white ? Color3F(1.f, 1.f, 1.f) : Color3F(0.f, 0.f, 0.f);
     };
     qint32 currentIndex = 0;
 
@@ -43,20 +42,20 @@ bool GtMeshGrid::buildMesh()
             vertices[currentIndex++] = ColoredVertex2F{ Point2F(wStep * i, hStep * (j - 1)), getColor() };
             white = !white;
         }
-        if(j != _sections) {
-            vertices[currentIndex++] = ColoredVertex2F{ Point2F(wStep * _sections, hStep * (j - 1)), getColor() };
+        if(j != m_sections) {
+            vertices[currentIndex++] = ColoredVertex2F{ Point2F(wStep * m_sections, hStep * (j - 1)), getColor() };
             vertices[currentIndex++] = ColoredVertex2F{ Point2F(0.f, hStep * (j + 1)), getColor() };
         }
     }
 
-    vbo->bind();
-    vbo->allocate(vertices, vertices_count * sizeof(ColoredVertex2F));
-    vbo->release();
+    m_vbo->bind();
+    m_vbo->allocate(vertices, m_verticesCount * sizeof(ColoredVertex2F));
+    m_vbo->release();
 
     delete [] vertices;
 
     /**/
-    /**/
+    /*
     qint32 sectionsPlusOne = m_sections + 1;
     float hStep = float(m_height) / m_sections;
     float wStep = float(m_width) / m_sections;
