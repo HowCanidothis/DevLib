@@ -8,7 +8,7 @@ GtDepthBuffer::GtDepthBuffer(OpenGLFunctions* f)
 
 }
 
-void GtDepthBuffer::SetFrameBuffer(GtFramebufferObject* frameBuffer)
+void GtDepthBuffer::SetFrameBuffer(GtFramebufferObjectBase* frameBuffer)
 {
     m_frameBuffer = frameBuffer;
 }

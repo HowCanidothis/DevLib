@@ -9,7 +9,7 @@ class GtMeshBase;
 class GtCamera;
 class GtMaterialParameterBase;
 
-class GtMaterial : public GtObjectBase
+class GtMaterial : public GtDrawableBase
 {
 public:
     enum ShaderType {

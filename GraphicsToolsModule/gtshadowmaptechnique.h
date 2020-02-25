@@ -1,4 +1,4 @@
-#ifndef GTSHADOWMAPTECHNIQUE_H
+ #ifndef GTSHADOWMAPTECHNIQUE_H
 #define GTSHADOWMAPTECHNIQUE_H
 
 #include "SharedGuiModule/decl.h"

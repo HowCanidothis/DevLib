@@ -8,13 +8,13 @@ class GtDepthBuffer
 public:
     GtDepthBuffer(OpenGLFunctions* f);
 
-    void SetFrameBuffer(class GtFramebufferObject* frameBuffer);
+    void SetFrameBuffer(class GtFramebufferObjectBase* frameBuffer);
 
     float ValueAt(qint32 x, qint32 y);
 
 private:
     OpenGLFunctions* m_f;
-    class GtFramebufferObject* m_frameBuffer;
+    class GtFramebufferObjectBase* m_frameBuffer;
 };
 
 #endif // GTDEPTHBUFFER_H

@@ -210,6 +210,35 @@ public:
     }
 };
 
+class BoundingSphere
+{
+    Point3F m_position;
+    float m_radius;
+public:
+    BoundingSphere()
+        : m_radius(0.f)
+    {}
+
+    BoundingSphere(const Vector3F& position, float radius)
+        : m_position(position)
+        , m_radius(radius)
+    {}
+
+    void SetPosition(const Point3F& position)
+    {
+        m_position = position;
+    }
+
+    const Point3F& GetPosition() const { return m_position; }
+
+    void SetRadius(float radius)
+    {
+        m_radius = radius;
+    }
+
+    float GetRadius() const { return m_radius; }
+};
+
 class BoundingBox
 {
     Point3F _left;

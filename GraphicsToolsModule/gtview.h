@@ -14,8 +14,10 @@ struct GtViewParams
 class GtView : public QOpenGLWidget, protected OpenGLFunctions
 {
 public:
-    GtView(ScopedPointer<GtViewParams>&& params, QWidget* parent, Qt::WindowFlags flags=0);
+    GtView(const SharedPointer<GtViewParams>& params, QWidget* parent = nullptr, Qt::WindowFlags flags=0);
     ~GtView();
+
+    void SetScene(class GtScene* scene);
 
     // QOpenGLWidget interface
 protected:
@@ -45,7 +47,8 @@ private:
     ScopedPointer<class GtFramebufferObjectBase> m_fbo;
     struct GtControllersContext* m_controllersContext;
 
-    ScopedPointer<GtViewParams> m_params;
+    SharedPointer<GtViewParams> m_params;
+    class GtScene* m_scene;
 };
 
 #endif // GTVIEW_H

@@ -15,8 +15,9 @@
 #include "gtmeshquad2D.h"
 #include "gtplayercontrollercamera.h"
 #include "gtdepthbuffer.h"
+#include "gtscene.h"
 
-GtView::GtView(ScopedPointer<GtViewParams>&& params, QWidget* parent, Qt::WindowFlags flags)
+GtView::GtView(const SharedPointer<GtViewParams>& params, QWidget* parent, Qt::WindowFlags flags)
     : QOpenGLWidget(parent, flags)
     , m_isInitialized(false)
     , m_controllers(new ControllersContainer())
@@ -41,11 +42,18 @@ GtView::GtView(ScopedPointer<GtViewParams>&& params, QWidget* parent, Qt::Window
         format.setOption(QSurfaceFormat::DebugContext);
         setFormat(format);
     }
+
+    setMouseTracking(true);
 }
 
 GtView::~GtView()
 {
 
+}
+
+void GtView::SetScene(GtScene* scene)
+{
+    m_scene = scene;
 }
 
 void GtView::initializeGL()

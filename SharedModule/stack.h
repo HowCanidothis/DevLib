@@ -16,7 +16,8 @@ class StackData
 
 public:
     StackData(count_t reserve)
-        : _reserved(reserve)
+        : _begin(nullptr)
+        , _reserved(reserve)
         , _count(0)
     {
         Realloc();

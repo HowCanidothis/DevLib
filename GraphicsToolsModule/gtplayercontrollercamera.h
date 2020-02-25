@@ -27,6 +27,7 @@ private:
 protected:
     Point3F m_lastPlanePosition;
     Point2I m_lastScreenPosition;
+    Vector3F m_lastWorldPosition;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H

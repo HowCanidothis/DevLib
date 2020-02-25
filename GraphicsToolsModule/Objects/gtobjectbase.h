@@ -3,8 +3,8 @@
 
 #include "SharedGuiModule/decl.h"
 #include "PropertiesModule/internal.hpp"
-#include "SharedModule/external/external.hpp"
-#include "SharedModule/array.h"
+#include <SharedModule/External/external.hpp>
+#include <SharedModule/internal.hpp>
 
 class GtObjectBase
 {
@@ -12,32 +12,22 @@ public:
     virtual void MapProperties(Observer* ) {}
 };
 
-class GtPrimitiveActor : public GtObjectBase
+class GtDrawableBase : public GtObjectBase
 {
-    BoundingBox m_boundingBox;
-
 public:
-    void AddComponent(GtPrimitiveActor* actor) { m_components.Append(actor); }
-    const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
+    virtual ~GtDrawableBase() {}
 
-public:
-    virtual void Initialize(OpenGLFunctions*)=0;
-
-protected:
-    friend class GtActor;
-    bool updateBoundingBox() { return updateBoundingBox(m_boundingBox); }
-
-    virtual bool updateBoundingBox(BoundingBox&) { return false; }
-    virtual void updateTransform() {}
-
-protected:
-    ArrayPointers<GtPrimitiveActor> m_components;
+    virtual void Draw(OpenGLFunctions* f) = 0;
 };
 
-class GtActor : public GtPrimitiveActor
+class GtInteractableBase : public GtDrawableBase
 {
-protected:
-    virtual bool updateBoundingBox(BoundingBox&) Q_DECL_OVERRIDE;
+public:
+    virtual ~GtInteractableBase() {}
+
+    virtual bool ContainsPoint(const Point3F& point) const = 0;
+    virtual float DistanceToPoint(const Point3F& point) const = 0;
 };
+
 
 #endif // GTOBJECTBASE_H
