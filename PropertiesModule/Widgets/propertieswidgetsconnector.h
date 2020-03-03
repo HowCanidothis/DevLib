@@ -16,6 +16,7 @@ class QCheckBox;
 class QDoubleSpinBox;
 class QSpinBox;
 class QLineEdit;
+class QRadioButton;
 
 class _Export PropertiesConnectorsContainer
 {
@@ -26,15 +27,15 @@ public:
     void AddConnector(PropertiesConnectorBase* connector);
     void Update();
     void Clear();
-    bool IsEmpty() const { return _connectors.IsEmpty(); }
+    bool IsEmpty() const { return m_connectors.IsEmpty(); }
 
 private:
-    StackPointers<PropertiesConnectorBase> _connectors;
+    StackPointers<PropertiesConnectorBase> m_connectors;
 };
 
 class _Export PropertiesConnectorContextIndexGuard
 {
-    properties_context_index_t _before;
+    properties_context_index_t m_prevContextIndex;
 public:
     explicit PropertiesConnectorContextIndexGuard(properties_context_index_t contextIndex);
     explicit PropertiesConnectorContextIndexGuard();
@@ -57,20 +58,19 @@ public:
     PropertiesConnectorBase(const Name& name, const Setter& setter, QWidget* target);
     virtual ~PropertiesConnectorBase();
 
-private:
-    void update();
+    void Update();
 
 protected:
     friend class PropertiesConnectorsContainer;
-    Setter _setter;
-    PropertyPtr _propertyPtr;
-    QMetaObject::Connection _connection;
-    bool _ignorePropertyChange;
+    Setter m_setter;
+    PropertyPtr m_propertyPtr;
+    QMetaObject::Connection m_connection;
+    bool m_ignorePropertyChange;
 
 protected:
     class PropertyChangeGuard
     {
-        bool& _ignorePropertyChange;
+        bool& m_ignorePropertyChange;
     public:
         PropertyChangeGuard(PropertiesConnectorBase* connector);
         ~PropertyChangeGuard();
@@ -112,6 +112,18 @@ class _Export PropertiesGroupBoxConnector : public PropertiesConnectorBase
 {
 public:
     PropertiesGroupBoxConnector(const Name& propertyName, class QGroupBox* groupBox);
+};
+
+class _Export PropertiesRadioButtonsGroupBoxConnector : public PropertiesConnectorBase
+{
+    Q_OBJECT
+public:
+    PropertiesRadioButtonsGroupBoxConnector(const Name& propertyName, QGroupBox* groupBox, const Stack<QRadioButton*>& buttons);
+
+    static Stack<QRadioButton*> ButtonsFromGroup(QGroupBox* groupBox);
+
+signals:
+    void valueChanged(qint32 newValue);
 };
 
 #endif // QT_GUI_LIB

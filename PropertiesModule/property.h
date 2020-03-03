@@ -144,7 +144,7 @@ class TDecimalProperty : public TProperty<T>
 {
     typedef TProperty<T> Super;
 public:
-    TDecimalProperty(const Name& path, const T& initial, const T& min, const T& max)
+    TDecimalProperty(const Name& path, const T& initial, const T& min = std::numeric_limits<T>::min(), const T& max = std::numeric_limits<T>::max())
         : Super(path, initial)
         , m_min(min)
         , m_max(max)
@@ -154,9 +154,9 @@ public:
     {
         m_min = min;
         m_max = max;
-        if(Super::_value < m_min) {
+        if(Super::m_value < m_min) {
             SetValue(m_min);
-        }else if(Super::_value > m_max) {
+        }else if(Super::m_value > m_max) {
             SetValue(m_max);
         }
     }

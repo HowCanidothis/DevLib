@@ -309,7 +309,11 @@ public:
 
     count_t IndexOf(const T& value) const
     {
-        return std::distance(begin(), std::find(begin(), end(), value));
+        auto foundIt = std::find(begin(), end(), value);
+        if(foundIt == end()) {
+            return -1;
+        }
+        return std::distance(begin(), foundIt);
     }
 
     void Merge(qint32 insertIndex, const ArrayCommon& other) {

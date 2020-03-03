@@ -102,7 +102,9 @@ bool PropertiesSystem::Load(const QString& fileName, properties_context_index_t 
             qCWarning(LC_SYSTEM) << "unknown property" << key;
         } else {
             if(find.value()->GetOptions().TestFlag(Property::Option_IsExportable)) {
-                find.value()->SetValue(settings.value(key));
+                if(!find.value()->SetValue(settings.value(key))) {
+                    find.value()->Invoke();
+                }
             }
         }
     }
