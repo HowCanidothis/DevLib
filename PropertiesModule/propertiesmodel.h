@@ -51,7 +51,7 @@ public:
     QModelIndex parent(const QModelIndex& child) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex& parent) const Q_DECL_OVERRIDE;
 
-    QHash<int, QByteArray> roleNames() const;
+    QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
 
 private:
     Q_SLOT void update();

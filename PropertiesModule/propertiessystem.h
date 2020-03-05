@@ -55,6 +55,7 @@ public:
     static void Clear(qint32 contextIndex);
 
     static bool HasContext(qint32 contextIndex);
+    static bool IsExists(const Name& name, properties_context_index_t contextIndex);
     static properties_context_index_t GetCurrentContextIndex();
 
     // begin current context. Global <= type < Max
