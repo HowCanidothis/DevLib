@@ -115,6 +115,7 @@ public:
     const T* Ptr() const { return &m_value; }
     operator const T&() const { return m_value; }
 
+    bool operator!=(const T& another) const { return m_value != another; }
     TPropertyBase<T>& operator=(const T& value) { this->SetValue(value); return *this; }
 
     template<class T2> const T2& Cast() const { return (const T2&)m_value; }
@@ -314,6 +315,8 @@ public:
     {}
 
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
+
+    ColorProperty& operator=(const QColor& color) { SetValue(color); return *this; }
 };
 
 class RectProperty : public TProperty<Rect>
