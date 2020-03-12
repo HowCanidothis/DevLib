@@ -13,17 +13,11 @@ GtScene::~GtScene()
     });
 }
 
-void GtScene::SetInitializationFunction(const GtScene::FInitializationFunction& function)
+void GtScene::draw(OpenGLFunctions* f)
 {
-    Q_ASSERT(!m_initialized);
-    m_initFunction = function;
-}
-
-void GtScene::Draw(OpenGLFunctions* f)
-{
-    for(auto* drawable : m_drawables) {
-        drawable->Draw(f);
-    }
+    foreachGtDrawableBase([f](GtDrawableBase* object) {
+        object->Draw(f);
+    });
 }
 
 Stack<GtInteractableBase*> GtScene::FindClosestToPoint(const Point3F& point, float tolerance) const
@@ -61,6 +55,16 @@ void GtScene::RemoveDrawable(GtDrawableBase* drawable)
     Q_ASSERT(m_drawables.contains(drawable));
     m_drawables.remove(drawable);
     delete drawable;
+}
+
+void GtScene::initialize(OpenGLFunctions* f)
+{
+    if(!m_initialized) {
+        foreachGtDrawableBase([f](GtDrawableBase* object) {
+            object->Initialize(f);
+        });
+        m_initialized = true;
+    }
 }
 
 void GtScene::foreachGtDrawableBase(const std::function<void (GtDrawableBase*)>& action)

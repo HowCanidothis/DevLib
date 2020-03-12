@@ -31,6 +31,12 @@ protected:
         Point2F Position;
         Color3F Color;
     };
+
+    struct ColoredVertex3F
+    {
+        Point3F Position;
+        Color3F Color;
+    };
     #pragma pack()
 
     ScopedPointer<QOpenGLBuffer> m_vbo;

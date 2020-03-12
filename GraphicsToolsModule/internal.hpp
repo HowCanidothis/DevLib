@@ -8,8 +8,10 @@
 #include "gttexture2D.h"
 #include "gtmeshquad2D.h"
 #include "gtview.h"
+#include "gtscene.h"
 #include "Objects/gtmaterial.h"
 #include "Objects/gtmaterialparametertexture.h"
+#include "Objects/gtmaterialparametermatrix.h"
 #include "Objects/gtmaterialparameterbase.h"
 #endif
 

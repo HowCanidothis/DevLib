@@ -76,56 +76,35 @@ void GtView::initializeGL()
 
     m_mvp = ResourcesSystem::GetResource<Matrix4>("mvp");
 
-    /* m_materialTexture = new GtMaterial();
-    m_materialTexture->AddMesh(GtMeshQuad2D::Instance(this));
-    m_materialTexture->AddParameter(new GtMaterialParameterTexture("TextureMap", "post_render"));
-    m_materialTexture->SetShaders(GT_SHADERS_PATH, "screen.vert", "screen.frag");*/
-
-    m_surfaceMesh = new GtMeshGrid(50, 50, 5);
-    m_surfaceMesh->Initialize(this);
-
-    m_surfaceMaterial = new GtMaterial(GL_TRIANGLE_STRIP);
-    m_surfaceMaterial->AddMesh(m_surfaceMesh.data());
-
-    m_linesMesh = new GtMeshGrid(50, 50, 5);
-    m_linesMesh->Initialize(this);
-
-    m_linesMaterial = new GtMaterial(GL_LINES);
-    m_linesMaterial->AddMesh(m_linesMesh.data());
-
-    m_linesMaterial->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    m_linesMaterial->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions*){
-        program->setUniformValue(location, 100.f);
-    }));
-
-    m_linesMaterial->SetShaders(GT_SHADERS_PATH, "colored2d.vert", "red.frag");
-
-    m_surfaceMaterial->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    m_surfaceMaterial->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, gLocID location, OpenGLFunctions*){
-        program->setUniformValue(location, 0.f);
-    }));
-
-    m_surfaceMaterial->SetShaders(GT_SHADERS_PATH, "colored2d.vert", "green.frag");
-
+    // TODO. Must have state machine feather
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glCullFace(GL_BACK);
+    glCullFace(GL_NONE);
 
     glLineWidth(10.f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glClearColor(0.0f, 0.7f, 0.7f, 1.f);
+
+    m_scene->initialize(this);
 }
 
 void GtView::resizeGL(int w, int h)
 {    
-    GtFramebufferFormat fbo_format;
-    fbo_format.SetDepthAttachment(GtFramebufferFormat::Texture);
-    fbo_format.AddColorAttachment(GtFramebufferTextureFormat(GL_TEXTURE_2D, GL_RGBA8));
-    auto fbo = new GtFramebufferObject(this, {w,h});
-    fbo->Create(fbo_format);
+    GtFramebufferFormat fboFormat;
+    fboFormat.SetDepthAttachment(GtFramebufferFormat::RenderBuffer);
+    fboFormat.AddColorAttachment(GtFramebufferTextureFormat(GL_TEXTURE_2D, GL_RGBA8));
+    auto fbo = new GtFramebufferObjectMultisampled(this, {w,h}, 8);
+    fbo->Create(fboFormat);
     m_fbo = fbo;
+
+    GtFramebufferFormat depthFboFormat;
+    depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);
+
+    auto depthFbo = new GtFramebufferObject(this, {w,h});
+    depthFbo->Create(depthFboFormat);
+    m_depthFbo = depthFbo;
 
     m_controllersContext->DepthBuffer->SetFrameBuffer(fbo);
 
@@ -144,10 +123,17 @@ void GtView::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_linesMaterial->Draw(this);
-    m_surfaceMaterial->Draw(this);
+    m_scene->draw(this);
 
     m_fbo->Release();
+
+    m_depthFbo->Bind();
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    m_scene->draw(this);
+
+    m_depthFbo->Release();
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->GetID());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
