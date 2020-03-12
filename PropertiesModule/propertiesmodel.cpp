@@ -105,15 +105,17 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
         const Name& path = it.key();
         Item* current = m_root.data();
         QStringList paths = path.AsString().split('/', QString::SkipEmptyParts);
+        QString currentPath;
         for(const QString& path : adapters::range(paths.begin(), paths.end() - 1)) {
-            auto find = nodes.find(path);
+            currentPath += path;
+            auto find = nodes.find(currentPath);
 
             if(find == nodes.end()) {
                 Item* parent = current;
                 qint32 crow = current->Childs.Size();
                 current = new Item { path, parent, crow, nullptr, {} };
                 parent->Childs.Push(current);
-                nodes.insert(path, current);
+                nodes.insert(currentPath, current);
             } else {
                 current = find.value();
             }

@@ -23,7 +23,7 @@ void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
 {
     QMutex mutex;
     QWaitCondition waitCondition;
-    std::atomic_bool done = false;
+    std::atomic_bool done(false);
 
     QtInlineEvent::Post([task, &done, &waitCondition]{
         task();

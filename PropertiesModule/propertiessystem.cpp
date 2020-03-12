@@ -146,6 +146,11 @@ bool PropertiesSystem::HasContext(qint32 contextIndex)
     return !context(contextIndex).isEmpty();
 }
 
+bool PropertiesSystem::IsExists(const Name& name, properties_context_index_t contextIndex)
+{
+    return context(contextIndex).contains(name);
+}
+
 properties_context_index_t PropertiesSystem::GetCurrentContextIndex()
 {
     return currentContextIndex();
