@@ -20,6 +20,12 @@ struct PropertyValueExtractorPrivate<T*>
     static QVariant ExtractVariant(T* ptr) { return QVariant((qint64)(ptr)); }
 };
 
+template<typename T>
+struct PropertyValueExtractorPrivate<QList<T>>
+{
+    static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value); }
+};
+
 class _Export Property {
 public:
     typedef std::function<void ()> FSetter;
@@ -50,7 +56,7 @@ public:
         DelegateUser
     };
 
-    Property(const Name& path);
+    Property(const Name& path, Options options);
     virtual ~Property() {}
     bool SetValue(QVariant value);
     const Options& GetOptions() const { return m_options; }
@@ -103,8 +109,8 @@ class TPropertyBase : public Property
     typedef TPropertyBase Super;
 public:
     typedef T value_type;
-    TPropertyBase(const Name& path, const T& initial)
-        : Property(path)
+    TPropertyBase(const Name& path, const T& initial, Options options = Options_Default)
+        : Property(path, options)
         , m_value(initial)
     {}
 
@@ -129,8 +135,8 @@ class TProperty : public TPropertyBase<T>
 {
     typedef TPropertyBase<T> Super;
 public:
-    TProperty(const Name& path, const T& initial)
-        : TPropertyBase<T>(path, initial)
+    TProperty(const Name& path, const T& initial, Property::Options options = Property::Options_Default)
+        : TPropertyBase<T>(path, initial, options)
     {}
 
     TProperty<T>& operator=(const T& value) { this->SetValue(value); return *this; }
@@ -145,8 +151,8 @@ class TDecimalProperty : public TProperty<T>
 {
     typedef TProperty<T> Super;
 public:
-    TDecimalProperty(const Name& path, const T& initial, const T& min = std::numeric_limits<T>::min(), const T& max = std::numeric_limits<T>::max())
-        : Super(path, initial)
+    TDecimalProperty(const Name& path, const T& initial, const T& min = std::numeric_limits<T>::min(), const T& max = std::numeric_limits<T>::max(), Property::Options options = Property::Options_Default)
+        : Super(path, initial, options)
         , m_min(min)
         , m_max(max)
     {}
@@ -185,9 +191,8 @@ class PointerProperty : public TPropertyBase<T*>
     typedef TPropertyBase<T*> Super;
 public:
     PointerProperty(const Name& path, T* initial)
-        : Super(path, initial)
+        : Super(path, initial, Super::Options_InternalProperty)
     {
-        this->ChangeOptions().SetFlags(Super::Options_InternalProperty);
     }
 
     T* operator->() { return this->Native(); }
@@ -203,8 +208,8 @@ protected:
 class FileNameProperty : public TProperty<QString>
 {
 public:
-    FileNameProperty(const Name& path, const QString& initial)
-        : TProperty<QString>(path, initial)
+    FileNameProperty(const Name& path, const QString& initial, Options options = Options_Default)
+        : TProperty<QString>(path, initial, options)
     {}
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
@@ -213,8 +218,8 @@ class _Export NamedUIntProperty : public TDecimalProperty<quint32>
 {
     typedef TDecimalProperty<quint32> Super;
 public:
-    NamedUIntProperty(const Name& path, const quint32& initial)
-        : Super(path, initial, 0, 0)
+    NamedUIntProperty(const Name& path, const quint32& initial, Options options = Options_Default)
+        : Super(path, initial, 0, 0, options)
     {}
 
     void SetNames(const QStringList& names);
@@ -223,7 +228,7 @@ public:
     const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
 
 protected:
-    QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(Super::m_value); }
+    QVariant getDisplayValue() const Q_DECL_OVERRIDE { Q_ASSERT(!m_names.value<QStringList>().isEmpty()); return m_names.value<QStringList>().at(Super::m_value); }
 
 private:
     QVariant m_names;
@@ -233,8 +238,8 @@ class _Export UrlListProperty : public TPropertyBase<QList<QUrl>>
 {
     typedef TPropertyBase<QList<QUrl>> Super;
 public:
-    UrlListProperty(const Name& path, qint32 maxCount = -1)
-        : Super(path, {})
+    UrlListProperty(const Name& path, qint32 maxCount = -1, Options options = Options_Default)
+        : Super(path, {}, options)
         , m_maxCount(maxCount)
     {}
 
@@ -255,8 +260,8 @@ class _Export HashProperty : public TPropertyBase<QHash<Key, Value>>
     using Super = TPropertyBase<QHash<Key, Value>>;
 
 public:
-    HashProperty(const Name& path)
-        : Super(path, {})
+    HashProperty(const Name& path, Property::Options options = Super::Options_Default)
+        : Super(path, {}, options)
     {}
 
     void Insert(const Key& key, const Value& value)
@@ -279,15 +284,74 @@ protected:
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
+template<class Key>
+class _Export SetProperty : public TPropertyBase<QSet<Key>>
+{
+    using Super = TPropertyBase<QSet<Key>>;
+
+public:
+    SetProperty(const Name& path, Property::Options options = Super::Options_Default)
+        : Super(path, {}, options)
+    {}
+
+    void Insert(const Key& key)
+    {
+        auto& hash = Super::m_value;
+        auto foundIt = hash.find(key);
+        if(foundIt == hash.end()) {
+            Super::m_value.insert(key);
+            Super::Invoke();
+        }
+    }
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
+};
+
+template<class Key>
+class _Export ListProperty : public TPropertyBase<QList<Key>>
+{
+    using Super = TPropertyBase<QList<Key>>;
+
+public:
+    ListProperty(const Name& path, Property::Options options = Super::Options_Default)
+        : Super(path, {}, options)
+    {}
+
+    void Add(const Key& value)
+    {
+        Super::m_value.append(value);
+        Super::Invoke();
+    }
+
+    void Clear()
+    {
+        if(!Super::m_value.isEmpty()) {
+            Super::m_value.clear();
+            Super::Invoke();
+        }
+    }
+
+    void Set(const QVector<Key>& values)
+    {
+        Super::m_value = values;
+        Super::Invoke();
+    }
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
+};
+
 class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>
 {
     typedef TProperty<QByteArray> Super;
 
 public:
     PropertiesDialogGeometryProperty(const QString& name)
-        : Super(Name("PropertiesDialogGeometry/" + name), QByteArray())
+        : Super(Name("PropertiesDialogGeometry/" + name), QByteArray(), Option_IsExportable)
     {
-        ChangeOptions().SetFlags(Option_IsExportable);
     }
 };
 
@@ -310,8 +374,8 @@ class ColorProperty : public TProperty<QColor>
 {
     typedef TProperty<QColor> Super;
 public:
-    ColorProperty(const Name& name, const QColor& initial)
-        : Super(name, initial)
+    ColorProperty(const Name& name, const QColor& initial, Options options = Options_Default)
+        : Super(name, initial, options)
     {}
 
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateColor; }
@@ -323,8 +387,8 @@ class RectProperty : public TProperty<Rect>
 {
     typedef TProperty<Rect> Super;
 public:
-    RectProperty(const Name& name, const Rect& initial)
-        : Super(name, initial)
+    RectProperty(const Name& name, const Rect& initial, Options options = Options_Default)
+        : Super(name, initial, options)
     {}
 
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateRect; }
@@ -337,7 +401,7 @@ public:
     FloatProperty Y;
     FloatProperty Z;
 
-    Vector3FProperty(const QString& path, const Vector3F& vector);
+    Vector3FProperty(const QString& path, const Vector3F& vector, Property::Options options = Property::Options_Default);
 };
 
 #endif // QT_GUI_LIB_LIB

@@ -1,10 +1,10 @@
 #include "property.h"
 #include "propertiessystem.h"
 
-Property::Property(const Name& path)
+Property::Property(const Name& path, Options options)
     : m_fOnChange([]{})
     , m_fValidator([](const QVariant&, QVariant&){})
-    , m_options(Options_Default)
+    , m_options(options)
 #ifdef DEBUG_BUILD
     , m_isSubscribed(false)
     , m_propertyName(path)
@@ -77,10 +77,10 @@ void UrlListProperty::AddUniqueUrl(const QUrl& url)
 
 #ifdef QT_GUI_LIB
 
-Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector)
-    : X(Name(path+"/x"), vector.x(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Y(Name(path+"/y"), vector.y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
-    , Z(Name(path+"/z"), vector.z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+Vector3FProperty::Vector3FProperty(const QString& path, const Vector3F& vector, Property::Options options)
+    : X(Name(path+"/x"), vector.x(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), options)
+    , Y(Name(path+"/y"), vector.y(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), options)
+    , Z(Name(path+"/z"), vector.z(), -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), options)
 {
 
 }
