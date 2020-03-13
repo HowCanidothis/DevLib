@@ -36,6 +36,7 @@ public:
     }
     const T& GetValue() const { return m_value; }
 
+    bool operator!() const { return m_value == false; }
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
 

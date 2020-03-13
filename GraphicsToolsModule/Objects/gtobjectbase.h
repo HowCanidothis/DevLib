@@ -18,6 +18,7 @@ public:
     virtual ~GtDrawableBase() {}
 
     virtual void Draw(OpenGLFunctions* f) = 0;
+    virtual void Initialize(OpenGLFunctions* f) = 0;
 };
 
 class GtInteractableBase : public GtDrawableBase

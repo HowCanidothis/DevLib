@@ -35,16 +35,10 @@ private:
     bool m_isInitialized;
 
     ScopedPointer<Matrix4Resource> m_mvp;
-    ScopedPointer<class GtMeshQuad2D> m_meshQuad;
-    ScopedPointer<class GtMaterial> m_materialTexture;
     ScopedPointer<class ControllersContainer> m_controllers;
     ScopedPointer<class GtCamera> m_camera;
-
-    ScopedPointer<class GtMaterial> m_surfaceMaterial;
-    ScopedPointer<class GtMeshBase> m_surfaceMesh;
-    ScopedPointer<class GtMeshBase> m_linesMesh;
-    ScopedPointer<class GtMaterial> m_linesMaterial;
     ScopedPointer<class GtFramebufferObjectBase> m_fbo;
+    ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     struct GtControllersContext* m_controllersContext;
 
     SharedPointer<GtViewParams> m_params;

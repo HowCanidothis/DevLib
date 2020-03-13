@@ -26,10 +26,11 @@ public:
     bool isNull() const { return this->data() == nullptr; }
 };
 
-template<class T>
-ScopedPointer<T> make_scoped(T* ptr) { return ScopedPointer<T>(ptr); }
-template<class T>
-ScopedPointer<T> make_unique(T* ptr) { return ScopedPointer<T>(ptr); }
+template<class T, typename ... Args>
+ScopedPointer<T> make_scoped(Args ... args) { return ScopedPointer<T>(new T(args...)); }
+
+template<class T, typename ... Args>
+ScopedPointer<T> make_unique(Args ... args) { return ScopedPointer<T>(new T(args...)); }
 
 template<typename T>
 class SharedPointer : public std::shared_ptr<T>
@@ -41,7 +42,7 @@ public:
     SharedPointer& operator=(T* ptr) { this->reset(ptr); return *this; }
 };
 
-template<class T>
-SharedPointer<T> make_shared(T* ptr) { return SharedPointer<T>(ptr); }
+template<class T, typename ... Args>
+SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...)); }
 
 #endif // SMARTPOINTERSADAPTERS_H

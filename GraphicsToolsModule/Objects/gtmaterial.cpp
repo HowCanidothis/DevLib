@@ -54,7 +54,7 @@ void GtMaterial::SetShaders(const QString& path, const QString& vert_file, const
     SetDir(path);
     AddShader(Vertex, vert_file);
     AddShader(Fragment, frag_file);
-    Update();
+    // Update();
 }
 
 void GtMaterial::SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile)
@@ -63,7 +63,7 @@ void GtMaterial::SetShaders(const QString& path, const QString& vertFile, const 
     AddShader(Vertex, vertFile);
     AddShader(Geometry, geomFile);
     AddShader(Fragment, fragFile);
-    Update();
+    // Update();
 }
 
 void GtMaterial::Update()

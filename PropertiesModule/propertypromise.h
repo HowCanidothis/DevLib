@@ -66,6 +66,9 @@ typedef PropertyPromise<ByteArrayProperty> ByteArrayPropertyPtr;
 typedef PropertyPromise<StringProperty> StringPropertyPtr;
 typedef PropertyPromise<UrlListProperty> UrlListPropertyPtr;
 typedef PropertyPromise<NamedUIntProperty> NamedUIntPropertyPtr;
+template<class Key> using SetPropertyPtr = PropertyPromise<SetProperty<Key>>;
+template<class Key> using ListPropertyPtr = PropertyPromise<ListProperty<Key>>;
+template<class Key, class Value> using HashPropertyPtr = PropertyPromise<HashProperty<Key, Value>>;
 template<class T> using PointerPropertyPtr = PropertyPromise<PointerProperty<T>>;
 
 #ifdef QT_GUI_LIB

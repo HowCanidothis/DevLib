@@ -247,6 +247,10 @@ public:
     {
         other._d.reset(new MiddleAlgoData<T>());
     }
+    virtual ~ArrayCommon()
+    {
+
+    }
 
     void Sort()
     {

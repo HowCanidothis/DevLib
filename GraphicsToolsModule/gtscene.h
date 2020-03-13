@@ -17,9 +17,7 @@ public:
     GtScene();
     ~GtScene();
 
-    void SetInitializationFunction(const FInitializationFunction& function);
 
-    void Draw(OpenGLFunctions* f);
     Stack<GtInteractableBase*> FindClosestToPoint(const Point3F& point, float tolerance) const;
 
     void AddInteractable(GtInteractableBase* interactable);
@@ -29,6 +27,10 @@ public:
     void RemoveDrawable(GtDrawableBase* drawable);
 
 private:
+    friend class GtView;
+    void initialize(OpenGLFunctions* f);
+    void draw(OpenGLFunctions* f);
+
     void foreachGtDrawableBase(const std::function<void (GtDrawableBase*)>& action);
 
 private:

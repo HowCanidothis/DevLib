@@ -61,6 +61,14 @@ public:
 
 typedef Promise<bool> AsyncResult;
 
+class AsyncError : public AsyncResult
+{
+public:
+    AsyncError() {
+        Resolve(false);
+    }
+};
+
 class FutureResult
 {
     std::atomic<bool> m_result;

@@ -12,13 +12,13 @@ protected:
 
 public:
     typedef T value_type;
-    TExternalPropertyBase(const Name& path,const FGetter& getter, const FSetter& setter)
-        : Property(path)
+    TExternalPropertyBase(const Name& path,const FGetter& getter, const FSetter& setter, Options options = Options_Default)
+        : Property(path, options)
         , m_getter(getter)
         , m_setter(setter)
     {}
-    TExternalPropertyBase(const Name& path, T& ref)
-        : Property(path)
+    TExternalPropertyBase(const Name& path, T& ref, Options options = Options_Default)
+        : Property(path, options)
         , m_getter(defaultGetter(ref))
         , m_setter(defaultSetter(ref))
     {}
@@ -122,7 +122,7 @@ public:
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
     const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
 protected:
-    QVariant getDisplayValue() const Q_DECL_OVERRIDE { return m_names.value<QStringList>().at(m_getter()); }
+    QVariant getDisplayValue() const Q_DECL_OVERRIDE { Q_ASSERT(!m_names.value<QStringList>().isEmpty()); return m_names.value<QStringList>().at(m_getter()); }
 
 private:
     QVariant m_names;
