@@ -31,7 +31,7 @@ public:
 
 template<typename T>
 T clamp(const T& value, const T& min, const T& max) {
-    return std::min(std::max(value, min), max);
+    return (value < min) ? min : (max < value) ? max : value;
 }
 
 namespace adapters {
