@@ -171,13 +171,18 @@ public:
     const T& GetMinValue() const { return m_min; }
     const T& GetMaxValue() const { return m_max; }
 
+    TDecimalProperty<T>& operator+=(const T& value) { this->SetValue(Super::m_value + value); return *this; }
+    TDecimalProperty<T>& operator-=(const T& value) { this->SetValue(Super::m_value - value); return *this; }
     TDecimalProperty<T>& operator=(const T& value) { this->SetValue(value); return *this; }
 
     QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
     QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
 
 protected:
-    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { this->m_value = clamp(value.value<T>(), m_min, m_max); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE
+    {
+        this->m_value = clamp(value.value<T>(), m_min, m_max);
+    }
 protected:
     T m_min;
     T m_max;
