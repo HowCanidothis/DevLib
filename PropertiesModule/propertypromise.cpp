@@ -1,5 +1,13 @@
 #include "propertypromise.h"
 
+PropertyPromiseBase::PropertyPromiseBase()
+    : m_isValid([]{
+        return false;
+    })
+{
+
+}
+
 PropertyPromiseBase::PropertyPromiseBase(const Name& name, qint32 contextIndex)
     : m_getter([name, contextIndex, this]{
         auto context = PropertiesSystem::context(contextIndex);

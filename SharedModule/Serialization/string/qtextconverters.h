@@ -120,4 +120,31 @@ struct TextConverter<QHash<Key, Value>>
     }
 };
 
+template <typename Key>
+struct TextConverter<QSet<Key>>
+{
+    using value_type = QSet<Key>;
+    static QString ToText(const value_type& value)
+    {
+        QString result;
+        for(const auto& key : value) {
+            result += "(" + TextConverter<Key>::ToText(key) + ")";
+        }
+        return result;
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        static QRegExp regExp(R"(\(([^\)]+)\))");
+        qint32 pos = 0;
+        value_type result;
+        while((pos = regExp.indexIn(string, pos)) != -1) {
+            result.insert(TextConverter<Key>::FromText(regExp.cap(1)));
+            pos += regExp.matchedLength();
+        }
+
+        return result;
+    }
+};
+
 #endif // QSTRINGCONVERTERS_H

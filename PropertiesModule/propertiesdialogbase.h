@@ -29,7 +29,9 @@ public:
     DECL_FLAGS(Options, Option)
 
     PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent = nullptr);
+    ~PropertiesDialogBase();
 
+    static void RejectAllDialogs();
     static void CreateGeometryProperty(const QString& dialogName);
     void Initialize(const StdHandle& propertiesInitializeFunction = []{});
     const Options& GetOptions() const { return m_options; }
@@ -58,6 +60,8 @@ protected:
     QMetaObject::Connection m_connection;
     QHash<Property*, QVariant> m_oldValues;
     DispatchersConnections m_additonalPropertiesConnections;
+
+    static QSet<PropertiesDialogBase*>& currentDialogs();
 };
 
 #endif // QT_GUI_LIB

@@ -17,6 +17,7 @@ class PromiseData
 
     template<class> friend class Promise;
     friend class FutureResult;
+    friend class AsyncObject;
     FCallback PromiseCallback;
     std::atomic_bool IsCompleted;
     std::mutex m_mutex;
@@ -57,6 +58,12 @@ public:
             m_data->PromiseCallback = then;
         }
     }
+
+    void Mute()
+    {
+        std::unique_lock<std::mutex> lock(m_data->m_mutex);
+        m_data->PromiseCallback = nullptr;
+    }
 };
 
 typedef Promise<bool> AsyncResult;
@@ -67,6 +74,18 @@ public:
     AsyncError() {
         Resolve(false);
     }
+};
+
+class AsyncObject
+{
+public:
+    AsyncObject();
+    ~AsyncObject();
+
+    AsyncResult Async(const FAction& action, const PromiseData<bool>::FCallback& onDone);
+
+private:
+    AsyncResult m_result;
 };
 
 class FutureResult

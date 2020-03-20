@@ -7,9 +7,11 @@
 class _Export PropertyPromiseBase
 {
 public:
+    PropertyPromiseBase();
     PropertyPromiseBase(const Name& name, qint32 contextIndex);
     PropertyPromiseBase(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex);
 
+    void Assign(const Name& name, qint32 contextIndex);
     void Subscribe(const Property::FOnChange& onChange);
     void InstallObserver(Dispatcher::Observer observer, const FAction& action) { GetProperty()->InstallObserver(observer, action); }
     void RemoveObserver(Dispatcher::Observer observer) { GetProperty()->RemoveObserver(observer); }
@@ -29,6 +31,7 @@ protected:
     typedef typename T::value_type value_type;
 
 public:
+    PropertyPromise() {}
     PropertyPromise(const Name& name, qint32 contextIndex)
         : PropertyPromiseBase(name, contextIndex)
     {}
@@ -36,12 +39,16 @@ public:
         : PropertyPromiseBase(name, onChange, contextIndex)
     {}
 
+    void Assign(const Name& name, qint32 contextIndex) { *this = PropertiesSystem::GetProperty<T>(name, contextIndex); }
     T* GetProperty() const { return reinterpret_cast<T*>(m_getter()); }
     const value_type& Native() const { return *GetProperty(); }
 
     const value_type& operator->() const { return *GetProperty(); }
     operator const value_type& () const { return *GetProperty(); }
     PropertyPromise& operator=(const value_type& value) { m_setter(PropertyValueExtractorPrivate<value_type>::ExtractVariant(value)); return *this; }
+
+private:
+    PropertyPromise& operator=(const PropertyPromise& another) = default;
 };
 
 template<class T>

@@ -4,8 +4,14 @@
 template <class T>
 struct TextConverter
 {    
-    static QString ToText(const T& value);
-    static T FromText(const QString& string);
+    static QString ToText(const T& value)
+    {
+        return value.ToString();
+    }
+    static T FromText(const QString& string)
+    {
+        return T::FromString(string);
+    }
 };
 
 #endif // STRINGCONVERTER_H

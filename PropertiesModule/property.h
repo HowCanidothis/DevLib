@@ -279,6 +279,16 @@ public:
         }
     }
 
+    void Remove(const Key& key)
+    {
+        QHash<Key, Value>& hash = Super::m_value;
+        auto foundIt = hash.find(key);
+        if(foundIt != hash.end()) {
+            hash.remove(key);
+            Super::Invoke();
+        }
+    }
+
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
@@ -303,6 +313,8 @@ public:
             Super::Invoke();
         }
     }
+
+    QSet<Key> GetPreviousValue() const { return TextConverter<typename Super::value_type>::FromText(Super::m_previousValue.toString()); }
 
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
