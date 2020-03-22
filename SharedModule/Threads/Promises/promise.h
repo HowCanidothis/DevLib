@@ -8,6 +8,7 @@
 #include <condition_variable>
 
 #include <SharedModule/smartpointersadapters.h>
+#include <SharedModule/shared_decl.h>
 
 template<class T>
 class PromiseData
