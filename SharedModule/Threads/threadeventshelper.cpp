@@ -98,17 +98,26 @@ AsyncResult ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
     return result;
 }
 
+void ThreadEventsContainer::clearEvents()
+{
+    m_interupted = true;
+    ProcessEvents();
+    QMutexLocker locker(&m_eventsMutex);
+    m_events = std::queue<ThreadEvent*>();
+    m_interupted = false;
+}
+
 void ThreadEventsContainer::ProcessEvents()
 {
     QMutexLocker locker(&m_eventsMutex);
-    while(!m_events.empty()) { // from spurious wakeups
+    while(!m_interupted && !m_events.empty()) { // from spurious wakeups
         m_eventsProcessed.wait(&m_eventsMutex);
     }
 }
 
 void ThreadEventsContainer::callEvents()
 {
-    while(!m_events.empty()) {
+    while(!m_interupted && !m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {
             QMutexLocker locker(&m_eventsMutex);
@@ -124,7 +133,7 @@ void ThreadEventsContainer::callEvents()
 
 void ThreadEventsContainer::callPauseableEvents()
 {
-    while(!m_events.empty()) {
+    while(!m_interupted && !m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {
             if(m_isPaused) {

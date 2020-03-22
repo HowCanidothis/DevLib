@@ -58,6 +58,7 @@ public:
 protected:
     void callEvents();
     void callPauseableEvents();
+    void clearEvents();
 
 private:
     std::queue<ThreadEvent*> m_events;
@@ -66,6 +67,7 @@ private:
     QMutex m_eventsMutex;
     std::atomic_bool m_eventsNotified;
     std::atomic_bool m_isPaused;
+    std::atomic_bool m_interupted;
     FOnPause m_onPause;
 
     QHash<Name,ThreadEvent*> m_tagEventsMap;

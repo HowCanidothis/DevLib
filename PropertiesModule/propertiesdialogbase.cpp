@@ -26,6 +26,22 @@ PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIn
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    currentDialogs().insert(this);
+}
+
+PropertiesDialogBase::~PropertiesDialogBase()
+{
+    currentDialogs().remove(this);
+}
+
+void PropertiesDialogBase::RejectAllDialogs()
+{
+    for(auto* dialog : currentDialogs()) {
+        if(dialog->isVisible()) {
+            dialog->reject();
+        }
+    }
 }
 
 void PropertiesDialogBase::CreateGeometryProperty(const QString& dialogName)
@@ -110,6 +126,12 @@ void PropertiesDialogBase::showEvent(QShowEvent* event)
 void PropertiesDialogBase::changeProperties(const PropertiesDialogBase::StdHandle& changingProperties)
 {
     changingProperties();
+}
+
+QSet<PropertiesDialogBase*>& PropertiesDialogBase::currentDialogs()
+{
+    static QSet<PropertiesDialogBase*> result;
+    return result;
 }
 
 #endif

@@ -22,7 +22,7 @@ public:
     static QString GetSupportedExtensions(const QString& suffix);
 
 protected:
-    static void assosiate(const QString& formats, const DelegateCreator& importerCreator);
+    static void associate(const QString& formats, const DelegateCreator& importerCreator);
 
 private:
     static Delegates& delegates()
@@ -55,7 +55,7 @@ QString DefaultFactoryBase<DelegateObject>::GetSupportedExtensions(const QString
 }
 
 template<class DelegateObject>
-void DefaultFactoryBase<DelegateObject>::assosiate(const QString& formats, const DelegateCreator& importerCreator)
+void DefaultFactoryBase<DelegateObject>::associate(const QString& formats, const DelegateCreator& importerCreator)
 {
     for(const auto& format : formats.split(" ", QString::SkipEmptyParts)) {
         delegates().insert(format, importerCreator);

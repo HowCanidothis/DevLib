@@ -34,6 +34,17 @@ T clamp(const T& value, const T& min, const T& max) {
     return (value < min) ? min : (max < value) ? max : value;
 }
 
+inline double sign(double value)
+{
+    if(value < 0.0) {
+        return -1.0;
+    }
+    if(value > 0.0) {
+        return 1.0;
+    }
+    return 0.0;
+}
+
 namespace adapters {
 
 template<typename It>
