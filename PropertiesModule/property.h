@@ -202,7 +202,7 @@ public:
 
     T* operator->() { return this->Native(); }
     const T* operator->() const { return this->Native(); }
-    PointerProperty<T>& operator=(T* ptr) { this->SetValue(reinterpret_cast<size_t>(ptr)); return *this; }
+    PointerProperty<T>& operator=(T* ptr) { this->SetValue(reinterpret_cast<qulonglong>(ptr)); return *this; }
 
     // Property interface
 protected:
