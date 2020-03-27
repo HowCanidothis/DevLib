@@ -16,6 +16,7 @@ public:
     void InstallObserver(Dispatcher::Observer observer, const FAction& action) { GetProperty()->InstallObserver(observer, action); }
     void RemoveObserver(Dispatcher::Observer observer) { GetProperty()->RemoveObserver(observer); }
     Property* GetProperty() const { return m_getter(); }
+    Dispatcher& GetDispatcher() const { return GetProperty()->GetDispatcher(); }
     bool IsValid() const { return m_isValid(); }
 protected:
     std::function<Property* ()> m_getter;
