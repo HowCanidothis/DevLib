@@ -50,6 +50,7 @@ public:
 
     static bool Load(const QString& fileName, properties_context_index_t contextIndex);
     static void Save(const QString& fileName, properties_context_index_t contextIndex);
+    static void Save(const QString& fileName, properties_context_index_t contextIndex, const QVector<Name>& propertyName);
     // clear current context
     static void Clear();
     static void Clear(qint32 contextIndex);
