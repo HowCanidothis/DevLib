@@ -12,6 +12,7 @@
 #include "propertiesdialog.h"
 #include "propertieslogger.h"
 #include "propertieswindow.h"
+#include "propertyanimation.h"
 #include "propertiesfilenamesgenerator.h"
 #include "localproperty.h"
 #include "Widgets/propertieswidgetsconnector.h"

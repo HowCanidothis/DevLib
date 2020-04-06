@@ -161,7 +161,11 @@ public:
         : Super(path, initial, options)
         , m_min(min)
         , m_max(max)
-    {}
+    {
+        Super::Validator() = [this](const QVariant&, QVariant& value) {
+            value = clamp(value.value<T>(), m_min, m_max);
+        };
+    }
 
     void SetMinMax(const T& min, const T& max)
     {
@@ -184,11 +188,6 @@ public:
     QVariant GetMin() const Q_DECL_OVERRIDE { return m_min; }
     QVariant GetMax() const Q_DECL_OVERRIDE { return m_max; }
 
-protected:
-    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE
-    {
-        this->m_value = clamp(value.value<T>(), m_min, m_max);
-    }
 protected:
     T m_min;
     T m_max;

@@ -126,6 +126,23 @@ void PropertiesSystem::Save(const QString& fileName, properties_context_index_t 
     }
 }
 
+void PropertiesSystem::Save(const QString& fileName, properties_context_index_t contextIndex, const QVector<Name>& propertyName)
+{
+    Q_ASSERT(!fileName.isEmpty());
+    QSettings settings(fileName, QSettings::IniFormat);
+    settings.setIniCodec("utf-8");
+
+    auto& container = context(contextIndex);
+
+    for(const auto& name : propertyName) {
+        auto foundIt = container.find(name);
+        Q_ASSERT(foundIt != container.end());
+        Q_ASSERT(foundIt.value()->GetOptions().TestFlag(Property::Option_IsExportable));
+
+        settings.setValue(foundIt.key().AsString(), foundIt.value()->getValue());
+    }
+}
+
 void PropertiesSystem::Clear()
 {
     Clear(currentContextIndex());
