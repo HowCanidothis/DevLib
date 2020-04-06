@@ -26,6 +26,12 @@ struct PropertyValueExtractorPrivate<QList<T>>
     static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value); }
 };
 
+template<typename Key, typename Value>
+struct PropertyValueExtractorPrivate<QHash<Key, Value>>
+{
+    static QVariant ExtractVariant(const QHash<Key, Value>& value) { return TextConverter<QHash<Key, Value>>::ToText(value); }
+};
+
 class _Export Property {
 public:
     typedef std::function<void ()> FSetter;
