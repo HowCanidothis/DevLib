@@ -193,8 +193,8 @@ void PropertiesSystem::End()
     currentContextIndex() = Global;
 }
 
-void PropertiesSystem::addProperty(const Name& path, Property* property) {
-
+void PropertiesSystem::addProperty(const Name& path, Property* property)
+{
     Q_ASSERT_X(!context().contains(path), "PropertiesSystem::addProperty", path.AsString().toLatin1().constData());
     property->Handler() = currentHandle();
     context().insert(path, property);

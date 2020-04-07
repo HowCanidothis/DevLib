@@ -25,6 +25,7 @@ void ThreadComputingBase::Start()
 
 void ThreadComputingBase::Quit()
 {
+    clearEvents();
     m_stoped = true;
     wait();
 }

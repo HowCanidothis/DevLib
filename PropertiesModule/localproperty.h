@@ -18,29 +18,43 @@ public:
 
     void Invoke()
     {
-        Q_ASSERT(!OnChange.IsEmpty());
+        Q_ASSERT(!OnChange.IsEmpty() || m_subscribes != nullptr);
         OnChange.Invoke();
+        m_subscribes();
     }
 
     void Subscribe(const FAction& subscribe)
     {
-        OnChange += { nullptr, subscribe };
+        if(m_subscribes == nullptr) {
+            m_subscribes = subscribe;
+        } else {
+            auto oldHandle = m_subscribes;
+            m_subscribes = [subscribe, oldHandle]{
+                oldHandle();
+                subscribe();
+            };
+        }
     }
 
     void SetValue(const T& value)
     {
         if(value != m_value) {
             m_value = value;
-            OnChange();
+            Invoke();
         }
     }
-    const T& GetValue() const { return m_value; }
+
+    const T& Native() const { return m_value; }
+    Dispatcher& GetDispatcher() { return OnChange; }
 
     bool operator!() const { return m_value == false; }
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
 
     Dispatcher OnChange;
+
+private:
+    FAction m_subscribes;
 };
 
 template<class T>
@@ -79,7 +93,7 @@ public:
     {
         if(!this->m_value.isEmpty()) {
             this->m_value.clear();
-            this->OnChange();
+            this->Invoke();
         }
     }
 
@@ -103,7 +117,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.insert(value);
-            this->OnChange();
+            this->Invoke();
         }
     }
 
@@ -112,7 +126,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.erase(find);
-            this->OnChange();
+            this->Invoke();
         }
     }
 
