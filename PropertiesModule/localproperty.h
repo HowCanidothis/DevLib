@@ -18,9 +18,10 @@ public:
 
     void Invoke()
     {
-        Q_ASSERT(!OnChange.IsEmpty() || m_subscribes != nullptr);
         OnChange.Invoke();
-        m_subscribes();
+        if(m_subscribes != nullptr) {
+            m_subscribes();
+        }
     }
 
     void Subscribe(const FAction& subscribe)
