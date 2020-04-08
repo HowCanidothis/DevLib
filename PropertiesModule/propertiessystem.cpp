@@ -193,8 +193,29 @@ void PropertiesSystem::End()
     currentContextIndex() = Global;
 }
 
-void PropertiesSystem::addProperty(const Name& path, Property* property)
+PropertiesSystem::FHandle& PropertiesSystem::BeginSubScope(properties_context_index_t scope, const QString& name)
 {
+    Q_ASSERT(currentSubScope() == nullptr);
+    auto& result = Begin(scope);
+    currentSubScope() = new SubScope(scope, name + "/");
+    return result;
+}
+
+SharedPointer<PropertiesSystem::SubScope> PropertiesSystem::EndSubScope()
+{
+    SharedPointer<SubScope> result(currentSubScope());
+    currentSubScope() = nullptr;
+    return result;
+}
+
+void PropertiesSystem::addProperty(Name path, Property* property)
+{
+    if(currentSubScope() != nullptr) {
+        path = Name(currentSubScope()->m_prefix + path.AsString());
+        currentSubScope()->Properties.append(property);
+        property->m_propertyName = path;
+    }
+
     Q_ASSERT_X(!context().contains(path), "PropertiesSystem::addProperty", path.AsString().toLatin1().constData());
     property->Handler() = currentHandle();
     context().insert(path, property);
@@ -233,7 +254,14 @@ PropertiesSystem::FHandle& PropertiesSystem::currentHandle()
 
 PropertiesSystem::Scope& PropertiesSystem::currentContextIndex()
 {
-    static Scope res = Global; return res;
+    static Scope res = Global;
+    return res;
+}
+
+PropertiesSystem::SubScope*& PropertiesSystem::currentSubScope()
+{
+    static SubScope* result = nullptr;
+    return result;
 }
 
 PropertiesSystemContextIndexScopeGuard::PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT
@@ -244,4 +272,13 @@ PropertiesSystemContextIndexScopeGuard::PropertiesSystemContextIndexScopeGuard(p
 PropertiesSystemContextIndexScopeGuard::~PropertiesSystemContextIndexScopeGuard()
 {
     PropertiesSystem::End();
+}
+
+PropertiesSystem::SubScope::~SubScope()
+{
+    auto& context = PropertiesSystem::context(m_scope);
+
+    for(auto* property : Properties) {
+        context.remove(property->GetPropertyName());
+    }
 }

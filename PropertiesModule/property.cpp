@@ -5,9 +5,9 @@ Property::Property(const Name& path, Options options)
     : m_fOnChange([]{})
     , m_fValidator([](const QVariant&, QVariant&){})
     , m_options(options)
+    , m_propertyName(path)
 #ifdef DEBUG_BUILD
     , m_isSubscribed(false)
-    , m_propertyName(path)
 #endif
 {
     PropertiesSystem::addProperty(path, this);

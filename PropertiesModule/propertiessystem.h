@@ -24,6 +24,22 @@ public:
 class _Export PropertiesSystem
 {
 public:
+    class SubScope
+    {
+        properties_context_index_t m_scope;
+        QString m_prefix;
+
+        SubScope(properties_context_index_t scope, const QString& prefix)
+            : m_scope(scope)
+            , m_prefix(prefix)
+        {}
+        friend class PropertiesSystem;
+    public:
+        QVector<Property*> Properties;
+
+        ~SubScope();
+    };
+
     enum Scope {
         Global = 0,
         InitProperties,
@@ -72,6 +88,9 @@ public:
     // call this to
     static void End();
 
+    static FHandle& BeginSubScope(properties_context_index_t scope, const QString& name);
+    static SharedPointer<SubScope> EndSubScope();
+
 private:
     friend class Property;
     friend class PropertiesModel;
@@ -80,13 +99,16 @@ private:
     PropertiesSystem();
     Q_DISABLE_COPY(PropertiesSystem)
 
-    static void addProperty(const Name& path, Property* property);
+    static void addProperty(Name path, Property* property);
 
     static QHash<Name, Property*>& context(properties_context_index_t contextIndex);
     static QHash<Name, Property*>& context();
     static FHandle defaultHandle();
     static FHandle& currentHandle();
     static Scope& currentContextIndex();
+    static SubScope*& currentSubScope();
 };
+
+using PropertiesSubScopePtr = SharedPointer<PropertiesSystem::SubScope>;
 
 #endif // PROPS_H

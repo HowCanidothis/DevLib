@@ -83,6 +83,7 @@ public:
 
     const QVariant& GetPreviousValue() const { return m_previousValue; }
     QVariant GetValue() const { return getValue(); }
+    const Name& GetPropertyName() const { return m_propertyName; }
     virtual QVariant GetMin() const { return 0; }
     virtual QVariant GetMax() const { return 0; }
 
@@ -103,9 +104,9 @@ protected:
     FValidator m_fValidator;
     Options m_options;
     QVariant m_previousValue;
+    Name m_propertyName;
 #ifdef DEBUG_BUILD
     bool m_isSubscribed;
-    Name m_propertyName;
 #endif
 };
 
