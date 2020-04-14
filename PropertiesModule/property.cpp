@@ -48,6 +48,42 @@ void Property::Invoke()
     m_onChangeDispatcher.Invoke();
 }
 
+QVariant Property::GetValueFromRole(int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole: {
+        return getDisplayValue();
+    }
+    case Qt::EditRole: {
+        return getValue();
+    }
+    case Qt::CheckStateRole: {
+        if(getValue().type() == QVariant::Bool) {
+            return getValue().toBool() ? Qt::Checked : Qt::Unchecked;
+        }
+        break;
+    }
+    case RoleHeaderItem:
+        return false;
+    case RoleMinValue: {
+        return GetMin();
+    }
+    case RoleMaxValue: {
+        return GetMax();
+    }
+    case RoleDelegateValue: {
+        return GetDelegateValue();
+    }
+    case RoleDelegateData: {
+        auto delegateData = GetDelegateData();
+        return (delegateData != nullptr) ? *delegateData : QVariant();
+    }
+    default:
+        break;
+    }
+    return QVariant();
+}
+
 void NamedUIntProperty::SetNames(const QStringList& names)
 {
     m_max = names.size() - 1;

@@ -35,8 +35,8 @@ const PropertiesDelegateFactory&PropertiesDelegateFactory::Instance()
 
 QWidget*PropertiesDelegateFactory::CreateEditor(QWidget* parent, const QStyleOptionViewItem&, const QModelIndex& index) const
 {
-    QVariant delegateData = index.data(PropertiesModel::RoleDelegateData);
-    QVariant delegateValue = index.data(PropertiesModel::RoleDelegateValue);
+    QVariant delegateData = index.data(Property::RoleDelegateData);
+    QVariant delegateValue = index.data(Property::RoleDelegateValue);
     switch (delegateValue.toInt()) {
     case Property::DelegateNamedUInt: {
         QComboBox* result = new QComboBox(parent);
@@ -62,7 +62,7 @@ QWidget*PropertiesDelegateFactory::CreateEditor(QWidget* parent, const QStyleOpt
 
 bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
 {
-    switch (index.data(PropertiesModel::RoleDelegateValue).toInt()) {
+    switch (index.data(Property::RoleDelegateValue).toInt()) {
     case Property::DelegateNamedUInt:
         if(auto e = qobject_cast<QComboBox*>(editor)) {
             model->setData(index, e->currentIndex());
@@ -95,7 +95,7 @@ bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel
 
 bool PropertiesDelegateFactory::SetEditorData(QWidget* editor, const QModelIndex& index, const QStyledItemDelegate* delegate) const
 {
-    switch (index.data(PropertiesModel::RoleDelegateValue).toInt()) {
+    switch (index.data(Property::RoleDelegateValue).toInt()) {
     case Property::DelegateNamedUInt:
         if(auto e = qobject_cast<QComboBox*>(editor)) {
             e->setCurrentIndex(index.data().toInt());
@@ -137,7 +137,7 @@ bool PropertiesDelegateFactory::DisplayText(QString& text, const QVariant& value
 
 bool PropertiesDelegateFactory::Paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    QVariant delegateValue = index.data(PropertiesModel::RoleDelegateValue);
+    QVariant delegateValue = index.data(Property::RoleDelegateValue);
     if(delegateValue.toInt() == Property::DelegateColor) {
         painter->fillRect(option.rect, index.data().value<QColor>());
         return true;

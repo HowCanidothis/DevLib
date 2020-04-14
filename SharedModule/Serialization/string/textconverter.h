@@ -1,6 +1,8 @@
 #ifndef TEXTCONVERTER_H
 #define TEXTCONVERTER_H
 
+#include <QString>
+
 template <class T>
 struct TextConverter
 {    

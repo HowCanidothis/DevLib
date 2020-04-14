@@ -5,14 +5,23 @@
 
 PropertiesModel::PropertiesModel(QObject* parent)
     : QAbstractItemModel(parent)
-    , m_contextIndex(PropertiesSystem::Global)
+    , ContextIndex(PropertiesSystem::Global)
 {
     reset();
+
+    FileName.Subscribe([this]{
+        emit fileNameChanged();
+    });
+
+    ContextIndex.Subscribe([this]{
+        update();
+        emit contextIndexChanged();
+    });
 }
 
 PropertiesModel::PropertiesModel(qint32 contextIndex, QObject* parent)
     : QAbstractItemModel(parent)
-    , m_contextIndex(contextIndex)
+    , ContextIndex(contextIndex)
 {
     reset();
 }
@@ -23,48 +32,18 @@ void PropertiesModel::Change(const std::function<void ()>& handle)
 
     handle();
 
-    const auto& tree = PropertiesSystem::context(m_contextIndex);
+    const auto& tree = PropertiesSystem::context(ContextIndex);
 
     reset(tree);
 
     endResetModel();
 }
 
-void PropertiesModel::SetContextIndex(qint32 contextIndex)
-{
-    if(m_contextIndex != contextIndex) {
-        m_contextIndex = contextIndex;
-
-        update();
-
-        emit contextIndexChanged();
-    }
-}
-
-qint32 PropertiesModel::GetContextIndex() const
-{
-    return m_contextIndex;
-}
-
-void PropertiesModel::SetFileName(const QString& fileName)
-{
-    if(m_fileName != fileName) {
-        m_fileName = fileName;
-
-        emit fileNameChanged();
-    }
-}
-
-const QString& PropertiesModel::GetFileName() const
-{
-    return m_fileName;
-}
-
 void PropertiesModel::update()
 {
     beginResetModel();
 
-    const auto& tree = PropertiesSystem::context(m_contextIndex);
+    const auto& tree = PropertiesSystem::context(ContextIndex);
 
     reset(tree);
 
@@ -131,12 +110,12 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
 void PropertiesModel::Save(const QString& fileName) const
 {
-    PropertiesSystem::Save(fileName, m_contextIndex);
+    PropertiesSystem::Save(fileName, ContextIndex);
 }
 
 void PropertiesModel::Load(const QString& fileName)
 {    
-    PropertiesSystem::Load(fileName, m_contextIndex);
+    PropertiesSystem::Load(fileName, ContextIndex);
 }
 
 int PropertiesModel::rowCount(const QModelIndex& parent) const
@@ -153,61 +132,22 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    switch (role) {
-    case Qt::DisplayRole: {
-        auto item = asItem(index);
-        if(item->Prop && index.column()) {
-            return item->Prop->getDisplayValue();
+    auto* item = asItem(index);
+
+    if(index.column() == 0) {
+        switch (role) {
+            case Qt::DisplayRole: return item->Name;
+            case Property::RoleHeaderItem: return item->Prop == nullptr;
+            default: break;
         }
-        if(!index.column()) {
-            return item->Name;
+    } else if(item->Prop != nullptr) {
+        return item->Prop->GetValueFromRole(role);
+    } else {
+        if(role == Property::RoleHeaderItem) {
+            return true;
         }
-        break;
     }
-    case Qt::EditRole: {
-        auto item = asItem(index);
-        if(item->Prop && index.column()) {
-            return item->Prop->getValue();
-        }
-        if(!index.column()) {
-            return item->Name;
-        }
-        break;
-    }
-    case RoleHeaderItem:
-        return !asItem(index)->Prop;
-    case RoleMinValue: {
-        auto property = asItem(index)->Prop;
-        Q_ASSERT(property);
-        return property->GetMin();
-    }
-    case RoleMaxValue: {
-        auto property = asItem(index)->Prop;
-        Q_ASSERT(property);
-        return property->GetMax();
-    }
-    case RoleDelegateValue: {
-        if(index.column()) {
-            auto property = asItem(index)->Prop;
-            if(property) {
-                return property->GetDelegateValue();
-            }
-        }
-        return QVariant();
-    }
-    case RoleDelegateData: {
-        if(index.column()) {
-            auto property = asItem(index)->Prop;
-            if(property) {
-                auto delegateData = property->GetDelegateData();
-                return (delegateData != nullptr) ? *delegateData : QVariant();
-            }
-        }
-        return QVariant();
-    }
-    default:
-        break;
-    }
+
     return QVariant();
 }
 
@@ -266,11 +206,11 @@ int PropertiesModel::columnCount(const QModelIndex&) const
 QHash<int, QByteArray> PropertiesModel::roleNames() const
 {
     QHash<int, QByteArray> result;
-    result[RoleHeaderItem] = "headerItem";
-    result[RoleMinValue] = "minValue";
-    result[RoleMaxValue] = "maxValue";
-    result[RoleDelegateValue] = "delegateValue";
-    result[RoleDelegateData] = "delegateData";
+    result[Property::RoleHeaderItem] = "headerItem";
+    result[Property::RoleMinValue] = "minValue";
+    result[Property::RoleMaxValue] = "maxValue";
+    result[Property::RoleDelegateValue] = "delegateValue";
+    result[Property::RoleDelegateData] = "delegateData";
     result[Qt::DisplayRole] = "text";
     return result;
 }
