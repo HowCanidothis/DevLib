@@ -29,6 +29,7 @@ public:
     void Save(const QString& fileName, const QVector<Name>& propertyNames);
 
     void Clear();
+    void ClearWithoutDeleting();
 
     // begin current context. Global <= type < Max
     // return FHandle reference. It is property setter by default it just call SetValue()
@@ -40,6 +41,8 @@ public:
     // convenient Begin overload. Use it when property exists in different from the main thread
     void Begin(class ThreadEventsContainer* thread);
     void End();
+
+    bool IsExists(const Name& path) const;
 
 private:
     friend class PropertiesSystem;

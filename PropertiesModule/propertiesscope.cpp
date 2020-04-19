@@ -152,6 +152,12 @@ void PropertiesScope::Clear()
     m_properties.clear();
 }
 
+void PropertiesScope::ClearWithoutDeleting()
+{
+    Q_ASSERT(m_name != PropertiesSystem::Global);
+    m_properties.clear();
+}
+
 PropertiesScope::FHandle& PropertiesScope::Begin()
 {
     return m_currentHandle;
@@ -165,4 +171,9 @@ void PropertiesScope::Begin(ThreadEventsContainer* thread)
 void PropertiesScope::End()
 {
     m_currentHandle = defaultHandle();
+}
+
+bool PropertiesScope::IsExists(const Name& path) const
+{
+    return m_properties.find(path) != m_properties.end();
 }

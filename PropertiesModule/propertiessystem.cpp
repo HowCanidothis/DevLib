@@ -42,6 +42,16 @@ QVariant PropertiesSystem::GetValue(const Name& path)
     return currentScope()->GetValue(path);
 }
 
+bool PropertiesSystem::IsExists(const Name& path, const PropertiesScopeName& scope)
+{
+    return getOrCreateScope(scope)->IsExists(path);
+}
+
+void PropertiesSystem::SetValue(const Name& path, const QVariant& value)
+{
+    currentScope()->SetValue(path, value);
+}
+
 bool PropertiesSystem::Load(const QString& fileName, const PropertiesScopeName& scope)
 {
     return getOrCreateScope(scope)->Load(fileName);
@@ -60,6 +70,11 @@ void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& 
 void PropertiesSystem::Clear(const PropertiesScopeName& scope)
 {
     getOrCreateScope(scope)->Clear();
+}
+
+void PropertiesSystem::ClearWithoutDeleting(const PropertiesScopeName& scope)
+{
+    getOrCreateScope(scope)->ClearWithoutDeleting();
 }
 
 QVariant PropertiesSystem::GetValue(const Name& path, const PropertiesScopeName& scope)

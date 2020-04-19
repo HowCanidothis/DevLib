@@ -39,9 +39,11 @@ public:
     static void Save(const QString& fileName, const PropertiesScopeName& scope);
     static void Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName);
     static void Clear(const PropertiesScopeName& scope);
+    static void ClearWithoutDeleting(const PropertiesScopeName& scope);
     template<class T>
     static PropertyPromise<T> GetProperty(const Name& path, const PropertiesScopeName& scope);
     static QVariant GetValue(const Name& path, const PropertiesScopeName& scope);
+    static bool IsExists(const Name& path, const PropertiesScopeName& scope);
 
     // begin current context. Global <= type < Max
     // return FHandle reference. It is property setter by default it just call SetValue()
@@ -58,6 +60,7 @@ public:
     static void Subscribe(const FAction& function);
     static void ForeachProperty(const std::function<void (Property*)>& handle);
     static QVariant GetValue(const Name& path);
+    static void SetValue(const Name& path, const QVariant& value);
 
 private:
     friend class Property;
