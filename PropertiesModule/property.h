@@ -99,6 +99,7 @@ public:
 
 protected:
     friend class PropertiesSystem;
+    friend class PropertiesScope;
     friend class PropertiesModel;
 
     virtual QVariant getDisplayValue() const { return getValue(); }

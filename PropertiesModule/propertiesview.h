@@ -16,12 +16,12 @@ class _Export PropertiesView : public QTreeView, public PropertiesViewBase
     Q_PROPERTY(double gradientRightBorder READ getRightGradientBorder WRITE setRightGradientBorder)
 public:
     PropertiesView(QWidget* parent=0, Qt::WindowFlags flags=0);
-    PropertiesView(qint32 contextIndex, QWidget* parent=0, Qt::WindowFlags flags=0);
+    PropertiesView(const PropertiesScopeName& contextIndex, QWidget* parent=0, Qt::WindowFlags flags=0);
 
     void Update(const FAction& action);
 
-    void SetContextIndex(qint32 contextIndex);
-    qint32 GetContextIndex() const;
+    void SetContextIndex(const Name& contextIndex);
+    const Name& GetContextIndex() const;
 
     void Save(const QString& fileName);
     void Load(const QString& fileName);

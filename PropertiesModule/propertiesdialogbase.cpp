@@ -6,11 +6,13 @@
 #include <QBoxLayout>
 #include <QApplication>
 
-PropertiesDialogBase::PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent)
+#include "propertiesscope.h"
+
+PropertiesDialogBase::PropertiesDialogBase(const QString& name, const Name& scope, QWidget* view, QWidget* parent)
     : QDialog(parent)
     , m_isInitialized(false)
     , m_options(Options_Default)
-    , m_contextIndex(contextIndex)
+    , m_scope(scope)
     , m_view(view)
     , m_savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
     , m_additonalPropertiesConnections(this)
@@ -61,7 +63,7 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
     m_oldValues.clear();
 
     changeProperties([this,propertiesInitializeFunction]{
-        PropertiesSystem::Begin(m_contextIndex);
+        PropertiesSystem::Begin(m_scope);
         propertiesInitializeFunction();
         if(m_options.TestFlag(Option_ReadOnly)) {
             PropertiesSystem::ForeachProperty([](Property* property){
@@ -109,7 +111,7 @@ void PropertiesDialogBase::done(int result)
     m_additonalPropertiesConnections.Clear();
 
     if(m_options.TestFlag(Option_ClearContextOnDone)) {
-        PropertiesSystem::Clear(m_contextIndex);
+        PropertiesSystem::Clear(m_scope);
     }
     m_isInitialized = false;
 }

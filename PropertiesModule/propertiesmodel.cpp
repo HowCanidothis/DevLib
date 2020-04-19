@@ -2,10 +2,11 @@
 
 #include "propertiessystem.h"
 #include "property.h"
+#include "propertiesscope.h"
 
 PropertiesModel::PropertiesModel(QObject* parent)
     : QAbstractItemModel(parent)
-    , ContextIndex(PropertiesSystem::Global)
+    , Scope(PropertiesSystem::Global)
 {
     reset();
 
@@ -13,15 +14,15 @@ PropertiesModel::PropertiesModel(QObject* parent)
         emit fileNameChanged();
     });
 
-    ContextIndex.Subscribe([this]{
+    Scope.Subscribe([this]{
         update();
         emit contextIndexChanged();
     });
 }
 
-PropertiesModel::PropertiesModel(qint32 contextIndex, QObject* parent)
+PropertiesModel::PropertiesModel(const PropertiesScopeName& scope, QObject* parent)
     : QAbstractItemModel(parent)
-    , ContextIndex(contextIndex)
+    , Scope(scope)
 {
     reset();
 }
@@ -32,7 +33,7 @@ void PropertiesModel::Change(const std::function<void ()>& handle)
 
     handle();
 
-    const auto& tree = PropertiesSystem::context(ContextIndex);
+    const auto& tree = PropertiesSystem::getOrCreateScope(Scope)->m_properties;
 
     reset(tree);
 
@@ -43,7 +44,7 @@ void PropertiesModel::update()
 {
     beginResetModel();
 
-    const auto& tree = PropertiesSystem::context(ContextIndex);
+    const auto& tree = PropertiesSystem::getOrCreateScope(Scope)->m_properties;
 
     reset(tree);
 
@@ -110,12 +111,12 @@ void PropertiesModel::reset(const QHash<Name, Property*>& tree)
 
 void PropertiesModel::Save(const QString& fileName) const
 {
-    PropertiesSystem::Save(fileName, ContextIndex);
+    PropertiesSystem::Save(fileName, Scope);
 }
 
 void PropertiesModel::Load(const QString& fileName)
 {    
-    PropertiesSystem::Load(fileName, ContextIndex);
+    PropertiesSystem::Load(fileName, Scope);
 }
 
 int PropertiesModel::rowCount(const QModelIndex& parent) const

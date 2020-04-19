@@ -28,7 +28,7 @@ public:
     };
     DECL_FLAGS(Options, Option)
 
-    PropertiesDialogBase(const QString& name, qint32 contextIndex, QWidget* view, QWidget* parent = nullptr);
+    PropertiesDialogBase(const QString& name, const Name& scope, QWidget* view, QWidget* parent = nullptr);
     ~PropertiesDialogBase();
 
     static void RejectAllDialogs();
@@ -54,7 +54,7 @@ protected:
 protected:
     bool m_isInitialized;
     Options m_options;
-    qint32 m_contextIndex;
+    PropertiesScopeName m_scope;
     QWidget* m_view;
     ByteArrayPropertyPtr m_savedGeometry;
     QMetaObject::Connection m_connection;

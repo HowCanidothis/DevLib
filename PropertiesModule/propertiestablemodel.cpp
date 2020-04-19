@@ -12,7 +12,7 @@ PropertiesTableModel::PropertiesTableModel(QObject* parent)
     });
 }
 
-void PropertiesTableModel::Init(properties_context_index_t scope, const FAction& initializationFunc, const FAction& onEveryChange)
+void PropertiesTableModel::Init(const PropertiesScopeName& scope, const FAction& initializationFunc, const FAction& onEveryChange)
 {
     m_initializationFunction = initializationFunc;
     m_onEveryChange = onEveryChange;

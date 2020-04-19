@@ -17,6 +17,7 @@ class QDoubleSpinBox;
 class QSpinBox;
 class QLineEdit;
 class QRadioButton;
+class QComboBox;
 
 class _Export PropertiesConnectorsContainer
 {
@@ -24,7 +25,9 @@ public:
     PropertiesConnectorsContainer()
     {}
 
-    void AddConnector(PropertiesConnectorBase* connector);
+    template<class T, typename ... Args>
+    void AddConnector(Args... args);
+    void SetScope(const PropertiesScopeName& scope);
     void Update();
     void Clear();
     bool IsEmpty() const { return m_connectors.IsEmpty(); }
@@ -33,23 +36,11 @@ private:
     StackPointers<PropertiesConnectorBase> m_connectors;
 };
 
-class _Export PropertiesConnectorContextIndexGuard
+template<class T, typename ... Args>
+void PropertiesConnectorsContainer::AddConnector(Args... args)
 {
-    properties_context_index_t m_prevContextIndex;
-public:
-    explicit PropertiesConnectorContextIndexGuard(properties_context_index_t contextIndex);
-    explicit PropertiesConnectorContextIndexGuard();
-    ~PropertiesConnectorContextIndexGuard();
-
-    template<class T> static PropertyPromise<T> GetProperty(const Name& name)
-    {
-        return PropertiesSystem::GetProperty<T>(name, currentContextIndex());
-    }
-
-private:
-    friend class PropertiesConnectorBase;
-    static properties_context_index_t& currentContextIndex();
-};
+    m_connectors.Append(new T(args...));
+}
 
 class _Export PropertiesConnectorBase : public QObject
 {
@@ -58,6 +49,7 @@ public:
     PropertiesConnectorBase(const Name& name, const Setter& setter, QWidget* target);
     virtual ~PropertiesConnectorBase();
 
+    void SetScope(const PropertiesScopeName& scope);
     void Update();
 
 protected:
@@ -66,6 +58,9 @@ protected:
     PropertyPtr m_propertyPtr;
     QMetaObject::Connection m_connection;
     bool m_ignorePropertyChange;
+    DispatchersConnections m_dispatcherConnections;
+    QWidget* m_target;
+    Name m_propertyName;
 
 protected:
     class PropertyChangeGuard
@@ -81,6 +76,12 @@ class _Export PropertiesCheckBoxConnector : public PropertiesConnectorBase
 {
 public:
     PropertiesCheckBoxConnector(const Name& propertyName, QCheckBox* checkBox);
+};
+
+class _Export PropertiesComboBoxConnector : public PropertiesConnectorBase
+{
+public:
+    PropertiesComboBoxConnector(const Name& propertyName, QComboBox* comboBox);
 };
 
 class _Export PropertiesLineEditConnector : public PropertiesConnectorBase

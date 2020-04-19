@@ -20,9 +20,11 @@ class PropertiesTableModel : public QAbstractTableModel
 public:
     PropertiesTableModel(QObject* parent = nullptr);
 
-    LocalProperty<properties_context_index_t> ContextIndex;
-    void Init(properties_context_index_t scope, const FAction& initializationFunc, const FAction& onEveryChange = FAction());
+    void Init(const PropertiesScopeName& scope, const FAction& initializationFunc, const FAction& onEveryChange = FAction());
     void Update();
+
+public:
+    LocalProperty<PropertiesScopeName> ContextIndex;
 
     // QAbstractItemModel interface
 public:

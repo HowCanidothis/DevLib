@@ -10,70 +10,38 @@
 class Property;
 class Name;
 class StateProperty;
+class PropertiesScope;
 template<class T> class PropertyPromise;
 
-typedef quint8 properties_context_index_t;
+using PropertiesScopeName = Name;
 
-class PropertiesSystemContextIndexScopeGuard
+
+class PropertiesSystemScopeGuard
 {
 public:
-    explicit PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT;
-    ~PropertiesSystemContextIndexScopeGuard();
+    explicit PropertiesSystemScopeGuard(const PropertiesScopeName& scope) Q_DECL_NOEXCEPT;
+    ~PropertiesSystemScopeGuard();
 };
 
 class _Export PropertiesSystem
 {
 public:
-    class SubScope
-    {
-        properties_context_index_t m_scope;
-        QString m_prefix;
+    using FHandle = std::function<void (const FAction&)>;
 
-        SubScope(properties_context_index_t scope, const QString& prefix)
-            : m_scope(scope)
-            , m_prefix(prefix)
-        {}
-        friend class PropertiesSystem;
-    public:
-        QVector<Property*> Properties;
+    static const Name Global;
+    static const Name InitProperties;
+    static const Name Temp;
 
-        ~SubScope();
-    };
+    static PropertiesScope* GetScope(const PropertiesScopeName& scope);
+    static PropertiesScope* GetCurrentScope();
 
-    enum Scope {
-        Global = 0,
-        InitProperties,
-        Temp,
-        ContextIndex_User,
-        Max = 0xff
-    };
-    typedef std::function<void ()> FSetter;
-    typedef std::function<void (const FSetter&)> FHandle;
-    typedef FSetter FOnChange;
-
-    static void SetValueForceInvoke(const Name &path, const QVariant &value);
-    static void SetValue(const Name& path, const QVariant& value);
-    static void Subscribe(const Name& path, const FOnChange& function);
-    static void Subscribe(const FOnChange& function);
-    static void ForeachProperty(const std::function<void (Property*)>& handle);
-    static void ForeachProperty(const std::function<void (Property*)>& handle, qint32 contextIndex);
-    static QVariant GetValue(const Name& path);
-    static QVariant GetValue(const Name& path, qint32 type);
+    static bool Load(const QString& fileName, const PropertiesScopeName& scope);
+    static void Save(const QString& fileName, const PropertiesScopeName& scope);
+    static void Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName);
+    static void Clear(const PropertiesScopeName& scope);
     template<class T>
-    static PropertyPromise<T> GetProperty(const Name& path, qint32 type = Global);
-    template<class T>
-    static PropertyPromise<T> GetProperty(const Name& path, const FOnChange& onChange, qint32 type = Global);
-
-    static bool Load(const QString& fileName, properties_context_index_t contextIndex);
-    static void Save(const QString& fileName, properties_context_index_t contextIndex);
-    static void Save(const QString& fileName, properties_context_index_t contextIndex, const QVector<Name>& propertyName);
-    // clear current context
-    static void Clear();
-    static void Clear(qint32 contextIndex);
-
-    static bool HasContext(qint32 contextIndex);
-    static bool IsExists(const Name& name, properties_context_index_t contextIndex);
-    static properties_context_index_t GetCurrentContextIndex();
+    static PropertyPromise<T> GetProperty(const Name& path, const PropertiesScopeName& scope);
+    static QVariant GetValue(const Name& path, const PropertiesScopeName& scope);
 
     // begin current context. Global <= type < Max
     // return FHandle reference. It is property setter by default it just call SetValue()
@@ -81,15 +49,15 @@ public:
     // change it for example for thread safety.
     // Example:
     // handle = [threadWherePropertyIs](const auto& setter){ threadWherePropertyIs->Asynch(setter); }
-    static FHandle& Begin(Scope type=Global);
-    static FHandle& Begin(properties_context_index_t type) { return Begin((Scope)type); }
+    static FHandle& Begin(const PropertiesScopeName& scope=Global);
     // convenient Begin overload. Use it when property exists in different from the main thread
-    static void Begin(class ThreadEventsContainer* thread, Scope type=Global);
-    // call this to
+    static void Begin(class ThreadEventsContainer* thread, const PropertiesScopeName& scope=Global);
     static void End();
 
-    static FHandle& BeginSubScope(properties_context_index_t scope, const QString& name);
-    static SharedPointer<SubScope> EndSubScope();
+    static void Subscribe(const Name& path, const FAction& function);
+    static void Subscribe(const FAction& function);
+    static void ForeachProperty(const std::function<void (Property*)>& handle);
+    static QVariant GetValue(const Name& path);
 
 private:
     friend class Property;
@@ -101,14 +69,10 @@ private:
 
     static void addProperty(Name path, Property* property);
 
-    static QHash<Name, Property*>& context(properties_context_index_t contextIndex);
-    static QHash<Name, Property*>& context();
-    static FHandle defaultHandle();
-    static FHandle& currentHandle();
-    static Scope& currentContextIndex();
-    static SubScope*& currentSubScope();
-};
+    static class PropertiesScope* getOrCreateScope(const PropertiesScopeName& scope);
 
-using PropertiesSubScopePtr = SharedPointer<PropertiesSystem::SubScope>;
+    static QHash<Name, class PropertiesScope*>& scopes();
+    static PropertiesScope*& currentScope();
+};
 
 #endif // PROPS_H

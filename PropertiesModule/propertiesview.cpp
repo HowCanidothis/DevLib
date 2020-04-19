@@ -14,15 +14,16 @@
 #include "propertiesmodel.h"
 #include "SharedGuiModule/decl.h"
 #include "Widgets/propertiesdelegate.h"
+#include "propertiesscope.h"
 
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
-    : PropertiesView(PropertiesSystem::Global, parent, flags)
+    : PropertiesView(PropertiesSystem::GetCurrentScope()->GetName(), parent, flags)
 {
 
 }
 
-PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowFlags flags)
+PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent, Qt::WindowFlags flags)
     : Super(parent)
     , m_defaultTextEditor("Common/TextEditor", PropertiesSystem::Global)
 {
@@ -37,7 +38,7 @@ PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowF
     setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
 
-    m_propertiesModel = new PropertiesModel(contextIndex, this);
+    m_propertiesModel = new PropertiesModel(scope, this);
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(m_propertiesModel);
     setModel(proxy);
@@ -65,14 +66,14 @@ void PropertiesView::Update(const FAction& action)
     m_propertiesModel->Change(action);
 }
 
-void PropertiesView::SetContextIndex(qint32 contextIndex)
+void PropertiesView::SetContextIndex(const Name& contextIndex)
 {
-    m_propertiesModel->ContextIndex = contextIndex;
+    m_propertiesModel->Scope = contextIndex;
 }
 
-qint32 PropertiesView::GetContextIndex() const
+const Name& PropertiesView::GetContextIndex() const
 {
-    return m_propertiesModel->ContextIndex;
+    return m_propertiesModel->Scope;
 }
 
 void PropertiesView::Save(const QString& fileName)

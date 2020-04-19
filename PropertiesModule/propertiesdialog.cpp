@@ -10,7 +10,7 @@
 #include "propertiessystem.h"
 #include "propertiesview.h"
 
-PropertiesDialog::PropertiesDialog(const QString& name, qint32 contextIndex, QWidget* parent)
+PropertiesDialog::PropertiesDialog(const QString& name, const PropertiesScopeName& contextIndex, QWidget* parent)
     : Super(name, contextIndex, new PropertiesView(contextIndex), parent)
 {
 }

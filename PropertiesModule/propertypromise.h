@@ -8,16 +8,20 @@ class _Export PropertyPromiseBase
 {
 public:
     PropertyPromiseBase();
-    PropertyPromiseBase(const Name& name, qint32 contextIndex);
-    PropertyPromiseBase(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex);
+    PropertyPromiseBase(const Name& name, const Name& scopeName);
+    virtual ~PropertyPromiseBase(){}
 
-    void Assign(const Name& name, qint32 contextIndex);
+    void Assign(const Name& name, const PropertiesScopeName& scope);
     void Subscribe(const Property::FOnChange& onChange);
     void InstallObserver(Dispatcher::Observer observer, const FAction& action) { GetProperty()->InstallObserver(observer, action); }
     void RemoveObserver(Dispatcher::Observer observer) { GetProperty()->RemoveObserver(observer); }
     Property* GetProperty() const { return m_getter(); }
     Dispatcher& GetDispatcher() const { return GetProperty()->GetDispatcher(); }
     bool IsValid() const { return m_isValid(); }
+
+private:
+    PropertyPromiseBase& operator=(const PropertyPromiseBase& another) = default;
+
 protected:
     std::function<Property* ()> m_getter;
     std::function<bool ()> m_isValid;
@@ -33,14 +37,10 @@ protected:
 
 public:
     PropertyPromise() {}
-    PropertyPromise(const Name& name, qint32 contextIndex)
-        : PropertyPromiseBase(name, contextIndex)
-    {}
-    PropertyPromise(const Name& name, const Property::FOnChange& onChange, qint32 contextIndex)
-        : PropertyPromiseBase(name, onChange, contextIndex)
+    PropertyPromise(const Name& name, const PropertiesScopeName& scope)
+        : PropertyPromiseBase(name, scope)
     {}
 
-    void Assign(const Name& name, qint32 contextIndex) { *this = PropertiesSystem::GetProperty<T>(name, contextIndex); }
     T* GetProperty() const { return reinterpret_cast<T*>(m_getter()); }
     const value_type& Native() const { return *GetProperty(); }
 
@@ -53,15 +53,9 @@ private:
 };
 
 template<class T>
-PropertyPromise<T> PropertiesSystem::GetProperty(const Name& path, qint32 type)
+PropertyPromise<T> PropertiesSystem::GetProperty(const Name& path, const PropertiesScopeName& scope)
 {
-    return PropertyPromise<T>(path, type);
-}
-
-template<class T>
-PropertyPromise<T> PropertiesSystem::GetProperty(const Name& path, const FOnChange& onChange, qint32 type)
-{
-    return PropertyPromise<T>(path, onChange, type);
+    return PropertyPromise<T>(path, scope);
 }
 
 typedef PropertyPromiseBase PropertyPtr;

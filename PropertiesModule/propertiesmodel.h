@@ -13,14 +13,17 @@ class Name;
 class _Export PropertiesModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(qint32 contextIndex MEMBER ContextIndex NOTIFY contextIndexChanged)
+    Q_PROPERTY(QString contextIndex READ GetScope WRITE SetScope NOTIFY contextIndexChanged)
     Q_PROPERTY(QString fileName MEMBER FileName NOTIFY fileNameChanged)
 public:
     PropertiesModel(QObject* parent=0);
-    PropertiesModel(qint32 contextIndex, QObject* parent=0);
+    PropertiesModel(const PropertiesScopeName& scope, QObject* parent=0);
 
-    LocalProperty<properties_context_index_t> ContextIndex;
+    LocalProperty<PropertiesScopeName> Scope;
     LocalProperty<QString> FileName;
+
+    const QString& GetScope() const { return Scope.Native().AsString(); }
+    void SetScope(const QString& name) { Scope = Name(name); }
 
 Q_SIGNALS:
     void fileNameChanged();
