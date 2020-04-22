@@ -86,7 +86,6 @@ QVariant PropertiesSystem::GetValue(const Name& path, const PropertiesScopeName&
 PropertiesSystem::FHandle& PropertiesSystem::Begin(const PropertiesScopeName& scope)
 {
     THREAD_ASSERT_IS_MAIN()
-    Q_ASSERT(currentScope() != getOrCreateScope(scope));
     currentScope() = getOrCreateScope(scope);
     scopesDepth().Append(currentScope());
     return currentScope()->Begin();
@@ -95,7 +94,6 @@ PropertiesSystem::FHandle& PropertiesSystem::Begin(const PropertiesScopeName& sc
 void PropertiesSystem::Begin(ThreadEventsContainer* thread, const PropertiesScopeName& scope)
 {
     THREAD_ASSERT_IS_MAIN()
-    Q_ASSERT(currentScope() != getOrCreateScope(scope));
     currentScope() = getOrCreateScope(scope);
     scopesDepth().Append(currentScope());
     return currentScope()->Begin(thread);
