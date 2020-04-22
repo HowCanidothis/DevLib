@@ -21,4 +21,7 @@ public:
     static void TerminateAllAsyncTasks();
 };
 
+#define THREAD_ASSERT_IS_THREAD(thread) Q_ASSERT(thread == QThread::currentThread());
+#define THREAD_ASSERT_IS_MAIN() THREAD_ASSERT_IS_THREAD(qApp->thread());
+
 #endif // THREADSBASE_H

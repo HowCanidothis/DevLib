@@ -23,6 +23,7 @@ public:
     QVariant GetValue(const Name& path) const;
     template<class T>
     PropertyPromise<T> GetProperty(const Name& path) const;
+    Stack<Property*> AllProperties() const;
 
     bool Load(const QString& fileName);
     void Save(const QString& fileName);

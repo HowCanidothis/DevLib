@@ -5,8 +5,13 @@
 #include "propertiesscope.h"
 
 PropertiesModel::PropertiesModel(QObject* parent)
+    : PropertiesModel(PropertiesSystem::Global, parent)
+{
+}
+
+PropertiesModel::PropertiesModel(const PropertiesScopeName& scope, QObject* parent)
     : QAbstractItemModel(parent)
-    , Scope(PropertiesSystem::Global)
+    , Scope(scope)
 {
     reset();
 
@@ -18,13 +23,6 @@ PropertiesModel::PropertiesModel(QObject* parent)
         update();
         emit contextIndexChanged();
     });
-}
-
-PropertiesModel::PropertiesModel(const PropertiesScopeName& scope, QObject* parent)
-    : QAbstractItemModel(parent)
-    , Scope(scope)
-{
-    reset();
 }
 
 void PropertiesModel::Change(const std::function<void ()>& handle)

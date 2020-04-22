@@ -86,6 +86,15 @@ QVariant PropertiesScope::GetValue(const Name& path) const
     return find.value()->getValue();
 }
 
+Stack<Property*> PropertiesScope::AllProperties() const
+{
+    Stack<Property*> result;
+    for(Property* property : m_properties) {
+        result.Append(property);
+    }
+    return result;
+}
+
 bool PropertiesScope::Load(const QString& fileName)
 {
     Q_ASSERT(!fileName.isEmpty());

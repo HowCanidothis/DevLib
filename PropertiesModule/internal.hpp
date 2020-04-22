@@ -14,6 +14,7 @@
 #include "propertiesdialogbase.h"
 #include "propertiesdialog.h"
 #include "propertieslogger.h"
+#include "propertiesscope.h"
 #include "propertieswindow.h"
 #include "propertyanimation.h"
 #include "propertiesfilenamesgenerator.h"

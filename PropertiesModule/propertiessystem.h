@@ -31,6 +31,7 @@ public:
     static const Name Global;
     static const Name InitProperties;
     static const Name Temp;
+    static const Name Empty;
 
     static PropertiesScope* GetScope(const PropertiesScopeName& scope);
     static PropertiesScope* GetCurrentScope();
@@ -76,6 +77,7 @@ private:
 
     static QHash<Name, class PropertiesScope*>& scopes();
     static PropertiesScope*& currentScope();
+    static Stack<PropertiesScope*>& scopesDepth();
 };
 
 #endif // PROPS_H

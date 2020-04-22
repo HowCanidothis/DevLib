@@ -11,6 +11,7 @@
 const Name PropertiesSystem::Global = Name("GlobalScope");
 const Name PropertiesSystem::InitProperties = Name("InitPropertiesScope");
 const Name PropertiesSystem::Temp = Name("TempScope");
+const Name PropertiesSystem::Empty = Name("EmptyScope");
 
 PropertiesScope* PropertiesSystem::GetScope(const PropertiesScopeName& scope)
 {
@@ -84,26 +85,34 @@ QVariant PropertiesSystem::GetValue(const Name& path, const PropertiesScopeName&
 
 PropertiesSystem::FHandle& PropertiesSystem::Begin(const PropertiesScopeName& scope)
 {
-    Q_ASSERT(currentScope()->GetName() == Global);
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(currentScope() != getOrCreateScope(scope));
     currentScope() = getOrCreateScope(scope);
+    scopesDepth().Append(currentScope());
     return currentScope()->Begin();
 }
 
 void PropertiesSystem::Begin(ThreadEventsContainer* thread, const PropertiesScopeName& scope)
 {
-    Q_ASSERT(currentScope()->GetName() == Global);
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(currentScope() != getOrCreateScope(scope));
     currentScope() = getOrCreateScope(scope);
+    scopesDepth().Append(currentScope());
     return currentScope()->Begin(thread);
 }
 
 void PropertiesSystem::End()
 {
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(scopesDepth().Size() > 1);
     currentScope()->End();
-    currentScope() = getOrCreateScope(Global);
+    scopesDepth().Pop();
+    currentScope() = scopesDepth().Last();
 }
 
 void PropertiesSystem::addProperty(Name path, Property* property)
 {
+    THREAD_ASSERT_IS_MAIN()
     currentScope()->addProperty(path, property);
 }
 
@@ -130,6 +139,12 @@ PropertiesScope*& PropertiesSystem::currentScope()
 {
     static PropertiesScope* res = getOrCreateScope(Global);
     return res;
+}
+
+Stack<PropertiesScope*>& PropertiesSystem::scopesDepth()
+{
+    static Stack<PropertiesScope*> result { getOrCreateScope(PropertiesSystem::Global) };
+    return result;
 }
 
 PropertiesSystemScopeGuard::PropertiesSystemScopeGuard(const PropertiesScopeName& scope) Q_DECL_NOEXCEPT
