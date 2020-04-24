@@ -371,16 +371,6 @@ public:
             _d->Append(src, count);
         }
     }
-    void RemoveFirst()
-    {
-        detachCopy();
-        _d->PopFront();
-    }
-    void RemoveLast()
-    {
-        detachCopy();
-        _d->PopBack();
-    }
     void Append(const T& value)
     {
         detachCopy();

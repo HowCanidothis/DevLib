@@ -15,6 +15,16 @@ PropertyPromiseBase::PropertyPromiseBase(const Name& name, const Name& scopeName
     Assign(name, scopeName);
 }
 
+PropertyPromiseBase::PropertyPromiseBase(Property* property)
+{
+    m_getter = [property] { return property; };
+    m_isValid = [] { return true; };
+    m_setter = [property](const QVariant& value) {
+        property->SetValue(value);
+    };
+    m_propertyName = property->GetPropertyName();
+}
+
 void PropertyPromiseBase::Assign(const Name& name, const PropertiesScopeName& scopeName)
 {
     m_getter = ([name, scopeName, this]{

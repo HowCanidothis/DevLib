@@ -9,6 +9,7 @@ class _Export PropertyPromiseBase
 public:
     PropertyPromiseBase();
     PropertyPromiseBase(const Name& name, const Name& scopeName);
+    PropertyPromiseBase(Property* property);
     virtual ~PropertyPromiseBase(){}
 
     void Assign(const Name& name, const PropertiesScopeName& scope);

@@ -108,9 +108,29 @@ void PropertiesSystem::End()
     currentScope() = scopesDepth().Last();
 }
 
+void PropertiesSystem::BeginPrefix(const QString& prefix)
+{
+    THREAD_ASSERT_IS_MAIN()
+    auto newPrefix = prefixesDepth().last() + prefix;
+    prefixesDepth().append(newPrefix);
+    currentPrefix() = newPrefix;
+}
+
+void PropertiesSystem::EndPrefix()
+{
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(prefixesDepth().size() > 1);
+    prefixesDepth().pop_back();
+    currentPrefix() = prefixesDepth().last();
+}
+
 void PropertiesSystem::addProperty(Name path, Property* property)
 {
     THREAD_ASSERT_IS_MAIN()
+
+    if(!currentPrefix().isEmpty()) {
+        path.SetName(currentPrefix() + path.AsString());
+    }
     currentScope()->addProperty(path, property);
 }
 
@@ -142,6 +162,18 @@ PropertiesScope*& PropertiesSystem::currentScope()
 Stack<PropertiesScope*>& PropertiesSystem::scopesDepth()
 {
     static Stack<PropertiesScope*> result { getOrCreateScope(PropertiesSystem::Global) };
+    return result;
+}
+
+QString& PropertiesSystem::currentPrefix()
+{
+    static QString result;
+    return result;
+}
+
+QVector<QString>& PropertiesSystem::prefixesDepth()
+{
+    static QVector<QString> result{ "" };
     return result;
 }
 

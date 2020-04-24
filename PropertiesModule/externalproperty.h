@@ -1,7 +1,33 @@
 #ifndef EXTERNALPROPERTY_H
 #define EXTERNALPROPERTY_H
 
-#include "property.h"
+#include "propertypromise.h"
+
+class ExternalPropertyProperty : public Property
+{
+    using Super = Property;
+public:
+    ExternalPropertyProperty(const Name& path, const Name& propertyPath, const PropertiesScopeName& propertyScope, Property::Options options = Property::Options_Default)
+        : Super(path, options)
+        , m_property(propertyPath, propertyScope)
+    {}
+    ExternalPropertyProperty(const Name& path, Property* property, Property::Options options = Property::Options_Default)
+        : Super(path, options)
+        , m_property(property)
+    {}
+
+protected:
+    QVariant GetMin() const override { return m_property.GetProperty()->GetMin(); }
+    QVariant GetMax() const override { return m_property.GetProperty()->GetMax(); }
+    DelegateValue GetDelegateValue() const override { return m_property.GetProperty()->GetDelegateValue(); }
+    const QVariant* GetDelegateData() const override { return m_property.GetProperty()->GetDelegateData(); }
+    void SetDelegateData(const QVariant& value) override { m_property.GetProperty()->SetDelegateData(value); }
+    QVariant getValue() const override { return m_property.GetProperty()->getValue(); }
+    void setValueInternal(const QVariant& value) override {  m_property.GetProperty()->setValueInternal(value); }
+
+private:
+    PropertyPromiseBase m_property;
+};
 
 template<class T>
 class TExternalPropertyBase : public Property

@@ -94,10 +94,12 @@ public:
     const Name& GetPropertyName() const { return m_propertyName; }
     virtual QVariant GetMin() const { return 0; }
     virtual QVariant GetMax() const { return 0; }
+    SharedPointer<class ExternalPropertyProperty> Clone(const Name& newName) const;
 
     QVariant GetValueFromRole(int role) const;
 
 protected:
+    friend class ExternalPropertyProperty;
     friend class PropertiesSystem;
     friend class PropertiesScope;
     friend class PropertiesModel;
@@ -245,6 +247,12 @@ public:
     {}
 
     void SetNames(const QStringList& names);
+
+    NamedUIntProperty& operator=(quint32 value)
+    {
+        SetValue(value);
+        return *this;
+    }
 
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
     const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }

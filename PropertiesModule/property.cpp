@@ -1,5 +1,6 @@
 #include "property.h"
 #include "propertiessystem.h"
+#include "externalproperty.h"
 
 Property::Property(const Name& path, Options options)
     : m_fOnChange([]{})
@@ -46,6 +47,11 @@ void Property::Invoke()
 #endif
     m_fOnChange();
     m_onChangeDispatcher.Invoke();
+}
+
+SharedPointer<ExternalPropertyProperty> Property::Clone(const Name& newName) const
+{
+    return ::make_shared<ExternalPropertyProperty>(newName, const_cast<Property*>(this));
 }
 
 QVariant Property::GetValueFromRole(int role) const

@@ -56,6 +56,8 @@ public:
     // convenient Begin overload. Use it when property exists in different from the main thread
     static void Begin(class ThreadEventsContainer* thread, const PropertiesScopeName& scope=Global);
     static void End();
+    static void BeginPrefix(const QString& prefix);
+    static void EndPrefix();
 
     static void Subscribe(const Name& path, const FAction& function);
     static void Subscribe(const FAction& function);
@@ -78,6 +80,8 @@ private:
     static QHash<Name, class PropertiesScope*>& scopes();
     static PropertiesScope*& currentScope();
     static Stack<PropertiesScope*>& scopesDepth();
+    static QString& currentPrefix();
+    static QVector<QString>& prefixesDepth();
 };
 
 #endif // PROPS_H
