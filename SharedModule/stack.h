@@ -30,7 +30,7 @@ public:
     StackData(std::initializer_list<T> args)
         : _begin(nullptr)
         , _reserved(args.size())
-        , _count(args.size())
+        , _count(static_cast<count_t>(args.size()))
     {
         if(args.size()) {
             Realloc();
