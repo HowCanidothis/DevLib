@@ -44,6 +44,7 @@ void TagThreadEvent::call()
 
 ThreadEventsContainer::ThreadEventsContainer()
     : m_isPaused(false)
+    , m_interupted(false)
 {
 
 }

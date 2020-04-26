@@ -23,11 +23,17 @@ public:
 
 protected:
     static void associate(const QString& formats, const DelegateCreator& importerCreator);
+    static void setDefault(const DelegateCreator& importerCreator);
 
 private:
     static Delegates& delegates()
     {
         static Delegates ret;
+        return ret;
+    }
+    static DelegateCreator& defaultDelegate()
+    {
+        static DelegateCreator ret;
         return ret;
     }
 };
@@ -37,7 +43,7 @@ DelegateObject* DefaultFactoryBase<DelegateObject>::Create(const QString& fileEx
 {
     auto find = delegates().find(fileExtension.toLower());
     if(find == delegates().end()) {
-         return nullptr;
+         return defaultDelegate()();
     }
     return find.value()();
 }
@@ -60,6 +66,12 @@ void DefaultFactoryBase<DelegateObject>::associate(const QString& formats, const
     for(const auto& format : formats.split(" ", QString::SkipEmptyParts)) {
         delegates().insert(format, importerCreator);
     }
+}
+
+template<class DelegateObject>
+void DefaultFactoryBase<DelegateObject>::setDefault(const DelegateCreator& importerCreator)
+{
+    defaultDelegate() = importerCreator;
 }
 
 #endif // DEFAULTFACTORYBASE_H
