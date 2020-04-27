@@ -12,6 +12,11 @@ class DefaultFactoryBase
     typedef std::function<DelegateObject* ()> DelegateCreator;
     typedef QHash<QString, DelegateCreator> Delegates;
 
+    DefaultFactoryBase()
+    {
+        defaultDelegate() = []{ return nullptr; };
+    }
+
 public:
     static DelegateObject* Create(const QString& extension);
     static ScopedPointer<DelegateObject> CreateScoped(const QString& extension) {
@@ -43,7 +48,7 @@ DelegateObject* DefaultFactoryBase<DelegateObject>::Create(const QString& fileEx
 {
     auto find = delegates().find(fileExtension.toLower());
     if(find == delegates().end()) {
-         return defaultDelegate()();
+        return defaultDelegate()();
     }
     return find.value()();
 }

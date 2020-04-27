@@ -24,6 +24,7 @@ protected:
     void SetDelegateData(const QVariant& value) override { m_property.GetProperty()->SetDelegateData(value); }
     QVariant getValue() const override { return m_property.GetProperty()->getValue(); }
     void setValueInternal(const QVariant& value) override {  m_property.GetProperty()->setValueInternal(value); }
+    QVariant getDisplayValue() const override { return m_property.GetProperty()->getDisplayValue(); }
 
 private:
     PropertyPromiseBase m_property;

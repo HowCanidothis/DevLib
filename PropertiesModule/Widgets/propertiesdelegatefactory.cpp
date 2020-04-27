@@ -98,7 +98,7 @@ bool PropertiesDelegateFactory::SetEditorData(QWidget* editor, const QModelIndex
     switch (index.data(Property::RoleDelegateValue).toInt()) {
     case Property::DelegateNamedUInt:
         if(auto e = qobject_cast<QComboBox*>(editor)) {
-            e->setCurrentIndex(index.data().toInt());
+            e->setCurrentIndex(index.data(Qt::EditRole).toInt());
             auto listener = new PropertiesStyledDelegateListener(e,index,delegate);
             QObject::connect(e, SIGNAL(currentIndexChanged(int)), listener, SLOT(onEditorValueChanged()));
         }
