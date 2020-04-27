@@ -177,7 +177,7 @@ public:
         , m_max(max)
     {
         Super::Validator() = [this](const QVariant&, QVariant& value) {
-            value = clamp(value.value<T>(), m_min, m_max);
+            value = ::clamp(value.value<T>(), m_min, m_max);
         };
     }
 
