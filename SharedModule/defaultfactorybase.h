@@ -12,11 +12,6 @@ class DefaultFactoryBase
     typedef std::function<DelegateObject* ()> DelegateCreator;
     typedef QHash<QString, DelegateCreator> Delegates;
 
-    DefaultFactoryBase()
-    {
-        defaultDelegate() = []{ return nullptr; };
-    }
-
 public:
     static DelegateObject* Create(const QString& extension);
     static ScopedPointer<DelegateObject> CreateScoped(const QString& extension) {
@@ -38,7 +33,7 @@ private:
     }
     static DelegateCreator& defaultDelegate()
     {
-        static DelegateCreator ret;
+        static DelegateCreator ret = [] { return nullptr; };
         return ret;
     }
 };
