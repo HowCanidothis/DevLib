@@ -398,6 +398,17 @@ public:
         }
     }
 
+    SetProperty& operator=(const QSet<Key>& another)
+    {
+        if(Super::m_value != another) {
+            Super::m_previousValue = getValue();
+            Super::m_value = another;
+            Super::Invoke();
+        }
+
+        return *this;
+    }
+
     void insert(const Key& key) { Insert(key); }
     void remove(const Key& key) { Remove(key); }
 
