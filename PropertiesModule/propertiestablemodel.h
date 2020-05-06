@@ -40,7 +40,7 @@ private:
 
 private:
     QHash<Name, Row> m_rows;
-    QSet<Name> m_headers;
+    QVector<Name> m_headers;
     FAction m_initializationFunction;
     FAction m_onEveryChange;    
 };

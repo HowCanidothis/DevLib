@@ -129,15 +129,21 @@ PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& p
     });
 }
 
-PropertiesTextEditConnector::PropertiesTextEditConnector(const Name& propertyName, QTextEdit* textEdit)
+PropertiesTextEditConnector::PropertiesTextEditConnector(const Name& propertyName, QTextEdit* textEdit, SubmitType submitType)
     : PropertiesConnectorBase(propertyName,
                               [textEdit](const QVariant& value){ textEdit->setText(value.toString()); },
                               textEdit)
 {
-    m_connection = connect(textEdit, &QTextEdit::textChanged, [this, textEdit](){
-        PropertyChangeGuard guard(this);
-        m_propertyPtr.GetProperty()->SetValue(textEdit->toPlainText());
-    });
+    switch (submitType) {
+    case SubmitType_OnEveryChange:
+        m_connection = connect(textEdit, &QTextEdit::textChanged, [this, textEdit](){
+            PropertyChangeGuard guard(this);
+            m_propertyPtr.GetProperty()->SetValue(textEdit->toPlainText());
+        });
+        break;
+    default:
+        break;
+    }
 }
 
 PropertiesGroupBoxConnector::PropertiesGroupBoxConnector(const Name& propertyName, QGroupBox* groupBox)

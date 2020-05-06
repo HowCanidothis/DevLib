@@ -4,7 +4,7 @@
 
 PropertiesTableModel::PropertiesTableModel(QObject* parent)
     : Super(parent)
-    , ContextIndex(PropertiesSystem::Global)
+    , ContextIndex(PropertiesSystem::Empty)
 {
     ContextIndex.Subscribe([this]{
         Q_ASSERT(m_initializationFunction != nullptr);
@@ -32,7 +32,9 @@ void PropertiesTableModel::Update()
     m_headers.clear();
     m_rows.clear();
 
-    PropertiesSystem::ForeachProperty([this](Property* property) {
+    QSet<Name> validHeaders;
+
+    PropertiesSystem::ForeachProperty([this, &validHeaders](Property* property) {
         const auto& propertyName = property->GetPropertyName().AsString();
         auto splitted = propertyName.split("/");
         Q_ASSERT(splitted.size() == 2);
@@ -46,7 +48,15 @@ void PropertiesTableModel::Update()
             newRow.Properties.insert(subName, property);
             m_rows.insert(baseName, newRow);
         }
-        m_headers.insert(subName);
+        validHeaders.insert(subName);
+    });
+
+    for(const auto& name : validHeaders) {
+        m_headers.append(name);
+    }
+
+    std::sort(m_headers.begin(), m_headers.end(), [](const Name& f, const Name& s){
+        return f.AsString() < s.AsString();
     });
 
     if(m_onEveryChange != nullptr) {

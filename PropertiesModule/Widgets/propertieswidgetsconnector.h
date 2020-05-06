@@ -26,7 +26,7 @@ public:
     {}
 
     template<class T, typename ... Args>
-    void AddConnector(Args... args);
+    T* AddConnector(Args... args);
     void SetScope(const PropertiesScopeName& scope);
     void Update();
     void Clear();
@@ -37,9 +37,11 @@ private:
 };
 
 template<class T, typename ... Args>
-void PropertiesConnectorsContainer::AddConnector(Args... args)
+T* PropertiesConnectorsContainer::AddConnector(Args... args)
 {
-    m_connectors.Append(new T(args...));
+    auto* connector = new T(args...);
+    m_connectors.Append(connector);
+    return connector;
 }
 
 class _Export PropertiesConnectorBase : public QObject
@@ -51,6 +53,7 @@ public:
 
     void SetScope(const PropertiesScopeName& scope);
     void Update();
+    Property* GetProperty() const { return m_propertyPtr.GetProperty(); }
 
 protected:
     friend class PropertiesConnectorsContainer;
@@ -105,7 +108,11 @@ public:
 class _Export PropertiesTextEditConnector : public PropertiesConnectorBase
 {
 public:
-    PropertiesTextEditConnector(const Name& propertyName, class QTextEdit* textEdit);
+    enum SubmitType {
+        SubmitType_None,
+        SubmitType_OnEveryChange,
+    };
+    PropertiesTextEditConnector(const Name& propertyName, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
 };
 
 // Bool property

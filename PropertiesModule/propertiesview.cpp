@@ -32,7 +32,7 @@ PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     header()->hide();
-    setIndentation(0);
+    setIndentation(10);
     setAnimated(true);
 
     setSortingEnabled(true);
