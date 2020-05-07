@@ -48,10 +48,10 @@ void ThreadPool::Await()
 
 ThreadTaskDesc* ThreadPool::takeTask()
 {
+    QMutexLocker locker(&m_taskMutex);
     if(m_tasks.empty()) {
         return nullptr;
-    }
-    QMutexLocker locker(&m_taskMutex);
+    }    
     auto result = m_tasks.front();
     m_tasks.pop_front();
     return result;
