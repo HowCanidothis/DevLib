@@ -61,12 +61,12 @@ public:
 };
 
 template<typename ORange, typename OIt = decltype(std::begin(std::declval<ORange>())), typename It = std::reverse_iterator<OIt>>
-Range<It> reverse(ORange && originalRange) {
+Range<It> reverse(ORange&& originalRange) {
     return Range<It>(It(std::end(originalRange)), It(std::begin(originalRange)));
 }
 
-template<typename It>
-Range<It> reverse(It begin, It end) {
+template<typename It, typename OIt = std::reverse_iterator<It>>
+Range<OIt> reverse(It begin, It end) {
     return reverse(Range<It>(begin, end));
 }
 
