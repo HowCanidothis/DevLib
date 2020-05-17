@@ -6,14 +6,23 @@
 template<class T>
 class LocalProperty
 {
+    typedef std::function<void ()> FSetter;
+    typedef std::function<void (const FSetter&)> FSetterHandler;
 protected:
     T m_value;
+    FSetterHandler m_setterHandler;
 
 public:
     LocalProperty()
+        : m_setterHandler([](const FSetter& setter){
+            setter();
+        })
     {}
     LocalProperty(const T& value)
         : m_value(value)
+        , m_setterHandler([](const FSetter& setter){
+            setter();
+        })
     {}
 
     void Invoke()
@@ -37,11 +46,17 @@ public:
         }
     }
 
+    void SetSetterHandler(const FSetterHandler& handler) {
+        m_setterHandler = handler;
+    }
+
     void SetValue(const T& value)
     {
         if(value != m_value) {
-            m_value = value;
-            Invoke();
+            m_setterHandler([value, this]{
+                m_value = value;
+                Invoke();
+            });
         }
     }
 
