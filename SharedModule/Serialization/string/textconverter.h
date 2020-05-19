@@ -16,4 +16,17 @@ struct TextConverter
     }
 };
 
+template<>
+struct TextConverter<double>
+{
+    static QString ToText(double value)
+    {
+        return QString::number(value, 'f', 6);
+    }
+    static double FromText(const QString& string)
+    {
+        return string.toDouble();
+    }
+};
+
 #endif // STRINGCONVERTER_H
