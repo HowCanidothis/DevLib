@@ -125,6 +125,10 @@ bool PropertiesScope::Load(const QString& fileName)
 void PropertiesScope::Save(const QString& fileName)
 {
     Q_ASSERT(!fileName.isEmpty());
+    if(QFile::exists(fileName)) {
+        QFile::remove(fileName);
+    }
+
     QSettings settings(fileName, QSettings::IniFormat);
     settings.setIniCodec("utf-8");
 
