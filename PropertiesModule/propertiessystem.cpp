@@ -130,6 +130,7 @@ void PropertiesSystem::addProperty(Name path, Property* property)
 
     if(!currentPrefix().isEmpty()) {
         path.SetName(currentPrefix() + path.AsString());
+        property->m_propertyName = path;
     }
     currentScope()->addProperty(path, property);
 }
