@@ -32,6 +32,12 @@ struct PropertyValueExtractorPrivate<QHash<Key, Value>>
     static QVariant ExtractVariant(const QHash<Key, Value>& value) { return TextConverter<QHash<Key, Value>>::ToText(value); }
 };
 
+template<typename Key>
+struct PropertyValueExtractorPrivate<QSet<Key>>
+{
+    static QVariant ExtractVariant(const QSet<Key>& value) { return TextConverter<QSet<Key>>::ToText(value); }
+};
+
 class _Export Property {
 public:
     typedef std::function<void ()> FSetter;
@@ -132,7 +138,9 @@ public:
     TPropertyBase(const Name& path, const T& initial, Options options = Options_Default)
         : Property(path, options)
         , m_value(initial)
-    {}
+    {
+        m_previousValue = PropertyValueExtractorPrivate<T>::ExtractVariant(m_value);
+    }
 
     // Avoid invoking. Sometimes it's helpfull
     void SetDirect(const T& value) { m_value = value; }
