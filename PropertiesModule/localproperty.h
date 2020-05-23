@@ -27,10 +27,12 @@ public:
 
     void Invoke()
     {
-        OnChange.Invoke();
-        if(m_subscribes != nullptr) {
-            m_subscribes();
-        }
+        m_setterHandler([this]{
+            OnChange.Invoke();
+            if(m_subscribes != nullptr) {
+                m_subscribes();
+            }
+        });
     }
 
     void Subscribe(const FAction& subscribe)
