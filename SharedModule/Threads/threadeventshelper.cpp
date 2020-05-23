@@ -104,7 +104,10 @@ void ThreadEventsContainer::clearEvents()
     m_interupted = true;
     ProcessEvents();
     QMutexLocker locker(&m_eventsMutex);
-    m_events = std::queue<ThreadEvent*>();
+    while(!m_events.empty()) {
+        delete m_events.front();
+        m_events.pop();
+    }
     m_interupted = false;
 }
 
