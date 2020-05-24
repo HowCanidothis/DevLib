@@ -24,7 +24,7 @@ void ActionsManager::CreateActionsFromRegisteredScopes()
     }
 }
 
-ActionsScopeBase* ActionsManager::FindScope(const Latin1Name& scopeName)
+ActionsScopeBase* ActionsManager::FindScope(const Latin1Name& scopeName) const
 {
     auto found = m_actionsScopes.find(scopeName);
     if(found != m_actionsScopes.end()) {
@@ -57,6 +57,17 @@ bool ActionsManager::AddTo(const Latin1Name& scopeName, QWidget* widget)
     }
 
     return false;
+}
+
+Action* ActionsManager::FindAction(const QString& path) const
+{
+    auto splittedPath = path.split(".");
+    Q_ASSERT(splittedPath.size() == 2);
+    auto* scope = FindScope(Latin1Name(splittedPath.first().toLatin1()));
+    if(scope == nullptr) {
+        return nullptr;
+    }
+    return scope->FindAction(Latin1Name(splittedPath.last().toLatin1()));
 }
 
 void ActionsManager::registerActionsScope(ActionsScopeBase* actionsScope)

@@ -108,7 +108,7 @@ struct TextConverter<QHash<Key, Value>>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\{\(([^\|]+)\)\|\(([^\}]+)\)\})");
+        static QRegExp regExp(R"(\{\(([^\|]+)\)\|\(([^\}]*)\)\})");
         qint32 pos = 0;
         value_type result;
         while((pos = regExp.indexIn(string, pos)) != -1) {

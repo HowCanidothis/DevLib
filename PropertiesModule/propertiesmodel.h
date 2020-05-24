@@ -4,24 +4,26 @@
 #include <functional>
 #include "SharedModule/internal.hpp"
 
+#include "localproperty.h"
+#include "propertiessystem.h"
+
 class Property;
 class Name;
 
 class _Export PropertiesModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(qint32 contextIndex READ GetContextIndex WRITE SetContextIndex NOTIFY contextIndexChanged)
-    Q_PROPERTY(QString fileName READ GetFileName WRITE SetFileName NOTIFY fileNameChanged)
+    Q_PROPERTY(QString contextIndex READ GetScope WRITE SetScope NOTIFY contextIndexChanged)
+    Q_PROPERTY(QString fileName MEMBER FileName NOTIFY fileNameChanged)
 public:
-    enum Role {
-        RoleHeaderItem = Qt::UserRole, // Using for delegating headers
-        RoleMinValue,
-        RoleMaxValue,
-        RoleDelegateValue,
-        RoleDelegateData,
-    };
     PropertiesModel(QObject* parent=0);
-    PropertiesModel(qint32 contextIndex, QObject* parent=0);
+    PropertiesModel(const PropertiesScopeName& scope, QObject* parent=0);
+
+    LocalProperty<PropertiesScopeName> Scope;
+    LocalProperty<QString> FileName;
+
+    const QString& GetScope() const { return Scope.Native().AsString(); }
+    void SetScope(const QString& name) { Scope = Name(name); }
 
 Q_SIGNALS:
     void fileNameChanged();
@@ -29,12 +31,6 @@ Q_SIGNALS:
 
 public:
     void Change(const std::function<void ()>& handle);
-
-    Q_SLOT void SetContextIndex(qint32 contextIndex);
-    qint32 GetContextIndex() const;
-
-    Q_SLOT void SetFileName(const QString& fileName);
-    const QString& GetFileName() const;
 
     Q_SLOT void Save(const QString& fileName) const;
     Q_SLOT void Load(const QString& fileName);
@@ -74,8 +70,6 @@ private:
 
 private:
     ScopedPointer<Item> m_root;
-    qint32 m_contextIndex;
-    QString m_fileName;
 };
 
 #endif // PROPERTIESMODEL_H

@@ -5,8 +5,9 @@
 
 #include <QTreeView>
 #include "propertypromise.h"
+#include "propertiesviewbase.h"
 
-class _Export PropertiesView : public QTreeView
+class _Export PropertiesView : public QTreeView, public PropertiesViewBase
 {
     Q_OBJECT
     typedef QTreeView Super;
@@ -15,15 +16,20 @@ class _Export PropertiesView : public QTreeView
     Q_PROPERTY(double gradientRightBorder READ getRightGradientBorder WRITE setRightGradientBorder)
 public:
     PropertiesView(QWidget* parent=0, Qt::WindowFlags flags=0);
-    PropertiesView(qint32 contextIndex, QWidget* parent=0, Qt::WindowFlags flags=0);
+    PropertiesView(const PropertiesScopeName& contextIndex, QWidget* parent=0, Qt::WindowFlags flags=0);
 
-    void SetContextIndex(qint32 contextIndex);
-    qint32 GetContextIndex() const;
+    void Update(const FAction& action);
+
+    void SetContextIndex(const Name& contextIndex);
+    const Name& GetContextIndex() const;
 
     void Save(const QString& fileName);
     void Load(const QString& fileName);
 
     class PropertiesModel* GetPropertiesModel() const { return m_propertiesModel; }
+
+protected:
+    PropertiesDelegate* propertiesDelegate() const override { return reinterpret_cast<PropertiesDelegate*>(itemDelegate()); }
 
     // QWidget interface
 protected:
@@ -40,17 +46,6 @@ private:
     QAction* m_actionOpenWithTextEditor;
 
     StringPropertyPtr m_defaultTextEditor;
-
-private:
-    void setLeftGradientColor(const QColor& color);
-    void setRightGradientColor(const QColor& color);
-    void setRightGradientBorder(double border);
-
-    const QColor& getLeftGradientColor() const;
-    const QColor& getRightGradientColor() const;
-    double getRightGradientBorder() const;
-
-    class PropertiesDelegate* propertiesDelegate() const { return reinterpret_cast<PropertiesDelegate*>(itemDelegate()); }
 };
 
 #endif // QT_GUI_LIB

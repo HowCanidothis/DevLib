@@ -1,13 +1,14 @@
 #include "property.h"
 #include "propertiessystem.h"
+#include "externalproperty.h"
 
 Property::Property(const Name& path, Options options)
     : m_fOnChange([]{})
     , m_fValidator([](const QVariant&, QVariant&){})
     , m_options(options)
+    , m_propertyName(path)
 #ifdef DEBUG_BUILD
     , m_isSubscribed(false)
-    , m_propertyName(path)
 #endif
 {
     PropertiesSystem::addProperty(path, this);
@@ -46,6 +47,47 @@ void Property::Invoke()
 #endif
     m_fOnChange();
     m_onChangeDispatcher.Invoke();
+}
+
+SharedPointer<ExternalPropertyProperty> Property::Clone(const Name& newName) const
+{
+    return ::make_shared<ExternalPropertyProperty>(newName, const_cast<Property*>(this));
+}
+
+QVariant Property::GetValueFromRole(int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole: {
+        return getDisplayValue();
+    }
+    case Qt::EditRole: {
+        return getValue();
+    }
+    case Qt::CheckStateRole: {
+        if(getValue().type() == QVariant::Bool) {
+            return getValue().toBool() ? Qt::Checked : Qt::Unchecked;
+        }
+        break;
+    }
+    case RoleHeaderItem:
+        return false;
+    case RoleMinValue: {
+        return GetMin();
+    }
+    case RoleMaxValue: {
+        return GetMax();
+    }
+    case RoleDelegateValue: {
+        return GetDelegateValue();
+    }
+    case RoleDelegateData: {
+        auto delegateData = GetDelegateData();
+        return (delegateData != nullptr) ? *delegateData : QVariant();
+    }
+    default:
+        break;
+    }
+    return QVariant();
 }
 
 void NamedUIntProperty::SetNames(const QStringList& names)

@@ -6,41 +6,74 @@
 template<class T>
 class LocalProperty
 {
+    typedef std::function<void ()> FSetter;
+    typedef std::function<void (const FSetter&)> FSetterHandler;
 protected:
     T m_value;
+    FSetterHandler m_setterHandler;
 
 public:
     LocalProperty()
+        : m_setterHandler([](const FSetter& setter){
+            setter();
+        })
     {}
     LocalProperty(const T& value)
         : m_value(value)
+        , m_setterHandler([](const FSetter& setter){
+            setter();
+        })
     {}
 
     void Invoke()
     {
-        Q_ASSERT(!OnChange.IsEmpty());
-        OnChange.Invoke();
+        m_setterHandler([this]{
+            OnChange.Invoke();
+            if(m_subscribes != nullptr) {
+                m_subscribes();
+            }
+        });
     }
 
     void Subscribe(const FAction& subscribe)
     {
-        OnChange += { nullptr, subscribe };
+        if(m_subscribes == nullptr) {
+            m_subscribes = subscribe;
+        } else {
+            auto oldHandle = m_subscribes;
+            m_subscribes = [subscribe, oldHandle]{
+                oldHandle();
+                subscribe();
+            };
+        }
+    }
+
+    void SetSetterHandler(const FSetterHandler& handler) {
+        m_setterHandler = handler;
     }
 
     void SetValue(const T& value)
     {
         if(value != m_value) {
-            m_value = value;
-            OnChange();
+            m_setterHandler([value, this]{
+                m_value = value;
+                Invoke();
+            });
         }
     }
-    const T& GetValue() const { return m_value; }
+
+    const T& Native() const { return m_value; }
+    Dispatcher& GetDispatcher() { return OnChange; }
 
     bool operator!() const { return m_value == false; }
+    bool operator==(const T& value) const { return m_value == value; }
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
 
     Dispatcher OnChange;
+
+private:
+    FAction m_subscribes;
 };
 
 template<class T>
@@ -79,7 +112,7 @@ public:
     {
         if(!this->m_value.isEmpty()) {
             this->m_value.clear();
-            this->OnChange();
+            this->Invoke();
         }
     }
 
@@ -103,7 +136,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.insert(value);
-            this->OnChange();
+            this->Invoke();
         }
     }
 
@@ -112,7 +145,7 @@ public:
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.erase(find);
-            this->OnChange();
+            this->Invoke();
         }
     }
 

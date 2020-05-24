@@ -384,6 +384,14 @@ public:
             _d->Remove(rm);
         }
     }
+    void RemoveSorted(const T& value)
+    {
+        auto foundIt = std::lower_bound(Begin(), End(), value);
+        if(foundIt != End()) {
+            _d->Remove(foundIt);
+        }
+    }
+
     template<typename Predicate>
     void RemoveByPredicate(Predicate predicate)
     {

@@ -16,9 +16,10 @@ public:
     static ActionsManager& GetInstance();
 
     void CreateActionsFromRegisteredScopes();
-    ActionsScopeBase* FindScope(const Latin1Name& scopeName);
+    ActionsScopeBase* FindScope(const Latin1Name& scopeName) const;
     bool AddTo(const Latin1Name& scopeName, QMenu* menu);
     bool AddTo(const Latin1Name& scopeName, QWidget* widget);
+    Action* FindAction(const QString& path) const;
 
 private:
     friend class ActionsScopeBase;

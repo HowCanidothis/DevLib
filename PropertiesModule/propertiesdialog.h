@@ -14,7 +14,7 @@ class _Export PropertiesDialog : public PropertiesDialogBase
 {
     typedef PropertiesDialogBase Super;
 public:
-    PropertiesDialog(const QString& name, qint32 contextIndex, QWidget* parent = nullptr);
+    PropertiesDialog(const QString& name, const PropertiesScopeName& contextIndex, QWidget* parent = nullptr);
 
     // PropertiesDialogBase interface
 protected:

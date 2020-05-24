@@ -6,242 +6,184 @@
 #include <SharedModule/Threads/threadeventshelper.h>
 
 #include "property.h"
+#include "propertiesscope.h"
 
-static StackPointers<QHash<Name, Property*>>& contexts()
+const Name PropertiesSystem::Global = Name("GlobalScope");
+const Name PropertiesSystem::InitProperties = Name("InitPropertiesScope");
+const Name PropertiesSystem::Temp = Name("TempScope");
+const Name PropertiesSystem::Empty = Name("EmptyScope");
+
+PropertiesScope* PropertiesSystem::GetScope(const PropertiesScopeName& scope)
 {
-    static StackPointers<QHash<Name, Property*>> res(PropertiesSystem::Max);
-    return res;
+    return getOrCreateScope(scope);
 }
 
-// TODO. ContextIndex is not used
-static QHash<Name, QVector<Property::FOnChange>>& delayedSubscribes()
+PropertiesScope* PropertiesSystem::GetCurrentScope()
 {
-    static QHash<Name, QVector<Property::FOnChange>> res;
-    return res;
+    return currentScope();
 }
 
-void PropertiesSystem::SetValueForceInvoke(const Name& path, const QVariant& value)
+void PropertiesSystem::Subscribe(const Name& path, const FAction& function)
 {
-    auto find = context().find(path);
-    Q_ASSERT_X(find != context().end(), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
-    if(!find.value()->SetValue(value)) {
-        find.value()->Invoke();
-    }
+    currentScope()->Subscribe(path, function);
 }
 
-void PropertiesSystem::SetValue(const Name& path, const QVariant& value)
+void PropertiesSystem::Subscribe(const FAction& function)
 {
-    auto find = context().find(path);
-    Q_ASSERT_X(find != context().end(), "PropertiesSystem::setValue", path.AsString().toLatin1().constData());
-    find.value()->SetValue(value);
-}
-
-void PropertiesSystem::Subscribe(const Name& path, const PropertiesSystem::FOnChange& function)
-{
-    auto find = context().find(path);
-    if(find == context().end()) {
-        auto delayedSubscribesFind = delayedSubscribes().find(path);
-        if(delayedSubscribesFind != delayedSubscribes().end()) {
-            delayedSubscribesFind.value().append(function);
-        } else {
-            delayedSubscribes().insert(path, {function});
-        }
-    } else {
-        find.value()->Subscribe(function);
-    }
+    currentScope()->Subscribe(function);
 }
 
 void PropertiesSystem::ForeachProperty(const std::function<void (Property*)>& handle)
 {
-    ForeachProperty(handle, currentContextIndex());
-}
-
-void PropertiesSystem::ForeachProperty(const std::function<void (Property*)>& handle, qint32 contextIndex)
-{
-    for(Property* property : context(contextIndex)) {
-        handle(property);
-    }
-}
-
-void PropertiesSystem::Subscribe(const PropertiesSystem::FOnChange& function)
-{
-    for(Property* property : context()) {
-        property->Subscribe(function);
-    }
+    currentScope()->ForeachProperty(handle);
 }
 
 QVariant PropertiesSystem::GetValue(const Name& path)
 {
-    auto find = context().find(path);
-    Q_ASSERT_X(find != context().end(), "PropertiesSystem::getValue", path.AsString().toLatin1().constData());
-    return find.value()->getValue();
+    return currentScope()->GetValue(path);
 }
 
-QVariant PropertiesSystem::GetValue(const Name& path, qint32 type)
+bool PropertiesSystem::IsExists(const Name& path, const PropertiesScopeName& scope)
 {
-    auto find = contexts()[type]->find(path);
-    Q_ASSERT_X(find != contexts()[type]->end(), "PropertiesSystem::getValue", path.AsString().toLatin1().constData());
-    return find.value()->getValue();
+    return getOrCreateScope(scope)->IsExists(path);
 }
 
-bool PropertiesSystem::Load(const QString& fileName, properties_context_index_t contextIndex)
+void PropertiesSystem::SetValue(const Name& path, const QVariant& value)
 {
-    Q_ASSERT(!fileName.isEmpty());
-    if(!QFile::exists(fileName))
-    {
-        return false;
-    }
-    QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
-
-    const auto& tree = PropertiesSystem::context(contextIndex);
-
-    for(const QString& key : settings.allKeys()) {
-        auto find = tree.find(Name(key));
-        if(find == tree.end()) {
-            qCWarning(LC_SYSTEM) << "unknown property" << key;
-        } else {
-            if(find.value()->GetOptions().TestFlag(Property::Option_IsExportable)) {
-                if(!find.value()->SetValue(settings.value(key))) {
-                    find.value()->Invoke();
-                }
-            }
-        }
-    }
-    return true;
+    currentScope()->SetValue(path, value);
 }
 
-void PropertiesSystem::Save(const QString& fileName, properties_context_index_t contextIndex)
+bool PropertiesSystem::Load(const QString& fileName, const PropertiesScopeName& scope)
 {
-    Q_ASSERT(!fileName.isEmpty());
-    QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
-
-    auto it = context(contextIndex).begin();
-    auto e = context(contextIndex).end();
-    for(; it != e; it++) {
-        if(it.value()->GetOptions().TestFlag(Property::Option_IsExportable)) {
-            settings.setValue(it.key().AsString(), it.value()->getValue());
-        }
-    }
+    return getOrCreateScope(scope)->Load(fileName);
 }
 
-void PropertiesSystem::Save(const QString& fileName, properties_context_index_t contextIndex, const QVector<Name>& propertyName)
+void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope)
 {
-    Q_ASSERT(!fileName.isEmpty());
-    QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
-
-    auto& container = context(contextIndex);
-
-    for(const auto& name : propertyName) {
-        auto foundIt = container.find(name);
-        Q_ASSERT(foundIt != container.end());
-        Q_ASSERT(foundIt.value()->GetOptions().TestFlag(Property::Option_IsExportable));
-
-        settings.setValue(foundIt.key().AsString(), foundIt.value()->getValue());
-    }
+    getOrCreateScope(scope)->Save(fileName);
 }
 
-void PropertiesSystem::Clear()
+void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName)
 {
-    Clear(currentContextIndex());
+    getOrCreateScope(scope)->Save(fileName, propertyName);
 }
 
-void PropertiesSystem::Clear(qint32 contextIndex)
+void PropertiesSystem::Clear(const PropertiesScopeName& scope)
 {
-    Q_ASSERT(contextIndex != Global);
-    auto& context = PropertiesSystem::context(contextIndex);
-    for(auto property : context) {
-        delete property;
-    }
-    context.clear();
+    getOrCreateScope(scope)->Clear();
 }
 
-bool PropertiesSystem::HasContext(qint32 contextIndex)
+void PropertiesSystem::ClearWithoutDeleting(const PropertiesScopeName& scope)
 {
-    return !context(contextIndex).isEmpty();
+    getOrCreateScope(scope)->ClearWithoutDeleting();
 }
 
-bool PropertiesSystem::IsExists(const Name& name, properties_context_index_t contextIndex)
+QVariant PropertiesSystem::GetValue(const Name& path, const PropertiesScopeName& scope)
 {
-    return context(contextIndex).contains(name);
+    return getOrCreateScope(scope)->GetValue(path);
 }
 
-properties_context_index_t PropertiesSystem::GetCurrentContextIndex()
+PropertiesSystem::FHandle& PropertiesSystem::Begin(const PropertiesScopeName& scope)
 {
-    return currentContextIndex();
+    THREAD_ASSERT_IS_MAIN()
+    currentScope() = getOrCreateScope(scope);
+    scopesDepth().Append(currentScope());
+    return currentScope()->Begin();
 }
 
-PropertiesSystem::FHandle& PropertiesSystem::Begin(Scope type)
+void PropertiesSystem::Begin(ThreadEventsContainer* thread, const PropertiesScopeName& scope)
 {
-    Q_ASSERT(type >= 0 && type < Max);
-    currentHandle() = defaultHandle();
-    currentContextIndex() = type;
-
-    return currentHandle();
-}
-
-void PropertiesSystem::Begin(ThreadEventsContainer* thread, PropertiesSystem::Scope type)
-{
-    Begin(type) = [thread](const FSetter& setter){ thread->Asynch(setter); };
+    THREAD_ASSERT_IS_MAIN()
+    currentScope() = getOrCreateScope(scope);
+    scopesDepth().Append(currentScope());
+    return currentScope()->Begin(thread);
 }
 
 void PropertiesSystem::End()
 {
-    currentHandle() = defaultHandle();
-    currentContextIndex() = Global;
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(scopesDepth().Size() > 1);
+    currentScope()->End();
+    scopesDepth().Pop();
+    currentScope() = scopesDepth().Last();
 }
 
-void PropertiesSystem::addProperty(const Name& path, Property* property) {
+void PropertiesSystem::BeginPrefix(const QString& prefix)
+{
+    THREAD_ASSERT_IS_MAIN()
+    auto newPrefix = prefixesDepth().last() + prefix;
+    prefixesDepth().append(newPrefix);
+    currentPrefix() = newPrefix;
+}
 
-    Q_ASSERT_X(!context().contains(path), "PropertiesSystem::addProperty", path.AsString().toLatin1().constData());
-    property->Handler() = currentHandle();
-    context().insert(path, property);
-    auto findSubscribes = delayedSubscribes().find(path);
-    if(findSubscribes != delayedSubscribes().end()) {
-        auto subscribes = findSubscribes.value();
-        property->Subscribe([subscribes]{
-            for(auto subscribe : subscribes) {
-                subscribe();
-            }
-        });
-        delayedSubscribes().remove(path);
+void PropertiesSystem::EndPrefix()
+{
+    THREAD_ASSERT_IS_MAIN()
+    Q_ASSERT(prefixesDepth().size() > 1);
+    prefixesDepth().pop_back();
+    currentPrefix() = prefixesDepth().last();
+}
+
+void PropertiesSystem::addProperty(Name path, Property* property)
+{
+    THREAD_ASSERT_IS_MAIN()
+
+    if(!currentPrefix().isEmpty()) {
+        path.SetName(currentPrefix() + path.AsString());
+        property->m_propertyName = path;
     }
+    currentScope()->addProperty(path, property);
 }
 
-QHash<Name, Property*>& PropertiesSystem::context(properties_context_index_t contextIndex)
+PropertiesScope* PropertiesSystem::getOrCreateScope(const PropertiesScopeName& scope)
 {
-    return *contexts()[contextIndex];
-}
-
-QHash<Name, Property*>& PropertiesSystem::context()
-{
-    return *contexts()[currentContextIndex()];
-}
-
-PropertiesSystem::FHandle PropertiesSystem::defaultHandle()
-{
-    return [](const FSetter& s){ s(); };
-}
-
-PropertiesSystem::FHandle& PropertiesSystem::currentHandle()
-{
-    static FHandle res = defaultHandle();
+    auto foundIt = scopes().find(scope);
+    PropertiesScope* res;
+    if(foundIt == scopes().end()) {
+        res = new PropertiesScope(scope);
+        scopes().insert(scope, res);
+    } else {
+        res = foundIt.value();
+    }
     return res;
 }
 
-PropertiesSystem::Scope& PropertiesSystem::currentContextIndex()
+QHash<Name, PropertiesScope*>& PropertiesSystem::scopes()
 {
-    static Scope res = Global; return res;
+    static QHash<Name, PropertiesScope*> result;
+    return result;
 }
 
-PropertiesSystemContextIndexScopeGuard::PropertiesSystemContextIndexScopeGuard(properties_context_index_t contextIndex) Q_DECL_NOEXCEPT
+PropertiesScope*& PropertiesSystem::currentScope()
 {
-    PropertiesSystem::Begin(contextIndex);
+    static PropertiesScope* res = getOrCreateScope(Global);
+    return res;
 }
 
-PropertiesSystemContextIndexScopeGuard::~PropertiesSystemContextIndexScopeGuard()
+Stack<PropertiesScope*>& PropertiesSystem::scopesDepth()
+{
+    static Stack<PropertiesScope*> result { getOrCreateScope(PropertiesSystem::Global) };
+    return result;
+}
+
+QString& PropertiesSystem::currentPrefix()
+{
+    static QString result;
+    return result;
+}
+
+QVector<QString>& PropertiesSystem::prefixesDepth()
+{
+    static QVector<QString> result{ "" };
+    return result;
+}
+
+PropertiesSystemScopeGuard::PropertiesSystemScopeGuard(const PropertiesScopeName& scope) Q_DECL_NOEXCEPT
+{
+    PropertiesSystem::Begin(scope);
+}
+
+PropertiesSystemScopeGuard::~PropertiesSystemScopeGuard()
 {
     PropertiesSystem::End();
 }

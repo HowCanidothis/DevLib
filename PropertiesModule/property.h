@@ -26,6 +26,18 @@ struct PropertyValueExtractorPrivate<QList<T>>
     static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value); }
 };
 
+template<typename Key, typename Value>
+struct PropertyValueExtractorPrivate<QHash<Key, Value>>
+{
+    static QVariant ExtractVariant(const QHash<Key, Value>& value) { return TextConverter<QHash<Key, Value>>::ToText(value); }
+};
+
+template<typename Key>
+struct PropertyValueExtractorPrivate<QSet<Key>>
+{
+    static QVariant ExtractVariant(const QSet<Key>& value) { return TextConverter<QSet<Key>>::ToText(value); }
+};
+
 class _Export Property {
 public:
     typedef std::function<void ()> FSetter;
@@ -56,6 +68,14 @@ public:
         DelegateUser
     };
 
+    enum PropertyRole {
+        RoleHeaderItem = Qt::UserRole, // Using for delegating headers
+        RoleMinValue,
+        RoleMaxValue,
+        RoleDelegateValue,
+        RoleDelegateData,
+    };
+
     Property(const Name& path, Options options);
     virtual ~Property() {}
     bool SetValue(QVariant value);
@@ -77,11 +97,17 @@ public:
 
     const QVariant& GetPreviousValue() const { return m_previousValue; }
     QVariant GetValue() const { return getValue(); }
+    const Name& GetPropertyName() const { return m_propertyName; }
     virtual QVariant GetMin() const { return 0; }
     virtual QVariant GetMax() const { return 0; }
+    SharedPointer<class ExternalPropertyProperty> Clone(const Name& newName) const;
+
+    QVariant GetValueFromRole(int role) const;
 
 protected:
+    friend class ExternalPropertyProperty;
     friend class PropertiesSystem;
+    friend class PropertiesScope;
     friend class PropertiesModel;
 
     virtual QVariant getDisplayValue() const { return getValue(); }
@@ -97,9 +123,9 @@ protected:
     FValidator m_fValidator;
     Options m_options;
     QVariant m_previousValue;
+    Name m_propertyName;
 #ifdef DEBUG_BUILD
     bool m_isSubscribed;
-    Name m_propertyName;
 #endif
 };
 
@@ -112,7 +138,9 @@ public:
     TPropertyBase(const Name& path, const T& initial, Options options = Options_Default)
         : Property(path, options)
         , m_value(initial)
-    {}
+    {
+        m_previousValue = PropertyValueExtractorPrivate<T>::ExtractVariant(m_value);
+    }
 
     // Avoid invoking. Sometimes it's helpfull
     void SetDirect(const T& value) { m_value = value; }
@@ -151,13 +179,13 @@ class TDecimalProperty : public TProperty<T>
 {
     typedef TProperty<T> Super;
 public:
-    TDecimalProperty(const Name& path, const T& initial, const T& min = std::numeric_limits<T>::min(), const T& max = std::numeric_limits<T>::max(), Property::Options options = Property::Options_Default)
+    TDecimalProperty(const Name& path, const T& initial, const T& min = -std::numeric_limits<T>::max(), const T& max = std::numeric_limits<T>::max(), Property::Options options = Property::Options_Default)
         : Super(path, initial, options)
         , m_min(min)
         , m_max(max)
     {
         Super::Validator() = [this](const QVariant&, QVariant& value) {
-            value = clamp(value.value<T>(), m_min, m_max);
+            value = ::clamp(value.value<T>(), m_min, m_max);
         };
     }
 
@@ -228,6 +256,12 @@ public:
 
     void SetNames(const QStringList& names);
 
+    NamedUIntProperty& operator=(quint32 value)
+    {
+        SetValue(value);
+        return *this;
+    }
+
     DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateNamedUInt; }
     const QVariant* GetDelegateData() const Q_DECL_OVERRIDE{ return &m_names; }
 
@@ -278,6 +312,7 @@ public:
                 Super::Invoke();
             }
         } else {
+            Super::m_previousValue = getValue();
             hash.insert(key, value);
             Super::Invoke();
         }
@@ -285,10 +320,11 @@ public:
 
     void Remove(const Key& key)
     {
-        QHash<Key, Value>& hash = Super::m_value;
+        auto& hash = Super::m_value;
         auto foundIt = hash.find(key);
         if(foundIt != hash.end()) {
-            hash.remove(key);
+            Super::m_previousValue = getValue();
+            hash.erase(foundIt);
             Super::Invoke();
         }
     }
@@ -296,14 +332,26 @@ public:
     void Clear()
     {
         if(!Super::m_value.isEmpty()) {
+            Super::m_previousValue = getValue();
             Super::m_value.clear();
             Super::Invoke();
         }
     }
 
+    void insert(const Key& key, const Value& value) { Insert(key, value); }
+    void remove(const Key& key) { Remove(key); }
+
+
+    bool contains(const Key& key) const { return Super::m_value.contains(key); }
+    qint32 size() const { return Super::m_value.size(); }
+    typename QHash<Key, Value>::const_iterator find(const Key& key) const { return Super::m_value.find(key); }
+    typename QHash<Key, Value>::const_iterator begin() const { return Super::m_value.begin(); }
+    typename QHash<Key, Value>::const_iterator end() const { return Super::m_value.end(); }
+
     HashProperty& operator=(const QHash<Key, Value>& another)
     {
         if(Super::m_value != another) {
+            Super::m_previousValue = getValue();
             Super::m_value = another;
             Super::Invoke();
         }
@@ -331,10 +379,52 @@ public:
         auto& hash = Super::m_value;
         auto foundIt = hash.find(key);
         if(foundIt == hash.end()) {
+            Super::m_previousValue = getValue();
             Super::m_value.insert(key);
             Super::Invoke();
         }
     }
+
+    void Remove(const Key& key)
+    {
+        auto& hash = Super::m_value;
+        auto foundIt = hash.find(key);
+        if(foundIt != hash.end()) {
+            Super::m_previousValue = getValue();
+            hash.erase(foundIt);
+            Super::Invoke();
+        }
+    }
+
+    void Clear()
+    {
+        auto& hash = Super::m_value;
+        if(!hash.isEmpty()) {
+            Super::m_previousValue = getValue();
+            hash.clear();
+            Super::Invoke();
+        }
+    }
+
+    SetProperty& operator=(const QSet<Key>& another)
+    {
+        if(Super::m_value != another) {
+            Super::m_previousValue = getValue();
+            Super::m_value = another;
+            Super::Invoke();
+        }
+
+        return *this;
+    }
+
+    void insert(const Key& key) { Insert(key); }
+    void remove(const Key& key) { Remove(key); }
+
+    bool contains(const Key& key) const { return Super::m_value.contains(key); }
+    qint32 size() const { return Super::m_value.size(); }
+    typename QSet<Key>::const_iterator find(const Key& key) const { return Super::m_value.find(key); }
+    typename QSet<Key>::const_iterator begin() const { return Super::m_value.begin(); }
+    typename QSet<Key>::const_iterator end() const { return Super::m_value.end(); }
 
     QSet<Key> GetPreviousValue() const { return TextConverter<typename Super::value_type>::FromText(Super::m_previousValue.toString()); }
 
@@ -371,6 +461,16 @@ public:
     {
         Super::m_value = values;
         Super::Invoke();
+    }
+
+    ListProperty& operator=(const QList<Key>& another)
+    {
+        if(Super::m_value != another) {
+            Super::m_value = another;
+            Super::Invoke();
+        }
+
+        return *this;
     }
 
 protected:

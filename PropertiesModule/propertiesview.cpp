@@ -3,165 +3,27 @@
 #ifdef QT_GUI_LIB
 
 #include <QSortFilterProxyModel>
-#include <QStyledItemDelegate>
-#include <QDoubleSpinBox>
-#include <QComboBox>
-#include <QPainter>
 #include <QHeaderView>
-#include <QMouseEvent>
 #include <QProcess>
 #include <QAction>
+#include <QMouseEvent>
 
 #include <SharedModule/External/utils.h>
 
 #include "PropertiesModule/propertiessystem.h"
 #include "propertiesmodel.h"
 #include "SharedGuiModule/decl.h"
-#include "Widgets/propertiesdelegatefactory.h"
-#include "Widgets/propertiesstyleddelegatelistener.h"
+#include "Widgets/propertiesdelegate.h"
+#include "propertiesscope.h"
 
-class PropertiesDelegate : public QStyledItemDelegate
-{
-    typedef QStyledItemDelegate Super;
-public:
-    PropertiesDelegate(QObject* parent)
-        : Super(parent)
-        , m_gradientLeft(0x567dbc)
-        , m_gradientRight(0x6ea1f1)
-        , m_gradientRightBorder(0.7)
-    {}
-
-    // QAbstractItemDelegate interface
-public:
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE
-    {
-        if(index.data(PropertiesModel::RoleHeaderItem).toBool()){
-            QRect orect = option.rect;
-            painter->setPen(Qt::NoPen);
-            QRect rowRect(0,option.rect.y(),option.widget->width(),orect.height());
-            QLinearGradient lg(0,rowRect.y(), rowRect.width(),rowRect.y());
-            lg.setColorAt(0, m_gradientLeft);
-            lg.setColorAt(m_gradientRightBorder, m_gradientRight);
-            painter->setBrush(lg);
-            if(!index.column())
-                painter->drawRect(orect.adjusted(-orect.x(),0,0,0));
-            else
-                painter->drawRect(orect);
-
-            QStyleOptionViewItem opt = option;
-            initStyleOption(&opt, index);
-
-
-            const QWidget *widget = option.widget;
-
-            if(float(option.rect.x()) / widget->width() < 0.5)
-                opt.palette.setColor(QPalette::Text,Qt::white);
-            else
-                opt.palette.setColor(QPalette::Text,Qt::red);
-            if(index.column()) {
-                opt.text = "";
-            }
-
-            widget->style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
-        }
-        else if(!PropertiesDelegateFactory::Instance().Paint(painter, option, index)) {
-            QStyledItemDelegate::paint(painter,option,index);
-        }
-    }
-
-    QWidget*createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const Q_DECL_OVERRIDE {
-        QVariant data = index.data(Qt::EditRole);
-
-        if(auto editor = PropertiesDelegateFactory::Instance().CreateEditor(parent, option, index)) {
-            return editor;
-        }
-
-        switch (data.type()) {
-        case QVariant::Bool: {
-            QComboBox* result = new QComboBox(parent);
-            result->addItems({ tr("false"), tr("true") });
-            result->setFocusPolicy(Qt::StrongFocus);
-            return result;
-        }
-        case QVariant::UInt:
-        case QVariant::Int: {
-            QSpinBox* result = new QSpinBox(parent);
-            result->setValue(data.toInt());
-            result->setMinimum(index.data(PropertiesModel::RoleMinValue).toInt());
-            result->setMaximum(index.data(PropertiesModel::RoleMaxValue).toInt());
-            result->setFocusPolicy(Qt::StrongFocus);
-            return result;
-        }
-        case QVariant::Double:
-        case QMetaType::Float: {
-            QDoubleSpinBox* result = new QDoubleSpinBox(parent);
-            result->setValue(data.toDouble());
-            result->setMinimum(index.data(PropertiesModel::RoleMinValue).toDouble());
-            result->setMaximum(index.data(PropertiesModel::RoleMaxValue).toDouble());
-            auto singleStep = (result->maximum() - result->minimum()) / 100.0;
-            singleStep = (singleStep > 1.0) ? 1.0 : singleStep;
-            result->setSingleStep(singleStep);
-            result->setFocusPolicy(Qt::StrongFocus);
-            return result;
-        }
-        default:
-            return Super::createEditor(parent, option, index);
-        }
-    }
-
-    // QAbstractItemDelegate interface
-public:
-    void setEditorData(QWidget* editor, const QModelIndex& index) const Q_DECL_OVERRIDE
-    {
-        if(PropertiesDelegateFactory::Instance().SetEditorData(editor, index, this)) {
-            return;
-        }
-
-        Super::setEditorData(editor, index);
-        if(auto e = qobject_cast<QSpinBox*>(editor)) {
-            auto listener = new PropertiesStyledDelegateListener(e,index,this);
-            connect(e, SIGNAL(valueChanged(int)), listener, SLOT(onEditorValueChanged()));
-        }
-        else if(auto e = qobject_cast<QDoubleSpinBox*>(editor)) {
-            auto listener = new PropertiesStyledDelegateListener(e,index,this);
-            connect(e, SIGNAL(valueChanged(double)), listener, SLOT(onEditorValueChanged()));
-        } else if(auto e = qobject_cast<QComboBox*>(editor)) {
-            auto listener = new PropertiesStyledDelegateListener(e,index,this);
-            connect(e, SIGNAL(currentIndexChanged(int)), listener, SLOT(onEditorValueChanged()));
-        }
-    }
-
-    virtual void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const Q_DECL_OVERRIDE
-    {
-        if(PropertiesDelegateFactory::Instance().SetModelData(editor, model, index)) {
-            return;
-        }
-
-        Super::setModelData(editor, model, index);
-    }
-
-    virtual QString displayText(const QVariant& value, const QLocale& locale) const Q_DECL_OVERRIDE
-    {
-        QString result;
-        if(PropertiesDelegateFactory::Instance().DisplayText(result, value, locale)) {
-            return result;
-        }
-        return Super::displayText(value, locale);
-    }
-private:
-    friend class PropertiesView;
-    QColor m_gradientLeft;
-    QColor m_gradientRight;
-    double m_gradientRightBorder;
-};
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)
-    : PropertiesView(PropertiesSystem::Global, parent, flags)
+    : PropertiesView(PropertiesSystem::GetCurrentScope()->GetName(), parent, flags)
 {
 
 }
 
-PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowFlags flags)
+PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent, Qt::WindowFlags flags)
     : Super(parent)
     , m_defaultTextEditor("Common/TextEditor", PropertiesSystem::Global)
 {
@@ -170,13 +32,13 @@ PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowF
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     header()->hide();
-    setIndentation(0);
+    setIndentation(10);
     setAnimated(true);
 
     setSortingEnabled(true);
     sortByColumn(0, Qt::AscendingOrder);
 
-    m_propertiesModel = new PropertiesModel(contextIndex, this);
+    m_propertiesModel = new PropertiesModel(scope, this);
     QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
     proxy->setSourceModel(m_propertiesModel);
     setModel(proxy);
@@ -199,14 +61,19 @@ PropertiesView::PropertiesView(qint32 contextIndex, QWidget* parent, Qt::WindowF
     setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
-void PropertiesView::SetContextIndex(qint32 contextIndex)
+void PropertiesView::Update(const FAction& action)
 {
-    m_propertiesModel->SetContextIndex(contextIndex);
+    m_propertiesModel->Change(action);
 }
 
-qint32 PropertiesView::GetContextIndex() const
+void PropertiesView::SetContextIndex(const Name& contextIndex)
 {
-    return m_propertiesModel->GetContextIndex();
+    m_propertiesModel->Scope = contextIndex;
+}
+
+const Name& PropertiesView::GetContextIndex() const
+{
+    return m_propertiesModel->Scope;
 }
 
 void PropertiesView::Save(const QString& fileName)
@@ -240,24 +107,12 @@ void PropertiesView::mouseReleaseEvent(QMouseEvent* event)
 
 void PropertiesView::validateActionsVisiblity()
 {
-    if(m_defaultTextEditor.IsValid() && m_indexUnderCursor.data(PropertiesModel::RoleDelegateValue).toInt() == Property::DelegateFileName) {
+    if(m_defaultTextEditor.IsValid() && m_indexUnderCursor.data(Property::RoleDelegateValue).toInt() == Property::DelegateFileName) {
         m_actionOpenWithTextEditor->setVisible(true);
     }
     else {
         m_actionOpenWithTextEditor->setVisible(false);
     }
 }
-
-void PropertiesView::setLeftGradientColor(const QColor& color) { propertiesDelegate()->m_gradientLeft = color; }
-
-void PropertiesView::setRightGradientColor(const QColor& color) { propertiesDelegate()->m_gradientRight = color; }
-
-void PropertiesView::setRightGradientBorder(double border) { propertiesDelegate()->m_gradientRightBorder = border; }
-
-const QColor&PropertiesView::getLeftGradientColor() const { return propertiesDelegate()->m_gradientLeft; }
-
-const QColor&PropertiesView::getRightGradientColor() const { return propertiesDelegate()->m_gradientRight; }
-
-double PropertiesView::getRightGradientBorder() const { return propertiesDelegate()->m_gradientRightBorder; }
 
 #endif
