@@ -19,26 +19,6 @@ public:
     virtual void Draw(gRenderType renderType, OpenGLFunctions* f);
 
 protected:
-    #pragma pack(1)
-    struct TexturedVertex2F
-    {
-        Point2F Position;
-        Point2F TexCoord;
-    };
-
-    struct ColoredVertex2F
-    {
-        Point2F Position;
-        Color3F Color;
-    };
-
-    struct ColoredVertex3F
-    {
-        Point3F Position;
-        Color3F Color;
-    };
-    #pragma pack()
-
     ScopedPointer<QOpenGLBuffer> m_vbo;
     ScopedPointer<QOpenGLVertexArrayObject> m_vao;
 

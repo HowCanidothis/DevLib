@@ -314,6 +314,27 @@ typedef quint32 gRenderbufferID;
 
 typedef Point3F Color3F;
 
+#pragma pack(1)
+struct TexturedVertex2F
+{
+    Point2F Position;
+    Point2F TexCoord;
+};
+
+struct ColoredVertex2F
+{
+    Point2F Position;
+    Color3F Color;
+};
+
+struct ColoredVertex3F
+{
+    Point3F Position;
+    Color3F Color;
+};
+#pragma pack()
+
+
 #define GT_CONTENT_PATH "../../Content/"
 #define GT_STYLES_PATH GT_CONTENT_PATH "CSS/"
 #define GT_SHADERS_PATH GT_CONTENT_PATH "Shaders/"
