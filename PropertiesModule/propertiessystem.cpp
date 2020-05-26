@@ -58,9 +58,9 @@ bool PropertiesSystem::Load(const QString& fileName, const PropertiesScopeName& 
     return getOrCreateScope(scope)->Load(fileName);
 }
 
-void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope)
+void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope, bool clearFile)
 {
-    getOrCreateScope(scope)->Save(fileName);
+    getOrCreateScope(scope)->Save(fileName, clearFile);
 }
 
 void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName)
