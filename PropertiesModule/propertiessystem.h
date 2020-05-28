@@ -37,7 +37,7 @@ public:
     static PropertiesScope* GetCurrentScope();
 
     static bool Load(const QString& fileName, const PropertiesScopeName& scope);
-    static void Save(const QString& fileName, const PropertiesScopeName& scope);
+    static void Save(const QString& fileName, const PropertiesScopeName& scope, bool clearFile = true);
     static void Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName);
     static void Clear(const PropertiesScopeName& scope);
     static void ClearWithoutDeleting(const PropertiesScopeName& scope);

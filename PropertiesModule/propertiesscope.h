@@ -26,7 +26,7 @@ public:
     Stack<Property*> AllProperties() const;
 
     bool Load(const QString& fileName);
-    void Save(const QString& fileName);
+    void Save(const QString& fileName, bool clearFile);
     void Save(const QString& fileName, const QVector<Name>& propertyNames);
 
     void Clear();
