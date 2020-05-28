@@ -66,6 +66,7 @@ public:
     Dispatcher& GetDispatcher() { return OnChange; }
 
     bool operator!() const { return m_value == false; }
+    bool operator!=(const T& value) const { return m_value != value; }
     bool operator==(const T& value) const { return m_value == value; }
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
