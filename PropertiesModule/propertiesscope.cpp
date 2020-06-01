@@ -28,8 +28,8 @@ void PropertiesScope::addProperty(Name path, Property* property)
 }
 
 PropertiesScope::PropertiesScope(const PropertiesScopeName& name)
-    : m_name(name)
-    , m_currentHandle(defaultHandle())
+    : m_currentHandle(defaultHandle())
+    , m_name(name)
 {
 
 }

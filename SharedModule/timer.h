@@ -11,6 +11,7 @@ public:
     Timer();
 
     void Bind();
+    nsecs ElapsedTime() const;
     nsecs Release();
     static msecs ToMsecs(nsecs nanosecs);
 

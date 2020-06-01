@@ -21,6 +21,11 @@ void Timer::Bind()
     _time = Now();
 }
 
+Timer::nsecs Timer::ElapsedTime() const
+{
+    return Now() - _time;
+}
+
 Timer::nsecs Timer::Release()
 {
     nsecs res = Now() - _time;
