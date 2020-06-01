@@ -139,7 +139,7 @@ void PropertiesScope::Save(const QString& fileName, bool clearFile)
     }
 }
 
-void PropertiesScope::Save(const QString& fileName, const QVector<Name>& propertyNames)
+void PropertiesScope::SaveSelected(const QString& fileName, const QVector<Name>& propertyNames)
 {
     Q_ASSERT(!fileName.isEmpty());
 
