@@ -15,10 +15,26 @@ public:
 class GtDrawableBase : public GtObjectBase
 {
 public:
+    GtDrawableBase()
+        : m_initialized(false)
+    {}
     virtual ~GtDrawableBase() {}
 
     virtual void Draw(OpenGLFunctions* f) = 0;
-    virtual void Initialize(OpenGLFunctions* f) = 0;
+    void Initialize(OpenGLFunctions* f)
+    {
+        if(!m_initialized) {
+            onInitialize(f);
+            m_initialized = true;
+        }
+    }
+    bool IsInitialized() const { return m_initialized; }
+
+protected:
+    virtual void onInitialize(OpenGLFunctions* f) = 0;
+
+private:
+    bool m_initialized;
 };
 
 class GtInteractableBase : public GtDrawableBase

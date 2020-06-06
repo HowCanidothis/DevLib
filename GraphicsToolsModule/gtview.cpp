@@ -24,7 +24,7 @@ GtView::GtView(const SharedPointer<GtViewParams>& params, QWidget* parent, Qt::W
     , m_camera(new GtCamera())
     , m_params(std::move(params))
 {
-    m_camera->SetProjectionProperties(45.f, 10.f, 1000000.f);
+    m_camera->SetProjectionProperties(45.f, 0.1f, 1000000.f);
 
     QTimer* render = new QTimer();
     connect(render, SIGNAL(timeout()), this, SLOT(update()));
@@ -63,8 +63,16 @@ void GtView::initializeGL()
         return;
     }
 
-    ResourcesSystem::RegisterResource("mvp", [this]{
+    ResourcesSystem::RegisterResource("mvp", []{
         return new Matrix4();
+    });
+
+    ResourcesSystem::RegisterResource("invertedMvp", []{
+        return new Matrix4();
+    });
+
+    ResourcesSystem::RegisterResource("eye", []{
+        return new Vector3F();
     });
 
     if(m_params->DebugMode) {
@@ -75,13 +83,15 @@ void GtView::initializeGL()
     }
 
     m_mvp = ResourcesSystem::GetResource<Matrix4>("mvp");
+    m_eye = ResourcesSystem::GetResource<Vector3F>("eye");
+    m_invertedMvp = ResourcesSystem::GetResource<Matrix4>("invertedMvp");
 
     // TODO. Must have state machine feather
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_NONE);
 
-    glLineWidth(10.f);
+    glLineWidth(5.f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -106,7 +116,7 @@ void GtView::resizeGL(int w, int h)
     depthFbo->Create(depthFboFormat);
     m_depthFbo = depthFbo;
 
-    m_controllersContext->DepthBuffer->SetFrameBuffer(fbo);
+    m_controllersContext->DepthBuffer->SetFrameBuffer(depthFbo, context());
 
     m_camera->Resize(w,h);
 }
@@ -118,6 +128,8 @@ void GtView::paintGL()
     }
 
     m_mvp->Data().Set(m_camera->GetWorld());
+    m_eye->Data().Set(m_camera->GetEye());
+    m_invertedMvp->Data().Set(m_camera->GetWorldInverted());
 
     m_fbo->Bind();
 

@@ -27,6 +27,7 @@ public:
     void AddParameter(GtMaterialParameterBase*);
     void AddMesh(GtMeshBase* mesh);
     void Draw(OpenGLFunctions* f);
+    void SetVisible(bool visible);
 
     void SetDir(const QString& path) { m_shadersPath = path; }
     GtMaterial& AddShader(ShaderType type, const QString& file);
@@ -34,6 +35,7 @@ public:
     void SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile);
 
     void Update();
+    void UpdateParameters();
 
 protected:
     friend class GtMaterialParameterBase;
@@ -48,6 +50,7 @@ protected:
     ArrayPointers<Shader> m_shaders;
     QString m_shadersPath;
     gRenderType m_renderType;
+    bool m_visible;
 
     // GtObjectBase interface
 public:

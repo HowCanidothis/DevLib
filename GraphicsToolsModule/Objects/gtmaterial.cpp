@@ -8,6 +8,7 @@
 
 GtMaterial::GtMaterial(gRenderType renderType)
     : m_renderType(renderType)
+    , m_visible(true)
 {
 
 }
@@ -29,6 +30,10 @@ void GtMaterial::AddMesh(GtMeshBase* mesh)
 
 void GtMaterial::Draw(OpenGLFunctions* f)
 {
+    if(!m_visible) {
+        return;
+    }
+
     Q_ASSERT(m_shaderProgram != nullptr);
     m_shaderProgram->bind();
 
@@ -41,6 +46,11 @@ void GtMaterial::Draw(OpenGLFunctions* f)
     }
 
     m_shaderProgram->release();
+}
+
+void GtMaterial::SetVisible(bool visible)
+{
+    m_visible = visible;
 }
 
 GtMaterial&GtMaterial::AddShader(GtMaterial::ShaderType type, const QString& file)
@@ -83,6 +93,17 @@ void GtMaterial::Update()
         qCCritical(LC_SYSTEM) << "unable to link program" << m_shaderProgram->log();
     }
 
+    gTexUnit unit = 0;
+
+    for(GtMaterialParameterBase* parameter : m_parameters) {
+        parameter->updateLocation(m_shaderProgram.data());
+        parameter->updateTextureUnit(unit);
+        parameter->installDelegate();
+    }
+}
+
+void GtMaterial::UpdateParameters()
+{
     gTexUnit unit = 0;
 
     for(GtMaterialParameterBase* parameter : m_parameters) {

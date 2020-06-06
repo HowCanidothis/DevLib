@@ -9,6 +9,7 @@ class GtTexture;
 class GtShadowMapTechnique;
 class GtFrameTexture;
 
+typedef Resource<Vector3F> Vector3FResource;
 typedef Resource<Matrix4> Matrix4Resource;
 typedef Resource<GtTexture> GtTextureResource;
 typedef Resource<GtFrameTexture> GtFrameTextureResource;

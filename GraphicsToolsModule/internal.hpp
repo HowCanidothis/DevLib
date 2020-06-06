@@ -13,6 +13,7 @@
 #include "Objects/gtmaterialparametertexture.h"
 #include "Objects/gtmaterialparametermatrix.h"
 #include "Objects/gtmaterialparameterbase.h"
+#include "Objects/gtmaterialparametervector3f.h"
 #endif
 
 #endif // INTERNAL_HPP

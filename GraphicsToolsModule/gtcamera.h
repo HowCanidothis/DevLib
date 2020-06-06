@@ -72,11 +72,10 @@ public:
     void MoveForward(float value);
     void MoveSide(float value);
 
+    void MoveFocused(const Point2I& screenPosition);
     void Translate(float dx, float dy);
     void SetSceneBox(const BoundingBox& box) { this->m_sceneBox = box; }
-    void FocusBind(const Point2I& screen_position);
-    void FocusRelease();
-    void SetRotationPoint(const Point3F& position) { m_rotationPoint = position; }
+    void FocusBind(const Point2I& screen_position, float depth);
     void Zoom(bool closer);
     void Rotate(const Point2I& angles) { Rotate(angles.x() , angles.y()); }
     void Rotate(qint32 angleZ, qint32 angleX);

@@ -6,6 +6,11 @@ GtFramebufferObjectBase::~GtFramebufferObjectBase()
     f->glDeleteFramebuffers(1, &m_id);
 }
 
+void GtFramebufferObjectBase::BindRead()
+{
+    f->glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+}
+
 void GtFramebufferObjectBase::Bind()
 {
     f->glBindFramebuffer(GL_FRAMEBUFFER, m_id);

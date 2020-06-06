@@ -58,6 +58,7 @@ public:
     {}
     virtual ~GtFramebufferObjectBase();
 
+    void BindRead();
     void Bind();
     void Release();
 

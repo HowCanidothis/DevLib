@@ -18,6 +18,7 @@ public:
     ~GtView();
 
     void SetScene(class GtScene* scene);
+    class GtCamera* GetCamera() { return m_camera.get(); }
 
     // QOpenGLWidget interface
 protected:
@@ -35,6 +36,8 @@ private:
     bool m_isInitialized;
 
     ScopedPointer<Matrix4Resource> m_mvp;
+    ScopedPointer<Matrix4Resource> m_invertedMvp;
+    ScopedPointer<Resource<Vector3F>> m_eye;
     ScopedPointer<class ControllersContainer> m_controllers;
     ScopedPointer<class GtCamera> m_camera;
     ScopedPointer<class GtFramebufferObjectBase> m_fbo;

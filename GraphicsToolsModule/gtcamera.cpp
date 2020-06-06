@@ -45,17 +45,15 @@ public:
 
 class GtCameraFocus
 {
-     Point2I screen_point;
-     Point3F scene_point;
+    Point2I m_screenPoint;
+    Point3F m_scenePoint;
 public:
-     GtCameraFocus(GtCamera* target, const Point2I& screen_point) :
-         screen_point(screen_point),
-         scene_point(target->UnprojectPlane(screen_point))
-     {}
-     void focus(GtCamera* target) {
-         Vector3F now = target->UnprojectPlane(screen_point);
-         target->Translate(scene_point.x() - now.x(), scene_point.y() - now.y());
-     }
+    GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth)
+        : m_screenPoint(screenPoint)
+        , m_scenePoint(qFuzzyCompare(depth, 1.f) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
+    {}
+    const Point3F& GetScenePoint() const { return m_scenePoint; }
+    const Point2I& GetScreenPoint() const { return m_screenPoint; }
 };
 
 
@@ -114,6 +112,16 @@ void GtCamera::MoveSide(float value)
     m_state.AddFlag(State_NeedUpdateView);
 }
 
+void GtCamera::MoveFocused(const Point2I& screenPosition)
+{
+    if(m_focus != nullptr) {
+        auto newPoint = UnprojectPlane(screenPosition);
+        const auto& oldPoint = m_focus->GetScenePoint();
+        m_eye += (oldPoint - newPoint);
+        m_state.AddFlag(State_NeedUpdateView);
+    }
+}
+
 void GtCamera::Translate(float dx, float dy)
 {
     m_eye.setX(m_eye.x() + dx);
@@ -121,22 +129,22 @@ void GtCamera::Translate(float dx, float dy)
     m_state.AddFlag(State_NeedUpdateView);
 }
 
-void GtCamera::FocusBind(const Point2I& screen_position)
+void GtCamera::FocusBind(const Point2I& screen_position, float depth)
 {
-    m_focus = new GtCameraFocus(this, screen_position);
-}
-
-void GtCamera::FocusRelease()
-{
-    if(m_focus) {
-        m_focus->focus(this);
-        m_focus = nullptr;
-    }
+    m_focus = new GtCameraFocus(this, screen_position, depth);
 }
 
 void GtCamera::Zoom(bool closer)
 {
-    Vector3F ray(GetCenter() - m_eye);
+    Vector3F ray;
+    if(m_focus != nullptr) {
+        ray = m_focus->GetScenePoint() - m_eye;
+    } else {
+        ray = GetCenter() - m_eye;
+    }
+    if(closer && ray.lengthSquared() < m_near) {
+        return;
+    }
     float denum = closer ? 4.f : -4.f;
     Point3F neye = m_eye + ray / denum;
     m_eye = neye;
@@ -155,20 +163,23 @@ void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
     else
         rotation = rotZ * rot;
 
-    Matrix4 rm;
-    rm.translate(m_rotationPoint.x(), m_rotationPoint.y());
-    rm.rotate(rotation);
-    rm.translate(-m_rotationPoint.x(), -m_rotationPoint.y());
+    if(m_focus != nullptr) {
+        Matrix4 rm;
+        const auto& rotationPoint = m_focus->GetScenePoint();
+        rm.translate(rotationPoint.x(), rotationPoint.y(), rotationPoint.z());
+        rm.rotate(rotation);
+        rm.translate(-rotationPoint.x(), -rotationPoint.y(), -rotationPoint.z());
 
-    Point3F neye = rm * m_eye;
-    Vector3F nforward((rm * Vector4F(m_forward, 0.f)).toVector3D());
-    Vector3F nup((rm * Vector4F(m_up, 0.f)).toVector3D());
+        Point3F neye = rm * m_eye;
+        Vector3F nforward((rm * Vector4F(m_forward, 0.f)).toVector3D());
+        Vector3F nup((rm * Vector4F(m_up, 0.f)).toVector3D());
 
-    if((neye.z() > m_sceneBox.Farthest()) && (nforward.z() < -0.02f) && nup.z() > 0.f){
+    //if((neye.z() > m_sceneBox.Farthest()) && (nforward.z() < -0.02f) && nup.z() > 0.f){
         m_eye = neye;
         m_forward = nforward;
         m_up = nup;
     }
+    /*}
     else{
         rm.setToIdentity();
         rm.translate(m_rotationPoint.x(), m_rotationPoint.y());
@@ -178,7 +189,7 @@ void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
         m_eye = rm * m_eye;
         m_forward = (rm * Vector4F(m_forward, 0.f)).toVector3D();
         m_up = (rm * Vector4F(m_up, 0.f)).toVector3D();
-    }
+    }*/
     m_state.AddFlag(State_NeedUpdateView);
 }
 
@@ -260,7 +271,12 @@ Point3F GtCamera::UnprojectPlane(float x, float y)
     Point3F unproj1 = Unproject(x, y, 1.f);
 
     Vector3F rayDirection = unproj1 - unproj0;
-    float dist = -unproj0.z() / rayDirection.z();
+    float dist;
+    if(m_focus != nullptr) {
+        dist = (m_focus->GetScenePoint() - unproj0).length() / rayDirection.length();
+    } else {
+        dist = 100.f / m_far;
+    }
     return unproj0 + rayDirection * dist;
 }
 

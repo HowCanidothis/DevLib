@@ -335,7 +335,7 @@ struct ColoredVertex3F
 #pragma pack()
 
 
-#define GT_CONTENT_PATH "../../Content/"
+#define GT_CONTENT_PATH "../../../Content/"
 #define GT_STYLES_PATH GT_CONTENT_PATH "CSS/"
 #define GT_SHADERS_PATH GT_CONTENT_PATH "Shaders/"
 
