@@ -63,9 +63,9 @@ void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& 
     getOrCreateScope(scope)->Save(fileName, clearFile);
 }
 
-void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName)
+void PropertiesSystem::SaveSelected(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName)
 {
-    getOrCreateScope(scope)->Save(fileName, propertyName);
+    getOrCreateScope(scope)->SaveSelected(fileName, propertyName);
 }
 
 void PropertiesSystem::Clear(const PropertiesScopeName& scope)
