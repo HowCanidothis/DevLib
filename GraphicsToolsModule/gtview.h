@@ -14,8 +14,10 @@ struct GtViewParams
 class GtView : public QOpenGLWidget, protected OpenGLFunctions
 {
 public:
-    GtView(const SharedPointer<GtViewParams>& params, QWidget* parent = nullptr, Qt::WindowFlags flags=0);
+    GtView(QWidget* parent = nullptr, Qt::WindowFlags flags=0);
     ~GtView();
+
+    void Initialize(const SharedPointer<GtViewParams>& params);
 
     void SetScene(class GtScene* scene);
     class GtCamera* GetCamera() { return m_camera.get(); }

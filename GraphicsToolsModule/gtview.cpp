@@ -17,13 +17,26 @@
 #include "gtdepthbuffer.h"
 #include "gtscene.h"
 
-GtView::GtView(const SharedPointer<GtViewParams>& params, QWidget* parent, Qt::WindowFlags flags)
+GtView::GtView(QWidget* parent, Qt::WindowFlags flags)
     : QOpenGLWidget(parent, flags)
     , m_isInitialized(false)
-    , m_controllers(new ControllersContainer())
-    , m_camera(new GtCamera())
-    , m_params(std::move(params))
 {
+
+}
+
+GtView::~GtView()
+{
+
+}
+
+void GtView::Initialize(const SharedPointer<GtViewParams>& params)
+{
+    Q_ASSERT(!m_isInitialized);
+
+    m_controllers = new ControllersContainer();
+    m_camera = new GtCamera();
+    m_params = params;
+
     m_camera->SetProjectionProperties(45.f, 0.1f, 1000000.f);
 
     QTimer* render = new QTimer();
@@ -44,11 +57,6 @@ GtView::GtView(const SharedPointer<GtViewParams>& params, QWidget* parent, Qt::W
     }
 
     setMouseTracking(true);
-}
-
-GtView::~GtView()
-{
-
 }
 
 void GtView::SetScene(GtScene* scene)
@@ -87,10 +95,11 @@ void GtView::initializeGL()
     m_invertedMvp = ResourcesSystem::GetResource<Matrix4>("invertedMvp");
 
     // TODO. Must have state machine feather
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_NONE);
 
+    glDepthFunc(GL_LEQUAL);
     glLineWidth(5.f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

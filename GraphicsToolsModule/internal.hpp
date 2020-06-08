@@ -9,6 +9,7 @@
 #include "gtmeshquad2D.h"
 #include "gtview.h"
 #include "gtscene.h"
+#include "gtpointsmesh.h"
 #include "Objects/gtmaterial.h"
 #include "Objects/gtmaterialparametertexture.h"
 #include "Objects/gtmaterialparametermatrix.h"
