@@ -120,7 +120,7 @@ private:
     void updateProjection();
     void updateView();
 
-    void validateCameraPostition(Point3F &p) const;
+    void validateCameraPosition(Point3F &p) const;
     void adjustIsometricScale();
     void calculateIsometricCoef();
 

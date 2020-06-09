@@ -14,6 +14,15 @@ void GtPointsMesh::SetPoints(const QVector<Point3F>& points)
     }
 }
 
+void GtPointsMesh::SetPoints(const QVector<ColoredVertex3F>& points)
+{
+    m_points.clear();
+
+    for(const auto& point : points) {
+        m_points.append(point);
+    }
+}
+
 bool GtPointsMesh::buildMesh()
 {
     m_verticesCount = m_points.size();

@@ -15,35 +15,21 @@ public:
 class GtDrawableBase : public GtObjectBase
 {
 public:
-    GtDrawableBase()
-        : m_initialized(false)
-    {}
+    GtDrawableBase();
     virtual ~GtDrawableBase() {}
 
-    virtual void Draw(OpenGLFunctions* f) = 0;
-    void Initialize(OpenGLFunctions* f)
-    {
-        if(!m_initialized) {
-            onInitialize(f);
-            m_initialized = true;
-        }
-    }
-    bool IsInitialized() const { return m_initialized; }
+    void Update(const std::function<void (OpenGLFunctions*)>& f);
+    void Update(const FAction& f);
 
 protected:
+    friend class GtScene;
+    friend class GtRenderer;
+    virtual void draw(OpenGLFunctions* f) = 0;
+    void initialize(class GtRenderer* renderer);
     virtual void onInitialize(OpenGLFunctions* f) = 0;
 
 private:
-    bool m_initialized;
-};
-
-class GtInteractableBase : public GtDrawableBase
-{
-public:
-    virtual ~GtInteractableBase() {}
-
-    virtual bool ContainsPoint(const Point3F& point) const = 0;
-    virtual float DistanceToPoint(const Point3F& point) const = 0;
+    GtRenderer* m_renderer;
 };
 
 

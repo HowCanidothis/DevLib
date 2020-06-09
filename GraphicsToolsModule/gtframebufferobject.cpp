@@ -52,7 +52,7 @@ void GtFramebufferObject::Create(const GtFramebufferFormat& format)
     }
     case GtFramebufferFormat::Texture:{
         m_depthTexture = new GtTexture2D(f);
-        m_depthTexture->SetInternalFormat(GL_DEPTH_COMPONENT16);
+        m_depthTexture->SetInternalFormat(GL_DEPTH_COMPONENT24);
         m_depthTexture->SetSize(m_resolution.width(), m_resolution.height());
         GtTextureFormat depth_format;
         depth_format.PixelFormat = GL_DEPTH_COMPONENT;

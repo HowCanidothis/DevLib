@@ -18,6 +18,8 @@ public:
     void Start();
     void Quit();
 
+    bool IsStoped() const { return m_stoped; }
+
     double GetComputeTime();
 
     // QThread interface
@@ -29,8 +31,6 @@ protected:
 
     void fpsBind();
     void fpsRelease();
-
-    bool isStoped() const { return m_stoped; }
 
 protected:
     virtual void compute();  

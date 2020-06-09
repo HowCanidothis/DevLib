@@ -189,23 +189,28 @@ typedef Vector3F Point3F;
 
 class BoundingRect
 {
-    Point2F _left;
-    Point2F _right;
+    Point2F m_left;
+    Point2F m_right;
 public:
     BoundingRect() {}
-    BoundingRect(const Point2F& left, const Point2F& right) : _left(left), _right(right) {}
+    BoundingRect(const Point2F& left, const Point2F& right) : m_left(left), m_right(right) {}
 
-    const Point2F& GetLeft() const { return _left; }
-    const Point2F& GetRight() const { return _right; }
+    float Left() const { return m_left.x(); }
+    float Top() const { return m_left.y(); }
+    float Right() const { return m_right.x(); }
+    float Bottom() const { return m_right.y(); }
+
+    const Point2F& GetLeft() const { return m_left; }
+    const Point2F& GetRight() const { return m_right; }
     float Width() const { return GetWidth(); }
     float Height() const { return GetHeight(); }
-    float GetWidth() const { return _right.X() - _left.X(); }
-    float GetHeight() const { return _right.Y() - _right.Y(); }
+    float GetWidth() const { return m_right.X() - m_left.X(); }
+    float GetHeight() const { return m_right.Y() - m_right.Y(); }
 
     bool Intersects(const BoundingRect& other) const
     {
-        return !(_right.X() < other._left.X() || _left.X() > other._right.X() ||
-                 _right.Y() < other._left.Y() || _left.Y() > other._right.Y()
+        return !(m_right.X() < other.m_left.X() || m_left.X() > other.m_right.X() ||
+                 m_right.Y() < other.m_left.Y() || m_left.Y() > other.m_right.Y()
                  );
     }
 };
@@ -241,63 +246,69 @@ public:
 
 class BoundingBox
 {
-    Point3F _left;
-    Point3F _right;
+    Point3F m_topLeftFront;
+    Point3F m_bottomRightBack;
 public:
     BoundingBox() {}
+    BoundingBox(float centerX, float centerY, float centerZ, float w, float h, float d)
+        : m_topLeftFront(centerX - w / 2.f, centerY + h / 2.f, centerZ + d / 2.f)
+        , m_bottomRightBack(centerX + w / 2.f, centerY - h / 2.f, centerZ - d / 2.f)
+    {}
     BoundingBox(const Point3F& left, const Point3F& right) :
-        _left(left),
-        _right(right)
+        m_topLeftFront(left),
+        m_bottomRightBack(right)
     {}
 
     void SetNull()
     {
-        _left = _right;
+        m_topLeftFront = m_bottomRightBack;
     }
 
-    const Point3F& GetLeft() const { return _left; }
-    const Point3F& GetRight() const { return _right; }
-    float X() const { return _left.x(); }
-    float Y() const { return _left.y(); }
-    float Right() const { return _right.x(); }
-    float Bottom() const { return _right.y(); }
-    float Farthest() const { return _left.z(); }
-    float Nearest() const { return _right.z(); }
+    const Point3F& GetLeft() const { return m_topLeftFront; }
+    const Point3F& GetRight() const { return m_bottomRightBack; }
+    float X() const { return m_topLeftFront.x(); }
+    float Y() const { return m_topLeftFront.y(); }
+    float Right() const { return m_bottomRightBack.x(); }
+    float Top() const { return m_topLeftFront.y(); }
+    float Left() const { return m_topLeftFront.x(); }
+    float Bottom() const { return m_bottomRightBack.y(); }
+    float Front() const { return m_topLeftFront.z(); }
+    float Back() const { return m_bottomRightBack.z(); }
 
     bool Intersects(const BoundingBox& other) const
     {
-        return !(_right.x() < other._left.x() || _left.x() > other._right.x() ||
-                 _right.y() < other._left.y() || _left.y() > other._right.y() ||
-                 _right.z() < other._left.z() || _left.z() > other._right.z()
+        return !(m_bottomRightBack.x() < other.m_topLeftFront.x() || m_topLeftFront.x() > other.m_bottomRightBack.x() ||
+                 m_bottomRightBack.y() < other.m_topLeftFront.y() || m_topLeftFront.y() > other.m_bottomRightBack.y() ||
+                 m_bottomRightBack.z() < other.m_topLeftFront.z() || m_topLeftFront.z() > other.m_bottomRightBack.z()
                  );
     }
     BoundingBox& Unite(const BoundingBox& other)
     {
         const auto& otl = other.GetLeft();
         const auto& obr = other.GetRight();
-        if(otl.x() < _left.x()) {
-            _left.setX(otl.x());
+        if(otl.x() < m_topLeftFront.x()) {
+            m_topLeftFront.setX(otl.x());
         }
-        if(otl.y() < _left.y()) {
-            _left.setY(otl.y());
+        if(otl.y() < m_topLeftFront.y()) {
+            m_topLeftFront.setY(otl.y());
         }
-        if(otl.z() < _left.z()) {
-            _left.setZ(otl.z());
+        if(otl.z() < m_topLeftFront.z()) {
+            m_topLeftFront.setZ(otl.z());
         }
 
-        if(obr.x() > _right.x()) {
-            _right.setX(obr.x());
+        if(obr.x() > m_bottomRightBack.x()) {
+            m_bottomRightBack.setX(obr.x());
         }
-        if(obr.y() > _right.y()) {
-            _right.setY(obr.y());
+        if(obr.y() > m_bottomRightBack.y()) {
+            m_bottomRightBack.setY(obr.y());
         }
-        if(obr.z() > _right.z()) {
-            _right.setZ(obr.z());
+        if(obr.z() > m_bottomRightBack.z()) {
+            m_bottomRightBack.setZ(obr.z());
         }
         return *this;
     }
 
-    bool IsNull() const { return _right == _left; }
+    bool IsNull() const { return m_bottomRightBack == m_topLeftFront; }
 };
 
 typedef quint32 gTexID;

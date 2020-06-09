@@ -9,14 +9,16 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
-class Dispatcher
+template<typename ... Args>
+class CommonDispatcher
 {
 public:
+    using FCommonDispatcherAction = std::function<void (Args...)>;
     typedef void* Observer;
     struct ActionHandler
     {
         Observer Key;
-        FAction Handler;
+        FCommonDispatcherAction Handler;
     };
 
     bool IsEmpty() const
@@ -24,28 +26,28 @@ public:
         return m_subscribes.isEmpty();
     }
 
-    void Invoke() const
+    void Invoke(Args... args) const
     {
         QMutexLocker lock(&m_mutex);
         for(auto subscribe : m_subscribes)
         {
-            subscribe();
+            subscribe(args...);
         }
     }
 
-    void operator()() const
+    void operator()(Args... args) const
     {
-        Invoke();
+        Invoke(args...);
     }
 
-    Dispatcher& operator+=(const ActionHandler& subscribeHandler)
+    CommonDispatcher& operator+=(const ActionHandler& subscribeHandler)
     {
         QMutexLocker lock(&m_mutex);
         m_subscribes.insert(subscribeHandler.Key, subscribeHandler.Handler);
         return *this;
     }
 
-    Dispatcher& operator-=(Observer observer)
+    CommonDispatcher& operator-=(Observer observer)
     {
         QMutexLocker lock(&m_mutex);
         m_subscribes.remove(observer);
@@ -53,9 +55,12 @@ public:
     }
 
 private:
-    QHash<Observer, FAction> m_subscribes;
+    QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable QMutex m_mutex;
 };
+
+class Dispatcher : public CommonDispatcher<>
+{};
 
 class DispatchersConnections : private Stack<Dispatcher*>
 {

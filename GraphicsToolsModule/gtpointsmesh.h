@@ -10,6 +10,7 @@ public:
     GtPointsMesh();
 
     void SetPoints(const QVector<Point3F>& points);
+    void SetPoints(const QVector<ColoredVertex3F>& points);
 
     // GtMeshBase interface
 protected:

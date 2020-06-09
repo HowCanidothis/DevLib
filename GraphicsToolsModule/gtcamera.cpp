@@ -50,7 +50,7 @@ class GtCameraFocus
 public:
     GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth)
         : m_screenPoint(screenPoint)
-        , m_scenePoint(qFuzzyCompare(depth, 1.f) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
+        , m_scenePoint(qFuzzyCompare((double)depth, 1.0) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
     {}
     const Point3F& GetScenePoint() const { return m_scenePoint; }
     const Point2I& GetScreenPoint() const { return m_screenPoint; }
@@ -155,7 +155,7 @@ void GtCamera::Zoom(bool closer)
 void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
 {
     Vector3F norm = Vector3F::crossProduct(m_up, m_forward).normalized();
-    Quaternion rotZ = Quaternion::fromAxisAndAngle(0,0,1,angleZ);
+    Quaternion rotZ = Quaternion::fromAxisAndAngle(m_up.normalized(),angleZ);
     Quaternion rot = Quaternion::fromAxisAndAngle(norm, angleX);
     Quaternion rotation;
     if(m_state.TestFlag(State_NoRPE))
@@ -196,7 +196,7 @@ void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
 void GtCamera::RotateRPE(qint32 angleZ, qint32 angleX)
 {
     Vector3F norm = Vector3F::crossProduct(m_up, m_forward).normalized();
-    Quaternion rotZ = Quaternion::fromAxisAndAngle(0,0,1,angleZ);
+    Quaternion rotZ = Quaternion::fromAxisAndAngle(m_up.normalized(),angleZ);
     Quaternion rot = Quaternion::fromAxisAndAngle(norm, -angleX);
     Quaternion rotation;
     if(m_state.TestFlag(State_NoRPE))
@@ -348,7 +348,7 @@ void GtCamera::updateProjection()
 void GtCamera::updateView()
 {
     if(m_state.TestFlag(State_ChangedView)) {
-        if(!m_state.TestFlag(State_PredictionMode)) validateCameraPostition(m_eye);
+        if(!m_state.TestFlag(State_PredictionMode)) validateCameraPosition(m_eye);
 
         m_view.setToIdentity();
 
@@ -365,7 +365,7 @@ void GtCamera::updateView()
     }
 }
 
-void GtCamera::validateCameraPostition(Point3F& p) const
+void GtCamera::validateCameraPosition(Point3F& p) const
 {
     if(m_sceneBox.IsNull()) {
         return;
@@ -374,8 +374,8 @@ void GtCamera::validateCameraPostition(Point3F& p) const
     else if(p.x() > m_sceneBox.Right()) p.setX(m_sceneBox.Right());
     if(p.y() < m_sceneBox.Y()) p.setY(m_sceneBox.Y());
     else if(p.y() > m_sceneBox.Bottom()) p.setY(m_sceneBox.Bottom());
-    if(p.z() < m_sceneBox.Farthest()) p.setZ(m_sceneBox.Farthest());
-    else if(p.z() > m_sceneBox.Nearest()) p.setZ(m_sceneBox.Nearest());
+    if(p.z() < m_sceneBox.Back()) p.setZ(m_sceneBox.Back());
+    else if(p.z() > m_sceneBox.Front()) p.setZ(m_sceneBox.Front());
 }
 
 void GtCamera::adjustIsometricScale()
