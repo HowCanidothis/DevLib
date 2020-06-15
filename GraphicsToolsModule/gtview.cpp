@@ -41,6 +41,11 @@ void GtView::mousePressEvent(QMouseEvent* event)
     m_renderer->MousePressEvent(event);
 }
 
+void GtView::mouseReleaseEvent(QMouseEvent* event)
+{
+    m_renderer->MouseReleaseEvent(event);
+}
+
 void GtView::wheelEvent(QWheelEvent* event)
 {
     m_renderer->WheelEvent(event);

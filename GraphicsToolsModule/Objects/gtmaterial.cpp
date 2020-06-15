@@ -81,11 +81,20 @@ void GtMaterial::Update()
     m_shaderProgram.reset(new QOpenGLShaderProgram);
     m_shaderProgram->create();
     {
-        DirBinder dir(m_shadersPath);
-        for(Shader* shader : m_shaders) {
-            QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
-            if(shader_object->compileSourceFile(shader->File)) {
-                m_shaderProgram->addShader(shader_object);
+        if(m_shadersPath == ":/") {
+            for(Shader* shader : m_shaders) {
+                QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
+                if(shader_object->compileSourceFile(m_shadersPath + shader->File)) {
+                    m_shaderProgram->addShader(shader_object);
+                }
+            }
+        } else {
+            DirBinder dir(m_shadersPath);
+            for(Shader* shader : m_shaders) {
+                QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
+                if(shader_object->compileSourceFile(shader->File)) {
+                    m_shaderProgram->addShader(shader_object);
+                }
             }
         }
     }

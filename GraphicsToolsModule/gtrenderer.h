@@ -14,9 +14,12 @@ public:
     GtRenderer(const PropertiesScopeName& scopeName);
     ~GtRenderer();
 
+    void SetControllers(class ControllersContainer* controllers);
+
     // TODO. Not renderer methods
     void MouseMoveEvent(QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
+    void MouseReleaseEvent(QMouseEvent* event);
     void WheelEvent(QWheelEvent* event);
     void KeyPressEvent(QKeyEvent* event);
     void KeyReleaseEvent(QKeyEvent* event);
@@ -44,13 +47,13 @@ private:
     ScopedPointer<Matrix4Resource> m_invertedMv;
     ScopedPointer<Resource<Vector3F>> m_eye;
     ScopedPointer<Resource<Vector3F>> m_forward;
-    ScopedPointer<class ControllersContainer> m_controllers;
     ScopedPointer<class GtCamera> m_camera;
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<QOpenGLFramebufferObject> m_fbo;
-    struct GtControllersContext* m_controllersContext;
+    ScopedPointer<struct GtControllersContext> m_controllersContext;
 
     ScopedPointer<class GtScene> m_scene;
+    ScopedPointer<class ControllersContainer> m_controllers;
 };
 
 #endif // GTRENDERER_H

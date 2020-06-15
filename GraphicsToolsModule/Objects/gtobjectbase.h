@@ -15,7 +15,7 @@ public:
 class GtDrawableBase : public GtObjectBase
 {
 public:
-    GtDrawableBase();
+    GtDrawableBase(class GtRenderer* renderer);
     virtual ~GtDrawableBase() {}
 
     void Update(const std::function<void (OpenGLFunctions*)>& f);

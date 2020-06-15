@@ -207,17 +207,12 @@ void GtCamera::RotateRPE(qint32 angleZ, qint32 angleX)
     Matrix4 rm;
     rm.rotate(rotation);
 
-    Vector3F nup((rm * Vector4F(m_up, 0.0)).toVector3D());
-    if(nup.z() >= 0){
-        m_forward = (rm * Vector4F(m_forward, 0)).toVector3D();
-        m_up = nup;
-    }
-    else{
-        rm.setToIdentity();
-        rm.rotate(rotZ);
-        m_forward = (rm * Vector4F(m_forward, 0)).toVector3D();
-        m_up = (rm * Vector4F(m_up, 0.0)).toVector3D();
-    }
+    Vector3F nforward((rm * Vector4F(m_forward, 0.f)).toVector3D());
+    Vector3F nup((rm * Vector4F(m_up, 0.f)).toVector3D());
+
+    m_forward = nforward;
+    m_up = nup;
+
     m_state.AddFlag(State_NeedUpdateView);
 }
 
@@ -321,10 +316,10 @@ void GtCamera::InstallObserver(const QString& path)
 void GtCamera::updateWorld()
 {
     if(m_state.TestFlag(State_ChangedWorld)) {
+        m_state.RemoveFlag(State_ChangedWorld);
         adjustIsometricScale();
         m_world = GetProjection() * GetView();
         m_worldInverted = m_world.inverted();
-        m_state.RemoveFlag(State_ChangedWorld);
         m_state.AddFlag(State_FrameChanged);
     }
 }
@@ -382,7 +377,7 @@ void GtCamera::adjustIsometricScale()
 {
     if(m_state.TestFlagsAll(State_NeedAdjustScale) && m_isometricCoef != 0.f)
     {
-        m_isometricScale = m_eye.z() / m_isometricCoef;
+        m_isometricScale = 10.f;
         m_state.AddFlag(State_NeedUpdateProjection);
     }
 }
@@ -390,8 +385,8 @@ void GtCamera::adjustIsometricScale()
 void GtCamera::calculateIsometricCoef()
 {
     m_isometricScale = 1.f;
-    BoundingRect rect = this->predicateVisibleRectOnZ(this->m_viewport, 10000.f, false);
-    BoundingRect isometric_rect = this->predicateVisibleRectOnZ(this->m_viewport, 10000.f, true);
+    BoundingRect rect = predicateVisibleRectOnZ(m_viewport, 10000.f, false);
+    BoundingRect isometric_rect = predicateVisibleRectOnZ(m_viewport, 10000.f, true);
     m_isometricCoef = 10000.f * isometric_rect.Width() / rect.Width();
 }
 

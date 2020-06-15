@@ -23,6 +23,11 @@ GtRenderer::~GtRenderer()
     Quit();
 }
 
+void GtRenderer::SetControllers(ControllersContainer* controllers)
+{
+    m_controllers = controllers;
+}
+
 void GtRenderer::AddDrawable(GtDrawableBase* drawable)
 {
     Asynch([this, drawable]{
@@ -45,6 +50,15 @@ void GtRenderer::MousePressEvent(QMouseEvent* event)
     auto cevent = new QMouseEvent(*event);
     Asynch([this, cevent]{
         m_controllers->MousePressEvent(cevent);
+        delete cevent;
+    });
+}
+
+void GtRenderer::MouseReleaseEvent(QMouseEvent* event)
+{
+    auto cevent = new QMouseEvent(*event);
+    Asynch([this, cevent]{
+        m_controllers->MouseReleaseEvent(cevent);
         delete cevent;
     });
 }
@@ -109,19 +123,20 @@ void GtRenderer::onInitialize()
         return new Vector3F();
     });
 
-    m_controllers = new ControllersContainer();
+    if(m_controllers == nullptr) {
+        m_controllers = new ControllersContainer();
+        new GtPlayerControllerCamera(Name("GtPlayerControllerCamera"), m_controllers.get());
+    }
     m_scene = new GtScene();
 
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
 
-    srand(QTime::currentTime().msecsSinceStartOfDay());
 
-    new GtPlayerControllerCamera(Name("GtPlayerControllerCamera" + QString::number(rand())), m_controllers.data());
     m_controllersContext = new GtControllersContext();
     m_controllersContext->Camera = m_camera.data();
     m_controllersContext->DepthBuffer = new GtDepthBuffer(this);
 
-    m_controllers->SetContext(m_controllersContext);
+    m_controllers->SetContext(m_controllersContext.get());
 
     /*if(m_params->DebugMode) {
         auto* logger = new QOpenGLDebugLogger(this);

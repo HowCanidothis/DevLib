@@ -34,17 +34,30 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 
 bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 {
+    if(m_pressed) {
+        return true;
+    }
+    m_pressed = true;
     m_lastScreenPosition = resolutional(event->pos());
-    if(event->buttons() == Qt::MiddleButton) {
+    if(event->button() == Qt::MiddleButton) {
         auto depth = ctx().DepthBuffer->ValueAt(m_lastScreenPosition.x(), m_lastScreenPosition.y());
         ctx().Camera->FocusBind(m_lastScreenPosition, depth);
         return true;
-    } else if(event->buttons() == Qt::LeftButton) {
+    } else if(event->button() == Qt::LeftButton) {
         auto depth = ctx().DepthBuffer->ValueAt(m_lastScreenPosition.x(), m_lastScreenPosition.y());
         ctx().Camera->FocusBind(m_lastScreenPosition, depth);
         return false;
     }
 
+    return false;
+}
+
+bool GtPlayerControllerCamera::mouseReleaseEvent(QMouseEvent* event)
+{
+    m_pressed = false;
+    if(event->button() == Qt::MiddleButton) {
+        return true;
+    }
     return false;
 }
 

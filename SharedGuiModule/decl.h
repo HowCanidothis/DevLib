@@ -343,12 +343,21 @@ struct ColoredVertex3F
     Point3F Position;
     Color3F Color;
 };
+
+struct StatedVertex3F
+{
+    Point3F Position;
+    quint8 State;
+
+    bool operator==(const StatedVertex3F& another) const { return another.State == State && another.Position == Position; }
+};
+
 #pragma pack()
 
 
 #define GT_CONTENT_PATH "../../../Content/"
 #define GT_STYLES_PATH GT_CONTENT_PATH "CSS/"
-#define GT_SHADERS_PATH GT_CONTENT_PATH "Shaders/"
+#define GT_SHADERS_PATH ":/"
 
 #endif // QT_GUI_LIB
 

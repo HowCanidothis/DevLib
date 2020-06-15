@@ -1,10 +1,11 @@
 #ifndef GTMESHBASE_H
 #define GTMESHBASE_H
 
+#include <QOpenGLBuffer>
+
 #include "SharedGuiModule/decl.h"
 
 class QOpenGLVertexArrayObject;
-class QOpenGLBuffer;
 
 class GtMeshBase
 {
@@ -14,6 +15,8 @@ public:
 
     bool IsVisible() const { return m_visible; }
     void Update();
+    void* Map(qint32 offset, qint32 count, QOpenGLBuffer::RangeAccessFlags flags);
+    bool UnMap();
 
     virtual void Initialize(OpenGLFunctions* functions);
     virtual void Draw(gRenderType renderType, OpenGLFunctions* f);

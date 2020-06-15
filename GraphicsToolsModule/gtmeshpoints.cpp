@@ -1,11 +1,11 @@
-#include "gtpointsmesh.h"
+#include "gtmeshpoints.h"
 
 #include <QOpenGLBuffer>
 
-GtPointsMesh::GtPointsMesh()
+GtMeshPoints::GtMeshPoints()
 {}
 
-void GtPointsMesh::SetPoints(const QVector<Point3F>& points)
+void GtMeshPoints::SetPoints(const QVector<Point3F>& points)
 {
     m_points.clear();
 
@@ -14,7 +14,7 @@ void GtPointsMesh::SetPoints(const QVector<Point3F>& points)
     }
 }
 
-void GtPointsMesh::SetPoints(const QVector<ColoredVertex3F>& points)
+void GtMeshPoints::SetPoints(const QVector<ColoredVertex3F>& points)
 {
     m_points.clear();
 
@@ -23,7 +23,7 @@ void GtPointsMesh::SetPoints(const QVector<ColoredVertex3F>& points)
     }
 }
 
-bool GtPointsMesh::buildMesh()
+bool GtMeshPoints::buildMesh()
 {
     m_verticesCount = m_points.size();
 
@@ -31,10 +31,12 @@ bool GtPointsMesh::buildMesh()
     m_vbo->allocate(m_points.data(), m_verticesCount * sizeof(ColoredVertex3F));
     m_vbo->release();
 
+    m_points.clear();
+
     return true;
 }
 
-void GtPointsMesh::bindVAO(OpenGLFunctions* f)
+void GtMeshPoints::bindVAO(OpenGLFunctions* f)
 {
     m_vbo->bind();
     f->glEnableVertexAttribArray(0);

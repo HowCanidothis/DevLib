@@ -3,11 +3,11 @@
 
 #include "gtmeshbase.h"
 
-class GtPointsMesh : public GtMeshBase
+class GtMeshPoints : public GtMeshBase
 {
     using Super = GtMeshBase;
 public:
-    GtPointsMesh();
+    GtMeshPoints();
 
     void SetPoints(const QVector<Point3F>& points);
     void SetPoints(const QVector<ColoredVertex3F>& points);

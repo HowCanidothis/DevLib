@@ -18,6 +18,11 @@ public:
     operator qint32() const { return m_value; }
     const QString& AsString() const;
 
+    friend QDebug operator<<(QDebug debug, const Name& name) {
+        debug << name.AsString() << " " << name.m_value;
+        return debug.maybeSpace();
+    }
+
 private:
     QString m_text;
     qint32 m_value;

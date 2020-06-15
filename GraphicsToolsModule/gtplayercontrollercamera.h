@@ -15,11 +15,12 @@ public:
 
     // GtPlayerControllerBase interface
 public:
-    bool mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    bool mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    bool wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE;
-    bool keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
-    bool inputHandle(const QSet<qint32>* inputKeys, qint32 modifiers) Q_DECL_OVERRIDE;
+    bool mouseMoveEvent(QMouseEvent* event) override;
+    bool mousePressEvent(QMouseEvent* event) override;
+    bool mouseReleaseEvent(QMouseEvent* event) override;
+    bool wheelEvent(QWheelEvent* event) override;
+    bool keyReleaseEvent(QKeyEvent* event) override;
+    bool inputHandle(const QSet<qint32>* inputKeys, qint32 modifiers) override;
 
 private:
     Point2I resolutional(const Point2I& p) const;
@@ -29,6 +30,7 @@ protected:
     Vector3F m_lastWorldPosition;
     Vector3F m_lastWorldMovePosition;
     float m_lastDepth;
+    bool m_pressed = false;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H

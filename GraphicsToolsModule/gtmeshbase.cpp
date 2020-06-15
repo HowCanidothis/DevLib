@@ -1,7 +1,6 @@
 #include "gtmeshbase.h"
 
 #include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
 
 GtMeshBase::GtMeshBase()
     : m_verticesCount(0)
@@ -17,6 +16,19 @@ GtMeshBase::~GtMeshBase()
 void GtMeshBase::Update()
 {
     m_visible = buildMesh();
+}
+
+void* GtMeshBase::Map(qint32 offset, qint32 count, QOpenGLBuffer::RangeAccessFlags flags)
+{
+    m_vbo->bind();
+    return m_vbo->mapRange(offset, count, flags);
+}
+
+bool GtMeshBase::UnMap()
+{
+    auto result = m_vbo->unmap();
+    m_vbo->release();
+    return result;
 }
 
 void GtMeshBase::Initialize(OpenGLFunctions* f)

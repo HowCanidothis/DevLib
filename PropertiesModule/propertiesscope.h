@@ -29,6 +29,7 @@ public:
     void Save(const QString& fileName, bool clearFile);
     void SaveSelected(const QString& fileName, const QVector<Name>& propertyNames);
 
+    bool IsEmpty() const { return m_properties.isEmpty(); }
     void Clear();
     void ClearWithoutDeleting();
 

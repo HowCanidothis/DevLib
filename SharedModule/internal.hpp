@@ -45,6 +45,8 @@
 #include "name.h"
 #include "Logger/logger.h"
 #include "dispatcher.h"
+#include "Trees/cubetree.h"
+#include "Trees/quadtreef.h"
 
 #endif
 
