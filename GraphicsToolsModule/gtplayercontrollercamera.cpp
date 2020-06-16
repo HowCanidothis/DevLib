@@ -15,10 +15,10 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
     auto depth = ctx().DepthBuffer->ValueAt(resolutional_screen_pos.x(), resolutional_screen_pos.y());
     switch (event->buttons()) {
     case Qt::MiddleButton:
-        ctx().Camera->Rotate(m_lastScreenPosition - resolutional_screen_pos);
+        ctx().Camera->RotateRPE(m_lastScreenPosition - resolutional_screen_pos);
         break;
     case Qt::RightButton:
-        ctx().Camera->RotateRPE(m_lastScreenPosition - resolutional_screen_pos);
+        ctx().Camera->Rotate(m_lastScreenPosition - resolutional_screen_pos);
         break;
     case Qt::LeftButton: {
         ctx().Camera->MoveFocused(resolutional_screen_pos);
@@ -39,7 +39,7 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
     }
     m_pressed = true;
     m_lastScreenPosition = resolutional(event->pos());
-    if(event->button() == Qt::MiddleButton) {
+    if(event->button() == Qt::RightButton) {
         auto depth = ctx().DepthBuffer->ValueAt(m_lastScreenPosition.x(), m_lastScreenPosition.y());
         ctx().Camera->FocusBind(m_lastScreenPosition, depth);
         return true;
@@ -54,8 +54,10 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 
 bool GtPlayerControllerCamera::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_pressed = false;
-    if(event->button() == Qt::MiddleButton) {
+    if(event->button() != Qt::NoButton) {
+        m_pressed = false;
+    }
+    if(event->button() == Qt::RightButton) {
         return true;
     }
     return false;

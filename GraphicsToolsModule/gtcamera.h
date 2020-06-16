@@ -76,6 +76,7 @@ public:
     void Translate(float dx, float dy);
     void SetSceneBox(const BoundingBox& box) { this->m_sceneBox = box; }
     void FocusBind(const Point2I& screen_position, float depth);
+    void FocusBind(const Point3F& worldPosition);
     void Zoom(bool closer);
     void Rotate(const Point2I& angles) { Rotate(angles.x() , angles.y()); }
     void Rotate(qint32 angleZ, qint32 angleX);

@@ -18,8 +18,8 @@ float GtDepthBuffer::ValueAt(qint32 x, qint32 y)
 {
     m_context->makeCurrent(m_context->surface());
     m_frameBuffer->BindRead();
-    float value;
-    m_f->glReadPixels(x,m_frameBuffer->GetHeight() - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &value);
+    float value[81];
+    m_f->glReadPixels(x - 5,m_frameBuffer->GetHeight() - (y - 5), 9, 9, GL_DEPTH_COMPONENT, GL_FLOAT, &value);
     m_frameBuffer->Release();
-    return value;
+    return *std::min_element(std::begin(value), std::end(value));
 }

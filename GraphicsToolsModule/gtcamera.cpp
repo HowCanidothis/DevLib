@@ -45,15 +45,15 @@ public:
 
 class GtCameraFocus
 {
-    Point2I m_screenPoint;
     Point3F m_scenePoint;
 public:
     GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth)
-        : m_screenPoint(screenPoint)
-        , m_scenePoint(qFuzzyCompare((double)depth, 1.0) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
+        : m_scenePoint(qFuzzyCompare((double)depth, 1.0) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
+    {}
+    GtCameraFocus(GtCamera* target, const Point3F& scenePoint)
+        : m_scenePoint(scenePoint)
     {}
     const Point3F& GetScenePoint() const { return m_scenePoint; }
-    const Point2I& GetScreenPoint() const { return m_screenPoint; }
 };
 
 
@@ -132,6 +132,11 @@ void GtCamera::Translate(float dx, float dy)
 void GtCamera::FocusBind(const Point2I& screen_position, float depth)
 {
     m_focus = new GtCameraFocus(this, screen_position, depth);
+}
+
+void GtCamera::FocusBind(const Point3F& worldPosition)
+{
+    m_focus = new GtCameraFocus(this, worldPosition);
 }
 
 void GtCamera::Zoom(bool closer)
