@@ -3,7 +3,9 @@
 
 #include "property.h"
 
-class PropertiesLogger
+#include <SharedModule/internal.hpp>
+
+class PropertiesLogger : public Logger
 {
 public:
     PropertiesLogger();
