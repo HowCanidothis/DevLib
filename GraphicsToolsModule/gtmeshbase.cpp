@@ -71,8 +71,10 @@ void GtMeshIndicesBase::Initialize(OpenGLFunctions* f)
 
     if(m_vbo->create() && m_vboIndices->create() && m_vao->create()) {
         m_visible = buildMesh();
-        QOpenGLVertexArrayObject::Binder binder(m_vao.data());
-        bindVAO(f);
+        if(m_visible) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+            bindVAO(f);
+        }
     }
     else {
         m_visible = false;
