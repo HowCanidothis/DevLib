@@ -12,6 +12,12 @@ GtRendererBase::~GtRendererBase()
 {
 }
 
+void GtRendererBase::SetFormat(const QSurfaceFormat& format)
+{
+    Q_ASSERT(m_context == nullptr);
+    m_surfaceFormat = format;
+}
+
 void GtRendererBase::Resize(qint32 w, qint32 h)
 {
     Asynch([this, w, h]{
@@ -41,6 +47,8 @@ void GtRendererBase::run()
             qCCritical(LC_UI) << "Unable to create offscreen surface";
             return;
         }
+
+        qCInfo(LC_UI) << QString("OpenGL is initialized") << m_context->format();
     }
 
     m_context->makeCurrent(m_surface.get());

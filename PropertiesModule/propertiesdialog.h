@@ -18,7 +18,8 @@ public:
 
     // PropertiesDialogBase interface
 protected:
-    virtual void changeProperties(const StdHandle& changingProperties) Q_DECL_OVERRIDE;
+    void changeProperties(const StdHandle& changingProperties) override;
+    void done(int result) override;
 };
 
 #endif // QT_GUI_LIB

@@ -12,6 +12,7 @@ public:
     GtRendererBase();
     ~GtRendererBase();
 
+    void SetFormat(const QSurfaceFormat& format);
     void Resize(qint32 w, qint32 h);
 
 private:

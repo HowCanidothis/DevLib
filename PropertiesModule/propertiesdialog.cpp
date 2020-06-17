@@ -20,4 +20,10 @@ void PropertiesDialog::changeProperties(const StdHandle& changingProperties)
     reinterpret_cast<PropertiesView*>(m_view)->GetPropertiesModel()->Change(changingProperties);
 }
 
+void PropertiesDialog::done(int result)
+{
+    reinterpret_cast<PropertiesView*>(m_view)->setCurrentIndex(QModelIndex());
+    Super::done(result);
+}
+
 #endif
