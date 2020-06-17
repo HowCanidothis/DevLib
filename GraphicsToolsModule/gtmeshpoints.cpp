@@ -26,6 +26,9 @@ void GtMeshPoints::SetPoints(const QVector<ColoredVertex3F>& points)
 bool GtMeshPoints::buildMesh()
 {
     m_verticesCount = m_points.size();
+    if(m_points.isEmpty()) {
+        return false;
+    }
 
     m_vbo->bind();
     m_vbo->allocate(m_points.data(), m_verticesCount * sizeof(ColoredVertex3F));
