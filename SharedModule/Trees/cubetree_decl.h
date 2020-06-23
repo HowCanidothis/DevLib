@@ -3,6 +3,8 @@
 
 #include <Qt>
 
+#include <math.h>
+
 #define CUBETREE_NAMESPACE CubeTree
 #define CUBETREE_BEGIN_NAMESPACE namespace CUBETREE_NAMESPACE {
 #define CUBETREE_END_NAMESPACE }

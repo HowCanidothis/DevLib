@@ -3,6 +3,8 @@
 
 #include <Qt>
 
+#include <math.h>
+
 #define QUADTREE_NAMESPACE QuadTreeF
 #define QUADTREE_BEGIN_NAMESPACE namespace QUADTREE_NAMESPACE {
 #define QUADTREE_END_NAMESPACE }
