@@ -1,6 +1,7 @@
 #include "thread.h"
 
 #include <QMutexLocker>
+#include <QAbstractEventDispatcher>
 
 #include "threadpool.h"
 #include "threadfunction.h"
@@ -35,15 +36,19 @@ void Thread::run()
     waitAgain:
         QMutexLocker locker(&m_taskMutex);
         if(m_aboutToBeDestroyed) {
+            OnFinished();
             return;
         }
         while(m_task == nullptr) {
             m_taskCondition.wait(&m_taskMutex);
             if(m_aboutToBeDestroyed) {
+                OnFinished();
                 return;
             }
         }        
     }
+
+    eventDispatcher()->processEvents(QEventLoop::AllEvents);
 
     try
     {

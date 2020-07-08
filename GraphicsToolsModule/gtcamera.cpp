@@ -341,6 +341,7 @@ void GtCamera::updateProjection()
         else {
             m_projection.perspective(m_angle, float(m_viewport.width()) / m_viewport.height(), m_near, m_far);
         }
+        //m_projection.scale(1.f, -1.f, 1.f);
         m_state.RemoveFlag(State_ChangedProjection);
     }
 }

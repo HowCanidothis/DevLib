@@ -36,6 +36,13 @@ void GtRenderer::AddDrawable(GtDrawableBase* drawable)
     });
 }
 
+void GtRenderer::Update(const std::function<void (OpenGLFunctions*)>& handler)
+{
+    Asynch([this, handler]{
+        handler(this);
+    });
+}
+
 void GtRenderer::MouseMoveEvent(QMouseEvent* event)
 {
     auto cevent = new QMouseEvent(*event);

@@ -105,6 +105,20 @@ public:
     }
 };
 
+class LambdaGuard
+{
+    FAction m_action;
+public:
+    LambdaGuard(const FAction& action)
+        : m_action(action)
+    {}
+
+    ~LambdaGuard()
+    {
+        m_action();
+    }
+};
+
 template<class Owner, typename BindFunc, typename ReleaseFunc>
 CommonGuard<Owner, BindFunc, ReleaseFunc> make(Owner* owner, BindFunc bind, ReleaseFunc release)
 {

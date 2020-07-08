@@ -10,14 +10,14 @@ class ProcessIncrementGuard
 {
 public:
     ProcessIncrementGuard(IProcess* process) Q_DECL_NOEXCEPT
-        : _process(process)
+        : m_process(process)
     {
 
     }
     ~ProcessIncrementGuard();
 
 private:
-    IProcess* _process;
+    IProcess* m_process;
 };
 
 class _Export IProcess
@@ -35,7 +35,7 @@ public:
 
 inline ProcessIncrementGuard::~ProcessIncrementGuard()
 {
-    _process->IncrementProcess();
+    m_process->IncrementProcess();
 }
 
 #endif // IPROCESS_H

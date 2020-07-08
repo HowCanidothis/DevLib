@@ -15,7 +15,7 @@ class ThreadPool
 {
 public:
     ThreadPool(qint32 threadsCount = 4);
-    ~ThreadPool();
+    virtual ~ThreadPool();
 
 public:
     void TerminateAll();
@@ -30,7 +30,7 @@ private:
     ThreadTaskDesc* takeTask();
     void markFree(Thread* thread);
 
-private:
+protected:
     StackPointers<Thread> m_threads;
     std::deque<Thread*> m_freeThreads; // TODO. Can be optimized in the future
     std::deque<ThreadTaskDesc*> m_tasks;

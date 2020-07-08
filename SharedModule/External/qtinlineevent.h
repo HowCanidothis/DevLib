@@ -20,9 +20,9 @@ public:
 
     static void Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
+
 private:
     FAction m_function;
-    FAction m_asyncResult;
 };
 
 class _Export QtInlineEventWithResult : public QtInlineEvent
@@ -30,12 +30,12 @@ class _Export QtInlineEventWithResult : public QtInlineEvent
     using Super = QtInlineEvent;
 public:
     QtInlineEventWithResult(const FAction& function, const AsyncResult& result)
-        : Super(function)
+        : Super([this, function]{
+            function();
+            m_asyncResult.Resolve(true);
+        })
         , m_asyncResult(result)
     {}
-    ~QtInlineEventWithResult() {
-        m_asyncResult.Resolve(true);
-    }
 
     static AsyncResult Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);

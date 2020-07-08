@@ -27,6 +27,8 @@ public:
     ProcessBase();
     ~ProcessBase();
 
+    void SetCancelable(bool cancelable);
+
     void BeginProcess(const wchar_t* title, bool shadow = false) override;
     void BeginProcess(const wchar_t* title, int stepsCount, int wantedCount, bool shadow = false) override;
     void SetProcessTitle(const wchar_t* title) override;
@@ -35,8 +37,9 @@ public:
     bool IsProcessCanceled() const override;
 
 private:
-    std::unique_ptr<ProcessValue> _processValue;
-    int _divider;
+    std::unique_ptr<ProcessValue> m_processValue;
+    int m_divider;
+    bool m_cancelable;
 };
 
 

@@ -4,6 +4,7 @@
 #include <QUrl>
 
 #include <functional>
+#include <limits>
 
 #include <SharedModule/internal.hpp>
 #include <SharedGuiModule/decl.h> // Vector3f

@@ -2,52 +2,53 @@
 #include "processmanager.h"
 
 ProcessValue::ProcessValue(const FCallback& callback)
-    : _valueDepth(ProcessManager::getInstance().registerNewProcessValue())
-    , _callback(callback)
-    , _isNextProcessExpected(false)
-    , _isCanceled(false) 
-    , _isFinished(false)
-    , _isTitleChanged(false)
+    : m_valueDepth(ProcessManager::getInstance().registerNewProcessValue())
+    , m_callback(callback)
+    , m_isFinished(false)
+    , m_isCancelable(false)
+    , m_isTitleChanged(false)
 {
 }
 
 ProcessValue::~ProcessValue()
 {
     finish();
-    ProcessManager::getInstance().unregisterProcessValue(_valueDepth);
+    ProcessManager::getInstance().unregisterProcessValue(m_valueDepth);
+}
+
+void ProcessValue::Cancel()
+{
+    Q_ASSERT(m_isCancelable);
+    finish();
 }
 
 void ProcessValue::setTitle(const std::wstring& title)
 {
-    _title = title;
-    _isTitleChanged = true;
-    _callback(this);
-    _isTitleChanged = false;
+    m_title = title;
+    m_isTitleChanged = true;
+    m_callback(this);
+    m_isTitleChanged = false;
 }
 
 void ProcessValue::finish()
 {
-    if(!_isFinished) {
-        _isFinished = true;
-        _callback(this);
+    if(!m_isFinished) {
+        m_isFinished = true;
+        m_callback(this);
     }
-}
-
-void ProcessValue::setNextProcessExpected()
-{
-    _isNextProcessExpected = true;
 }
 
 void ProcessValue::incrementStep(int)
 {
 }
 
-void ProcessValue::init(const std::wstring& title)
+void ProcessValue::init(bool cancelable, const std::wstring& title)
 {
-    _title = title;
-    _isTitleChanged = true;
-    _callback(this);
-    _isTitleChanged = false;
+    m_title = title;
+    m_isTitleChanged = true;
+    m_isCancelable = cancelable;
+    m_callback(this);
+    m_isTitleChanged = false;    
 }
 
 ProcessDeterminateValue::~ProcessDeterminateValue()
@@ -57,36 +58,36 @@ ProcessDeterminateValue::~ProcessDeterminateValue()
 
 void ProcessDeterminateValue::incrementStep(int divider)
 {
-    _currentStep++;
+    m_currentStep++;
     if(divider) {
-        if(!(_currentStep % divider)) {
-            _callback(this);
+        if(!(m_currentStep % divider)) {
+            m_callback(this);
         }
     } else {
-        _callback(this);
+        m_callback(this);
     }
 }
 
-void ProcessDeterminateValue::init(const std::wstring& title, int stepsCount)
+void ProcessDeterminateValue::init(bool cancelable, const std::wstring& title, int stepsCount)
 {
-    _currentStep = 0;
-    _stepsCount = stepsCount;
-    Super::init(title);
+    m_currentStep = 0;
+    m_stepsCount = stepsCount;
+    Super::init(cancelable, title);
 }
 
 void ProcessDeterminateValue::increaseStepsCount(int value)
 {
-    _stepsCount += value;
-    _callback(this);
+    m_stepsCount += value;
+    m_callback(this);
 }
 
 static bool DoNothingCallback(ProcessValue*) { return true; }
 
 ProcessFactory::ProcessFactory()
-    : _indeterminateOptions(&DoNothingCallback)
-    , _determinateOptions(&DoNothingCallback)
-    , _shadowIndeterminateOptions(&DoNothingCallback)
-    , _shadowDeterminateOptions(&DoNothingCallback)
+    : m_indeterminateOptions(&DoNothingCallback)
+    , m_determinateOptions(&DoNothingCallback)
+    , m_shadowIndeterminateOptions(&DoNothingCallback)
+    , m_shadowDeterminateOptions(&DoNothingCallback)
 {
 
 }
@@ -99,40 +100,40 @@ ProcessFactory& ProcessFactory::Instance()
 
 void ProcessFactory::SetDeterminateCallback(const ProcessValue::FCallback& options)
 {
-    _determinateOptions = options;
+    m_determinateOptions = options;
 }
 
 void ProcessFactory::SetIndeterminateCallback(const ProcessValue::FCallback& options)
 {
-    _indeterminateOptions = options;
+    m_indeterminateOptions = options;
 }
 
 void ProcessFactory::SetShadowDeterminateCallback(const ProcessValue::FCallback& options)
 {
-    _shadowDeterminateOptions = options;
+    m_shadowDeterminateOptions = options;
 }
 
 void ProcessFactory::SetShadowIndeterminateCallback(const ProcessValue::FCallback& options)
 {
-    _shadowIndeterminateOptions = options;
+    m_shadowIndeterminateOptions = options;
 }
 
 ProcessValue* ProcessFactory::createIndeterminate() const
 {
-    return new ProcessValue(_indeterminateOptions);
+    return new ProcessValue(m_indeterminateOptions);
 }
 
 ProcessDeterminateValue* ProcessFactory::createDeterminate() const
 {
-    return new ProcessDeterminateValue(_determinateOptions);
+    return new ProcessDeterminateValue(m_determinateOptions);
 }
 
 ProcessValue* ProcessFactory::createShadowIndeterminate() const
 {
-    return new ProcessValue(_shadowIndeterminateOptions);
+    return new ProcessValue(m_shadowIndeterminateOptions);
 }
 
 ProcessDeterminateValue*ProcessFactory::createShadowDeterminate() const
 {
-    return new ProcessDeterminateValue(_shadowDeterminateOptions);
+    return new ProcessDeterminateValue(m_shadowDeterminateOptions);
 }

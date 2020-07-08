@@ -6,6 +6,7 @@
 #include <QMutex>
 
 #include "SharedModule/smartpointersadapters.h"
+#include "SharedModule/dispatcher.h"
 #include "threadfunction.h"
 
 struct ThreadTaskDesc
@@ -20,6 +21,8 @@ public:
     Thread(class ThreadPool* pool);
     ~Thread();
     void RunTask(ThreadTaskDesc* task);
+
+    Dispatcher OnFinished;
 
     // QThread interface
 protected:
