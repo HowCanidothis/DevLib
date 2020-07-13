@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <SharedModule/internal.hpp>
 
-#include "Ui/Notifier/notifywidget.h"
+#include "notifywidget.h"
 #include "notifymanager.h"
 
 NotifyManager::NotifyManager(QObject *parent)

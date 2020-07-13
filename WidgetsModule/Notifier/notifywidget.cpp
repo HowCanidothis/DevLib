@@ -12,7 +12,7 @@
 
 #include "notifywidget.h"
 #include "notifyextendeddialog.h"
-#include "Ui/Managers/notifymanager.h"
+#include "notifymanager.h"
 
 static QString typeToText(qint32 type)
 {

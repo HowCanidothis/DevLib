@@ -84,7 +84,7 @@
   <customwidget>
    <class>QRoundProgressBar</class>
    <extends>QWidget</extends>
-   <header>Ui/ProgressBars/QRoundProgressBar.h</header>
+   <header>QRoundProgressBar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
