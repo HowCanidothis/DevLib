@@ -6,7 +6,7 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 
-PropertiesWidgetConnectorBaseEx::PropertiesWidgetConnectorBaseEx(const Setter& widgetSetter, const Setter& propertySetter)
+LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
         if(!m_ignorePropertyChange) {
             widgetSetter();
@@ -22,21 +22,21 @@ PropertiesWidgetConnectorBaseEx::PropertiesWidgetConnectorBaseEx(const Setter& w
     m_widgetSetter();
 }
 
-PropertiesWidgetConnectorBaseEx::~PropertiesWidgetConnectorBaseEx()
+LocalPropertiesWidgetConnectorBase::~LocalPropertiesWidgetConnectorBase()
 {
     disconnect(m_connection);
 }
 
-LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty<bool>& property, QCheckBox* checkBox)
-    : Super([checkBox, &property]{
-                checkBox->setChecked(property);
+LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, QCheckBox* checkBox)
+    : Super([checkBox, property]{
+                checkBox->setChecked(*property);
             },
-            [&property, checkBox]{
-                property = checkBox->isChecked();
+            [property, checkBox]{
+                *property = checkBox->isChecked();
             }
     )
 {
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
 
@@ -46,16 +46,16 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 }
 
 
-LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>& property, QLineEdit* lineEdit)
-    : Super([lineEdit, &property](){
-               lineEdit->setText(property);
+LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit)
+    : Super([lineEdit, property](){
+               lineEdit->setText(*property);
             },
-            [lineEdit, &property](){
-               property = lineEdit->text();
+            [lineEdit, property](){
+               *property = lineEdit->text();
             }
     )
 {
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
 
@@ -64,14 +64,14 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     });
 }
 
-LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>& property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
-    : Super([textEdit, &property](){
-               textEdit->setText(property);
-            }, [textEdit, &property]{
-               property = textEdit->toPlainText();
+LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
+    : Super([textEdit, property](){
+               textEdit->setText(*property);
+            }, [textEdit, property]{
+               *property = textEdit->toPlainText();
             })
 {
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
 
@@ -86,17 +86,36 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble& property, QDoubleSpinBox* spinBox)
-    : Super([spinBox, &property](){
-                spinBox->setRange(property.GetMin(), property.GetMax());
-                spinBox->setValue(property);
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
+    : Super([spinBox, property](){
+                spinBox->setRange(property->GetMin(), property->GetMax());
+                spinBox->setValue(*property);
             },
-            [spinBox, &property](){
-                property = spinBox->value();
+            [spinBox, property](){
+                *property = spinBox->value();
             }
     )
 {
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+        m_widgetSetter();
+    });
+
+    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](){
+        m_propertySetter();
+    });
+}
+
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
+    : Super([spinBox, property](){
+                spinBox->setRange(property->GetMin(), property->GetMax());
+                spinBox->setValue(*property);
+            },
+            [spinBox, property](){
+                *property = spinBox->value();
+            }
+    )
+{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
 
@@ -105,40 +124,26 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     });
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat& property, QDoubleSpinBox* spinBox)
-    : Super([spinBox, &property](){
-                spinBox->setRange(property.GetMin(), property.GetMax());
-                spinBox->setValue(property);
+LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, QSpinBox* spinBox)
+    : Super([spinBox, property](){
+                spinBox->setRange(property->GetMin(), property->GetMax());
+                spinBox->setValue(*property);
             },
-            [spinBox, &property](){
-                property = spinBox->value();
+            [spinBox, property](){
+                *property = spinBox->value();
             }
     )
 {
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
-        m_widgetSetter();
-    });
-
-    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
-        m_propertySetter();
-    });
-}
-
-LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt& property, QSpinBox* spinBox)
-    : Super([spinBox, &property](){
-                spinBox->setRange(property.GetMin(), property.GetMax());
-                spinBox->setValue(property);
-            },
-            [spinBox, &property](){
-                property = spinBox->value();
-            }
-    )
-{
-    m_dispatcherConnections.Add(property.GetDispatcher(),[this]{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
 
     m_connection = connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
+}
+
+void LocalPropertiesWidgetConnectorsContainer::Clear()
+{
+    m_connectors.Clear();
 }

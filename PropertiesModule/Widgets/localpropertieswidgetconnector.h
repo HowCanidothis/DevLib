@@ -5,12 +5,38 @@
 
 #include "PropertiesModule/localproperty.h"
 
-class _Export PropertiesWidgetConnectorBaseEx : public QObject
+class LocalPropertiesWidgetConnectorBase;
+
+class _Export LocalPropertiesWidgetConnectorsContainer
+{
+public:
+    LocalPropertiesWidgetConnectorsContainer()
+    {}
+
+    template<class T, typename ... Args>
+    T* AddConnector(Args... args);
+    //void Update();
+    void Clear();
+    bool IsEmpty() const { return m_connectors.IsEmpty(); }
+
+private:
+    StackPointers<LocalPropertiesWidgetConnectorBase> m_connectors;
+};
+
+template<class T, typename ... Args>
+T* LocalPropertiesWidgetConnectorsContainer::AddConnector(Args... args)
+{
+    auto* connector = new T(args...);
+    m_connectors.Append(connector);
+    return connector;
+}
+
+class _Export LocalPropertiesWidgetConnectorBase : public QObject
 {
     using Setter = std::function<void ()>;
 public:
-    PropertiesWidgetConnectorBaseEx(const Setter& widgetSetter, const Setter& propertySetter);
-    ~PropertiesWidgetConnectorBaseEx();
+    LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter);
+    ~LocalPropertiesWidgetConnectorBase();
 
 protected:
     friend class ChangeGuard;
@@ -24,7 +50,7 @@ protected:
     {
         using Super = guards::LambdaGuard;
     public:
-        ChangeGuard(PropertiesWidgetConnectorBaseEx* connector)
+        ChangeGuard(LocalPropertiesWidgetConnectorBase* connector)
             : Super([connector]{ connector->m_ignorePropertyChange = false; })
         {
             connector->m_ignorePropertyChange = true;
@@ -32,46 +58,46 @@ protected:
     };
 };
 
-class _Export LocalPropertiesCheckBoxConnector : public PropertiesWidgetConnectorBaseEx
+class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
-    using Super = PropertiesWidgetConnectorBaseEx;
+    using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesCheckBoxConnector(LocalProperty<bool>& property, class QCheckBox* checkBox);
+    LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, class QCheckBox* checkBox);
 
 protected:
 };
 
-class _Export LocalPropertiesLineEditConnector : public PropertiesWidgetConnectorBaseEx
+class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase
 {
-    using Super = PropertiesWidgetConnectorBaseEx;
+    using Super = LocalPropertiesWidgetConnectorBase;
 public:
-     LocalPropertiesLineEditConnector(LocalProperty<QString>& property, class QLineEdit* lineEdit);
+     LocalPropertiesLineEditConnector(LocalProperty<QString>* property, class QLineEdit* lineEdit);
 };
 
-class _Export LocalPropertiesSpinBoxConnector : public PropertiesWidgetConnectorBaseEx
+class _Export LocalPropertiesSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
-    using Super = PropertiesWidgetConnectorBaseEx;
+    using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesSpinBoxConnector(LocalPropertyInt& property, class QSpinBox* spinBox);
+    LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, class QSpinBox* spinBox);
 };
 
-class _Export LocalPropertiesDoubleSpinBoxConnector : public PropertiesWidgetConnectorBaseEx
+class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
-    using Super = PropertiesWidgetConnectorBaseEx;
+    using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble& property, class QDoubleSpinBox* spinBox);
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat& property, QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
 };
 
-class _Export LocalPropertiesTextEditConnector : public PropertiesWidgetConnectorBaseEx
+class _Export LocalPropertiesTextEditConnector : public LocalPropertiesWidgetConnectorBase
 {
-    using Super = PropertiesWidgetConnectorBaseEx;
+    using Super = LocalPropertiesWidgetConnectorBase;
 public:
     enum SubmitType {
         SubmitType_None,
         SubmitType_OnEveryChange,
     };
-    LocalPropertiesTextEditConnector(LocalProperty<QString>& property, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
+    LocalPropertiesTextEditConnector(LocalProperty<QString>* property, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
 };
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H
