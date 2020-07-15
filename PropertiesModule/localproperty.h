@@ -78,6 +78,55 @@ private:
 };
 
 template<class T>
+class LocalPropertyLimitedDecimal : public LocalProperty<T>
+{
+    using Super = LocalProperty<T>;
+public:
+    LocalPropertyLimitedDecimal(const T& value = 0, const T& min = std::numeric_limits<T>::min(), const T& max = std::numeric_limits<T>::max())
+        : Super(::clamp(value, min, max))
+        , m_min(min)
+        , m_max(max)
+    {}
+
+    void SetMinMax(const T& min, const T& max)
+    {
+        m_min = min;
+        m_max = max;
+        SetValue(validateValue(Super::m_value));
+    }
+
+    void SetValue(const T& value)
+    {
+        auto validatedValue = validateValue(value);
+        if(validatedValue != Super::m_value) {
+            m_setterHandler([value, this]{
+                Super::m_value = value;
+                Invoke();
+            });
+        }
+    }
+
+    LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
+
+    const T& GetMin() const { return m_min; }
+    const T& GetMax() const { return m_max; }
+
+private:
+    T validateValue(const T& value)
+    {
+        return ::clamp(value, m_min, m_max);
+    }
+
+private:
+    T m_min;
+    T m_max;
+};
+
+using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
+using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
+using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
+
+template<class T>
 class LocalPropertyPtr : public LocalProperty<T*>
 {
     using Super = LocalProperty<T*>;

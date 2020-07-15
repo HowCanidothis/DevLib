@@ -33,20 +33,20 @@ void PropertiesConnectorBase::SetScope(const PropertiesScopeName& scope)
         Q_ASSERT(m_propertyPtr.IsValid());
         Q_ASSERT(m_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
         if(!m_ignorePropertyChange) {
-            QSignalBlocker blocker(m_target);
+            QSignalBlocker blocker(m_target); // TODO. why so?
             m_setter(m_propertyPtr.GetProperty()->GetValue());
         }
     });
 
     if(m_propertyPtr.IsValid()) {
-        QSignalBlocker blocker(m_target);
+        QSignalBlocker blocker(m_target); // TODO. why so?
         m_setter(m_propertyPtr.GetProperty()->GetValue());
     }
 }
 
 void PropertiesConnectorBase::Update()
 {
-    QSignalBlocker blocker(parent());
+    QSignalBlocker blocker(parent()); // TODO. why so?
     m_setter(m_propertyPtr.GetProperty()->GetValue());
 }
 

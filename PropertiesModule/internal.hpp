@@ -20,6 +20,7 @@
 #include "propertiesfilenamesgenerator.h"
 #include "localproperty.h"
 #include "Widgets/propertieswidgetsconnector.h"
+#include "Widgets/localpropertieswidgetconnector.h"
 #endif
 
 #endif // INTERNAL_HPP
