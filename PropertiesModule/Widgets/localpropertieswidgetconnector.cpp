@@ -6,6 +6,7 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QRadioButton>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -27,11 +28,6 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
     m_widgetSetter();
 }
 
-LocalPropertiesWidgetConnectorBase::~LocalPropertiesWidgetConnectorBase()
-{
-    disconnect(m_connection);
-}
-
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, QCheckBox* checkBox)
     : Super([checkBox, property]{
                 checkBox->setChecked(*property);
@@ -45,7 +41,7 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
         m_widgetSetter();
     });
 
-    m_connection = connect(checkBox, &QCheckBox::clicked, [this](bool value){
+    m_connections.connect(checkBox, &QCheckBox::clicked, [this](bool value){
         m_propertySetter();
     });
 }
@@ -64,7 +60,7 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
         m_widgetSetter();
     });
 
-    m_connection = connect(lineEdit, &QLineEdit::editingFinished, [this](){
+    m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
         m_propertySetter();
     });
 }
@@ -82,7 +78,7 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 
     switch (submitType) {
     case SubmitType_OnEveryChange:
-        m_connection = connect(textEdit, &QTextEdit::textChanged, [this](){
+        m_connections.connect(textEdit, &QTextEdit::textChanged, [this](){
             m_propertySetter();
         });
         break;
@@ -105,7 +101,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         m_widgetSetter();
     });
 
-    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](){
+    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](){
         m_propertySetter();
     });
 }
@@ -124,7 +120,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         m_widgetSetter();
     });
 
-    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -143,7 +139,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
         m_widgetSetter();
     });
 
-    m_connection = connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -166,7 +162,39 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     });
 
-    m_connection = connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
+    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
         m_propertySetter();
     });
+}
+
+LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyNamedUint* property, const Stack<QRadioButton*>& buttons)
+    : Super([property, buttons]{
+                buttons[*property]->setChecked(true);
+                qint32 i(0); // In case if we don't use a GroupBox
+                for(auto* button : buttons) {
+                    if(i != *property && button->isChecked()) {
+                        button->setChecked(false);
+                    }
+                }
+            },
+            [property, this]{
+                *property = m_currentIndex;
+            }
+    )
+    , m_currentIndex(*property)
+{
+    Q_ASSERT(!buttons.IsEmpty());
+
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+        m_widgetSetter();
+    });
+
+    qint32 i = 0;
+    for(auto* button : buttons) {
+        m_connections.connect(button, &QRadioButton::clicked, [this, i]{
+            m_currentIndex = i;
+            m_propertySetter();
+        });
+        i++;
+    }
 }

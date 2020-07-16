@@ -2,6 +2,7 @@
 #define LOCALPROPERTIESWIDGETCONNECTOR_H
 
 #include <SharedModule/internal.hpp>
+#include <SharedModule/External/external.hpp>
 
 #include "PropertiesModule/localproperty.h"
 
@@ -36,13 +37,12 @@ class _Export LocalPropertiesWidgetConnectorBase : public QObject
     using Setter = std::function<void ()>;
 public:
     LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter);
-    ~LocalPropertiesWidgetConnectorBase();
 
 protected:
     friend class ChangeGuard;
     Setter m_widgetSetter;
     Setter m_propertySetter;
-    QMetaObject::Connection m_connection;
+    QtLambdaConnections m_connections;
     DispatchersConnections m_dispatcherConnections;
     bool m_ignorePropertyChange;
     bool m_ignoreWidgetChange;
@@ -84,6 +84,17 @@ class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidg
 public:
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
+};
+
+class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase
+{
+    Q_OBJECT
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesRadioButtonsConnector(LocalPropertyNamedUint* property, const Stack<class QRadioButton*>& buttons);
+
+private:
+    qint32 m_currentIndex;
 };
 
 class _Export LocalPropertiesTextEditConnector : public LocalPropertiesWidgetConnectorBase
