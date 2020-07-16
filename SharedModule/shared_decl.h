@@ -107,15 +107,19 @@ public:
 
 class LambdaGuard
 {
-    FAction m_action;
+    FAction m_release;
 public:
-    LambdaGuard(const FAction& action)
-        : m_action(action)
-    {}
+    LambdaGuard(const FAction& release, const FAction& bind = nullptr)
+        : m_release(release)
+    {
+        if(bind != nullptr) {
+            bind();
+        }
+    }
 
     ~LambdaGuard()
     {
-        m_action();
+        m_release();
     }
 };
 

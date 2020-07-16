@@ -45,17 +45,7 @@ protected:
     QMetaObject::Connection m_connection;
     DispatchersConnections m_dispatcherConnections;
     bool m_ignorePropertyChange;
-
-    class ChangeGuard : public guards::LambdaGuard
-    {
-        using Super = guards::LambdaGuard;
-    public:
-        ChangeGuard(LocalPropertiesWidgetConnectorBase* connector)
-            : Super([connector]{ connector->m_ignorePropertyChange = false; })
-        {
-            connector->m_ignorePropertyChange = true;
-        }
-    };
+    bool m_ignoreWidgetChange;
 };
 
 class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetConnectorBase
@@ -65,6 +55,13 @@ public:
     LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, class QCheckBox* checkBox);
 
 protected:
+};
+
+class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesComboBoxConnector(LocalPropertyNamedUint* property, class QComboBox* comboBox);
 };
 
 class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase

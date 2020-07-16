@@ -123,8 +123,34 @@ private:
 };
 
 using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
+using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
 using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
 using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
+
+
+class LocalPropertyNamedUint : public LocalPropertyUInt
+{
+    using Super = LocalPropertyUInt;
+public:
+    LocalPropertyNamedUint()
+        : Super(0, 0, 0)
+    {}
+
+    void Initialize(quint32 initial, const QStringList& names)
+    {
+        m_value = initial;
+        m_names = names;
+        SetMinMax(0, m_names.size());
+    }
+    const QStringList& GetNames() const { return m_names; }
+    template<class T> T Cast() const { return (T)Native(); }
+
+    LocalPropertyNamedUint& operator=(quint32 value) { SetValue(value); return *this; }
+
+private:
+    QStringList m_names;
+};
+
 
 template<class T>
 class LocalPropertyPtr : public LocalProperty<T*>

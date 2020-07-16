@@ -5,19 +5,24 @@
 #include <QTextEdit>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <QComboBox>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
         if(!m_ignorePropertyChange) {
+            guards::LambdaGuard guard([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
             widgetSetter();
         }
     })
     , m_propertySetter([this, propertySetter]{
-        ChangeGuard guard(this);
-        propertySetter();
+        if(!m_ignoreWidgetChange) {
+            guards::LambdaGuard guard([this]{ m_ignorePropertyChange = false; }, [this] { m_ignorePropertyChange = true; } );
+            propertySetter();
+        }
     })
     , m_dispatcherConnections(this)
     , m_ignorePropertyChange(false)
+    , m_ignoreWidgetChange(false)
 {
     m_widgetSetter();
 }
@@ -146,4 +151,22 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 void LocalPropertiesWidgetConnectorsContainer::Clear()
 {
     m_connectors.Clear();
+}
+
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyNamedUint* property, QComboBox* comboBox)
+    : Super([property, comboBox]{
+                comboBox->setCurrentIndex(*property);
+            },
+            [property, comboBox]{
+                *property = comboBox->currentIndex();
+            }
+    )
+{
+    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+        m_widgetSetter();
+    });
+
+    m_connection = connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
+        m_propertySetter();
+    });
 }
