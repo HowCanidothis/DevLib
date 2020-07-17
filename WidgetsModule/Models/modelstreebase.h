@@ -22,7 +22,8 @@ public:
     template<class T> T* As() { return reinterpret_cast<T*>(this); }
     template<class T> const T* As() const { return reinterpret_cast<const T*>(this); }
 
-    virtual const QString& GetLabel() const = 0;
+    virtual QString GetLabel() const = 0;
+    virtual QIcon GetIcon() const { return QIcon(); }
 
     ModelsTreeBaseItem* Parent;
     ArrayPointers<ModelsTreeBaseItem> Childs;
@@ -45,7 +46,7 @@ public:
     void AddChild(ModelsTreeBaseItem* item) { Super::AddChild(item); }
     ModelsTreeBaseDefaultItem* AddChild() { return AddChild<ModelsTreeBaseDefaultItem>(); }
 
-    const QString& GetLabel() const override { return Label; }
+    QString GetLabel() const override { return Label; }
 };
 
 class ModelsTreeBase : public QAbstractItemModel
