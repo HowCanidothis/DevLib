@@ -98,7 +98,7 @@ public:
     void SetValue(const T& value)
     {
         auto validatedValue = validateValue(value);
-        if(validatedValue != Super::m_value) {
+        if(!qFuzzyCompare(double(validatedValue), double(Super::m_value))) {
             m_setterHandler([validatedValue, this]{
                 Super::m_value = validatedValue;
                 Invoke();
