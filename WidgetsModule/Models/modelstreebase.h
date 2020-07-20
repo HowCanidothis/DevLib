@@ -17,7 +17,7 @@ public:
     qint32 GetRow() const;
     qint32 GetParentRow() const;
 
-    void AddChild(ModelsTreeBaseItem* item);
+    void AddChild(const SharedPointer<ModelsTreeBaseItem>& item);
 
     template<class T> T* As() { return reinterpret_cast<T*>(this); }
     template<class T> const T* As() const { return reinterpret_cast<const T*>(this); }
@@ -26,7 +26,7 @@ public:
     virtual QIcon GetIcon() const { return QIcon(); }
 
     ModelsTreeBaseItem* Parent;
-    ArrayPointers<ModelsTreeBaseItem> Childs;
+    QVector<SharedPointer<ModelsTreeBaseItem>> Childs;
 };
 
 class ModelsTreeBaseDefaultItem : public ModelsTreeBaseItem
@@ -38,12 +38,12 @@ public:
     template<class T>
     T* AddChild()
     {
-        auto* result = new T();
+        auto result = ::make_shared<T>();
         result->Parent = this;
-        Childs.Append(result);
-        return result;
+        Childs.append(result);
+        return result.get();
     }
-    void AddChild(ModelsTreeBaseItem* item) { Super::AddChild(item); }
+    void AddChild(const SharedPointer<ModelsTreeBaseItem>& item) { Super::AddChild(item); }
     ModelsTreeBaseDefaultItem* AddChild() { return AddChild<ModelsTreeBaseDefaultItem>(); }
 
     QString GetLabel() const override { return Label; }
@@ -54,7 +54,7 @@ class ModelsTreeBase : public QAbstractItemModel
 public:
     ModelsTreeBase();
 
-    void AddChild(const QModelIndex& parent, ModelsTreeBaseItem* item);
+    void AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
     void Update(const std::function<ModelsTreeBaseItem* (ModelsTreeBaseItem*)>& resetFunction);
     QModelIndex index(int row, int column, const QModelIndex& parent) const override;
     QModelIndex parent(const QModelIndex& child) const override;
@@ -65,7 +65,7 @@ public:
     ModelsTreeBaseItem* AsItem(const QModelIndex& index) const;
 
 protected:
-    ScopedPointer<ModelsTreeBaseItem> m_root;
+    SharedPointer<ModelsTreeBaseItem> m_root;
 };
 
 #endif // MODELSTREEBASE_H

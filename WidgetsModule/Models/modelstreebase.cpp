@@ -5,10 +5,10 @@ ModelsTreeBase::ModelsTreeBase()
     m_root = new ModelsTreeBaseDefaultItem();
 }
 
-void ModelsTreeBase::AddChild(const QModelIndex& parent, ModelsTreeBaseItem* item)
+void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item)
 {
     auto* parentItem = AsItem(parent);
-    beginInsertRows(parent, parentItem->Childs.Size(), parentItem->Childs.Size());
+    beginInsertRows(parent, parentItem->Childs.size(), parentItem->Childs.size());
     parentItem->AddChild(item);
     endInsertRows();
 }
@@ -26,17 +26,17 @@ QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent
         return QModelIndex();
     }
     if(parent.isValid()) {
-        auto* item = AsItem(parent)->Childs.At(row);
+        auto* item = AsItem(parent)->Childs.at(row).get();
         return createIndex(row, column, item);
     }
-    auto* item = m_root->Childs.At(row);
+    auto* item = m_root->Childs.at(row).get();
     return createIndex(row, column, item);
 }
 
 QModelIndex ModelsTreeBase::parent(const QModelIndex& child) const
 {
     auto* node = AsItem(child);
-    if(node->Parent == m_root.data()) {
+    if(node->Parent == m_root.get()) {
         return QModelIndex();
     }
     return createIndex(node->GetParentRow(), 0, node->Parent);
@@ -45,9 +45,9 @@ QModelIndex ModelsTreeBase::parent(const QModelIndex& child) const
 int ModelsTreeBase::rowCount(const QModelIndex& parent) const
 {
     if(parent.isValid()) {
-        return AsItem(parent)->Childs.Size();
+        return AsItem(parent)->Childs.size();
     }
-    return m_root->Childs.Size();
+    return m_root->Childs.size();
 }
 
 int ModelsTreeBase::columnCount(const QModelIndex&) const
@@ -63,7 +63,10 @@ ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
 qint32 ModelsTreeBaseItem::GetRow() const
 {
     if(Parent != nullptr) {
-        return Parent->Childs.IndexOf(const_cast<ModelsTreeBaseItem*>(this));
+        auto foundIt = std::find_if(Parent->Childs.begin(), Parent->Childs.end(), [this](const SharedPointer<ModelsTreeBaseItem>& item){
+            return item.get() == this;
+        });
+        return foundIt == Parent->Childs.end() ? -1 : std::distance(Parent->Childs.begin(), foundIt);
     }
     return 0;
 }
@@ -76,10 +79,10 @@ qint32 ModelsTreeBaseItem::GetParentRow() const
     return 0;
 }
 
-void ModelsTreeBaseItem::AddChild(ModelsTreeBaseItem* item)
+void ModelsTreeBaseItem::AddChild(const SharedPointer<ModelsTreeBaseItem>& item)
 {
     item->Parent = this;
-    Childs.Append(item);
+    Childs.append(item);
 }
 
 QVariant ModelsTreeBase::data(const QModelIndex& index, int role) const
