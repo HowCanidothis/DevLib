@@ -145,6 +145,32 @@ struct Serializer<QByteArray>
     }
 };
 
+template<>
+struct Serializer<QStringList>
+{
+    typedef QStringList Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        qint32 size = type.size();
+        buffer << size;
+        for(const auto& string : type) {
+            buffer << string;
+        }
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        qint32 size;
+        buffer << size;
+        while(size--) {
+            QString value;
+            buffer << value;
+            type.append(value);
+        }
+    }
+};
+
 template<typename Enum>
 struct Serializer<QFlags<Enum>>
 {

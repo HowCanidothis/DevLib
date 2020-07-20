@@ -147,6 +147,13 @@ public:
 
     LocalPropertyNamedUint& operator=(quint32 value) { SetValue(value); return *this; }
 
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer << Super::m_value;
+        buffer << m_names;
+    }
+
 private:
     QStringList m_names;
 };
@@ -227,6 +234,77 @@ public:
 
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
+};
+
+template<class T>
+class LocalPropertyVector : public LocalProperty<QVector<T>>
+{
+    using ContainerType = QVector<T>;
+    using Super = LocalProperty<ContainerType>;
+public:
+    LocalPropertyVector()
+    {}
+    LocalPropertyVector(const ContainerType& value)
+        : Super(value)
+    {}
+
+    bool IsEmpty() const { return this->m_value.isEmpty(); }
+    qint32 Size() const { return this->m_value.size(); }
+    bool IsContains(const T& value) const { return this->m_value.contains(value); }
+
+    void Clear()
+    {
+        if(!this->m_value.isEmpty()) {
+            this->m_value.clear();
+            this->Invoke();
+        }
+    }
+
+    void SilentClear()
+    {
+        this->m_value.clear();
+    }
+
+    void SilentAppend(const T& value)
+    {
+        this->m_value.append(value);
+    }
+
+    void SilentRemove(const T& value)
+    {
+        this->m_value.remove(value);
+    }
+
+    void Append(const T& value)
+    {
+        auto find = this->m_value.find(value);
+        if(find != this->m_value.end()) {
+            this->m_value.append(value);
+            this->Invoke();
+        }
+    }
+
+    typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
+    typename ContainerType::const_iterator end() const { return this->m_value.end(); }
+};
+
+template<typename T>
+struct Serializer<LocalProperty<T>>
+{
+    typedef LocalProperty<T> target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.Native();
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        T value;
+        buffer << value;
+        data = value;
+    }
 };
 
 #endif // LOCALPROPERTY_H
