@@ -13,10 +13,10 @@ void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<Mod
     endInsertRows();
 }
 
-void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItem* (ModelsTreeBaseItem*)>& resetFunction)
+void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction)
 {
     beginResetModel();
-    m_root = resetFunction(m_root.get());
+    m_root = resetFunction(m_root);
     endResetModel();
 }
 
