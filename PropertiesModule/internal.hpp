@@ -19,6 +19,7 @@
 #include "propertyanimation.h"
 #include "propertiesfilenamesgenerator.h"
 #include "localproperty.h"
+#include "propertiesserializer.h"
 #include "Widgets/propertieswidgetsconnector.h"
 #include "Widgets/localpropertieswidgetconnector.h"
 #endif

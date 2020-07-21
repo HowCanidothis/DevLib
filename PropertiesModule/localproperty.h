@@ -74,6 +74,7 @@ public:
     Dispatcher OnChange;
 
 private:
+    template<class T> friend struct Serializer;
     FAction m_subscribes;
 };
 
@@ -118,6 +119,7 @@ private:
     }
 
 private:
+    template<class T> friend struct Serializer;
     T m_min;
     T m_max;
 };
@@ -286,25 +288,6 @@ public:
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }
-};
-
-template<typename T>
-struct Serializer<LocalProperty<T>>
-{
-    typedef LocalProperty<T> target_type;
-    template<class Buffer>
-    static void Write(Buffer& buffer, const target_type& data)
-    {
-        buffer << data.Native();
-    }
-
-    template<class Buffer>
-    static void Read(Buffer& buffer, target_type& data)
-    {
-        T value;
-        buffer << value;
-        data = value;
-    }
 };
 
 #endif // LOCALPROPERTY_H
