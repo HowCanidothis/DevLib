@@ -13,47 +13,43 @@ class DefaultFactoryBase
     typedef QHash<QString, DelegateCreator> Delegates;
 
 public:
-    static DelegateObject* Create(const QString& extension);
-    static ScopedPointer<DelegateObject> CreateScoped(const QString& extension) {
+    DefaultFactoryBase()
+        : m_defaultDelegate([] { return nullptr; })
+    {}
+
+    DelegateObject* Create(const QString& extension) const;
+    ScopedPointer<DelegateObject> CreateScoped(const QString& extension) const {
         return ScopedPointer<DelegateObject>(Create(extension));
     }
 
-    static bool IsSupport(const QString& extension) { return delegates().contains(extension); }
-    static QString GetSupportedExtensions(const QString& suffix);
+    bool IsSupport(const QString& extension) const { return m_delegates.contains(extension); }
+    QString GetSupportedExtensions(const QString& suffix) const;
 
 protected:
-    static void associate(const QString& formats, const DelegateCreator& importerCreator);
-    static void setDefault(const DelegateCreator& importerCreator);
+    void associate(const QString& formats, const DelegateCreator& importerCreator);
+    void setDefault(const DelegateCreator& importerCreator);
 
 private:
-    static Delegates& delegates()
-    {
-        static Delegates ret;
-        return ret;
-    }
-    static DelegateCreator& defaultDelegate()
-    {
-        static DelegateCreator ret = [] { return nullptr; };
-        return ret;
-    }
+    Delegates m_delegates;
+    DelegateCreator m_defaultDelegate;
 };
 
 template<class DelegateObject>
-DelegateObject* DefaultFactoryBase<DelegateObject>::Create(const QString& fileExtension)
+DelegateObject* DefaultFactoryBase<DelegateObject>::Create(const QString& fileExtension) const
 {
-    auto find = delegates().find(fileExtension.toLower());
-    if(find == delegates().end()) {
-        return defaultDelegate()();
+    auto find = m_delegates.find(fileExtension.toLower());
+    if(find == m_delegates.end()) {
+        return m_defaultDelegate();
     }
     return find.value()();
 }
 
 template<class DelegateObject>
-QString DefaultFactoryBase<DelegateObject>::GetSupportedExtensions(const QString& suffix)
+QString DefaultFactoryBase<DelegateObject>::GetSupportedExtensions(const QString& suffix) const
 {
     QString result;
-    auto it = delegates().begin();
-    auto e = delegates().end();
+    auto it = m_delegates.begin();
+    auto e = m_delegates.end();
     for(; it != e; it++) {
         result += suffix + it.key() + " ";
     }
@@ -64,14 +60,14 @@ template<class DelegateObject>
 void DefaultFactoryBase<DelegateObject>::associate(const QString& formats, const DelegateCreator& importerCreator)
 {
     for(const auto& format : formats.split(" ", QString::SkipEmptyParts)) {
-        delegates().insert(format, importerCreator);
+        m_delegates.insert(format, importerCreator);
     }
 }
 
 template<class DelegateObject>
 void DefaultFactoryBase<DelegateObject>::setDefault(const DelegateCreator& importerCreator)
 {
-    defaultDelegate() = importerCreator;
+    m_defaultDelegate = importerCreator;
 }
 
 #endif // DEFAULTFACTORYBASE_H

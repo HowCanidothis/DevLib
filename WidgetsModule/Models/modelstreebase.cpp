@@ -15,9 +15,9 @@ void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<Mod
 
 void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction)
 {
-    beginResetModel();
+    layoutAboutToBeChanged();
     m_root = resetFunction(m_root);
-    endResetModel();
+    layoutChanged();
 }
 
 QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent) const
@@ -58,6 +58,22 @@ int ModelsTreeBase::columnCount(const QModelIndex&) const
 ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
 {
     return reinterpret_cast<ModelsTreeBaseItem*>(index.internalPointer());
+}
+
+ModelsTreeBaseItemPtr ModelsTreeBase::AsItemPtr(const QModelIndex& index) const
+{
+    auto* item = AsItem(index);
+    if(item->Parent == nullptr) {
+        return m_root;
+    }
+    const auto& childs = item->Parent->Childs;
+    auto foundIt = std::find_if(childs.begin(), childs.end(), [item](const ModelsTreeBaseItemPtr& arrayItem) {
+        return arrayItem.get() == item;
+    });
+    if(foundIt == childs.end()) {
+        return m_root;
+    }
+    return *foundIt;
 }
 
 qint32 ModelsTreeBaseItem::GetRow() const

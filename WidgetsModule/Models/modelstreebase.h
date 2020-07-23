@@ -65,6 +65,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     ModelsTreeBaseItem* AsItem(const QModelIndex& index) const;
+    ModelsTreeBaseItemPtr AsItemPtr(const QModelIndex& index) const;
     const SharedPointer<ModelsTreeBaseItem>& GetRoot() const { return m_root; }
     SharedPointer<ModelsTreeBaseItem>& GetRoot() { return m_root; }
 
