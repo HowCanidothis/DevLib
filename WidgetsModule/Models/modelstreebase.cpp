@@ -15,9 +15,20 @@ void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<Mod
 
 void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction)
 {
-    layoutAboutToBeChanged();
+    emit layoutAboutToBeChanged();
     m_root = resetFunction(m_root);
-    layoutChanged();
+    emit layoutChanged();
+}
+
+void ModelsTreeBase::Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate)
+{
+    /*QModelIndex parent = index(m_root->GetRow(), 0, parent);
+    for(const auto& child : m_root->Childs) {
+        if(removePredicate(child.get())) {
+            beginRemoveRows(parent, child->GetRow(), child->GetRow());
+
+        }
+    }*/
 }
 
 QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent) const

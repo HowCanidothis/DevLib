@@ -58,6 +58,8 @@ public:
 
     void AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
     void Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction);
+    void Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
+
     QModelIndex index(int row, int column, const QModelIndex& parent) const override;
     QModelIndex parent(const QModelIndex& child) const override;
     int rowCount(const QModelIndex& parent) const override;
