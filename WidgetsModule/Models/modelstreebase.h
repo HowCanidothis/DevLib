@@ -16,6 +16,7 @@ public:
 
     qint32 GetRow() const;
     qint32 GetParentRow() const;
+    void ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const;
 
     void AddChild(const SharedPointer<ModelsTreeBaseItem>& item);
 
@@ -56,9 +57,11 @@ class ModelsTreeBase : public QAbstractItemModel
 public:
     ModelsTreeBase();
 
+    void ForeachChild(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItemPtr& item)>& predicate);
     void AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
     void Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction);
     void Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
+    void Clear();
 
     QModelIndex index(int row, int column, const QModelIndex& parent) const override;
     QModelIndex parent(const QModelIndex& child) const override;
@@ -70,6 +73,11 @@ public:
     ModelsTreeBaseItemPtr AsItemPtr(const QModelIndex& index) const;
     const SharedPointer<ModelsTreeBaseItem>& GetRoot() const { return m_root; }
     SharedPointer<ModelsTreeBaseItem>& GetRoot() { return m_root; }
+
+private:
+    void remove(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
+    void explore(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& exploreTrigger, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);
+    void exploreExecute(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);
 
 protected:
     SharedPointer<ModelsTreeBaseItem> m_root;

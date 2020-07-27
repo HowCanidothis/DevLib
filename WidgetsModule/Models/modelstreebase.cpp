@@ -1,5 +1,7 @@
 #include "modelstreebase.h"
 
+#include <SharedModule/External/external.hpp>
+
 ModelsTreeBase::ModelsTreeBase()
 {
     m_root = new ModelsTreeBaseDefaultItem();
@@ -20,15 +22,39 @@ void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const Mod
     emit layoutChanged();
 }
 
+void ModelsTreeBase::remove(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate)
+{
+    for(qint32 i(0); i < rowCount(parent); i++) {
+        auto mi = index(i, 0, parent);
+        auto* item = AsItem(mi);
+        if(removePredicate(item)) {
+            beginRemoveRows(parent, i, 0);
+            AsItem(parent)->Childs.remove(i);
+            endRemoveRows();
+            i--;
+        } else {
+            remove(mi, removePredicate);
+        }
+    }
+}
+
+void ModelsTreeBase::Clear()
+{
+    beginResetModel();
+    m_root->Childs.clear();
+    endResetModel();
+}
+
+void ModelsTreeBase::ForeachChild(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItemPtr& item)>& predicate)
+{
+    forEachModelIndex(this, parent, [this, predicate](const QModelIndex& index) {
+        predicate(AsItemPtr(index));
+    });
+}
+
 void ModelsTreeBase::Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate)
 {
-    /*QModelIndex parent = index(m_root->GetRow(), 0, parent);
-    for(const auto& child : m_root->Childs) {
-        if(removePredicate(child.get())) {
-            beginRemoveRows(parent, child->GetRow(), child->GetRow());
-
-        }
-    }*/
+    remove(QModelIndex(), removePredicate);
 }
 
 QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent) const
@@ -96,6 +122,19 @@ qint32 ModelsTreeBaseItem::GetRow() const
         return foundIt == Parent->Childs.end() ? -1 : std::distance(Parent->Childs.begin(), foundIt);
     }
     return 0;
+}
+
+static void foreachChild(const ModelsTreeBaseItem* parent, const std::function<void (ModelsTreeBaseItem* child)>& action)
+{
+    for(const auto& child : parent->Childs) {
+        action(child.get());
+        foreachChild(child.get(), action);
+    }
+}
+
+void ModelsTreeBaseItem::ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const
+{
+    foreachChild(this, action);
 }
 
 qint32 ModelsTreeBaseItem::GetParentRow() const
