@@ -277,6 +277,11 @@ public:
         this->m_value.remove(value);
     }
 
+    void ResizeSilent(qint32 size)
+    {
+        this->m_value.resize(size);
+    }
+
     void Append(const T& value)
     {
         auto find = this->m_value.find(value);
@@ -285,6 +290,8 @@ public:
             this->Invoke();
         }
     }
+
+    ContainerType& EditSilent() { return this->m_value; }
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }
