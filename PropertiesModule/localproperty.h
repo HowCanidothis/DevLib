@@ -74,7 +74,7 @@ public:
     Dispatcher OnChange;
 
 private:
-    template<class T> friend struct Serializer;
+    template<class T2> friend struct Serializer;
     FAction m_subscribes;
 };
 
@@ -100,9 +100,9 @@ public:
     {
         auto validatedValue = validateValue(value);
         if(!qFuzzyCompare(double(validatedValue), double(Super::m_value))) {
-            m_setterHandler([validatedValue, this]{
+            Super::m_setterHandler([validatedValue, this]{
                 Super::m_value = validatedValue;
-                Invoke();
+                Super::Invoke();
             });
         }
     }
@@ -119,7 +119,7 @@ private:
     }
 
 private:
-    template<class T> friend struct Serializer;
+    template<class T2> friend struct Serializer;
     T m_min;
     T m_max;
 };
@@ -277,11 +277,6 @@ public:
         this->m_value.remove(value);
     }
 
-    void ResizeSilent(qint32 size)
-    {
-        this->m_value.resize(size);
-    }
-
     void Append(const T& value)
     {
         auto find = this->m_value.find(value);
@@ -290,8 +285,6 @@ public:
             this->Invoke();
         }
     }
-
-    ContainerType& EditSilent() { return this->m_value; }
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }
