@@ -22,6 +22,12 @@ struct PropertyValueExtractorPrivate<T*>
 };
 
 template<typename T>
+struct PropertyValueExtractorPrivate<SharedPointer<T>>
+{
+    static QVariant ExtractVariant(const SharedPointer<T>& ptr) { return QVariant::fromValue(ptr); }
+};
+
+template<typename T>
 struct PropertyValueExtractorPrivate<QList<T>>
 {
     static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value); }
@@ -236,6 +242,26 @@ public:
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return PropertyValueExtractorPrivate<typename Super::value_type>::ExtractVariant(Super::m_value); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = reinterpret_cast<T*>(value.toLongLong()); }
+};
+
+template<class T>
+class SharedPointerProperty : public TPropertyBase<SharedPointer<T>>
+{
+    typedef TPropertyBase<SharedPointer<T>> Super;
+public:
+    SharedPointerProperty(const Name& path, const SharedPointer<T>& initial)
+        : Super(path, initial, Super::Options_InternalProperty)
+    {
+    }
+
+    T* operator->() { return this->Native().get(); }
+    const T* operator->() const { return this->Native().get(); }
+    SharedPointerProperty<T>& operator=(const SharedPointer<T>& ptr) { this->SetValue(PropertyValueExtractorPrivate<typename Super::value_type>::ExtractVariant(ptr)); return *this; }
+
+    // Property interface
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return PropertyValueExtractorPrivate<typename Super::value_type>::ExtractVariant(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = value.value<SharedPointer<T>>(); }
 };
 
 class FileNameProperty : public TProperty<QString>

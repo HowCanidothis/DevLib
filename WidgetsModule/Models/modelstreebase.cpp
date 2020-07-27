@@ -1,5 +1,7 @@
 #include "modelstreebase.h"
 
+#include <SharedModule/External/external.hpp>
+
 ModelsTreeBase::ModelsTreeBase()
 {
     m_root = new ModelsTreeBaseDefaultItem();
@@ -15,9 +17,44 @@ void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<Mod
 
 void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction)
 {
-    beginResetModel();
+    emit layoutAboutToBeChanged();
     m_root = resetFunction(m_root);
+    emit layoutChanged();
+}
+
+void ModelsTreeBase::remove(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate)
+{
+    for(qint32 i(0); i < rowCount(parent); i++) {
+        auto mi = index(i, 0, parent);
+        auto* item = AsItem(mi);
+        if(removePredicate(item)) {
+            beginRemoveRows(parent, i, 0);
+            AsItem(parent)->Childs.remove(i);
+            endRemoveRows();
+            i--;
+        } else {
+            remove(mi, removePredicate);
+        }
+    }
+}
+
+void ModelsTreeBase::Clear()
+{
+    beginResetModel();
+    m_root->Childs.clear();
     endResetModel();
+}
+
+void ModelsTreeBase::ForeachChild(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItemPtr& item)>& predicate)
+{
+    forEachModelIndex(this, parent, [this, predicate](const QModelIndex& index) {
+        predicate(AsItemPtr(index));
+    });
+}
+
+void ModelsTreeBase::Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate)
+{
+    remove(QModelIndex(), removePredicate);
 }
 
 QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent) const
@@ -60,6 +97,22 @@ ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
     return reinterpret_cast<ModelsTreeBaseItem*>(index.internalPointer());
 }
 
+ModelsTreeBaseItemPtr ModelsTreeBase::AsItemPtr(const QModelIndex& index) const
+{
+    auto* item = AsItem(index);
+    if(item->Parent == nullptr) {
+        return m_root;
+    }
+    const auto& childs = item->Parent->Childs;
+    auto foundIt = std::find_if(childs.begin(), childs.end(), [item](const ModelsTreeBaseItemPtr& arrayItem) {
+        return arrayItem.get() == item;
+    });
+    if(foundIt == childs.end()) {
+        return m_root;
+    }
+    return *foundIt;
+}
+
 qint32 ModelsTreeBaseItem::GetRow() const
 {
     if(Parent != nullptr) {
@@ -69,6 +122,19 @@ qint32 ModelsTreeBaseItem::GetRow() const
         return foundIt == Parent->Childs.end() ? -1 : std::distance(Parent->Childs.begin(), foundIt);
     }
     return 0;
+}
+
+static void foreachChild(const ModelsTreeBaseItem* parent, const std::function<void (ModelsTreeBaseItem* child)>& action)
+{
+    for(const auto& child : parent->Childs) {
+        action(child.get());
+        foreachChild(child.get(), action);
+    }
+}
+
+void ModelsTreeBaseItem::ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const
+{
+    foreachChild(this, action);
 }
 
 qint32 ModelsTreeBaseItem::GetParentRow() const

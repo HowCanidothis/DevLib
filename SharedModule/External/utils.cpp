@@ -20,7 +20,8 @@ QAction* createAction(const QString& title, const std::function<void (QAction*)>
 
 void forEachModelIndex(QAbstractItemModel* model, QModelIndex parent, const std::function<void (const QModelIndex&)>& function)
 {
-    for(int r = 0; r < model->rowCount(parent); ++r) {
+    auto rowCount = model->rowCount(parent);
+    for(int r = 0; r < rowCount; ++r) {
         QModelIndex index = model->index(r, 0, parent);
         function(index);
         // here is your applicable code
