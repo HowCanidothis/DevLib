@@ -1,6 +1,8 @@
 #ifndef LOCALPROPERTIESWIDGETCONNECTOR_H
 #define LOCALPROPERTIESWIDGETCONNECTOR_H
 
+#ifdef QT_GUI_LIB
+
 #include <SharedModule/internal.hpp>
 #include <SharedModule/External/external.hpp>
 
@@ -107,5 +109,7 @@ public:
     };
     LocalPropertiesTextEditConnector(LocalProperty<QString>* property, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
 };
+
+#endif
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H

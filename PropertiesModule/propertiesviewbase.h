@@ -1,6 +1,8 @@
 #ifndef PROPERTIESVIEWBASE_H
 #define PROPERTIESVIEWBASE_H
 
+#ifdef QT_GUI_LIB
+
 #include <QColor>
 
 class PropertiesViewBase
@@ -20,5 +22,7 @@ protected:
     const QColor& getRightGradientColor() const;
     double getRightGradientBorder() const;
 };
+
+#endif
 
 #endif // PROPERTIESVIEWBASE_H

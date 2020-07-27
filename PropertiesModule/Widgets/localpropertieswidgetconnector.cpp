@@ -1,5 +1,7 @@
 #include "localpropertieswidgetconnector.h"
 
+#ifdef QT_GUI_LIB
+
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -198,3 +200,5 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
         i++;
     }
 }
+
+#endif

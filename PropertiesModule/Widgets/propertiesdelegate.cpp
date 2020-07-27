@@ -1,5 +1,7 @@
 #include "propertiesdelegate.h"
 
+#ifdef QT_GUI_LIB
+
 #include <QPainter>
 #include <QDoubleSpinBox>
 #include <QComboBox>
@@ -140,3 +142,5 @@ void PropertiesDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptio
 
     return Super::updateEditorGeometry(editor, option, index);
 }
+
+#endif

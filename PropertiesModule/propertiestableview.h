@@ -1,6 +1,8 @@
 #ifndef PROPERTIESTABLEVIEW_H
 #define PROPERTIESTABLEVIEW_H
 
+#ifdef QT_GUI_LIB
+
 #include <QTableView>
 
 #include "propertiesviewbase.h"
@@ -20,5 +22,7 @@ private:
 private:
     class PropertiesTableModel* m_propertiesModel;
 };
+
+#endif
 
 #endif // PROPERTIESTABLEVIEW_H

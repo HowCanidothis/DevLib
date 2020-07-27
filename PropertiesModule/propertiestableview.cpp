@@ -1,5 +1,7 @@
 #include "propertiestableview.h"
 
+#ifdef QT_GUI_LIB
+
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 
@@ -29,3 +31,5 @@ PropertiesTableView::PropertiesTableView(QWidget* parent, Qt::WindowFlags flags)
 
     setItemDelegate(new PropertiesDelegate(this));
 }
+
+#endif

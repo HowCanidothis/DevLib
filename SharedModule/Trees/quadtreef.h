@@ -5,6 +5,10 @@
 
 class QImage;
 
+#if !defined (QT_GUI_LIB) && !defined(QUADTREE_NO_IMAGE_OUTPUT)
+#define QUADTREE_NO_IMAGE_OUTPUT
+#endif
+
 #ifndef QUADTREE_NO_IMAGE_OUTPUT
 #include <QPainter>
 #include <QImage>
@@ -96,7 +100,7 @@ typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectN
     return res;
 }
 
-#ifndef QUADTREE_NO_IMAGE_OUTPUTM
+#ifndef QUADTREE_NO_IMAGE_OUTPUT
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
 void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::toImage(QImage *img, BoundingRect *rect, qint32 dm) const
 {
@@ -184,7 +188,7 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::print(QTextStream *stream) const
     *stream << "==========================================================================\n";
 }
 
-#endif //QUADTREE_NO_IMAGE_OUTPUTM
+#endif //QUADTREE_NO_IMAGE_OUTPUT
 
 QUADTREE_END_NAMESPACE
 

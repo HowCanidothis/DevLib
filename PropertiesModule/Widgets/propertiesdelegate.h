@@ -1,6 +1,8 @@
 #ifndef PROPERTIESDELEGATE_H
 #define PROPERTIESDELEGATE_H
 
+#ifdef QT_GUI_LIB
+
 #include <QStyledItemDelegate>
 
 class PropertiesDelegate : public QStyledItemDelegate
@@ -24,5 +26,7 @@ private:
     QColor m_gradientRight;
     double m_gradientRightBorder;
 };
+
+#endif
 
 #endif // PROPERTIESVIEWDELEGATE_H

@@ -1,5 +1,7 @@
 #include "propertiesviewbase.h"
 
+#ifdef QT_GUI_LIB
+
 #include "Widgets/propertiesdelegate.h"
 
 PropertiesViewBase::PropertiesViewBase()
@@ -18,3 +20,5 @@ const QColor& PropertiesViewBase::getLeftGradientColor() const { return properti
 const QColor& PropertiesViewBase::getRightGradientColor() const { return propertiesDelegate()->m_gradientRight; }
 
 double PropertiesViewBase::getRightGradientBorder() const { return propertiesDelegate()->m_gradientRightBorder; }
+
+#endif
