@@ -58,7 +58,9 @@ public:
     ModelsTreeBase();
 
     void ForeachChild(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItemPtr& item)>& predicate);
-    void AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
+    QModelIndex AddChild(const ModelsTreeBaseItemPtr& parent, const ModelsTreeBaseItemPtr& item);
+    QModelIndex AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
+    QModelIndex Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate);
     void Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction);
     void Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
     void Clear();
@@ -70,11 +72,12 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     ModelsTreeBaseItem* AsItem(const QModelIndex& index) const;
-    ModelsTreeBaseItemPtr AsItemPtr(const QModelIndex& index) const;
+    const ModelsTreeBaseItemPtr& AsItemPtr(const QModelIndex& index) const;
     const SharedPointer<ModelsTreeBaseItem>& GetRoot() const { return m_root; }
     SharedPointer<ModelsTreeBaseItem>& GetRoot() { return m_root; }
 
 private:
+    void findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result);
     void remove(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
     void explore(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& exploreTrigger, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);
     void exploreExecute(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);

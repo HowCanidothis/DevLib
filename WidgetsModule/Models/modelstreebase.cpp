@@ -7,12 +7,48 @@ ModelsTreeBase::ModelsTreeBase()
     m_root = new ModelsTreeBaseDefaultItem();
 }
 
-void ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item)
+QModelIndex ModelsTreeBase::AddChild(const ModelsTreeBaseItemPtr& parent, const ModelsTreeBaseItemPtr& item)
+{
+    auto parentIndex = Find([&parent](const ModelsTreeBaseItem* node) {
+        return node == parent.get();
+    });
+
+    return AddChild(parentIndex, item);
+}
+
+QModelIndex ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item)
 {
     auto* parentItem = AsItem(parent);
     beginInsertRows(parent, parentItem->Childs.size(), parentItem->Childs.size());
     parentItem->AddChild(item);
     endInsertRows();
+    return index(parentItem->Childs.size() - 1, 0, parent);
+}
+
+void ModelsTreeBase::findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result)
+{
+    auto rows = rowCount(parent);
+    for(qint32 i(0); i < rows; i++) {
+        if(result.isValid()) {
+            return;
+        }
+        auto mi = index(i, 0, parent);
+        auto* item = AsItem(mi);
+        if(predicate(item)) {
+            result = mi;
+            return;
+        }
+
+        findInternal(mi, predicate, result);
+    }
+}
+
+
+QModelIndex ModelsTreeBase::Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate)
+{
+    QModelIndex result;
+    findInternal(QModelIndex(), predicate, result);
+    return result;
 }
 
 void ModelsTreeBase::Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction)
@@ -94,10 +130,10 @@ int ModelsTreeBase::columnCount(const QModelIndex&) const
 
 ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
 {
-    return reinterpret_cast<ModelsTreeBaseItem*>(index.internalPointer());
+    return index.isValid() ? reinterpret_cast<ModelsTreeBaseItem*>(index.internalPointer()) : m_root.get();
 }
 
-ModelsTreeBaseItemPtr ModelsTreeBase::AsItemPtr(const QModelIndex& index) const
+const ModelsTreeBaseItemPtr& ModelsTreeBase::AsItemPtr(const QModelIndex& index) const
 {
     auto* item = AsItem(index);
     if(item->Parent == nullptr) {

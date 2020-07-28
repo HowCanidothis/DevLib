@@ -181,6 +181,7 @@ public:
 template<class T>
 class LocalPropertySet : public LocalProperty<QSet<T>>
 {
+    using ContainerType = QSet<T>;
     typedef LocalProperty<QSet<T>> Super;
 public:
     LocalPropertySet()
@@ -201,21 +202,6 @@ public:
         }
     }
 
-    void SilentClear()
-    {
-        this->m_value.clear();
-    }
-
-    void SilentInsert(const T& value)
-    {
-        this->m_value.insert(value);
-    }
-
-    void SilentRemove(const T& value)
-    {
-        this->m_value.remove(value);
-    }
-
     void Insert(const T& value)
     {
         auto find = this->m_value.find(value);
@@ -233,6 +219,8 @@ public:
             this->Invoke();
         }
     }
+
+    ContainerType& EditSilent() { return this->m_value; }
 
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
@@ -260,26 +248,6 @@ public:
             this->m_value.clear();
             this->Invoke();
         }
-    }
-
-    void SilentClear()
-    {
-        this->m_value.clear();
-    }
-
-    void SilentAppend(const T& value)
-    {
-        this->m_value.append(value);
-    }
-
-    void SilentRemove(const T& value)
-    {
-        this->m_value.remove(value);
-    }
-
-    void ResizeSilent(qint32 size)
-    {
-        this->m_value.resize(size);
     }
 
     void Append(const T& value)
