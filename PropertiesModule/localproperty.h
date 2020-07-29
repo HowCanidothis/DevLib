@@ -62,6 +62,7 @@ public:
         }
     }
 
+    T& EditSilent() { return m_value; }
     const T& Native() const { return m_value; }
     Dispatcher& GetDispatcher() { return OnChange; }
 
@@ -220,8 +221,6 @@ public:
         }
     }
 
-    ContainerType& EditSilent() { return this->m_value; }
-
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
 };
@@ -258,8 +257,6 @@ public:
             this->Invoke();
         }
     }
-
-    ContainerType& EditSilent() { return this->m_value; }
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }

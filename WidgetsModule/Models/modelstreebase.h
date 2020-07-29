@@ -16,7 +16,7 @@ public:
 
     qint32 GetRow() const;
     qint32 GetParentRow() const;
-    void ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const;
+    void ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const; 
 
     void AddChild(const SharedPointer<ModelsTreeBaseItem>& item);
 
@@ -26,8 +26,19 @@ public:
     virtual QString GetLabel() const = 0;
     virtual QIcon GetIcon() const { return QIcon(); }
 
+    template<class T>
+    SharedPointer<T> Clone() const
+    {
+        auto result = ::make_shared<T>();
+        clone(result.get());
+        return result;
+    }
+
     ModelsTreeBaseItem* Parent;
     QVector<SharedPointer<ModelsTreeBaseItem>> Childs;
+
+protected:
+    virtual void clone(ModelsTreeBaseItem* toItem) const;
 };
 
 class ModelsTreeBaseDefaultItem : public ModelsTreeBaseItem
@@ -60,7 +71,8 @@ public:
     void ForeachChild(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItemPtr& item)>& predicate);
     QModelIndex AddChild(const ModelsTreeBaseItemPtr& parent, const ModelsTreeBaseItemPtr& item);
     QModelIndex AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item);
-    QModelIndex Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate);
+    QModelIndex Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate) const;
+    QVector<QModelIndex> GetPath(const ModelsTreeBaseItem* item) const;
     void Update(const std::function<ModelsTreeBaseItemPtr (const ModelsTreeBaseItemPtr&)>& resetFunction);
     void Remove(const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
     void Clear();
@@ -77,7 +89,7 @@ public:
     SharedPointer<ModelsTreeBaseItem>& GetRoot() { return m_root; }
 
 private:
-    void findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result);
+    void findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result) const;
     void remove(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& removePredicate);
     void explore(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem*)>& exploreTrigger, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);
     void exploreExecute(const QModelIndex& parent, const std::function<void (const ModelsTreeBaseItem*)>& exploreFuction);

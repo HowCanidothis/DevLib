@@ -15,6 +15,7 @@
 #include "ToolTip/tooltiparrowwidget.h"
 
 #include "Attachments/tableviewwidgetattachment.h"
+#include "Attachments/progressbarattachment.h"
 
 #include "Utils/iconsmanager.h"
 

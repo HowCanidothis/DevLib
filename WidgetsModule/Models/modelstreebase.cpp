@@ -25,7 +25,7 @@ QModelIndex ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPoin
     return index(parentItem->Childs.size() - 1, 0, parent);
 }
 
-void ModelsTreeBase::findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result)
+void ModelsTreeBase::findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result) const
 {
     auto rows = rowCount(parent);
     for(qint32 i(0); i < rows; i++) {
@@ -44,7 +44,7 @@ void ModelsTreeBase::findInternal(const QModelIndex& parent, const std::function
 }
 
 
-QModelIndex ModelsTreeBase::Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate)
+QModelIndex ModelsTreeBase::Find(const std::function<bool (const ModelsTreeBaseItem* )>& predicate) const
 {
     QModelIndex result;
     findInternal(QModelIndex(), predicate, result);
@@ -115,6 +115,24 @@ QModelIndex ModelsTreeBase::parent(const QModelIndex& child) const
     return createIndex(node->GetParentRow(), 0, node->Parent);
 }
 
+QVector<QModelIndex> ModelsTreeBase::GetPath(const ModelsTreeBaseItem* item) const
+{
+    auto targetIndex = Find([item](const ModelsTreeBaseItem* child){
+        return item == child;
+    });
+
+    QVector<QModelIndex> result;
+
+    auto parentIndex = parent(targetIndex);
+
+    while(parentIndex.isValid()) {
+         result.prepend(parentIndex);
+         parentIndex = parent(parentIndex);
+    }
+
+    return result;
+}
+
 int ModelsTreeBase::rowCount(const QModelIndex& parent) const
 {
     if(parent.isValid()) {
@@ -131,6 +149,12 @@ int ModelsTreeBase::columnCount(const QModelIndex&) const
 ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
 {
     return index.isValid() ? reinterpret_cast<ModelsTreeBaseItem*>(index.internalPointer()) : m_root.get();
+}
+
+void ModelsTreeBaseItem::clone(ModelsTreeBaseItem* toItem) const
+{
+    toItem->Childs = Childs;
+    toItem->Parent = Parent;
 }
 
 const ModelsTreeBaseItemPtr& ModelsTreeBase::AsItemPtr(const QModelIndex& index) const

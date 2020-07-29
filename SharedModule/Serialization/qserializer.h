@@ -50,6 +50,44 @@ struct Serializer<QString>
     }
 };
 
+template<>
+struct Serializer<QSize>
+{
+    typedef QSize target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        auto w = data.width();
+        auto h = data.height();
+        buffer << w;
+        buffer << h;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer << data.rwidth();
+        buffer << data.rheight();
+    }
+};
+
+template<>
+struct Serializer<QImage>
+{
+    typedef QImage target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer.GetStream() << data;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer.GetStream() >> data;
+    }
+};
+
 template<class T>
 struct Serializer<QSet<T>>
 {
