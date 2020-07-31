@@ -28,6 +28,7 @@ public:
     ~ProcessBase();
 
     void SetCancelable(bool cancelable);
+    const std::wstring& GetTitle() const;
 
     void BeginProcess(const wchar_t* title, bool shadow = false) override;
     void BeginProcess(const wchar_t* title, int stepsCount, int wantedCount, bool shadow = false) override;

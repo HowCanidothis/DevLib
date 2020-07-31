@@ -19,10 +19,11 @@ QModelIndex ModelsTreeBase::AddChild(const ModelsTreeBaseItemPtr& parent, const 
 QModelIndex ModelsTreeBase::AddChild(const QModelIndex& parent, const SharedPointer<ModelsTreeBaseItem>& item)
 {
     auto* parentItem = AsItem(parent);
-    beginInsertRows(parent, parentItem->Childs.size(), parentItem->Childs.size());
+    const auto& childs = parentItem->GetChilds();
+    beginInsertRows(parent, childs.size(), childs.size());
     parentItem->AddChild(item);
     endInsertRows();
-    return index(parentItem->Childs.size() - 1, 0, parent);
+    return index(childs.size() - 1, 0, parent);
 }
 
 void ModelsTreeBase::findInternal(const QModelIndex& parent, const std::function<bool (const ModelsTreeBaseItem* )>& predicate, QModelIndex& result) const
@@ -65,7 +66,7 @@ void ModelsTreeBase::remove(const QModelIndex& parent, const std::function<bool 
         auto* item = AsItem(mi);
         if(removePredicate(item)) {
             beginRemoveRows(parent, i, 0);
-            AsItem(parent)->Childs.remove(i);
+            AsItem(parent)->RemoveChild(i);
             endRemoveRows();
             i--;
         } else {
@@ -77,7 +78,7 @@ void ModelsTreeBase::remove(const QModelIndex& parent, const std::function<bool 
 void ModelsTreeBase::Clear()
 {
     beginResetModel();
-    m_root->Childs.clear();
+    m_root->RemoveChilds();
     endResetModel();
 }
 
@@ -99,10 +100,10 @@ QModelIndex ModelsTreeBase::index(int row, int column, const QModelIndex& parent
         return QModelIndex();
     }
     if(parent.isValid()) {
-        auto* item = AsItem(parent)->Childs.at(row).get();
+        auto* item = AsItem(parent)->GetChilds().at(row).get();
         return createIndex(row, column, item);
     }
-    auto* item = m_root->Childs.at(row).get();
+    auto* item = m_root->GetChilds().at(row).get();
     return createIndex(row, column, item);
 }
 
@@ -136,9 +137,9 @@ QVector<QModelIndex> ModelsTreeBase::GetPath(const ModelsTreeBaseItem* item) con
 int ModelsTreeBase::rowCount(const QModelIndex& parent) const
 {
     if(parent.isValid()) {
-        return AsItem(parent)->Childs.size();
+        return AsItem(parent)->GetChilds().size();
     }
-    return m_root->Childs.size();
+    return m_root->GetChilds().size();
 }
 
 int ModelsTreeBase::columnCount(const QModelIndex&) const
@@ -153,7 +154,7 @@ ModelsTreeBaseItem* ModelsTreeBase::AsItem(const QModelIndex& index) const
 
 void ModelsTreeBaseItem::clone(ModelsTreeBaseItem* toItem) const
 {
-    toItem->Childs = Childs;
+    toItem->m_childs = m_childs;
     toItem->Parent = Parent;
 }
 
@@ -163,7 +164,7 @@ const ModelsTreeBaseItemPtr& ModelsTreeBase::AsItemPtr(const QModelIndex& index)
     if(item->Parent == nullptr) {
         return m_root;
     }
-    const auto& childs = item->Parent->Childs;
+    const auto& childs = item->Parent->GetChilds();
     auto foundIt = std::find_if(childs.begin(), childs.end(), [item](const ModelsTreeBaseItemPtr& arrayItem) {
         return arrayItem.get() == item;
     });
@@ -176,17 +177,18 @@ const ModelsTreeBaseItemPtr& ModelsTreeBase::AsItemPtr(const QModelIndex& index)
 qint32 ModelsTreeBaseItem::GetRow() const
 {
     if(Parent != nullptr) {
-        auto foundIt = std::find_if(Parent->Childs.begin(), Parent->Childs.end(), [this](const SharedPointer<ModelsTreeBaseItem>& item){
+        const auto& childs = Parent->GetChilds();
+        auto foundIt = std::find_if(childs.begin(), childs.end(), [this](const SharedPointer<ModelsTreeBaseItem>& item){
             return item.get() == this;
         });
-        return foundIt == Parent->Childs.end() ? -1 : std::distance(Parent->Childs.begin(), foundIt);
+        return foundIt == childs.end() ? -1 : std::distance(childs.begin(), foundIt);
     }
     return 0;
 }
 
 static void foreachChild(const ModelsTreeBaseItem* parent, const std::function<void (ModelsTreeBaseItem* child)>& action)
 {
-    for(const auto& child : parent->Childs) {
+    for(const auto& child : parent->GetChilds()) {
         action(child.get());
         foreachChild(child.get(), action);
     }
@@ -208,7 +210,17 @@ qint32 ModelsTreeBaseItem::GetParentRow() const
 void ModelsTreeBaseItem::AddChild(const SharedPointer<ModelsTreeBaseItem>& item)
 {
     item->Parent = this;
-    Childs.append(item);
+    m_childs.append(item);
+}
+
+void ModelsTreeBaseItem::RemoveChilds()
+{
+    m_childs.clear();
+}
+
+void ModelsTreeBaseItem::RemoveChild(qint32 i)
+{
+    m_childs.remove(i);
 }
 
 QVariant ModelsTreeBase::data(const QModelIndex& index, int role) const

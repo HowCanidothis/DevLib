@@ -43,6 +43,7 @@ public:
     CommonDispatcher& operator+=(const ActionHandler& subscribeHandler)
     {
         QMutexLocker lock(&m_mutex);
+        Q_ASSERT(!m_subscribes.contains(subscribeHandler.Key));
         m_subscribes.insert(subscribeHandler.Key, subscribeHandler.Handler);
         return *this;
     }

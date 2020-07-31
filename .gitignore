@@ -42,3 +42,4 @@ build-IMX-Desktop_Qt_5_12_1_GCC_64bit-Debug
 /IMX
 /build-IMX-Qt_5_6_GCC_Arm-Debug
 /build-IMX-Qt_5_6_GCC_Arm-Release
+/PropertiesModule/wrappedvalue.h

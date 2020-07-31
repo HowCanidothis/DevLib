@@ -18,6 +18,11 @@ void ProcessBase::SetCancelable(bool cancelable)
     m_cancelable = cancelable;
 }
 
+const std::wstring& ProcessBase::GetTitle() const
+{
+    return m_processValue->GetTitle();
+}
+
 void ProcessBase::BeginProcess(const wchar_t* title, bool shadow)
 {
     m_processValue = nullptr;

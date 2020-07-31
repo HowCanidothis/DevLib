@@ -19,6 +19,8 @@ public:
     void ForeachChild(const std::function<void (ModelsTreeBaseItem* child)>& action) const; 
 
     void AddChild(const SharedPointer<ModelsTreeBaseItem>& item);
+    void RemoveChilds();
+    void RemoveChild(qint32 i);
 
     template<class T> T* As() { return reinterpret_cast<T*>(this); }
     template<class T> const T* As() const { return reinterpret_cast<const T*>(this); }
@@ -35,10 +37,14 @@ public:
     }
 
     ModelsTreeBaseItem* Parent;
-    QVector<SharedPointer<ModelsTreeBaseItem>> Childs;
+    const QVector<SharedPointer<ModelsTreeBaseItem>>& GetChilds() const { return m_childs; }
 
 protected:
     virtual void clone(ModelsTreeBaseItem* toItem) const;
+
+private:
+    DECLARE_FRIEND_SERIALIZER;
+    QVector<SharedPointer<ModelsTreeBaseItem>> m_childs;
 };
 
 class ModelsTreeBaseDefaultItem : public ModelsTreeBaseItem
@@ -51,8 +57,7 @@ public:
     T* AddChild()
     {
         auto result = ::make_shared<T>();
-        result->Parent = this;
-        Childs.append(result);
+        AddChild(result);
         return result.get();
     }
     void AddChild(const SharedPointer<ModelsTreeBaseItem>& item) { Super::AddChild(item); }

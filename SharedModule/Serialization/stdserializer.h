@@ -27,6 +27,8 @@ struct Serializer
     }
 };
 
+#define DECLARE_FRIEND_SERIALIZER template<class T> friend struct Serializer;
+
 struct PlainData
 {
     PlainData(void* ptr, size_t count)

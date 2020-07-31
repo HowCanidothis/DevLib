@@ -5,6 +5,11 @@ void QProcessBase::BeginProcess(const QString& title)
     Super::BeginProcess(title.toStdWString().c_str(), false);
 }
 
+QString QProcessBase::GetTitle() const
+{
+    return QString::fromStdWString(Super::GetTitle());
+}
+
 void QProcessBase::BeginShadowProcess(const QString& title)
 {
     Super::BeginProcess(title.toStdWString().c_str(), true);
