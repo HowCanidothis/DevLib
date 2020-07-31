@@ -4,6 +4,7 @@
 #if defined __cplusplus
 
 #include "Models/modelstreebase.h"
+#include "Models/wrappers.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"
