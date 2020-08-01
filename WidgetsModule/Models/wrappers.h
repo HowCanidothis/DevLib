@@ -17,7 +17,7 @@ class ModelsTableWrapper
 public:
     virtual ~ModelsTableWrapper()
     {
-        OnDestroyed();
+        OnAboutToBeDestroyed();
     }
     void ConnectModel(QAbstractTableModel* model);
     void DisconnectModel(QAbstractTableModel* model);
@@ -31,7 +31,7 @@ public:
     Dispatcher OnRowsRemoved;
     CommonDispatcher<qint32,qint32> OnAboutToInsertRows;
     Dispatcher OnRowsInserted;
-    Dispatcher OnDestroyed;
+    Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
 };
 
@@ -64,7 +64,7 @@ inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
     OnRowsRemoved -= model;
     OnAboutToInsertRows -= model;
     OnRowsInserted -= model;
-    OnDestroyed -= model;
+    OnAboutToBeDestroyed -= model;
 }
 
 #endif // WRAPPERS_H
