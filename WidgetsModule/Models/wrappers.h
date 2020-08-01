@@ -3,16 +3,13 @@
 
 #include <SharedModule/internal.hpp>
 
-class AbstractTableModel : public QAbstractTableModel
+class ModelsAbstractTableModel : public QAbstractTableModel
 {
     using Super = QAbstractTableModel;
-public:
     using Super::Super;
 
-    static AbstractTableModel* Wrap(QAbstractTableModel* model) { return reinterpret_cast<AbstractTableModel*>(model); }
-
-private:
     friend class ModelsTableWrapper;
+    static ModelsAbstractTableModel* Wrap(QAbstractTableModel* model) { return reinterpret_cast<ModelsAbstractTableModel*>(model); }
 };
 
 class ModelsTableWrapper
@@ -22,8 +19,8 @@ public:
     {
         OnDestroyed();
     }
-    void ConnectModel(AbstractTableModel* model);
-    void DisconnectModel(AbstractTableModel* model);
+    void ConnectModel(QAbstractTableModel* model);
+    void DisconnectModel(QAbstractTableModel* model);
 
     CommonDispatcher<qint32,qint32> OnValueChanged;
     Dispatcher OnAboutToBeReseted;
@@ -35,10 +32,12 @@ public:
     CommonDispatcher<qint32,qint32> OnAboutToInsertRows;
     Dispatcher OnRowsInserted;
     Dispatcher OnDestroyed;
+    Dispatcher OnChanged;
 };
 
-inline void ModelsTableWrapper::ConnectModel(AbstractTableModel* model)
+inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
 {
+    auto* model = ModelsAbstractTableModel::Wrap(qmodel);
     OnValueChanged += { model, [model](qint32 row, qint32 column) {
         auto modelIndex = model->index(row, column);
         emit model->dataChanged(modelIndex, modelIndex); }
@@ -53,8 +52,9 @@ inline void ModelsTableWrapper::ConnectModel(AbstractTableModel* model)
     OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
 }
 
-inline void ModelsTableWrapper::DisconnectModel(AbstractTableModel* model)
+inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
 {
+    auto* model = ModelsAbstractTableModel::Wrap(qmodel);
     OnValueChanged -= model;
     OnAboutToBeReseted -= model;
     OnReseted -= model;
