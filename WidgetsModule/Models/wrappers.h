@@ -33,6 +33,7 @@ public:
     Dispatcher OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
+    CommonDispatcher<qint32> OnRowChanged;
 };
 
 inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
@@ -50,6 +51,11 @@ inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
     OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };
     OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
+    OnRowChanged += { model, [model] (qint32 row){
+        auto startmi = model->index(row, 0);
+        auto endmi = model->index(row, model->columnCount());
+        model->dataChanged(startmi, endmi);
+    }};
 }
 
 inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
@@ -65,6 +71,7 @@ inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
     OnAboutToInsertRows -= model;
     OnRowsInserted -= model;
     OnAboutToBeDestroyed -= model;
+    OnRowChanged -= model;
 }
 
 #endif // WRAPPERS_H
