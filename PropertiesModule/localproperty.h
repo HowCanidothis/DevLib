@@ -150,6 +150,9 @@ public:
 
     LocalPropertyNamedUint& operator=(quint32 value) { SetValue(value); return *this; }
 
+    template<typename Enum>
+    bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
+
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
