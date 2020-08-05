@@ -17,6 +17,8 @@ ToolTipArrowWidget::ToolTipArrowWidget(QWidget* targetWidget)
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    setVisible(false);
 }
 
 void ToolTipArrowWidget::SetTarget(const QPoint& target, bool update)

@@ -210,7 +210,7 @@ Stack<QRadioButton*> PropertiesRadioButtonsGroupBoxConnector::ButtonsFromGroup(Q
 
 PropertiesComboBoxConnector::PropertiesComboBoxConnector(const Name& propertyName, QComboBox* comboBox)
     : PropertiesConnectorBase(propertyName,
-                              [comboBox, this](const QVariant& value){
+                              [comboBox](const QVariant& value){
                                   comboBox->setCurrentIndex(value.toUInt());
                               },
                               comboBox)

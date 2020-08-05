@@ -41,12 +41,12 @@ inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
     auto* model = ModelsAbstractTableModel::Wrap(qmodel);
     OnValueChanged += { model, [model](qint32 row, qint32 column) {
         auto modelIndex = model->index(row, column);
-        emit model->dataChanged(modelIndex, modelIndex); }
-    };
+        emit model->dataChanged(modelIndex, modelIndex);
+    }};
     OnAboutToBeReseted += { model, [model]{ model->beginResetModel(); }};
     OnReseted += { model, [model]{ model->endResetModel(); } };
     OnAboutToBeUpdated += { model, [model]{ emit model->layoutAboutToBeChanged(); }};
-    OnUpdated += { model, [model]{ emit model->layoutAboutToBeChanged(); }};
+    OnUpdated += { model, [model]{ emit model->layoutChanged(); }};
     OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end){ model->beginRemoveRows(QModelIndex(), start, end); } };
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
     OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };

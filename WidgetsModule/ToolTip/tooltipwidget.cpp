@@ -10,6 +10,8 @@ ToolTipWidget::ToolTipWidget(QWidget* parent)
     OffsetFromTarget.Subscribe([this]{
         updateLocation();
     });
+
+    setVisible(false);
 }
 
 ToolTipWidget::~ToolTipWidget()

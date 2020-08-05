@@ -258,12 +258,34 @@ public:
         m_topLeftFront(left),
         m_bottomRightBack(right)
     {}
+    BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ, bool)
+        : m_topLeftFront(minX, maxY, maxZ)
+        , m_bottomRightBack(maxX, minY, minZ)
+    {}
 
     void SetNull()
     {
         m_topLeftFront = m_bottomRightBack;
     }
 
+    void MultiplyExtent(float multiplier)
+    {
+        auto currentExtent = Extent();
+        AddExtent(currentExtent.x() * multiplier, currentExtent.y() * multiplier, currentExtent.z() * multiplier);
+    }
+    void AddExtent(float x, float y, float z)
+    {
+        auto xh = x / 2.f, yh = y / 2.f, zh = z / 2.f;
+        m_topLeftFront.X() -= xh;
+        m_topLeftFront.Y() += yh;
+        m_topLeftFront.Z() += zh;
+        m_bottomRightBack.X() += xh;
+        m_bottomRightBack.Y() -= yh;
+        m_bottomRightBack.Z() -= zh;
+    }
+
+    Point3F Extent() const { return Point3F(m_bottomRightBack.x() - m_topLeftFront.x(), m_topLeftFront.y() - m_bottomRightBack.y(), m_topLeftFront.z() - m_bottomRightBack.z()); }
+    Point3F Center() const { return (m_topLeftFront + m_bottomRightBack) / 2.f; }
     const Point3F& GetLeft() const { return m_topLeftFront; }
     const Point3F& GetRight() const { return m_bottomRightBack; }
     float X() const { return m_topLeftFront.x(); }
@@ -275,11 +297,25 @@ public:
     float Front() const { return m_topLeftFront.z(); }
     float Back() const { return m_bottomRightBack.z(); }
 
+    float GetMinX() const { return m_topLeftFront.x(); }
+    float GetMinY() const { return m_bottomRightBack.y(); }
+    float GetMinZ() const { return m_bottomRightBack.z(); }
+    float GetMaxX() const { return m_bottomRightBack.x(); }
+    float GetMaxY() const { return m_topLeftFront.y(); }
+    float GetMaxZ() const { return m_topLeftFront.z(); }
+
+    float& MinX() { return m_topLeftFront.X(); }
+    float& MinY() { return m_bottomRightBack.Y(); }
+    float& MinZ() { return m_bottomRightBack.Z(); }
+    float& MaxX() { return m_bottomRightBack.X(); }
+    float& MaxY() { return m_topLeftFront.Y(); }
+    float& MaxZ() { return m_topLeftFront.Z(); }
+
     bool Intersects(const BoundingBox& other) const
     {
         return !(m_bottomRightBack.x() < other.m_topLeftFront.x() || m_topLeftFront.x() > other.m_bottomRightBack.x() ||
-                 m_bottomRightBack.y() < other.m_topLeftFront.y() || m_topLeftFront.y() > other.m_bottomRightBack.y() ||
-                 m_bottomRightBack.z() < other.m_topLeftFront.z() || m_topLeftFront.z() > other.m_bottomRightBack.z()
+                 m_bottomRightBack.y() > other.m_topLeftFront.y() || m_topLeftFront.y() < other.m_bottomRightBack.y() ||
+                 m_bottomRightBack.z() > other.m_topLeftFront.z() || m_topLeftFront.z() < other.m_bottomRightBack.z()
                  );
     }
     BoundingBox& Unite(const BoundingBox& other)
@@ -289,20 +325,20 @@ public:
         if(otl.x() < m_topLeftFront.x()) {
             m_topLeftFront.setX(otl.x());
         }
-        if(otl.y() < m_topLeftFront.y()) {
+        if(otl.y() > m_topLeftFront.y()) {
             m_topLeftFront.setY(otl.y());
         }
-        if(otl.z() < m_topLeftFront.z()) {
+        if(otl.z() > m_topLeftFront.z()) {
             m_topLeftFront.setZ(otl.z());
         }
 
         if(obr.x() > m_bottomRightBack.x()) {
             m_bottomRightBack.setX(obr.x());
         }
-        if(obr.y() > m_bottomRightBack.y()) {
+        if(obr.y() < m_bottomRightBack.y()) {
             m_bottomRightBack.setY(obr.y());
         }
-        if(obr.z() > m_bottomRightBack.z()) {
+        if(obr.z() < m_bottomRightBack.z()) {
             m_bottomRightBack.setZ(obr.z());
         }
         return *this;

@@ -40,6 +40,8 @@ class _Export LocalPropertiesWidgetConnectorBase : public QObject
 public:
     LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter);
 
+    void Update() { m_widgetSetter(); }
+
 protected:
     friend class ChangeGuard;
     Setter m_widgetSetter;

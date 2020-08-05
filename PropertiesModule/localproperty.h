@@ -2,6 +2,7 @@
 #define LOCALPROPERTY_H
 
 #include "property.h"
+#include "externalproperty.h"
 
 template<class T>
 class LocalProperty
@@ -35,7 +36,7 @@ public:
         });
     }
 
-    void Subscribe(const FAction& subscribe)
+    void Subscribe(const FAction& subscribe) const
     {
         if(m_subscribes == nullptr) {
             m_subscribes = subscribe;
@@ -76,7 +77,7 @@ public:
 
 private:
     template<class T2> friend struct Serializer;
-    FAction m_subscribes;
+    mutable FAction m_subscribes;
 };
 
 template<class T>
@@ -183,6 +184,39 @@ public:
 };
 
 template<class T>
+class LocalPropertySharedPtr : public LocalProperty<SharedPointer<T>>
+{
+    using Super = LocalProperty<SharedPointer<T>>;
+public:
+    LocalPropertySharedPtr(T* initial = nullptr)
+        : Super(SharedPointer<T>(initial))
+    {}
+
+    const T* get() const { return Super::m_value.get(); }
+    T* get() { return Super::m_value.get(); }
+
+    void SetValue(T* value)
+    {
+        if(value != Super::m_value.get()) {
+            m_setterHandler([value, this]{
+                Super::m_value = value;
+                Invoke();
+            });
+        }
+    }
+
+    bool operator!=(const T* another) const { return Super::m_value.get() != another; }
+    bool operator==(const T* another) const { return Super::m_value.get() == another; }
+    LocalPropertySharedPtr& operator=(T* value) { SetValue(value); return *this; }
+    LocalPropertySharedPtr& operator=(const SharedPointer<T>& value) { Super::SetValue(value); return *this; }
+    operator const LocalPropertySharedPtr&() const { return Super::m_value; }
+    const T* operator->() const { return Super::m_value.get(); }
+    T* operator->() { return Super::m_value.get(); }
+    T& operator*() { return *Super::m_value; }
+    const T& operator*() const { return *Super::m_value; }
+};
+
+template<class T>
 class LocalPropertySet : public LocalProperty<QSet<T>>
 {
     using ContainerType = QSet<T>;
@@ -264,5 +298,37 @@ public:
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }
 };
+
+struct PropertyFromLocalProperty
+{
+    template<class T>
+    static SharedPointer<Property> Create(const Name& name, T& localProperty);
+};
+
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<double>& localProperty)
+{
+    return ::make_shared<ExternalDoubleProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](double value, double) { localProperty = value; },
+                localProperty.GetMin(),
+                localProperty.GetMax()
+    );
+}
+
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyNamedUint& localProperty)
+{
+    auto result = ::make_shared<ExternalNamedUIntProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](quint32 value, quint32) { localProperty = value; },
+                localProperty.GetMin(),
+                localProperty.GetMax()
+    );
+    result->SetNames(localProperty.GetNames());
+    return std::move(result);
+}
 
 #endif // LOCALPROPERTY_H

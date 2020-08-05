@@ -23,9 +23,10 @@ GtRenderer::~GtRenderer()
     Quit();
 }
 
-void GtRenderer::SetControllers(ControllersContainer* controllers)
+void GtRenderer::SetControllers(ControllersContainer* controllers, GtControllersContext* context)
 {
     m_controllers = controllers;
+    m_controllersContext = context;
 }
 
 void GtRenderer::AddDrawable(GtDrawableBase* drawable)
@@ -139,7 +140,9 @@ void GtRenderer::onInitialize()
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
 
 
-    m_controllersContext = new GtControllersContext();
+    if(m_controllersContext == nullptr) {
+        m_controllersContext = new GtControllersContext();
+    }
     m_controllersContext->Camera = m_camera.data();
     m_controllersContext->DepthBuffer = new GtDepthBuffer(this);
 

@@ -14,7 +14,7 @@ public:
     GtRenderer(const PropertiesScopeName& scopeName);
     ~GtRenderer();
 
-    void SetControllers(class ControllersContainer* controllers);
+    void SetControllers(class ControllersContainer* controllers, struct GtControllersContext* context = nullptr);
 
     // TODO. Not renderer methods
     void MouseMoveEvent(QMouseEvent* event);
@@ -26,6 +26,8 @@ public:
 
     void AddDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
+
+    class GtCamera* GetCamera() { return m_camera.get(); }
 
     QImage CurrentImage();
 
@@ -48,7 +50,7 @@ private:
     ScopedPointer<Matrix4Resource> m_invertedMv;
     ScopedPointer<Resource<Vector3F>> m_eye;
     ScopedPointer<Resource<Vector3F>> m_forward;
-    ScopedPointer<class GtCamera> m_camera;
+    ScopedPointer<GtCamera> m_camera;
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<QOpenGLFramebufferObject> m_fbo;
     ScopedPointer<struct GtControllersContext> m_controllersContext;
