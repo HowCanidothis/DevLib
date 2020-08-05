@@ -153,6 +153,8 @@ public:
 
     template<typename Enum>
     bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
+    template<typename Enum>
+    bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
     template<class Buffer>
     void Serialize(Buffer& buffer)
