@@ -313,9 +313,9 @@ public:
 
     bool Intersects(const BoundingBox& other) const
     {
-        return !(m_bottomRightBack.x() < other.m_topLeftFront.x() || m_topLeftFront.x() > other.m_bottomRightBack.x() ||
-                 m_bottomRightBack.y() > other.m_topLeftFront.y() || m_topLeftFront.y() < other.m_bottomRightBack.y() ||
-                 m_bottomRightBack.z() > other.m_topLeftFront.z() || m_topLeftFront.z() < other.m_bottomRightBack.z()
+        return !(GetMaxX() < other.GetMinX() || GetMinX() > other.GetMaxX() ||
+                 GetMaxY() < other.GetMinY() || GetMinY() > other.GetMaxY() ||
+                 GetMaxZ() < other.GetMinZ() || GetMinZ() > other.GetMaxZ()
                  );
     }
     BoundingBox& Unite(const BoundingBox& other)
