@@ -13,10 +13,30 @@ template<typename ... Args>
 class CommonDispatcher
 {
 public:
+    enum SubscribeMode {
+        RepeatableSameSubscribe
+    };
     using FCommonDispatcherAction = std::function<void (Args...)>;
-    typedef void* Observer;
+    using Observer = void*;
+    struct RepeatableSameSubscribeAction
+    {
+        FCommonDispatcherAction Handler;
+        qint32 Counter = 1;
+    };
+    struct RepeatableSameSubscribeUnsubscriber
+    {
+        SubscribeMode Multi;
+        Observer Key;
+    };
+
     struct ActionHandler
     {
+        Observer Key;
+        FCommonDispatcherAction Handler;
+    };
+    struct RepeatableSameSubscribeHandler
+    {
+        SubscribeMode Multi;
         Observer Key;
         FCommonDispatcherAction Handler;
     };
@@ -29,9 +49,13 @@ public:
     void Invoke(Args... args) const
     {
         QMutexLocker lock(&m_mutex);
-        for(auto subscribe : m_subscribes)
+        for(const auto& subscribe : m_subscribes)
         {
             subscribe(args...);
+        }
+        for(const auto& subscribe : m_multiSubscribes)
+        {
+            subscribe.Handler(args...);
         }
     }
 
@@ -52,11 +76,42 @@ public:
     {
         QMutexLocker lock(&m_mutex);
         m_subscribes.remove(observer);
+        auto foundIt = m_multiSubscribes.find(observer);
+        if(foundIt != m_multiSubscribes.end()) {
+            if(--foundIt.value().Counter == 0) {
+                m_multiSubscribes.erase(foundIt);
+            }
+        }
+        return *this;
+    }
+
+    CommonDispatcher& operator-=(const RepeatableSameSubscribeUnsubscriber& unsubscriber)
+    {
+        QMutexLocker lock(&m_mutex);
+        auto foundIt = m_multiSubscribes.find(unsubscriber.Key);
+        if(foundIt != m_multiSubscribes.end()) {
+            if(--foundIt.value().Counter == 0) {
+                m_multiSubscribes.erase(foundIt);
+            }
+        }
+        return *this;
+    }
+
+
+    CommonDispatcher& operator+=(const RepeatableSameSubscribeHandler& subscribeHandler)
+    {
+        QMutexLocker lock(&m_mutex);
+        auto foundIt = m_multiSubscribes.find(subscribeHandler.Key);
+        if(foundIt == m_multiSubscribes.end()) {
+            foundIt = m_multiSubscribes.insert(subscribeHandler.Key, { subscribeHandler.Handler });
+        }
+        foundIt.value().Counter++;
         return *this;
     }
 
 private:
     QHash<Observer, FCommonDispatcherAction> m_subscribes;
+    QHash<Observer, RepeatableSameSubscribeAction> m_multiSubscribes;
     mutable QMutex m_mutex;
 };
 

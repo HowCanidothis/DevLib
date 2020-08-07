@@ -5,6 +5,7 @@
 
 #include "Models/modelstreebase.h"
 #include "Models/wrappers.h"
+#include "Models/modelstablebase.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"
@@ -19,6 +20,8 @@
 #include "Attachments/progressbarattachment.h"
 
 #include "Utils/iconsmanager.h"
+
+#include "TableViews/widgetsactivetableviewbase.h"
 
 #endif
 

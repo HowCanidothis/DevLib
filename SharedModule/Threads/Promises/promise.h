@@ -7,8 +7,10 @@
 #include <mutex>
 #include <condition_variable>
 
-#include <SharedModule/smartpointersadapters.h>
-#include <SharedModule/shared_decl.h>
+#include "SharedModule/smartpointersadapters.h"
+#include "SharedModule/shared_decl.h"
+#include "SharedModule/dispatcher.h"
+#include "SharedModule/interruptor.h"
 
 template<class T>
 class PromiseData
@@ -154,6 +156,19 @@ public:
         while(m_promisesCounter != 0) {
             m_conditional.wait(lock);
         }
+    }
+
+    void Wait(Interruptor interuptor)
+    {
+        *interuptor.OnInterupted += {this, [this]{
+            m_promisesCounter = 0;
+            m_conditional.notify_all();
+        }};
+        std::unique_lock<std::mutex> lock(m_mutex);
+        while(m_promisesCounter > 0) {
+            m_conditional.wait(lock);
+        }
+        *interuptor.OnInterupted -= this;
     }
 };
 

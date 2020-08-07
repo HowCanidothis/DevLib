@@ -19,6 +19,7 @@ public:
     static AsyncResult DoQThreadWorkerWithResult(QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Async(const FAction& task);
     static void TerminateAllAsyncTasks();
+    static void AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task);
 };
 
 #define THREAD_ASSERT_IS_THREAD(thread) Q_ASSERT(thread == QThread::currentThread());

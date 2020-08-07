@@ -60,3 +60,10 @@ AsyncResult ThreadsBase::Async(const FAction& task)
 {
     return ThreadFunction::Async(task);
 }
+
+void ThreadsBase::AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task)
+{
+    *result += Async([result, task]{
+        task();
+    });
+}

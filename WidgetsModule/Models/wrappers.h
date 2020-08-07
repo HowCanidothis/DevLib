@@ -33,8 +33,11 @@ public:
     Dispatcher OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
+    CommonDispatcher<qint32> OnAboutToChangeRow;
     CommonDispatcher<qint32> OnRowChanged;
 };
+
+using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
 
 inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
 {
@@ -73,5 +76,64 @@ inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
     OnAboutToBeDestroyed -= model;
     OnRowChanged -= model;
 }
+
+template<class Container>
+class TModelsTableWrapper : private Container, public ModelsTableWrapper
+{
+    using Super = Container;
+public:
+    using value_type = typename Super::value_type;
+    using Super::Super;
+
+    void Swap(Super& another)
+    {
+        OnAboutToBeReseted();
+        Super::swap(another);
+        OnReseted();
+        OnChanged();
+    }
+
+    void Append(const value_type& part)
+    {
+        auto size = GetSize();
+        OnAboutToInsertRows(size, size);
+        Super::append(part);
+        OnRowsInserted();
+        OnChanged();
+    }
+
+    void Remove(const QSet<qint32>& indexes)
+    {
+        OnAboutToBeReseted();
+        qint32 currentIndex = 0;
+        auto endIt = std::remove_if(Super::begin(), Super::end(), [&currentIndex, &indexes](const value_type& ){
+            return indexes.contains(currentIndex++);
+        });
+        Super::resize(std::distance(Super::begin(), endIt));
+        OnReseted();
+        OnChanged();
+    }
+
+    void Edit(qint32 index, const std::function<void (value_type& value)>& handler)
+    {
+        OnAboutToChangeRow(index);
+        handler(Super::operator[](index));
+        OnRowChanged(index);
+        OnChanged();
+    }
+
+    Super& EditSilent() { return *this; }
+
+    const value_type& First() const { return Super::first(); }
+    const value_type& Last() const { return Super::last(); }
+    bool IsEmpty() const { return Super::isEmpty(); }
+    qint32 GetSize() const { return Super::size(); }
+
+    const value_type& At(qint32 index) const { return Super::at(index); }
+    const value_type& operator[](qint32 index) const { return Super::operator[](index); }
+
+    typename Super::const_iterator begin() const { return Super::begin(); }
+    typename Super::const_iterator end() const { return Super::end(); }
+};
 
 #endif // WRAPPERS_H

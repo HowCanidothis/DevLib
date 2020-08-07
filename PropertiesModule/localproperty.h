@@ -202,7 +202,7 @@ public:
         if(value != Super::m_value.get()) {
             m_setterHandler([value, this]{
                 Super::m_value = value;
-                Invoke();
+                Super::Invoke();
             });
         }
     }

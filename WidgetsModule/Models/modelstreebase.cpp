@@ -65,7 +65,7 @@ void ModelsTreeBase::remove(const QModelIndex& parent, const std::function<bool 
         auto mi = index(i, 0, parent);
         auto* item = AsItem(mi);
         if(removePredicate(item)) {
-            beginRemoveRows(parent, i, 0);
+            beginRemoveRows(parent, i, i);
             AsItem(parent)->RemoveChild(i);
             endRemoveRows();
             i--;

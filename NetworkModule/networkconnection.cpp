@@ -75,7 +75,7 @@ void NetworkConnection::OnReadyRead()
             OnReadyRead();
         }
     } else if(m_socket.bytesAvailable()){
-        while (header.Size != 0) {
+        while (header.Size != 0 && m_socket.bytesAvailable()) {
             qint64 bytesRed = m_socket.read(data.data() + m_redOffset, header.Size);
             m_redOffset += bytesRed;
             header.Size -= bytesRed;
