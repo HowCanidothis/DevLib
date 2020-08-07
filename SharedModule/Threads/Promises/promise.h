@@ -160,7 +160,7 @@ public:
 
     void Wait(Interruptor interuptor)
     {
-        *interuptor.OnInterupted += {this, [this]{
+        *interuptor.OnInterrupted += {this, [this]{
             m_promisesCounter = 0;
             m_conditional.notify_all();
         }};
@@ -168,7 +168,7 @@ public:
         while(m_promisesCounter > 0) {
             m_conditional.wait(lock);
         }
-        *interuptor.OnInterupted -= this;
+        *interuptor.OnInterrupted -= this;
     }
 };
 

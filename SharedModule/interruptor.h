@@ -8,16 +8,16 @@ class Interruptor
 {
 public:
     Interruptor()
-        : OnInterupted(::make_shared<Dispatcher>())
+        : OnInterrupted(::make_shared<Dispatcher>())
         , m_interupted(::make_shared<std::atomic_bool>(false))
     {}
 
-    void Interrupt() { *m_interupted = true; OnInterupted->Invoke(); }
-    void Interrupt(qint32 msecs) { ThreadTimer::SingleShot(msecs, [this]{ Interupt(); }); }
+    void Interrupt() { *m_interupted = true; OnInterrupted->Invoke(); }
+    void Interrupt(qint32 msecs) { ThreadTimer::SingleShot(msecs, [this]{ Interrupt(); }); }
 
     bool IsInterrupted() const { return *m_interupted; }
 
-    SharedPointer<Dispatcher> OnInterupted;
+    SharedPointer<Dispatcher> OnInterrupted;
 
 private:
     SharedPointer<std::atomic_bool> m_interupted;
