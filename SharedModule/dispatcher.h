@@ -16,8 +16,35 @@ public:
     enum SubscribeMode {
         RepeatableSameSubscribe
     };
-    using FCommonDispatcherAction = std::function<void (Args...)>;
+    using Type = void (Args...);
+    using FCommonDispatcherAction = std::function<Type>;
     using Observer = void*;
+
+    struct ConnectionSubscribe
+    {
+        QHash<qint32, FCommonDispatcherAction> Subscribes;
+        qint32 LastId = 0;
+    };
+
+    class Connection
+    {
+        friend class CommonDispatcher;
+        CommonDispatcher* m_dispatcher;
+        Observer m_key;
+        qint32 m_id;
+
+        Connection(CommonDispatcher* dispatcher, Observer observer, qint32 id)
+            : m_dispatcher(dispatcher)
+            , m_key(observer)
+            , m_id(id)
+        {}
+    private:
+        void Disconnect()
+        {
+            m_dispatcher->Disconnect(*this);
+        }
+    };
+
     struct RepeatableSameSubscribeAction
     {
         FCommonDispatcherAction Handler;
@@ -57,11 +84,38 @@ public:
         {
             subscribe.Handler(args...);
         }
+        for(const auto& connections : m_connectionSubscribes)
+        {
+            for(const auto& subscribe : connections.Subscribes) {
+                subscribe(args...);
+            }
+        }
     }
 
     void operator()(Args... args) const
     {
         Invoke(args...);
+    }
+
+    Connection Connect(Observer key, const FCommonDispatcherAction& handler)
+    {
+        QMutexLocker lock(&m_mutex);
+        auto foundIt = m_connectionSubscribes.find(key);
+        if(foundIt == m_connectionSubscribes.end()) {
+            foundIt = m_connectionSubscribes.insert(key, ConnectionSubscribe());
+        }
+        ConnectionSubscribe& connectionSubscribe = foundIt.value();
+        connectionSubscribe.Subscribes.insert(connectionSubscribe.LastId++, handler);
+        return Connection(this, key, connectionSubscribe.LastId - 1);
+    }
+
+    void Disconnect(const Connection& connection)
+    {
+        QMutexLocker lock(&m_mutex);
+        auto foundIt = m_connectionSubscribes.find(connection.m_key);
+        if(foundIt != m_connectionSubscribes.end()) {
+            foundIt.value().Subscribes.remove(connection.m_id);
+        }
     }
 
     CommonDispatcher& operator+=(const ActionHandler& subscribeHandler)
@@ -110,6 +164,8 @@ public:
     }
 
 private:
+    friend class Connection;
+    QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
     QHash<Observer, FCommonDispatcherAction> m_subscribes;
     QHash<Observer, RepeatableSameSubscribeAction> m_multiSubscribes;
     mutable QMutex m_mutex;
