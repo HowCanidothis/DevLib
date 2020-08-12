@@ -22,6 +22,7 @@
 #include "Utils/iconsmanager.h"
 
 #include "TableViews/widgetsactivetableviewbase.h"
+#include "TableViews/widgetsadjustabletableview.h"
 
 #endif
 
