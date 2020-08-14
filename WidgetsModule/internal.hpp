@@ -20,6 +20,7 @@
 
 #include "Attachments/tableviewwidgetattachment.h"
 #include "Attachments/progressbarattachment.h"
+#include "Attachments/ignorewheelwithoutfocusattachment.h"
 
 #include "Utils/iconsmanager.h"
 

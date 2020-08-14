@@ -150,11 +150,12 @@ public:
     template<class T> T Cast() const { return (T)Native(); }
 
     LocalPropertyNamedUint& operator=(quint32 value) { SetValue(value); return *this; }
-
     template<typename Enum>
-    bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
+    LocalPropertyNamedUint& operator=(Enum value) { return operator=((quint32)value); }
     template<typename Enum>
-    bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
+    bool operator==(Enum value) const { return Super::m_value == (quint32)value; }
+    template<typename Enum>
+    bool operator!=(Enum value) const { return Super::m_value != (quint32)value; }
 
     template<class Buffer>
     void Serialize(Buffer& buffer)
