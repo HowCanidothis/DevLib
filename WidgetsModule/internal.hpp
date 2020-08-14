@@ -3,7 +3,9 @@
 
 #if defined __cplusplus
 
-#include "Models/modelstreebase.h"
+#include "Models/viewmodeltreebase.h"
+#include "Models/modelstreeitembase.h"
+#include "Models/modelstree.h"
 #include "Models/wrappers.h"
 #include "Models/modelstablebase.h"
 

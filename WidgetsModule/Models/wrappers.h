@@ -1,35 +1,39 @@
 #ifndef WRAPPERS_H
 #define WRAPPERS_H
 
+#include <QAbstractItemModel>
+
 #include <SharedModule/internal.hpp>
 
-class ModelsAbstractTableModel : public QAbstractTableModel
+#include "modelstreeitembase.h"
+
+class ModelsAbstractItemModel : public QAbstractItemModel
 {
-    using Super = QAbstractTableModel;
+    using Super = QAbstractItemModel;
     using Super::Super;
 
+    friend class ModelsWrapperBase;
     friend class ModelsTableWrapper;
-    static ModelsAbstractTableModel* Wrap(QAbstractTableModel* model) { return reinterpret_cast<ModelsAbstractTableModel*>(model); }
+    friend class ModelsTreeWrapper;
+    static ModelsAbstractItemModel* Wrap(QAbstractItemModel* model) { return reinterpret_cast<ModelsAbstractItemModel*>(model); }
 };
 
-class ModelsTableWrapper
+class ModelsWrapperBase
 {
 public:
-    virtual ~ModelsTableWrapper()
+    virtual ~ModelsWrapperBase()
     {
         OnAboutToBeDestroyed();
     }
-    void ConnectModel(QAbstractTableModel* model);
-    void DisconnectModel(QAbstractTableModel* model);
+    virtual void ConnectModel(QAbstractItemModel* model);
+    virtual void DisconnectModel(QAbstractItemModel* model);
 
     CommonDispatcher<qint32,qint32> OnValueChanged;
     Dispatcher OnAboutToBeReseted;
     Dispatcher OnReseted;
     Dispatcher OnAboutToBeUpdated;
     Dispatcher OnUpdated;
-    CommonDispatcher<qint32,qint32> OnAboutToRemoveRows;
     Dispatcher OnRowsRemoved;
-    CommonDispatcher<qint32,qint32> OnAboutToInsertRows;
     Dispatcher OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
@@ -37,11 +41,9 @@ public:
     CommonDispatcher<qint32> OnRowChanged;
 };
 
-using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
-
-inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
+inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
-    auto* model = ModelsAbstractTableModel::Wrap(qmodel);
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
     OnValueChanged += { model, [model](qint32 row, qint32 column) {
         auto modelIndex = model->index(row, column);
         emit model->dataChanged(modelIndex, modelIndex);
@@ -50,9 +52,7 @@ inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
     OnReseted += { model, [model]{ model->endResetModel(); } };
     OnAboutToBeUpdated += { model, [model]{ emit model->layoutAboutToBeChanged(); }};
     OnUpdated += { model, [model]{ emit model->layoutChanged(); }};
-    OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end){ model->beginRemoveRows(QModelIndex(), start, end); } };
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
-    OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };
     OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
     OnRowChanged += { model, [model] (qint32 row){
         auto startmi = model->index(row, 0);
@@ -61,20 +61,88 @@ inline void ModelsTableWrapper::ConnectModel(QAbstractTableModel* qmodel)
     }};
 }
 
-inline void ModelsTableWrapper::DisconnectModel(QAbstractTableModel* qmodel)
+inline void ModelsWrapperBase::DisconnectModel(QAbstractItemModel* qmodel)
 {
-    auto* model = ModelsAbstractTableModel::Wrap(qmodel);
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
     OnValueChanged -= model;
     OnAboutToBeReseted -= model;
     OnReseted -= model;
     OnAboutToBeUpdated -= model;
     OnUpdated -= model;
-    OnAboutToRemoveRows -= model;
     OnRowsRemoved -= model;
-    OnAboutToInsertRows -= model;
     OnRowsInserted -= model;
     OnAboutToBeDestroyed -= model;
     OnRowChanged -= model;
+}
+
+class ModelsTreeWrapper : public ModelsWrapperBase
+{
+    using Super = ModelsWrapperBase;
+public:
+    void ConnectModel(QAbstractItemModel* model) override;
+    void DisconnectModel(QAbstractItemModel* model) override;
+
+    CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToRemoveRows;
+    CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToInsertRows;
+
+
+    virtual ModelsTreeItemBase* GetRoot() = 0;
+};
+
+inline void ModelsTreeWrapper::ConnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::ConnectModel(qmodel);
+    OnAboutToInsertRows += { model, [model](qint32 start,qint32 end, ModelsTreeItemBase* parent){
+        if(parent->GetParent() == nullptr) {
+            model->beginInsertRows(QModelIndex(), start, end);
+        } else {
+            model->beginInsertRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
+        }
+    }};
+    OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end, ModelsTreeItemBase* parent){
+        if(parent->GetParent() == nullptr) {
+            model->beginRemoveRows(QModelIndex(), start, end);
+        } else {
+            qDebug() << (size_t)parent;
+            model->beginRemoveRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
+        }
+    }};
+}
+
+inline void ModelsTreeWrapper::DisconnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::DisconnectModel(qmodel);
+    OnAboutToRemoveRows -= model;
+    OnAboutToInsertRows -= model;
+}
+
+class ModelsTableWrapper : public ModelsWrapperBase
+{
+    using Super = ModelsWrapperBase;
+public:
+    void ConnectModel(QAbstractItemModel* model) override;
+    void DisconnectModel(QAbstractItemModel* model) override;
+
+    CommonDispatcher<qint32,qint32> OnAboutToRemoveRows;
+    CommonDispatcher<qint32,qint32> OnAboutToInsertRows;
+};
+
+inline void ModelsTableWrapper::ConnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::ConnectModel(qmodel);
+    OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end){ model->beginRemoveRows(QModelIndex(), start, end); } };
+    OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };
+}
+
+inline void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::DisconnectModel(qmodel);
+    OnAboutToRemoveRows -= model;
+    OnAboutToInsertRows -= model;
 }
 
 template<class Container>
@@ -135,5 +203,8 @@ public:
     typename Super::const_iterator begin() const { return Super::begin(); }
     typename Super::const_iterator end() const { return Super::end(); }
 };
+
+using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
+using ModelsTreeWrapperPtr = SharedPointer<ModelsTreeWrapper>;
 
 #endif // WRAPPERS_H
