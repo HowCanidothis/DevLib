@@ -8,6 +8,7 @@ class IgnoreWheelWithoutFocusAttachment : public QObject
     IgnoreWheelWithoutFocusAttachment();
 public:
     static void Attach(class QWidget* widget);
+    static void AttachRecursive(QWidget* widget);
 
     // QObject interface
 public:
