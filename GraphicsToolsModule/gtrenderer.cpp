@@ -197,7 +197,7 @@ void GtRenderer::onResize(qint32 w, qint32 h)
 
 void GtRenderer::onDraw()
 {
-    if(!isInitialized()) {
+    if(!isInitialized() || !m_camera->IsFrameChangedReset()) {
         return;
     }
 
