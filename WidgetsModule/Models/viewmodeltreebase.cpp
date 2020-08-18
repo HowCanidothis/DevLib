@@ -100,5 +100,6 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
 
 ModelsTreeItemBase* ViewModelTreeBase::AsItem(const QModelIndex& index) const
 {
-    return index.isValid() ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
+//    qDebug () << __FUNCTION__ << index.internalId();
+    return (index.isValid() && index.internalId() != 0) ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
 }

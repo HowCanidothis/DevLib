@@ -17,9 +17,9 @@ void MemoryManager::MakeMemoryReport()
     QHashIterator<size_t,qint32> i(created());
     while(i.hasNext()){
         i.next();
-        if(shouldBe(i.key())){
+//        if(shouldBe(i.key())){
             qCDebug(LC_SYSTEM) << typeName(i.key()) << "constructed:" << i.value() << "destructed:" << destroyed().value(i.key());
-        }
+//        }
     }
     qCDebug(LC_SYSTEM) << "----------------------------------------------------------------";
 }
