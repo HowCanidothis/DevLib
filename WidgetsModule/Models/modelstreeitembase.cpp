@@ -1,8 +1,14 @@
 #include "modelstreeitembase.h"
 
+int ModelsTreeItemBase::m_idCounter = 0;
+
 ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
     : m_parent(parent)
-{}
+    , m_id(++m_idCounter)
+    , m_checked(Qt::Unchecked)
+{
+    qDebug () << m_idCounter;
+}
 
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
 {

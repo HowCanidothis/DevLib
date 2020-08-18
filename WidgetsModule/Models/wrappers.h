@@ -28,7 +28,7 @@ public:
     virtual void ConnectModel(QAbstractItemModel* model);
     virtual void DisconnectModel(QAbstractItemModel* model);
 
-    CommonDispatcher<qint32,qint32> OnValueChanged;
+    CommonDispatcher<int, int, int, int, QVector<int>> OnValueChanged;
     Dispatcher OnAboutToBeReseted;
     Dispatcher OnReseted;
     Dispatcher OnAboutToBeUpdated;
@@ -44,9 +44,10 @@ public:
 inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
-    OnValueChanged += { model, [model](qint32 row, qint32 column) {
-        auto modelIndex = model->index(row, column);
-        emit model->dataChanged(modelIndex, modelIndex);
+    OnValueChanged += { model, [model](int stRow, int stCol, int endRow, int endCol, QVector<int> roles) {
+        auto topLeft = model->createIndex(stRow, stCol);
+        auto bottomRight = model->index(endRow, endCol);
+        emit model->dataChanged(topLeft, bottomRight, roles);
     }};
     OnAboutToBeReseted += { model, [model]{ model->beginResetModel(); }};
     OnReseted += { model, [model]{ model->endResetModel(); } };
@@ -85,6 +86,8 @@ public:
     CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToRemoveRows;
     CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToInsertRows;
 
+    CommonDispatcher<ModelsTreeItemBase*,QVector<int>> OnTreeValueChanged;
+
 
     virtual ModelsTreeItemBase* GetRoot() = 0;
 };
@@ -108,6 +111,12 @@ inline void ModelsTreeWrapper::ConnectModel(QAbstractItemModel* qmodel)
             model->beginRemoveRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
         }
     }};
+    OnTreeValueChanged += {model, [model](ModelsTreeItemBase* item, QVector<int> roles){
+        auto index = model->createIndex(item->GetRow(), 0, item);
+//        qDebug () << __FUNCTION__ << QString(" r:%1, c:%2, v:%3").arg(index.row()).arg(index.column()).arg(index.isValid());
+//        qDebug () << "RLABEL " << item->GetLabel() << "l: " << model->data(index, Qt::DisplayRole) << " s: " << model->data(index, Qt::CheckStateRole);
+        emit model->dataChanged(index, index, roles);
+    }};
 }
 
 inline void ModelsTreeWrapper::DisconnectModel(QAbstractItemModel* qmodel)
@@ -116,6 +125,7 @@ inline void ModelsTreeWrapper::DisconnectModel(QAbstractItemModel* qmodel)
     Super::DisconnectModel(qmodel);
     OnAboutToRemoveRows -= model;
     OnAboutToInsertRows -= model;
+    OnTreeValueChanged -= model;
 }
 
 class ModelsTableWrapper : public ModelsWrapperBase

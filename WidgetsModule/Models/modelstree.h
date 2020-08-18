@@ -10,6 +10,7 @@ class ModelsTreeItemBase;
 class ModelsTree : public ModelsTreeWrapper
 {
 public:
+
     ModelsTree(ModelsTreeItemBase* root = nullptr);
 
     void SetRoot(const SharedPointer<ModelsTreeItemBase>& root);
@@ -19,6 +20,7 @@ public:
     void Update(const std::function<void ()>& predicate);
     void Remove(ModelsTreeItemBase* item);
     void Remove(const std::function<bool (ModelsTreeItemBase*)>& predicate) { remove(m_root.get(), predicate); }
+    void SetChecked(ModelsTreeItemBase* item, Qt::CheckState checked);
 
     const SharedPointer<ModelsTreeItemBase>& GetRootPtr() const { return m_root; }
 
