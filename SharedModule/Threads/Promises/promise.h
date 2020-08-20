@@ -13,22 +13,27 @@
 #include "SharedModule/interruptor.h"
 
 template<class T>
-class PromiseData
+class PromiseData ATTACH_MEMORY_SPY(PromiseData<T>)
 {
     typedef std::function<void (const T&)> FCallback;
-    typedef std::function<void ()> FOnError;
 
     template<class> friend class Promise;
     friend class FutureResult;
     friend class AsyncObject;
-    FCallback PromiseCallback;
+    CommonDispatcher<const T&> PromiseCallback;
     std::atomic_bool IsCompleted;
     std::mutex m_mutex;
     T ResolvedValue;
 
+public:
     PromiseData()
         : IsCompleted(false)
     {}
+
+    ~PromiseData()
+    {
+
+    }
 };
 
 template<class T>
@@ -38,7 +43,7 @@ class Promise
     SharedPointer<PromiseData<T>> m_data;
 public:
     Promise()
-        : m_data(new PromiseData<T>())
+        : m_data(::make_shared<PromiseData<T>>())
     {}
 
     void Resolve(const T& value)
@@ -46,26 +51,24 @@ public:
         std::unique_lock<std::mutex> lock(m_data->m_mutex);
         m_data->ResolvedValue = value;
         m_data->IsCompleted = true;
-        if(m_data->PromiseCallback) {
-            m_data->PromiseCallback(value);
-        }
+        m_data->PromiseCallback.Invoke(value);
+        m_data->PromiseCallback -= m_data.get();
     }
 
     void Then(const typename PromiseData<T>::FCallback& then)
     {
         std::unique_lock<std::mutex> lock(m_data->m_mutex);
-        Q_ASSERT(m_data->PromiseCallback == nullptr); // Only one "Then task" is supported
         if(m_data->IsCompleted) {
             then(m_data->ResolvedValue);
         } else {
-            m_data->PromiseCallback = then;
+            m_data->PromiseCallback.Connect(m_data.get(), then);
         }
     }
 
     void Mute()
     {
         std::unique_lock<std::mutex> lock(m_data->m_mutex);
-        m_data->PromiseCallback = nullptr;
+        m_data->PromiseCallback -= m_data.get();
     }
 };
 
@@ -91,20 +94,19 @@ private:
     AsyncResult m_result;
 };
 
-class FutureResult
+class FutureResult ATTACH_MEMORY_SPY(FutureResult)
 {
     std::atomic<bool> m_result;
     std::atomic<int> m_promisesCounter;
     std::condition_variable m_conditional;
     std::mutex m_mutex;
-#ifndef QT_NO_DEBUG
-    std::set<PromiseData<bool>*> m_registeredPromises;
-#endif
 public:
     FutureResult()
-        : m_result(false)
+        : m_result(true)
         , m_promisesCounter(0)
     {}
+
+    bool GetResult() const { return m_result; }
 
     FutureResult& operator+=(AsyncResult promise)
     {
@@ -113,18 +115,14 @@ public:
             if(!promise.m_data->ResolvedValue) {
                 m_result = false;
             }
+            return *this;
         }
 
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_promisesCounter++;
-#ifndef QT_NO_DEBUG
-            auto data = promise.m_data.get();
-            Q_ASSERT(m_registeredPromises.find(data) == m_registeredPromises.end());
-            m_registeredPromises.insert(data);
-#endif
         }
-        promise.Then([this, promise](bool result){
+        promise.Then([this, promise](const bool& result){
             if(!result) {
                 m_result = false;
             }
@@ -134,17 +132,33 @@ public:
         return *this;
     }
 
-    FutureResult& operator-=(const AsyncResult& promise)
+    template<class T>
+    FutureResult& operator+=(Promise<T> promise)
+    {
+        if(promise.m_data->IsCompleted)
+        {
+            if(!promise.m_data->ResolvedValue) {
+                m_result = false;
+            }
+            return *this;
+        }
+
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_promisesCounter++;
+        }
+        promise.Then([this, promise](const T&){
+            *this -= promise;
+        });
+
+        return *this;
+    }
+
+    template<class T>
+    FutureResult& operator-=(const Promise<T>&)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_promisesCounter--;
-#ifndef QT_NO_DEBUG
-        auto data = promise.m_data.get();
-        Q_ASSERT(m_registeredPromises.find(data) != m_registeredPromises.end());
-        m_registeredPromises.erase(data);
-#else
-        Q_UNUSED(promise);
-#endif
         m_conditional.notify_one();
 
         return *this;
@@ -160,7 +174,7 @@ public:
 
     void Wait(Interruptor interuptor)
     {
-        *interuptor.OnInterrupted += {this, [this]{
+        interuptor.OnInterrupted += {this, [this]{
             m_promisesCounter = 0;
             m_conditional.notify_all();
         }};
@@ -168,7 +182,7 @@ public:
         while(m_promisesCounter > 0) {
             m_conditional.wait(lock);
         }
-        *interuptor.OnInterrupted -= this;
+        interuptor.OnInterrupted -= this;
     }
 };
 

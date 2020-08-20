@@ -10,11 +10,12 @@
 
 NotifyManager::NotifyManager(QObject *parent)
     : QObject(parent)
+    , m_enabled(true)
     , m_bottom(10)
     , m_right(10)
     , m_space(20)
     , m_width(300)
-    , m_displayTime(10 * 1000)
+    , m_displayTime(3 * 1000)
     , m_reservedHeight(300)
     , m_freeHeight(QApplication::desktop()->availableGeometry().height() - m_reservedHeight)
     , m_maxHeight(m_freeHeight)
@@ -39,18 +40,29 @@ void formattedText(const QString& body, QString& formattedBody, QString& formate
     }
 }
 
+void NotifyManager::EnableNotifications(bool enabled)
+{
+    m_enabled = enabled;
+}
+
 void NotifyManager::Notify(NotifyManager::MessageType messageType, const QString& body)
 {
+    if(!m_enabled) {
+        return;
+    }
     QString formattedBody, formattedExtendedBody;
     formattedText(body, formattedBody, formattedExtendedBody);
     auto data = new NotifyData(messageType, formattedBody, formattedExtendedBody);
 
-    NotifyManager::Instance().m_dataQueue.enqueue(data);
-    NotifyManager::Instance().showNext();
+    m_dataQueue.enqueue(data);
+    showNext();
 }
 
 void NotifyManager::Notify(QtMsgType qtMessageType, const QString& body)
 {
+    if(!m_enabled) {
+        return;
+    }
     switch (qtMessageType) {
     case QtWarningMsg: Notify(NotifyManager::Warning, body); break;
     case QtCriticalMsg: Notify(NotifyManager::Error, body); break;
@@ -59,7 +71,7 @@ void NotifyManager::Notify(QtMsgType qtMessageType, const QString& body)
     }
 }
 
-NotifyManager& NotifyManager::Instance()
+NotifyManager& NotifyManager::GetInstance()
 {
     static NotifyManager manager;
     return manager;

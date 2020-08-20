@@ -39,8 +39,6 @@ protected:
     virtual void updateTextureUnit(gTexUnit&) {}
     void updateLocation(QOpenGLShaderProgram* program);
 
-    template<class T> T* asObject() const { return (T*)ptr; }
-
 protected:
     FDelegate m_delegate;
     gLocID m_location;

@@ -4,13 +4,13 @@
 #include "property.h"
 #include "externalproperty.h"
 
-template<class T>
+template<class T, class StorageType = T>
 class LocalProperty
 {
     typedef std::function<void ()> FSetter;
     typedef std::function<void (const FSetter&)> FSetterHandler;
 protected:
-    T m_value;
+    StorageType m_value;
     FSetterHandler m_setterHandler;
 
 public:
@@ -63,8 +63,8 @@ public:
         }
     }
 
-    T& EditSilent() { return m_value; }
-    const T& Native() const { return m_value; }
+    StorageType& EditSilent() { return m_value; }
+    const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() { return OnChange; }
 
     bool operator!() const { return m_value == false; }
@@ -130,7 +130,6 @@ using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
 using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
 using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
 using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
-
 
 class LocalPropertyNamedUint : public LocalPropertyUInt
 {

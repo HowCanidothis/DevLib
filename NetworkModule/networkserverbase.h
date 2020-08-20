@@ -21,6 +21,7 @@ public:
 
 protected:
     void incomingConnection( qintptr handle ) final;
+    virtual void onConnectionLost(qintptr /*descriptor*/) {};
     void write(qintptr descriptor, const NetworkPackage& package);
 
 private:

@@ -10,8 +10,9 @@ NetworkConnection::NetworkConnection(INetworkConnectionOutput* output)
 {
     m_currentPackage.m_data.reserve(0xffff); // 65 kB
 
-    connect(&m_socket, SIGNAL(readyRead()), this, SLOT(OnReadyRead()));
+    connect(&m_socket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
     connect(&m_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(&m_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onSocketStateChanged(QAbstractSocket::SocketState)));
 }
 
 void NetworkConnection::Write(const NetworkPackage& package)
@@ -26,15 +27,24 @@ void NetworkConnection::Write(const NetworkPackage& package)
 void NetworkConnection::Connect(const QHostAddress& host, quint16 port)
 {
     m_socket.connectToHost(host, port);
-    QTimer* timer = new QTimer;
-    timer->singleShot(2000, [this, timer, host, port]{
+    ThreadTimer::SingleShot(2000, [this, host, port]{
         if(m_socket.state() != QTcpSocket::ConnectedState) {
             qCritical() << "Cannot connect to host, no response" << host << port;
         } else {
             qInfo() << "Successfuly connected to" << host << port;
         }
-        timer->deleteLater();
     });
+}
+
+AsyncResult NetworkConnection::ConnectWithResult(const QHostAddress& host, quint16 port)
+{
+    if(m_socket.state() == QTcpSocket::ConnectingState) {
+        return AsyncError();
+    }
+    AsyncResult result;
+    m_connectionResult = result;
+    m_socket.connectToHost(host, port);
+    return result;
 }
 
 void NetworkConnection::SetSocketDescriptor(quintptr descriptor)
@@ -48,7 +58,7 @@ bool NetworkConnection::LessThan(NetworkConnection* f, NetworkConnection* s)
     return f->GetSocketDescriptor() < s->GetSocketDescriptor();
 }
 
-void NetworkConnection::OnReadyRead()
+void NetworkConnection::onReadyRead()
 {
     auto& header = m_currentPackage.m_header;
     auto& data = m_currentPackage.m_data;
@@ -62,7 +72,7 @@ void NetworkConnection::OnReadyRead()
 
             if(!header.IsSynchronized()) {
                 qWarning() << "incorrect sync bytes, finding a begin...";
-                OnReadyRead();
+                onReadyRead();
                 return;
             }
 
@@ -72,7 +82,7 @@ void NetworkConnection::OnReadyRead()
 
             qInfo() << socketDescriptor << "parsing header...\n" << header;
 
-            OnReadyRead();
+            onReadyRead();
         }
     } else if(m_socket.bytesAvailable()){
         while (header.Size != 0 && m_socket.bytesAvailable()) {
@@ -102,6 +112,15 @@ void NetworkConnection::OnReadyRead()
             }
         }
 
-        OnReadyRead();
+        onReadyRead();
+    }
+}
+
+void NetworkConnection::onSocketStateChanged(QAbstractSocket::SocketState state)
+{
+    if(state == QTcpSocket::ConnectedState) {
+        m_connectionResult.Resolve(true);
+    } else if(state == QTcpSocket::UnconnectedState) {
+        m_connectionResult.Resolve(false);
     }
 }

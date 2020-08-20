@@ -9,7 +9,7 @@
 class GtObjectBase
 {
 public:
-    virtual void MapProperties(Observer* ) {}
+    virtual void MapProperties(QtObserver* ) {}
 };
 
 class GtDrawableBase : public GtObjectBase

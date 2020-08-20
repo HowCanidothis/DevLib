@@ -10,7 +10,7 @@ class GtMaterialParameterTexture : public GtMaterialParameterTextureBase
 public:
     GtMaterialParameterTexture(const QString& m_name, const QString& m_resource);
 
-    void MapProperties(Observer* observer) Q_DECL_OVERRIDE;
+    void MapProperties(QtObserver* observer) Q_DECL_OVERRIDE;
     // GtObjectBase interface
 private:
     virtual FDelegate apply() Q_DECL_OVERRIDE;

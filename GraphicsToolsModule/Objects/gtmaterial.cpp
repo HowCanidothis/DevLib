@@ -122,7 +122,7 @@ void GtMaterial::UpdateParameters()
     }
 }
 
-void GtMaterial::MapProperties(Observer* observer)
+void GtMaterial::MapProperties(QtObserver* observer)
 {
     qint32 counter = 0;
     for(Shader* shader : m_shaders) {

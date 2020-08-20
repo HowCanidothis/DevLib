@@ -54,7 +54,7 @@ protected:
 
     // GtObjectBase interface
 public:
-    void MapProperties(Observer* observer) Q_DECL_OVERRIDE;
+    void MapProperties(QtObserver* observer) Q_DECL_OVERRIDE;
 };
 
 #endif // GTVIEW_H

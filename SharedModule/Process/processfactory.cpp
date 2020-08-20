@@ -5,7 +5,7 @@ ProcessValue::ProcessValue(const FCallback& callback)
     : m_valueDepth(ProcessManager::getInstance().registerNewProcessValue())
     , m_callback(callback)
     , m_isFinished(false)
-    , m_isCancelable(false)
+    , m_interruptor(nullptr)
     , m_isTitleChanged(false)
 {
 }
@@ -18,8 +18,8 @@ ProcessValue::~ProcessValue()
 
 void ProcessValue::Cancel()
 {
-    Q_ASSERT(m_isCancelable);
-    finish();
+    Q_ASSERT(m_interruptor != nullptr);
+    m_interruptor->Interrupt();
 }
 
 void ProcessValue::setTitle(const std::wstring& title)
@@ -42,11 +42,11 @@ void ProcessValue::incrementStep(int)
 {
 }
 
-void ProcessValue::init(bool cancelable, const std::wstring& title)
+void ProcessValue::init(Interruptor* interruptor, const std::wstring& title)
 {
     m_title = title;
     m_isTitleChanged = true;
-    m_isCancelable = cancelable;
+    m_interruptor = interruptor;
     m_callback(this);
     m_isTitleChanged = false;    
 }
@@ -68,11 +68,11 @@ void ProcessDeterminateValue::incrementStep(int divider)
     }
 }
 
-void ProcessDeterminateValue::init(bool cancelable, const std::wstring& title, int stepsCount)
+void ProcessDeterminateValue::init(Interruptor* interruptor, const std::wstring& title, int stepsCount)
 {
     m_currentStep = 0;
     m_stepsCount = stepsCount;
-    Super::init(cancelable, title);
+    Super::init(interruptor, title);
 }
 
 void ProcessDeterminateValue::increaseStepsCount(int value)
