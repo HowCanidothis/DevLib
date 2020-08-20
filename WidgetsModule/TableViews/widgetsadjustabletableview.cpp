@@ -16,6 +16,7 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     verticalHeader()->setVisible(false);
+    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
     addActions({ createAction("Dich", [this]{
                      auto selIndexes = selectedIndexes();
@@ -66,7 +67,7 @@ void WidgetsAdjustableTableView::updateSizeHintCache() const
             }
 
             m_contentsWidth += contentsMargins().left() + contentsMargins().right();
-            m_contentsHeight += horizontalHeader()->sizeHint().height();
+            m_contentsHeight += horizontalHeader()->sizeHint().height() + contentsMargins().top() + contentsMargins().bottom();
         }
         m_isDirty = false;
     }
