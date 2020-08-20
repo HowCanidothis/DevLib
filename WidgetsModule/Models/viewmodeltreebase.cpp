@@ -47,6 +47,9 @@ QModelIndex ViewModelTreeBase::parent(const QModelIndex& child) const
     auto* node = AsItem(child);
     if(node->GetParent() == m_data->GetRoot()) {
         return QModelIndex();
+    } else if (node == m_data->GetRoot()) {
+        qWarning() << "Check me please";
+        return QModelIndex();
     }
     return createIndex(node->GetParentRow(), 0, node->GetParent());
 }
