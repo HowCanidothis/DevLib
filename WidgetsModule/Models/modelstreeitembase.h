@@ -8,7 +8,7 @@
 class ModelsTreeItemBase
 {
     using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
-    using SkipFunc = std::function<bool(ModelsTreeItemBase*)>;
+    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
 
     friend class ModelsTree;
     template<class T> friend struct Serializer;
@@ -33,8 +33,8 @@ public:
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
-    void ForeachChild(const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr) const;
-    void ForeachChildAfter(const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr) const;
+    void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
+    void ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
@@ -55,8 +55,8 @@ public:
     QVector<ModelsTreeItemBase*> GetPath() const;
 
 private:
-    static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr);
-    static void foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr);
+    static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
+    static void foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
 
 protected:
     virtual void clone(ModelsTreeItemBase* item) const;
