@@ -130,6 +130,7 @@ public:
     {
         QMutexLocker lock(&m_mutex);
         m_subscribes.remove(observer);
+        m_connectionSubscribes.remove(observer);
         auto foundIt = m_multiSubscribes.find(observer);
         if(foundIt != m_multiSubscribes.end()) {
             if(--foundIt.value().Counter == 0) {

@@ -4,23 +4,60 @@
 #include "dispatcher.h"
 #include "SharedModule/Threads/threadtimer.h"
 
+class InterruptorData
+{
+    friend class Interruptor;
+    Dispatcher OnInterrupted;
+    std::atomic_bool m_interupted = false;
+    InterruptorData* m_parentData = nullptr;
+
+    void interrupt()
+    {
+        m_interupted = true;
+        OnInterrupted.Invoke();
+    }
+    void setParent(InterruptorData* data)
+    {
+        Q_ASSERT(m_parentData == nullptr);
+        m_parentData = data;
+        data->OnInterrupted += { this, [this]{ interrupt(); } };
+    }
+
+public:
+    InterruptorData()
+        : m_parentData(nullptr)
+    {
+    }
+
+    ~InterruptorData()
+    {
+        if(m_parentData != nullptr) {
+            m_parentData->OnInterrupted -= this;
+        }
+    }
+};
+
 class Interruptor
 {
 public:
     Interruptor()
-        : OnInterrupted(::make_shared<Dispatcher>())
-        , m_interupted(::make_shared<std::atomic_bool>(false))
+        : m_data(::make_shared<InterruptorData>())
+        , OnInterrupted(m_data->OnInterrupted)
     {}
 
-    void Interrupt() { *m_interupted = true; OnInterrupted->Invoke(); }
-    void Interrupt(qint32 msecs) { ThreadTimer::SingleShot(msecs, [this]{ Interrupt(); }); }
 
-    bool IsInterrupted() const { return *m_interupted; }
+    void SetParent(const Interruptor& another) { m_data->setParent(another.m_data.get());  }
+    void Interrupt() { m_data->interrupt(); }
+    void Interrupt(qint32 msecs) { auto data = m_data; ThreadTimer::SingleShot(msecs, [data]{ data->interrupt(); }); }
 
-    SharedPointer<Dispatcher> OnInterrupted;
+    bool IsInterrupted() const { return m_data->m_interupted; }
 
 private:
-    SharedPointer<std::atomic_bool> m_interupted;
+    SharedPointer<InterruptorData> m_data;
+
+public:
+    Dispatcher& OnInterrupted;
 };
+
 
 #endif // INTERUPTOR_H

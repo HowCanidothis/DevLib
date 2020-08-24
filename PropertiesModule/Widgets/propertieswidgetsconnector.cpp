@@ -12,7 +12,10 @@
 #include <QComboBox>
 
 PropertiesConnectorBase::PropertiesConnectorBase(const Name& name, const PropertiesConnectorBase::Setter& setter, QWidget* target)
-    : m_setter(setter)
+    : m_setter([target, setter](const QVariant& value){
+        QSignalBlocker signalBlocker(target);
+        setter(value);
+    })
     , m_ignorePropertyChange(false)
     , m_dispatcherConnections(this)
     , m_target(target)
@@ -33,20 +36,17 @@ void PropertiesConnectorBase::SetScope(const PropertiesScopeName& scope)
         Q_ASSERT(m_propertyPtr.IsValid());
         Q_ASSERT(m_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
         if(!m_ignorePropertyChange) {
-            QSignalBlocker blocker(m_target); // TODO. why so?
             m_setter(m_propertyPtr.GetProperty()->GetValue());
         }
     });
 
     if(m_propertyPtr.IsValid()) {
-        QSignalBlocker blocker(m_target); // TODO. why so?
         m_setter(m_propertyPtr.GetProperty()->GetValue());
     }
 }
 
 void PropertiesConnectorBase::Update()
 {
-    QSignalBlocker blocker(parent()); // TODO. why so?
     m_setter(m_propertyPtr.GetProperty()->GetValue());
 }
 
@@ -171,7 +171,7 @@ PropertiesConnectorBase::PropertyChangeGuard::~PropertyChangeGuard()
 
 PropertiesRadioButtonsGroupBoxConnector::PropertiesRadioButtonsGroupBoxConnector(const Name& propertyName, QGroupBox* groupBox, const Stack<QRadioButton*>& buttons)
     : PropertiesConnectorBase(propertyName,
-                              [groupBox, buttons](const QVariant& value){
+                              [buttons](const QVariant& value){
                                     auto index = value.toUInt();
                                     Q_ASSERT(index >= 0 && index < buttons.Size());
                                     auto* targetButton = buttons.At(index);

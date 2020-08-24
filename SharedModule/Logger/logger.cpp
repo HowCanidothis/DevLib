@@ -16,8 +16,8 @@ Logger::Logger()
     , m_printHandler(&Logger::printBoth)
     , m_messageHandler(&Logger::additionalMessageNoOp)
 {
-    Q_ASSERT(instance() == nullptr);
-    instance() = this;
+    Q_ASSERT(getInstance() == nullptr);
+    getInstance() = this;
 
     qInstallMessageHandler(&messageHandler);
 }
@@ -27,38 +27,54 @@ Logger::~Logger()
 
 }
 
+void Logger::EnableLogging(bool enabled)
+{
+    auto* logger = getInstance();
+    if(!enabled && logger->m_printHandler != &Logger::printNo) {
+        logger->m_printHandlerBefore = logger->m_printHandler;
+        logger->m_printHandler = &Logger::printNo;
+    } else if(enabled && logger->m_printHandler == &Logger::printNo){
+        logger->m_printHandler = logger->m_printHandlerBefore;
+    }
+}
+
 void Logger::SetMaxDays(qint32 maxDays)
 {
-    instance()->m_filesGuard->SetMaxCount(maxDays);
+    getInstance()->m_filesGuard->SetMaxCount(maxDays);
 }
 
 void Logger::SetConsoleEnabled(bool enabled)
 {
-    if(instance()->m_printHandler == &Logger::printWithoutFile) {
+    if(getInstance()->m_printHandler == &Logger::printWithoutFile) {
         qCritical() << "Unable to write in file, error captured";
         return;
     }
 
     if(enabled) {
-        instance()->m_printHandler = &Logger::printBoth;
+        getInstance()->m_printHandler = &Logger::printBoth;
     } else {
-        instance()->m_printHandler = &Logger::printWithoutConsole;
+        getInstance()->m_printHandler = &Logger::printWithoutConsole;
     }
+}
+
+void Logger::printNo(const QString&)
+{
+
 }
 
 void Logger::Print(const QString& message)
 {
-    instance()->print(message);
+    getInstance()->print(message);
 }
 
 void Logger::SetAdditionalMessageHandler(const QtMessageHandler& messageHandler)
 {
-    instance()->m_messageHandler = messageHandler;
+    getInstance()->m_messageHandler = messageHandler;
 }
 
 void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {
-    Logger* logger = instance();
+    Logger* logger = getInstance();
 
     QString currentDateTime = QTime::currentTime().toString() + ": ";
 
@@ -99,7 +115,7 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
     }
 }
 
-Logger*& Logger::instance()
+Logger*& Logger::getInstance()
 {
     static Logger* result;
     return result;

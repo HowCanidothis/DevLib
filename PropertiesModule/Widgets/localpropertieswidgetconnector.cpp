@@ -102,6 +102,10 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
+    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+        QSignalBlocker blocker(spinBox);
+        spinBox->setRange(property->GetMin(), property->GetMax());
+    });
 
     m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](){
         m_propertySetter();
@@ -121,6 +125,10 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
     });
+    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+        QSignalBlocker blocker(spinBox);
+        spinBox->setRange(property->GetMin(), property->GetMax());
+    });
 
     m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
@@ -139,6 +147,10 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 {
     m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
         m_widgetSetter();
+    });
+    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+        QSignalBlocker blocker(spinBox);
+        spinBox->setRange(property->GetMin(), property->GetMax());
     });
 
     m_connections.connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){

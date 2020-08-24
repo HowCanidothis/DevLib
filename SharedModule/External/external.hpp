@@ -9,8 +9,6 @@
 #include "qtqssreader.h"
 #include "utils.h"
 
-typedef QtObserver Observer;
-typedef QtInlineEvent InlineEvent;
 #endif
 
 #endif // EXTERNAL_HPP

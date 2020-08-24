@@ -22,9 +22,10 @@ public:
     explicit NotifyManager( QObject* parent = 0);
     ~NotifyManager();
 
-    static void Notify(MessageType messageType, const QString& body);
-    static void Notify(QtMsgType qtMessageType, const QString& body);
-    static NotifyManager& Instance();
+    void EnableNotifications(bool enabled);
+    void Notify(MessageType messageType, const QString& body);
+    void Notify(QtMsgType qtMessageType, const QString& body);
+    static NotifyManager& GetInstance();
 
     void SetMargins(qint32 bottom, qint32 right, qint32 space);
     void SetWidth(qint32 width);
@@ -35,6 +36,7 @@ private Q_SLOTS:
     void showNext();
 
 private:
+    std::atomic_bool m_enabled;
     QQueue<NotifyData*> m_dataQueue;
     QList<class NotifyWidget*> m_notifyList;
     qint32 m_bottom;

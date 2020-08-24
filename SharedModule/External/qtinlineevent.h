@@ -32,16 +32,22 @@ public:
     QtInlineEventWithResult(const FAction& function, const AsyncResult& result)
         : Super([this, function]{
             function();
-            m_asyncResult.Resolve(true);
+            m_asyncResult->Resolve(true);
+            delete m_asyncResult;
         })
-        , m_asyncResult(result)
+        , m_asyncResult(new AsyncResult(result))
     {}
+
+    ~QtInlineEventWithResult()
+    {
+
+    }
 
     static AsyncResult Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
 
 private:
-    AsyncResult m_asyncResult;
+    AsyncResult* m_asyncResult;
 };
 
 #endif // QTCUSTOMEVENTS_H

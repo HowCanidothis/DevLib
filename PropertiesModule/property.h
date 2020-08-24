@@ -201,9 +201,9 @@ public:
         m_min = min;
         m_max = max;
         if(Super::m_value < m_min) {
-            SetValue(m_min);
+            Super::SetValue(m_min);
         }else if(Super::m_value > m_max) {
-            SetValue(m_max);
+            Super::SetValue(m_max);
         }
     }
 

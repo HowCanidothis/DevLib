@@ -20,7 +20,8 @@ public:
     Logger();
     ~Logger();
 
-    static void SetSeverity(ESeverity severity) { instance()->m_severity = severity; }
+    static void EnableLogging(bool enabled);
+    static void SetSeverity(ESeverity severity) { getInstance()->m_severity = severity; }
     static void SetMaxDays(qint32 maxDays);
     static void SetConsoleEnabled(bool enabled);
 
@@ -29,10 +30,11 @@ public:
 
 private:
     static void messageHandler(QtMsgType type, const QMessageLogContext&, const QString& message);
-    static Logger*& instance();
+    static Logger*& getInstance();
 
     void print(const QString& message);
 
+    void printNo(const QString& message);
     void printWithoutFile(const QString& message);
     void printBoth(const QString& message);
     void printWithoutConsole(const QString& message);
@@ -48,6 +50,7 @@ private:
     QDate m_currentDate;
     qint32 m_currentDay;
     FPrintToConsole m_printHandler;
+    FPrintToConsole m_printHandlerBefore;
     QtMessageHandler m_messageHandler;
 };
 

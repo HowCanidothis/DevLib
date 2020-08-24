@@ -7,7 +7,6 @@ AsyncObject::AsyncObject()
 
 AsyncObject::~AsyncObject()
 {
-    m_result.Mute();
 }
 
 AsyncResult AsyncObject::Async(const FAction& action, const PromiseData<bool>::FCallback& onDone)

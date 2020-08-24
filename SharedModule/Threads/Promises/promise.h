@@ -15,61 +15,65 @@
 template<class T>
 class PromiseData
 {
-    typedef std::function<void (const T&)> FCallback;
-    typedef std::function<void ()> FOnError;
-
-    template<class> friend class Promise;
-    friend class FutureResult;
-    friend class AsyncObject;
-    FCallback PromiseCallback;
-    std::atomic_bool IsCompleted;
-    std::mutex m_mutex;
-    T ResolvedValue;
-
+public:
+    using FCallback = std::function<void (const T& )>;
     PromiseData()
-        : IsCompleted(false)
+        : m_isResolved(false)
     {}
+
+private:
+    template<class T2> friend class Promise;
+    T m_result;
+    std::atomic_bool m_isResolved;
+    CommonDispatcher<bool> onFinished;
+    std::mutex m_mutex;
+
+    void resolve(bool value)
+    {
+        if(!m_isResolved) {
+            m_isResolved = true;
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_result = value;
+            }
+            onFinished(value);
+            onFinished -= this;
+        }
+    }
+
+    void then(const FCallback& handler)
+    {
+        if(m_isResolved) {
+            handler(m_result);
+        } else {
+            onFinished.Connect(this, handler);
+        }
+    }
+
+    void mute()
+    {
+         onFinished -= this;
+    }
 };
 
 template<class T>
 class Promise
 {
-    friend class FutureResult;
     SharedPointer<PromiseData<T>> m_data;
 public:
+
     Promise()
-        : m_data(new PromiseData<T>())
+        : m_data(::make_shared<PromiseData<T>>())
     {}
 
-    void Resolve(const T& value)
-    {
-        std::unique_lock<std::mutex> lock(m_data->m_mutex);
-        m_data->ResolvedValue = value;
-        m_data->IsCompleted = true;
-        if(m_data->PromiseCallback) {
-            m_data->PromiseCallback(value);
-        }
-    }
-
-    void Then(const typename PromiseData<T>::FCallback& then)
-    {
-        std::unique_lock<std::mutex> lock(m_data->m_mutex);
-        Q_ASSERT(m_data->PromiseCallback == nullptr); // Only one "Then task" is supported
-        if(m_data->IsCompleted) {
-            then(m_data->ResolvedValue);
-        } else {
-            m_data->PromiseCallback = then;
-        }
-    }
-
-    void Mute()
-    {
-        std::unique_lock<std::mutex> lock(m_data->m_mutex);
-        m_data->PromiseCallback = nullptr;
-    }
+    const T& GetValue() const { return m_data->m_result; }
+    bool IsResolved() const { return m_data->m_isResolved; }
+    void Then(const typename PromiseData<T>::FCallback& handler) { m_data->then(handler); }
+    void Resolve(bool value) {  m_data->resolve(value); }
+    void Mute() { m_data->mute(); }
 };
 
-typedef Promise<bool> AsyncResult;
+using AsyncResult = Promise<bool>;
 
 class AsyncError : public AsyncResult
 {
@@ -91,76 +95,83 @@ private:
     AsyncResult m_result;
 };
 
-class FutureResult
+class FutureResultData
 {
+    template<class T> friend class QtFutureWatcher;
+    friend class FutureResult;
     std::atomic<bool> m_result;
     std::atomic<int> m_promisesCounter;
     std::condition_variable m_conditional;
     std::mutex m_mutex;
-#ifndef QT_NO_DEBUG
-    std::set<PromiseData<bool>*> m_registeredPromises;
-#endif
-public:
-    FutureResult()
-        : m_result(false)
-        , m_promisesCounter(0)
-    {}
+    QVector<AsyncResult> m_keepedResults;
 
-    FutureResult& operator+=(AsyncResult promise)
+    void ref()
     {
-        if(promise.m_data->IsCompleted)
-        {
-            if(!promise.m_data->ResolvedValue) {
-                m_result = false;
-            }
-        }
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_promisesCounter++;
+    }
+    void deref()
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_promisesCounter--;
 
+        if(isFinished()) {
+            m_conditional.notify_one();
+            onFinished();
+        }
+    }
+
+    bool isFinished() const { return m_promisesCounter == 0; }
+    bool getResult() const { return m_result; }
+
+    void operator+=(AsyncResult promise)
+    {
         {
             std::unique_lock<std::mutex> lock(m_mutex);
-            m_promisesCounter++;
-#ifndef QT_NO_DEBUG
-            auto data = promise.m_data.get();
-            Q_ASSERT(m_registeredPromises.find(data) == m_registeredPromises.end());
-            m_registeredPromises.insert(data);
-#endif
+            m_keepedResults.append(promise); // Garanting that all results will be valid
         }
-        promise.Then([this, promise](bool result){
+        m_promisesCounter++;
+        promise.Then([this, promise](const bool& result){
             if(!result) {
                 m_result = false;
             }
             *this -= promise;
         });
 
-        return *this;
+        return;
     }
 
-    FutureResult& operator-=(const AsyncResult& promise)
+    template<class T>
+    void operator+=(Promise<T> promise)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_promisesCounter--;
-#ifndef QT_NO_DEBUG
-        auto data = promise.m_data.get();
-        Q_ASSERT(m_registeredPromises.find(data) != m_registeredPromises.end());
-        m_registeredPromises.erase(data);
-#else
-        Q_UNUSED(promise);
-#endif
-        m_conditional.notify_one();
-
-        return *this;
+        ref();
+        promise.Then([this, promise](const T&){
+            *this -= promise;
+        });
     }
 
-    void Wait()
+    void operator-=(const AsyncResult&)
+    {
+        deref();
+    }
+
+    template<class T>
+    void operator-=(const Promise<T>&)
+    {
+        deref();
+    }
+
+    void wait()
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        while(m_promisesCounter != 0) {
+        while(!isFinished()) {
             m_conditional.wait(lock);
         }
     }
 
-    void Wait(Interruptor interuptor)
+    void wait(Interruptor interruptor)
     {
-        *interuptor.OnInterrupted += {this, [this]{
+        interruptor.OnInterrupted += {this, [this]{
             m_promisesCounter = 0;
             m_conditional.notify_all();
         }};
@@ -168,7 +179,89 @@ public:
         while(m_promisesCounter > 0) {
             m_conditional.wait(lock);
         }
-        *interuptor.OnInterrupted -= this;
+        interruptor.OnInterrupted -= this;
+    }
+
+    Dispatcher onFinished;
+
+public:
+    FutureResultData()
+        : m_result(true)
+        , m_promisesCounter(0)
+    {}
+};
+
+class FutureResult ATTACH_MEMORY_SPY(FutureResult)
+{
+    template<class T> friend class QtFutureWatcher;
+    SharedPointer<FutureResultData> m_data;
+public:
+    enum MemoryPolicy
+    {
+        MemoryPolicy_DeleteOnFinished
+    };
+    FutureResult()
+        : m_data(::make_shared<FutureResultData>())
+        , OnFinished(m_data->onFinished)
+    {}
+    FutureResult(MemoryPolicy)
+        : FutureResult()
+    {
+        OnFinished += { this, [this] { delete this; } };
+    }
+
+    bool IsFinished() const { return m_data->isFinished(); }
+    bool GetResult() const { return m_data->getResult(); }
+
+    void operator-=(const AsyncResult& promise)
+    {
+        *m_data += promise;
+    }
+
+    template<class T>
+    void operator+=(const Promise<T>& promise)
+    {
+        *m_data += promise;
+    }
+
+    template<class T>
+    void operator-=(const Promise<T>& promise)
+    {
+        *m_data -= promise;
+    }
+
+    void Wait()
+    {
+        m_data->wait();
+    }
+
+    void Wait(Interruptor interruptor)
+    {
+        m_data->wait(interruptor);
+    }
+
+    Dispatcher& OnFinished;
+
+};
+
+#include <QFuture>
+#include <QFutureWatcher>
+template<class T>
+class QtFutureWatcher : public QFutureWatcher<T>
+{
+    using Super = QFutureWatcher<T>;
+    QFuture<T> m_future;
+    AsyncResult m_result;
+public:
+    QtFutureWatcher(const QFuture<T>& future, const AsyncResult& result)
+        : m_future(future)
+        , m_result(result)
+    {
+        Super::connect(this, &QtFutureWatcher<T>::finished, [this](){
+            m_result.Resolve(true);
+            this->deleteLater();
+        });
+        Super::setFuture(future);
     }
 };
 

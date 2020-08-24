@@ -1,6 +1,8 @@
 #ifndef THREADTIMER_H
 #define THREADTIMER_H
 
+#include <QTimer>
+
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/array.h"
 

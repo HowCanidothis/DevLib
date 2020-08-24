@@ -16,7 +16,9 @@ public:
     void Write(const NetworkPackage& package);
 
     void Connect(const QHostAddress& host, quint16 port);
+    AsyncResult ConnectWithResult(const QHostAddress& host, quint16 port);
     void Disconnect() { m_socket.disconnectFromHost(); }
+    bool IsConnected() const { return m_socket.state() == QTcpSocket::ConnectedState; }
 
     void SetSocketDescriptor(quintptr descriptor);
     qintptr GetSocketDescriptor() const { return m_socketDescriptor; }
@@ -27,10 +29,12 @@ signals:
     void disconnected();
 
 private slots:
-    void OnReadyRead();
+    void onReadyRead();
+    void onSocketStateChanged(QAbstractSocket::SocketState);
 
 private:
     friend class NetworkPackage;
+    AsyncResult m_connectionResult;
     qintptr m_socketDescriptor;
     QTcpSocket m_socket;
     NetworkPackage m_currentPackage;

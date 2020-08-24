@@ -4,13 +4,13 @@
 #include "property.h"
 #include "externalproperty.h"
 
-template<class T>
+template<class T, class StorageType = T>
 class LocalProperty
 {
     typedef std::function<void ()> FSetter;
     typedef std::function<void (const FSetter&)> FSetterHandler;
 protected:
-    T m_value;
+    StorageType m_value;
     FSetterHandler m_setterHandler;
 
 public:
@@ -63,8 +63,8 @@ public:
         }
     }
 
-    T& EditSilent() { return m_value; }
-    const T& Native() const { return m_value; }
+    StorageType& EditSilent() { return m_value; }
+    const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() { return OnChange; }
 
     bool operator!() const { return m_value == false; }
@@ -93,9 +93,12 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        m_min = min;
-        m_max = max;
-        SetValue(validateValue(Super::m_value));
+        if(!qFuzzyCompare((double)m_max,max) || !qFuzzyCompare((double)m_min, min)) {
+            m_min = min;
+            m_max = max;
+            SetValue(validateValue(Super::m_value));
+            OnMinMaxChanged();
+        }
     }
 
     void SetValue(const T& value)
@@ -114,6 +117,8 @@ public:
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
 
+    Dispatcher OnMinMaxChanged;
+
 private:
     T validateValue(const T& value)
     {
@@ -130,7 +135,6 @@ using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
 using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
 using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
 using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
-
 
 class LocalPropertyNamedUint : public LocalPropertyUInt
 {
@@ -201,7 +205,7 @@ public:
     void SetValue(T* value)
     {
         if(value != Super::m_value.get()) {
-            m_setterHandler([value, this]{
+            Super::m_setterHandler([value, this]{
                 Super::m_value = value;
                 Super::Invoke();
             });

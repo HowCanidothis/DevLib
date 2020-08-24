@@ -37,6 +37,7 @@ Q_SIGNALS:
 
 private:
     int m_displayTime;
+    bool m_autoHide;
 
     ScopedPointer<NotifyData> m_data;
 

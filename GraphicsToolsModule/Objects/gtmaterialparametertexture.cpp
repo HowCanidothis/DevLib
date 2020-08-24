@@ -24,7 +24,7 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
     return [](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){};
 }
 
-void GtMaterialParameterTexture::MapProperties(Observer* observer)
+void GtMaterialParameterTexture::MapProperties(QtObserver* observer)
 {
     QString path = "Materials/" + QString::number(m_unit);
     new ExternalStringProperty(Name(path + "/Name"), m_name);

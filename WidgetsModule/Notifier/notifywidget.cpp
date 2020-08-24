@@ -27,6 +27,7 @@ static QString typeToText(qint32 type)
 NotifyWidget::NotifyWidget (NotifyData* data, int displayTime, QWidget* parent)
     : QLabel(parent)
     , m_displayTime(displayTime)
+    , m_autoHide(true)
     , m_data(data)
 {
 
@@ -94,6 +95,10 @@ void NotifyWidget::ShowGriant(qint32 maxHeight)
 
 void NotifyWidget::hideGriant()
 {
+    if(!m_autoHide) {
+        return;
+    }
+
     QPropertyAnimation* animation = new QPropertyAnimation(this, "windowOpacity", this);
     animation->setStartValue(this->windowOpacity());
     animation->setEndValue(0);
@@ -118,5 +123,6 @@ void NotifyWidget::mousePressEvent(QMouseEvent* event)
             dialog.SetMessage(m_data->ExtendedBody);
             dialog.exec();
         }
+        m_autoHide = false;
     }
 }

@@ -49,6 +49,7 @@
 #include "Trees/cubetree.h"
 #include "Trees/quadtreef.h"
 #include "interruptor.h"
+#include "externalservice.h"
 
 #endif
 
