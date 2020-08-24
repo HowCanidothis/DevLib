@@ -88,7 +88,6 @@ public:
 
     CommonDispatcher<ModelsTreeItemBase*,QVector<int>> OnTreeValueChanged;
 
-
     virtual ModelsTreeItemBase* GetRoot() = 0;
 };
 

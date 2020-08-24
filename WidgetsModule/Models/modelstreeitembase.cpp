@@ -5,9 +5,7 @@ int ModelsTreeItemBase::m_idCounter = 0;
 ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
     : m_parent(parent)
     , m_id(++m_idCounter)
-    , m_checked(Qt::Unchecked)
 {
-    qDebug () << m_idCounter;
 }
 
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
@@ -26,17 +24,34 @@ void ModelsTreeItemBase::RemoveChilds()
     m_childs.clear();
 }
 
-void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const std::function<void (ModelsTreeItemBase*)>& handler)
+void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc)
 {
     for(const auto& child : item->GetChilds()) {
         handler(child.get());
-        foreachChild(child.get(), handler);
+        if (skipFunc == nullptr || !(*skipFunc)(child.get())){
+            foreachChild(child.get(), handler, skipFunc);
+        }
     }
 }
 
-void ModelsTreeItemBase::ForeachChild(const std::function<void (ModelsTreeItemBase*)>& handler) const
+void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc)
 {
-    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler);
+    for(const auto& child : item->GetChilds()) {
+        if (skipFunc == nullptr || !(*skipFunc)(child.get())){
+            foreachChildAfter(child.get(), handler, skipFunc);
+        }
+        handler(child.get());
+    }
+}
+
+void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const SkipFunc* skipFunc) const
+{
+    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, skipFunc);
+}
+
+void ModelsTreeItemBase::ForeachChildAfter(const HandlerFunc& handler, const SkipFunc* skipFunc) const
+{
+    foreachChildAfter(const_cast<ModelsTreeItemBase*>(this), handler, skipFunc);
 }
 
 qint32 ModelsTreeItemBase::GetRow() const
@@ -57,6 +72,18 @@ qint32 ModelsTreeItemBase::GetParentRow() const
         return m_parent->GetRow();
     }
     return 0;
+}
+
+Qt::CheckState ModelsTreeItemBase::Checked(const qint64& key) const {
+    auto iter = m_checkedMap.find(key);
+    if (iter == m_checkedMap.end()) {
+        iter = m_checkedMap.insert(key, Qt::Unchecked);
+    }
+    return iter.value();
+}
+
+void ModelsTreeItemBase::SetChecked(const qint64& key, Qt::CheckState value) {
+    m_checkedMap[key] = value;
 }
 
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const

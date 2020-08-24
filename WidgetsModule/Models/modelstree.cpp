@@ -74,57 +74,24 @@ void ModelsTree::Remove(ModelsTreeItemBase* item)
     OnRowsRemoved();
 }
 
-void ModelsTree::SetChecked(ModelsTreeItemBase* item, Qt::CheckState checked) {
-    if (item->Checked() == checked) {
+void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)
+{
+    if (item->m_childs.isEmpty()) {
+        return ;
+    }
+    OnAboutToRemoveRows(0, item->m_childs.size()-1, item);
+    item->m_childs.clear();
+    OnRowsRemoved();
+}
+
+void ModelsTree::SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked) {
+    if (item->Checked(key) == checked) {
         return;
     }
 
-    auto func = [this](ModelsTreeItemBase* item){ OnTreeValueChanged(item, {Qt::CheckStateRole}); };
-
-    if (checked == Qt::Checked) {
-        QVector<ModelsTreeItemBase*> stack;
-        auto p = item->GetParent();
-        while (p && p->Checked() == item->Checked()) {
-            stack.append(p);
-            p = p->GetParent();
-        }
-
-        ///делаем активными всех парентов
-        for (int i=stack.size()-1; i>=0; --i) {
-            stack[i]->SetChecked(Qt::Checked, ModelsTreeItemBase::CurrentNode, func);
-        }
-        ///делаем активными текущую ноду и всех чилдов
-        item->SetChecked(checked, ModelsTreeItemBase::CurrentWithChilds, func);
-    } else {
-        bool isStop = false;
-        QVector<ModelsTreeItemBase*> stack;
-
-        auto p = item;
-        while (p->GetParent()) {
-            for (auto ch : p->GetParent()->GetChilds()) {
-                if (ch->Id() == p->Id()) {
-                    continue;
-                }
-                //если другой узел активен, перестаем выключать парентов
-                if (ch->Checked() == Qt::Checked) {
-                    isStop = true;
-                    break;
-                }
-            }
-            if (isStop) {
-                break;
-            }
-            stack.append(p->GetParent());
-            p = p->GetParent();
-        }
-        ///делаем неактивными текущую ноду и всех чилдов
-        item->SetChecked(checked, ModelsTreeItemBase::CurrentWithChilds, func);
-        ///делаем неактивными парентов
-        for (int i=0; i<stack.size(); ++i){
-            stack[i]->SetChecked(checked, ModelsTreeItemBase::CurrentNode, func);
-        }
-    }
-    OnChanged();
+    item->SetChecked(key, checked);
+    OnTreeValueChanged(item, {Qt::CheckStateRole});
+//    OnChanged();
 }
 
 ModelsTreeItemBase* ModelsTree::ItemFromModelIndex(const QModelIndex& modelIndex)

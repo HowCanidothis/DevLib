@@ -22,6 +22,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     class ModelsTreeItemBase* AsItem(const QModelIndex& index) const;
+    QModelIndex AsIndex(class ModelsTreeItemBase* item) const;
 
 protected:
     ModelsTreeWrapperPtr m_data;
