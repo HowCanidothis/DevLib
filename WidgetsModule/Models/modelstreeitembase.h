@@ -7,22 +7,20 @@
 
 class ModelsTreeItemBase
 {
+    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
+    using SkipFunc = std::function<bool(ModelsTreeItemBase*)>;
+
     friend class ModelsTree;
     template<class T> friend struct Serializer;
 
     static int m_idCounter;
 
     int m_id;
-    Qt::CheckState m_checked;
     ModelsTreeItemBase* m_parent;
+    mutable QHash<qint64,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
 
 public:
-    enum CheckMode {
-        CurrentNode,
-        CurrentWithChilds
-    };
-
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
     ModelsTreeItemBase(const ModelsTreeItemBase& o) {
         m_id = o.m_id;
@@ -41,23 +39,15 @@ public:
     qint32 GetRow() const;
     qint32 GetParentRow() const;
     int Id() const { return m_id; }
-    Qt::CheckState Checked() const { return m_checked; }
-    void SetChecked(Qt::CheckState value, CheckMode mode, std::function<void(ModelsTreeItemBase*)> func) {
-        if (value == Qt::Checked){//надо ли?
-            m_checked = value;
-            func(this);
-            onCheckdChanged(value, mode, func);
-        } else {
-            onCheckdChanged(value, mode, func);
-            m_checked = value;
-            func(this);
-        }
-    }
+
+    Qt::CheckState Checked(const qint64& key) const;
+    void SetChecked(const qint64& key, Qt::CheckState value);
 
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
-    void ForeachChild(const std::function<void (ModelsTreeItemBase*)>& handler) const;
+    void ForeachChild(const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr) const;
+    void ForeachChildAfter(const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
@@ -78,16 +68,10 @@ public:
     QVector<ModelsTreeItemBase*> GetPath() const;
 
 private:
-    static void foreachChild(ModelsTreeItemBase* item, const std::function<void (ModelsTreeItemBase*)>& handler);
+    static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr);
+    static void foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc = nullptr);
 
 protected:
-    virtual void onCheckdChanged(Qt::CheckState value, CheckMode mode, std::function<void(ModelsTreeItemBase*)> func) {
-        if (mode == CurrentWithChilds){
-            for (auto ch : m_childs) {
-                ch->SetChecked(value, mode, func);
-            }
-        }
-    }
     virtual void clone(ModelsTreeItemBase* item) const;
 };
 

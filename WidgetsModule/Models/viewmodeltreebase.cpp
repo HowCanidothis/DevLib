@@ -106,3 +106,7 @@ ModelsTreeItemBase* ViewModelTreeBase::AsItem(const QModelIndex& index) const
 //    qDebug () << __FUNCTION__ << index.internalId();
     return (index.isValid() && index.internalId() != 0) ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
 }
+
+QModelIndex ViewModelTreeBase::AsIndex(class ModelsTreeItemBase* item) const {
+    return createIndex(item->GetRow(), 0, item);
+}

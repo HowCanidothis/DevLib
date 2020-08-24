@@ -20,7 +20,9 @@ public:
     void Update(const std::function<void ()>& predicate);
     void Remove(ModelsTreeItemBase* item);
     void Remove(const std::function<bool (ModelsTreeItemBase*)>& predicate) { remove(m_root.get(), predicate); }
-    void SetChecked(ModelsTreeItemBase* item, Qt::CheckState checked);
+    void RemoveChildren(ModelsTreeItemBase* item);
+
+    void SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked);
 
     const SharedPointer<ModelsTreeItemBase>& GetRootPtr() const { return m_root; }
 
