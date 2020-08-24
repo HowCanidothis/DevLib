@@ -1,11 +1,21 @@
 #include "modelstreeitembase.h"
 
-int ModelsTreeItemBase::m_idCounter = 0;
-
 ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
     : m_parent(parent)
-    , m_id(++m_idCounter)
 {
+}
+
+ModelsTreeItemBase::ModelsTreeItemBase(const ModelsTreeItemBase& o)
+{
+    m_parent = o.m_parent;
+    m_childs = o.m_childs;
+}
+
+ModelsTreeItemBase& ModelsTreeItemBase::operator=(ModelsTreeItemBase& o)
+{
+    m_parent = o.m_parent;
+    m_childs = o.m_childs;
+    return *this;
 }
 
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
@@ -74,7 +84,7 @@ qint32 ModelsTreeItemBase::GetParentRow() const
     return 0;
 }
 
-Qt::CheckState ModelsTreeItemBase::Checked(const qint64& key) const {
+Qt::CheckState ModelsTreeItemBase::GetChecked(const qint64& key) const {
     auto iter = m_checkedMap.find(key);
     if (iter == m_checkedMap.end()) {
         iter = m_checkedMap.insert(key, Qt::Unchecked);

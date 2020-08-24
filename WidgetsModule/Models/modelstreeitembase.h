@@ -13,34 +13,21 @@ class ModelsTreeItemBase
     friend class ModelsTree;
     template<class T> friend struct Serializer;
 
-    static int m_idCounter;
-
-    int m_id;
     ModelsTreeItemBase* m_parent;
     mutable QHash<qint64,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
 
 public:
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
-    ModelsTreeItemBase(const ModelsTreeItemBase& o) {
-        m_id = o.m_id;
-        m_parent = o.m_parent;
-        m_childs = o.m_childs;
-    }
-    ModelsTreeItemBase& operator= (ModelsTreeItemBase& o) {
-        m_id = o.m_id;
-        m_parent = o.m_parent;
-        m_childs = o.m_childs;
-        return *this;
-    }
+    ModelsTreeItemBase(const ModelsTreeItemBase& o);
+    ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);
 
     const QVector<SharedPointer<ModelsTreeItemBase>>& GetChilds() const { return m_childs; }
     ModelsTreeItemBase* GetParent() const { return m_parent; }
     qint32 GetRow() const;
     qint32 GetParentRow() const;
-    int Id() const { return m_id; }
 
-    Qt::CheckState Checked(const qint64& key) const;
+    Qt::CheckState GetChecked(const qint64& key) const;
     void SetChecked(const qint64& key, Qt::CheckState value);
 
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);

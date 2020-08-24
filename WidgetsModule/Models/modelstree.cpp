@@ -85,7 +85,7 @@ void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)
 }
 
 void ModelsTree::SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked) {
-    if (item->Checked(key) == checked) {
+    if (item->GetChecked(key) == checked) {
         return;
     }
 
