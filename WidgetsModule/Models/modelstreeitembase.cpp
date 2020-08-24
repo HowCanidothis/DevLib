@@ -34,34 +34,34 @@ void ModelsTreeItemBase::RemoveChilds()
     m_childs.clear();
 }
 
-void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc)
+void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
     for(const auto& child : item->GetChilds()) {
         handler(child.get());
-        if (skipFunc == nullptr || !(*skipFunc)(child.get())){
-            foreachChild(child.get(), handler, skipFunc);
+        if (filterFunc(item)){
+            foreachChild(child.get(), handler, filterFunc);
         }
     }
 }
 
-void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const SkipFunc* skipFunc)
+void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
     for(const auto& child : item->GetChilds()) {
-        if (skipFunc == nullptr || !(*skipFunc)(child.get())){
-            foreachChildAfter(child.get(), handler, skipFunc);
+        if (filterFunc(item)){
+            foreachChildAfter(child.get(), handler, filterFunc);
         }
         handler(child.get());
     }
 }
 
-void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const SkipFunc* skipFunc) const
+void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc) const
 {
-    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, skipFunc);
+    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
 }
 
-void ModelsTreeItemBase::ForeachChildAfter(const HandlerFunc& handler, const SkipFunc* skipFunc) const
+void ModelsTreeItemBase::ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc) const
 {
-    foreachChildAfter(const_cast<ModelsTreeItemBase*>(this), handler, skipFunc);
+    foreachChildAfter(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
 }
 
 qint32 ModelsTreeItemBase::GetRow() const
