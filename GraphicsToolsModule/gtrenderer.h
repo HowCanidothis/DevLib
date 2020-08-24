@@ -52,7 +52,7 @@ private:
     ScopedPointer<Resource<Vector3F>> m_forward;
     ScopedPointer<GtCamera> m_camera;
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
-    ScopedPointer<QOpenGLFramebufferObject> m_fbo;
+    ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
     ScopedPointer<struct GtControllersContext> m_controllersContext;
 
     ScopedPointer<class GtScene> m_scene;

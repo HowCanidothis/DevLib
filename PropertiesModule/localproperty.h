@@ -93,9 +93,12 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        m_min = min;
-        m_max = max;
-        SetValue(validateValue(Super::m_value));
+        if(!qFuzzyCompare((double)m_max,max) || !qFuzzyCompare((double)m_min, min)) {
+            m_min = min;
+            m_max = max;
+            SetValue(validateValue(Super::m_value));
+            OnMinMaxChanged();
+        }
     }
 
     void SetValue(const T& value)
@@ -113,6 +116,8 @@ public:
 
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
+
+    Dispatcher OnMinMaxChanged;
 
 private:
     T validateValue(const T& value)
@@ -200,7 +205,7 @@ public:
     void SetValue(T* value)
     {
         if(value != Super::m_value.get()) {
-            m_setterHandler([value, this]{
+            Super::m_setterHandler([value, this]{
                 Super::m_value = value;
                 Super::Invoke();
             });

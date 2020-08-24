@@ -1,8 +1,6 @@
 #include "threadtimer.h"
 
 #include <QThread>
-#include <QTimer>
-
 #include "SharedModule/Threads/threadsbase.h"
 
 ThreadTimer::ThreadTimer()
