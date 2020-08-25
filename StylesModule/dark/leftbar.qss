@@ -1,0 +1,43 @@
+LeftBar {
+    background: #333333;
+}
+
+LeftBar QFrame {
+    background: white;
+}
+
+MenuBar {
+    background: #3C3C3C;
+    min-height: 30;
+}
+
+MenuBar MenuBarMovePane {
+    border: none;
+    background: #3C3C3C;
+}
+
+QPushButton#BtnMinimize:hover {
+    background: #505050;
+}
+
+QPushButton#BtnMaximize:hover {
+    background: #505050;
+}
+
+QPushButton#BtnClose:hover {
+    background: #505050;
+}
+
+LeftBar QFrame {
+    background: white;
+    min-width: 1;
+}
+
+/* temp */
+WidgetsProjectsTreeView {
+    qproperty-indentation: 9;
+}
+
+MenuBar {
+    background: #3C3C3C;
+}

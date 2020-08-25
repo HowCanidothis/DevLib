@@ -34,11 +34,21 @@ void ModelsTreeItemBase::RemoveChilds()
     m_childs.clear();
 }
 
+const SharedPointer<ModelsTreeItemBase>& ModelsTreeItemBase::GetChildPtr(ModelsTreeItemBase* child) const
+{
+    const auto& childs = m_childs;
+    auto foundIt = std::find_if(childs.begin(), childs.end(), [child](const SharedPointer<ModelsTreeItemBase>& containerItem){
+        return containerItem.get() == child;
+    });
+    Q_ASSERT(foundIt != childs.end());
+    return *foundIt;
+}
+
 void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
     for(const auto& child : item->GetChilds()) {
-        handler(child.get());
-        if (filterFunc(item)){
+        if (filterFunc(child.get())){
+            handler(child.get());
             foreachChild(child.get(), handler, filterFunc);
         }
     }
@@ -47,10 +57,10 @@ void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFun
 void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
     for(const auto& child : item->GetChilds()) {
-        if (filterFunc(item)){
+        if (filterFunc(child.get())){
             foreachChildAfter(child.get(), handler, filterFunc);
-        }
-        handler(child.get());
+            handler(child.get());
+        }        
     }
 }
 
@@ -84,16 +94,34 @@ qint32 ModelsTreeItemBase::GetParentRow() const
     return 0;
 }
 
-Qt::CheckState ModelsTreeItemBase::GetChecked(const qint64& key) const {
+Qt::CheckState ModelsTreeItemBase::GetChecked(size_t key) const {
     auto iter = m_checkedMap.find(key);
     if (iter == m_checkedMap.end()) {
-        iter = m_checkedMap.insert(key, Qt::Unchecked);
+        return Qt::Unchecked;
     }
     return iter.value();
 }
 
-void ModelsTreeItemBase::SetChecked(const qint64& key, Qt::CheckState value) {
+void ModelsTreeItemBase::SetChecked(size_t key, Qt::CheckState value) {
     m_checkedMap[key] = value;
+}
+
+void ModelsTreeItemBase::SetUserData(size_t key, const Name& propertyName, const QVariant& value)
+{
+    m_userData[key][propertyName] = value;
+}
+
+QVariant ModelsTreeItemBase::GetUserData(size_t key, const Name& propertyName) const
+{
+    auto foundIt = m_userData.find(key);
+    if(foundIt == m_userData.end()) {
+        return QVariant();
+    }
+    auto foundPropertyIt = foundIt->find(propertyName);
+    if(foundPropertyIt == foundIt->end()) {
+        return QVariant();
+    }
+    return foundPropertyIt.value();
 }
 
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const

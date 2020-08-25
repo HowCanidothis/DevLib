@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>dark.qss</file>
+        <file>dark/ads.qss</file>
+        <file>dark/style.qss</file>
+        <file>dark/mainprogressbar.qss</file>
+        <file>dark/topnotifierframe.qss</file>
+        <file>dark/visualization.qss</file>
+        <file>light.qss</file>
+        <file>dark/leftbar.qss</file>
+        <file>common/leftbar.qss</file>
+        <file>common/notify.qss</file>
+        <file>common/properties.qss</file>
+    </qresource>
+</RCC>

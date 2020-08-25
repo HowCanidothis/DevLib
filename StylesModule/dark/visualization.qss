@@ -1,0 +1,4 @@
+CustomPlot {
+    qproperty-textPadding: rect(12 0 12 0);
+    qproperty-fontSize: 12;
+}

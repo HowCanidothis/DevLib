@@ -1,0 +1,17 @@
+MainProgressBar {
+    background: #1464A0;
+    qproperty-windowOpacity: 0.8;
+}
+
+MainProgressBar QRoundProgressBar {
+    alternate-background-color: gray;
+    color: black;
+    font-size: 12px;
+    qproperty-ringWidth: 12;
+}
+
+MainProgressBar QRoundProgressBar#SubProgressBar {
+    color: transparent;
+    font-size: 2px;
+    qproperty-ringWidth: 10;
+}

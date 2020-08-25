@@ -14,8 +14,9 @@ class ModelsTreeItemBase
     template<class T> friend struct Serializer;
 
     ModelsTreeItemBase* m_parent;
-    mutable QHash<qint64,Qt::CheckState> m_checkedMap;
+    QHash<size_t,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
+    QHash<size_t, QHash<Name, QVariant>> m_userData;
 
 public:
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
@@ -27,14 +28,23 @@ public:
     qint32 GetRow() const;
     qint32 GetParentRow() const;
 
-    Qt::CheckState GetChecked(const qint64& key) const;
-    void SetChecked(const qint64& key, Qt::CheckState value);
+    Qt::CheckState GetChecked(size_t key) const;
+    void SetChecked(size_t key, Qt::CheckState value);
+    void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
+    QVariant GetUserData(size_t key, const Name& propertyName) const;
+
+    template<class T>
+    T* GetUserDataPtr(size_t key, const Name& propertyName) const
+    {
+        return reinterpret_cast<T*>(GetUserData(key, propertyName).value<size_t>());
+    }
 
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
     void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
     void ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
+    const SharedPointer<ModelsTreeItemBase>& GetChildPtr(ModelsTreeItemBase* child) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }

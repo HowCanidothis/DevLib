@@ -17,9 +17,9 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
     if(!toRemove.isEmpty()) {
         auto newSize = childs.size() - toRemove.size();
         OnAboutToRemoveRows(newSize, childs.size() - 1, parent);
-        std::remove_if(childs.begin(), childs.end(), [&toRemove](const SharedPointer<ModelsTreeItemBase>& child){
+        auto endIt = std::remove_if(childs.begin(), childs.end(), [&toRemove](const SharedPointer<ModelsTreeItemBase>& child){
             return toRemove.contains(child.get());
-        });
+        }); Q_UNUSED(endIt);
         childs.resize(newSize);
         OnRowsRemoved();
     }
@@ -94,6 +94,15 @@ void ModelsTree::SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState
 //    OnChanged();
 }
 
+const SharedPointer<ModelsTreeItemBase>& ModelsTree::ItemPtrFromPointer(ModelsTreeItemBase* item) const
+{
+    auto* parent = item->GetParent();
+    if(parent == nullptr) {
+        return m_root;
+    }
+    return parent->GetChildPtr(item);
+}
+
 ModelsTreeItemBase* ModelsTree::ItemFromModelIndex(const QModelIndex& modelIndex)
 {
     if(!modelIndex.isValid()) {
@@ -109,10 +118,5 @@ const SharedPointer<ModelsTreeItemBase>& ModelsTree::ItemPtrFromModelIndex(const
     }
     auto item = reinterpret_cast<ModelsTreeItemBase*>(modelIndex.internalPointer());
     Q_ASSERT(item->GetParent() != nullptr);
-    const auto& childs = item->GetParent()->m_childs;
-    auto foundIt = std::find_if(childs.begin(), childs.end(), [item](const SharedPointer<ModelsTreeItemBase>& containerItem){
-        return containerItem.get() == item;
-    });
-    Q_ASSERT(foundIt != childs.end());
-    return *foundIt;
+    return item->GetParent()->GetChildPtr(item);
 }

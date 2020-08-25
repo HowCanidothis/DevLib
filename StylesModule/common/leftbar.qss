@@ -1,0 +1,117 @@
+LeftBar QPushButton#BtnDDToolBox{
+    image: url(":/left_bar/dd.svg");
+    qproperty-text: "";
+    background: transparent;
+    min-width: 32;
+    min-height: 32;
+    margin: 5 0 5 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar QPushButton#BtnDDToolBox:hover{
+    image: url(":/left_bar/dd_h.svg");
+}
+
+LeftBar QPushButton#BtnDDToolBox:checked{
+    image: url(":/left_bar/dd_h.svg");
+}
+
+LeftBar QPushButton#BtnSettings{
+    image: url(":/left_bar/gear.svg");
+    qproperty-text: "";
+    background: transparent;
+    min-width: 32;
+    min-height: 32;
+    margin: 5 0 5 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar QPushButton#BtnSettings:hover{
+    image: url(":/left_bar/gear_h.svg");
+}
+
+LeftBar QPushButton#BtnSettings:checked{
+    image: url(":/left_bar/gear_h.svg");
+}
+
+LeftBar QPushButton#BtnDataBrowser{
+    image: url(":/left_bar/db.svg");
+    qproperty-text: "";
+    background: transparent;
+    min-width: 32;
+    min-height: 32;
+    margin: 5 0 5 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar {
+    padding: 20 0 0 0;
+    min-width: 48;
+}
+
+LeftBar QPushButton#BtnDataBrowser:hover{
+    image: url(":/left_bar/db_h.svg");
+}
+
+LeftBar QPushButton#BtnDataBrowser:checked{
+    image: url(":/left_bar/db_h.svg");
+}
+
+LeftBar QFrame {
+    min-width: 2;
+    max-width: 2;
+}
+
+/* temp */
+WidgetsProjectsTree {
+    qproperty-indentation: 9;
+}
+
+MenuBar {
+    min-height: 30;
+}
+
+QPushButton#BtnMinimize {
+    qproperty-text: "";
+    image: url(":/menu_bar/minimize.svg");
+    background: none;
+    border-radius: none;
+    border: none;
+    padding: 5 11 12 11;
+}
+
+QPushButton#BtnMinimize:hover {
+    border: none;
+    border-radius: none;
+}
+
+QPushButton#BtnMaximize {
+    qproperty-text: "";
+    image: url(":/menu_bar/square.svg");
+    border-radius: none;
+    background: none;
+    padding: 9 11 8 11;
+    border: none;
+}
+
+QPushButton#BtnMaximize:hover {
+    border: none;
+    border-radius: none;
+}
+
+QPushButton#BtnClose {
+    qproperty-text: "";
+    image: url(":/menu_bar/close.svg");
+    border-radius: none;
+    background: none;
+    padding: 9 11 8 11;
+    border: none;
+}
+
+QPushButton#BtnClose:hover {
+    border: none;
+    border-radius: none;
+}

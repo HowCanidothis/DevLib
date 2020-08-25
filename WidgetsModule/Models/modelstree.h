@@ -26,6 +26,7 @@ public:
 
     ModelsTreeItemBase* GetRoot() override { return m_root.get(); }
 
+    const SharedPointer<ModelsTreeItemBase>& ItemPtrFromPointer(ModelsTreeItemBase* item) const;
     ModelsTreeItemBase* ItemFromModelIndex(const QModelIndex& modelIndex);
     const SharedPointer<ModelsTreeItemBase>& ItemPtrFromModelIndex(const QModelIndex& modelIndex);
 

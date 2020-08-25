@@ -28,7 +28,6 @@ public:
     virtual void ConnectModel(QAbstractItemModel* model);
     virtual void DisconnectModel(QAbstractItemModel* model);
 
-    CommonDispatcher<qint32,qint32> OnValueChanged;
     Dispatcher OnAboutToBeReseted;
     Dispatcher OnReseted;
     Dispatcher OnAboutToBeUpdated;
@@ -44,10 +43,7 @@ public:
 inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
-    OnValueChanged += { model, [model](qint32 row, qint32 column) {
-        auto modelIndex = model->index(row, column);
-        emit model->dataChanged(modelIndex, modelIndex);
-    }};
+
     OnAboutToBeReseted += { model, [model]{ model->beginResetModel(); }};
     OnReseted += { model, [model]{ model->endResetModel(); } };
     OnAboutToBeUpdated += { model, [model]{ emit model->layoutAboutToBeChanged(); }};
@@ -64,7 +60,7 @@ inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 inline void ModelsWrapperBase::DisconnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
-    OnValueChanged -= model;
+
     OnAboutToBeReseted -= model;
     OnReseted -= model;
     OnAboutToBeUpdated -= model;
@@ -105,7 +101,6 @@ inline void ModelsTreeWrapper::ConnectModel(QAbstractItemModel* qmodel)
         if(parent->GetParent() == nullptr) {
             model->beginRemoveRows(QModelIndex(), start, end);
         } else {
-            qDebug() << (size_t)parent;
             model->beginRemoveRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
         }
     }};
@@ -133,12 +128,17 @@ public:
 
     CommonDispatcher<qint32,qint32> OnAboutToRemoveRows;
     CommonDispatcher<qint32,qint32> OnAboutToInsertRows;
+    CommonDispatcher<qint32,qint32> OnValueChanged;
 };
 
 inline void ModelsTableWrapper::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
     Super::ConnectModel(qmodel);
+    OnValueChanged += { model, [model](qint32 row, qint32 column) {
+        auto modelIndex = model->index(row, column);
+        emit model->dataChanged(modelIndex, modelIndex);
+    }};
     OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end){ model->beginRemoveRows(QModelIndex(), start, end); } };
     OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };
 }
@@ -149,6 +149,7 @@ inline void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
     Super::DisconnectModel(qmodel);
     OnAboutToRemoveRows -= model;
     OnAboutToInsertRows -= model;
+    OnValueChanged -= model;
 }
 
 template<class Container>
