@@ -47,6 +47,8 @@ QModelIndex ViewModelTreeBase::parent(const QModelIndex& child) const
     auto* node = AsItem(child);
     if(node->GetParent() == m_data->GetRoot()) {
         return QModelIndex();
+    } else if (node == m_data->GetRoot()) {
+        return QModelIndex();
     }
     return createIndex(node->GetParentRow(), 0, node->GetParent());
 }
@@ -100,5 +102,9 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
 
 ModelsTreeItemBase* ViewModelTreeBase::AsItem(const QModelIndex& index) const
 {
-    return index.isValid() ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
+    return (index.isValid() && index.internalId() != 0) ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
+}
+
+QModelIndex ViewModelTreeBase::AsIndex(class ModelsTreeItemBase* item) const {
+    return createIndex(item->GetRow(), 0, item);
 }

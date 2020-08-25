@@ -74,6 +74,26 @@ void ModelsTree::Remove(ModelsTreeItemBase* item)
     OnRowsRemoved();
 }
 
+void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)
+{
+    if (item->m_childs.isEmpty()) {
+        return ;
+    }
+    OnAboutToRemoveRows(0, item->m_childs.size()-1, item);
+    item->m_childs.clear();
+    OnRowsRemoved();
+}
+
+void ModelsTree::SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked) {
+    if (item->GetChecked(key) == checked) {
+        return;
+    }
+
+    item->SetChecked(key, checked);
+    OnTreeValueChanged(item, {Qt::CheckStateRole});
+//    OnChanged();
+}
+
 ModelsTreeItemBase* ModelsTree::ItemFromModelIndex(const QModelIndex& modelIndex)
 {
     if(!modelIndex.isValid()) {

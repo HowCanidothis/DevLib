@@ -2,7 +2,21 @@
 
 ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
     : m_parent(parent)
-{}
+{
+}
+
+ModelsTreeItemBase::ModelsTreeItemBase(const ModelsTreeItemBase& o)
+{
+    m_parent = o.m_parent;
+    m_childs = o.m_childs;
+}
+
+ModelsTreeItemBase& ModelsTreeItemBase::operator=(ModelsTreeItemBase& o)
+{
+    m_parent = o.m_parent;
+    m_childs = o.m_childs;
+    return *this;
+}
 
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
 {
@@ -20,17 +34,34 @@ void ModelsTreeItemBase::RemoveChilds()
     m_childs.clear();
 }
 
-void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const std::function<void (ModelsTreeItemBase*)>& handler)
+void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
     for(const auto& child : item->GetChilds()) {
         handler(child.get());
-        foreachChild(child.get(), handler);
+        if (filterFunc(item)){
+            foreachChild(child.get(), handler, filterFunc);
+        }
     }
 }
 
-void ModelsTreeItemBase::ForeachChild(const std::function<void (ModelsTreeItemBase*)>& handler) const
+void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
 {
-    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler);
+    for(const auto& child : item->GetChilds()) {
+        if (filterFunc(item)){
+            foreachChildAfter(child.get(), handler, filterFunc);
+        }
+        handler(child.get());
+    }
+}
+
+void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc) const
+{
+    foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
+}
+
+void ModelsTreeItemBase::ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc) const
+{
+    foreachChildAfter(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
 }
 
 qint32 ModelsTreeItemBase::GetRow() const
@@ -51,6 +82,18 @@ qint32 ModelsTreeItemBase::GetParentRow() const
         return m_parent->GetRow();
     }
     return 0;
+}
+
+Qt::CheckState ModelsTreeItemBase::GetChecked(const qint64& key) const {
+    auto iter = m_checkedMap.find(key);
+    if (iter == m_checkedMap.end()) {
+        iter = m_checkedMap.insert(key, Qt::Unchecked);
+    }
+    return iter.value();
+}
+
+void ModelsTreeItemBase::SetChecked(const qint64& key, Qt::CheckState value) {
+    m_checkedMap[key] = value;
 }
 
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const

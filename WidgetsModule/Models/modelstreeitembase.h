@@ -7,24 +7,34 @@
 
 class ModelsTreeItemBase
 {
+    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
+    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
+
     friend class ModelsTree;
     template<class T> friend struct Serializer;
 
     ModelsTreeItemBase* m_parent;
+    mutable QHash<qint64,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
 
 public:
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
+    ModelsTreeItemBase(const ModelsTreeItemBase& o);
+    ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);
 
     const QVector<SharedPointer<ModelsTreeItemBase>>& GetChilds() const { return m_childs; }
     ModelsTreeItemBase* GetParent() const { return m_parent; }
     qint32 GetRow() const;
     qint32 GetParentRow() const;
 
+    Qt::CheckState GetChecked(const qint64& key) const;
+    void SetChecked(const qint64& key, Qt::CheckState value);
+
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
-    void ForeachChild(const std::function<void (ModelsTreeItemBase*)>& handler) const;
+    void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
+    void ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
@@ -45,7 +55,8 @@ public:
     QVector<ModelsTreeItemBase*> GetPath() const;
 
 private:
-    static void foreachChild(ModelsTreeItemBase* item, const std::function<void (ModelsTreeItemBase*)>& handler);
+    static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
+    static void foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
 
 protected:
     virtual void clone(ModelsTreeItemBase* item) const;
