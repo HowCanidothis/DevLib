@@ -123,7 +123,7 @@ PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& p
                               },
                               spinBox)
 {
-    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](double value){
+    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double value){
         PropertyChangeGuard guard(this);
         auto* property = m_propertyPtr.GetProperty();
         property->SetValue(value);
