@@ -13,14 +13,13 @@ class ThreadTimer
 public:
     using TimerHandle = void*;
 
+    static ThreadTimer& GetInstance();
+
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
     static TimerHandle CreateTimer(qint32 msecs);
     static void DeleteTimer(TimerHandle* timerHandle);
     static QMetaObject::Connection AddTimerConnection(TimerHandle handle, const FAction& onTimeout);
     static void RemoveTimerConnection(const QMetaObject::Connection& connection);
-
-private:
-    static ThreadTimer& getInstance();
 
 private:
     ArrayPointers<class QTimer> m_timers;

@@ -17,7 +17,7 @@ class MemoryManager
     qint32 shouldBe(size_t index);
     const char* typeName(size_t _type);
 public:
-    static MemoryManager& GetInstance(){ static MemoryManager manager; return manager; }
+    static MemoryManager& GetInstance(){ static MemoryManager* manager = new MemoryManager(); return *manager; }
     void MakeMemoryReport();
 
     template<class T> friend class MemorySpy;
