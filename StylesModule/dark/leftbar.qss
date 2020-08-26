@@ -41,3 +41,13 @@ WidgetsProjectsTreeView {
 MenuBar {
     background: #3C3C3C;
 }
+
+QWidget[errorSelection="true"]{
+    background: #933C2B;
+}
+
+MainWindow
+{
+    qproperty-errorColor: #933C2B;
+    qproperty-errorTextColor: white;
+}

@@ -3,22 +3,22 @@
 
 qint32 MemoryManager::shouldBe(size_t index)
 {
-    return MemoryManager::created()[index] - MemoryManager::destroyed()[index];
+    return m_created[index] - m_destroyed[index];
 }
 
 const char *MemoryManager::typeName(size_t _type)
 {
-    return MemoryManager::dictionary()[_type];
+    return m_dictionary[_type];
 }
 
 void MemoryManager::MakeMemoryReport()
 {
     qCDebug(LC_SYSTEM) << "----------------------------MemoryReport------------------------";
-    QHashIterator<size_t,qint32> i(created());
+    QHashIterator<size_t,qint32> i(m_created);
     while(i.hasNext()){
         i.next();
         if(shouldBe(i.key())){
-            qCDebug(LC_SYSTEM) << typeName(i.key()) << "constructed:" << i.value() << "destructed:" << destroyed().value(i.key());
+            qCDebug(LC_SYSTEM) << typeName(i.key()) << "constructed:" << i.value() << "destructed:" << m_destroyed.value(i.key());
         }
     }
     qCDebug(LC_SYSTEM) << "----------------------------------------------------------------";

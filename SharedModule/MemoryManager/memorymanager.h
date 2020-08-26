@@ -8,34 +8,17 @@
 
 template<class T> class MemorySpy;
 
-class MemoryManager {
-private:
-    static QMutex& mutex()
-    {
-        static QMutex mutex;
-        return mutex;
-    };
-    static QHash<size_t,const char*>& dictionary()
-    {
-        static QHash<size_t,const char*> ret;
-        return ret;
-    }
-    static QHash<size_t,qint32>& created()
-    {
-        static QHash<size_t,qint32> ret;
-        return ret;
-    }
-    static QHash<size_t,qint32>& destroyed()
-    {
-        static QHash<size_t,qint32> ret;
-        return ret;
-    }
-
-    static qint32 shouldBe(size_t index);
-    static const char* typeName(size_t _type);
+class MemoryManager
+{
+    QMutex m_mutex;
+    QHash<size_t, const char*> m_dictionary;
+    QHash<size_t, qint32> m_created;
+    QHash<size_t, qint32> m_destroyed;
+    qint32 shouldBe(size_t index);
+    const char* typeName(size_t _type);
 public:
-
-    static void MakeMemoryReport();
+    static MemoryManager& GetInstance(){ static MemoryManager manager; return manager; }
+    void MakeMemoryReport();
 
     template<class T> friend class MemorySpy;
 };
@@ -45,12 +28,14 @@ class MemorySpy
 {
 public:
     MemorySpy(){
-        MemoryManager::mutex().lock();
+        auto& m = MemoryManager::GetInstance();
+        m.m_mutex.lock();
         size_t id = typeid(T).hash_code();
-        if(!MemoryManager::dictionary().contains(id))
-            MemoryManager::dictionary()[id] = typeid(T).name();
-        MemoryManager::created()[id]++;
-        MemoryManager::mutex().unlock();
+        if(!m.m_dictionary.contains(id)) {
+            m.m_dictionary[id] = typeid(T).name();
+        }
+        m.m_created[id]++;
+        m.m_mutex.unlock();
     }
 
     MemorySpy(const MemorySpy&)
@@ -59,9 +44,10 @@ public:
     }
 
     virtual ~MemorySpy(){
-        MemoryManager::mutex().lock();
-        MemoryManager::destroyed()[typeid(T).hash_code()]++;
-        MemoryManager::mutex().unlock();
+        auto& m = MemoryManager::GetInstance();
+        m.m_mutex.lock();
+        m.m_destroyed[typeid(T).hash_code()]++;
+        m.m_mutex.unlock();
     }
 };
 
