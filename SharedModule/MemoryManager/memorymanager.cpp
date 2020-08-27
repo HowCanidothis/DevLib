@@ -14,6 +14,7 @@ const char *MemoryManager::typeName(size_t _type)
 void MemoryManager::MakeMemoryReport()
 {
     qCDebug(LC_SYSTEM) << "----------------------------MemoryReport------------------------";
+    QMutexLocker locker(&m_mutex);
     QHashIterator<size_t,qint32> i(m_created);
     while(i.hasNext()){
         i.next();
