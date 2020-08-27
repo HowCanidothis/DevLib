@@ -17,7 +17,6 @@ Thread::Thread(ThreadPool* pool)
 Thread::~Thread()
 {
     m_aboutToBeDestroyed = true;
-    terminate();
     while(isRunning()) {
         QMutexLocker locker(&m_taskMutex);
         m_taskCondition.wakeAll();

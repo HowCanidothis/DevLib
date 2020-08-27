@@ -45,9 +45,10 @@ public:
 
     virtual ~MemorySpy(){
         auto& m = MemoryManager::GetInstance();
-        m.m_mutex.lock();
-        m.m_destroyed[typeid(T).hash_code()]++;
-        m.m_mutex.unlock();
+        if(m.m_mutex.tryLock()) {
+            m.m_destroyed[typeid(T).hash_code()]++;
+            m.m_mutex.unlock();
+        }
     }
 };
 
