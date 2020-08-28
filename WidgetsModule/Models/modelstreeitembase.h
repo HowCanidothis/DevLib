@@ -48,6 +48,7 @@ public:
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
+    virtual QFont GetFont() const { return QFont(); }
 
     template<class T>
     T* As() { return reinterpret_cast<T*>(this); }

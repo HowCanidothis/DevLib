@@ -84,15 +84,11 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
         auto* item = AsItem(index);
         return item->GetIcon();
     }
-    /*case Qt::FontRole: {
+    case Qt::FontRole: {
         auto* item = AsItem(index);
-        if(item->Parent == m_root.get() && item->ComputingWell != nullptr && item->ComputingWell.get() == m_activeWell) {
-            QFont font;
-            font.setBold(true);
-            return font;
-        }
+        return item->GetFont();
         break;
-    }*/
+    }
     default:
         break;
     }
