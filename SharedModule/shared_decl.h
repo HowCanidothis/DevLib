@@ -45,6 +45,16 @@ inline double sign(double value)
     return 0.0;
 }
 
+inline bool fuzzyCompare(double v1, double v2, double epsilon = std::numeric_limits<double>().epsilon())
+{
+    return qAbs(v1 - v2) < epsilon;
+}
+
+inline bool fuzzyCompare(float v1, float v2, float epsilon = std::numeric_limits<float>().epsilon())
+{
+    return qAbs(v1 - v2) < epsilon;
+}
+
 namespace adapters {
 
 template<typename It>

@@ -8,8 +8,8 @@ class InterruptorData
 {
     friend class Interruptor;
     Dispatcher OnInterrupted;
-    std::atomic_bool m_interupted = false;
-    InterruptorData* m_parentData = nullptr;
+    std::atomic_bool m_interupted;
+    InterruptorData* m_parentData;
 
     void interrupt()
     {
@@ -25,7 +25,8 @@ class InterruptorData
 
 public:
     InterruptorData()
-        : m_parentData(nullptr)
+        : m_interupted(false)
+        , m_parentData(nullptr)
     {
     }
 
