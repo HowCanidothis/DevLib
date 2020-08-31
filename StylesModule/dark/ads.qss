@@ -91,4 +91,17 @@ QWidget #tabCloseButton:pressed
 	background: palette(dark);
 }
 
+QWidget #tabsMenuButton {
+	qproperty-icon: url(:/rc/ads/tabs-menu-button.svg);
+	qproperty-iconSize: 16px;
+}
 
+QWidget #dockAreaCloseButton {
+	qproperty-icon: url(:/rc/ads/close-button.svg);
+	qproperty-iconSize: 16px;
+}
+
+QWidget #detachGroupButton {
+	qproperty-icon: url(:/rc/ads/detach-button.svg);
+	qproperty-iconSize: 16px;
+}

@@ -16,6 +16,10 @@ MenuBar MenuBarMovePane {
     background: #3C3C3C;
 }
 
+MenuBarMovePane QLabel#Title {
+    background: #3C3C3C;
+}
+
 QPushButton#BtnMinimize:hover {
     background: #505050;
 }

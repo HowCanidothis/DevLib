@@ -212,5 +212,9 @@
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>
     </qresource>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>rc/ads/close-button.svg</file>
+        <file>rc/ads/detach-button.svg</file>
+        <file>rc/ads/tabs-menu-button.svg</file>
+    </qresource>
 </RCC>
