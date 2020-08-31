@@ -49,6 +49,12 @@ public:
         }
     }
 
+    void SetAndSubscribe(const FAction& subscribe) const
+    {
+        Subscribe(subscribe);
+        subscribe();
+    }
+
     void SetSetterHandler(const FSetterHandler& handler) {
         m_setterHandler = handler;
     }
@@ -310,6 +316,15 @@ struct PropertyFromLocalProperty
 {
     template<class T>
     static SharedPointer<Property> Create(const Name& name, T& localProperty);
+    template<class T>
+    inline static SharedPointer<Property> Create(const QString& name, T& localProperty) { return Create(Name(name), localProperty); }
+};
+
+class PropertyFromLocalPropertyContainer : public QVector<SharedPointer<Property>>
+{
+    using Super = QVector<SharedPointer<Property>>;
+public:
+    using Super::Super;
 };
 
 template<>
@@ -321,6 +336,16 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
                 [&localProperty](double value, double) { localProperty = value; },
                 localProperty.GetMin(),
                 localProperty.GetMax()
+    );
+}
+
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<QColor>& localProperty)
+{
+    return ::make_shared<ExternalColorProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](const QColor& value, const QColor&) { localProperty = value; }
     );
 }
 
