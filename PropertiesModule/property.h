@@ -186,7 +186,7 @@ class TDecimalProperty : public TProperty<T>
 {
     typedef TProperty<T> Super;
 public:
-    TDecimalProperty(const Name& path, const T& initial, const T& min = std::numeric_limits<T>::lowest(), const T& max = std::numeric_limits<T>::max(), Property::Options options = Property::Options_Default)
+    TDecimalProperty(const Name& path, const T& initial, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)(), Property::Options options = Property::Options_Default)
         : Super(path, initial, options)
         , m_min(min)
         , m_max(max)

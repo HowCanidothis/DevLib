@@ -2,213 +2,187 @@
 
 #include <QHoverEvent>
 #include <QMouseEvent>
+#include <QGuiApplication>
+#include <QWindow>
 
 WindowResizeAttachment::WindowResizeAttachment()
-    : m_startDrag(false)
-    , m_borderWidth(8)
-    , m_activeButton(Qt::NoButton)
-    , m_cursorSection(Qt::WindowFrameSection::NoSection)
+    : m_borderWidth(6)
+    , m_draggingLocation(Location_Default)
+    , m_previousMoveLocation(Location_Default)
 {
-//    m_cursorSection.Subscribe([]{
-        
-//    });
 }
 
-void WindowResizeAttachment::Attach(QWidget * widget)
+void WindowResizeAttachment::Attach(QWidget* widget)
 {
     widget->installEventFilter(&instance());
-    widget->window()->setMouseTracking(true);
 }
 
-void WindowResizeAttachment::AttachRecursive(QWidget* widget)
+WindowResizeAttachment::Location WindowResizeAttachment::findLocation(QWindow* window, const QPoint& pos)
 {
-    auto childWidgets = widget->findChildren<QWidget*>();
-    for(auto* childWidget : childWidgets) {
-        if(childWidget != nullptr) {
-            childWidget->installEventFilter(&instance());
-        }
+    if (window->visibility() != QWindow::Windowed) {
+        return Location_Default;
     }
+    auto rect = window->geometry();
+
+    qint32 location = Location_Default;
+    location |= abs(pos.x() - rect.left()) <= m_borderWidth ? Location_Left : Location_Default;
+    location |= abs(rect.right() - pos.x()) <= m_borderWidth ? Location_Right : Location_Default;
+    location |= abs(pos.y() - rect.top()) <= m_borderWidth ? Location_Top : Location_Default;
+    location |= abs(rect.bottom() - pos.y()) <= m_borderWidth ? Location_Bottom : Location_Default;
+
+    auto result = (Location)location;
+    return result;
+}
+
+void WindowResizeAttachment::installCursorFromLocation(QWindow* window, Location location)
+{
+    switch (location) {
+    case Location_Top:
+    case Location_Bottom:
+        window->setCursor(Qt::SizeVerCursor);
+        break;
+    case Location_Left:
+    case Location_Right:
+        window->setCursor(Qt::SizeHorCursor);
+        break;
+    case Location_TopRight:
+    case Location_BottomLeft:
+        window->setCursor(Qt::SizeBDiagCursor);
+        break;
+    case Location_BottomRight:
+    case Location_TopLeft:
+        window->setCursor(Qt::SizeFDiagCursor);
+        break;
+    default:
+        window->unsetCursor();
+        break;
+    }
+}
+
+void WindowResizeAttachment::resize(QWindow* window, const QPoint& screenPos, Location location)
+{
+    auto rect = window->geometry();
+    auto rectSource = rect;
+
+    auto funcUpdateTop = [&rect, &rectSource, window, &screenPos]{
+        auto deltaY = rect.top() - screenPos.y();
+        rect.setY(rectSource.top() - deltaY);
+        if (window->minimumHeight() > rect.height()) {
+            rect.setY(rectSource.bottom() - window->minimumHeight());
+        }
+    };
+    auto funcUpdateBottom = [&rect, &screenPos, window]{
+        auto deltaY = rect.bottom() - screenPos.y();
+        auto newHeight = rect.height() - deltaY;
+        if(newHeight >= window->minimumHeight()) {
+            rect.setHeight(rect.height() - deltaY);
+        } else {
+            rect.setHeight(window->minimumHeight());
+        }
+    };
+    auto funcUpdateLeft = [&rect, &rectSource, window, &screenPos]{
+        auto deltaX = rect.left() - screenPos.x();
+        rect.setX(rect.left() - deltaX);
+        if (window->minimumWidth() > rect.width()) {
+            rect.setX(rectSource.right() - window->minimumWidth());
+        }
+    };
+    auto funcUpdateRight = [&rect, &screenPos, window]{
+        auto deltaX = rect.right() - screenPos.x();
+        auto newWidth = rect.width() - deltaX;
+        if(newWidth >= window->minimumWidth()) {
+            rect.setWidth(rect.width() - deltaX);
+        } else {
+            rect.setWidth(window->minimumWidth());
+        }
+    };
+
+    switch (location) {
+    case Location_Top: funcUpdateTop(); break;
+    case Location_Bottom: funcUpdateBottom(); break;
+    case Location_Left: funcUpdateLeft(); break;
+    case Location_Right: funcUpdateRight(); break;
+    case Location_TopLeft:
+        funcUpdateTop();
+        funcUpdateLeft();
+        break;
+    case Location_BottomLeft:
+        funcUpdateBottom();
+        funcUpdateLeft();
+        break;
+    case Location_BottomRight:
+        funcUpdateBottom();
+        funcUpdateRight();
+        break;
+    case Location_TopRight:
+        funcUpdateTop();
+        funcUpdateRight();
+        break;
+    default:
+        break;
+    }
+    window->setGeometry(rect);
 }
 
 bool WindowResizeAttachment::eventFilter(QObject* watched, QEvent* event)
 {
-    auto widget = qobject_cast<QWidget*>(watched);
-    auto window = widget->window();
-    auto funcChangeCursorShape = [this, widget, window](QHoverEvent* event){
-        if (m_startDrag) {
-            return ;
+    auto window = qobject_cast<QWindow*>(watched);
+    if(window == nullptr) { // It is supported to use a widget instead of window, window will be found automatically, when it created
+        window = qobject_cast<QWidget*>(watched)->windowHandle();
+        if(window != nullptr) {
+            window->setMinimumSize(qobject_cast<QWidget*>(watched)->minimumSize());
+            window->installEventFilter(this);
+            watched->removeEventFilter(this);
         }
-        if (window->isFullScreen() || window->isMaximized()) {
-            if (m_cursorSection != Qt::WindowFrameSection::NoSection) {
-                window->unsetCursor();
-            }
-            return;
-        }
-        auto pos = widget->mapToGlobal(event->pos());
-        auto rect = window->geometry();
-        
-        
-        if(abs(rect.left() - pos.x()) <= m_borderWidth && abs(rect.bottom() - pos.y()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::BottomLeftSection;
-        }
-        else if(abs(rect.right() - pos.x()) <= m_borderWidth && abs(rect.bottom() - pos.y()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::BottomRightSection;
-        }
-        else if(abs(rect.right() - pos.x()) <= m_borderWidth && abs(rect.top() - pos.y()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::TopRightSection;
-        }
-        else if(abs(rect.left() - pos.x()) <= m_borderWidth && abs(rect.top() - pos.y()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::TopLeftSection;
-        }
-        else if(abs(pos.x() - rect.left()) <= m_borderWidth && pos.y() <= rect.bottom() - m_borderWidth && pos.y() >= rect.top() + m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::LeftSection;
-        }
-        else if(abs(pos.x() - rect.right()) <= m_borderWidth && pos.y() <= rect.bottom() - m_borderWidth && pos.y() >= rect.top() + m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::RightSection;
-        }
-        else if(rect.left() + m_borderWidth < pos.x() && pos.x() < rect.right() + m_borderWidth  && abs(pos.y() - rect.bottom()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::BottomSection;
-        }
-        else if(rect.left() + m_borderWidth < pos.x() && pos.x() < rect.right() + m_borderWidth  && abs(pos.y() - rect.top()) <= m_borderWidth)
-        {
-            m_cursorSection = Qt::WindowFrameSection::TopSection;
-        }
-        else
-        {
-            m_cursorSection = Qt::WindowFrameSection::NoSection;
-        }
-        
-        switch (m_cursorSection) {
-        case Qt::WindowFrameSection::TopSection:
-        case Qt::WindowFrameSection::BottomSection:
-            window->setCursor(Qt::SizeVerCursor);
-            break;
-        case Qt::WindowFrameSection::LeftSection:
-        case Qt::WindowFrameSection::RightSection:
-            window->setCursor(Qt::SizeHorCursor);
-            break;
-        case Qt::WindowFrameSection::TopLeftSection:
-        case Qt::WindowFrameSection::BottomRightSection:
-            window->setCursor(Qt::SizeFDiagCursor);
-            break;
-        case Qt::WindowFrameSection::TopRightSection:
-        case Qt::WindowFrameSection::BottomLeftSection:
-            window->setCursor(Qt::SizeBDiagCursor);
-            break;
-        default:
-            window->unsetCursor();
-            break;
-        }
-    };
-    
-    
+        return false;
+    }
+
     switch(event->type()) {
     case QEvent::MouseMove: {
         auto mouseMoveEvent = reinterpret_cast<QMouseEvent*>(event);
-        if (m_startDrag) {
-            ///resize
-            auto rect = window->geometry();
-            auto rectSource = rect;
-            
-            auto screenPos = mouseMoveEvent->globalPos();
-            
-            auto funcUpdateTop = [&rect, &rectSource, window, &screenPos]{
-                auto deltaY = rect.top() - screenPos.y();
-                rect.setY(rectSource.top() - deltaY);
-                if (window->minimumHeight() > rect.height()) {
-                    rect.setY(rectSource.bottom() - window->minimumHeight());
-                }
-            };
-            auto funcUpdateBottom = [&rect, &screenPos]{
-                auto deltaY = rect.bottom() - screenPos.y();
-                rect.setHeight(rect.height() - deltaY);
-            };
-            auto funcUpdateLeft = [&rect, &rectSource, window, &screenPos]{
-                auto deltaX = rect.left() - screenPos.x();
-                rect.setX(rect.left() - deltaX);
-                if (window->minimumWidth() > rect.width()) {
-                    rect.setX(rectSource.right() - window->minimumWidth());
-                }
-            };
-            auto funcUpdateRight = [&rect, &screenPos]{
-                auto deltaX = rect.right() - screenPos.x();
-                rect.setWidth(rect.width() - deltaX);
-            };
-            
-            switch (m_cursorSection) {
-            case Qt::WindowFrameSection::TopSection:{
-                funcUpdateTop();
-                break;
-            }
-            case Qt::WindowFrameSection::BottomSection:{
-                funcUpdateBottom();
-                break;
-            }
-            case Qt::WindowFrameSection::LeftSection:{
-                funcUpdateLeft();
-                break;
-            }
-            case Qt::WindowFrameSection::RightSection:{
-                funcUpdateRight();
-                break;
-            }
-            case Qt::WindowFrameSection::TopLeftSection:{
-                funcUpdateTop();
-                funcUpdateLeft();
-                break;
-            }
-            case Qt::WindowFrameSection::BottomLeftSection:{
-                funcUpdateBottom();
-                funcUpdateLeft();
-                break;
-            }
-            case Qt::WindowFrameSection::BottomRightSection:{
-                funcUpdateBottom();
-                funcUpdateRight();
-                break;
-            }
-            case Qt::WindowFrameSection::TopRightSection:{
-                funcUpdateTop();
-                funcUpdateRight();
-                break;
-            }
-            default:
-                break;
-            }
-            window->setGeometry(rect);
-            m_startPos = mouseMoveEvent->globalPos();
+        if(m_draggingLocation != Location_Default) {
+            resize(window, mouseMoveEvent->globalPos(), m_draggingLocation);
             return true;
+        } else if(mouseMoveEvent->buttons() == Qt::NoButton){
+            auto location = findLocation(window, mouseMoveEvent->globalPos());
+            if(location != Location_Default) {
+                QHoverEvent leaveEvent(QHoverEvent::Leave, mouseMoveEvent->pos(), mouseMoveEvent->pos(), mouseMoveEvent->modifiers());
+                qApp->sendEvent(window, &leaveEvent);
+                installCursorFromLocation(window, location);
+                m_previousMoveLocation = location;
+                return true;
+            } else if(m_previousMoveLocation != Location_Default){
+                QHoverEvent hoverEvent(QHoverEvent::Enter, mouseMoveEvent->pos(), mouseMoveEvent->pos(), mouseMoveEvent->modifiers());
+                qApp->sendEvent(window, &hoverEvent);
+            }
+            m_previousMoveLocation = location;
         }
         break;
     }
-    case QEvent::HoverMove: {
-        auto mouseHoverEvent = reinterpret_cast<QHoverEvent*>(event);
-        funcChangeCursorShape(mouseHoverEvent);
-        if(m_cursorSection != Qt::WindowFrameSection::NoSection){
+    case QEvent::CursorChange:
+        if(m_draggingLocation != Location_Default) {
             return true;
         }
-        break;
-    }
+        return false;
     case QEvent::MouseButtonPress: {
         auto mousePressEvent = reinterpret_cast<QMouseEvent*>(event);
-        m_activeButton = mousePressEvent->button();
-        if (mousePressEvent->button() & Qt::LeftButton && m_cursorSection != Qt::WindowFrameSection::NoSection) {
-            m_startDrag = true;
-            m_startPos = mousePressEvent->globalPos();
+        auto location = findLocation(window, mousePressEvent->globalPos());
+        if (mousePressEvent->button() & Qt::LeftButton && location != Location_Default) {
+            m_draggingLocation = location;
             return true;
         }
         break;
     }
     case QEvent::MouseButtonRelease: {
-        m_startDrag = false;
+        if(m_draggingLocation != Location_Default) {
+            m_draggingLocation = Location_Default;
+            return true;
+        }
         break;
+    }
+    case QEvent::MouseButtonDblClick: {
+        auto mousePressEvent = reinterpret_cast<QMouseEvent*>(event);
+        return findLocation(window, mousePressEvent->globalPos()) != Location_Default;
     }
     default: break;
     }
@@ -216,7 +190,7 @@ bool WindowResizeAttachment::eventFilter(QObject* watched, QEvent* event)
     return false;
 }
 
-WindowResizeAttachment & WindowResizeAttachment::instance()
+WindowResizeAttachment& WindowResizeAttachment::instance()
 {
     static WindowResizeAttachment result;
     return result;

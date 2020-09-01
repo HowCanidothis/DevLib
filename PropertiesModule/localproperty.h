@@ -1,6 +1,8 @@
 #ifndef LOCALPROPERTY_H
 #define LOCALPROPERTY_H
 
+#include <limits>
+
 #include "property.h"
 #include "externalproperty.h"
 
@@ -91,7 +93,7 @@ class LocalPropertyLimitedDecimal : public LocalProperty<T>
 {
     using Super = LocalProperty<T>;
 public:
-    LocalPropertyLimitedDecimal(const T& value = 0, const T& min = std::numeric_limits<T>::lowest(), const T& max = std::numeric_limits<T>::max())
+    LocalPropertyLimitedDecimal(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)())
         : Super(::clamp(value, min, max))
         , m_min(min)
         , m_max(max)

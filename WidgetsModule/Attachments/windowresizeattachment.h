@@ -9,20 +9,35 @@ class WindowResizeAttachment : public QObject
     WindowResizeAttachment();
 public:
     static void Attach(class QWidget* widget);
-    static void AttachRecursive(QWidget * widget);
     
     // QObject interface
 public:
-    bool eventFilter(QObject * watched, QEvent * event);
+    bool eventFilter(QObject* watched, QEvent* event);
     
 private:
+    enum Location
+    {
+        Location_Default = 0x0,
+        Location_Top = 0x1,
+        Location_Right = 0x2,
+        Location_Left = 0x4,
+        Location_Bottom = 0x8,
+
+        Location_BottomLeft = Location_Left | Location_Bottom,
+        Location_BottomRight = Location_Right | Location_Bottom,
+        Location_TopLeft = Location_Left | Location_Top,
+        Location_TopRight = Location_Right | Location_Top
+    };
+
+private:
+    void resize(QWindow* window, const QPoint& pos, Location location);
+    void installCursorFromLocation(QWindow* window, Location location);
+    Location findLocation(QWindow* window, const QPoint& pos);
     static WindowResizeAttachment& instance();
-    
-    bool m_startDrag;
+
     int m_borderWidth;
-    QPoint m_startPos;
-    Qt::MouseButton m_activeButton;
-    Qt::WindowFrameSection m_cursorSection;
+    Location m_draggingLocation;
+    Location m_previousMoveLocation;
 };
 
 #endif // WINDOWRESIZEATTACHMENT_H

@@ -24,6 +24,7 @@
 #include "Attachments/windowresizeattachment.h"
 
 #include "Utils/iconsmanager.h"
+#include "Utils/styleutils.h"
 
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"

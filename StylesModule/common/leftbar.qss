@@ -74,6 +74,11 @@ MenuBar {
     min-height: 30;
 }
 
+MenuBarMovePane {
+    min-height: 30;
+    max-height: 30;
+}
+
 QPushButton#BtnMinimize {
     qproperty-text: "";
     image: url(":/menu_bar/minimize.svg");
@@ -86,6 +91,14 @@ QPushButton#BtnMinimize {
 QPushButton#BtnMinimize:hover {
     border: none;
     border-radius: none;
+}
+
+QPushButton#BtnMaximize[windowMaximized="true"] {
+    image: url(":/menu_bar/doublesquare.svg");
+}
+
+QPushButton#BtnMaximize[windowMaximized="false"] {
+    image: url(":/menu_bar/square.svg");
 }
 
 QPushButton#BtnMaximize {
