@@ -6,6 +6,11 @@ FocusManager& FocusManager::GetInstance()
     return result;
 }
 
+void FocusManager::ResetFocus()
+{
+    widgetFocused(nullptr);
+}
+
 FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)
     : QObject(target)
     , m_target(target)
@@ -21,8 +26,10 @@ FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)
 
 void FocusManager::widgetDestroyed(QWidget* widget)
 {
-    if(FocusedWidget == widget) {
+    if(m_previousFocusedWidget == widget) {
         m_previousFocusedWidget = nullptr;
+    }
+    if(FocusedWidget == widget) {
         FocusedWidget = nullptr;
     }
 }

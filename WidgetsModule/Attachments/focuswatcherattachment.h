@@ -18,6 +18,8 @@ class FocusManager // TODO. Maybe not static
 public:
     static FocusManager& GetInstance();
 
+    void ResetFocus();
+
     QWidget* GetPreviousFocusedWidget() const { return m_previousFocusedWidget; }
     LocalProperty<QWidget*> FocusedWidget;
 
