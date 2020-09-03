@@ -13,7 +13,7 @@
 #include "SharedModule/interruptor.h"
 
 template<class T>
-class PromiseData
+class PromiseData ATTACH_MEMORY_SPY(PromiseData<T>)
 {
 public:
     using FCallback = std::function<void (const T& )>;
@@ -57,7 +57,7 @@ private:
 };
 
 template<class T>
-class Promise
+class Promise ATTACH_MEMORY_SPY(Promise<T>)
 {
     SharedPointer<PromiseData<T>> m_data;
 public:
@@ -95,7 +95,7 @@ private:
     AsyncResult m_result;
 };
 
-class FutureResultData
+class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 {
     template<class T> friend class QtFutureWatcher;
     friend class FutureResult;
@@ -112,26 +112,32 @@ class FutureResultData
     }
     void deref()
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_promisesCounter--;
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_promisesCounter--;
+        }
 
         if(isFinished()) {
-            m_conditional.notify_one();
             onFinished();
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_conditional.notify_one();
+            }
+            onFinished -= this;
         }
     }
 
     bool isFinished() const { return m_promisesCounter == 0; }
     bool getResult() const { return m_result; }
 
-    void operator+=(AsyncResult promise)
+    void addPromise(AsyncResult promise, const SharedPointer<FutureResultData>& self)
     {
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_keepedResults.append(promise); // Garanting that all results will be valid
         }
         m_promisesCounter++;
-        promise.Then([this, promise](const bool& result){
+        promise.Then([this, promise, self](const bool& result){
             if(!result) {
                 m_result = false;
             }
@@ -142,10 +148,10 @@ class FutureResultData
     }
 
     template<class T>
-    void operator+=(Promise<T> promise)
+    void addPromise(Promise<T> promise, const SharedPointer<FutureResultData>& self)
     {
         ref();
-        promise.Then([this, promise](const T&){
+        promise.Then([this, promise, self](const T&){
             *this -= promise;
         });
     }
@@ -159,6 +165,15 @@ class FutureResultData
     void operator-=(const Promise<T>&)
     {
         deref();
+    }
+
+    void then(const FAction& action)
+    {
+        if(isFinished()) {
+            action();
+        } else {
+            onFinished.Connect(this, action);
+        }
     }
 
     void wait()
@@ -189,6 +204,11 @@ public:
         : m_result(true)
         , m_promisesCounter(0)
     {}
+
+    ~FutureResultData()
+    {
+
+    }
 };
 
 class FutureResult ATTACH_MEMORY_SPY(FutureResult)
@@ -196,38 +216,33 @@ class FutureResult ATTACH_MEMORY_SPY(FutureResult)
     template<class T> friend class QtFutureWatcher;
     SharedPointer<FutureResultData> m_data;
 public:
-    enum MemoryPolicy
-    {
-        MemoryPolicy_DeleteOnFinished
-    };
     FutureResult()
         : m_data(::make_shared<FutureResultData>())
-        , OnFinished(m_data->onFinished)
     {}
-    FutureResult(MemoryPolicy)
-        : FutureResult()
-    {
-        OnFinished += { this, [this] { delete this; } };
-    }
 
     bool IsFinished() const { return m_data->isFinished(); }
     bool GetResult() const { return m_data->getResult(); }
 
     void operator-=(const AsyncResult& promise)
     {
-        *m_data += promise;
+        m_data->addPromise(promise, m_data);
     }
 
     template<class T>
     void operator+=(const Promise<T>& promise)
     {
-        *m_data += promise;
+        m_data->addPromise(promise, m_data);
     }
 
     template<class T>
     void operator-=(const Promise<T>& promise)
     {
         *m_data -= promise;
+    }
+
+    void Then(const FAction& action)
+    {
+        m_data->then([action]{ action(); });
     }
 
     void Wait()
@@ -239,9 +254,6 @@ public:
     {
         m_data->wait(interruptor);
     }
-
-    Dispatcher& OnFinished;
-
 };
 
 #include <QFuture>

@@ -10,7 +10,7 @@
 #include "stack.h"
 
 template<typename ... Args>
-class CommonDispatcher
+class CommonDispatcher ATTACH_MEMORY_SPY(CommonDispatcher<Args...>)
 {
 public:
     enum SubscribeMode {
@@ -73,27 +73,37 @@ public:
         return m_subscribes.isEmpty();
     }
 
-    bool Invoke(Args... args) const
+    void Invoke(Args... args) const
     {
-        if(m_mutex.tryLock()) {
-            for(const auto& subscribe : m_subscribes)
-            {
+        QHash<Observer, FCommonDispatcherAction> subscribesCopy;
+        {
+            QMutexLocker locker(&m_mutex);
+            subscribesCopy = m_subscribes;
+        }
+        for(const auto& subscribe : subscribesCopy)
+        {
+            subscribe(args...);
+        }
+        QHash<Observer, RepeatableSameSubscribeAction> multiSubscribesCopy;
+        {
+            QMutexLocker locker(&m_mutex);
+            multiSubscribesCopy = m_multiSubscribes;
+        }
+        for(const auto& subscribe : multiSubscribesCopy)
+        {
+            subscribe.Handler(args...);
+        }
+        QHash<Observer, ConnectionSubscribe> connectionSubscribesCopy;
+        {
+            QMutexLocker locker(&m_mutex);
+            connectionSubscribesCopy = m_connectionSubscribes;
+        }
+        for(const auto& connections : connectionSubscribesCopy)
+        {
+            for(const auto& subscribe : connections.Subscribes) {
                 subscribe(args...);
             }
-            for(const auto& subscribe : m_multiSubscribes)
-            {
-                subscribe.Handler(args...);
-            }
-            for(const auto& connections : m_connectionSubscribes)
-            {
-                for(const auto& subscribe : connections.Subscribes) {
-                    subscribe(args...);
-                }
-            }
-            m_mutex.unlock();
-            return true;
         }
-        return false;
     }
 
     void operator()(Args... args) const
@@ -132,12 +142,29 @@ public:
 
     CommonDispatcher& operator-=(Observer observer)
     {
+        FCommonDispatcherAction action;
+        RepeatableSameSubscribeAction multiAction;
+        ConnectionSubscribe connection;
         QMutexLocker lock(&m_mutex);
-        m_subscribes.remove(observer);
+        {
+            auto foundIt = m_subscribes.find(observer);
+            if(foundIt != m_subscribes.end()) {
+                action = foundIt.value();
+                m_subscribes.erase(foundIt);
+            }
+        }
+        {
+            auto foundIt = m_connectionSubscribes.find(observer);
+            if(foundIt != m_connectionSubscribes.end()) {
+                connection = foundIt.value();
+                m_connectionSubscribes.erase(foundIt);
+            }
+        }
         m_connectionSubscribes.remove(observer);
         auto foundIt = m_multiSubscribes.find(observer);
         if(foundIt != m_multiSubscribes.end()) {
             if(--foundIt.value().Counter == 0) {
+                multiAction = foundIt.value();
                 m_multiSubscribes.erase(foundIt);
             }
         }

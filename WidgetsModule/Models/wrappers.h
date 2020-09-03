@@ -38,16 +38,36 @@ public:
     Dispatcher OnChanged;
     CommonDispatcher<qint32> OnAboutToChangeRow;
     CommonDispatcher<qint32> OnRowChanged;
+
+private:
+    qint32 m_updateCounter = 0;
+    qint32 m_resetCounter = 0;
 };
 
 inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
 
-    OnAboutToBeReseted += { model, [model]{ model->beginResetModel(); }};
-    OnReseted += { model, [model]{ model->endResetModel(); } };
-    OnAboutToBeUpdated += { model, [model]{ emit model->layoutAboutToBeChanged(); }};
-    OnUpdated += { model, [model]{ emit model->layoutChanged(); }};
+    OnAboutToBeReseted += { model, [model, this]{
+        if(m_resetCounter++ == 0) {
+            model->beginResetModel();
+        }
+    }};
+    OnReseted += { model, [this, model]{
+        if(--m_resetCounter == 0) {
+            model->endResetModel();
+        }
+    }};
+    OnAboutToBeUpdated += { model, [model, this]{
+        if(m_updateCounter++ == 0) {
+            emit model->layoutAboutToBeChanged();
+        }
+    }};
+    OnUpdated += { model, [model, this]{
+        if(--m_updateCounter == 0) {
+            emit model->layoutChanged();
+        }
+    }};
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
     OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
     OnRowChanged += { model, [model] (qint32 row){

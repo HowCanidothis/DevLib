@@ -2,14 +2,27 @@
 #define FOCUSWATCHERATTACHMENT_H
 
 #include <SharedModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 class FocusManager // TODO. Maybe not static
 {
-    FocusManager(){}
+    friend class FocusWatcherAttachment;
+    FocusManager()
+        : FocusedWidget(nullptr)
+        , m_previousFocusedWidget(nullptr)
+    {}
+
+    void widgetDestroyed(QWidget* widget);
+    void widgetFocused(QWidget* widget);
+
 public:
     static FocusManager& GetInstance();
 
-    CommonDispatcher<QWidget*, bool> OnFocusChanged;
+    QWidget* GetPreviousFocusedWidget() const { return m_previousFocusedWidget; }
+    LocalProperty<QWidget*> FocusedWidget;
+
+private:
+    QWidget* m_previousFocusedWidget;
 };
 
 class FocusWatcherAttachment : public QObject

@@ -19,6 +19,22 @@ FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)
     }    
 }
 
+void FocusManager::widgetDestroyed(QWidget* widget)
+{
+    if(FocusedWidget == widget) {
+        m_previousFocusedWidget = nullptr;
+        FocusedWidget = nullptr;
+    }
+}
+
+void FocusManager::widgetFocused(QWidget* widget)
+{
+    if(FocusedWidget != widget) {
+        m_previousFocusedWidget = FocusedWidget.Native();
+        FocusedWidget = widget;
+    }
+}
+
 void FocusWatcherAttachment::Attach(QWidget* widget)
 {
     new FocusWatcherAttachment(widget);
@@ -27,16 +43,10 @@ void FocusWatcherAttachment::Attach(QWidget* widget)
 
 bool FocusWatcherAttachment::eventFilter(QObject*, QEvent* event)
 {
-    bool sendEvent = true;
     switch (event->type()) {
-    case QEvent::FocusIn: m_hasFocus = true; break;
-    case QEvent::FocusOut: m_hasFocus = m_target->contentsRect().contains(m_target->mapFromGlobal(QCursor::pos())); break;
-    default: sendEvent = false; break;
-    }
-    if(sendEvent) {
-        ThreadsBase::DoMain([this]{
-            FocusManager::GetInstance().OnFocusChanged(m_target, m_hasFocus);
-        });
+    case QEvent::FocusIn: FocusManager::GetInstance().widgetFocused(m_target); break;
+    case QEvent::Destroy: FocusManager::GetInstance().widgetDestroyed(m_target); break;
+    default: break;
     }
 
     return false;
