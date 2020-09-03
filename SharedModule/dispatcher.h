@@ -73,23 +73,27 @@ public:
         return m_subscribes.isEmpty();
     }
 
-    void Invoke(Args... args) const
+    bool Invoke(Args... args) const
     {
-        QMutexLocker lock(&m_mutex);
-        for(const auto& subscribe : m_subscribes)
-        {
-            subscribe(args...);
-        }
-        for(const auto& subscribe : m_multiSubscribes)
-        {
-            subscribe.Handler(args...);
-        }
-        for(const auto& connections : m_connectionSubscribes)
-        {
-            for(const auto& subscribe : connections.Subscribes) {
+        if(m_mutex.tryLock()) {
+            for(const auto& subscribe : m_subscribes)
+            {
                 subscribe(args...);
             }
+            for(const auto& subscribe : m_multiSubscribes)
+            {
+                subscribe.Handler(args...);
+            }
+            for(const auto& connections : m_connectionSubscribes)
+            {
+                for(const auto& subscribe : connections.Subscribes) {
+                    subscribe(args...);
+                }
+            }
+            m_mutex.unlock();
+            return true;
         }
+        return false;
     }
 
     void operator()(Args... args) const

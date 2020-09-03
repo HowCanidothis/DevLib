@@ -22,6 +22,7 @@
 #include "Attachments/progressbarattachment.h"
 #include "Attachments/ignorewheelwithoutfocusattachment.h"
 #include "Attachments/windowresizeattachment.h"
+#include "Attachments/focuswatcherattachment.h"
 
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"

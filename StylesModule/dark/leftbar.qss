@@ -49,11 +49,6 @@ LeftBar QFrame {
     min-width: 1;
 }
 
-/* temp */
-WidgetsProjectsTreeView {
-    qproperty-indentation: 9;
-}
-
 MenuBar {
     background: #3C3C3C;
 }

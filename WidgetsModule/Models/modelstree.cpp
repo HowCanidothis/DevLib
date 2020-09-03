@@ -25,6 +25,13 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
     }
 }
 
+void ModelsTree::Update(const std::function<void ()>& predicate)
+{
+    OnAboutToBeUpdated();
+    predicate();
+    OnUpdated();
+}
+
 ModelsTree::ModelsTree(ModelsTreeItemBase* root)
 {
     m_root = root;
@@ -51,7 +58,7 @@ void ModelsTree::Add(const ModelsTreeItemBasePtr& item, ModelsTreeItemBase* pare
     OnRowsInserted();
 }
 
-void ModelsTree::Update(const std::function<void ()>& predicate)
+void ModelsTree::Change(const std::function<void ()>& predicate)
 {
     OnAboutToBeReseted();
     predicate();

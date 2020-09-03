@@ -65,9 +65,8 @@ LeftBar QFrame {
     max-width: 2;
 }
 
-/* temp */
-WidgetsProjectsTree {
-    qproperty-indentation: 9;
+QTreeView {
+    qproperty-indentation: 12;
 }
 
 MenuBar {

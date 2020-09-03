@@ -1,3 +1,0 @@
-QTreeView {
-    qproperty-indentation: 10;
-}
