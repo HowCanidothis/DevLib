@@ -30,19 +30,17 @@ private:
 
     void resolve(bool value)
     {
+        std::unique_lock<std::mutex> lock(m_mutex);
         if(!m_isResolved) {
             m_isResolved = true;
-            {
-                std::unique_lock<std::mutex> lock(m_mutex);
-                m_result = value;
-            }
+            m_result = value;
             onFinished(value);
-            onFinished -= this;
         }
     }
 
     void then(const FCallback& handler)
     {
+        std::unique_lock<std::mutex> lock(m_mutex);
         if(m_isResolved) {
             handler(m_result);
         } else {
@@ -107,15 +105,11 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 
     void ref()
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
         m_promisesCounter++;
     }
     void deref()
     {
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_promisesCounter--;
-        }
+        m_promisesCounter--;
 
         if(isFinished()) {
             onFinished();
@@ -190,9 +184,11 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
             m_promisesCounter = 0;
             m_conditional.notify_all();
         }};
-        std::unique_lock<std::mutex> lock(m_mutex);
-        while(m_promisesCounter > 0) {
-            m_conditional.wait(lock);
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            while(m_promisesCounter > 0) {
+                m_conditional.wait(lock);
+            }
         }
         interruptor.OnInterrupted -= this;
     }
