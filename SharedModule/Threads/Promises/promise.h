@@ -20,6 +20,8 @@ public:
     PromiseData()
         : m_isResolved(false)
     {}
+    ~PromiseData()
+    {}
 
 private:
     template<class T2> friend class Promise;
@@ -70,8 +72,8 @@ public:
 
     const T& GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isResolved; }
-    void Then(const typename PromiseData<T>::FCallback& handler) { m_data->then(handler); }
-    void Resolve(bool value) {  m_data->resolve(value); }
+    void Then(const typename PromiseData<T>::FCallback& handler) const { m_data->then(handler); }
+    void Resolve(bool value) const {  m_data->resolve(value); }
     void Mute() { m_data->mute(); }
 };
 
@@ -127,7 +129,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     bool isFinished() const { return m_promisesCounter == 0; }
     bool getResult() const { return m_result; }
 
-    void addPromise(AsyncResult promise, const SharedPointer<FutureResultData>& self)
+    void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self)
     {
         ref();
         promise.Then([this, promise, self](const bool& result){
@@ -141,7 +143,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     }
 
     template<class T>
-    void addPromise(Promise<T> promise, const SharedPointer<FutureResultData>& self)
+    void addPromise(const Promise<T>& promise, const SharedPointer<FutureResultData>& self)
     {
         ref();
         promise.Then([this, promise, self](const T&){
@@ -177,21 +179,6 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
         }
     }
 
-    void wait(Interruptor interruptor)
-    {
-        interruptor.OnInterrupted += {this, [this]{
-            m_promisesCounter = 0;
-            m_conditional.notify_all();
-        }};
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            while(m_promisesCounter > 0) {
-                m_conditional.wait(lock);
-            }
-        }
-        interruptor.OnInterrupted -= this;
-    }
-
     Dispatcher onFinished;
 
 public:
@@ -218,18 +205,13 @@ public:
     bool IsFinished() const { return m_data->isFinished(); }
     bool GetResult() const { return m_data->getResult(); }
 
-    void operator-=(const AsyncResult& promise)
-    {
-        m_data->addPromise(promise, m_data);
-    }
-
     template<class T>
     void operator+=(const Promise<T>& promise)
     {
         m_data->addPromise(promise, m_data);
     }
 
-    template<class T>
+    template<class T> // TODO. Unused?
     void operator-=(const Promise<T>& promise)
     {
         *m_data -= promise;
@@ -243,11 +225,6 @@ public:
     void Wait()
     {
         m_data->wait();
-    }
-
-    void Wait(Interruptor interruptor)
-    {
-        m_data->wait(interruptor);
     }
 };
 

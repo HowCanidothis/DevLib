@@ -48,8 +48,8 @@ public:
 
 
     void SetParent(const Interruptor& another) { m_data->setParent(another.m_data.get());  }
-    void Interrupt() { m_data->interrupt(); }
-    void Interrupt(qint32 msecs) { auto data = m_data; ThreadTimer::SingleShot(msecs, [data]{ data->interrupt(); }); }
+    void Interrupt() const { m_data->interrupt(); }
+    void Interrupt(qint32 msecs) const { auto data = m_data; ThreadTimer::SingleShot(msecs, [data]{ data->interrupt(); }); }
 
     bool IsInterrupted() const { return m_data->m_interupted; }
 

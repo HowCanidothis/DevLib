@@ -27,14 +27,18 @@ public:
             setter();
         })
     {}
+    ~LocalProperty()
+    {
+
+    }
 
     void Invoke()
     {
         m_setterHandler([this]{
-            OnChange.Invoke();
             if(m_subscribes != nullptr) {
                 m_subscribes();
             }
+            OnChange.Invoke();
         });
     }
 
