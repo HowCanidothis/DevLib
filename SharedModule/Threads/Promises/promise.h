@@ -30,12 +30,16 @@ private:
 
     void resolve(bool value)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        if(!m_isResolved) {
-            m_isResolved = true;
-            m_result = value;
-            onFinished(value);
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            if(!m_isResolved) {
+                m_isResolved = true;
+                m_result = value;
+                onFinished(value);
+            }
         }
+
+        onFinished -= this;
     }
 
     void then(const FCallback& handler)
@@ -101,7 +105,6 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     std::atomic<int> m_promisesCounter;
     std::condition_variable m_conditional;
     std::mutex m_mutex;
-    QVector<AsyncResult> m_keepedResults;
 
     void ref()
     {
@@ -126,11 +129,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 
     void addPromise(AsyncResult promise, const SharedPointer<FutureResultData>& self)
     {
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_keepedResults.append(promise); // Garanting that all results will be valid
-        }
-        m_promisesCounter++;
+        ref();
         promise.Then([this, promise, self](const bool& result){
             if(!result) {
                 m_result = false;

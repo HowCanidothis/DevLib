@@ -140,35 +140,36 @@ public:
         return *this;
     }
 
-    CommonDispatcher& operator-=(Observer observer)
+    void operator-=(Observer observer)
     {
         FCommonDispatcherAction action;
         RepeatableSameSubscribeAction multiAction;
         ConnectionSubscribe connection;
-        QMutexLocker lock(&m_mutex);
         {
-            auto foundIt = m_subscribes.find(observer);
-            if(foundIt != m_subscribes.end()) {
-                action = foundIt.value();
-                m_subscribes.erase(foundIt);
+            QMutexLocker lock(&m_mutex);
+            {
+                auto foundIt = m_subscribes.find(observer);
+                if(foundIt != m_subscribes.end()) {
+                    action = foundIt.value();
+                    m_subscribes.erase(foundIt);
+                }
+            }
+            {
+                auto foundIt = m_connectionSubscribes.find(observer);
+                if(foundIt != m_connectionSubscribes.end()) {
+                    connection = foundIt.value();
+                    m_connectionSubscribes.erase(foundIt);
+                }
+            }
+            m_connectionSubscribes.remove(observer);
+            auto foundIt = m_multiSubscribes.find(observer);
+            if(foundIt != m_multiSubscribes.end()) {
+                if(--foundIt.value().Counter == 0) {
+                    multiAction = foundIt.value();
+                    m_multiSubscribes.erase(foundIt);
+                }
             }
         }
-        {
-            auto foundIt = m_connectionSubscribes.find(observer);
-            if(foundIt != m_connectionSubscribes.end()) {
-                connection = foundIt.value();
-                m_connectionSubscribes.erase(foundIt);
-            }
-        }
-        m_connectionSubscribes.remove(observer);
-        auto foundIt = m_multiSubscribes.find(observer);
-        if(foundIt != m_multiSubscribes.end()) {
-            if(--foundIt.value().Counter == 0) {
-                multiAction = foundIt.value();
-                m_multiSubscribes.erase(foundIt);
-            }
-        }
-        return *this;
     }
 
     CommonDispatcher& operator-=(const RepeatableSameSubscribeUnsubscriber& unsubscriber)
