@@ -254,6 +254,11 @@ public:
     {
     }
 
+    void ResetPrevious(const SharedPointer<T>& value)
+    {
+        Super::m_previousValue = QVariant::fromValue(value);
+    }
+
     T* operator->() { return this->Native().get(); }
     const T* operator->() const { return this->Native().get(); }
     SharedPointerProperty<T>& operator=(const SharedPointer<T>& ptr) { this->SetValue(PropertyValueExtractorPrivate<typename Super::value_type>::ExtractVariant(ptr)); return *this; }

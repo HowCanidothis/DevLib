@@ -9,7 +9,7 @@ class StyleAdjusterAttachment : public QObject
 public:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
-        if(event->type() == QEvent::StyleChange) {
+        if(event->type() == QEvent::StyleChange || event->type() == QEvent::Show) {
             reinterpret_cast<QWidget*>(watched)->adjustSize();
         }
         return false;

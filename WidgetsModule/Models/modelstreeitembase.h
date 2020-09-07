@@ -39,17 +39,18 @@ public:
         return reinterpret_cast<T*>(GetUserData(key, propertyName).value<size_t>());
     }
 
+    ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
     void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
-    void ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
     const SharedPointer<ModelsTreeItemBase>& GetChildPtr(ModelsTreeItemBase* child) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
     virtual QFont GetFont() const { return QFont(); }
 
+    const SharedPointer<ModelsTreeItemBase>& AsPtr() { Q_ASSERT(GetParent() != nullptr); return GetParent()->GetChildPtr(this); }
     template<class T>
     T* As() { return reinterpret_cast<T*>(this); }
     template<class T>
@@ -67,7 +68,7 @@ public:
 
 private:
     static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
-    static void foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
+    static void findChildRecursive(ModelsTreeItemBase* item, const FilterFunc& filterFunc, bool& found);
 
 protected:
     virtual void clone(ModelsTreeItemBase* item) const;

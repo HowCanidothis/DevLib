@@ -18,6 +18,20 @@ ModelsTreeItemBase& ModelsTreeItemBase::operator=(ModelsTreeItemBase& o)
     return *this;
 }
 
+ModelsTreeItemBase* ModelsTreeItemBase::FindIf(const FilterFunc& filter) const
+{
+    ModelsTreeItemBase* result = nullptr;
+    bool found = false;
+    findChildRecursive(const_cast<ModelsTreeItemBase*>(this), [filter, &result](ModelsTreeItemBase* item) -> bool {
+        if(filter(item)) {
+            result = item;
+            return true;
+        }
+        return false;
+    }, found);
+    return result;
+}
+
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
 {
     item->m_parent = this;
@@ -54,24 +68,24 @@ void ModelsTreeItemBase::foreachChild(ModelsTreeItemBase* item, const HandlerFun
     }
 }
 
-void ModelsTreeItemBase::foreachChildAfter(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc)
+void ModelsTreeItemBase::findChildRecursive(ModelsTreeItemBase* item, const FilterFunc& filterFunc, bool& found)
 {
     for(const auto& child : item->GetChilds()) {
         if (filterFunc(child.get())){
-            foreachChildAfter(child.get(), handler, filterFunc);
-            handler(child.get());
-        }        
+            found = true;
+            return;
+        }
+        findChildRecursive(child.get(), filterFunc, found);
+        if(found) {
+            return;
+        }
     }
 }
+
 
 void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc) const
 {
     foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
-}
-
-void ModelsTreeItemBase::ForeachChildAfter(const HandlerFunc& handler, const FilterFunc& filterFunc) const
-{
-    foreachChildAfter(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);
 }
 
 qint32 ModelsTreeItemBase::GetRow() const

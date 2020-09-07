@@ -25,6 +25,15 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
     }
 }
 
+void ModelsTree::ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler)
+{
+    m_root->ForeachChild([handler, this](ModelsTreeItemBase* item){
+        if(handler(item)) {
+            OnTreeValueChanged(item, {});
+        }
+    });
+}
+
 void ModelsTree::Update(const std::function<void ()>& predicate)
 {
     OnAboutToBeUpdated();

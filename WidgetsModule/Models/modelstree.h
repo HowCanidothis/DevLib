@@ -16,6 +16,7 @@ public:
 
     void Clear();
     void Add(const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
+    void ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler);
     void Update(const std::function<void ()>& predicate);
     void Change(const std::function<void ()>& predicate);
     void Remove(ModelsTreeItemBase* item);

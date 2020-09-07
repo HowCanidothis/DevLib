@@ -7,18 +7,13 @@
 class FocusManager // TODO. Maybe not static
 {
     friend class FocusWatcherAttachment;
-    FocusManager()
-        : FocusedWidget(nullptr)
-        , m_previousFocusedWidget(nullptr)
-    {}
+    FocusManager();
 
-    void widgetDestroyed(QWidget* widget);
-    void widgetFocused(QWidget* widget);
+    void destroyed(QWidget* target);
+    void focusGot(QWidget* target);
 
 public:
     static FocusManager& GetInstance();
-
-    void ResetFocus();
 
     QWidget* GetPreviousFocusedWidget() const { return m_previousFocusedWidget; }
     LocalProperty<QWidget*> FocusedWidget;
@@ -39,7 +34,6 @@ public:
 
 private:
     QWidget* m_target;
-    bool m_hasFocus;
 };
 
 #endif // FOCUSWATCHERATTACHMENT_H
