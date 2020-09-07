@@ -8,7 +8,8 @@ class IgnoreWheelWithoutFocusAttachment : public QObject
     IgnoreWheelWithoutFocusAttachment();
 public:
     static void Attach(class QWidget* widget);
-    static void AttachRecursive(QWidget* widget);
+    static void AttachRecursive(QWidget* widget, const std::function<bool (QWidget* w)>& filter = [](QWidget*){ return true; });
+    static void AttachRecursiveSpinBoxesAndComboBoxes(QWidget* widget);
 
     // QObject interface
 public:

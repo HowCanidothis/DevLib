@@ -37,7 +37,6 @@ bool TableViewColumnsWidgetAttachment::eventFilter(QObject* watched, QEvent* eve
                     auto x = headerView->sectionViewportPosition(i);
                     auto y = 0;
                     attachmentWidget->setGeometry(x + 2,y, headerView->sectionSize(i) - 4, headerView->height());
-                    attachmentWidget->setCursor(QCursor(Qt::ArrowCursor));
                 }
             }
         }
