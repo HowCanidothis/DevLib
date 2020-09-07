@@ -37,6 +37,11 @@ void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
     }
 }
 
+bool ThreadsBase::IsTerminated()
+{
+    return ThreadFunction::threadPool().IsTerminated();
+}
+
 void ThreadsBase::TerminateAllAsyncTasks()
 {
     ThreadFunction::threadPool().TerminateAll();

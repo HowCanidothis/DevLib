@@ -15,13 +15,35 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
     }
 
     if(!toRemove.isEmpty()) {
-        auto newSize = childs.size() - toRemove.size();
-        OnAboutToRemoveRows(newSize, childs.size() - 1, parent);
-        auto endIt = std::remove_if(childs.begin(), childs.end(), [&toRemove](const SharedPointer<ModelsTreeItemBase>& child){
-            return toRemove.contains(child.get());
-        }); Q_UNUSED(endIt);
-        childs.resize(newSize);
-        OnRowsRemoved();
+        struct RemoveGroup
+        {
+            qint32 Since = -2;
+            qint32 To = -2;
+        };
+
+        QVector<RemoveGroup> removeGroups(1);
+        RemoveGroup& currentGroup = removeGroups.last();
+        qint32 i(0);
+        for(const auto& child : childs) {
+            if(toRemove.contains(child.get())) {
+                if(currentGroup.Since < 0) {
+                    currentGroup.Since = i;
+                } else {
+                    if(currentGroup.To + 1 != i) {
+                        removeGroups.append(RemoveGroup());
+                        currentGroup = removeGroups.last();
+                        currentGroup.Since = i;
+                    }
+                }
+                currentGroup.To = i;
+            }
+            i++;
+        }
+        for(const auto& removeGroup : adapters::reverse(removeGroups)) {
+            OnAboutToRemoveRows(removeGroup.Since, removeGroup.To, parent);
+            childs.remove(removeGroup.Since, removeGroup.To + 1);
+            OnRowsRemoved();
+        }
     }
 }
 

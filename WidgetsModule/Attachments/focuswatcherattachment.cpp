@@ -1,7 +1,7 @@
 #include "focuswatcherattachment.h"
 
 FocusManager::FocusManager()
-    : FocusedWidget(nullptr)
+    : m_focusedWidget(nullptr)
     , m_previousFocusedWidget(nullptr)
 {
 }
@@ -9,14 +9,14 @@ FocusManager::FocusManager()
 void FocusManager::destroyed(QWidget* target)
 {
     m_previousFocusedWidget = target == m_previousFocusedWidget ? nullptr : m_previousFocusedWidget;
-    FocusedWidget = target == FocusedWidget ? nullptr : FocusedWidget.Native();
+    m_focusedWidget = target == m_focusedWidget ? nullptr : m_focusedWidget.Native();
 }
 
 void FocusManager::focusGot(QWidget* target)
 {
-    if(FocusedWidget != target) {
-        m_previousFocusedWidget = FocusedWidget;
-        FocusedWidget = target;
+    if(m_focusedWidget != target) {
+        m_previousFocusedWidget = m_focusedWidget;
+        m_focusedWidget = target;
     }
 }
 
@@ -24,6 +24,12 @@ FocusManager& FocusManager::GetInstance()
 {
     static FocusManager result;
     return result;
+}
+
+void FocusManager::ResetFocus()
+{
+    m_previousFocusedWidget = nullptr;
+    m_focusedWidget = nullptr;
 }
 
 FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)

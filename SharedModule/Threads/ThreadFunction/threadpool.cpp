@@ -17,6 +17,11 @@ ThreadPool::~ThreadPool()
 
 }
 
+bool ThreadPool::IsTerminated() const
+{
+    return m_threads.IsEmpty();
+}
+
 void ThreadPool::TerminateAll()
 {
     m_threads.Clear();
