@@ -14,7 +14,13 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
         }
     }
 
+    removeChilds(parent, toRemove);
+}
+
+void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeItemBase*> toRemove)
+{
     if(!toRemove.isEmpty()) {
+        auto& childs = parent->m_childs;
         struct RemoveGroup
         {
             qint32 Since = -2;
@@ -39,9 +45,10 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
             }
             i++;
         }
+
         for(const auto& removeGroup : adapters::reverse(removeGroups)) {
             OnAboutToRemoveRows(removeGroup.Since, removeGroup.To, parent);
-            childs.remove(removeGroup.Since, removeGroup.To + 1);
+            childs.remove(removeGroup.Since, removeGroup.To - removeGroup.Since + 1);
             OnRowsRemoved();
         }
     }
@@ -82,11 +89,12 @@ void ModelsTree::Clear()
     OnReseted();
 }
 
-void ModelsTree::Add(const ModelsTreeItemBasePtr& item, ModelsTreeItemBase* parent)
+const ModelsTreeItemBasePtr& ModelsTree::Add(const ModelsTreeItemBasePtr& item, ModelsTreeItemBase* parent)
 {
     OnAboutToInsertRows(parent->GetChilds().size(), parent->GetChilds().size(), parent);
     parent->AddChild(item);
     OnRowsInserted();
+    return item;
 }
 
 void ModelsTree::Change(const std::function<void ()>& predicate)
@@ -102,14 +110,7 @@ void ModelsTree::Remove(ModelsTreeItemBase* item)
         return;
     }
 
-    auto& childs = item->GetParent()->m_childs;
-    auto row = item->GetRow();
-    OnAboutToRemoveRows(row, row, item->GetParent());
-    auto endIt = std::remove_if(childs.begin(), childs.end(), [item](const SharedPointer<ModelsTreeItemBase>& containerItem){
-        return containerItem.get() == item;
-    });
-    childs.resize(std::distance(childs.begin(), endIt));
-    OnRowsRemoved();
+    removeChilds(item->GetParent(), {item});
 }
 
 void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)

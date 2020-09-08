@@ -32,6 +32,19 @@ ModelsTreeItemBase* ModelsTreeItemBase::FindIf(const FilterFunc& filter) const
     return result;
 }
 
+bool ModelsTreeItemBase::HasParent(ModelsTreeItemBase* parent) const
+{
+    auto tmp = this;
+    while (tmp->GetParent() != nullptr) {
+        if (tmp == parent){
+            return true;
+        }
+        tmp = tmp->GetParent();
+    }
+
+    return false;
+}
+
 void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
 {
     item->m_parent = this;

@@ -21,6 +21,17 @@ class ModelsAbstractItemModel : public QAbstractItemModel
 class ModelsWrapperBase
 {
 public:
+    ModelsWrapperBase()
+        : m_inScope(false)
+    {
+        OnAboutToBeReseted.Connect(this, [this] { testInScope(); });
+        OnAboutToBeUpdated.Connect(this, [this] { testInScope(); });
+        OnReseted.Connect(this, [this] { testOutScope(); });
+        OnUpdated.Connect(this, [this] { testOutScope(); });
+        OnRowsRemoved.Connect(this, [this] { testOutScope(); });
+        OnRowsInserted.Connect(this, [this] { testOutScope(); });
+    }
+
     virtual ~ModelsWrapperBase()
     {
         OnAboutToBeDestroyed();
@@ -39,34 +50,38 @@ public:
     CommonDispatcher<qint32> OnAboutToChangeRow;
     CommonDispatcher<qint32> OnRowChanged;
 
+protected:
+    void testInScope()
+    {
+        Q_ASSERT(!m_inScope);
+        m_inScope = true;
+    }
+
+    void testOutScope()
+    {
+        Q_ASSERT(m_inScope);
+        m_inScope = false;
+    }
+
 private:
-    qint32 m_updateCounter = 0;
-    qint32 m_resetCounter = 0;
+    bool m_inScope;
 };
 
 inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
 
-    OnAboutToBeReseted += { model, [model, this]{
-        if(m_resetCounter++ == 0) {
-            model->beginResetModel();
-        }
+    OnAboutToBeReseted += { model, [model]{
+        model->beginResetModel();
     }};
-    OnReseted += { model, [this, model]{
-        if(--m_resetCounter == 0) {
-            model->endResetModel();
-        }
+    OnReseted += { model, [model]{
+        model->endResetModel();
     }};
-    OnAboutToBeUpdated += { model, [model, this]{
-        if(m_updateCounter++ == 0) {
-            emit model->layoutAboutToBeChanged();
-        }
+    OnAboutToBeUpdated += { model, [model]{
+        emit model->layoutAboutToBeChanged();
     }};
-    OnUpdated += { model, [model, this]{
-        if(--m_updateCounter == 0) {
-            emit model->layoutChanged();
-        }
+    OnUpdated += { model, [model]{
+        emit model->layoutChanged();
     }};
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
     OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
@@ -95,6 +110,11 @@ class ModelsTreeWrapper : public ModelsWrapperBase
 {
     using Super = ModelsWrapperBase;
 public:
+    ModelsTreeWrapper()
+    {
+        OnAboutToInsertRows.Connect(this, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
+        OnAboutToRemoveRows.Connect(this, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
+    }
     void ConnectModel(QAbstractItemModel* model) override;
     void DisconnectModel(QAbstractItemModel* model) override;
 
@@ -143,6 +163,11 @@ class ModelsTableWrapper : public ModelsWrapperBase
 {
     using Super = ModelsWrapperBase;
 public:
+    ModelsTableWrapper()
+    {
+        OnAboutToInsertRows.Connect(this, [this](qint32,qint32){ testInScope(); });
+        OnAboutToRemoveRows.Connect(this, [this](qint32,qint32){ testInScope(); });
+    }
     void ConnectModel(QAbstractItemModel* model) override;
     void DisconnectModel(QAbstractItemModel* model) override;
 

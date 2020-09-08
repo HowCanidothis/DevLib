@@ -15,7 +15,7 @@ public:
     void SetRoot(const SharedPointer<ModelsTreeItemBase>& root);
 
     void Clear();
-    void Add(const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
+    const ModelsTreeItemBasePtr& Add(const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
     void ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler);
     void Update(const std::function<void ()>& predicate);
     void Change(const std::function<void ()>& predicate);
@@ -34,6 +34,7 @@ public:
 
 private:
     void remove(ModelsTreeItemBase* parent, const std::function<bool (ModelsTreeItemBase*)>& removePredicate);
+    void removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeItemBase*> items);
 
 private:
     SharedPointer<ModelsTreeItemBase> m_root;
