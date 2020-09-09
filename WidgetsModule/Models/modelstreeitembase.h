@@ -25,7 +25,7 @@ public:
 
     const QVector<SharedPointer<ModelsTreeItemBase>>& GetChilds() const { return m_childs; }
     ModelsTreeItemBase* GetParent() const { return m_parent; }
-    bool HasParent(ModelsTreeItemBase* parent) const;
+    bool HasParentOrEqual(ModelsTreeItemBase* parent) const;
     qint32 GetRow() const;
     qint32 GetParentRow() const;
 

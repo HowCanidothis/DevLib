@@ -32,7 +32,7 @@ ModelsTreeItemBase* ModelsTreeItemBase::FindIf(const FilterFunc& filter) const
     return result;
 }
 
-bool ModelsTreeItemBase::HasParent(ModelsTreeItemBase* parent) const
+bool ModelsTreeItemBase::HasParentOrEqual(ModelsTreeItemBase* parent) const
 {
     auto tmp = this;
     while (tmp->GetParent() != nullptr) {
