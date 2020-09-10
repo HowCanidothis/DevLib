@@ -37,6 +37,14 @@ void GtRenderer::AddDrawable(GtDrawableBase* drawable)
     });
 }
 
+void GtRenderer::RemoveDrawable(GtDrawableBase* drawable)
+{
+    Asynch([this, drawable]{
+        drawable->onDestroy(this);
+        m_scene->RemoveDrawable(drawable);
+    });
+}
+
 void GtRenderer::Update(const std::function<void (OpenGLFunctions*)>& handler)
 {
     Asynch([this, handler]{

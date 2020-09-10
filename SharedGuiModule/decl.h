@@ -270,7 +270,7 @@ public:
 
     void MultiplyExtent(float multiplier)
     {
-        auto currentExtent = Extent();
+        auto currentExtent = CalculateExtent();
         AddExtent(currentExtent.x() * multiplier, currentExtent.y() * multiplier, currentExtent.z() * multiplier);
     }
     void AddExtent(float x, float y, float z)
@@ -284,7 +284,7 @@ public:
         m_bottomRightBack.Z() -= zh;
     }
 
-    Point3F Extent() const { return Point3F(m_bottomRightBack.x() - m_topLeftFront.x(), m_topLeftFront.y() - m_bottomRightBack.y(), m_topLeftFront.z() - m_bottomRightBack.z()); }
+    Point3F CalculateExtent() const { return Point3F(m_bottomRightBack.x() - m_topLeftFront.x(), m_topLeftFront.y() - m_bottomRightBack.y(), m_topLeftFront.z() - m_bottomRightBack.z()); }
     Point3F Center() const { return (m_topLeftFront + m_bottomRightBack) / 2.f; }
     const Point3F& GetLeft() const { return m_topLeftFront; }
     const Point3F& GetRight() const { return m_bottomRightBack; }

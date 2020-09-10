@@ -5,6 +5,16 @@
 #include <QPropertyAnimation>
 #include <QResizeEvent>
 
+
+void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
+{
+    if(visible) {
+        WidgetAppearance::ShowAnimated(widget);
+    } else {
+        WidgetAppearance::HideAnimated(widget);
+    }
+}
+
 void WidgetAppearance::ShowAnimated(QWidget* widget)
 {
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(widget);
@@ -27,8 +37,10 @@ void WidgetAppearance::HideAnimated(QWidget* widget)
     animation->setStartValue(0.8);
     animation->setEndValue(0);
     animation->setEasingCurve(QEasingCurve::OutBack);
+    animation->connect(animation, &QPropertyAnimation::finished, [widget]{
+        widget->hide();
+    });
     animation->start(QPropertyAnimation::DeleteWhenStopped);
-    widget->hide();
 }
 
 TopNotifierFrame::TopNotifierFrame(QWidget* parent)
@@ -36,6 +48,7 @@ TopNotifierFrame::TopNotifierFrame(QWidget* parent)
     , ui(new Ui::TopNotifierFrame)
 {
     ui->setupUi(this);
+    ui->BtnAction->setVisible(false);
 
     parent->installEventFilter(this);
     hide();
@@ -54,6 +67,7 @@ void TopNotifierFrame::SetText(const QString& text)
 void TopNotifierFrame::SetActionText(const QString& text)
 {
     ui->BtnAction->setText(text);
+    ui->BtnAction->setVisible(!text.isEmpty());
 }
 
 void TopNotifierFrame::SetAction(const FAction& action)
@@ -61,8 +75,7 @@ void TopNotifierFrame::SetAction(const FAction& action)
     connect(ui->BtnAction, &QPushButton::clicked, action);
 }
 
-
-bool TopNotifierFrame::eventFilter(QObject* watched, QEvent* event)
+bool TopNotifierFrame::eventFilter(QObject*, QEvent* event)
 {
     switch (event->type()) {
     case QEvent::Resize: {

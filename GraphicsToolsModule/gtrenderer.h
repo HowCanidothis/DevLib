@@ -25,6 +25,7 @@ public:
     void KeyReleaseEvent(QKeyEvent* event);
 
     void AddDrawable(GtDrawableBase* drawable);
+    void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
 
     class GtCamera* GetCamera() { return m_camera.get(); }

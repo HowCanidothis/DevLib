@@ -47,6 +47,9 @@ public:
     SharedPointer<T2>& Cast() { return *reinterpret_cast<SharedPointer<T2>*>(this); }
 };
 
+template<class T, typename DefaultDeleter, typename ... Args>
+SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...), DefaultDeleter()); }
+
 template<class T, typename ... Args>
 SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...)); }
 

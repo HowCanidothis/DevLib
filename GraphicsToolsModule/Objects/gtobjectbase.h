@@ -27,6 +27,7 @@ protected:
     virtual void draw(OpenGLFunctions* f) = 0;
     void initialize(class GtRenderer* renderer);
     virtual void onInitialize(OpenGLFunctions* f) = 0;
+    virtual void onDestroy(OpenGLFunctions* f) = 0;
 
 private:
     GtRenderer* m_renderer;

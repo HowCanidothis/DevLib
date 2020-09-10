@@ -55,6 +55,26 @@ inline bool fuzzyCompare(float v1, float v2, float epsilon = std::numeric_limits
     return qAbs(v1 - v2) < epsilon;
 }
 
+inline bool fuzzyIsNull(float v1, float epsilon = std::numeric_limits<float>().epsilon())
+{
+    return qAbs(v1 - 0.f) < epsilon;
+}
+
+inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>().epsilon())
+{
+    return qAbs(v1 - 0.0) < epsilon;
+}
+
+inline double round(double value, int decimals)
+{
+    return std::round(value * decimals) / decimals;
+}
+
+inline float round(float value, int decimals)
+{
+    return std::round(value * decimals) / decimals;
+}
+
 namespace adapters {
 
 template<typename It>

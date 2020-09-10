@@ -39,6 +39,8 @@ public:
     virtual void ConnectModel(QAbstractItemModel* model);
     virtual void DisconnectModel(QAbstractItemModel* model);
 
+    bool IsInScope() const { return m_inScope; }
+
     Dispatcher OnAboutToBeReseted;
     Dispatcher OnReseted;
     Dispatcher OnAboutToBeUpdated;
