@@ -115,6 +115,12 @@ QImage GtRenderer::CurrentImage()
     return QImage();
 }
 
+Point3F GtRenderer::Project(const Point3F& position) const
+{
+    THREAD_ASSERT_IS_THREAD(this);
+    auto result = m_controllersContext->Camera->Project(position);
+    return result;
+}
 
 void GtRenderer::onInitialize()
 {

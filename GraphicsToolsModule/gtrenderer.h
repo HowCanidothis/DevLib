@@ -28,6 +28,8 @@ public:
     void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
 
+    Point3F Project(const Point3F& position) const;
+
     class GtCamera* GetCamera() { return m_camera.get(); }
 
     QImage CurrentImage();

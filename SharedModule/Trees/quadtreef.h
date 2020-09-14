@@ -32,12 +32,12 @@ public:
     ~Tree();
 
     //methods
-    void clear();
-    void compress(){ root->compress(); }
-    void addObject(ObjectNode *node){ root->add(node); }
-    bool removeObject(const ObjectNode *node) { return root->remove(const_cast<ObjectNode*>(node)); }
-    void updateObject(const ObjectNode *node){ if(root->remove(node)) root->add(node); }
-    void reconstruct();
+    void Clear();
+    void Compress(){ root->compress(); }
+    ObjectNode* AddObject(ObjectNode *node){ root->add(node); return node; }
+    bool RemoveObject(const ObjectNode *node) { return root->remove(const_cast<ObjectNode*>(node)); }
+    void UpdateObject(const ObjectNode *node){ if(root->remove(node)) root->add(node); }
+    void Reconstruct();
 
     //watchers
 #ifndef QUADTREE_NO_IMAGE_OUTPUT
@@ -53,13 +53,13 @@ public:
         DrawAll = DrawBranches | DrawLeafs | DrawSelectionRect
     };
 
-    void toImage(QImage *img, BoundingRect *rect=0, qint32 dm= DrawAll) const;
-    void print(QTextStream * stream) const;
+    void ToImage(QImage *img, BoundingRect *rect=0, qint32 dm= DrawAll) const;
+    void Print(QTextStream * stream) const;
 #endif
-    void getObjectsAt(const BoundingRect &rect, OutObjectsContainer & c) const { root->getObjectsAt(rect,c); }
-    OutObjectsContainer getObjectsAt(const BoundingRect& rect) const{ OutObjectsContainer res; this->getObjectsAt(rect,res); return res; }
-    OutObjectsContainer getObjectsAtClosestTo(const BoundingRect& rect, real x, real y) const;
-    OutObjectsContainer getObjectsAll() const { OutObjectsContainer res; getObjects(root,res); return res; }
+    void GetObjectsAt(const BoundingRect &rect, OutObjectsContainer & c) const { root->getObjectsAt(rect,c); }
+    OutObjectsContainer GetObjectsAt(const BoundingRect& rect) const{ OutObjectsContainer res; this->getObjectsAt(rect,res); return res; }
+    OutObjectsContainer GetObjectsAtClosestTo(const BoundingRect& rect, real x, real y) const;
+    OutObjectsContainer GetObjectsAll() const { OutObjectsContainer res; getObjects(root,res); return res; }
 };
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
@@ -71,12 +71,12 @@ Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Tree(real x1, real y1, real width, real h
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
 Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::~Tree()
 {
-    clear();
+    Clear();
     delete root;
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-inline void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::clear()
+inline void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Clear()
 {
     root->objects.clear();
     root->destroyBranches();
@@ -84,7 +84,7 @@ inline void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::clear()
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::reconstruct() {
+void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Reconstruct() {
     OutObjectsContainer objects = getObjectsAll();
     this->clear();
     for(ObjectNode *o : objects)
@@ -92,7 +92,7 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::reconstruct() {
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::getObjectsAtClosestTo(const BoundingRect &rect, real x, real y) const
+typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::GetObjectsAtClosestTo(const BoundingRect &rect, real x, real y) const
 {
     OutObjectsContainer res;
     root->getObjectsAt(rect, res);
@@ -102,7 +102,7 @@ typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectN
 
 #ifndef QUADTREE_NO_IMAGE_OUTPUT
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::toImage(QImage *img, BoundingRect *rect, qint32 dm) const
+void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::ToImage(QImage *img, BoundingRect *rect, qint32 dm) const
 {
     img->fill(Qt::black);
     struct Scaler{
@@ -171,7 +171,7 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::toImage(QImage *img, BoundingRect *r
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::print(QTextStream *stream) const
+void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Print(QTextStream *stream) const
 {
     typename BranchNode::MemoryStatistic stat;
     root->getStatistics(stat);

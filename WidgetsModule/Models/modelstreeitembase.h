@@ -34,12 +34,6 @@ public:
     void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
     QVariant GetUserData(size_t key, const Name& propertyName) const;
 
-    template<class T>
-    T* GetUserDataPtr(size_t key, const Name& propertyName) const
-    {
-        return reinterpret_cast<T*>(GetUserData(key, propertyName).value<size_t>());
-    }
-
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
@@ -74,6 +68,8 @@ private:
 protected:
     virtual void clone(ModelsTreeItemBase* item) const;
 };
+
+Q_DECLARE_METATYPE(SharedPointer<ModelsTreeItemBase>)
 
 using ModelsTreeItemBasePtr = SharedPointer<ModelsTreeItemBase>;
 
