@@ -63,7 +63,9 @@ void ToolTipWidget::updateLocation()
 
 void ToolTipWidget::updateGeometry(const QRect& rect)
 {
-    m_animation = new QPropertyAnimation;
+    m_animation = std::unique_ptr<QPropertyAnimation, std::function<void(QPropertyAnimation*)>>(new QPropertyAnimation(), [](QPropertyAnimation* ptr){
+        ptr->deleteLater();
+    });
     m_animation->setTargetObject(this);
     m_animation->setPropertyName("geometry");
     m_animation->setDuration(500);
@@ -71,4 +73,10 @@ void ToolTipWidget::updateGeometry(const QRect& rect)
     m_animation->setEndValue(rect);
 
     m_animation->start();
+}
+
+
+void ToolTipWidget::resizeEvent(QResizeEvent*)
+{
+    updateLocation();
 }

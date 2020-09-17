@@ -16,6 +16,8 @@ public:
     static ThreadTimer& GetInstance();
 
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
+    static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
+    static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
     static TimerHandle CreateTimer(qint32 msecs);
     static void DeleteTimer(TimerHandle* timerHandle);
     static QMetaObject::Connection AddTimerConnection(TimerHandle handle, const FAction& onTimeout);

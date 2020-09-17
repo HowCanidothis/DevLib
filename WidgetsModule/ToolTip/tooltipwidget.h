@@ -22,7 +22,11 @@ private:
 
 private:
     QPoint m_target;
-    ScopedPointer<class QPropertyAnimation> m_animation;
+    std::unique_ptr<class QPropertyAnimation, std::function<void(QPropertyAnimation*)>> m_animation;
+
+    // QWidget interface
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 };
 
 #endif // TOOLTIPWIDGET_H

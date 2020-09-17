@@ -31,13 +31,11 @@ ExternalService::ExternalService(const QString& path)
     connect(this, &QProcess::started, [this]{
         OnStarted();
         printDebug("started");
-        ThreadTimer::SingleShot(2000, [this]{
-            doAsync([this]{
-                if(state() == Running) {
-                    m_restartAttempts = 0;
-                }
-            });
-        });
+        ThreadTimer::SingleShotDoThreadWorker(2000, [this]{
+            if(state() == Running) {
+                m_restartAttempts = 0;
+            }
+        }, this);
     });
 }
 
@@ -50,14 +48,12 @@ ExternalService::ExternalService(const QString& path, ExternalService::Mode)
 
     OnExited += { this, restartApp };
     OnError += { this, [this](ExternalService::ProcessError){
-        ThreadTimer::SingleShot(m_runningIntervalAfterError, [this]{
+        ThreadTimer::SingleShotDoThreadWorker(m_runningIntervalAfterError, [this]{
             if(state() == NotRunning) {
                 printDebug("restarted after error");
-                doAsync([this]{
-                    start();
-                });
+                start();
             }
-        });
+        }, this);
     }};
 }
 

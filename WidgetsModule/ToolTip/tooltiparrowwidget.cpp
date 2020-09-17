@@ -49,7 +49,7 @@ void ToolTipArrowWidget::updateLocation()
     auto targetLocation = targetWidgetRect.locationOfOther(targetRect);
     switch (targetLocation) {
     case QuadTreeF::Location_TopLeft: {
-        QRect geometry(m_target.x(), m_target.y(), qAbs(targetWidgetRect.left() - m_target.x()), qAbs(targetWidgetRect.top() - m_target.y()));
+        QRect geometry(m_target.x(), m_target.y(), qAbs(targetWidgetRect.left() - m_target.x()) + 1, qAbs(targetWidgetRect.top() - m_target.y()) + 1);
         if(geometry.width() < geometry.height()) {
             geometry.adjust(0,0, Size, 0);
             auto w = geometry.width();
@@ -66,7 +66,7 @@ void ToolTipArrowWidget::updateLocation()
         break;
     }
     case QuadTreeF::Location_TopRight: {
-        QRect geometry(targetWidgetRect.right(), m_target.y(), qAbs(m_target.x() - targetWidgetRect.right()), qAbs(targetWidgetRect.top() - m_target.y()));
+        QRect geometry(targetWidgetRect.right(), m_target.y(), qAbs(m_target.x() - targetWidgetRect.right()), qAbs(targetWidgetRect.top() - m_target.y()) + 1);
         if(geometry.width() < geometry.height()) {
             geometry.adjust(-Size,0, 0, 0);
             auto w = geometry.width();
@@ -83,7 +83,7 @@ void ToolTipArrowWidget::updateLocation()
         break;
     }
     case QuadTreeF::Location_BottomLeft: {
-        QRect geometry(m_target.x(), targetWidgetRect.bottom(), qAbs(targetWidgetRect.left() - m_target.x()), qAbs(m_target.y() - targetWidgetRect.bottom()));
+        QRect geometry(m_target.x(), targetWidgetRect.bottom(), qAbs(targetWidgetRect.left() - m_target.x()) + 1, qAbs(m_target.y() - targetWidgetRect.bottom()));
         if(geometry.width() < geometry.height()) {
             geometry.adjust(0,0, Size, 0);
             auto w = geometry.width();
@@ -117,7 +117,7 @@ void ToolTipArrowWidget::updateLocation()
         break;
     }
     case QuadTreeF::Location_MiddleTop: {
-        QRect geometry(m_target.x() - Size / 2, m_target.y(), Size, targetWidgetRect.top() - m_target.y());
+        QRect geometry(m_target.x() - Size / 2, m_target.y(), Size, targetWidgetRect.top() - m_target.y() + 1);
         auto w = geometry.width();
         auto h = geometry.height();
         m_polygon = QPolygon({ { w / 2, 0 }, {w,h}, {0, h}  });
@@ -133,7 +133,7 @@ void ToolTipArrowWidget::updateLocation()
         break;
     }
     case QuadTreeF::Location_MiddleLeft: {
-        QRect geometry(m_target.x(), m_target.y() - Size / 2, targetWidgetRect.left() - m_target.x(), Size);
+        QRect geometry(m_target.x(), m_target.y() - Size / 2, targetWidgetRect.left() - m_target.x() + 1, Size);
         auto w = geometry.width();
         auto h = geometry.height();
         m_polygon = QPolygon({ { 0, h/2 }, {w,0}, {w, h}  });

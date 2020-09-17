@@ -23,6 +23,22 @@ ThreadTimer::~ThreadTimer()
     m_thread->wait();
 }
 
+void ThreadTimer::SingleShotDoMain(qint32 msecs, const FAction& onTimeout)
+{
+    SingleShot(msecs, [onTimeout]{
+        ThreadsBase::DoMain([onTimeout]{
+            onTimeout();
+        });
+    });
+}
+
+void ThreadTimer::SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker)
+{
+    SingleShot(msecs, [onTimeout, threadWorker]{
+        ThreadsBase::DoQThreadWorker(threadWorker, onTimeout);
+    });
+}
+
 void ThreadTimer::SingleShot(qint32 msecs, const FAction& onTimeout)
 {
     if(!GetInstance().m_thread->isRunning()) {

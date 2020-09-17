@@ -160,7 +160,7 @@ public:
     {
         m_value = initial;
         m_names = names;
-        SetMinMax(0, m_names.size());
+        SetMinMax(0, m_names.size() - 1);
     }
     const QStringList& GetNames() const { return m_names; }
     template<class T> T Cast() const { return (T)Native(); }

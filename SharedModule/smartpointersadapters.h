@@ -3,8 +3,8 @@
 
 #include <memory>
 
-template<typename T>
-class ScopedPointer : public std::unique_ptr<T>
+template<typename T, typename deleter = std::default_delete<T>>
+class ScopedPointer : public std::unique_ptr<T, deleter>
 {
     typedef std::unique_ptr<T> Super;
 public:

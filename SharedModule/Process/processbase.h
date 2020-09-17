@@ -29,6 +29,7 @@ public:
     ~ProcessBase();
 
     void SetInterruptor(const Interruptor& interruptor);
+    void SetSilentIfOneStep(bool silentIfOneStep) { m_silentIfOneStep = silentIfOneStep; }
     const std::wstring& GetTitle() const;
 
     void BeginProcess(const wchar_t* title, bool shadow = false) override;
@@ -42,6 +43,7 @@ private:
     std::unique_ptr<ProcessValue> m_processValue;
     int m_divider;
     ScopedPointer<Interruptor> m_interruptor;
+    bool m_silentIfOneStep;
 };
 
 

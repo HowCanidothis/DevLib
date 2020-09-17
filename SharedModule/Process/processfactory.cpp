@@ -3,11 +3,21 @@
 
 ProcessValue::ProcessValue(const FCallback& callback)
     : m_valueDepth(ProcessManager::getInstance().registerNewProcessValue())
+    , m_currentCallback(callback)
     , m_callback(callback)
     , m_isFinished(false)
     , m_interruptor(nullptr)
     , m_isTitleChanged(false)
 {
+}
+
+void ProcessValue::SetDummy(bool dummy)
+{
+    if(dummy) {
+        m_currentCallback = [](ProcessValue*){};
+    } else {
+        m_currentCallback = m_callback;
+    }
 }
 
 ProcessValue::~ProcessValue()
@@ -26,7 +36,7 @@ void ProcessValue::setTitle(const std::wstring& title)
 {
     m_title = title;
     m_isTitleChanged = true;
-    m_callback(this);
+    m_currentCallback(this);
     m_isTitleChanged = false;
 }
 
@@ -34,7 +44,7 @@ void ProcessValue::finish()
 {
     if(!m_isFinished) {
         m_isFinished = true;
-        m_callback(this);
+        m_currentCallback(this);
     }
 }
 
@@ -47,7 +57,7 @@ void ProcessValue::init(Interruptor* interruptor, const std::wstring& title)
     m_title = title;
     m_isTitleChanged = true;
     m_interruptor = interruptor;
-    m_callback(this);
+    m_currentCallback(this);
     m_isTitleChanged = false;    
 }
 
@@ -61,10 +71,10 @@ void ProcessDeterminateValue::incrementStep(int divider)
     m_currentStep++;
     if(divider) {
         if(!(m_currentStep % divider)) {
-            m_callback(this);
+            m_currentCallback(this);
         }
     } else {
-        m_callback(this);
+        m_currentCallback(this);
     }
 }
 
@@ -78,7 +88,7 @@ void ProcessDeterminateValue::init(Interruptor* interruptor, const std::wstring&
 void ProcessDeterminateValue::increaseStepsCount(int value)
 {
     m_stepsCount += value;
-    m_callback(this);
+    m_currentCallback(this);
 }
 
 static bool DoNothingCallback(ProcessValue*) { return true; }

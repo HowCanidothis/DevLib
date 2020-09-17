@@ -33,6 +33,7 @@ protected:
 public:
     virtual ~ProcessValue();
 
+    void SetDummy(bool dummy);
     void Cancel();
 
     DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged() }; }
@@ -55,6 +56,7 @@ protected:
     friend class ProcessBase;
 
     int m_valueDepth;
+    FCallback m_currentCallback;
     FCallback m_callback;
     std::wstring m_title;
     bool m_isFinished;

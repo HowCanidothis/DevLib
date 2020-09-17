@@ -4,6 +4,7 @@
 
 ProcessBase::ProcessBase()
     : m_interruptor(nullptr)
+    , m_silentIfOneStep(false)
 {
 
 }
@@ -45,6 +46,7 @@ void ProcessBase::BeginProcess(const wchar_t* title, int stepsCount, int wantedC
     }
     m_processValue = nullptr;
     auto value = shadow ? ProcessFactory::Instance().createShadowDeterminate() : ProcessFactory::Instance().createDeterminate();
+    value->SetDummy(m_silentIfOneStep && m_divider < 2);
     value->init(m_interruptor.get(), title, stepsCount);
     m_processValue.reset(value);
 }
