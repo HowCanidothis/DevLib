@@ -27,6 +27,8 @@
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"
 
+#include "Delegates/delegates.h"
+
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
 
