@@ -244,6 +244,11 @@ public:
         OnChanged();
     }
 
+    qint32 IndexOf(const value_type& value) const
+    {
+        return Super::indexOf(value);
+    }
+
     Super& EditSilent() { return *this; }
 
     const value_type& First() const { return Super::first(); }
