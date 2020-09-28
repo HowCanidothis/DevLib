@@ -85,7 +85,7 @@ inline void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Clear()
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
 void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Reconstruct() {
-    OutObjectsContainer objects = getObjectsAll();
+    OutObjectsContainer objects = this->getObjectsAll();
     this->clear();
     for(ObjectNode *o : objects)
         root->add(o);
@@ -138,7 +138,7 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::ToImage(QImage *img, BoundingRect *r
 
     if(rect){
         Point center = rect->getCenter();
-        OutObjectsContainer objects = getObjectsAtClosestTo(*rect, center.x, center.y);
+        OutObjectsContainer objects = this->getObjectsAtClosestTo(*rect, center.x, center.y);
         QColor col(Qt::blue);
         float step = float(255) / objects.size();
         float cAlpha = 255;

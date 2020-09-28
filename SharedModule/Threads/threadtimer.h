@@ -5,6 +5,7 @@
 
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/array.h"
+#include "SharedModule/smartpointersadapters.h"
 
 class ThreadTimer
 {

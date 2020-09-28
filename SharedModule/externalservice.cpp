@@ -1,5 +1,9 @@
 #include "externalservice.h"
 
+#include <QDir>
+
+#include "SharedModule/Threads/threadtimer.h"
+#include "SharedModule/Threads/threadsbase.h"
 
 ExternalService::ExternalService(const QString& path)
     : m_restartAttempts(0)

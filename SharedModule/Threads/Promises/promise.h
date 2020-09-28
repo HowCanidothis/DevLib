@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "SharedModule/MemoryManager/memorymanager.h"
 #include "SharedModule/smartpointersadapters.h"
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/dispatcher.h"

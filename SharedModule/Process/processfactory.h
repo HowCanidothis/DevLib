@@ -1,6 +1,8 @@
 #ifndef PROCCESSFACTORY_H
 #define PROCCESSFACTORY_H
 
+#include "SharedModule/shared_decl.h"
+
 #include <string>
 #include <atomic>
 #include <functional>
@@ -49,7 +51,7 @@ protected:
     void finish();
 
     virtual void incrementStep(int divider);
-    void init(Interruptor* interruptor, const std::wstring& title);
+    void init(class Interruptor* interruptor, const std::wstring& title);
 
 protected:
     friend class ProcessFactory;

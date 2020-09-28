@@ -20,7 +20,7 @@ private:
     IProcess* m_process;
 };
 
-class _Export IProcess ATTACH_MEMORY_SPY(IProcess)
+class _Export IProcess
 {
 public:    
     virtual ~IProcess() {}

@@ -5,6 +5,7 @@
 #include <QLoggingCategory>
 
 #include <functional>
+#include <cmath>
 
 #ifndef STATIC_LINK
 #if defined(LIBRARY)

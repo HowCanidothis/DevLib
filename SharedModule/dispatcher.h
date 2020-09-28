@@ -6,6 +6,7 @@
 
 #include <functional>
 
+#include "SharedModule/MemoryManager/memorymanager.h"
 #include "smartpointersadapters.h"
 #include "stack.h"
 
