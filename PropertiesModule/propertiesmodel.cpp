@@ -137,6 +137,7 @@ QVariant PropertiesModel::data(const QModelIndex& index, int role) const
         switch (role) {
             case Qt::DisplayRole: return item->Name;
             case Property::RoleHeaderItem: return item->Prop == nullptr;
+            case Property::RoleQmlValue: return item->Prop != nullptr ? item->Prop->GetValueFromRole(role) : QVariant();
             default: break;
         }
     } else if(item->Prop != nullptr) {
@@ -157,10 +158,13 @@ bool PropertiesModel::setData(const QModelIndex& index, const QVariant& value, i
     }
 
     switch (role) {
+    case Property::RoleQmlValue:
     case Qt::EditRole: {
         Item* item = asItem(index);
         if(auto prop = item->Prop) {
-            prop->SetValue(value);
+            if(prop->SetValue(value)) {
+                emit dataChanged(index, index, { Property::RoleQmlValue, Qt::DisplayRole });
+            }
         }
         return true;
     }
@@ -210,7 +214,8 @@ QHash<int, QByteArray> PropertiesModel::roleNames() const
     result[Property::RoleMaxValue] = "maxValue";
     result[Property::RoleDelegateValue] = "delegateValue";
     result[Property::RoleDelegateData] = "delegateData";
-    result[Qt::DisplayRole] = "text";
+    result[Qt::DisplayRole] = "name";
+    result[Property::RoleQmlValue] = "value";
     return result;
 }
 

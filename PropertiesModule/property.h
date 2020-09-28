@@ -81,6 +81,7 @@ public:
         RoleMaxValue,
         RoleDelegateValue,
         RoleDelegateData,
+        RoleQmlValue
     };
 
     Property(const Name& path, Options options);
@@ -471,6 +472,9 @@ class _Export ListProperty : public TPropertyBase<QList<Key>>
     using Super = TPropertyBase<QList<Key>>;
 
 public:
+    ListProperty(const Name& path, const QList<Key>& initial, Property::Options options = Super::Options_Default)
+        : Super(path, initial, options)
+    {}
     ListProperty(const Name& path, Property::Options options = Super::Options_Default)
         : Super(path, {}, options)
     {}

@@ -57,6 +57,7 @@ SharedPointer<ExternalPropertyProperty> Property::Clone(const Name& newName) con
 QVariant Property::GetValueFromRole(int role) const
 {
     switch (role) {
+    case RoleQmlValue:
     case Qt::DisplayRole: {
         return getDisplayValue();
     }
