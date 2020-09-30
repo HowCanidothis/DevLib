@@ -43,7 +43,6 @@ public:
         _isValid = _stream.good();
     }
 
-
     int32_t GetVersion() const { return _version; }
     bool IsValid() const { return _isValid; }
     bool IsGood() const { return _stream.good(); }

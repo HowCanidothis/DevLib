@@ -76,6 +76,11 @@ inline float round(float value, int decimals)
     return std::round(value * decimals) / decimals;
 }
 
+inline QString dToStr(double value, qint32 precision = 2)
+{
+    return QString::number(value, 'd', precision);
+}
+
 namespace adapters {
 
 template<typename It>

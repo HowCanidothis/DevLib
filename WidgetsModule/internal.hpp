@@ -26,6 +26,7 @@
 
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"
+#include "Utils/widgethelpers.h"
 
 #include "Delegates/delegates.h"
 

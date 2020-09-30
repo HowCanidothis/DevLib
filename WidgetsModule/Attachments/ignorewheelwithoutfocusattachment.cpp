@@ -1,5 +1,7 @@
 #include "ignorewheelwithoutfocusattachment.h"
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 #include <QDoubleSpinBox>
 #include <QComboBox>
 
@@ -16,13 +18,12 @@ void IgnoreWheelWithoutFocusAttachment::Attach(QWidget* widget)
 
 void IgnoreWheelWithoutFocusAttachment::AttachRecursive(QWidget* widget, const std::function<bool (QWidget* w)>& filter)
 {
-    auto childWidgets = widget->findChildren<QWidget*>();
-    for(auto* childWidget : childWidgets) {
-        if(childWidget != nullptr && filter(childWidget)) {
-            childWidget->installEventFilter(&getInstance());
-            childWidget->setFocusPolicy(Qt::ClickFocus);
+    WidgetContent::ForeachChildWidget(widget, [filter](QWidget* w){
+        if(filter(w)) {
+            w->installEventFilter(&getInstance());
+            w->setFocusPolicy(Qt::ClickFocus);
         }
-    }
+    });
 }
 
 void IgnoreWheelWithoutFocusAttachment::AttachRecursiveSpinBoxesAndComboBoxes(QWidget* widget)

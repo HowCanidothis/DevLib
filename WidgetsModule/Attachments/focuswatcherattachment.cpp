@@ -1,8 +1,10 @@
 #include "focuswatcherattachment.h"
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 FocusManager::FocusManager()
-    : m_focusedWidget(nullptr)
-    , m_previousFocusedWidget(nullptr)
+    : m_previousFocusedWidget(nullptr)
+    , m_focusedWidget(nullptr)
 {
 }
 
@@ -37,12 +39,11 @@ FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)
     , m_target(target)
 {
     auto childWidgets = target->findChildren<QWidget*>();
+
     target->installEventFilter(this);
-    for(auto* childWidget : childWidgets) {
-        if(childWidget != nullptr) {
-            childWidget->installEventFilter(this);
-        }
-    }
+    WidgetContent::ForeachChildWidget(target, [this](QWidget* child){
+        child->installEventFilter(this);
+    });
 }
 
 void FocusWatcherAttachment::Attach(QWidget* widget)

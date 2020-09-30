@@ -9,8 +9,6 @@ ModelsTableBase::ModelsTableBase(QObject* parent)
 ModelsTableBase::~ModelsTableBase()
 {
     if(m_data != nullptr) {
-        m_data->OnAboutToBeDestroyed -= this;
-    } else {
         m_data->DisconnectModel(this);
     }
 }
@@ -23,8 +21,5 @@ void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
     }
     m_data = data;
     m_data->ConnectModel(this);
-    m_data->OnAboutToBeDestroyed += { this, [this] {
-        m_data = nullptr;
-    }};
     endResetModel();
 }
