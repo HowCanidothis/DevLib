@@ -28,20 +28,20 @@ void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeI
         };
 
         QVector<RemoveGroup> removeGroups(1);
-        RemoveGroup& currentGroup = removeGroups.last();
+        RemoveGroup* currentGroup = &removeGroups.last();
         qint32 i(0);
         for(const auto& child : childs) {
             if(toRemove.contains(child.get())) {
-                if(currentGroup.Since < 0) {
-                    currentGroup.Since = i;
+                if(currentGroup->Since < 0) {
+                    currentGroup->Since = i;
                 } else {
-                    if(currentGroup.To + 1 != i) {
+                    if(currentGroup->To + 1 != i) {
                         removeGroups.append(RemoveGroup());
-                        currentGroup = removeGroups.last();
-                        currentGroup.Since = i;
+                        currentGroup = &removeGroups.last();
+                        currentGroup->Since = i;
                     }
                 }
-                currentGroup.To = i;
+                currentGroup->To = i;
             }
             i++;
         }
