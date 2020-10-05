@@ -17,6 +17,7 @@ public:
 
     operator qint32() const { return m_value; }
     const QString& AsString() const;
+    bool IsNull() const { return AsString().isEmpty(); }
 
     friend QDebug operator<<(QDebug debug, const Name& name) {
         debug << name.AsString() << " " << name.m_value;
@@ -37,6 +38,7 @@ public:
 
     operator qint32() const { return m_value; }
     const std::string& AsLatin1String() const { return *m_text; }
+    bool IsNull() const { return AsLatin1String().empty(); }
 
     void SetName(const std::string& str);
 

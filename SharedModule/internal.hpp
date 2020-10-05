@@ -38,6 +38,7 @@
 #include "Threads/threadsbase.h"
 #include "Threads/ThreadFunction/threadpool.h"
 #include "Threads/threadtimer.h"
+#include "FullTextSearch/ftsdictionary.h"
 #include "flags.h"
 #include "profile_utils.h"
 #include "timer.h"

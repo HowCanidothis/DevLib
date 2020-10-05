@@ -7,13 +7,6 @@ namespace Ui {
 class TopNotifierFrame;
 }
 
-struct WidgetAppearance
-{
-    static void SetVisibleAnimated(QWidget* widget, bool visible);
-    static void ShowAnimated(QWidget* widget);
-    static void HideAnimated(QWidget* widget);
-};
-
 class TopNotifierFrame : public QFrame
 {
     Q_OBJECT

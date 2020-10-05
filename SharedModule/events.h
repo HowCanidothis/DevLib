@@ -1,6 +1,8 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
+#include <Qt>
+
 template<class Enum>
 class EventBase
 {
@@ -11,7 +13,7 @@ public:
 
     virtual Enum GetType() const = 0;
 
-    template<class T> T* As() { return Q_ASSERT(nullptr); }
+    template<class T> T* As() { Q_ASSERT(false); return nullptr; }
 
     void Accept() { m_accepted = true; }
     bool IsAccepted() const { return m_accepted; }
@@ -55,7 +57,7 @@ public:
 class prefix##EventBase : public EventBase<enumeration> \
 { \
 public: \
-    template<class T> T* As() { return Q_ASSERT(nullptr); } \
+    template<class T> T* As() { Q_ASSERT(false); return nullptr; } \
 }; \
 template<enumeration Type, class T> \
 class prefix##EventValue : public EventValue<enumeration, prefix##EventBase, Type, T> \
