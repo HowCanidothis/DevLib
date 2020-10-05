@@ -1,14 +1,6 @@
-LeftBar {
-    background: #333333;
-}
-
-LeftBar QFrame {
-    background: white;
-}
 
 MenuBar {
     background: #3C3C3C;
-    min-height: 30;
 }
 
 MenuBar MenuBarMovePane {
@@ -41,7 +33,8 @@ QPushButton#BtnMaximize:hover {
 }
 
 QPushButton#BtnClose:hover {
-    background: #505050;
+    background: #D61425;
+    image: url(":/menu_bar/close-hover.svg");
 }
 
 LeftBar QFrame {
@@ -62,3 +55,17 @@ MainWindow
     qproperty-errorColor: #933C2B;
     qproperty-errorTextColor: white;
 }
+
+TreeBar QLabel#Title {
+    color: #9d9d9d;
+    font-size: 12px;
+}
+
+MenuBar QLabel#LogoIcon {
+    background: #3C3C3C;
+}
+
+WPSView QTableView {
+  background: #252526;
+}
+

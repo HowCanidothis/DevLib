@@ -208,6 +208,8 @@
         <file>rc/window_undock_focus@2x.png</file>
         <file>rc/window_undock_pressed.png</file>
         <file>rc/window_undock_pressed@2x.png</file>
+        <file>rc/chevron-down.svg</file>
+        <file>rc/chevron-right.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

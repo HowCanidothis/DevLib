@@ -1,68 +1,132 @@
 LeftBar QPushButton#BtnDDToolBox{
-    image: url(":/left_bar/dd.svg");
+    image: url(":/left_bar/clipboard-check-outline.svg");
     qproperty-text: "";
     background: transparent;
-    min-width: 32;
-    min-height: 32;
-    margin: 5 0 5 0;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
     padding: 0 0 0 0;
     border: none;
 }
 
 LeftBar QPushButton#BtnDDToolBox:hover{
-    image: url(":/left_bar/dd_h.svg");
+    image: url(":/left_bar/clipboard-check-outline-hover.svg");
 }
 
 LeftBar QPushButton#BtnDDToolBox:checked{
-    image: url(":/left_bar/dd_h.svg");
+    image: url(":/left_bar/clipboard-check-outline-hover.svg");
 }
 
 LeftBar QPushButton#BtnSettings{
-    image: url(":/left_bar/gear.svg");
+    image: url(":/left_bar/cog-outline.svg");
     qproperty-text: "";
     background: transparent;
-    min-width: 32;
-    min-height: 32;
-    margin: 5 0 5 0;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
     padding: 0 0 0 0;
     border: none;
 }
 
 LeftBar QPushButton#BtnSettings:hover{
-    image: url(":/left_bar/gear_h.svg");
+    image: url(":/left_bar/cog-outline-hover.svg");
 }
 
 LeftBar QPushButton#BtnSettings:checked{
-    image: url(":/left_bar/gear_h.svg");
+    image: url(":/left_bar/cog-outline-hover.svg");
 }
 
 LeftBar QPushButton#BtnDataBrowser{
-    image: url(":/left_bar/db.svg");
+    image: url(":/left_bar/text-box-search-outline.svg");
+    
     qproperty-text: "";
     background: transparent;
-    min-width: 32;
-    min-height: 32;
-    margin: 5 0 5 0;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
     padding: 0 0 0 0;
     border: none;
 }
 
+LeftBar QPushButton#BtnDataBrowser:hover{
+    image: url(":/left_bar/text-box-search-outline-hover.svg");
+}
+
+LeftBar QPushButton#BtnDataBrowser:checked{
+    image: url(":/left_bar/text-box-search-outline-hover.svg");
+}
+
+LeftBar QPushButton#BtnWellPlanning{
+    image: url(":/left_bar/studio.svg");
+    
+    qproperty-text: "";
+    background: transparent;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar QPushButton#BtnWellPlanning:hover{
+    image: url(":/left_bar/studio-hover.svg");
+}
+
+LeftBar QPushButton#BtnWellPlanning:checked{
+    image: url(":/left_bar/studio-hover.svg");
+}
+
+LeftBar QPushButton#BtnDrillingEngineering{
+    image: url(":/left_bar/calculator.svg");
+    
+    qproperty-text: "";
+    background: transparent;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar QPushButton#BtnDrillingEngineering:hover{
+    image: url(":/left_bar/calculator-hover.svg");
+}
+
+LeftBar QPushButton#BtnDrillingEngineering:checked{
+    image: url(":/left_bar/calculator-hover.svg");
+}
+
+LeftBar QPushButton#BtnUser{
+    image: url(":/left_bar/account-circle-outline.svg");
+    
+    qproperty-text: "";
+    background: transparent;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar QPushButton#BtnUser:hover{
+    image: url(":/left_bar/account-circle-outline-hover.svg");
+}
+
+LeftBar QPushButton#BtnUser:checked{
+    image: url(":/left_bar/account-circle-outline-hover.svg");
+}
+
+
 LeftBar {
+    background: #333333;
     padding: 20 0 0 0;
     min-width: 48;
 }
 
-LeftBar QPushButton#BtnDataBrowser:hover{
-    image: url(":/left_bar/db_h.svg");
-}
-
-LeftBar QPushButton#BtnDataBrowser:checked{
-    image: url(":/left_bar/db_h.svg");
-}
-
 LeftBar QFrame {
-    min-width: 2;
-    max-width: 2;
+    background: white;
+    min-width: 0;
+    max-width: 0;
 }
 
 QTreeView {
@@ -73,9 +137,56 @@ MenuBar {
     min-height: 30;
 }
 
+MenuBar {
+    background: #3C3C3C;
+}
+
+MenuBar MenuBarMovePane {
+    border: none;
+    background: #3C3C3C;
+}
+
+MenuBarMovePane QLabel#Title {
+    background: #3C3C3C;
+}
+
+QPushButton#BtnMinimize {
+    background: #3C3C3C;
+}
+
+QPushButton#BtnMaximize {
+    background: #3C3C3C;
+}
+
+QPushButton#BtnClose {
+    background: #3C3C3C;
+}
+
+QPushButton#BtnMinimize:hover {
+    background: #505050;
+}
+
+QPushButton#BtnMaximize:hover {
+    background: #505050;
+}
+
+QPushButton#BtnClose:hover {
+    background: #D61425;
+    image: url(":/menu_bar/close-hover.svg");
+}
+
 MenuBarMovePane {
     min-height: 30;
     max-height: 30;
+}
+
+MenuBar QMenuBar {
+    background: #3C3C3C;
+    color: #9d9d9d;
+}
+
+MenuBar QMenuBar::item:selected {
+    background: #505050;
 }
 
 QPushButton#BtnMinimize {
@@ -84,7 +195,7 @@ QPushButton#BtnMinimize {
     background: none;
     border-radius: none;
     border: none;
-    padding: 5 11 12 11;
+    padding: 1 5 12 5;
 }
 
 QPushButton#BtnMinimize:hover {
@@ -93,6 +204,7 @@ QPushButton#BtnMinimize:hover {
 }
 
 QPushButton#BtnMaximize[windowMaximized="true"] {
+    padding: 9 5 8 5;
     image: url(":/menu_bar/doublesquare.svg");
 }
 
@@ -105,7 +217,7 @@ QPushButton#BtnMaximize {
     image: url(":/menu_bar/square.svg");
     border-radius: none;
     background: none;
-    padding: 9 11 8 11;
+    padding: 7 5 6 5;
     border: none;
 }
 
@@ -119,11 +231,27 @@ QPushButton#BtnClose {
     image: url(":/menu_bar/close.svg");
     border-radius: none;
     background: none;
-    padding: 9 11 8 11;
+    padding: 7 5 6 5;
     border: none;
 }
 
 QPushButton#BtnClose:hover {
     border: none;
     border-radius: none;
+}
+
+TreeBar QLabel#Title {
+    padding-left: 15px;
+    padding-top: 12px;
+    padding-bottom: 11px;
+    background: #252526;
+}
+
+MenuBar QLabel#LogoIcon {
+    min-width: 20px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    image: url(:/Logo.svg);
 }

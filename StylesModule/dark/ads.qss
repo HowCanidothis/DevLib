@@ -4,91 +4,109 @@
  * Note: Always use CSS-classes with and without "ads--" namespace to support Qt4 & Qt5
  */
 
-CDockManager ads--CDockContainerWidget
-{
-    background: palette(dark);
+ads--CDockContainerWidget {
+    border: none;
+    background: #3c3c3c;
+    margin: 0px;
+    padding: 0px;
 }
 
-CDockManager ads--CDockContainerWidget QSplitter::handle
-{
-    background: palette(dark);
+ads--CFloatingDockContainer {
+    border: none;
+    margin: 0px;
+    padding: 0px;
 }
 
-CDockManager ads--CDockAreaWidget
+ads--CDockWidgetTab
 {
-    background: palette(window);
-    border: 1px solid white;
-}
-
-CDockManager ads--CDockAreaWidget #tabsMenuButton::menu-indicator
-{
-    image: none;
-}
-
-
-CDockManager ads--CDockWidgetTab
-{
-    background: palette(window);
-    border-color: palette(light);
+    background: #2d2d2d;
+    border-color: #1e1e1e;
     border-style: solid;
     border-width: 0 1px 0 0;
-    padding: 0 0px;
+    padding: 10px 0px 10px 10px;
+    margin: 0px;
 }
 
-CDockManager ads--CDockWidgetTab[activeTab="true"]
+ads--CDockWidgetTab[activeTab="true"]
 {
-    background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.5, stop:0 palette(window), stop:1 palette(light));
-    /*background: palette(highlight);*/
+    background: #1e1e1e;
+    padding: 10px 0px 10px 10px;
 }
 
-CDockManager ads--CDockWidgetTab QLabel
+ads--CDockWidgetTab QLabel
 {
-    color: palette(dark);
+    color: #9d9d9d;
+    background: #2d2d2d;
+    margin-right: 10px;
 }
 
-CDockManager ads--CDockWidgetTab[activeTab="true"] QLabel
+ads--CDockWidgetTab QLabel#IconLabel
 {
-    color: palette(foreground);
+    color: #9d9d9d;
+    background: #2d2d2d;
+    margin: 0px;
 }
 
-CDockManager ads--CDockWidget
+ads--CDockWidgetTab[activeTab="true"] QLabel#IconLabel
 {
-    background: palette(light);
-    border-color: palette(light);
-    border-style: solid;
-    border-width: 1px 0 0 0;
+    background: #1e1e1e;
 }
 
-CDockManager #tabsMenuButton,
+ads--CDockWidgetTab[activeTab="true"] QLabel
+{
+    color: #9d9d9d;
+    background: #1e1e1e;
+}
+
+ads--CDockAreaWidget {
+    padding: 0px;
+    margin: 0px;
+}
+
+ads--CDockAreaTabBar {
+    margin: 0px;
+    padding: 0px;
+}
+
+ads--CDockAreaTitleBar {
+    background: #252526;
+    margin: 0px;
+    padding: 0px;
+}
+
+ads--CDockManager #tabsMenuButton,
 #closeButton,
 #undockButton
 {
-	padding: 0px -2px;
+	padding: 0px 0px;
 }
 
 
-CDockManager QScrollArea#dockWidgetScrollArea
+ads--CDockManager QScrollArea#dockWidgetScrollArea
 {
 	padding: 0px;
 	border: none;
 }
 
-
-QWidget #tabCloseButton
+ads--CDockWidgetTab QPushButton#tabCloseButton
 {
-	background: palette(dark);
-    max-width: 4px;
-    max-height: 5px;
+    qproperty-icon: url(" ");
+    background: none;
+    border: none;
+    max-width: 10px;
+    max-height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+    border-image: url(:/menu_bar/close.svg);
 }
 
-QWidget #tabCloseButton:hover
+ads--CDockWidgetTab QPushButton#tabCloseButton:hover
 {
-	background: palette(dark);
+    border-image: url(:/menu_bar/close-hover.svg);
 }
 
 QWidget #tabCloseButton:pressed
 {
-	background: palette(dark);
 }
 
 QWidget #tabsMenuButton {
@@ -104,4 +122,11 @@ QWidget #dockAreaCloseButton {
 QWidget #detachGroupButton {
 	qproperty-icon: url(:/rc/ads/detach-button.svg);
 	qproperty-iconSize: 16px;
+}
+
+ads--CDockManager {
+    background: #1e1e1e;
+    border: none;
+    padding: 0px;
+    margin: 0px;
 }

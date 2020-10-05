@@ -10,6 +10,39 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
+class DispatcherConnection
+{
+    friend class DispatcherConnectionSafe;
+    template<typename ... Args> friend class CommonDispatcher;
+    std::function<void ()> m_disconnector;
+
+    DispatcherConnection(const std::function<void ()>& disconnector)
+        : m_disconnector(disconnector)
+    {}
+
+public:
+    void Disconnect() const
+    {
+        m_disconnector();
+    }
+};
+
+class DispatcherConnectionSafe : public DispatcherConnection
+{
+    using Super = DispatcherConnection;
+public:
+    using Super::Super;
+    ~DispatcherConnectionSafe() { Disconnect(); }
+
+    static SharedPointer<DispatcherConnectionSafe> Wrap(const DispatcherConnection& connection)
+    {
+        return SharedPointer<DispatcherConnectionSafe>(new DispatcherConnectionSafe(connection.m_disconnector));
+    }
+};
+
+using DispatcherConnectionSafePtr = SharedPointer<DispatcherConnectionSafe>;
+using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
+
 template<typename ... Args>
 class CommonDispatcher ATTACH_MEMORY_SPY(CommonDispatcher<Args...>)
 {
@@ -18,32 +51,14 @@ public:
         RepeatableSameSubscribe
     };
     using Type = void (Args...);
-    using FCommonDispatcherAction = std::function<Type>;
     using Observer = void*;
+    using FCommonDispatcherAction = std::function<Type>;
+
 
     struct ConnectionSubscribe
     {
         QHash<qint32, FCommonDispatcherAction> Subscribes;
         qint32 LastId = 0;
-    };
-
-    class Connection
-    {
-        friend class CommonDispatcher;
-        CommonDispatcher* m_dispatcher;
-        Observer m_key;
-        qint32 m_id;
-
-        Connection(CommonDispatcher* dispatcher, Observer observer, qint32 id)
-            : m_dispatcher(dispatcher)
-            , m_key(observer)
-            , m_id(id)
-        {}
-    private:
-        void Disconnect()
-        {
-            m_dispatcher->Disconnect(*this);
-        }
     };
 
     struct RepeatableSameSubscribeAction
@@ -112,7 +127,7 @@ public:
         Invoke(args...);
     }
 
-    Connection Connect(Observer key, const FCommonDispatcherAction& handler)
+    DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler)
     {
         QMutexLocker lock(&m_mutex);
         auto foundIt = m_connectionSubscribes.find(key);
@@ -121,16 +136,19 @@ public:
         }
         ConnectionSubscribe& connectionSubscribe = foundIt.value();
         connectionSubscribe.Subscribes.insert(connectionSubscribe.LastId++, handler);
-        return Connection(this, key, connectionSubscribe.LastId - 1);
+        qint32 id = connectionSubscribe.LastId - 1;
+        return DispatcherConnection([this, key, id]{
+            QMutexLocker lock(&m_mutex);
+            auto foundIt = m_connectionSubscribes.find(key);
+            if(foundIt != m_connectionSubscribes.end()) {
+                foundIt.value().Subscribes.remove(id);
+            }
+        });
     }
 
-    void Disconnect(const Connection& connection)
+    void Disconnect(const DispatcherConnection& connection)
     {
-        QMutexLocker lock(&m_mutex);
-        auto foundIt = m_connectionSubscribes.find(connection.m_key);
-        if(foundIt != m_connectionSubscribes.end()) {
-            foundIt.value().Subscribes.remove(connection.m_id);
-        }
+        connection.Disconnect();
     }
 
     CommonDispatcher& operator+=(const ActionHandler& subscribeHandler)
