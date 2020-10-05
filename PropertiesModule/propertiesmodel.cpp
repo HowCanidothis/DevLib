@@ -163,7 +163,7 @@ bool PropertiesModel::setData(const QModelIndex& index, const QVariant& value, i
         Item* item = asItem(index);
         if(auto prop = item->Prop) {
             if(prop->SetValue(value)) {
-                emit dataChanged(index, index, { Property::RoleQmlValue, Qt::DisplayRole });
+                emit dataChanged(index, index);
             }
         }
         return true;
