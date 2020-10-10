@@ -14,18 +14,18 @@ void FocusManager::destroyed(QWidget* target)
     m_focusedWidget = target == m_focusedWidget ? nullptr : m_focusedWidget.Native();
 }
 
-void FocusManager::focusGot(QWidget* target)
+FocusManager& FocusManager::GetInstance()
+{
+    static FocusManager result;
+    return result;
+}
+
+void FocusManager::SetFocusWidget(QWidget* target)
 {
     if(m_focusedWidget != target) {
         m_previousFocusedWidget = m_focusedWidget;
         m_focusedWidget = target;
     }
-}
-
-FocusManager& FocusManager::GetInstance()
-{
-    static FocusManager result;
-    return result;
 }
 
 void FocusManager::ResetFocus()
@@ -46,15 +46,18 @@ FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)
     });
 }
 
-void FocusWatcherAttachment::Attach(QWidget* widget)
+void FocusWatcherAttachment::Attach(QWidget* widget, const QWidgetList& additionalWidgets)
 {
-    new FocusWatcherAttachment(widget);
+    auto focusWidgetAttachment = new FocusWatcherAttachment(widget);
+    for(auto* widget : additionalWidgets) {
+        widget->installEventFilter(focusWidgetAttachment);
+    }
 }
 
 bool FocusWatcherAttachment::eventFilter(QObject* watched, QEvent* event)
 {
     switch (event->type()) {
-    case QEvent::FocusIn: FocusManager::GetInstance().focusGot(m_target); break;
+    case QEvent::FocusIn: FocusManager::GetInstance().SetFocusWidget(m_target); break;
     case QEvent::Destroy:
         if(m_target == watched) {
             FocusManager::GetInstance().destroyed(m_target);

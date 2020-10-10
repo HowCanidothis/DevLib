@@ -164,6 +164,9 @@ public:
         : Super(std::move(another))
     {}
 
+    static Vector3F& FromQVector3D(QVector3D& vector) { return reinterpret_cast<Vector3F&>(vector); }
+    static const Vector3F& FromQVector3D(const QVector3D& vector) { return reinterpret_cast<const Vector3F&>(vector); }
+
     float& X() { return operator[](0); }
     float X() const { return operator[](0); }
 
@@ -343,6 +346,8 @@ public:
         }
         return *this;
     }
+
+    BoundingBox Translated(const Point3F& translation) const { return BoundingBox(m_topLeftFront + translation, m_bottomRightBack + translation); }
 
     bool IsNull() const { return m_bottomRightBack == m_topLeftFront; }
 };

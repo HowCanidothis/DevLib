@@ -24,7 +24,7 @@ public:
     GtMaterial(gRenderType renderType);
     virtual ~GtMaterial();
 
-    void AddParameter(GtMaterialParameterBase*);
+    void AddParameter(const SharedPointer<GtMaterialParameterBase>&);
     void AddMesh(GtMeshBase* mesh);
     void Draw(OpenGLFunctions* f);
     void SetVisible(bool visible);
@@ -44,7 +44,7 @@ protected:
         qint32 Type;
     };
 
-    Stack<GtMaterialParameterBase*> m_parameters;
+    QVector<SharedPointer<GtMaterialParameterBase>> m_parameters;
     Array<GtMeshBase*> m_meshs;
     ScopedPointer<class QOpenGLShaderProgram> m_shaderProgram;
     ArrayPointers<Shader> m_shaders;

@@ -83,7 +83,7 @@ QWidget::item:selected {
 }
 
 QWidget::item:hover {
-  background-color: #148CD2;
+  background-color: #007acc;
   color: #3C3C3C;
 }
 
@@ -102,7 +102,7 @@ QMainWindow::separator {
 
 QMainWindow::separator:hover {
   background-color: #505F69;
-  border: 0px solid #148CD2;
+  border: 0px solid #007acc;
 }
 
 QMainWindow::separator:horizontal {
@@ -125,7 +125,7 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtooltip
 
 --------------------------------------------------------------------------- */
 QToolTip {
-  background-color: #148CD2;
+  background-color: #007acc;
   border: 1px solid #1E1E1E;
   color: #1E1E1E;
   /* Remove padding, for fix combo box tooltip */
@@ -150,7 +150,7 @@ QStatusBar::item {
 }
 
 QStatusBar QToolTip {
-  background-color: #148CD2;
+  background-color: #007acc;
   border: 1px solid #1E1E1E;
   color: #1E1E1E;
   /* Remove padding, for fix combo box tooltip */
@@ -363,7 +363,7 @@ QMenuBar {
 }
 
 QMenuBar:focus {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QMenuBar::item {
@@ -654,7 +654,7 @@ QTextEdit {
 }
 
 QTextEdit:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
   color: #F0F0F0;
 }
 
@@ -678,7 +678,7 @@ QPlainTextEdit {
 }
 
 QPlainTextEdit:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
   color: #F0F0F0;
 }
 
@@ -729,7 +729,7 @@ QToolBar QToolButton {
 }
 
 QToolBar QToolButton:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QToolBar QToolButton:checked {
@@ -738,7 +738,7 @@ QToolBar QToolButton:checked {
 }
 
 QToolBar QToolButton:checked:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QToolBar::handle:horizontal {
@@ -832,7 +832,7 @@ QAbstractSpinBox::down-arrow:hover {
 }
 
 QAbstractSpinBox:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
   color: #F0F0F0;
 }
 
@@ -977,21 +977,17 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qpushbutton
 
 --------------------------------------------------------------------------- */
 QPushButton {
-  background-color: #505F69;
-  border: 1px solid #3C3C3C;
-  color: #F0F0F0;
-  border-radius: 4px;
-  padding: 3px;
+  background-color: #007acc;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 5px 10px 5px 10px;
   outline: none;
-  /* Issue #194 - Special case of QPushButton inside dialogs, for better UI */
 }
 
 QPushButton:disabled {
-  background-color: #3C3C3C;
-  border: 1px solid #3C3C3C;
+  background: #1c3e55;
   color: #787878;
-  border-radius: 4px;
-  padding: 3px;
 }
 
 QPushButton:checked {
@@ -1028,12 +1024,7 @@ QPushButton:pressed {
 }
 
 QPushButton:pressed:hover {
-  border: 1px solid #148CD2;
-}
-
-QPushButton:hover {
-  border: 1px solid #148CD2;
-  color: #F0F0F0;
+  border: 1px solid #007acc;
 }
 
 QPushButton:selected {
@@ -1042,8 +1033,8 @@ QPushButton:selected {
 }
 
 QPushButton:hover {
-  border: 1px solid #148CD2;
   color: #F0F0F0;
+  background: #189EF7;
 }
 
 QPushButton:focus {
@@ -1086,7 +1077,7 @@ QToolButton:disabled {
 }
 
 QToolButton:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QToolButton[popupMode="0"] {
@@ -1105,7 +1096,7 @@ QToolButton[popupMode="1"]::menu-button {
 
 QToolButton[popupMode="1"]::menu-button:hover {
   border: none;
-  border-left: 1px solid #148CD2;
+  border-left: 1px solid #007acc;
   border-radius: 0;
 }
 
@@ -1123,11 +1114,11 @@ QToolButton::menu-button {
 }
 
 QToolButton::menu-button:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QToolButton::menu-button:checked:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QToolButton::menu-indicator {
@@ -1217,7 +1208,7 @@ QComboBox:disabled {
 }
 
 QComboBox:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
 }
 
 QComboBox:focus {
@@ -1334,8 +1325,8 @@ QSlider::handle:horizontal {
 }
 
 QSlider::handle:horizontal:hover {
-  background: #148CD2;
-  border: 1px solid #148CD2;
+  background: #007acc;
+  border: 1px solid #007acc;
 }
 
 QSlider::handle:horizontal:focus {
@@ -1352,8 +1343,8 @@ QSlider::handle:vertical {
 }
 
 QSlider::handle:vertical:hover {
-  background: #148CD2;
-  border: 1px solid #148CD2;
+  background: #007acc;
+  border: 1px solid #007acc;
 }
 
 QSlider::handle:vertical:focus {
@@ -1385,7 +1376,7 @@ QLineEdit:disabled {
 }
 
 QLineEdit:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
   color: #F0F0F0;
 }
 
@@ -1404,15 +1395,15 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabb
 
 --------------------------------------------------------------------------- */
 QTabWidget {
-  selection-background-color: #3C3C3C;
 }
 
 QTabWidget QWidget {
   /* Fixes #189 */
-  background: #1e1e1e;
+  
 }
 
 QTabWidget::pane {
+  background: #1e1e1e;
 }
 
 QTabWidget::pane:selected {
@@ -1680,7 +1671,7 @@ QListView::item:!selected:hover,
 QTableView::item:!selected:hover,
 QColumnView::item:!selected:hover {
   outline: 0;
-  color: #148CD2;
+  color: #007acc;
   background-color: #3C3C3C;
 }
 
@@ -1825,8 +1816,8 @@ QToolBox::tab:!selected:disabled {
 }
 
 QToolBox::tab:hover {
-  border-color: #148CD2;
-  border-bottom: 2px solid #148CD2;
+  border-color: #007acc;
+  border-bottom: 2px solid #007acc;
 }
 
 QToolBox QScrollArea QWidget QWidget {
@@ -1951,7 +1942,7 @@ QDateEdit QAbstractItemView {
 
 --------------------------------------------------------------------------- */
 QAbstractView:hover {
-  border: 1px solid #148CD2;
+  border: 1px solid #007acc;
   color: #F0F0F0;
 }
 

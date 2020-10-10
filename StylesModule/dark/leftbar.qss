@@ -1,4 +1,3 @@
-
 MenuBar {
     background: #3C3C3C;
 }
@@ -65,7 +64,6 @@ MenuBar QLabel#LogoIcon {
     background: #3C3C3C;
 }
 
-WPSView QTableView {
-  background: #252526;
+MenuBarMovePane QLabel#Icon {
+    background: #3C3C3C;
 }
-

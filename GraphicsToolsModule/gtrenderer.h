@@ -34,6 +34,8 @@ public:
 
     QImage CurrentImage();
 
+    Dispatcher OnInitialized;
+
 signals:
     void imageUpdated();
 

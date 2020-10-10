@@ -185,6 +185,8 @@ void GtRenderer::onInitialize()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glClearColor(0.0f, 0.7f, 0.7f, 1.f);
+
+    OnInitialized();
 }
 
 void GtRenderer::onResize(qint32 w, qint32 h)

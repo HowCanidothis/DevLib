@@ -22,6 +22,7 @@ public:
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
     ModelsTreeItemBase(const ModelsTreeItemBase& o);
     ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);
+    ~ModelsTreeItemBase();
 
     const QVector<SharedPointer<ModelsTreeItemBase>>& GetChilds() const { return m_childs; }
     ModelsTreeItemBase* GetParent() const { return m_parent; }

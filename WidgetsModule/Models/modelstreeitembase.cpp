@@ -5,6 +5,15 @@ ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
 {
 }
 
+ModelsTreeItemBase::~ModelsTreeItemBase()
+{
+    for(const auto& child : m_childs) {
+        if(child->m_parent == this) {
+            child->m_parent = nullptr;
+        }
+    }
+}
+
 ModelsTreeItemBase::ModelsTreeItemBase(const ModelsTreeItemBase& o)
 {
     m_parent = o.m_parent;

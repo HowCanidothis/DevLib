@@ -81,7 +81,6 @@ ads--CDockManager #tabsMenuButton,
 	padding: 0px 0px;
 }
 
-
 ads--CDockManager QScrollArea#dockWidgetScrollArea
 {
 	padding: 0px;
@@ -93,6 +92,7 @@ ads--CDockWidgetTab QPushButton#tabCloseButton
     qproperty-icon: url(" ");
     background: none;
     border: none;
+    padding: 3px;
     max-width: 10px;
     max-height: 10px;
     min-width: 10px;
@@ -112,16 +112,40 @@ QWidget #tabCloseButton:pressed
 QWidget #tabsMenuButton {
 	qproperty-icon: url(:/rc/ads/tabs-menu-button.svg);
 	qproperty-iconSize: 16px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    border-radius: 0px;
 }
 
 QWidget #dockAreaCloseButton {
 	qproperty-icon: url(:/rc/ads/close-button.svg);
 	qproperty-iconSize: 16px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    border-radius: 0px;
 }
 
 QWidget #detachGroupButton {
 	qproperty-icon: url(:/rc/ads/detach-button.svg);
 	qproperty-iconSize: 16px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    border-radius: 0px;
+}
+
+QWidget #tabsMenuButton:hover {
+    background: #3C3C3C;
+}
+
+QWidget #dockAreaCloseButton:hover {
+    background: #3C3C3C;
+}
+
+QWidget #detachGroupButton:hover {
+    background: #3C3C3C;
 }
 
 ads--CDockManager {
@@ -129,4 +153,9 @@ ads--CDockManager {
     border: none;
     padding: 0px;
     margin: 0px;
+}
+
+QGroupBox QPushButton:disabled { /* bug fix */
+  background: #1c3e55;
+  color: #787878;
 }

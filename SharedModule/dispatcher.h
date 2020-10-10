@@ -10,14 +10,37 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
+class DispatcherConnection;
+class DispatcherConnectionSafePtr;
+
+using FDispatcherRegistrator = std::function<void (const DispatcherConnectionSafePtr&)>;
+
+class DispatcherConnectionSafePtr : public SharedPointer<DispatcherConnection>
+{
+    using Super = SharedPointer<DispatcherConnection>;
+public:
+    DispatcherConnectionSafePtr() {}
+    DispatcherConnectionSafePtr(const FAction& disconnector, const FDispatcherRegistrator& registrator);
+    ~DispatcherConnectionSafePtr();
+};
+
+inline uint qHash(const DispatcherConnectionSafePtr& connection, uint seed = 0)
+{
+    return qHash(connection.get(), seed);
+}
+
+using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
+
 class DispatcherConnection
 {
-    friend class DispatcherConnectionSafe;
+    friend class DispatcherConnectionSafePtr;
     template<typename ... Args> friend class CommonDispatcher;
-    std::function<void ()> m_disconnector;
+    FAction m_disconnector;
+    FDispatcherRegistrator m_registrator;
 
-    DispatcherConnection(const std::function<void ()>& disconnector)
+    DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator)
         : m_disconnector(disconnector)
+        , m_registrator(registrator)
     {}
 
 public:
@@ -25,23 +48,27 @@ public:
     {
         m_disconnector();
     }
-};
 
-class DispatcherConnectionSafe : public DispatcherConnection
-{
-    using Super = DispatcherConnection;
-public:
-    using Super::Super;
-    ~DispatcherConnectionSafe() { Disconnect(); }
-
-    static SharedPointer<DispatcherConnectionSafe> Wrap(const DispatcherConnection& connection)
+    DispatcherConnectionSafePtr MakeSafe() { return DispatcherConnectionSafePtr(m_disconnector, m_registrator); }
+    void MakeSafe(DispatcherConnectionsSafe& connections)
     {
-        return SharedPointer<DispatcherConnectionSafe>(new DispatcherConnectionSafe(connection.m_disconnector));
+        connections.append(MakeSafe());
     }
 };
 
-using DispatcherConnectionSafePtr = SharedPointer<DispatcherConnectionSafe>;
-using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
+inline DispatcherConnectionSafePtr::DispatcherConnectionSafePtr(const FAction& disconnector, const FDispatcherRegistrator& registrator)
+    : Super(new DispatcherConnection(disconnector, registrator))
+{
+    registrator(*this);
+}
+
+inline DispatcherConnectionSafePtr::~DispatcherConnectionSafePtr()
+{
+    if(get() != nullptr && use_count() == 2) {
+        get()->Disconnect();
+    }
+}
+
 
 template<typename ... Args>
 class CommonDispatcher ATTACH_MEMORY_SPY(CommonDispatcher<Args...>)
@@ -83,6 +110,11 @@ public:
         Observer Key;
         FCommonDispatcherAction Handler;
     };
+
+    ~CommonDispatcher()
+    {
+        m_safeConnections.clear();
+    }
 
     bool IsEmpty() const
     {
@@ -143,6 +175,9 @@ public:
             if(foundIt != m_connectionSubscribes.end()) {
                 foundIt.value().Subscribes.remove(id);
             }
+        }, [this](const DispatcherConnectionSafePtr& connection){
+            QMutexLocker lock(&m_mutex);
+            m_safeConnections.insert(connection);
         });
     }
 
@@ -217,6 +252,7 @@ public:
 
 private:
     friend class Connection;
+    QSet<DispatcherConnectionSafePtr> m_safeConnections;
     QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
     QHash<Observer, FCommonDispatcherAction> m_subscribes;
     QHash<Observer, RepeatableSameSubscribeAction> m_multiSubscribes;

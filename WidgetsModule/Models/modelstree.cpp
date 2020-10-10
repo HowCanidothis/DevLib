@@ -30,9 +30,11 @@ void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeI
         QVector<RemoveGroup> removeGroups(1);
         RemoveGroup* currentGroup = &removeGroups.last();
         qint32 i(0);
+        bool found = false;
         for(const auto& child : childs) {
             if(toRemove.contains(child.get())) {
                 if(currentGroup->Since < 0) {
+                    found = true;
                     currentGroup->Since = i;
                 } else {
                     if(currentGroup->To + 1 != i) {
@@ -46,10 +48,12 @@ void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeI
             i++;
         }
 
-        for(const auto& removeGroup : adapters::reverse(removeGroups)) {
-            OnAboutToRemoveRows(removeGroup.Since, removeGroup.To, parent);
-            childs.remove(removeGroup.Since, removeGroup.To - removeGroup.Since + 1);
-            OnRowsRemoved();
+        if(found) {
+            for(const auto& removeGroup : adapters::reverse(removeGroups)) {
+                OnAboutToRemoveRows(removeGroup.Since, removeGroup.To, parent);
+                childs.remove(removeGroup.Since, removeGroup.To - removeGroup.Since + 1);
+                OnRowsRemoved();
+            }
         }
     }
 }

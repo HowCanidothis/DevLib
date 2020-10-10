@@ -18,9 +18,9 @@ GtMaterial::~GtMaterial()
 
 }
 
-void GtMaterial::AddParameter(GtMaterialParameterBase* delegate)
+void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& delegate)
 {
-    m_parameters.Push(delegate);
+    m_parameters.append(delegate);
 }
 
 void GtMaterial::AddMesh(GtMeshBase* mesh)
@@ -37,7 +37,7 @@ void GtMaterial::Draw(OpenGLFunctions* f)
     Q_ASSERT(m_shaderProgram != nullptr);
     m_shaderProgram->bind();
 
-    for(GtMaterialParameterBase* parameter : m_parameters)
+    for(const auto& parameter : m_parameters)
         parameter->bind(m_shaderProgram.data(), f);
 
     for(GtMeshBase* mesh : m_meshs) {
@@ -104,7 +104,7 @@ void GtMaterial::Update()
 
     gTexUnit unit = 0;
 
-    for(GtMaterialParameterBase* parameter : m_parameters) {
+    for(const auto& parameter : m_parameters) {
         parameter->updateLocation(m_shaderProgram.data());
         parameter->updateTextureUnit(unit);
         parameter->installDelegate();
@@ -115,7 +115,7 @@ void GtMaterial::UpdateParameters()
 {
     gTexUnit unit = 0;
 
-    for(GtMaterialParameterBase* parameter : m_parameters) {
+    for(const auto& parameter : m_parameters) {
         parameter->updateLocation(m_shaderProgram.data());
         parameter->updateTextureUnit(unit);
         parameter->installDelegate();
@@ -134,7 +134,7 @@ void GtMaterial::MapProperties(QtObserver* observer)
 
     GtMaterialParameterBase::material() = this;
 
-    for(GtMaterialParameterBase* parameter : m_parameters) {
+    for(const auto& parameter : m_parameters) {
         parameter->MapProperties(observer);
     }
 }

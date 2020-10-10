@@ -247,6 +247,22 @@ TreeBar QLabel#Title {
     background: #252526;
 }
 
+MenuBarMovePane QLabel#Icon {
+    min-width: 20px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    image: url(:/Logo.svg);
+}
+
+MenuBar MenuBarMovePane QLabel#Icon {
+    min-width: 0px;
+    max-width: 0px;
+    padding: 0px;
+    image: none;
+}
+
 MenuBar QLabel#LogoIcon {
     min-width: 20px;
     padding: 5px;

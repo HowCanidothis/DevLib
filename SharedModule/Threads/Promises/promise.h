@@ -88,18 +88,6 @@ public:
     }
 };
 
-class AsyncObject
-{
-public:
-    AsyncObject();
-    ~AsyncObject();
-
-    AsyncResult Async(const FAction& action, const PromiseData<bool>::FCallback& onDone);
-
-private:
-    AsyncResult m_result;
-};
-
 class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 {
     template<class T> friend class QtFutureWatcher;
