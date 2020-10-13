@@ -29,6 +29,7 @@ public:
     void Draw(OpenGLFunctions* f);
     void SetVisible(bool visible);
 
+    void SetRenderType(gRenderType renderType);
     void SetDir(const QString& path) { m_shadersPath = path; }
     GtMaterial& AddShader(ShaderType type, const QString& file);
     void SetShaders(const QString& path, const QString& vertFile, const QString& fragFile);

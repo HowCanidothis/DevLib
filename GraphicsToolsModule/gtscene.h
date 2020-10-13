@@ -9,15 +9,15 @@ class GtDrawableBase;
 
 class GtScene
 {
-    QSet<GtDrawableBase*> m_drawables;
+    QMap<qint32, QSet<GtDrawableBase*>> m_drawables;
 
 public:
     using FInitializationFunction = std::function<void (OpenGLFunctions*)>;
     GtScene();
     ~GtScene();
 
-    void AddDrawable(GtDrawableBase* drawable);
-    void RemoveDrawable(GtDrawableBase* drawable);
+    void AddDrawable(GtDrawableBase* drawable, qint32 queueNumber);
+    void RemoveDrawable(GtDrawableBase* drawable, qint32 queueNumber);
 
 private:
     friend class GtView;

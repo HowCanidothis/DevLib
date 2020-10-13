@@ -8,27 +8,39 @@ GtScene::GtScene()
 
 GtScene::~GtScene()
 {
-    for(auto* drawable : m_drawables){
-        delete drawable;
+    for(const auto& set : m_drawables){
+        for(auto* drawable : set) {
+            delete drawable;
+        }
     }
 }
 
 void GtScene::draw(OpenGLFunctions* f)
 {
-    for(auto* drawable : m_drawables){
-        drawable->draw(f);
+    for(const auto& set : m_drawables){
+        for(auto* drawable : set) {
+            drawable->draw(f);
+        }
     }
 }
 
-void GtScene::AddDrawable(GtDrawableBase* drawable)
+void GtScene::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)
 {
-    Q_ASSERT(!m_drawables.contains(drawable));
-    m_drawables.insert(drawable);
+    auto foundIt = m_drawables.find(queueNumber);
+    if(foundIt == m_drawables.end()) {
+        foundIt = m_drawables.insert(queueNumber, {});
+    }
+    Q_ASSERT(!foundIt->contains(drawable));
+    foundIt->insert(drawable);
 }
 
-void GtScene::RemoveDrawable(GtDrawableBase* drawable)
+void GtScene::RemoveDrawable(GtDrawableBase* drawable, qint32 queueNumber)
 {
-    Q_ASSERT(m_drawables.contains(drawable));
-    m_drawables.remove(drawable);
+    auto foundIt = m_drawables.find(queueNumber);
+    if(foundIt == m_drawables.end()) {
+        return;
+    }
+    Q_ASSERT(foundIt->contains(drawable));
+    foundIt->remove(drawable);
     delete drawable;
 }

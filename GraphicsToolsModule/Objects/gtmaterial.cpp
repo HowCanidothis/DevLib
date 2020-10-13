@@ -53,6 +53,11 @@ void GtMaterial::SetVisible(bool visible)
     m_visible = visible;
 }
 
+void GtMaterial::SetRenderType(gRenderType renderType)
+{
+    m_renderType = renderType;
+}
+
 GtMaterial&GtMaterial::AddShader(GtMaterial::ShaderType type, const QString& file)
 {
     m_shaders.Append(new Shader({file, type}));

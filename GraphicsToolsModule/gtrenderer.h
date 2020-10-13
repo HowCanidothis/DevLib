@@ -16,6 +16,7 @@ public:
 
     void SetControllers(class ControllersContainer* controllers, struct GtControllersContext* context = nullptr);
 
+    void SetDefaultQueueNumber(qint32 queueNumber) { m_queueNumber = queueNumber; }
     // TODO. Not renderer methods
     void MouseMoveEvent(QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
@@ -59,6 +60,7 @@ private:
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
     ScopedPointer<struct GtControllersContext> m_controllersContext;
+    qint32 m_queueNumber;
 
     ScopedPointer<class GtScene> m_scene;
     ScopedPointer<class ControllersContainer> m_controllers;

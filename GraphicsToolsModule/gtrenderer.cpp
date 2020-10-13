@@ -12,6 +12,7 @@
 
 GtRenderer::GtRenderer(const PropertiesScopeName& scopeName)
     : m_camera(new GtCamera())
+    , m_queueNumber(0)
 {
     PropertiesSystem::Begin(this, scopeName);
     m_camera->InstallObserver("Camera");
@@ -31,17 +32,19 @@ void GtRenderer::SetControllers(ControllersContainer* controllers, GtControllers
 
 void GtRenderer::AddDrawable(GtDrawableBase* drawable)
 {
-    Asynch([this, drawable]{
+    auto queueNumber = m_queueNumber;
+    Asynch([this, drawable, queueNumber]{
         drawable->initialize(this);
-        m_scene->AddDrawable(drawable);
+        m_scene->AddDrawable(drawable, queueNumber);
     });
 }
 
 void GtRenderer::RemoveDrawable(GtDrawableBase* drawable)
 {
-    Asynch([this, drawable]{
+    auto queueNumber = m_queueNumber;
+    Asynch([this, drawable, queueNumber]{
         drawable->onDestroy(this);
-        m_scene->RemoveDrawable(drawable);
+        m_scene->RemoveDrawable(drawable, queueNumber);
     });
 }
 
@@ -178,6 +181,7 @@ void GtRenderer::onInitialize()
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_FRONT);
+    glClearStencil(0x00);
 
     glDepthFunc(GL_LEQUAL);
     glLineWidth(5.f);
@@ -203,7 +207,7 @@ void GtRenderer::onResize(qint32 w, qint32 h)
 
     QOpenGLFramebufferObjectFormat format;
     format.setSamples(8);
-    format.setAttachment(QOpenGLFramebufferObject::Depth);
+    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     m_fbo = new QOpenGLFramebufferObject(w, h, format);
 
     m_controllersContext->DepthBuffer->SetFrameBuffer(depthFbo, m_context.get());
@@ -224,7 +228,7 @@ void GtRenderer::onDraw()
 
     m_fbo->bind();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_scene->draw(this);
 
