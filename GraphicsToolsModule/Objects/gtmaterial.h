@@ -5,7 +5,7 @@
 #include "SharedModule/array.h"
 #include "SharedModule/stack.h"
 
-class GtMeshBase;
+class GtMesh;
 class GtCamera;
 class GtMaterialParameterBase;
 
@@ -25,7 +25,7 @@ public:
     virtual ~GtMaterial();
 
     void AddParameter(const SharedPointer<GtMaterialParameterBase>&);
-    void AddMesh(GtMeshBase* mesh);
+    void AddMesh(const SharedPointer<GtMesh>& mesh);
     void Draw(OpenGLFunctions* f);
     void SetVisible(bool visible);
 
@@ -46,7 +46,7 @@ protected:
     };
 
     QVector<SharedPointer<GtMaterialParameterBase>> m_parameters;
-    Array<GtMeshBase*> m_meshs;
+    QVector<SharedPointer<GtMesh>> m_meshs;
     ScopedPointer<class QOpenGLShaderProgram> m_shaderProgram;
     ArrayPointers<Shader> m_shaders;
     QString m_shadersPath;

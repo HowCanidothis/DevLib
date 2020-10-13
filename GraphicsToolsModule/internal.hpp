@@ -9,8 +9,6 @@
 #include "gtmeshquad2D.h"
 #include "gtview.h"
 #include "gtscene.h"
-#include "gtmeshpoints.h"
-#include "gtmeshstatedpoints.h"
 #include "gtrenderer.h"
 #include "gtplayercontrollercamera.h"
 #include "Objects/gtmaterial.h"

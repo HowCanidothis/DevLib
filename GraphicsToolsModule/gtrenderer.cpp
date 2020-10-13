@@ -238,7 +238,7 @@ void GtRenderer::onDraw()
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    m_scene->draw(this);
+    m_scene->drawDepth(this);
 
     m_depthFbo->Release();
 

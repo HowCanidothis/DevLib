@@ -14,6 +14,7 @@ Circle2D::Circle2D(const Point2F& pos, const Point2F& radius, const Color3F& col
 }
 
 GtMeshCircle2D::GtMeshCircle2D()
+    : GtMesh(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_ColoredVertex2F, QOpenGLBuffer::DynamicDraw))
 {
 
 }
@@ -42,13 +43,15 @@ void GtMeshCircle2D::Remove(Circle2D* circle)
     m_circles.Remove(find);
 }
 
-bool GtMeshCircle2D::buildMesh()
+void GtMeshCircle2D::UpdateBuffer()
 {
-    if(!m_circles.Size())
-        return false;
+    if(!m_circles.Size()) {
+        m_buffer->Clear();
+        return;
+    }
     qint32 vertices_per_circle = 12 + 1 + 1;
-    m_verticesCount = vertices_per_circle * m_circles.Size();
-    ScopedPointer<ColoredVertex2F> vertices(new ColoredVertex2F[m_verticesCount]);
+    auto verticesCount = vertices_per_circle * m_circles.Size();
+    QVector<ColoredVertex2F> vertices(verticesCount);
     ColoredVertex2F* ptr = vertices.data();
     for(Circle2D* circle : m_circles) {
         ptr->Position = circle->Position;
@@ -56,7 +59,7 @@ bool GtMeshCircle2D::buildMesh()
         ptr++;
         Point2F radius = circle->Radius;
         for(double i(0); i < 2 * M_PI; i += M_PI / 6) { //<-- Change this Value
-            Q_ASSERT(ptr != vertices.data() + m_verticesCount);
+            Q_ASSERT(ptr != vertices.data() + verticesCount);
             ptr->Position = Point2F(cos(i) * radius.X(), sin(i) * radius.Y()) + circle->Position;
             ptr->Color = circle->Color;
             ptr++;
@@ -65,20 +68,6 @@ bool GtMeshCircle2D::buildMesh()
         ptr->Color = circle->Color;
         ptr++;
     }
-    m_vbo->bind();
-    m_vbo->allocate(vertices.data(), m_verticesCount * sizeof(ColoredVertex2F));
-    m_vbo->release();
 
-    return true;
+    m_buffer->UpdateVertexArray(vertices);
 }
-
-void GtMeshCircle2D::bindVAO(OpenGLFunctions* f)
-{
-    m_vbo->bind();
-    f->glEnableVertexAttribArray(0);
-    f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(ColoredVertex2F),nullptr);
-    f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(ColoredVertex2F),(const void*)sizeof(Point2F));
-}
-
-

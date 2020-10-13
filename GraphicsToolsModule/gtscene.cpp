@@ -24,6 +24,15 @@ void GtScene::draw(OpenGLFunctions* f)
     }
 }
 
+void GtScene::drawDepth(OpenGLFunctions* f)
+{
+    for(const auto& set : m_drawables){
+        for(auto* drawable : set) {
+            drawable->drawDepth(f);
+        }
+    }
+}
+
 void GtScene::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)
 {
     auto foundIt = m_drawables.find(queueNumber);

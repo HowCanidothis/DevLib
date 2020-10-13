@@ -14,7 +14,7 @@ struct Circle2D
     Circle2D(const Point2F& pos, const Point2F& Radius, const Color3F& Color);
 };
 
-class GtMeshCircle2D : public GtMeshBase
+class GtMeshCircle2D : public GtMesh
 {
     ArrayPointers<Circle2D> m_circles;
 public:
@@ -30,10 +30,7 @@ public:
     ArrayPointers<Circle2D>::const_iterator Begin() const { return m_circles.Begin(); }
     ArrayPointers<Circle2D>::const_iterator End() const { return m_circles.End(); }
 
-    // GtMeshBase interface
-protected:
-    bool buildMesh() Q_DECL_OVERRIDE;
-    void bindVAO(OpenGLFunctions* f) Q_DECL_OVERRIDE;
+    void UpdateBuffer();
 };
 
 #endif // GTMESHCIRCLE_H

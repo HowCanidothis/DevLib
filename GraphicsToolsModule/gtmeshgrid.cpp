@@ -3,15 +3,16 @@
 #include <QOpenGLBuffer>
 
 GtMeshGrid::GtMeshGrid(qint32 width, qint32 height, qint32 sections)
-    : m_width(width)
+    : GtMesh(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_ColoredVertex2F))
+    , m_width(width)
     , m_height(height)
     , m_sections(sections)
 
 {
-
+    updateBuffer();
 }
 
-bool GtMeshGrid::buildMesh()
+void GtMeshGrid::updateBuffer()
 {
     /*    <--w-->
      *   /_______\
@@ -27,8 +28,8 @@ bool GtMeshGrid::buildMesh()
     float hStep = float(m_height) / m_sections;
     float wStep = float(m_width) / m_sections;
 
-    m_verticesCount = m_sections * (2 * m_sections + 2) + (2 * m_sections - 2);
-    ColoredVertex2F* vertices = new ColoredVertex2F[m_verticesCount];
+    qint32 verticesCount = m_sections * (2 * m_sections + 2) + (2 * m_sections - 2);
+    QVector<ColoredVertex2F> vertices(verticesCount);
 
     bool white = false;
     auto getColor = [&white]() {
@@ -48,11 +49,7 @@ bool GtMeshGrid::buildMesh()
         }
     }
 
-    m_vbo->bind();
-    m_vbo->allocate(vertices, m_verticesCount * sizeof(ColoredVertex2F));
-    m_vbo->release();
-
-    delete [] vertices;
+    m_buffer->UpdateVertexArray(vertices);
 
     /**/
     /*
@@ -89,14 +86,4 @@ bool GtMeshGrid::buildMesh()
 
     delete [] vertices;
     /**/
-    return true;
-}
-
-void GtMeshGrid::bindVAO(OpenGLFunctions* f)
-{
-    m_vbo->bind();
-    f->glEnableVertexAttribArray(0);
-    f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(ColoredVertex2F),nullptr);
-    f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(ColoredVertex2F),(const void*)sizeof(Point2F));
 }

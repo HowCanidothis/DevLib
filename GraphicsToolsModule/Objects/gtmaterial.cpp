@@ -23,9 +23,9 @@ void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& dele
     m_parameters.append(delegate);
 }
 
-void GtMaterial::AddMesh(GtMeshBase* mesh)
+void GtMaterial::AddMesh(const GtMeshPtr& mesh)
 {
-    m_meshs.Append(mesh);
+    m_meshs.append(mesh);
 }
 
 void GtMaterial::Draw(OpenGLFunctions* f)
@@ -40,7 +40,7 @@ void GtMaterial::Draw(OpenGLFunctions* f)
     for(const auto& parameter : m_parameters)
         parameter->bind(m_shaderProgram.data(), f);
 
-    for(GtMeshBase* mesh : m_meshs) {
+    for(const auto& mesh : m_meshs) {
         if(mesh->IsVisible())
             mesh->Draw(m_renderType, f);
     }

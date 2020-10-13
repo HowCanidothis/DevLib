@@ -2,7 +2,7 @@
 #define GTMESHQUAD2D_H
 #include "gtmeshbase.h"
 
-class GtMeshQuad2D : public GtMeshBase
+class GtMeshQuad2D : public GtMesh
 {
     GtMeshQuad2D(OpenGLFunctions* f);
 
@@ -11,8 +11,7 @@ public:
 
     // GtMeshBase interface
 protected:
-    virtual bool buildMesh() Q_DECL_OVERRIDE;
-    void bindVAO(OpenGLFunctions* f) Q_DECL_OVERRIDE;
+    void updateBuffer();
 };
 
 #endif // GTQUADMESH_H

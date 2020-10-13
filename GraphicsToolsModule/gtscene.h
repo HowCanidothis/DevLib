@@ -23,6 +23,7 @@ private:
     friend class GtView;
     friend class GtRenderer;
     void draw(OpenGLFunctions* f);
+    void drawDepth(OpenGLFunctions* f);
 
 private:
     FInitializationFunction m_initFunction;
