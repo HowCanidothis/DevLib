@@ -106,7 +106,7 @@ public:
     {
         return m_eye - m_forward * m_eye.z() / m_forward.z();
     }
-    const float GetFar() const { return m_far; }
+    float GetFar() const { return m_far; }
 
     const Matrix4& GetProjection() { updateProjection(); return m_projection; }
     const Matrix4& GetView() { updateView(); return m_view; }

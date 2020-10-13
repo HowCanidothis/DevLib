@@ -17,6 +17,7 @@
 #include "GraphicsToolsModule/gtframetexture.h"
 #include "GraphicsToolsModule/gtplayercontrollercamera.h"
 #include "GraphicsToolsModule/gtcamera.h"
+#include "GraphicsToolsModule/gtdepthbuffer.h"
 
 #include "GraphicsToolsModule/Objects/gtmaterialparametermatrix.h"
 #include "GraphicsToolsModule/Objects/gtmaterialparametershadow.h"
@@ -31,10 +32,13 @@
 
 #include <opencv2/opencv.hpp>
 
+#undef GT_SHADERS_PATH
+#define GT_SHADERS_PATH "D:/Work/wps/libs/Content/Shaders"
+
 GtWidget3D::GtWidget3D(QWidget *parent)
     : QOpenGLWidget(parent)
-    , _controllers(new ControllersContainer())
-    , _controllersContext(new GtControllersContext())
+    , m_controllers(new ControllersContainer())
+    , m_controllersContext(new GtControllersContext())
     , camera(nullptr)
     , fps_board(nullptr)
     , lft_board(nullptr)
@@ -45,9 +49,9 @@ GtWidget3D::GtWidget3D(QWidget *parent)
     , shadow_mapping(false)
 {
 
-    auto cameraController = new GtPlayerControllerCamera(Name("CameraController" + QString::number((size_t)this)), _controllers.data());
+    auto cameraController = new GtPlayerControllerCamera(Name("CameraController" + QString::number((size_t)this)), m_controllers.data());
 
-    _controllers->SetContext(_controllersContext.data());
+    m_controllers->SetContext(m_controllersContext.data());
 
     QSurfaceFormat surface_format;
 //    surface_format.setSamples(4);
@@ -59,6 +63,8 @@ GtWidget3D::GtWidget3D(QWidget *parent)
 
     setFocusPolicy(Qt::ClickFocus);
     setFocus();
+
+    setMouseTracking(true);
 }
 
 GtWidget3D::~GtWidget3D()
@@ -98,7 +104,7 @@ GtComputeNodeBase* GtWidget3D::getOutputNode() const
 void GtWidget3D::setCamera(GtCamera* camera)
 {
     this->camera = camera;
-    _controllersContext->Camera = camera;
+    m_controllersContext->Camera = camera;
 }
 
 void GtWidget3D::initializeGL()
@@ -144,6 +150,7 @@ void GtWidget3D::initializeGL()
         return new Matrix4();
     });
 
+    m_controllersContext->DepthBuffer = new GtDepthBuffer(this);
     static_frame_texture = ResourcesSystem::GetResource<GtFrameTexture>("output_texture");
     shadow_map_technique = ResourcesSystem::GetResource<GtShadowMapTechnique>("shadow_map_technique");
     MVP = ResourcesSystem::GetResource<Matrix4>("mvp");
@@ -155,25 +162,26 @@ void GtWidget3D::initializeGL()
     surface_material = new GtMaterial(GL_TRIANGLE_STRIP);
     surface_material->AddMesh(surface_mesh.data());
 
-    surface_material->AddParameter(new GtMaterialParameterTexture("SandTex", "sand_tex"));
-    surface_material->AddParameter(new GtMaterialParameterTexture("GrassTex", "grass_tex"));
-    surface_material->AddParameter(new GtMaterialParameterTexture("MountainTex", "mountain_tex"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterTexture>("SandTex", "sand_tex"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterTexture>("GrassTex", "grass_tex"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterTexture>("MountainTex", "mountain_tex"));
     if(shadow_mapping) {
-        surface_material->AddParameter(new GtMaterialParameterShadow("ShadowMap", "shadow_map_technique"));
+        surface_material->AddParameter(::make_shared<GtMaterialParameterShadow>("ShadowMap", "shadow_map_technique"));
     }
 
-    surface_material->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    surface_material->AddParameter(new GtMaterialParameterMatrix("ShadowMVP", "mvp_shadow"));
-    surface_material->AddParameter(new GtMaterialParameterFrameTexture("HeightMap", "output_texture"));
-    surface_material->AddParameter(new GtMaterialParameterBase("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+    surface_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", "mvp"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("ShadowMVP", "mvp_shadow"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterFrameTexture>("HeightMap", "output_texture"));
+    surface_material->AddParameter(::make_shared<GtMaterialParameterBase>("LightDirection", [this](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
       program->setUniformValue(loc, shadow_map_technique->Data().Get().GetCamera()->GetForward().normalized());
     }));
 
-    surface_material->SetShaders(GT_SHADERS_PATH "Depth", "sensor.vert", "sensor.frag");
+    surface_material->SetShaders(GT_SHADERS_PATH "/Depth", "sensor.vert", "sensor.frag");
 
+    surface_material->Update();
     static bool added = false;
     if(!added) {
-        surface_material->MapProperties(Observer::Instance());
+        surface_material->MapProperties(QtObserver::Instance());
         added = true;
     }
 
@@ -183,11 +191,12 @@ void GtWidget3D::initializeGL()
         depth_material = new GtMaterial(GL_TRIANGLE_STRIP);
         depth_material->AddMesh(GtMeshQuad2D::Instance(this));
         gTexID texture = shadow_map_technique->Data().Get().GetDepthTexture();
-        depth_material->AddParameter(new GtMaterialParameterBase("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
+        depth_material->AddParameter(::make_shared<GtMaterialParameterBase>("TextureMap", [texture](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             GtTexture2D::bindTexture(f, 0, texture);
             program->setUniformValue(loc, 0);
         }));
         depth_material->SetShaders(GT_SHADERS_PATH, "screen.vert", "screen.frag");
+        depth_material->Update();
     }
 
     circle_mesh = new GtMeshCircle2D();
@@ -195,11 +204,12 @@ void GtWidget3D::initializeGL()
 
     color_material = new GtMaterial(GL_POINTS);
     color_material->AddMesh(circle_mesh.data());
-    color_material->AddParameter(new GtMaterialParameterMatrix("MVP", "mvp"));
-    color_material->AddParameter(new GtMaterialParameterBase("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
+    color_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", "mvp"));
+    color_material->AddParameter(::make_shared<GtMaterialParameterBase>("zValue", [](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions*) {
         program->setUniformValue(loc, 400.0f);
     }));
     color_material->SetShaders(GT_SHADERS_PATH, "colored2d.vert", "colored.frag");
+    color_material->Update();
 
     glPointSize(10.f);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -222,6 +232,15 @@ void GtWidget3D::resizeGL(int w, int h)
     fbo->Create(fbo_format);
     this->fbo.reset(fbo);
 
+    GtFramebufferFormat depthFboFormat;
+    depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);
+
+    auto depthFbo = new GtFramebufferObject(this, {w,h});
+    depthFbo->Create(depthFboFormat);
+    m_depthFbo = depthFbo;
+
+    m_controllersContext->DepthBuffer->SetFrameBuffer(depthFbo, context());
+
     camera->Resize(w,h);
 }
 
@@ -239,7 +258,7 @@ void GtWidget3D::paintGL()
 {
     // __PERFORMANCE__
 
-    _controllers->Input();
+    m_controllers->Input();
 
     if(true) {
         fps_counter->Bind();
@@ -295,10 +314,18 @@ void GtWidget3D::paintGL()
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glViewport(0,0,fbo->GetWidth(),fbo->GetHeight());
 
-                // depth_view->draw(this);
                 surface_material->Draw(this);
                 color_material->Draw(this);
             fbo->Release();
+
+            m_depthFbo->Bind();
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glViewport(0,0,m_depthFbo->GetWidth(),m_depthFbo->GetHeight());
+
+            surface_material->Draw(this);
+            color_material->Draw(this);
+
+            m_depthFbo->Release();
         }
         else {
             MVP->Data().Set(camera->GetWorld());
@@ -310,6 +337,15 @@ void GtWidget3D::paintGL()
                 surface_material->Draw(this);
                 color_material->Draw(this);
             fbo->Release();
+
+            m_depthFbo->Bind();
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glViewport(0,0,m_depthFbo->GetWidth(),m_depthFbo->GetHeight());
+
+            surface_material->Draw(this);
+            color_material->Draw(this);
+
+            m_depthFbo->Release();
         }
 
         qint64 frame_time = fps_counter->Release();
@@ -325,25 +361,25 @@ void GtWidget3D::paintGL()
 
 void GtWidget3D::mouseMoveEvent(QMouseEvent* event)
 {
-    _controllers->MouseMoveEvent(event);
+    m_controllers->MouseMoveEvent(event);
 }
 
 void GtWidget3D::mousePressEvent(QMouseEvent* event)
 {
-    _controllers->MousePressEvent(event);
+    m_controllers->MousePressEvent(event);
 }
 
 void GtWidget3D::wheelEvent(QWheelEvent* event)
 {
-    _controllers->WheelEvent(event);
+    m_controllers->WheelEvent(event);
 }
 
 void GtWidget3D::keyPressEvent(QKeyEvent *event)
 {
-    _controllers->KeyPressEvent(event);
+    m_controllers->KeyPressEvent(event);
 }
 
 void GtWidget3D::keyReleaseEvent(QKeyEvent *event)
 {
-    _controllers->KeyReleaseEvent(event);
+    m_controllers->KeyReleaseEvent(event);
 }

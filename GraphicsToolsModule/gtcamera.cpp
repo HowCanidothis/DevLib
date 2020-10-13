@@ -227,10 +227,11 @@ void GtCamera::SetIsometricScale(float scale) {
     m_state.AddFlag(State_NeedUpdateProjection);
 }
 
-void GtCamera::SetIsometric(bool flag) {
-    m_state.AddFlag(State_NeedUpdate); m_state.ChangeFromBoolean(State_Isometric | State_AutoIsometricScaling, flag);
+void GtCamera::SetIsometric(bool flag)
+{
+    m_state.AddFlag(State_NeedUpdate);
+    m_state.ChangeFromBoolean(State_Isometric | State_AutoIsometricScaling, flag);
 }
-
 
 void GtCamera::Resize(qint32 width, qint32 height)
 {

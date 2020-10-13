@@ -40,8 +40,8 @@ GtWindow::GtWindow(QWidget *parent)
     ui->glout2->setName("Output/right");
 
     ui->glout1->setLogger(gllogger);
-    ui->glout1->setShadowMapTechnique(true);
-    ui->glout2->setShadowMapTechnique(true);
+    /*ui->glout1->setShadowMapTechnique(true);
+    ui->glout2->setShadowMapTechnique(true);*/
 
     ui->cmbStream->addItems(input_file->GetAvailableInputs());
 
@@ -88,6 +88,8 @@ GtWindow::GtWindow(QWidget *parent)
         _qssReader->Install(main_qss.Native());
     });
     _qssReader->SetEnableObserver(true);
+
+    setMouseTracking(true);
 }
 
 GtWindow::~GtWindow()

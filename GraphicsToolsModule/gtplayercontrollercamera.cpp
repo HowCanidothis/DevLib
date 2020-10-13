@@ -34,10 +34,6 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 
 bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 {
-    if(m_pressed) {
-        return true;
-    }
-    m_pressed = true;
     m_lastScreenPosition = resolutional(event->pos());
     if(event->button() == Qt::RightButton) {
         auto depth = ctx().DepthBuffer->ValueAt(m_lastScreenPosition.x(), m_lastScreenPosition.y());
@@ -54,9 +50,6 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 
 bool GtPlayerControllerCamera::mouseReleaseEvent(QMouseEvent* event)
 {
-    if(event->button() != Qt::NoButton) {
-        m_pressed = false;
-    }
     if(event->button() == Qt::RightButton) {
         return true;
     }

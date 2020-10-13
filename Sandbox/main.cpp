@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     cam.SetProjectionProperties(45.f,20.f,15000.f);
 
-    cam.SetSceneBox(BoundingBox(Point3F(-10000.f,-10000.f, 3.f), Point3F(10000.f,10000.f,10000.f)));
+    //cam.SetSceneBox(BoundingBox(Point3F(-10000.f,-10000.f, 3.f), Point3F(10000.f,10000.f,10000.f)));
     cam.SetIsometric(false);
     cam.SetPosition(Point3F(320.f,220.f,1200.f), Vector3F(0.f,0.f,-1.f), Vector3F(0.f,1.f,0.f));
 

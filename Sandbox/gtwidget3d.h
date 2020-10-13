@@ -32,13 +32,14 @@ class GtWidget3D : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
     ScopedPointer<GtFramebufferObjectBase> fbo;
+    ScopedPointer<GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<GtMaterial> depth_material;
     ScopedPointer<GtMaterial> surface_material;
     ScopedPointer<GtMaterial> color_material;
     ScopedPointer<GtMeshSurface> surface_mesh;
     ScopedPointer<GtMeshCircle2D> circle_mesh;
-    ScopedPointer<class ControllersContainer> _controllers;
-    ScopedPointer<struct GtControllersContext> _controllersContext;
+    ScopedPointer<class ControllersContainer> m_controllers;
+    ScopedPointer<struct GtControllersContext> m_controllersContext;
 
     GtCamera* camera;
 

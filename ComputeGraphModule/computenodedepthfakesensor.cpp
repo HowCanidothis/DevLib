@@ -27,7 +27,7 @@ void ComputeNodeDepthFakeSensor::update(const cv::Mat*)
         qint32 oldType = output.type();
         cv::MatSize oldSize = output.size;
         output = _input->GetOutput();
-        if(_input->IsValid() && oldType != output.type() || oldSize != output.size) {
+        if((_input->IsValid() && oldType != output.type()) || oldSize != output.size) {
             outputChanged();
         }
     }
