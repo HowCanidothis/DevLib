@@ -17,9 +17,13 @@ void GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
 
 void GtDrawableBase::Update(const FAction& f)
 {
-    m_renderer->Asynch([f]{
+    if(QThread::currentThread() == m_renderer) {
         f();
-    });
+    } else {
+        m_renderer->Asynch([f]{
+            f();
+        });
+    }
 }
 
 void GtDrawableBase::initialize(GtRenderer* renderer)

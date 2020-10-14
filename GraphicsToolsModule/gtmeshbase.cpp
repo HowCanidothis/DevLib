@@ -17,6 +17,7 @@ GtMeshBuffer::~GtMeshBuffer()
 
 void GtMeshBuffer::Initialize(OpenGLFunctions* f)
 {
+    Q_ASSERT(m_vbo == nullptr && m_vao == nullptr);
     m_verticesCount = 0;
 
     if(createBuffers()) {

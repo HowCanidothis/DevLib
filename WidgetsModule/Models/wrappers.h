@@ -224,6 +224,14 @@ public:
         OnChanged();
     }
 
+    void Update(const FAction& handler)
+    {
+        OnAboutToBeUpdated();
+        handler();
+        OnUpdated();
+        OnChanged();
+    }
+
     void Remove(const QSet<qint32>& indexes)
     {
         OnAboutToBeReseted();
