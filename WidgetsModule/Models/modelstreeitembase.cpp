@@ -171,6 +171,7 @@ void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const
 {
     toItem->m_childs = m_childs;
     toItem->m_parent = m_parent;
+    toItem->m_userData = m_userData;
 }
 
 QVector<ModelsTreeItemBase*> ModelsTreeItemBase::GetPath() const
