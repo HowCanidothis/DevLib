@@ -113,6 +113,11 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
     m_editHandler = handler;
 }
 
+void DelegatesDoubleSpinBox::SetRange(double min, double max){
+    m_min = min;
+    m_max = max;
+}
+
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
 {

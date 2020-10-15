@@ -14,6 +14,7 @@ class ModelsTreeItemBase
     template<class T> friend struct Serializer;
 
     ModelsTreeItemBase* m_parent;
+    QHash<size_t,bool> m_expandMap;
     QHash<size_t,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
     QHash<size_t, QHash<Name, QVariant>> m_userData;
@@ -34,6 +35,9 @@ public:
     void SetChecked(size_t key, Qt::CheckState value);
     void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
     QVariant GetUserData(size_t key, const Name& propertyName) const;
+
+    bool GetIsItemExpand(size_t key) const;
+    void SetItemExpand(size_t key, bool flag);
 
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);

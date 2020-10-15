@@ -160,6 +160,20 @@ QVariant ModelsTreeItemBase::GetUserData(size_t key, const Name& propertyName) c
     return foundPropertyIt.value();
 }
 
+bool ModelsTreeItemBase::GetIsItemExpand(size_t key) const
+{
+    auto iter = m_expandMap.find(key);
+    if (iter == m_expandMap.end()) {
+        return false;
+    }
+    return iter.value();
+}
+
+void ModelsTreeItemBase::SetItemExpand(size_t key, bool flag)
+{
+    m_expandMap[key] = flag;
+}
+
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const
 {
     toItem->m_childs = m_childs;

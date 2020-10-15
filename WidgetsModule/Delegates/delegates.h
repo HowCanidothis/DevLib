@@ -35,6 +35,7 @@ public:
     QString displayText(const QVariant& value, const QLocale& locale) const override;
 
     void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
+    void SetRange(double min, double max);
     
 signals:
     void valueChanged(double, const QModelIndex&);
