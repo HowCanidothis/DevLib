@@ -131,15 +131,12 @@ qint32 ModelsTreeItemBase::GetParentRow() const
 }
 
 Qt::CheckState ModelsTreeItemBase::GetChecked(size_t key) const {
-    auto iter = m_checkedMap.find(key);
-    if (iter == m_checkedMap.end()) {
-        return Qt::Unchecked;
-    }
-    return iter.value();
+    auto variant = GetUserData(key, "Checked");
+    return variant.value<Qt::CheckState>();
 }
 
 void ModelsTreeItemBase::SetChecked(size_t key, Qt::CheckState value) {
-    m_checkedMap[key] = value;
+    SetUserData(key, "Checked", value);
 }
 
 void ModelsTreeItemBase::SetUserData(size_t key, const Name& propertyName, const QVariant& value)
@@ -162,16 +159,12 @@ QVariant ModelsTreeItemBase::GetUserData(size_t key, const Name& propertyName) c
 
 bool ModelsTreeItemBase::GetIsItemExpand(size_t key) const
 {
-    auto iter = m_expandMap.find(key);
-    if (iter == m_expandMap.end()) {
-        return false;
-    }
-    return iter.value();
+    return GetUserData(key, "Expanded").toBool();
 }
 
 void ModelsTreeItemBase::SetItemExpand(size_t key, bool flag)
 {
-    m_expandMap[key] = flag;
+    SetUserData(key, "Expanded", flag);
 }
 
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const

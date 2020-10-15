@@ -14,8 +14,6 @@ class ModelsTreeItemBase
     template<class T> friend struct Serializer;
 
     ModelsTreeItemBase* m_parent;
-    QHash<size_t,bool> m_expandMap;
-    QHash<size_t,Qt::CheckState> m_checkedMap;
     QVector<SharedPointer<ModelsTreeItemBase>> m_childs;
     QHash<size_t, QHash<Name, QVariant>> m_userData;
 
