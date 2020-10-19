@@ -75,6 +75,15 @@ public:
         }
     }
 
+    DispatcherConnection ConnectFrom(const LocalProperty& another)
+    {
+        *this = another.Native();
+        auto& nonConst = const_cast<LocalProperty&>(another);
+        return nonConst.OnChange.Connect(this, [this, &another]{
+            *this = another.Native();
+        });
+    }
+
     StorageType& EditSilent() { return m_value; }
     const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() { return OnChange; }

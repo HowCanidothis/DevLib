@@ -1,6 +1,8 @@
 #ifndef GTVIEWDELEGATEBASE_H
 #define GTVIEWDELEGATEBASE_H
 
+#include <SharedModule/internal.hpp>
+
 #include "gtobjectbase.h"
 #include "ResourcesModule/resourcessystem.h"
 
@@ -26,13 +28,13 @@ class GtMaterialParameterBase : public GtObjectBase
 {
 public:
     typedef std::function<void(QOpenGLShaderProgram* program, gLocID m_location, OpenGLFunctions* f)> FDelegate;
-    GtMaterialParameterBase(const QString& m_name, const QString& m_resource);
-    GtMaterialParameterBase(const QString& m_name, const FDelegate& m_delegate);
+    GtMaterialParameterBase(const QString& name, const QString& resource);
+    GtMaterialParameterBase(const QString& name, const FDelegate& delegate);
     virtual ~GtMaterialParameterBase();
 
 protected:
     friend class GtMaterial;
-    void bind(QOpenGLShaderProgram*, OpenGLFunctions* f);
+    void bind(QOpenGLShaderProgram* program, OpenGLFunctions* f);
 
     void installDelegate();
     virtual FDelegate apply();
@@ -41,10 +43,12 @@ protected:
 
 protected:
     FDelegate m_delegate;
-    gLocID m_location;
     QString m_name;
     Name m_resource;
+    QHash<QOpenGLShaderProgram*, gLocID> m_locations;
     static GtMaterial*& material() { static GtMaterial* res; return res; }
 };
+
+using GtMaterialParameterBasePtr = SharedPointer<GtMaterialParameterBase>;
 
 #endif // GTVIEWDELEGATE_H

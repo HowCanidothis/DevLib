@@ -17,7 +17,7 @@ public:
     ~GtScene();
 
     void AddDrawable(GtDrawableBase* drawable, qint32 queueNumber);
-    void RemoveDrawable(GtDrawableBase* drawable, qint32 queueNumber);
+    void RemoveDrawable(GtDrawableBase* drawable);
 
 private:
     friend class GtView;

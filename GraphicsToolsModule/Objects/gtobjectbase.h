@@ -30,9 +30,10 @@ protected:
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
 
-private:
+protected:
     GtRenderer* m_renderer;
 };
 
+using GtDrawableBasePtr = SharedPointer<GtDrawableBase>;
 
 #endif // GTOBJECTBASE_H

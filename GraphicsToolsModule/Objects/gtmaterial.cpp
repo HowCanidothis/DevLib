@@ -18,9 +18,9 @@ GtMaterial::~GtMaterial()
 
 }
 
-void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& delegate)
+void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& parameter)
 {
-    m_parameters.append(delegate);
+    m_parameters.append(parameter);
 }
 
 void GtMaterial::AddMesh(const GtMeshPtr& mesh)
@@ -35,10 +35,9 @@ void GtMaterial::Draw(OpenGLFunctions* f)
     }
 
     Q_ASSERT(m_shaderProgram != nullptr);
-    m_shaderProgram->bind();
 
-    for(const auto& parameter : m_parameters)
-        parameter->bind(m_shaderProgram.data(), f);
+    m_shaderProgram->bind();    
+    updateParameters(f);
 
     for(const auto& mesh : m_meshs) {
         if(mesh->IsVisible())
@@ -116,14 +115,10 @@ void GtMaterial::Update()
     }
 }
 
-void GtMaterial::UpdateParameters()
+void GtMaterial::updateParameters(OpenGLFunctions* f)
 {
-    gTexUnit unit = 0;
-
     for(const auto& parameter : m_parameters) {
-        parameter->updateLocation(m_shaderProgram.data());
-        parameter->updateTextureUnit(unit);
-        parameter->installDelegate();
+        parameter->bind(m_shaderProgram.data(), f);
     }
 }
 

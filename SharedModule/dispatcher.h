@@ -159,6 +159,13 @@ public:
         Invoke(args...);
     }
 
+    DispatcherConnection Connect(CommonDispatcher& another)
+    {
+        return another.Connect(this, [this](Args... args){
+            Invoke(args...);
+        });
+    }
+
     DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler)
     {
         QMutexLocker lock(&m_mutex);

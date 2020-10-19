@@ -41,10 +41,9 @@ void GtRenderer::AddDrawable(GtDrawableBase* drawable)
 
 void GtRenderer::RemoveDrawable(GtDrawableBase* drawable)
 {
-    auto queueNumber = m_queueNumber;
-    Asynch([this, drawable, queueNumber]{
+    Asynch([this, drawable]{
         drawable->onDestroy(this);
-        m_scene->RemoveDrawable(drawable, queueNumber);
+        m_scene->RemoveDrawable(drawable);
     });
 }
 

@@ -43,13 +43,14 @@ void GtScene::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)
     foundIt->insert(drawable);
 }
 
-void GtScene::RemoveDrawable(GtDrawableBase* drawable, qint32 queueNumber)
+void GtScene::RemoveDrawable(GtDrawableBase* drawable)
 {
-    auto foundIt = m_drawables.find(queueNumber);
-    if(foundIt == m_drawables.end()) {
-        return;
+    for(auto& queue : m_drawables) {
+        auto foundIt = queue.find(drawable);
+        if(foundIt != queue.end()) {
+            queue.erase(foundIt);
+        }
     }
-    Q_ASSERT(foundIt->contains(drawable));
-    foundIt->remove(drawable);
+
     delete drawable;
 }

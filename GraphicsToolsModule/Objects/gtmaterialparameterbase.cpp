@@ -13,8 +13,8 @@ GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const QStr
 }
 
 GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const GtMaterialParameterBase::FDelegate& delegate)
-    : m_name(name)
-    , m_delegate(delegate)
+    : m_delegate(delegate)
+    , m_name(name)
 {
 
 }
@@ -31,15 +31,18 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
 
 void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
 {
-    m_location = program->uniformLocation(m_name);
-    if(m_location == -1) {
-        qCWarning(LC_SYSTEM) << "location not found" << m_name;
+    auto it = m_locations.insert(program, program->uniformLocation(m_name));
+    if(*it == -1) {
+        qCWarning(LC_SYSTEM) << "location not found" << m_name << "for shaders:";
+        for(const auto* shader : program->shaders()) {
+            qCWarning(LC_SYSTEM) << shader->sourceCode();
+        }
     }
 }
 
 void GtMaterialParameterBase::bind(QOpenGLShaderProgram* program, OpenGLFunctions* f)
 {
-    m_delegate(program, m_location, f);
+    m_delegate(program, m_locations.value(program, 0), f);
 }
 
 void GtMaterialParameterBase::installDelegate()

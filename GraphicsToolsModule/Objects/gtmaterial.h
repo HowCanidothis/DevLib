@@ -36,7 +36,9 @@ public:
     void SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile);
 
     void Update();
-    void UpdateParameters();
+
+private:
+    void updateParameters(OpenGLFunctions* f);
 
 protected:
     friend class GtMaterialParameterBase;
@@ -45,6 +47,7 @@ protected:
         qint32 Type;
     };
 
+    DispatcherConnectionsSafe m_connections;
     QVector<SharedPointer<GtMaterialParameterBase>> m_parameters;
     QVector<SharedPointer<GtMesh>> m_meshs;
     ScopedPointer<class QOpenGLShaderProgram> m_shaderProgram;
