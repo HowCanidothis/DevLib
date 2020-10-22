@@ -17,7 +17,6 @@ PropertiesConnectorBase::PropertiesConnectorBase(const Name& name, const Propert
         setter(value);
     })
     , m_ignorePropertyChange(false)
-    , m_dispatcherConnections(this)
     , m_target(target)
     , m_propertyName(name)
 {
@@ -30,15 +29,15 @@ PropertiesConnectorBase::~PropertiesConnectorBase()
 
 void PropertiesConnectorBase::SetScope(const PropertiesScopeName& scope)
 {
-    m_dispatcherConnections.Clear();
+    m_dispatcherConnections.clear();
     m_propertyPtr.Assign(m_propertyName, scope);
-    m_dispatcherConnections.Add(m_propertyPtr.GetDispatcher(), [this]{
+    m_propertyPtr.GetDispatcher().Connect(this, [this]{
         Q_ASSERT(m_propertyPtr.IsValid());
         Q_ASSERT(m_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
         if(!m_ignorePropertyChange) {
             m_setter(m_propertyPtr.GetProperty()->GetValue());
         }
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     if(m_propertyPtr.IsValid()) {
         m_setter(m_propertyPtr.GetProperty()->GetValue());

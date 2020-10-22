@@ -23,7 +23,6 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
             propertySetter();
         }
     })
-    , m_dispatcherConnections(this)
     , m_ignorePropertyChange(false)
     , m_ignoreWidgetChange(false)
 {
@@ -39,11 +38,11 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(checkBox, &QCheckBox::clicked, [this](bool value){
+    m_connections.connect(checkBox, &QCheckBox::clicked, [this](bool){
         m_propertySetter();
     });
 }
@@ -58,9 +57,9 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
         m_propertySetter();
@@ -74,9 +73,9 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
                *property = textEdit->toPlainText();
             })
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     switch (submitType) {
     case SubmitType_OnEveryChange:
@@ -99,15 +98,15 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
-    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+    }).MakeSafe(m_dispatcherConnections);
+    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, spinBox](){
+    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -122,13 +121,13 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
-    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+    }).MakeSafe(m_dispatcherConnections);
+    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
@@ -145,13 +144,13 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
-    m_dispatcherConnections.Add(property->OnMinMaxChanged,[spinBox, property]{
+    }).MakeSafe(m_dispatcherConnections);
+    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
@@ -172,9 +171,9 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
             }
     )
 {
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
         m_propertySetter();
@@ -199,9 +198,9 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
 {
     Q_ASSERT(!buttons.IsEmpty());
 
-    m_dispatcherConnections.Add(property->GetDispatcher(),[this]{
+    property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 
     qint32 i = 0;
     for(auto* button : buttons) {

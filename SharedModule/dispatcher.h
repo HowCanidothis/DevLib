@@ -44,6 +44,17 @@ class DispatcherConnection
     {}
 
 public:
+    DispatcherConnection& Add(const DispatcherConnection& another)
+    {
+        auto anotherDisconnector = another.m_disconnector;
+        auto oldDisconnector = m_disconnector;
+        m_disconnector = [oldDisconnector, anotherDisconnector]{
+            oldDisconnector();
+            anotherDisconnector();
+        };
+        return *this;
+    }
+
     void Disconnect() const
     {
         m_disconnector();

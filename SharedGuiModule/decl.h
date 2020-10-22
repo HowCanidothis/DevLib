@@ -252,6 +252,9 @@ class BoundingBox
     Point3F m_topLeftFront;
     Point3F m_bottomRightBack;
 public:
+    enum UnknownPoints{
+        FromUnknownPoints
+    };
     BoundingBox() {}
     BoundingBox(float centerX, float centerY, float centerZ, float w, float h, float d)
         : m_topLeftFront(centerX - w / 2.f, centerY + h / 2.f, centerZ + d / 2.f)
@@ -265,6 +268,38 @@ public:
         : m_topLeftFront(minX, maxY, maxZ)
         , m_bottomRightBack(maxX, minY, minZ)
     {}
+    BoundingBox(const Point3F p1, const Point3F& p2, UnknownPoints)
+        : BoundingBox(p1.x(), p2.x(), p1.y(), p2.y(), p1.z(), p2.z(), FromUnknownPoints)
+    {}
+    BoundingBox(float x1, float x2, float y1, float y2, float z1, float z2, UnknownPoints)
+    {
+        float xMin, xMax, yMin, yMax, zMin, zMax;
+        if(x1 < x2) {
+            xMin = x1;
+            xMax = x2;
+        } else {
+            xMin = x2;
+            xMax = x1;
+        }
+
+        if(y1 < y2) {
+            yMin = y1;
+            yMax = y2;
+        } else {
+            yMin = y2;
+            yMax = y1;
+        }
+
+        if(z1 < z2) {
+            zMin = z1;
+            zMax = z2;
+        } else {
+            zMin = z2;
+            zMax = z1;
+        }
+        m_topLeftFront = Point3F(xMin, yMax, zMax);
+        m_bottomRightBack = Point3F(xMax, yMin, zMin);
+    }
 
     void SetNull()
     {
@@ -348,6 +383,12 @@ public:
     }
 
     BoundingBox Translated(const Point3F& translation) const { return BoundingBox(m_topLeftFront + translation, m_bottomRightBack + translation); }
+    BoundingBox Transformed(const QMatrix4x4 transform) const
+    {
+        Point3F p1 = transform * (m_topLeftFront);
+        Point3F p2 = transform * (m_bottomRightBack);
+        return BoundingBox(p1, p2, FromUnknownPoints);
+    }
 
     bool IsNull() const { return m_bottomRightBack == m_topLeftFront; }
 };

@@ -29,13 +29,13 @@ public:
     qint32 GetRow() const;
     qint32 GetParentRow() const;
 
-    Qt::CheckState GetChecked(size_t key) const;
+    Qt::CheckState IsChecked(size_t key) const;
     void SetChecked(size_t key, Qt::CheckState value);
     void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
     QVariant GetUserData(size_t key, const Name& propertyName) const;
 
-    bool GetIsItemExpand(size_t key) const;
-    void SetItemExpand(size_t key, bool flag);
+    bool IsExpanded(size_t key) const;
+    void SetExpanded(size_t key, bool flag);
 
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
     void AddChild(const SharedPointer<ModelsTreeItemBase>& item);

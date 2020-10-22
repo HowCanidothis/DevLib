@@ -244,4 +244,20 @@ struct SerializerDirectionHelper<QDataStreamReader>
 typedef StreamBufferBase<QDataStreamWriter> QStreamBufferWrite;
 typedef StreamBufferBase<QDataStreamReader> QStreamBufferRead;
 
+template<class T>
+inline QByteArray SerializeToArray(const T& object)
+{
+    QByteArray array;
+    QStreamBufferWrite writer(&array, QIODevice::WriteOnly);
+    writer << object;
+    return array;
+}
+
+template<class T>
+void DeSerializeFromArray(const QByteArray& array, T& object)
+{
+    QStreamBufferRead reader(array);
+    reader << object;
+}
+
 #endif

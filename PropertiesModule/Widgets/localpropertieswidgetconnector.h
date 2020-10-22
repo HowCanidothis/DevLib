@@ -47,7 +47,7 @@ protected:
     Setter m_widgetSetter;
     Setter m_propertySetter;
     QtLambdaConnections m_connections;
-    DispatchersConnections m_dispatcherConnections;
+    DispatcherConnectionsSafe m_dispatcherConnections;
     bool m_ignorePropertyChange;
     bool m_ignoreWidgetChange;
 };

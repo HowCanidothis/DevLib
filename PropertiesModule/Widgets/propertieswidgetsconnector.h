@@ -61,7 +61,7 @@ protected:
     PropertyPtr m_propertyPtr;
     QMetaObject::Connection m_connection;
     bool m_ignorePropertyChange;
-    DispatchersConnections m_dispatcherConnections;
+    DispatcherConnectionsSafe m_dispatcherConnections;
     QWidget* m_target;
     Name m_propertyName;
 

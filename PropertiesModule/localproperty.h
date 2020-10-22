@@ -84,6 +84,42 @@ public:
         });
     }
 
+    DispatcherConnection ConnectTo(LocalProperty& another)
+    {
+        another = Native();
+        return OnChange.Connect(this, [this, &another]{
+            another = Native();
+        });
+    }
+
+    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
+    DispatcherConnection ConnectBoth(LocalProperty<T2>& another, const Evaluator& anotherEvaluator, const ThisEvaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    {
+        another = anotherEvaluator(Native());
+        auto sync = ::make_shared<std::atomic_bool>(false);
+        auto connection1 = another.OnChange.Connect(this, [this, thisEvaluator, &another, sync]{
+            if(!*sync) {
+                *sync = true;
+                *this = thisEvaluator(another);
+                *sync = false;
+            }
+        });
+        auto connection2 = OnChange.Connect(this, [this, anotherEvaluator, &another, sync]{
+            if(!*sync) {
+                *sync = true;
+                another = anotherEvaluator(*this);
+                *sync = false;
+            }
+        });
+        connection1.Add(connection2);
+        for(auto* dispatcher : dispatchers) {
+            connection1.Add(dispatcher->Connect(this, [this, &anotherEvaluator, &another]{
+                another = anotherEvaluator(*this);
+            }));
+        }
+        return connection1;
+    }
+
     StorageType& EditSilent() { return m_value; }
     const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() { return OnChange; }
@@ -100,6 +136,8 @@ private:
     template<class T2> friend struct Serializer;
     mutable FAction m_subscribes;
 };
+
+using LocalPropertyDoubleEvaluator = std::function<double (double)>;
 
 template<class T>
 class LocalPropertyLimitedDecimal : public LocalProperty<T>

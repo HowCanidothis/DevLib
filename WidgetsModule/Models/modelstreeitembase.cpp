@@ -130,7 +130,7 @@ qint32 ModelsTreeItemBase::GetParentRow() const
     return 0;
 }
 
-Qt::CheckState ModelsTreeItemBase::GetChecked(size_t key) const {
+Qt::CheckState ModelsTreeItemBase::IsChecked(size_t key) const {
     auto variant = GetUserData(key, "Checked");
     return variant.value<Qt::CheckState>();
 }
@@ -157,12 +157,12 @@ QVariant ModelsTreeItemBase::GetUserData(size_t key, const Name& propertyName) c
     return foundPropertyIt.value();
 }
 
-bool ModelsTreeItemBase::GetIsItemExpand(size_t key) const
+bool ModelsTreeItemBase::IsExpanded(size_t key) const
 {
     return GetUserData(key, "Expanded").toBool();
 }
 
-void ModelsTreeItemBase::SetItemExpand(size_t key, bool flag)
+void ModelsTreeItemBase::SetExpanded(size_t key, bool flag)
 {
     SetUserData(key, "Expanded", flag);
 }
