@@ -62,10 +62,13 @@ public:
 protected:
     virtual T calculate() const = 0;
 
+protected:
+    ThreadHandler m_threadHandler;
+
 private:
     std::atomic_bool m_isCalculating;
     std::atomic_bool m_needToRecalculate;
-    ThreadHandler m_threadHandler;
+
 };
 
 template<class T>

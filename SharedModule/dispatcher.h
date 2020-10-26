@@ -44,16 +44,10 @@ class DispatcherConnection
     {}
 
 public:
-    DispatcherConnection& Add(const DispatcherConnection& another)
-    {
-        auto anotherDisconnector = another.m_disconnector;
-        auto oldDisconnector = m_disconnector;
-        m_disconnector = [oldDisconnector, anotherDisconnector]{
-            oldDisconnector();
-            anotherDisconnector();
-        };
-        return *this;
-    }
+    DispatcherConnection()
+        : m_disconnector([]{})
+        , m_registrator([](const DispatcherConnectionSafePtr&){})
+    {}
 
     void Disconnect() const
     {
@@ -80,6 +74,19 @@ inline DispatcherConnectionSafePtr::~DispatcherConnectionSafePtr()
     }
 }
 
+class DispatcherConnections : public QVector<DispatcherConnection>
+{
+    using Super = QVector<DispatcherConnection>;
+public:
+    using Super::Super;
+
+    void MakeSafe(DispatcherConnectionsSafe& safeConnections)
+    {
+        for(auto& connection : *this) {
+            connection.MakeSafe(safeConnections);
+        }
+    }
+};
 
 template<typename ... Args>
 class CommonDispatcher ATTACH_MEMORY_SPY(CommonDispatcher<Args...>)
@@ -279,51 +286,5 @@ private:
 
 class Dispatcher : public CommonDispatcher<>
 {};
-
-class DispatchersConnections : private Stack<Dispatcher*>
-{
-    using Super = Stack<Dispatcher*>;
-
-    Dispatcher::Observer* m_observer;
-
-    Q_DISABLE_COPY(DispatchersConnections);
-#ifndef QT_NO_DEBUG
-    QSet<Dispatcher*> m_dispatchersGuard;
-#endif
-
-public:
-    DispatchersConnections(void* observer)
-        : m_observer(reinterpret_cast<Dispatcher::Observer*>(observer))
-    {}
-
-    ~DispatchersConnections()
-    {
-        for(auto* dispatcher : *this) {
-            *dispatcher -= m_observer;
-        }
-    }
-
-    void Add(Dispatcher& dispatcher, const FAction& action)
-    {
-#ifndef QT_NO_DEBUG
-        Q_ASSERT(!m_dispatchersGuard.contains(&dispatcher));
-        m_dispatchersGuard.insert(&dispatcher);
-#endif
-
-        dispatcher += { m_observer, action };
-        this->Append(&dispatcher);
-    }
-
-    void Clear()
-    {
-        for(auto* dispatcher : *this) {
-            *dispatcher -= m_observer;
-        }
-        Super::Clear();
-#ifndef QT_NO_DEBUG
-        m_dispatchersGuard.clear();
-#endif
-    }
-};
 
 #endif // NOTIFICATION_H

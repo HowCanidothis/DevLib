@@ -59,7 +59,7 @@ protected:
     ByteArrayPropertyPtr m_savedGeometry;
     QMetaObject::Connection m_connection;
     QHash<Property*, QVariant> m_oldValues;
-    DispatchersConnections m_additonalPropertiesConnections;
+    DispatcherConnectionsSafe m_additonalPropertiesConnections;
 
     static QSet<PropertiesDialogBase*>& currentDialogs();
 };

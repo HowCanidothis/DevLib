@@ -15,7 +15,6 @@ PropertiesDialogBase::PropertiesDialogBase(const QString& name, const Name& scop
     , m_scope(scope)
     , m_view(view)
     , m_savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
-    , m_additonalPropertiesConnections(this)
 {
     if(!m_savedGeometry.IsValid()) {
         qCWarning(LC_SYSTEM) << name << "dialog doesn't have geometry property";
@@ -72,12 +71,12 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
         } else {
             PropertiesSystem::ForeachProperty([this](Property* property){
                 if(property->GetOptions().TestFlag(Property::Option_IsPresentable)) {
-                    m_additonalPropertiesConnections.Add(property->GetDispatcher(), [this, property]{
+                    property->GetDispatcher().Connect(this, [this, property]{
                         auto find = m_oldValues.find(property);
                         if(find == m_oldValues.end()) {
                             m_oldValues.insert(property, property->GetPreviousValue());
                         }
-                    });
+                    }).MakeSafe(m_additonalPropertiesConnections);
                 }
             });
         }
@@ -108,7 +107,7 @@ void PropertiesDialogBase::done(int result)
         }
     }
 
-    m_additonalPropertiesConnections.Clear();
+    m_additonalPropertiesConnections.clear();
 
     if(m_options.TestFlag(Option_ClearContextOnDone)) {
         PropertiesSystem::Clear(m_scope);

@@ -9,23 +9,27 @@
 template<class T, class StorageType = T>
 class LocalProperty
 {
-    typedef std::function<void ()> FSetter;
-    typedef std::function<void (const FSetter&)> FSetterHandler;
+    using FSetter = std::function<void ()>;
+    using FSetterHandler = std::function<void (const FSetter&)>;
+    using FValidator = std::function<T (const T&)>;
 protected:
     StorageType m_value;
     FSetterHandler m_setterHandler;
+    FValidator m_validator;
 
 public:
     LocalProperty()
         : m_setterHandler([](const FSetter& setter){
             setter();
         })
+        , m_validator([](const T& value){ return value; })
     {}
     LocalProperty(const T& value)
         : m_value(value)
         , m_setterHandler([](const FSetter& setter){
             setter();
         })
+        , m_validator([](const T& value){ return value; })
     {}
     ~LocalProperty()
     {
@@ -55,6 +59,11 @@ public:
         }
     }
 
+    void SetValidator(const FValidator& validator)
+    {
+        m_validator = validator;
+    }
+
     void SetAndSubscribe(const FAction& subscribe) const
     {
         Subscribe(subscribe);
@@ -67,9 +76,10 @@ public:
 
     void SetValue(const T& value)
     {
-        if(value != m_value) {
-            m_setterHandler([value, this]{
-                m_value = value;
+        auto validatedValue = m_validator(value);
+        if(validatedValue != m_value) {
+            m_setterHandler([validatedValue, this]{
+                m_value = validatedValue;
                 Invoke();
             });
         }
@@ -93,31 +103,31 @@ public:
     }
 
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnection ConnectBoth(LocalProperty<T2>& another, const Evaluator& anotherEvaluator, const ThisEvaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    DispatcherConnections ConnectBoth(LocalProperty<T2>& another, const Evaluator& anotherEvaluator, const ThisEvaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
     {
+        DispatcherConnections result;
         another = anotherEvaluator(Native());
         auto sync = ::make_shared<std::atomic_bool>(false);
-        auto connection1 = another.OnChange.Connect(this, [this, thisEvaluator, &another, sync]{
+        result += another.OnChange.Connect(this, [this, thisEvaluator, &another, sync]{
             if(!*sync) {
                 *sync = true;
                 *this = thisEvaluator(another);
                 *sync = false;
             }
         });
-        auto connection2 = OnChange.Connect(this, [this, anotherEvaluator, &another, sync]{
+        result += OnChange.Connect(this, [this, anotherEvaluator, &another, sync]{
             if(!*sync) {
                 *sync = true;
                 another = anotherEvaluator(*this);
                 *sync = false;
             }
         });
-        connection1.Add(connection2);
         for(auto* dispatcher : dispatchers) {
-            connection1.Add(dispatcher->Connect(this, [this, &anotherEvaluator, &another]{
+            result += dispatcher->Connect(this, [this, &anotherEvaluator, &another]{
                 another = anotherEvaluator(*this);
-            }));
+            });
         }
-        return connection1;
+        return result;
     }
 
     StorageType& EditSilent() { return m_value; }
@@ -155,14 +165,15 @@ public:
         if(!qFuzzyCompare((double)m_max,max) || !qFuzzyCompare((double)m_min, min)) {
             m_min = min;
             m_max = max;
-            SetValue(validateValue(Super::m_value));
+            SetValue(Super::m_value);
             OnMinMaxChanged();
         }
     }
 
     void SetValue(const T& value)
     {
-        auto validatedValue = validateValue(value);
+        auto validatedValue = Super::m_validator(value);
+        validatedValue = applyMinMax(validatedValue);
         if(!qFuzzyCompare(double(validatedValue), double(Super::m_value))) {
             Super::m_setterHandler([validatedValue, this]{
                 Super::m_value = validatedValue;
@@ -171,6 +182,7 @@ public:
         }
     }
 
+    LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
 
     const T& GetMin() const { return m_min; }
@@ -179,7 +191,7 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    T validateValue(const T& value)
+    T applyMinMax(const T& value)
     {
         return ::clamp(value, m_min, m_max);
     }

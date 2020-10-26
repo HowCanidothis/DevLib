@@ -18,16 +18,6 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     verticalHeader()->setVisible(false);
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    addActions({ createAction("Dich", [this]{
-                     auto selIndexes = selectedIndexes();
-                     QSet<qint32> selectedRows;
-                     for(const auto& selInd : selIndexes) {
-                         selectedRows.insert(selInd.row());
-                     }
-                     if(!selectedRows.isEmpty()) {
-                        model()->removeRow(*selectedRows.begin());
-                     }
-                 }) });
     setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
