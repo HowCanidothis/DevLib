@@ -87,7 +87,6 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
     case Qt::FontRole: {
         auto* item = AsItem(index);
         return item->GetFont();
-        break;
     }
     default:
         break;
