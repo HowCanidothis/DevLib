@@ -34,7 +34,8 @@ protected:
     Matrix4 m_world;
     Matrix4 m_worldInverted;
 
-    Point3F m_eye;
+    Vector3F m_axis;
+    Point3F m_eye;    
     Vector3F m_forward;
     Vector3F m_up;
     Point3F m_rotationPoint;
@@ -61,6 +62,7 @@ class GtCamera : public GtCameraState
     BoundingBox m_sceneBox;
     ScopedPointer<GtCameraFocus> m_focus;
     CameraObserverProperties* m_observer;
+    std::function<void (qint32&, qint32&)> m_invertRotation;
 
 public:
     GtCamera();
@@ -83,6 +85,8 @@ public:
     void RotateRPE(const Point2I& angles) { RotateRPE(angles.x() , angles.y()); }
     void RotateRPE(qint32 angleZ, qint32 angleX);
 
+    void InvertRotation(bool invert);
+    void SetAxisDirections(const Vector3F& axis) { m_axis = axis; }
     void SetIsometricScale(float scale);
     void SetIsometric(bool flag);
     void Resize(qint32 width, qint32 height);

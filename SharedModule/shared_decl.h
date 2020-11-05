@@ -118,7 +118,8 @@ enum Sides {
     Left,
     Right,
     Bottom,
-    Top
+    Top,
+    Sides_Count
 };
 
 namespace guards {

@@ -6,16 +6,17 @@
 
 QtObserver::QtObserver(qint32 msInterval, QObject* parent)
     : QObject(parent)
-    , _doObserve([](const Observable*){})
+    , m_doObserve([](const Observable*){})
 {
-    auto timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
-    timer->start(msInterval);
+    m_timer = ThreadTimer::CreateTimer(msInterval);
+    ThreadTimer::AddTimerConnection(m_timer, [this]{
+        onTimeout();
+    });
 }
 
 void QtObserver::Add(const FCondition& condition, const FHandle& handle)
 {
-    this->_observables.Append(new Observable{ condition, handle });
+    this->m_observables.Append(new Observable{ condition, handle });
 }
 
 void QtObserver::AddFilePtrObserver(const QString* fileName, const QtObserver::FHandle& handle)
@@ -86,17 +87,17 @@ void QtObserver::AddStringObserver(const QString* value, const FHandle& handle)
 
 void QtObserver::Clear()
 {
-    _doObserve = [](const Observable*){};
-    _counters.clear();
-    _observables.Clear();
+    m_doObserve = [](const Observable*){};
+    m_counters.clear();
+    m_observables.Clear();
 }
 
 void QtObserver::onTimeout()
 {
-    for(const Observable* observable : _observables) {
-        _doObserve(observable);
+    for(const Observable* observable : m_observables) {
+        m_doObserve(observable);
     }
-    _doObserve = [](const Observable* observable){
+    m_doObserve = [](const Observable* observable){
         if(observable->Condition()) {
             observable->Handle();
         }
@@ -105,9 +106,9 @@ void QtObserver::onTimeout()
 
 bool QtObserver::testValue(const void* value, qint64 asInt64)
 {
-    auto find = _counters.find(value);
-    if(find == _counters.end()) {
-        _counters.insert(value, asInt64);
+    auto find = m_counters.find(value);
+    if(find == m_counters.end()) {
+        m_counters.insert(value, asInt64);
     } else if(find.value() != asInt64){
         find.value() = asInt64;
         return true;

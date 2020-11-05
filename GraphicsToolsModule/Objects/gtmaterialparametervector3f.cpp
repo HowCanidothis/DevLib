@@ -5,7 +5,7 @@
 
 #include "../internal.hpp"
 
-GtMaterialParameterVector3F::GtMaterialParameterVector3F(const QString& name, const QString& resource)
+GtMaterialParameterVector3F::GtMaterialParameterVector3F(const QString& name, const Name& resource)
     : GtMaterialParameterBase(name, resource)
 {}
 

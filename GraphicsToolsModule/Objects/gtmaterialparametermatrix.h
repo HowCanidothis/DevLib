@@ -6,9 +6,9 @@
 class GtMaterialParameterMatrix : public GtMaterialParameterBase
 {
     typedef GtMaterialParameterBase Super;
-    ScopedPointer<Matrix4Resource> m_matrix;
+    SharedPointer<Matrix4Resource> m_matrix;
 public:
-    GtMaterialParameterMatrix(const QString& m_name, const QString& m_resource);
+    GtMaterialParameterMatrix(const QString& m_name, const Name& m_resource);
 
     // GtObjectBase interface
 private:

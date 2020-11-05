@@ -26,11 +26,12 @@ public:
     }
 };
 
-GtCameraState::GtCameraState() :
-    m_state(State_NeedUpdate),
-    m_eye(0.f,0.f,3.f),
-    m_forward(0.f,0.f,-1.f),
-    m_up(0.f,1.f,0.f)
+GtCameraState::GtCameraState()
+    : m_state(State_NeedUpdate)
+    , m_axis(1.f, 1.f, 1.f)
+    , m_eye(0.f,0.f,3.f)
+    , m_forward(0.f,0.f,-1.f)
+    , m_up(0.f,1.f,0.f)
 {
 
 }
@@ -65,6 +66,7 @@ GtCamera::GtCamera()
     , m_isometricCoef(0.f)
     , m_focus(nullptr)
     , m_observer(nullptr)
+    , m_invertRotation([](qint32&,qint32&){})
 {
 
 }
@@ -159,6 +161,8 @@ void GtCamera::Zoom(bool closer)
 
 void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
 {
+    m_invertRotation(angleX, angleZ);
+
     Vector3F norm = Vector3F::crossProduct(m_up, m_forward).normalized();
     Quaternion rotZ = Quaternion::fromAxisAndAngle(m_up.normalized(),angleZ);
     Quaternion rot = Quaternion::fromAxisAndAngle(norm, angleX);
@@ -200,6 +204,8 @@ void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
 
 void GtCamera::RotateRPE(qint32 angleZ, qint32 angleX)
 {
+    m_invertRotation(angleX, angleZ);
+
     Vector3F norm = Vector3F::crossProduct(m_up, m_forward).normalized();
     Quaternion rotZ = Quaternion::fromAxisAndAngle(m_up.normalized(),angleZ);
     Quaternion rot = Quaternion::fromAxisAndAngle(norm, -angleX);
@@ -219,6 +225,15 @@ void GtCamera::RotateRPE(qint32 angleZ, qint32 angleX)
     m_up = nup;
 
     m_state.AddFlag(State_NeedUpdateView);
+}
+
+void GtCamera::InvertRotation(bool invert)
+{
+    if(invert) {
+        m_invertRotation = [](qint32& x, qint32& z) { x = -x; z = -z; };
+    } else {
+        m_invertRotation = [](qint32&,qint32&){};
+    }
 }
 
 void GtCamera::SetIsometricScale(float scale) {
@@ -342,7 +357,7 @@ void GtCamera::updateProjection()
         else {
             m_projection.perspective(m_angle, float(m_viewport.width()) / m_viewport.height(), m_near, m_far);
         }
-        //m_projection.scale(1.f, -1.f, 1.f);
+        m_projection.scale(m_axis);
         m_state.RemoveFlag(State_ChangedProjection);
     }
 }

@@ -6,9 +6,9 @@
 class GtMaterialParameterTexture : public GtMaterialParameterTextureBase
 {
     typedef GtMaterialParameterTextureBase Super;
-    ScopedPointer<GtTextureResource> m_texture;
+    SharedPointer<GtTextureResource> m_texture;
 public:
-    GtMaterialParameterTexture(const QString& m_name, const QString& m_resource);
+    GtMaterialParameterTexture(const QString& m_name, const Name& m_resource);
 
     void MapProperties(QtObserver* observer) Q_DECL_OVERRIDE;
     // GtObjectBase interface

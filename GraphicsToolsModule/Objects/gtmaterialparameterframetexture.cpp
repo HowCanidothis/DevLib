@@ -6,7 +6,7 @@
 
 #include "../gtframetexture.h"
 
-GtMaterialParameterFrameTexture::GtMaterialParameterFrameTexture(const QString& name, const QString& resource)
+GtMaterialParameterFrameTexture::GtMaterialParameterFrameTexture(const QString& name, const Name& resource)
     : Super(name, resource)
 {
 

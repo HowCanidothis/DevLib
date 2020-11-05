@@ -5,7 +5,7 @@
 #include "../gtcamera.h"
 #include "../gttexture2D.h"
 
-GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const QString& resource)
+GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const Name& resource)
     : m_name(name)
     , m_resource(resource)
 {

@@ -20,9 +20,10 @@ class QtObserver : public QObject
 
     typedef std::function<void (const Observable*)> FObserve;
 
-    ArrayPointers<Observable> _observables;
-    QHash<const void*, qint64> _counters;
-    FObserve _doObserve;
+    ArrayPointers<Observable> m_observables;
+    QHash<const void*, qint64> m_counters;
+    FObserve m_doObserve;
+    ThreadTimerHandlePtr m_timer;
 
 public:
     QtObserver(qint32 msInterval, QObject* parent=0);
@@ -39,7 +40,7 @@ public:
     void Observe() { onTimeout(); }
 
     static QtObserver* Instance() { static QtObserver* res = new QtObserver(1000); return res; }
-private Q_SLOTS:
+private:
     void onTimeout();
 
 private:

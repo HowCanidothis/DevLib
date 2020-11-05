@@ -97,13 +97,10 @@ void GtTexture2D::LoadImg(const QString& img_file)
     SetSize(img.width(), img.height());
     SetInternalFormat(GL_RGBA);
     f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    GtTextureFormat format;
-    format.Pixels = gl_img.constBits();
-    format.PixelFormat = GL_RGBA;
-    format.PixelType = GL_UNSIGNED_BYTE;
-    format.WrapS = GL_REPEAT;
-    format.WrapT = GL_REPEAT;
-    Allocate(format);
+    m_format.Pixels = gl_img.constBits();
+    m_format.PixelFormat = GL_RGBA;
+    m_format.PixelType = GL_UNSIGNED_BYTE;
+    Allocate(m_format);
 }
 
 void GtTexture2D::Load(const QString& dds_file)
@@ -137,6 +134,9 @@ void GtTexture2D::Allocate(const GtTextureFormat& format)
             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, format.MagFilter);
             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format.WrapS);
             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format.WrapT);
+            if(format.MipMapLevels != 0) {
+                f->glGenerateMipmap(GL_TEXTURE_2D);
+            }
             m_allocated = true;
         }
         else {

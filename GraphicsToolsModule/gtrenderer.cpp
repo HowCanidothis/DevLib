@@ -13,6 +13,7 @@
 GtRenderer::GtRenderer(const PropertiesScopeName& scopeName)
     : m_camera(new GtCamera())
     , m_queueNumber(0)
+    , m_samplesCount(16)
 {
     PropertiesSystem::Begin(this, scopeName);
     m_camera->InstallObserver("Camera");
@@ -135,11 +136,19 @@ void GtRenderer::onInitialize()
         return new Matrix4();
     });
 
+    ResourcesSystem::RegisterResource("screenSize", []{
+        return new Vector2F();
+    });
+
     ResourcesSystem::RegisterResource("invertedMVP", []{
         return new Matrix4();
     });
 
     ResourcesSystem::RegisterResource("eye", []{
+        return new Vector3F();
+    });
+
+    ResourcesSystem::RegisterResource("up", []{
         return new Vector3F();
     });
 
@@ -154,6 +163,7 @@ void GtRenderer::onInitialize()
     m_scene = new GtScene();
 
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
+    m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
 
 
     if(m_controllersContext == nullptr) {
@@ -175,6 +185,8 @@ void GtRenderer::onInitialize()
     m_eye = ResourcesSystem::GetResource<Vector3F>("eye");
     m_invertedMv = ResourcesSystem::GetResource<Matrix4>("invertedMVP");
     m_forward = ResourcesSystem::GetResource<Vector3F>("forward");
+    m_up = ResourcesSystem::GetResource<Vector3F>("up");
+    m_screenSize = ResourcesSystem::GetResource<Vector2F>("screenSize");
 
     // TODO. Must have state machine feather
     glDisable(GL_CULL_FACE);
@@ -192,6 +204,20 @@ void GtRenderer::onInitialize()
     OnInitialized();
 }
 
+void GtRenderer::SetSamplesCount(qint32 samples)
+{
+    Asynch([this, samples]{
+        m_samplesCount = samples;
+    });
+}
+
+SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queueNumber)
+{
+    auto old = m_queueNumber;
+    m_queueNumber = queueNumber;
+    return ::make_shared<guards::LambdaGuard>([this, old]{ m_queueNumber = old; });
+}
+
 void GtRenderer::onResize(qint32 w, qint32 h)
 {
     glViewport(0,0, w, h);
@@ -205,7 +231,7 @@ void GtRenderer::onResize(qint32 w, qint32 h)
 
 
     QOpenGLFramebufferObjectFormat format;
-    format.setSamples(8);
+    format.setSamples(m_samplesCount);
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     m_fbo = new QOpenGLFramebufferObject(w, h, format);
 
@@ -222,8 +248,10 @@ void GtRenderer::onDraw()
 
     m_mvp->Data().Set(m_camera->GetWorld());
     m_eye->Data().Set(m_camera->GetEye());
+    m_up->Data().Set(m_camera->GetUp());
     m_forward->Data().Set(m_camera->GetForward());
     m_invertedMv->Data().Set(m_camera->GetView().inverted().transposed());
+    m_screenSize->Data().Set(Vector2F(m_fbo->size().width(), m_fbo->size().height()));
 
     m_fbo->bind();
 

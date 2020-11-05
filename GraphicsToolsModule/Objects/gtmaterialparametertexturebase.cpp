@@ -1,7 +1,7 @@
 #include "gtmaterialparametertexturebase.h"
 #include "gtmaterial.h"
 
-GtMaterialParameterTextureBase::GtMaterialParameterTextureBase(const QString& name, const QString& resource)
+GtMaterialParameterTextureBase::GtMaterialParameterTextureBase(const QString& name, const Name& resource)
     : GtMaterialParameterBase(name, resource)
 {
 

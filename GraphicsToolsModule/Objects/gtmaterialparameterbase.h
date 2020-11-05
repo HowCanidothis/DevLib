@@ -1,6 +1,8 @@
 #ifndef GTVIEWDELEGATEBASE_H
 #define GTVIEWDELEGATEBASE_H
 
+#include <QOpenGLShaderProgram>
+
 #include <SharedModule/internal.hpp>
 
 #include "gtobjectbase.h"
@@ -21,15 +23,27 @@ typedef Resource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
 #include <functional>
 #endif
 
-class QOpenGLShaderProgram;
 class GtMaterial;
 
 class GtMaterialParameterBase : public GtObjectBase
 {
 public:
     typedef std::function<void(QOpenGLShaderProgram* program, gLocID m_location, OpenGLFunctions* f)> FDelegate;
-    GtMaterialParameterBase(const QString& name, const QString& resource);
+    GtMaterialParameterBase(const QString& name, const Name& resource);
     GtMaterialParameterBase(const QString& name, const FDelegate& delegate);
+    template<class T>
+    GtMaterialParameterBase(const QString& name, const T* value)
+        : m_delegate([value](QOpenGLShaderProgram* p, gLocID location, OpenGLFunctions*){
+            p->setUniformValue(location, *value);
+        })
+        , m_name(name)
+    {}
+    GtMaterialParameterBase(const QString& name, const QColor* color)
+        : m_delegate([color](QOpenGLShaderProgram* p, gLocID location, OpenGLFunctions*){
+            p->setUniformValue(location, QVector4D(color->redF(), color->greenF(), color->blueF(), color->alphaF()));
+        })
+        , m_name(name)
+    {}
     virtual ~GtMaterialParameterBase();
 
 protected:

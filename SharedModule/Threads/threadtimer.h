@@ -7,22 +7,40 @@
 #include "SharedModule/array.h"
 #include "SharedModule/smartpointersadapters.h"
 
+class ThreadTimerHandle
+{
+    friend class ThreadTimer;
+    ThreadTimerHandle(QTimer* handle)
+        : m_handle(handle)
+    {}
+public:
+    ~ThreadTimerHandle();
+
+    QTimer* GetTimer() const { return m_handle; }
+
+private:
+    QTimer* m_handle;
+};
+using ThreadTimerHandlePtr = SharedPointer<ThreadTimerHandle>;
+
 class ThreadTimer
 {
     ThreadTimer();
     ~ThreadTimer();
 public:
-    using TimerHandle = void*;
-
-    static ThreadTimer& GetInstance();
+    static void Initialize() { getInstance(); }
 
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
     static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
-    static TimerHandle CreateTimer(qint32 msecs);
-    static void DeleteTimer(TimerHandle* timerHandle);
-    static QMetaObject::Connection AddTimerConnection(TimerHandle handle, const FAction& onTimeout);
+    static ThreadTimerHandlePtr CreateTimer(qint32 msecs);
+    static QMetaObject::Connection AddTimerConnection(const ThreadTimerHandlePtr& handle, const FAction& onTimeout);
     static void RemoveTimerConnection(const QMetaObject::Connection& connection);
+
+private:
+    friend class ThreadTimerHandle;
+    static ThreadTimer& getInstance();
+    static void deleteTimer(QTimer* timerHandle);
 
 private:
     ArrayPointers<class QTimer> m_timers;

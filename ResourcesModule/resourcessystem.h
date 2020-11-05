@@ -16,14 +16,13 @@ public:
     static void RegisterResource(const Name& name, const std::function<void*()>& fOnCreate, bool multiThread = false);
 
     template<class T>
-    static Resource<T>* GetResource(const Name& name) {
+    static SharedPointer<Resource<T>> GetResource(const Name& name) {
         ResourceDataBase* data = getResourceData(name);
         if(data == nullptr) {
             qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name.AsString();
             return nullptr;
         }
-        Resource<T>* result = new Resource<T>(data);
-        return result;
+        return ::make_shared<Resource<T>>(data);
     }
 };
 

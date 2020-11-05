@@ -9,6 +9,23 @@ class GtMesh;
 class GtCamera;
 class GtMaterialParameterBase;
 
+class GtSharedShaderManager
+{
+    GtSharedShaderManager()
+        : m_observer(1000)
+    {}
+
+public:
+    void Initialize(const QString& sharedShadersPath);
+    const QByteArray& Extract(const Name& fileName) const;
+    QByteArray Merge(const QByteArray& shader) const;
+    static GtSharedShaderManager& GetInstance();
+
+private:
+    QHash<Name, QByteArray> m_loadedShaders;
+    QtObserver m_observer;
+};
+
 class GtMaterial : public GtObjectBase
 {
 public:
@@ -39,12 +56,18 @@ public:
 
 private:
     void updateParameters(OpenGLFunctions* f);
+    QByteArray extractShader(const QString& fileName) const;
 
 protected:
     friend class GtMaterialParameterBase;
     struct Shader {
         QString File;
         qint32 Type;
+
+        Shader(const QString& file, qint32 type)
+            : File(file)
+            , Type(type)
+        {}
     };
 
     DispatcherConnectionsSafe m_connections;
@@ -54,7 +77,9 @@ protected:
     ArrayPointers<Shader> m_shaders;
     QString m_shadersPath;
     gRenderType m_renderType;
+    ScopedPointer<QtObserver> m_shadersWatcher;
     bool m_visible;
+    bool m_isValid;
 
     // GtObjectBase interface
 public:

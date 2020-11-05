@@ -16,6 +16,7 @@ GtView::GtView(QWidget* parent, Qt::WindowFlags flags)
 void GtView::paintEvent(QPaintEvent* )
 {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::HighQualityAntialiasing);
     painter.drawImage(rect(), m_renderer->CurrentImage());
 }
 

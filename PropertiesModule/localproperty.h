@@ -393,9 +393,31 @@ public:
 };
 
 template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<bool>& localProperty)
+{
+    return ::make_shared<ExternalBoolProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](double value, double) { localProperty = value; }
+    );
+}
+
+template<>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<double>& localProperty)
 {
     return ::make_shared<ExternalDoubleProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](double value, double) { localProperty = value; },
+                localProperty.GetMin(),
+                localProperty.GetMax()
+    );
+}
+
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<float>& localProperty)
+{
+    return ::make_shared<ExternalFloatProperty>(
                 name,
                 [&localProperty] { return localProperty.Native(); },
                 [&localProperty](double value, double) { localProperty = value; },

@@ -6,12 +6,13 @@
 struct GtTextureFormat
 {
     quint32 MinFilter = GL_NEAREST;
-    quint32 MagFilter = GL_NEAREST;
-    quint32 WrapS = GL_CLAMP_TO_EDGE;
-    quint32 WrapT = GL_CLAMP_TO_EDGE;
+    quint32 MagFilter = GL_LINEAR;
+    quint32 WrapS = GL_REPEAT;
+    quint32 WrapT = GL_REPEAT;
 
     gPixFormat PixelFormat = GL_RGBA;
     gPixType PixelType = GL_FLOAT;
+    qint32 MipMapLevels = 0;
     const void* Pixels = nullptr;
 };
 Q_DECLARE_TYPEINFO(GtTextureFormat, Q_PRIMITIVE_TYPE);
@@ -28,6 +29,7 @@ public:
     {}
     ~GtTexture();
 
+    void SetFormat(const GtTextureFormat& format) { m_format = format; }
     void SetSize(quint32 w, quint32 h);
     void SetInternalFormat(gTexInternalFormat m_internalFormat);
 
@@ -54,6 +56,7 @@ protected:
     gTexTarget m_target;
     bool m_allocated;
     QSize m_size;
+    GtTextureFormat m_format;
 };
 
 class GtTexture2D : public GtTexture

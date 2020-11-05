@@ -10,13 +10,14 @@
 class GtRenderer : public GtRendererBase, protected OpenGLFunctions
 {
     Q_OBJECT
-public:
+public:    
     GtRenderer(const PropertiesScopeName& scopeName);
     ~GtRenderer();
 
     void SetControllers(class ControllersContainer* controllers, struct GtControllersContext* context = nullptr);
 
-    void SetDefaultQueueNumber(qint32 queueNumber) { m_queueNumber = queueNumber; }
+    void SetSamplesCount(qint32 samples);
+    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);
     // TODO. Not renderer methods
     void MouseMoveEvent(QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
@@ -52,15 +53,18 @@ private:
     QMutex m_outputImageMutex;
 
     ScopedPointer<QImage> m_outputImage;
-    ScopedPointer<Matrix4Resource> m_mvp;
-    ScopedPointer<Matrix4Resource> m_invertedMv;
-    ScopedPointer<Resource<Vector3F>> m_eye;
-    ScopedPointer<Resource<Vector3F>> m_forward;
+    SharedPointer<Matrix4Resource> m_mvp;
+    SharedPointer<Matrix4Resource> m_invertedMv;
+    SharedPointer<Resource<Vector3F>> m_eye;
+    SharedPointer<Resource<Vector3F>> m_forward;
+    SharedPointer<Resource<Vector3F>> m_up;
+    SharedPointer<Resource<Vector2F>> m_screenSize;
     ScopedPointer<GtCamera> m_camera;
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
     ScopedPointer<struct GtControllersContext> m_controllersContext;
     qint32 m_queueNumber;
+    qint32 m_samplesCount;
 
     ScopedPointer<class GtScene> m_scene;
     ScopedPointer<class ControllersContainer> m_controllers;

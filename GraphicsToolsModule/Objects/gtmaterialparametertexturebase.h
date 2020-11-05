@@ -8,7 +8,7 @@ class GtMaterialParameterTextureBase : public GtMaterialParameterBase
 protected:
     gTexUnit m_unit;
 public:
-    GtMaterialParameterTextureBase(const QString& m_name, const QString& m_resource);
+    GtMaterialParameterTextureBase(const QString& m_name, const Name& m_resource);
 
     // GtMaterialBase interface
 protected:

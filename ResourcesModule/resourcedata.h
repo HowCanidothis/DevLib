@@ -15,7 +15,7 @@ class ResourceDataBase
 public:
     ResourceDataBase(const LoadFunction& loader);
 
-    bool IsNull() const { return  *_data == nullptr; } // TODO. it cans be unsafe
+    bool IsNull() const { return  *_data == nullptr; } // TODO. it can be unsafe
 
     void InitResourceIfNeeded()
     {

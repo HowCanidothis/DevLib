@@ -5,7 +5,7 @@
 #include "../internal.hpp"
 #include "ResourcesModule/resourcessystem.h"
 
-GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, const QString& resource)
+GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, const Name& resource)
     : Super(name, resource)
 {}
 

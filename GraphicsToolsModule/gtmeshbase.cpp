@@ -2,6 +2,20 @@
 
 #include <QOpenGLVertexArrayObject>
 
+void GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized)
+{
+    qint32 attributeIndex = m_currentIndex;
+    qint32 currentStride = m_currentStride;
+    m_result.append([this, attributeIndex, count, normalized, currentStride, glType](OpenGLFunctions* f){
+        f->glEnableVertexAttribArray(attributeIndex);
+        f->glVertexAttribPointer(attributeIndex, count, glType, normalized, m_currentStride, (void*)currentStride);
+    });
+    auto size = typeSize * count;
+    m_currentStride += size;
+    m_size += size;
+    m_currentIndex++;
+}
+
 GtMeshBuffer::GtMeshBuffer(GtMeshBuffer::VertexType vertexType, QOpenGLBuffer::UsagePattern pattern)
     : m_verticesCount(0)
     , m_vertexType(VertexType_Invalid)
@@ -49,6 +63,35 @@ void GtMeshBuffer::setVertexType(GtMeshBuffer::VertexType vertexType)
             f->glEnableVertexAttribArray(1);
             f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(TexturedVertex2F),(const void*)sizeof(Point2F));
         }; break;
+    case VertexType_Vertex3f3f:
+        m_vaoBinder = [this](OpenGLFunctions* f) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+            m_vbo->bind();
+            f->glEnableVertexAttribArray(0);
+            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(Vertex3f3f),nullptr);
+            f->glEnableVertexAttribArray(1);
+            f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(Vertex3f3f),(const void*)sizeof(Point3F));
+        }; break;
+    case VertexType_3f2f2f:
+        m_vaoBinder = [this](OpenGLFunctions* f) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+            m_vbo->bind();
+            f->glEnableVertexAttribArray(0);
+            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(Vertex3f2f2f),nullptr);
+            f->glEnableVertexAttribArray(1);
+            f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(Vertex3f2f2f),(const void*)sizeof(Point3F));
+            f->glEnableVertexAttribArray(2);
+            f->glVertexAttribPointer(2,2,GL_FLOAT,false,sizeof(Vertex3f2f2f),(const void*)(sizeof(Point3F) + sizeof(Point2F)));
+        }; break;
+    case VertexType_TexturedVertex3F:
+        m_vaoBinder = [this](OpenGLFunctions* f) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+            m_vbo->bind();
+            f->glEnableVertexAttribArray(0);
+            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(TexturedVertex3F),nullptr);
+            f->glEnableVertexAttribArray(1);
+            f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(TexturedVertex3F),(const void*)sizeof(Point3F));
+        }; break;
     case VertexType_StatedVertex3F:
         m_vaoBinder = [this](OpenGLFunctions* f) {
             QOpenGLVertexArrayObject::Binder binder(m_vao.data());
@@ -86,6 +129,14 @@ void GtMeshBuffer::setVertexType(GtMeshBuffer::VertexType vertexType)
     case VertexType_IntIndex:
         m_vaoBinder = [](OpenGLFunctions*){};
         break;
+    case VertexType_Custom:
+        m_vaoBinder = [this](OpenGLFunctions* f) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.data());
+            m_vbo->bind();
+            for(const auto& functor : m_builder.GetResult()) {
+                functor(f);
+            }
+        }; break;
     default: Q_ASSERT(false);
     }
 
@@ -130,6 +181,7 @@ bool GtMeshBuffer::createBuffers()
 
 GtMesh::GtMesh(const GtMeshBufferPtr& buffer)
     : m_buffer(buffer)
+    , m_visible(true)
 {
 
 }

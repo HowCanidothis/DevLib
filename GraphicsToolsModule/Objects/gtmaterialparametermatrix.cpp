@@ -5,7 +5,7 @@
 
 #include "../internal.hpp"
 
-GtMaterialParameterMatrix::GtMaterialParameterMatrix(const QString& name, const QString& resource)
+GtMaterialParameterMatrix::GtMaterialParameterMatrix(const QString& name, const Name& resource)
     : GtMaterialParameterBase(name, resource)
 {}
 
