@@ -20,6 +20,8 @@ void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
         m_data->DisconnectModel(this);
     }
     m_data = data;
-    m_data->ConnectModel(this);
+    if(m_data != nullptr) {
+        m_data->ConnectModel(this);
+    }
     endResetModel();
 }
