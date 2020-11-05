@@ -1681,24 +1681,19 @@ QTableCornerButton::section {
   border-radius: 0px;
 }
 
-QTreeView#DDTreeView:selected,
-QTreeView#DataBrowserTreeView:selected {
+QTreeView:selected {
   background-color: #666666;
   color: #3C3C3C;
 }
 
-QTreeView#DDTreeView::item:selected:hover,
-QTreeView#DataBrowserTreeView::item:selected:hover {
+QTreeView::item:selected:hover {
   background: #666666;
   color: #1E1E1E;
 }
 
-QTreeView#DDTreeView::item:pressed,
-QTreeView#DDTreeView::item:selected,
-QTreeView#DDTreeView::item:selected:active,
-QTreeView#DataBrowserTreeView::item:pressed,
-QTreeView#DataBrowserTreeView::item:selected,
-QTreeView#DataBrowserTreeView::item:selected:active {
+QTreeView::item:pressed,
+QTreeView::item:selected,
+QTreeView::item:selected:active {
   background-color: #666666;
 }
 
