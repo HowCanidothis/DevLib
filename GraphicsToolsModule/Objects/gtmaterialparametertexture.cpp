@@ -11,7 +11,7 @@ GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, cons
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 {
-    m_texture = ResourcesSystem::GetResource<GtTexture>(this->m_resource);
+    m_texture = currentRenderer()->GetResource<GtTexture>(this->m_resource);
     if(m_texture != nullptr) {
         gTexID texture = m_texture->Data().Get().GetId();
         gTexTarget target = m_texture->Data().Get().GetTarget();
@@ -22,14 +22,4 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
         };
     }
     return [](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){};
-}
-
-void GtMaterialParameterTexture::MapProperties(QtObserver* observer)
-{
-    QString path = "Materials/" + QString::number(m_unit);
-    new ExternalStringProperty(Name(path + "/Name"), m_name);
-    new ExternalNameProperty(Name(path + "/Resource"), m_resource);
-
-    observer->AddStringObserver(&m_name,[]{ GtMaterialParameterTexture::material()->Update(); });
-    observer->AddStringObserver(&m_resource.AsString(), []{ GtMaterialParameterTexture::material()->Update(); });
 }

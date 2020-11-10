@@ -3,64 +3,60 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-GtRendererBase::GtRendererBase()
+GtRendererBase::GtRendererBase(const QSurfaceFormat& format, GtRendererBase* sharedRenderer)
+    : m_surfaceFormat(format)
+    , m_context(new QOpenGLContext)
+    , m_surface(new QOffscreenSurface)
+    , m_isInitialized(false)
+    , m_shareRenderer(sharedRenderer)
 {
+    m_context->setFormat(m_surfaceFormat);
+    if(m_shareRenderer != nullptr) {
+        m_context->setShareContext(m_shareRenderer->m_context.get());
+    }
+    m_context->create();
 
+    m_context->moveToThread(this);
+
+    m_surface->setFormat(m_context->format());
+    m_surface->create();
 }
 
 GtRendererBase::~GtRendererBase()
 {
 }
 
-void GtRendererBase::SetFormat(const QSurfaceFormat& format)
-{
-    Q_ASSERT(m_context == nullptr);
-    m_surfaceFormat = format;
-}
-
-void GtRendererBase::Resize(qint32 w, qint32 h)
-{
-    Asynch([this, w, h]{
-        onResize(w, h);
-    });
-}
-
 void GtRendererBase::run()
 {
-    {
-        QMutexLocker locker(&initializationMutex());
-
-        m_context = new QOpenGLContext;
-        m_context->setFormat(m_surfaceFormat);
-        if(!m_context->create()) {
-            qCCritical(LC_UI) << "Unable to initialize opengl context";
-            return;
-        }
-
-        ThreadsBase::DoMainAwait([this]{
-            m_surface = new QOffscreenSurface;
-            m_surface->setFormat(m_context->format());
-            m_surface->create();
-        });
-
-        if(!m_surface->isValid()) {
-            qCCritical(LC_UI) << "Unable to create offscreen surface";
-            return;
-        }
-
-        qCInfo(LC_UI) << QString("OpenGL is initialized") << m_context->format();
+    if(m_shareRenderer != nullptr) {
+        while(!m_shareRenderer->m_isInitialized);
     }
+
+    if(!m_context->isValid()) {
+        qCCritical(LC_UI) << "Unable to initialize opengl context";
+        return;
+    }
+
+    if(!m_surface->isValid()) {
+        qCCritical(LC_UI) << "Unable to create offscreen surface";
+        return;
+    }
+
+    qCInfo(LC_UI) << QString("OpenGL is initialized") << m_context->format();
 
     m_context->makeCurrent(m_surface.get());
     onInitialize();
-    onResize(100,100);
+
+    m_isInitialized = true;
 
     while (!IsStoped()) {
         auto guard = guards::make(this, &GtRendererBase::fpsBind, &GtRendererBase::fpsRelease);
 
         callPauseableEvents();
 
+        fpsBind();
         compute();
+        fpsRelease();
     }
 
     onDestroy();

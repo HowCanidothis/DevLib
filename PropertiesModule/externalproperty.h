@@ -131,11 +131,24 @@ public:
         : Super(path, getter, setter)
     {}
     ExternalNameProperty(const Name& path, Name& ref)
-        : Super(path, defaultGetter(ref), defaultSetter(ref))
+        : Super(path, Super::defaultGetter(ref), Super::defaultSetter(ref))
     {}
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return m_getter().AsString(); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { m_setter(Name(value.toString()), m_getter()); }
+};
+
+class ExternalFileNameProperty : public TExternalProperty<QString>
+{
+    using Super = TExternalProperty<QString>;
+public:
+    ExternalFileNameProperty(const Name& name,const FGetter& getter, const FSetter& setter)
+        : Super(name, getter, setter)
+    {}
+    ExternalFileNameProperty(const Name& path, QString& ref)
+        : Super(path, Super::defaultGetter(ref), Super::defaultSetter(ref))
+    {}
+    DelegateValue GetDelegateValue() const Q_DECL_OVERRIDE { return DelegateFileName; }
 };
 
 class _Export ExternalNamedUIntProperty : public TExternalDecimalProperty<quint32>

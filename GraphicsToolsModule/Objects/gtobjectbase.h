@@ -6,6 +6,8 @@
 #include <SharedModule/External/external.hpp>
 #include <SharedModule/internal.hpp>
 
+#include "GraphicsToolsModule/decl.h"
+
 class GtObjectBase
 {
 public:

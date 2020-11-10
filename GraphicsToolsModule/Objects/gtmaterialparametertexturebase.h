@@ -3,8 +3,9 @@
 
 #include "gtmaterialparameterbase.h"
 
-class GtMaterialParameterTextureBase : public GtMaterialParameterBase
+class GtMaterialParameterTextureBase : public GtMaterialResourceParameterBase
 {
+    using Super = GtMaterialResourceParameterBase;
 protected:
     gTexUnit m_unit;
 public:

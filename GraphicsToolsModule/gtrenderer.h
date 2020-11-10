@@ -4,54 +4,83 @@
 #include <SharedGuiModule/internal.hpp>
 #include <ResourcesModule/internal.hpp>
 
-#include "gtrendererbase.h"
 #include <GraphicsToolsModule/Objects/gtmaterialparameterbase.h>
+
+#include "gtrendererbase.h"
+
+class GtRendererSharedData
+{
+public:
+    GtRendererSharedData(class GtRenderer* base);
+
+    QHash<Name, GtShaderProgramPtr> ShaderPrograms;
+    GtRenderer* BaseRenderer;
+    ResourcesSystem SharedResourcesSystem;
+    QHash<Name, GtFontPtr> Fonts;
+    QMutex Mutex;
+};
 
 class GtRenderer : public GtRendererBase, protected OpenGLFunctions
 {
     Q_OBJECT
+    using Super = GtRendererBase;
+    GtRenderer(GtRenderer* baseRenderer);
 public:    
-    GtRenderer(const PropertiesScopeName& scopeName);
+    GtRenderer(const QSurfaceFormat& format);
     ~GtRenderer();
 
-    void SetControllers(class ControllersContainer* controllers, struct GtControllersContext* context = nullptr);
+    GtRendererControllerPtr CreateDefaultController();
 
-    void SetSamplesCount(qint32 samples);
-    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);
-    // TODO. Not renderer methods
-    void MouseMoveEvent(QMouseEvent* event);
-    void MousePressEvent(QMouseEvent* event);
-    void MouseReleaseEvent(QMouseEvent* event);
-    void WheelEvent(QWheelEvent* event);
-    void KeyPressEvent(QKeyEvent* event);
-    void KeyReleaseEvent(QKeyEvent* event);
+    void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
+    const GtFontPtr& GetFont(const Name& fontName) const;
+    void AddController(const GtRendererControllerPtr& controller);
+
+    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
+
+    GtShaderProgramPtr CreateShaderProgram(const Name& name);
+    GtShaderProgramPtr GetShaderProgram(const Name& name) const;
+    template<class T>
+    SharedPointer<Resource<T>> GetResource(const Name& name)
+    {
+        auto resource = m_resourceSystem.GetResource<T>(name, true);
+        if(resource != nullptr) {
+            return resource;
+        }
+        return m_sharedData->SharedResourcesSystem.GetResource<T>(name);
+    }
+
+    GtRendererPtr CreateSharedRenderer();
 
     void AddDrawable(GtDrawableBase* drawable);
     void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
 
-    Point3F Project(const Point3F& position) const;
+    //Point3F Project(const Point3F& position) const;
 
-    class GtCamera* GetCamera() { return m_camera.get(); }
+    bool IsBaseRenderer() const { return m_sharedData->BaseRenderer == this; }
 
-    QImage CurrentImage();
+    LocalPropertyColor SpaceColor;
 
     Dispatcher OnInitialized;
 
-signals:
-    void imageUpdated();
+private:
+    void construct();
+    static GtRenderer*& currentRenderer();
+    QOpenGLContext* getContext() { return m_context.get(); }
 
     // GtRenderThread interface
 protected:
     void onInitialize() override;
-    void onResize(qint32 w, qint32 h) override;
     void onDraw() override;
     void onDestroy() override;
 
 private:
+    friend class GtMaterialParameterBase;
+    friend class GtFont;
+    friend class GtRendererController;
     friend class GtDrawableBase;
-    QMutex m_outputImageMutex;
 
+    QVector<GtRendererControllerPtr> m_controllers;
     ScopedPointer<QImage> m_outputImage;
     SharedPointer<Matrix4Resource> m_mvp;
     SharedPointer<Matrix4Resource> m_invertedMv;
@@ -59,15 +88,14 @@ private:
     SharedPointer<Resource<Vector3F>> m_forward;
     SharedPointer<Resource<Vector3F>> m_up;
     SharedPointer<Resource<Vector2F>> m_screenSize;
-    ScopedPointer<GtCamera> m_camera;
-    ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
-    ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
-    ScopedPointer<struct GtControllersContext> m_controllersContext;
+
     qint32 m_queueNumber;
-    qint32 m_samplesCount;
 
     ScopedPointer<class GtScene> m_scene;
-    ScopedPointer<class ControllersContainer> m_controllers;
+
+    SharedPointer<GtRendererSharedData> m_sharedData;
+    ResourcesSystem m_resourceSystem;
+    QVector<GtRendererPtr> m_childRenderers;
 };
 
 #endif // GTRENDERER_H

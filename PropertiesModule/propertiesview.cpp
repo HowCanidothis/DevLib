@@ -55,7 +55,7 @@ PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent
         process->start(m_defaultTextEditor, arguments);
 
         qCWarning(LC_SYSTEM) << "Opening" << m_defaultTextEditor << arguments;
-    });
+    }, this);
     addAction(m_actionOpenWithTextEditor);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);

@@ -3,13 +3,12 @@
 #include <QKeyEvent>
 
 #include "controllerbase.h"
-#include "controllerssystem.h"
 
 ControllersContainer::ControllersContainer(QObject* parent)
     : QObject(parent)
-    , _currentController(nullptr)
-    , _context(nullptr)
-    , _inputKeysModifiers(0)
+    , m_currentController(nullptr)
+    , m_context(nullptr)
+    , m_inputKeysModifiers(0)
 {
 
 }
@@ -20,10 +19,10 @@ ControllersContainer::~ControllersContainer()
 }
 
 void ControllersContainer::SetCurrent(ControllerBase* controller) {
-    Q_ASSERT(_currentController != nullptr);
-    if(_currentController != controller) {
-        ControllerBase* cp = findCommonParent(controller, _currentController);
-        ControllerBase* c = _currentController;
+    Q_ASSERT(m_currentController != nullptr);
+    if(m_currentController != controller) {
+        ControllerBase* cp = findCommonParent(controller, m_currentController);
+        ControllerBase* c = m_currentController;
         while(c != cp) {
             c->ResetCommandsChain();
             c->Cancel();
@@ -41,33 +40,35 @@ void ControllersContainer::SetCurrent(ControllerBase* controller) {
             controller->enterEvent();
         }
 
-        _currentController = controller;
+        m_currentController = controller;
     }
 }
 
 void ControllersContainer::SetCurrent(const Name& name)
 {
-    SetCurrent(ControllersSystem::GetController(name));
+    auto foundIt = m_controllersMap.find(name);
+    Q_ASSERT(foundIt != m_controllersMap.end());
+    SetCurrent(foundIt.value());
 }
 
 void ControllersContainer::Accept()
 {
-    _currentController->Accept();
+    m_currentController->Accept();
 }
 
 void ControllersContainer::Cancel()
 {
-    _currentController->Cancel();
+    m_currentController->Cancel();
 }
 
 void ControllersContainer::Undo()
 {
-    _currentController->Undo();
+    m_currentController->Undo();
 }
 
 void ControllersContainer::Redo()
 {
-    _currentController->Redo();
+    m_currentController->Redo();
 }
 
 void ControllersContainer::Input()
@@ -152,6 +153,12 @@ ControllerBase* ControllersContainer::findCommonParent(ControllerBase* c1, Contr
     return res;
 }
 
+void ControllersContainer::registerController(const Name& name, ControllerBase* controller)
+{
+    Q_ASSERT(!m_controllersMap.contains(name));
+    m_controllersMap.insert(name, controller);
+}
+
 ControllersContainer::Controllers ControllersContainer::findAllParents(ControllerBase* c) const
 {
     Controllers res;
@@ -167,6 +174,6 @@ ControllersContainer::Controllers ControllersContainer::findAllParents(Controlle
 void ControllersContainer::addMainController(ControllerBase* controller)
 {
     Q_ASSERT(controller->GetParentController() == nullptr);
-    _controllers.Append(controller);
-    _currentController = (_currentController == nullptr) ? controller : _currentController;
+    m_controllers.Append(controller);
+    m_currentController = (m_currentController == nullptr) ? controller : m_currentController;
 }

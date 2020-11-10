@@ -177,7 +177,7 @@ public:
         Invoke(args...);
     }
 
-    DispatcherConnection Connect(CommonDispatcher& another)
+    DispatcherConnection ConnectFrom(CommonDispatcher& another)
     {
         return another.Connect(this, [this](Args... args){
             Invoke(args...);

@@ -9,6 +9,36 @@
 #include "Objects/gtmaterial.h"
 #include "gtmeshbase.h"
 
+struct GtTextDrawableSettings
+{
+    LocalPropertyFloat Scale;
+    LocalPropertyColor Color;
+    LocalPropertyColor BorderColor;
+    LocalPropertyFloat BorderWidth;
+    LocalPropertyFloat Contrast;
+    LocalPropertyBool UseDirectionCorrection;
+    LocalPropertyBool Visible;
+
+    GtTextDrawableSettings()
+        : Scale(0.13)
+        , Color(QColor(Qt::white))
+        , BorderWidth(0.2)
+        , Contrast(3.0)
+        , UseDirectionCorrection(true)
+        , Visible(true)
+    {}
+
+    void ConnectFrom(const GtTextDrawableSettings& another)
+    {
+        Scale.ConnectFrom(another.Scale);
+        Color.ConnectFrom(another.Color);
+        BorderColor.ConnectFrom(another.BorderColor);
+        BorderWidth.ConnectFrom(another.BorderWidth);
+        Contrast.ConnectFrom(another.Contrast);
+        UseDirectionCorrection.ConnectFrom(another.UseDirectionCorrection);
+    }
+};
+
 #pragma pack(1)
 struct GtTextGlyphBase
 {
@@ -46,6 +76,20 @@ private:
     QString m_fontFamily;
     qint32 m_fontSize;
     QHash<qint32, GtTextGlyphBase> m_glyphs;
+};
+
+class GtFont
+{
+    friend class GtRenderer;
+    GtFont(const Name& fontName, const QString& fntPath);
+public:
+
+    const Name& GetName() const { return m_name; }
+    const GtTextMap& GetMap() const { return m_map; }
+
+private:
+    Name m_name;
+    GtTextMap m_map;
 };
 
 class GtTextDrawable : public GtDrawableBase
@@ -89,26 +133,17 @@ public:
         TextInfo& SetOffsetDirection(const Vector4F& offsetDirection) { OffsetDirection = offsetDirection; return *this; }
     };
 
-    GtTextDrawable(GtRenderer* renderer, const GtTextMap& map);
+    GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font);
 
     void DisplayText(const QVector<TextInfo>& texts);
 
-    LocalPropertyFloat Scale;
-    LocalProperty<QColor> Color;
-    LocalProperty<QColor> BorderColor;
-    LocalPropertyFloat BorderWidth;
-    LocalPropertyFloat Contrast;
-    LocalProperty<bool> UseDirectionCorrection;
-    LocalProperty<bool> Visible;
-
-    void GenerateProperties(const QString& prefix);
-    void ConnectFrom(GtTextDrawable* another);
+    GtTextDrawableSettings Settings;
 
 private:
     GtMaterial m_material;
     GtMeshBufferPtr m_buffer;
     GtMeshBufferBuilder m_builder;
-    GtTextMap m_textMap;
+    GtFontPtr m_font;
     QVector<SharedPointer<Property>> m_properties;
 
     // GtDrawableBase interface

@@ -20,18 +20,18 @@ public:
     template<class T>
     void SetContext(T* context)
     {
-        _context = context;
-        for(ControllerBase* controller : _controllers) {
+        m_context = context;
+        for(ControllerBase* controller : m_controllers) {
             controller->contextChanged();
         }
     }
 
     void SetCurrent(ControllerBase* controller);
     void SetCurrent(const Name& name);
-    ControllerBase* GetCurrent() const { return _currentController; }
-    bool HasContext() const { return _context != nullptr; }
-    template<class T> T& GetContext() { Q_ASSERT(_context != nullptr); return *static_cast<T*>(_context); }
-    template<class T> const T& GetContext() const { Q_ASSERT(_context != nullptr); return *static_cast<T*>(_context); }
+    ControllerBase* GetCurrent() const { return m_currentController; }
+    bool HasContext() const { return m_context != nullptr; }
+    template<class T> T& GetContext() { Q_ASSERT(m_context != nullptr); return *static_cast<T*>(m_context); }
+    template<class T> const T& GetContext() const { Q_ASSERT(m_context != nullptr); return *static_cast<T*>(m_context); }
 
     void Accept();
     void Cancel();
@@ -51,22 +51,23 @@ public:
 
 private:
     friend class ControllerBase;
-    qint32& getInputKeysModifiers() { return _inputKeysModifiers; }
-    QSet<qint32>& getInputKeys() { return _inputKeys; }
+    qint32& getInputKeysModifiers() { return m_inputKeysModifiers; }
+    QSet<qint32>& getInputKeys() { return m_inputKeys; }
 
     ControllerBase* findCommonParent(ControllerBase* c1, ControllerBase* c2) const;
     Controllers findAllParents(ControllerBase* c) const;
 
     void addMainController(ControllerBase* controller);
+    void registerController(const Name& name, ControllerBase* controller);
 
     // Calls currentController's function, if the function has returned false then calls parentController's(if has) function and so on
     template<typename ... Args>
     void callFunctionRecursively(bool (ControllerBase::*function)(Args...), Args ... args)
     {
-        Q_ASSERT(_currentController);
-        if(!(_currentController->*function)(args...)) {
+        Q_ASSERT(m_currentController);
+        if(!(m_currentController->*function)(args...)) {
             ControllerBase* parent;
-            ControllerBase* current = _currentController;
+            ControllerBase* current = m_currentController;
             while((parent = current->GetParentController()) &&
                   (parent->*function)(args...) == false) {
                 current = parent;
@@ -75,11 +76,12 @@ private:
     }
 
 private:
-    StackPointers<ControllerBase> _controllers;
-    ControllerBase* _currentController;
-    void* _context;
-    qint32 _inputKeysModifiers;
-    QSet<qint32> _inputKeys;
+    QHash<Name, ControllerBase*> m_controllersMap;
+    StackPointers<ControllerBase> m_controllers;
+    ControllerBase* m_currentController;
+    void* m_context;
+    qint32 m_inputKeysModifiers;
+    QSet<qint32> m_inputKeys;
 };
 
 #endif // CONTROLLERSCONTAINER_H

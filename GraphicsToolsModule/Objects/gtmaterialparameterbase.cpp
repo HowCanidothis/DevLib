@@ -4,13 +4,7 @@
 #include "gtmaterial.h"
 #include "../gtcamera.h"
 #include "../gttexture2D.h"
-
-GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const Name& resource)
-    : m_name(name)
-    , m_resource(resource)
-{
-
-}
+#include "../gtrenderer.h"
 
 GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const GtMaterialParameterBase::FDelegate& delegate)
     : m_delegate(delegate)
@@ -29,7 +23,7 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
     return m_delegate;
 }
 
-void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
+void GtMaterialParameterBase::updateLocation(const QOpenGLShaderProgram* program)
 {
     auto it = m_locations.insert(program, program->uniformLocation(m_name));
     if(*it == -1) {
@@ -40,6 +34,11 @@ void GtMaterialParameterBase::updateLocation(QOpenGLShaderProgram* program)
     }
 }
 
+class GtRenderer* GtMaterialParameterBase::currentRenderer()
+{
+    return GtRenderer::currentRenderer();
+}
+
 void GtMaterialParameterBase::bind(QOpenGLShaderProgram* program, OpenGLFunctions* f)
 {
     m_delegate(program, m_locations.value(program, 0), f);
@@ -48,4 +47,10 @@ void GtMaterialParameterBase::bind(QOpenGLShaderProgram* program, OpenGLFunction
 void GtMaterialParameterBase::installDelegate()
 {
     this->m_delegate = apply();
+}
+
+GtMaterialResourceParameterBase::GtMaterialResourceParameterBase(const QString& name, const Name& resource)
+    : Super(name)
+    , m_resource(resource)
+{
 }

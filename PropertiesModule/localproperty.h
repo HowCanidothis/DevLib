@@ -18,6 +18,8 @@ protected:
     FValidator m_validator;
 
 public:
+    using value_type = T;
+
     LocalProperty()
         : m_setterHandler([](const FSetter& setter){
             setter();
@@ -377,6 +379,22 @@ public:
     typename ContainerType::const_iterator end() const { return this->m_value.end(); }
 };
 
+#define DECLARE_LOCAL_PROPERTY_TYPE(propertyName, baseType) \
+class propertyName : public baseType \
+{ \
+    using Super = baseType; \
+public: \
+    using Super::Super; \
+    propertyName& operator=(const Super::value_type& value) { Super::SetValue(value); return *this; } \
+};
+
+DECLARE_LOCAL_PROPERTY_TYPE(LocalPropertyFilePath, LocalProperty<QString>)
+using LocalPropertyBool = LocalProperty<bool>;
+using LocalPropertyColor = LocalProperty<QColor>;
+using LocalPropertyString = LocalProperty<QString>;
+
+using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
+
 struct PropertyFromLocalProperty
 {
     template<class T>
@@ -385,12 +403,15 @@ struct PropertyFromLocalProperty
     inline static SharedPointer<Property> Create(const QString& name, T& localProperty) { return Create(Name(name), localProperty); }
 };
 
-class PropertyFromLocalPropertyContainer : public QVector<SharedPointer<Property>>
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyFilePath& localProperty)
 {
-    using Super = QVector<SharedPointer<Property>>;
-public:
-    using Super::Super;
-};
+    return ::make_shared<ExternalFileNameProperty>(
+                name,
+                [&localProperty] { return localProperty.Native(); },
+                [&localProperty](const QString& value, const QString&) { localProperty = value; }
+    );
+}
 
 template<>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<bool>& localProperty)

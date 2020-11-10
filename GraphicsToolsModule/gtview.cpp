@@ -3,11 +3,11 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-#include "gtrenderer.h"
+#include "gtrenderercontroller.h"
 
 GtView::GtView(QWidget* parent, Qt::WindowFlags flags)
     : Super(parent, flags)
-    , m_renderer(nullptr)
+    , m_controller(nullptr)
 {
     setMouseTracking(true);
 }
@@ -17,7 +17,8 @@ void GtView::paintEvent(QPaintEvent* )
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::HighQualityAntialiasing);
-    painter.drawImage(rect(), m_renderer->CurrentImage());
+    painter.drawImage(rect(), m_controller->GetCurrentImage());
+    painter.drawText(QRect(0,0,100,200), QString::number(1000000000.0 / m_controller->GetRenderTime()));
 }
 
 GtView::~GtView()
@@ -25,45 +26,45 @@ GtView::~GtView()
 
 }
 
-void GtView::SetRenderer(GtRenderer* renderer)
+void GtView::SetController(const GtRendererControllerPtr& controller)
 {
-    Q_ASSERT(m_renderer == nullptr);
-    m_renderer = renderer;
-    connect(m_renderer, SIGNAL(imageUpdated()), this, SLOT(update()));
+    Q_ASSERT(m_controller == nullptr);
+    m_controller = controller;
+    connect(m_controller.get(), SIGNAL(imageUpdated()), this, SLOT(update()));
 }
 
 void GtView::mouseMoveEvent(QMouseEvent* event)
 {
-    m_renderer->MouseMoveEvent(event);
+    m_controller->MouseMoveEvent(event);
 }
 
 void GtView::mousePressEvent(QMouseEvent* event)
 {
-    m_renderer->MousePressEvent(event);
+    m_controller->MousePressEvent(event);
 }
 
 void GtView::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_renderer->MouseReleaseEvent(event);
+    m_controller->MouseReleaseEvent(event);
 }
 
 void GtView::wheelEvent(QWheelEvent* event)
 {
-    m_renderer->WheelEvent(event);
+    m_controller->WheelEvent(event);
 }
 
 void GtView::keyPressEvent(QKeyEvent *event)
 {
-    m_renderer->KeyPressEvent(event);
+    m_controller->KeyPressEvent(event);
 }
 
 void GtView::resizeEvent(QResizeEvent* event)
 {
-    m_renderer->Resize(event->size().width(), event->size().height());
+    m_controller->Resize(event->size().width(), event->size().height());
 }
 
 void GtView::keyReleaseEvent(QKeyEvent *event)
 {
-    m_renderer->KeyReleaseEvent(event);
+    m_controller->KeyReleaseEvent(event);
 }
 

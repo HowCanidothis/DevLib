@@ -3,9 +3,9 @@
 
 #include "gtmaterialparameterbase.h"
 
-class GtMaterialParameterMatrix : public GtMaterialParameterBase
+class GtMaterialParameterMatrix : public GtMaterialResourceParameterBase
 {
-    typedef GtMaterialParameterBase Super;
+    using Super = GtMaterialResourceParameterBase;
     SharedPointer<Matrix4Resource> m_matrix;
 public:
     GtMaterialParameterMatrix(const QString& m_name, const Name& m_resource);

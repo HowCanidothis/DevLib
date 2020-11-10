@@ -18,7 +18,7 @@ public:
     GtView(QWidget* parent = nullptr, Qt::WindowFlags flags=0);
     ~GtView();
 
-    void SetRenderer(class GtRenderer* renderer);
+    void SetController(const GtRendererControllerPtr& controller);
 
     // QOpenGLWidget interface
 protected:
@@ -32,7 +32,8 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    class GtRenderer* m_renderer;
+    GtRendererControllerPtr m_controller;
+    QImage m_image;
 };
 
 #endif // GTVIEW_H

@@ -16,8 +16,10 @@
 #include "Objects/gtmaterialparametermatrix.h"
 #include "Objects/gtmaterialparameterbase.h"
 #include "Objects/gtmaterialparametervector3f.h"
+#include "Objects/gtshaderprogram.h"
 #include "gttextdrawable.h"
 #include "gtmeshloader.h"
+#include "gtrenderercontroller.h"
 #endif
 
 #endif // INTERNAL_HPP

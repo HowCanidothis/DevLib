@@ -13,6 +13,7 @@ class GtTexture;
 class GtShadowMapTechnique;
 class GtFrameTexture;
 
+typedef Resource<Vector2F> Vector2FResource;
 typedef Resource<Vector3F> Vector3FResource;
 typedef Resource<Matrix4> Matrix4Resource;
 typedef Resource<GtTexture> GtTextureResource;
@@ -27,9 +28,13 @@ class GtMaterial;
 
 class GtMaterialParameterBase : public GtObjectBase
 {
+protected:
+    GtMaterialParameterBase(const QString& name)
+        : m_name(name)
+    {}
 public:
     typedef std::function<void(QOpenGLShaderProgram* program, gLocID m_location, OpenGLFunctions* f)> FDelegate;
-    GtMaterialParameterBase(const QString& name, const Name& resource);
+
     GtMaterialParameterBase(const QString& name, const FDelegate& delegate);
     template<class T>
     GtMaterialParameterBase(const QString& name, const T* value)
@@ -50,17 +55,40 @@ protected:
     friend class GtMaterial;
     void bind(QOpenGLShaderProgram* program, OpenGLFunctions* f);
 
+    class GtRenderer* currentRenderer();
     void installDelegate();
     virtual FDelegate apply();
     virtual void updateTextureUnit(gTexUnit&) {}
-    void updateLocation(QOpenGLShaderProgram* program);
+    void updateLocation(const QOpenGLShaderProgram* program);
 
 protected:
     FDelegate m_delegate;
     QString m_name;
-    Name m_resource;
-    QHash<QOpenGLShaderProgram*, gLocID> m_locations;
+
+    QHash<const QOpenGLShaderProgram*, gLocID> m_locations;
     static GtMaterial*& material() { static GtMaterial* res; return res; }
+};
+
+class GtMaterialResourceParameterBase : public GtMaterialParameterBase
+{
+    using Super = GtMaterialParameterBase;
+public:
+    GtMaterialResourceParameterBase(const QString& name, const Name& resource);
+
+protected:
+    Name m_resource;
+};
+
+class GtMaterialParameterConst : public GtMaterialParameterBase
+{
+    using Super = GtMaterialParameterBase;
+public:
+    template<class T>
+    GtMaterialParameterConst(const QString& name, const T& value)
+        : Super(name, [value](QOpenGLShaderProgram* p, gLocID location, OpenGLFunctions*){
+            p->setUniformValue(location, value);
+        })
+    {}
 };
 
 using GtMaterialParameterBasePtr = SharedPointer<GtMaterialParameterBase>;

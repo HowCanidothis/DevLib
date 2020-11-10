@@ -9,21 +9,40 @@
 
 class ResourcesSystem
 {
-    ResourcesSystem() {}
-    static ResourceDataBase* getResourceData(const Name& name);
+    typedef QHash<Name, ResourceDataBase*> ResourceCache;
+    ResourceDataBase* getResourceData(const Name& name);
 
 public:
-    static void RegisterResource(const Name& name, const std::function<void*()>& fOnCreate, bool multiThread = false);
+    ResourcesSystem() {}
+    void RegisterResource(const Name& name, const std::function<void*()>& fOnCreate, bool multiThread = false);
 
     template<class T>
-    static SharedPointer<Resource<T>> GetResource(const Name& name) {
+    SharedPointer<Resource<T>> GetResource(const Name& name, bool silent = false) {
         ResourceDataBase* data = getResourceData(name);
         if(data == nullptr) {
-            qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name.AsString();
+            if(!silent) {
+                qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name;
+            }
             return nullptr;
         }
         return ::make_shared<Resource<T>>(data);
     }
+
+private:
+    ResourceCache m_resources;
+};
+
+class ResourcesSystemCurrentGuard
+{
+public:
+    ResourcesSystemCurrentGuard(ResourcesSystem* storage);
+    ~ResourcesSystemCurrentGuard();
+
+    static ResourcesSystem* GetCurrent() { return current(); }
+
+private:
+    static ResourcesSystem*& current();
+    ResourcesSystem* m_previous;
 };
 
 #endif // RESOURCESSYSTEM_H

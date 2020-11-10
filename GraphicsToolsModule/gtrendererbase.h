@@ -9,11 +9,8 @@ class GtRendererBase : public ThreadComputingBase
 {
     using Super = ThreadComputingBase;
 public:
-    GtRendererBase();
+    GtRendererBase(const QSurfaceFormat& format, GtRendererBase* sharedRenderer);
     ~GtRendererBase();
-
-    void SetFormat(const QSurfaceFormat& format);
-    void Resize(qint32 w, qint32 h);
 
 private:
     void run() override;
@@ -21,7 +18,6 @@ private:
 
 protected:
     virtual void onInitialize() = 0;
-    virtual void onResize(qint32 w, qint32 h) = 0;
     virtual void onDraw() = 0;
     virtual void onDestroy() = 0;
 
@@ -30,7 +26,8 @@ protected:
     QSurfaceFormat m_surfaceFormat;
     ScopedPointer<QOpenGLContext> m_context;
     ScopedPointer<class QOffscreenSurface> m_surface;
-    bool m_isInitialized;
+    std::atomic_bool m_isInitialized;
+    GtRendererBase* m_shareRenderer;
 };
 
 #endif // GTRENDERERBASE_H

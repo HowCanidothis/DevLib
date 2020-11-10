@@ -22,13 +22,13 @@ class _Export ControllerBase : public QObject
 {
     Q_OBJECT
 protected:
-    ControllersContainer* _container;
-    ControllerBase* _parentController;
+    ControllersContainer* m_container;
+    ControllerBase* m_parentController;
     Commands _commands;
-    Name _name;
-    QString _currentOperationName;
+    Name m_name;
+    QString m_currentOperationName;
 
-    StackPointers<ControllerBase> _childControllers;
+    StackPointers<ControllerBase> m_childControllers;
 public:
     ControllerBase(const Name& name, ControllersContainer* container, ControllerBase* parent=nullptr);
     virtual ~ControllerBase()
@@ -56,8 +56,8 @@ protected:
     bool isCurrent() const;
     void setCurrent(const Name& controller);
     void setControllersContainer(ControllersContainer* container);
-    template<class T> const T& context() const { return _container->GetContext<T>(); }
-    template<class T> T& context() { return _container->GetContext<T>(); }
+    template<class T> const T& context() const { return m_container->GetContext<T>(); }
+    template<class T> T& context() { return m_container->GetContext<T>(); }
 
     virtual bool draw(DrawEngineBase*){ return false; }
     virtual bool mouseDoubleClickEvent(QMouseEvent* ){ return false; }

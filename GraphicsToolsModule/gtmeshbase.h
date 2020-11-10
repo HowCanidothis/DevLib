@@ -4,6 +4,7 @@
 #include <QOpenGLBuffer>
 
 #include "SharedGuiModule/decl.h"
+#include "GraphicsToolsModule/decl.h"
 
 class QOpenGLVertexArrayObject;
 
@@ -115,8 +116,6 @@ protected:
     GtMeshBufferBuilder m_builder;
 };
 
-using GtMeshBufferPtr = SharedPointer<GtMeshBuffer>;
-
 class GtMesh
 {
 public:
@@ -133,7 +132,6 @@ protected:
     GtMeshBufferPtr m_buffer;
     bool m_visible;
 };
-using GtMeshPtr = SharedPointer<GtMesh>;
 
 class GtMeshIndices : public GtMesh
 {

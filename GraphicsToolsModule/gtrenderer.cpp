@@ -1,23 +1,46 @@
 #include "gtrenderer.h"
 
-#include <QOpenGLDebugLogger>
 #include <QOpenGLFramebufferObject>
-#include <QWheelEvent>
-#include <QMouseEvent>
-#include <QResizeEvent>
 
-#include <GraphicsToolsModule/internal.hpp>
-#include <GraphicsToolsModule/gtdepthbuffer.h>
-#include <GraphicsToolsModule/gtplayercontrollercamera.h>
+#include "GraphicsToolsModule/internal.hpp"
+#include "GraphicsToolsModule/gtdepthbuffer.h"
+#include "GraphicsToolsModule/gtplayercontrollercamera.h"
 
-GtRenderer::GtRenderer(const PropertiesScopeName& scopeName)
-    : m_camera(new GtCamera())
-    , m_queueNumber(0)
-    , m_samplesCount(16)
+#include "GraphicsToolsModule/Objects/gtshaderprogram.h"
+#include "gtrenderercontroller.h"
+
+GtRendererSharedData::GtRendererSharedData(GtRenderer* base)
+    : BaseRenderer(base)
 {
-    PropertiesSystem::Begin(this, scopeName);
-    m_camera->InstallObserver("Camera");
-    PropertiesSystem::End();
+}
+
+GtRenderer::GtRenderer(GtRenderer* baseRenderer)
+    : Super(baseRenderer->m_surfaceFormat, baseRenderer)
+    , m_sharedData(baseRenderer->m_sharedData)
+{
+    construct();
+}
+
+void GtRenderer::construct()
+{
+    SpaceColor = "1e1e1e";
+    m_queueNumber = 0;
+
+    SpaceColor.Subscribe([this]{
+        Asynch([this]{
+            const auto& color = SpaceColor.Native();
+            glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
+        });
+    });
+}
+
+GtRenderer::GtRenderer(const QSurfaceFormat& format)
+    : Super(format, nullptr)
+    , m_sharedData(new GtRendererSharedData(this))
+{   
+    construct();
+    auto textShaderProgram = CreateShaderProgram("DefaultTextShaderProgram");
+    textShaderProgram->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
 }
 
 GtRenderer::~GtRenderer()
@@ -25,10 +48,51 @@ GtRenderer::~GtRenderer()
     Quit();
 }
 
-void GtRenderer::SetControllers(ControllersContainer* controllers, GtControllersContext* context)
+GtRendererControllerPtr GtRenderer::CreateDefaultController()
 {
-    m_controllers = controllers;
-    m_controllersContext = context;
+    auto* container = new ControllersContainer();
+    new GtPlayerControllerCamera(Name("GtPlayerControllerCamera"), container);
+    auto controller = ::make_shared<GtRendererController>(this, container, new GtControllersContext());
+    AddController(controller);
+    return controller;
+}
+
+void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath)
+{
+    Q_ASSERT(!m_sharedData->Fonts.contains(fontName));
+    GtFontPtr font(new GtFont(fontName, fntFilePath));
+    m_sharedData->Fonts.insert(fontName, font);
+    m_sharedData->SharedResourcesSystem.RegisterResource(fontName, [this, fntFilePath, texturePath]{
+        auto* result = new GtTexture2D(this);
+        GtTextMap map;
+        map.LoadFromFnt(fntFilePath);
+        GtTextureFormat format;
+        format.MagFilter = GL_LINEAR;
+        format.MinFilter = GL_LINEAR;
+        format.WrapS = GL_CLAMP_TO_EDGE;
+        format.WrapT = GL_CLAMP_TO_EDGE;
+        format.MipMapLevels = 0;
+        result->SetFormat(format);
+        result->LoadImg(texturePath);
+        return result;
+    });
+}
+
+GtRenderer*& GtRenderer::currentRenderer()
+{
+    static thread_local GtRenderer* renderer = nullptr;
+    return renderer;
+}
+
+const GtFontPtr& GtRenderer::GetFont(const Name& fontName) const
+{
+    Q_ASSERT(m_sharedData->Fonts.contains(fontName));
+    return m_sharedData->Fonts[fontName];
+}
+
+void GtRenderer::AddController(const GtRendererControllerPtr& controller)
+{
+    m_controllers.append(controller);
 }
 
 void GtRenderer::AddDrawable(GtDrawableBase* drawable)
@@ -55,74 +119,35 @@ void GtRenderer::Update(const std::function<void (OpenGLFunctions*)>& handler)
     });
 }
 
-void GtRenderer::MouseMoveEvent(QMouseEvent* event)
+GtShaderProgramPtr GtRenderer::CreateShaderProgram(const Name& name)
 {
-    auto cevent = new QMouseEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->MouseMoveEvent(cevent);
-        delete cevent;
-    });
+    Q_ASSERT(m_sharedData->BaseRenderer == this);
+    auto result = GtShaderProgramPtr(new GtShaderProgram(this));
+    m_sharedData->ShaderPrograms.insert(name, result);
+    return result;
 }
 
-void GtRenderer::MousePressEvent(QMouseEvent* event)
+GtShaderProgramPtr GtRenderer::GetShaderProgram(const Name& name) const
 {
-    auto cevent = new QMouseEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->MousePressEvent(cevent);
-        delete cevent;
-    });
-}
-
-void GtRenderer::MouseReleaseEvent(QMouseEvent* event)
-{
-    auto cevent = new QMouseEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->MouseReleaseEvent(cevent);
-        delete cevent;
-    });
-}
-
-void GtRenderer::WheelEvent(QWheelEvent* event)
-{
-    auto cevent = new QWheelEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->WheelEvent(cevent);
-        delete cevent;
-    });
-}
-
-void GtRenderer::KeyPressEvent(QKeyEvent* event)
-{
-    auto cevent = new QKeyEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->KeyPressEvent(cevent);
-        delete cevent;
-    });
-}
-
-void GtRenderer::KeyReleaseEvent(QKeyEvent* event)
-{
-    auto cevent = new QKeyEvent(*event);
-    Asynch([this, cevent]{
-        m_controllers->KeyReleaseEvent(cevent);
-        delete cevent;
-    });
-}
-
-QImage GtRenderer::CurrentImage()
-{
-    QMutexLocker locker(&m_outputImageMutex);
-    if(m_outputImage != nullptr) {
-        return *m_outputImage;
+    auto foundIt = m_sharedData->ShaderPrograms.find(name);
+    if(foundIt != m_sharedData->ShaderPrograms.end()) {
+        return foundIt.value();
     }
-    return QImage();
+    return nullptr;
 }
 
-Point3F GtRenderer::Project(const Point3F& position) const
+/*Point3F GtRenderer::Project(const Point3F& position) const
 {
     THREAD_ASSERT_IS_THREAD(this);
     auto result = m_controllersContext->Camera->Project(position);
     return result;
+}*/
+
+GtRendererPtr GtRenderer::CreateSharedRenderer()
+{
+    Q_ASSERT(!isRunning() && IsBaseRenderer());
+    m_childRenderers.append(GtRendererPtr(new GtRenderer(this)));
+    return m_childRenderers.last();
 }
 
 void GtRenderer::onInitialize()
@@ -132,47 +157,39 @@ void GtRenderer::onInitialize()
         return;
     }
 
-    ResourcesSystem::RegisterResource("mvp", []{
+    currentRenderer() = this;
+
+    if(m_sharedData->BaseRenderer == this) {
+        for(const auto& shaderProgram : m_sharedData->ShaderPrograms) {
+            shaderProgram->Update();
+        }
+    }
+
+    m_resourceSystem.RegisterResource("mvp", []{
         return new Matrix4();
     });
 
-    ResourcesSystem::RegisterResource("screenSize", []{
+    m_resourceSystem.RegisterResource("screenSize", []{
         return new Vector2F();
     });
 
-    ResourcesSystem::RegisterResource("invertedMVP", []{
+    m_resourceSystem.RegisterResource("invertedMVP", []{
         return new Matrix4();
     });
 
-    ResourcesSystem::RegisterResource("eye", []{
+    m_resourceSystem.RegisterResource("eye", []{
         return new Vector3F();
     });
 
-    ResourcesSystem::RegisterResource("up", []{
+    m_resourceSystem.RegisterResource("up", []{
         return new Vector3F();
     });
 
-    ResourcesSystem::RegisterResource("forward", []{
+    m_resourceSystem.RegisterResource("forward", []{
         return new Vector3F();
     });
 
-    if(m_controllers == nullptr) {
-        m_controllers = new ControllersContainer();
-        new GtPlayerControllerCamera(Name("GtPlayerControllerCamera"), m_controllers.get());
-    }
     m_scene = new GtScene();
-
-    m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
-    m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
-
-
-    if(m_controllersContext == nullptr) {
-        m_controllersContext = new GtControllersContext();
-    }
-    m_controllersContext->Camera = m_camera.data();
-    m_controllersContext->DepthBuffer = new GtDepthBuffer(this);
-
-    m_controllers->SetContext(m_controllersContext.get());
 
     /*if(m_params->DebugMode) {
         auto* logger = new QOpenGLDebugLogger(this);
@@ -181,12 +198,12 @@ void GtRenderer::onInitialize()
         }
     }*/
 
-    m_mvp = ResourcesSystem::GetResource<Matrix4>("mvp");
-    m_eye = ResourcesSystem::GetResource<Vector3F>("eye");
-    m_invertedMv = ResourcesSystem::GetResource<Matrix4>("invertedMVP");
-    m_forward = ResourcesSystem::GetResource<Vector3F>("forward");
-    m_up = ResourcesSystem::GetResource<Vector3F>("up");
-    m_screenSize = ResourcesSystem::GetResource<Vector2F>("screenSize");
+    m_mvp = m_resourceSystem.GetResource<Matrix4>("mvp");
+    m_eye = m_resourceSystem.GetResource<Vector3F>("eye");
+    m_invertedMv = m_resourceSystem.GetResource<Matrix4>("invertedMVP");
+    m_forward = m_resourceSystem.GetResource<Vector3F>("forward");
+    m_up = m_resourceSystem.GetResource<Vector3F>("up");
+    m_screenSize = m_resourceSystem.GetResource<Vector2F>("screenSize");
 
     // TODO. Must have state machine feather
     glDisable(GL_CULL_FACE);
@@ -199,16 +216,15 @@ void GtRenderer::onInitialize()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glClearColor(0.0f, 0.7f, 0.7f, 1.f);
+    const auto& color = SpaceColor.Native();
+    glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
+
+
+    for(const auto& controller : m_controllers) {
+        controller->onInitialize();
+    }
 
     OnInitialized();
-}
-
-void GtRenderer::SetSamplesCount(qint32 samples)
-{
-    Asynch([this, samples]{
-        m_samplesCount = samples;
-    });
 }
 
 SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queueNumber)
@@ -218,68 +234,60 @@ SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queu
     return ::make_shared<guards::LambdaGuard>([this, old]{ m_queueNumber = old; });
 }
 
-void GtRenderer::onResize(qint32 w, qint32 h)
-{
-    glViewport(0,0, w, h);
-
-    GtFramebufferFormat depthFboFormat;
-    depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);
-
-    auto depthFbo = new GtFramebufferObject(this, {w,h});
-    depthFbo->Create(depthFboFormat);
-    m_depthFbo = depthFbo;
-
-
-    QOpenGLFramebufferObjectFormat format;
-    format.setSamples(m_samplesCount);
-    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    m_fbo = new QOpenGLFramebufferObject(w, h, format);
-
-    m_controllersContext->DepthBuffer->SetFrameBuffer(depthFbo, m_context.get());
-
-    m_camera->Resize(w,h);
-}
-
 void GtRenderer::onDraw()
 {
     if(!isInitialized() /*|| !m_camera->IsFrameChangedReset()*/) {
         return;
     }
 
-    m_mvp->Data().Set(m_camera->GetWorld());
-    m_eye->Data().Set(m_camera->GetEye());
-    m_up->Data().Set(m_camera->GetUp());
-    m_forward->Data().Set(m_camera->GetForward());
-    m_invertedMv->Data().Set(m_camera->GetView().inverted().transposed());
-    m_screenSize->Data().Set(Vector2F(m_fbo->size().width(), m_fbo->size().height()));
+    for(const auto& controller : m_controllers) {
+        auto* fbo = controller->m_fbo.get();
+        if(fbo == nullptr) {
+            continue;
+        }
+        auto* depthFbo = controller->m_depthFbo.get();
+        auto* camera = controller->m_camera.get();
 
-    m_fbo->bind();
+        glViewport(0,0, fbo->width(), fbo->height());
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        m_mvp->Data().Set(camera->GetWorld());
+        m_eye->Data().Set(camera->GetEye());
+        m_up->Data().Set(camera->GetUp());
+        m_forward->Data().Set(camera->GetForward());
+        m_invertedMv->Data().Set(camera->GetView().inverted().transposed());
+        m_screenSize->Data().Set(Vector2F(fbo->size().width(), fbo->size().height()));
 
-    m_scene->draw(this);
+        fbo->bind();
 
-    m_fbo->release();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    m_depthFbo->Bind();
+        { // TODO. Fixing binding issues with shared resources
+            QMutexLocker locker(&m_sharedData->Mutex);
+            m_scene->draw(this);
+        }
 
-    glClear(GL_DEPTH_BUFFER_BIT);
+        fbo->release();
 
-    m_scene->drawDepth(this);
+        depthFbo->Bind();
 
-    m_depthFbo->Release();
+        glClear(GL_DEPTH_BUFFER_BIT);
 
-    {
-        QMutexLocker locker(&m_outputImageMutex);
-        m_outputImage = new QImage(m_fbo->toImage());
+        m_scene->drawDepth(this);
 
-        emit imageUpdated();
+        depthFbo->Release();
+
+        auto* image = new QImage(fbo->toImage());
+        controller->setCurrentImage(image, GetComputeTime());
     }
+
+
 }
 
 void GtRenderer::onDestroy()
 {
-    m_depthFbo = nullptr;
-    m_fbo = nullptr;
     m_scene = nullptr;
+    for(const auto& controller : m_controllers) {
+        controller->onDestroy();
+    }
 }
+

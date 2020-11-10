@@ -3,16 +3,9 @@
 
 #include "resource.h"
 
-typedef QHash<Name, ResourceDataBase*> ResourceCache;
-
-static ResourceCache& getResourcesCache() {
-    static ResourceCache result;
-    return result;
-}
-
 ResourceDataBase* ResourcesSystem::getResourceData(const Name& name)
 {
-    ResourceCache& cache = getResourcesCache();
+    ResourceCache& cache = m_resources;
     auto find = cache.find(name);
     if(find == cache.end()) {
         return nullptr;
@@ -22,7 +15,7 @@ ResourceDataBase* ResourcesSystem::getResourceData(const Name& name)
 
 void ResourcesSystem::RegisterResource(const Name& name, const std::function<void*()>& fOnCreate, bool multiThread)
 {
-    ResourceCache& cache = getResourcesCache();
+    ResourceCache& cache = m_resources;
     auto find = cache.find(name);
     if(find == cache.end()) {
         ResourceDataBase* data;
@@ -36,4 +29,22 @@ void ResourcesSystem::RegisterResource(const Name& name, const std::function<voi
     else {
         qCWarning(LC_SYSTEM) << QString("resource %1 already exists. Ignored").arg(name.AsString());
     }
+}
+
+ResourcesSystemCurrentGuard::ResourcesSystemCurrentGuard(ResourcesSystem* storage)
+{
+    THREAD_ASSERT_IS_MAIN();
+    m_previous = current();
+    current() = storage;
+}
+
+ResourcesSystemCurrentGuard::~ResourcesSystemCurrentGuard()
+{
+    current() = m_previous;
+}
+
+ResourcesSystem*& ResourcesSystemCurrentGuard::current()
+{
+    static ResourcesSystem* current = nullptr;
+    return current;
 }

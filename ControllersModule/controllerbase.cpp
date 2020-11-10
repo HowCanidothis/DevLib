@@ -1,27 +1,26 @@
 #include "controllerbase.h"
-#include "controllerssystem.h"
 
 ControllerBase::ControllerBase(const Name& name, ControllersContainer* container, ControllerBase* parent)
     : QObject(parent)
-    , _container(container)
-    , _parentController(parent)
-    , _name(name)
-    , _currentOperationName("Undefined operation")
+    , m_container(container)
+    , m_parentController(parent)
+    , m_name(name)
+    , m_currentOperationName("Undefined operation")
 {
     Q_ASSERT(container);
 
     if(parent != nullptr) {
-        parent->_childControllers.Append(this);
+        parent->m_childControllers.Append(this);
     } else {
         container->addMainController(this);
     }
 
-    ControllersSystem::registerController(name, this);
+    container->registerController(name, this);
 }
 
 void ControllerBase::SetCurrent()
 {
-    _container->SetCurrent(this);
+    m_container->SetCurrent(this);
 }
 
 void ControllerBase::Accept()
@@ -42,26 +41,26 @@ void ControllerBase::Cancel()
 
 void ControllerBase::setCurrent(const Name& controller)
 {
-    Q_ASSERT(_container != nullptr);
-    _container->SetCurrent(controller);
+    Q_ASSERT(m_container != nullptr);
+    m_container->SetCurrent(controller);
 }
 
 void ControllerBase::setControllersContainer(ControllersContainer* container)
 {
-    Q_ASSERT(_container == nullptr);
-    _container = container;
+    Q_ASSERT(m_container == nullptr);
+    m_container = container;
 }
 
 void ControllerBase::pushCommandsToParentController(Commands* upLvlCommands)
 {
     if(!_commands.IsEmpty()) {
-        upLvlCommands->AddCommand(_commands.ToMacro(_currentOperationName));
+        upLvlCommands->AddCommand(_commands.ToMacro(m_currentOperationName));
     }
 }
 
 void ControllerBase::contextChanged()
 {
-    for(ControllerBase* controller : _childControllers) {
+    for(ControllerBase* controller : m_childControllers) {
         controller->contextChanged();
     }
     onContextChanged();
@@ -69,5 +68,5 @@ void ControllerBase::contextChanged()
 
 bool ControllerBase::isCurrent() const
 {
-    return _container->GetCurrent() == this;
+    return m_container->GetCurrent() == this;
 }
