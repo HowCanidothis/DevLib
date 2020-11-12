@@ -185,8 +185,8 @@ public:
     QString ToString() const { return point3DToString(*this); }
 };
 Q_DECLARE_TYPEINFO(Vector3F, Q_PRIMITIVE_TYPE);
-
 typedef Vector3F Point3F;
+Q_DECLARE_METATYPE(Vector3F);
 
 #pragma pack()
 

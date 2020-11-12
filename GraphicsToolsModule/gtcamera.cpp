@@ -85,6 +85,18 @@ void GtCamera::Normalize()
     }
 }
 
+void GtCamera::SetForward(const Vector3F& forward)
+{
+    m_forward = forward;
+    m_state.AddFlag(State_NeedUpdateView);
+}
+
+void GtCamera::SetEye(const Point3F& eye)
+{
+    m_eye = eye;
+    m_state.AddFlag(State_NeedUpdateView);
+}
+
 void GtCamera::SetPosition(const Point3F& eye, const Point3F& center)
 {
     this->m_eye = eye;
@@ -93,7 +105,7 @@ void GtCamera::SetPosition(const Point3F& eye, const Point3F& center)
     m_state.AddFlag(State_NeedUpdateView);
 }
 
-void GtCamera::SetPosition(const Point3F& eye, const Point3F& forward, const Vector3F& up)
+void GtCamera::SetPosition(const Point3F& eye, const Vector3F& forward, const Vector3F& up)
 {
     this->m_eye = eye;
     this->m_forward = forward;

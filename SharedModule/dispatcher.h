@@ -184,6 +184,27 @@ public:
         });
     }
 
+    DispatcherConnections ConnectBoth(CommonDispatcher& another)
+    {
+        DispatcherConnections result;
+        auto sync = ::make_shared<std::atomic_bool>(false);
+        result += another.Connect(this, [this, sync](Args... args){
+            if(!*sync) {
+                *sync = true;
+                Invoke(args...);
+                *sync = false;
+            }
+        });
+        result += Connect(this, [this, &another, sync](Args... args){
+            if(!*sync) {
+                *sync = true;
+                another.Invoke(args...);
+                *sync = false;
+            }
+        });
+        return result;
+    }
+
     DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler)
     {
         QMutexLocker lock(&m_mutex);

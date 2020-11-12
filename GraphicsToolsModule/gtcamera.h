@@ -69,8 +69,10 @@ public:
     ~GtCamera();
 
     void Normalize();
-    void SetPosition(const Point3F& m_eye, const Point3F& center);
-    void SetPosition(const Point3F& m_eye, const Point3F& m_forward, const Vector3F& m_up);
+    void SetForward(const Vector3F& forward);
+    void SetEye(const Point3F& eye);
+    void SetPosition(const Point3F& eye, const Point3F& center);
+    void SetPosition(const Point3F& eye, const Vector3F& forward, const Vector3F& up);
     void MoveForward(float value);
     void MoveSide(float value);
 

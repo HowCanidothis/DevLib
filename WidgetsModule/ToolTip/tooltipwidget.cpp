@@ -21,8 +21,10 @@ ToolTipWidget::~ToolTipWidget()
 
 void ToolTipWidget::SetTarget(const QPoint& target)
 {
-    m_target = target;
-    updateLocation();
+    if(m_target != target) {
+        m_target = target;
+        updateLocation();
+    }
 }
 
 void ToolTipWidget::updateLocation()
@@ -68,7 +70,8 @@ void ToolTipWidget::updateGeometry(const QRect& rect)
     });
     m_animation->setTargetObject(this);
     m_animation->setPropertyName("geometry");
-    m_animation->setDuration(500);
+    m_animation->setEasingCurve(QEasingCurve::InCubic);
+    m_animation->setDuration(100);
     m_animation->setStartValue(geometry());
     m_animation->setEndValue(rect);
 

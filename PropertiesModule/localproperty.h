@@ -184,6 +184,7 @@ public:
         }
     }
 
+    LocalPropertyLimitedDecimal& operator-=(const T& value) { SetValue(Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
 

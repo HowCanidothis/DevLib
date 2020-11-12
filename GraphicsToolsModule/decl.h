@@ -2,6 +2,7 @@
 #define GRAPHICSTOOLSMODULE_DECL_H
 
 #include <SharedModule/internal.hpp>
+#include <SharedGuiModule/internal.hpp>
 
 struct GtControllersContext
 {
@@ -9,6 +10,7 @@ struct GtControllersContext
     class GtRenderer* Renderer;
     class QOpenGLFramebufferObject* FrameBuffer;
     class GtDepthBuffer* DepthBuffer;
+    Point2I LastScreenPoint;
 };
 
 using GtShaderProgramPtr = SharedPointer<class GtShaderProgram>;

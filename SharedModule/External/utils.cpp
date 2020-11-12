@@ -6,6 +6,9 @@
 #include <QWidgetAction>
 #include <QPushButton>
 #include <QColorDialog>
+#include <QHBoxLayout>
+#include <QDoubleSpinBox>
+#include <QLabel>
 
 #include <PropertiesModule/internal.hpp>
 
@@ -55,6 +58,27 @@ QAction* createColorAction(const QString& title, const QColor& color, const std:
     pixmap.fill(color);
     colorAction->setIcon(pixmap);
     return colorAction;
+}
+
+QAction* createDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler, QWidget* menu)
+{
+    auto* widget = new QWidget();
+    auto* layout = new QHBoxLayout();
+    layout->setContentsMargins(6,3,6,3);
+    widget->setLayout(layout);
+    auto* label = new QLabel(title);
+    auto* spinBox = new QDoubleSpinBox;
+    layout->addWidget(label);
+    layout->addItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    layout->addWidget(spinBox);
+    spinBox->setValue(value);
+    QObject::connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [handler](double value) {
+        handler(value);
+    });
+    auto* action = new QWidgetAction(menu);
+    action->setDefaultWidget(widget);
+    menu->addAction(action);
+    return action;
 }
 
 class PreventedFromClosingMenu : public QMenu

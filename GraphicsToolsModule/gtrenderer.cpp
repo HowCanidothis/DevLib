@@ -45,6 +45,7 @@ GtRenderer::GtRenderer(const QSurfaceFormat& format)
 
 GtRenderer::~GtRenderer()
 {
+    OnAboutToBeDestroyed();
     Quit();
 }
 
@@ -242,7 +243,7 @@ void GtRenderer::onDraw()
 
     for(const auto& controller : m_controllers) {
         auto* fbo = controller->m_fbo.get();
-        if(fbo == nullptr) {
+        if(fbo == nullptr || !controller->IsEnabled()) {
             continue;
         }
         auto* depthFbo = controller->m_depthFbo.get();

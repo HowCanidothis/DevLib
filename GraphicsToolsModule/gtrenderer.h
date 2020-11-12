@@ -62,6 +62,7 @@ public:
     LocalPropertyColor SpaceColor;
 
     Dispatcher OnInitialized;
+    Dispatcher OnAboutToBeDestroyed;
 
 private:
     void construct();

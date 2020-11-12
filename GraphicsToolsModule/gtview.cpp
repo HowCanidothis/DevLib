@@ -35,6 +35,9 @@ void GtView::SetController(const GtRendererControllerPtr& controller)
 
 void GtView::mouseMoveEvent(QMouseEvent* event)
 {
+    if(!hasFocus()) {
+        setFocus();
+    }
     m_controller->MouseMoveEvent(event);
 }
 
