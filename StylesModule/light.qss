@@ -2,3 +2,4 @@
 @import url("light/style.qss");
 @import url("common/leftbar.qss");
 @import url("common/notify.qss");
+@import url("common/style.qss");

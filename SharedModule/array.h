@@ -516,12 +516,16 @@ public:
     }
 
     ArrayCommon& operator=(const ArrayCommon& another) {
+        if(_d.use_count() == 1) {
+            Clear();
+        }
         _d = another._d;
         return *this;
     }
 
 protected:
     SharedPtr<MiddleAlgoData<T> > _d;
+    bool isShared() const { return _d.use_count() > 1; }
 
 protected:
     void detachClear() {
@@ -568,7 +572,7 @@ public:
         : Super()
     {}
     ~ArrayPointers() {
-        if(Super::_d.use_count() == 1) {
+        if(!Super::isShared()) {
             for(T* v : *this) {
                 delete v;
             }
@@ -577,7 +581,7 @@ public:
 
     void Clear() override
     {
-        if(Super::_d.use_count() == 1) {
+        if(!Super::isShared()) {
             for(T* v : *this) {
                 delete v;
             }

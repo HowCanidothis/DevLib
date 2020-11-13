@@ -1,0 +1,10 @@
+FlowWidget {
+    qproperty-hSpacing: 10;
+    qproperty-vSpacing: 10;
+}
+
+WPSLegendItemColorWidget {
+    min-width: 10;
+    min-height: 10;
+    max-height: 10;
+}

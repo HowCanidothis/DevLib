@@ -11,5 +11,6 @@
         <file>common/leftbar.qss</file>
         <file>common/notify.qss</file>
         <file>common/properties.qss</file>
+        <file>common/style.qss</file>
     </qresource>
 </RCC>

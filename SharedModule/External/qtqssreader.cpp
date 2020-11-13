@@ -40,7 +40,9 @@ QString QtQSSReader::ReadAll()
     if(_observer) {
         _observer->Clear();
         _observer->AddFileObserver(_fileName, [this]{
-            Install(_fileName);
+            ThreadsBase::DoMain([this]{
+                Install(_fileName);
+            });
         });
     }
 
@@ -57,7 +59,9 @@ QString QtQSSReader::ReadAll()
             if(qssFile.open(QFile::ReadOnly)) {
                 if(_observer) {
                     _observer->AddFileObserver(fi.absolutePath(), qssFileName, [this]{
-                        Install(_fileName);
+                        ThreadsBase::DoMain([this]{
+                            Install(_fileName);
+                        });
                     });
                 }
                 result += qssFile.readAll();

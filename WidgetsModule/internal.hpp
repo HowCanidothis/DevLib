@@ -24,6 +24,9 @@
 #include "Attachments/windowresizeattachment.h"
 #include "Attachments/focuswatcherattachment.h"
 
+#include "Layouts/flowlayout.h"
+#include "Layouts/flowwidget.h"
+
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"
 #include "Utils/widgethelpers.h"

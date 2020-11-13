@@ -9,6 +9,7 @@
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QRadioButton>
+#include <QLabel>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -64,6 +65,16 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
         m_propertySetter();
     });
+}
+
+LocalPropertyLabelConnector::LocalPropertyLabelConnector(LocalPropertyString* property, class QLabel* label)
+    : Super([label, property]{
+        label->setText(*property);
+    }, []{})
+{
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
