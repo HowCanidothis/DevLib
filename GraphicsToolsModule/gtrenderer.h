@@ -84,7 +84,11 @@ private:
     QVector<GtRendererControllerPtr> m_controllers;
     ScopedPointer<QImage> m_outputImage;
     SharedPointer<Matrix4Resource> m_mvp;
+    SharedPointer<Matrix4Resource> m_view;
+    SharedPointer<Matrix4Resource> m_projection;
+    SharedPointer<Matrix4Resource> m_rotation;
     SharedPointer<Matrix4Resource> m_invertedMv;
+    SharedPointer<Matrix4Resource> m_viewport;
     SharedPointer<Resource<Vector3F>> m_eye;
     SharedPointer<Resource<Vector3F>> m_forward;
     SharedPointer<Resource<Vector3F>> m_up;

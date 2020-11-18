@@ -33,6 +33,8 @@ protected:
     Matrix4 m_view;
     Matrix4 m_world;
     Matrix4 m_worldInverted;
+    Matrix4 m_rotation;
+    Matrix4 m_viewportProjection;
 
     Vector3F m_axis;
     Point3F m_eye;    
@@ -87,8 +89,16 @@ public:
     void RotateRPE(const Point2I& angles) { RotateRPE(angles.x() , angles.y()); }
     void RotateRPE(qint32 angleZ, qint32 angleX);
 
-    void InvertRotation(bool invert);
-    void SetAxisDirections(const Vector3F& axis) { m_axis = axis; }
+    enum InvertRotationFlag {
+        InvertNone,
+        InvertLeftRight,
+        InvertUpDown,
+        InvertBoth
+    };
+    DECL_FLAGS(InvertRotationFlags, InvertRotationFlag);
+
+    void InvertRotation(InvertRotationFlags invert);
+    void SetAxisSystem(bool leftHanded);
     void SetIsometricScale(float scale);
     void SetIsometric(bool flag);
     void Resize(qint32 width, qint32 height);
@@ -118,6 +128,8 @@ public:
     const Matrix4& GetView() { updateView(); return m_view; }
     const Matrix4& GetWorld() { updateWorld(); return m_world; }
     const Matrix4& GetWorldInverted() { updateWorld(); return m_worldInverted; }
+    const Matrix4& GetRotation() { updateView(); return m_rotation; }
+    const Matrix4& GetViewport() { updateProjection(); return m_viewportProjection; }
 
     void InstallObserver(const QString& path);
 

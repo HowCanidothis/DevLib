@@ -177,7 +177,7 @@ void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
 
     Vector3F norm = Vector3F::crossProduct(m_up, m_forward).normalized();
     Quaternion rotZ = Quaternion::fromAxisAndAngle(m_up.normalized(),angleZ);
-    Quaternion rot = Quaternion::fromAxisAndAngle(norm, angleX);
+    Quaternion rot = Quaternion::fromAxisAndAngle(norm, -angleX);
     Quaternion rotation;
     if(m_state.TestFlag(State_NoRPE))
         rotation = rotZ;
@@ -239,12 +239,23 @@ void GtCamera::RotateRPE(qint32 angleZ, qint32 angleX)
     m_state.AddFlag(State_NeedUpdateView);
 }
 
-void GtCamera::InvertRotation(bool invert)
+void GtCamera::InvertRotation(InvertRotationFlags invert)
 {
-    if(invert) {
-        m_invertRotation = [](qint32& x, qint32& z) { x = -x; z = -z; };
+    switch(invert) {
+    case InvertBoth: m_invertRotation = [](qint32& x, qint32&) { x = -x; }; break;
+    case InvertUpDown: m_invertRotation = [](qint32& , qint32& z) { z = -z; }; break;
+    case InvertLeftRight: m_invertRotation = [](qint32& x, qint32& ) { x = -x; }; break;
+    default: m_invertRotation = [](qint32&,qint32&){}; break;
+    };
+}
+
+void GtCamera::SetAxisSystem(bool leftHanded)
+{
+    if(leftHanded) {
+        m_axis = { 1.f, 1.f, 1.f };
     } else {
-        m_invertRotation = [](qint32&,qint32&){};
+        m_axis = { -1.f, 1.f, 1.f };
+        InvertRotation(InvertUpDown);
     }
 }
 
@@ -361,6 +372,10 @@ void GtCamera::updateProjection()
 {
     if(m_state.TestFlag(State_ChangedProjection)) {
         m_projection.setToIdentity();
+        m_viewportProjection.setToIdentity();
+        float vws = m_viewport.width();
+        float hws = m_viewport.height();
+        m_viewportProjection.ortho(-vws, vws,-hws, hws, m_near, m_far);
         if(m_state.TestFlag(State_Isometric)) {
             float vws = m_viewport.width() * m_isometricScale;
             float hws = m_viewport.height() * m_isometricScale;
@@ -380,6 +395,7 @@ void GtCamera::updateView()
         if(!m_state.TestFlag(State_PredictionMode)) validateCameraPosition(m_eye);
 
         m_view.setToIdentity();
+        m_rotation.setToIdentity();
 
         Vector3F side = Vector3F::crossProduct(-m_forward, m_up).normalized();
         Vector3F upVector = Vector3F::crossProduct(side, -m_forward);
@@ -389,6 +405,11 @@ void GtCamera::updateView()
         m_view.setRow(2, Vector4F(-m_forward,0));
         m_view.setRow(3, Vector4F(0,0,0,1));
         m_view.translate(-m_eye);
+
+        m_rotation.setRow(0, Vector4F(-side * m_axis.x(), 0));
+        m_rotation.setRow(1, Vector4F(upVector * m_axis.x(),0));
+        m_rotation.setRow(2, Vector4F(-m_forward,0));
+        m_rotation.setRow(3, Vector4F(0,0,0,1));
 
         m_state.RemoveFlag(State_ChangedView);
     }

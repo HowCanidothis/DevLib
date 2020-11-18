@@ -572,6 +572,10 @@ public:
     FloatProperty Z;
 
     Vector3FProperty(const QString& path, const Vector3F& vector, Property::Options options = Property::Options_Default);
+
+    Dispatcher OnChanged;
+
+    operator Vector3F() const { return Vector3F(X,Y,Z); }
 };
 
 #endif // QT_GUI_LIB_LIB

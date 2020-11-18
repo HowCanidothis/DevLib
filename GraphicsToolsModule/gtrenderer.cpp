@@ -190,6 +190,22 @@ void GtRenderer::onInitialize()
         return new Vector3F();
     });
 
+    m_resourceSystem.RegisterResource("view", []{
+        return new Matrix4;
+    });
+
+    m_resourceSystem.RegisterResource("projection", []{
+        return new Matrix4;
+    });
+
+    m_resourceSystem.RegisterResource("rotation", []{
+        return new Matrix4;
+    });
+
+    m_resourceSystem.RegisterResource("viewport", []{
+        return new Matrix4;
+    });
+
     m_scene = new GtScene();
 
     /*if(m_params->DebugMode) {
@@ -205,6 +221,10 @@ void GtRenderer::onInitialize()
     m_forward = m_resourceSystem.GetResource<Vector3F>("forward");
     m_up = m_resourceSystem.GetResource<Vector3F>("up");
     m_screenSize = m_resourceSystem.GetResource<Vector2F>("screenSize");
+    m_view = m_resourceSystem.GetResource<Matrix4>("view");
+    m_projection = m_resourceSystem.GetResource<Matrix4>("projection");
+    m_rotation = m_resourceSystem.GetResource<Matrix4>("rotation");
+    m_viewport = m_resourceSystem.GetResource<Matrix4>("viewport");
 
     // TODO. Must have state machine feather
     glDisable(GL_CULL_FACE);
@@ -242,6 +262,7 @@ void GtRenderer::onDraw()
     }
 
     for(const auto& controller : m_controllers) {
+        controller->m_controllers->Input();
         auto* fbo = controller->m_fbo.get();
         if(fbo == nullptr || !controller->IsEnabled()) {
             continue;
@@ -251,6 +272,10 @@ void GtRenderer::onDraw()
 
         glViewport(0,0, fbo->width(), fbo->height());
 
+        m_viewport->Data().Set(camera->GetViewport());
+        m_rotation->Data().Set(camera->GetRotation());
+        m_projection->Data().Set(camera->GetProjection());
+        m_view->Data().Set(camera->GetView());
         m_mvp->Data().Set(camera->GetWorld());
         m_eye->Data().Set(camera->GetEye());
         m_up->Data().Set(camera->GetUp());
