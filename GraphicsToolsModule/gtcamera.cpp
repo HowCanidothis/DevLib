@@ -407,7 +407,7 @@ void GtCamera::updateView()
         m_view.translate(-m_eye);
 
         m_rotation.setRow(0, Vector4F(-side * m_axis.x(), 0));
-        m_rotation.setRow(1, Vector4F(upVector * m_axis.x(),0));
+        m_rotation.setRow(1, Vector4F(upVector,0));
         m_rotation.setRow(2, Vector4F(-m_forward,0));
         m_rotation.setRow(3, Vector4F(0,0,0,1));
 
