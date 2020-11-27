@@ -69,9 +69,9 @@ QFontMetrics GtTextMap::FontMetrics() const
     return QFontMetrics(font);
 }
 
-GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
+GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
     : Super(renderer)
-    , m_material(GL_POINTS, renderer->GetShaderProgram("DefaultTextShaderProgram"))
+    , m_material(GL_POINTS, shaderProgram)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Custom, QOpenGLBuffer::StaticDraw))
     , m_font(font)
 {
@@ -98,6 +98,12 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
             m_material.SetVisible(Settings.Visible);
         });
     });
+}
+
+GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
+    : GtTextDrawable(renderer, renderer->GetShaderProgram("DefaultTextShaderProgram"), font)
+{
+
 }
 
 void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)

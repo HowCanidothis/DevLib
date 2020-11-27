@@ -133,6 +133,7 @@ public:
         TextInfo& SetOffsetDirection(const Vector4F& offsetDirection) { OffsetDirection = offsetDirection; return *this; }
     };
 
+    GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
     GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font);
 
     void DisplayText(const QVector<TextInfo>& texts);
