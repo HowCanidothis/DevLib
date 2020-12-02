@@ -34,8 +34,7 @@ void QtObserver::AddFilePtrObserver(const QString* fileName, const QtObserver::F
 void QtObserver::AddFilePtrObserver(const QString* dir, const QString* file, const QtObserver::FHandle& handle)
 {
     Add([dir,file,this]{
-        QFileInfo fi(*file);
-        DirBinder dbinder(*dir);
+        QFileInfo fi(*dir, *file);
         if(fi.exists()) {
             qint64 currentLastModified = fi.lastModified().toMSecsSinceEpoch();
             return testValue(file, currentLastModified);
@@ -59,8 +58,7 @@ void QtObserver::AddFileObserver(const QString& file, const FHandle& handle)
 void QtObserver::AddFileObserver(const QString& dir, const QString& file, const FHandle& handle)
 {
     Add([dir,file,this]{
-        QFileInfo fi(file);
-        DirBinder dbinder(dir);
+        QFileInfo fi(dir, file);
         if(fi.exists()) {
             qint64 currentLastModified = fi.lastModified().toMSecsSinceEpoch();
             return testValue(&file, currentLastModified);

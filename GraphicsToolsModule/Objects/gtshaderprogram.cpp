@@ -78,19 +78,19 @@ GtShaderProgram& GtShaderProgram::AddShader(ShaderType type, const QString& file
     return *this;
 }
 
-void GtShaderProgram::SetShaders(const QString& path, const QString& vert_file, const QString& frag_file)
+void GtShaderProgram::SetShaders(const QString& path, const QString& vertFile, const QString& fragFile)
 {
     m_shadersPath = path;
-    AddShader(Vertex, vert_file);
-    AddShader(Fragment, frag_file);
+    AddShader(Vertex, QFileInfo(m_shadersPath, vertFile).absoluteFilePath());
+    AddShader(Fragment, QFileInfo(m_shadersPath, fragFile).absoluteFilePath());
 }
 
 void GtShaderProgram::SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile)
 {
     m_shadersPath = path;
-    AddShader(Vertex, vertFile);
-    AddShader(Geometry, geomFile);
-    AddShader(Fragment, fragFile);
+    AddShader(Vertex, QFileInfo(m_shadersPath, vertFile).absoluteFilePath());
+    AddShader(Geometry, QFileInfo(m_shadersPath, geomFile).absoluteFilePath());
+    AddShader(Fragment, QFileInfo(m_shadersPath, fragFile).absoluteFilePath());
 }
 
 QByteArray GtShaderProgram::extractShader(const QString& fileName) const
@@ -128,16 +128,15 @@ void GtShaderProgram::Update()
         if(m_shadersPath == ":/") {
             for(Shader* shader : m_shaders) {
                 QOpenGLShader* shaderObject = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
-                if(shaderObject->compileSourceCode(extractShader(m_shadersPath + shader->File))) {
+                if(shaderObject->compileSourceCode(extractShader(shader->File))) {
                     m_shaderProgram->addShader(shaderObject);
                 }
             }
         } else {
-            DirBinder dir(m_shadersPath);
             m_shadersWatcher = new QtObserver(1000);
             for(Shader* shader : m_shaders) {
                 QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
-                m_shadersWatcher->AddFileObserver(m_shadersPath, shader->File, [this]{
+                m_shadersWatcher->AddFileObserver(shader->File, [this]{
                     m_renderer->Asynch([this]{
                         Update();
                     });
