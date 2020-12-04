@@ -5,7 +5,10 @@
 GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
     : m_renderer(renderer)
 {
-    m_renderer->AddDrawable(this);
+}
+
+GtDrawableBase::~GtDrawableBase()
+{
 }
 
 void GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)

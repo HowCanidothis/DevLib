@@ -11,6 +11,7 @@
 class GtObjectBase
 {
 public:
+    virtual ~GtObjectBase(){}
     virtual void MapProperties(QtObserver* ) {}
 };
 
@@ -18,7 +19,7 @@ class GtDrawableBase : public GtObjectBase
 {
 public:
     GtDrawableBase(class GtRenderer* renderer);
-    virtual ~GtDrawableBase() {}
+    ~GtDrawableBase();
 
     void Update(const std::function<void (OpenGLFunctions*)>& f);
     void Update(const FAction& f);

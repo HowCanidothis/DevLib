@@ -96,9 +96,10 @@ void GtRenderer::AddController(const GtRendererControllerPtr& controller)
     m_controllers.append(controller);
 }
 
-void GtRenderer::AddDrawable(GtDrawableBase* drawable)
+void GtRenderer::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)
 {
-    auto queueNumber = m_queueNumber;
+    Q_ASSERT(drawable->m_renderer == this);
+
     Asynch([this, drawable, queueNumber]{
         drawable->initialize(this);
         m_scene->AddDrawable(drawable, queueNumber);

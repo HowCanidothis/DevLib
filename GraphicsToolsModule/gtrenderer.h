@@ -51,7 +51,20 @@ public:
 
     GtRendererPtr CreateSharedRenderer();
 
-    void AddDrawable(GtDrawableBase* drawable);
+    template<class T, typename ... Args>
+    T* CreateDrawableQueued(qint32 queueNumber, Args... args)
+    {
+        auto* result = new T(this, args...);
+        AddDrawable(result, queueNumber);
+        return result;
+    }
+    template<class T, typename ... Args>
+    T* CreateDrawable(Args... args)
+    {
+        return CreateDrawableQueued<T,Args...>(m_queueNumber, args...);
+    }
+    void AddDrawable(GtDrawableBase* drawable, qint32 queueNumber);
+    void AddDrawable(GtDrawableBase* drawable) { AddDrawable(drawable, m_queueNumber); }
     void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
 
