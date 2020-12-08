@@ -6,7 +6,12 @@
 
 ToolTipWidget::ToolTipWidget(QWidget* parent)
     : Super(parent)
+    , m_content(nullptr)
 {
+    setLayout(new QVBoxLayout());
+    layout()->setContentsMargins(0,0,0,0);
+    layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
     OffsetFromTarget.Subscribe([this]{
         updateLocation();
     });
@@ -17,6 +22,25 @@ ToolTipWidget::ToolTipWidget(QWidget* parent)
 ToolTipWidget::~ToolTipWidget()
 {
 
+}
+
+void ToolTipWidget::SetContent(QWidget* content)
+{
+    if(m_content == content) {
+        return;
+    }
+    if(m_content != nullptr) {
+        for(qint32 i(0); i < layout()->count(); i++) {
+            auto* item = layout()->itemAt(i);
+            if(item->widget() == m_content) {
+                item->widget()->setParent(nullptr);
+                layout()->removeItem(item);
+                break;
+            }
+        }
+    }
+    m_content = content;
+    layout()->addWidget(m_content);
 }
 
 void ToolTipWidget::SetTarget(const QPoint& target)

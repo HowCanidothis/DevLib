@@ -12,6 +12,7 @@ public:
     ToolTipWidget(QWidget* parent);
     ~ToolTipWidget();
 
+    void SetContent(QWidget* content);
     virtual void SetTarget(const QPoint& target);
 
     LocalProperty<QPoint> OffsetFromTarget;
@@ -21,6 +22,7 @@ private:
     void updateGeometry(const QRect& rect);
 
 private:
+    QWidget* m_content;
     QPoint m_target;
     std::unique_ptr<class QPropertyAnimation, std::function<void(QPropertyAnimation*)>> m_animation;
 
