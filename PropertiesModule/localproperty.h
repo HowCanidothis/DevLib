@@ -125,8 +125,12 @@ public:
             }
         });
         for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(this, [this, &anotherEvaluator, &another]{
-                another = anotherEvaluator(*this);
+            result += dispatcher->Connect(this, [this, anotherEvaluator, &another, sync]{
+                if(!*sync) {
+                    *sync = true;
+                    another = anotherEvaluator(*this);
+                    *sync = false;
+                }
             });
         }
         return result;
