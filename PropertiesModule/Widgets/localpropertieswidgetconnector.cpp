@@ -173,7 +173,7 @@ void LocalPropertiesWidgetConnectorsContainer::Clear()
     m_connectors.Clear();
 }
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyNamedUint* property, QComboBox* comboBox)
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox)
     : Super([property, comboBox]{
                 comboBox->setCurrentIndex(*property);
             },
@@ -191,7 +191,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
     });
 }
 
-LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyNamedUint* property, const Stack<QRadioButton*>& buttons)
+LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
     : Super([property, buttons]{
                 buttons[*property]->setChecked(true);
                 qint32 i(0); // In case if we don't use a GroupBox

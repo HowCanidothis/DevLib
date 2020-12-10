@@ -114,6 +114,12 @@ Range<It> range(It begin, It end) {
 
 }
 
+template<typename Enum>
+struct EnumHelper
+{
+    static QStringList GetNames();
+};
+
 enum Sides {
     Left,
     Right,

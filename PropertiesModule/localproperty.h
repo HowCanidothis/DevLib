@@ -214,42 +214,27 @@ using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
 using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
 using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
 
-class LocalPropertyNamedUint : public LocalPropertyUInt
+template<typename Enum>
+class LocalPropertySequentialEnum : public LocalPropertyInt
 {
-    using Super = LocalPropertyUInt;
+    using Super = LocalPropertyInt;
 public:
-    LocalPropertyNamedUint()
-        : Super(0, 0, 0)
+    LocalPropertySequentialEnum()
+        : Super((qint32)Enum::First,(qint32)Enum::First,(qint32)Enum::Last)
+    {}
+    LocalPropertySequentialEnum(Enum initial)
+        : Super((qint32)initial,(qint32)Enum::First,(qint32)Enum::Last)
     {}
 
-    void Initialize(quint32 initial, const QStringList& names)
-    {
-        m_value = initial;
-        m_names = names;
-        SetMinMax(0, m_names.size() - 1);
-    }
-    const QStringList& GetNames() const { return m_names; }
-    template<class T> T Cast() const { return (T)Native(); }
+    LocalPropertySequentialEnum& operator=(qint32 value) { SetValue(value); return *this; }
+    LocalPropertySequentialEnum& operator=(Enum value) { return operator=((qint32)value); }
+    bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
+    bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
-    LocalPropertyNamedUint& operator=(quint32 value) { SetValue(value); return *this; }
-    template<typename Enum>
-    LocalPropertyNamedUint& operator=(Enum value) { return operator=((quint32)value); }
-    template<typename Enum>
-    bool operator==(Enum value) const { return Super::m_value == (quint32)value; }
-    template<typename Enum>
-    bool operator!=(Enum value) const { return Super::m_value != (quint32)value; }
+    Enum Native() const { return (Enum)Super::m_value; }
 
-    template<class Buffer>
-    void Serialize(Buffer& buffer)
-    {
-        buffer << Super::m_value;
-        buffer << m_names;
-    }
-
-private:
-    QStringList m_names;
+    QStringList GetNames() { return EnumHelper<Enum>::GetNames(); }
 };
-
 
 template<class T>
 class LocalPropertyPtr : public LocalProperty<T*>
@@ -402,6 +387,8 @@ using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
 struct PropertyFromLocalProperty
 {
+    template<typename Enum>
+    static SharedPointer<Property> Create(const Name& name, LocalPropertySequentialEnum<Enum>& enumProperty);
     template<class T>
     static SharedPointer<Property> Create(const Name& name, T& localProperty);
     template<class T>
@@ -462,12 +449,12 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     );
 }
 
-template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyNamedUint& localProperty)
+template<typename Enum>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertySequentialEnum<Enum>& localProperty)
 {
     auto result = ::make_shared<ExternalNamedUIntProperty>(
                 name,
-                [&localProperty] { return localProperty.Native(); },
+                [&localProperty]() -> quint32 { return localProperty; },
                 [&localProperty](quint32 value, quint32) { localProperty = value; },
                 localProperty.GetMin(),
                 localProperty.GetMax()

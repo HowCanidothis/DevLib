@@ -72,7 +72,7 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesComboBoxConnector(LocalPropertyNamedUint* property, class QComboBox* comboBox);
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, class QComboBox* comboBox);
 };
 
 class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase
@@ -102,7 +102,7 @@ class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidge
     Q_OBJECT
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesRadioButtonsConnector(LocalPropertyNamedUint* property, const Stack<class QRadioButton*>& buttons);
+    LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<class QRadioButton*>& buttons);
 
 private:
     qint32 m_currentIndex;
