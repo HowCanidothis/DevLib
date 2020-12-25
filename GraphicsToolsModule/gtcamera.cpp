@@ -122,7 +122,7 @@ void GtCamera::MoveForward(float value)
 void GtCamera::MoveSide(float value)
 {
     Vector3F side = Vector3F::crossProduct(-m_forward, m_up).normalized();
-    m_eye += side * value;
+    m_eye += side * m_axis * value;
     m_state.AddFlag(State_NeedUpdateView);
 }
 

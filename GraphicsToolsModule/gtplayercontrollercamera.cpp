@@ -87,8 +87,8 @@ bool GtPlayerControllerCamera::inputHandle(const QSet<qint32>* inputKeys, qint32
         {
             case Qt::Key_W: ctx().Camera->MoveForward(move_dist); break;
             case Qt::Key_S: ctx().Camera->MoveForward(-move_dist); break;
-            case Qt::Key_A: ctx().Camera->MoveSide(-move_dist); break;
-            case Qt::Key_D: ctx().Camera->MoveSide(move_dist); break;
+            case Qt::Key_A: ctx().Camera->MoveSide(move_dist); break;
+            case Qt::Key_D: ctx().Camera->MoveSide(-move_dist); break;
         default:
             return false;
         }
