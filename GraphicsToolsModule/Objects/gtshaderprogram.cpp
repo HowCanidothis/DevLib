@@ -52,7 +52,7 @@ QByteArray GtSharedShaderManager::Merge(const QByteArray& shader) const
         lastPos = pos;
     }
     if(lastPos != 0) {
-        result.append(shader.begin() + lastPos, std::distance(shader.begin(), shader.end()));
+        result.append(shader.begin() + lastPos, std::distance(shader.begin() + lastPos, shader.end()));
     } else {
         return shader;
     }
