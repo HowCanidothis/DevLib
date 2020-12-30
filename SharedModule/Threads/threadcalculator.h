@@ -24,13 +24,11 @@ public:
         : m_isCalculating(false)
         , m_needToRecalculate(false)
         , m_threadHandler(threadHandler)
+        , m_destroying(false)
     {}
     ~ThreadCalculatorBase()
     {
-        while(m_isCalculating) {
-            m_needToRecalculate = false;
-            qApp->processEvents();
-        }
+        safeQuit();
     }
 
     void Calculate()
@@ -43,9 +41,17 @@ public:
 
             m_isCalculating = true;
             ThreadsBase::Async([this]{
+                if(m_destroying) {
+                    m_isCalculating = false;
+                    return;
+                }
                 auto result = calculate();
                 m_threadHandler([this, result]{
+                    bool destroying = m_destroying;
                     m_isCalculating = false;
+                    if(destroying) {
+                        return;
+                    }
                     if(m_needToRecalculate) {
                         m_needToRecalculate = false;
                         Calculate();
@@ -60,6 +66,14 @@ public:
     CommonDispatcher<const T&> OnCalculated;
 
 protected:
+    void safeQuit()
+    {
+        m_destroying = true;
+        while(m_isCalculating) {
+            qApp->processEvents();
+        }
+    }
+
     virtual T calculate() const = 0;
 
 protected:
@@ -68,7 +82,7 @@ protected:
 private:
     std::atomic_bool m_isCalculating;
     std::atomic_bool m_needToRecalculate;
-
+    std::atomic_bool m_destroying;
 };
 
 template<class T>
