@@ -40,6 +40,7 @@ public:
             }
 
             m_isCalculating = true;
+            prepare();
             ThreadsBase::Async([this]{
                 if(m_destroying) {
                     m_isCalculating = false;
@@ -59,7 +60,7 @@ public:
                         OnCalculated(result);
                     }
                 });
-            });
+            }, EPriority::Low);
         });
     }
 
@@ -75,6 +76,7 @@ protected:
     }
 
     virtual T calculate() const = 0;
+    virtual void prepare() {}
 
 protected:
     ThreadHandler m_threadHandler;
@@ -91,16 +93,18 @@ class ThreadCalculatorLambda : public ThreadCalculatorBase<T>
     using Super = ThreadCalculatorBase<T>;
 public:
     using Calculator = std::function<T ()>;
+    using Preparator = FAction;
     ThreadCalculatorLambda(const ThreadHandler& threadHandler)
         : Super(threadHandler)
         , m_calculator([]{ return T(); })
     {}
 
-    void Calculate(const Calculator& calculator)
+    void Calculate(const Calculator& calculator, const Preparator& preparator = []{})
     {
         {
             QMutexLocker locker(&m_mutex);
             m_calculator = calculator;
+            m_preparator = preparator;
         }
         Super::Calculate();
     }
@@ -115,10 +119,20 @@ protected:
         }
         return calculator();
     }
+    void prepare() override
+    {
+        Preparator preparator;
+        {
+            QMutexLocker locker(&m_mutex);
+            preparator = m_preparator;
+        }
+        preparator();
+    }
 
 private:
     mutable QMutex m_mutex;
     Calculator m_calculator;
+    Preparator m_preparator;
 };
 
 #endif // THREADCALCULATOR_H

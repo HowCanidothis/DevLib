@@ -21,6 +21,7 @@ public:
     GtDrawableBase(class GtRenderer* renderer);
     ~GtDrawableBase();
 
+    void Destroy();
     void Update(const std::function<void (OpenGLFunctions*)>& f);
     void Update(const FAction& f);
 

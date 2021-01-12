@@ -74,6 +74,7 @@ public:
     const T& GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isResolved; }
     void Then(const typename PromiseData<T>::FCallback& handler) const { m_data->then(handler); }
+    void ThenMain(const typename PromiseData<T>::FCallback& handler) const;
     void Resolve(bool value) const {  m_data->resolve(value); }
     void Mute() { m_data->mute(); }
 };

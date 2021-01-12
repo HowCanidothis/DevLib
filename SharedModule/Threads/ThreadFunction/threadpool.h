@@ -21,7 +21,7 @@ public:
     bool IsTerminated() const;
     void TerminateAll();
     // Note: ThreadTaskDesc is managed by ThreadPool and will be freed when task is performed
-    AsyncResult PushTask(const FAction& function);
+    AsyncResult PushTask(const FAction& function, EPriority priority);
     void Await();
 
 private:
@@ -34,7 +34,7 @@ private:
 protected:
     StackPointers<Thread> m_threads;
     std::deque<Thread*> m_freeThreads; // TODO. Can be optimized in the future
-    std::deque<ThreadTaskDesc*> m_tasks;
+    std::deque<ThreadTaskDesc*> m_tasks[(qint32)EPriority::Count];
     QMutex m_taskMutex;
     QWaitCondition m_awaitCondition;
 };

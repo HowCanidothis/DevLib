@@ -11,6 +11,11 @@ GtDrawableBase::~GtDrawableBase()
 {
 }
 
+void GtDrawableBase::Destroy()
+{
+    m_renderer->RemoveDrawable(this);
+}
+
 void GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
 {
     m_renderer->Asynch([this, f]{

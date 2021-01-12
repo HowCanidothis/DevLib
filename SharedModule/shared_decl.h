@@ -22,6 +22,12 @@ typedef std::function<void ()> FAction;
 
 class QTextStream;
 
+enum class EPriority {
+    High,
+    Low,
+    Count
+};
+
 class _Export DirBinder
 {
     QString old_path;

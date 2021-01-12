@@ -10,7 +10,7 @@
 class ThreadFunction
 {
 public:
-    _Export static AsyncResult Async(const FAction& function);
+    _Export static AsyncResult Async(const FAction& function, EPriority priority = EPriority::High);
 
 private:
     friend class ThreadsBase;

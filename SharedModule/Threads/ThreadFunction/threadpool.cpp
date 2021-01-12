@@ -28,7 +28,7 @@ void ThreadPool::TerminateAll()
     m_freeThreads.clear();
 }
 
-AsyncResult ThreadPool::PushTask(const FAction& function)
+AsyncResult ThreadPool::PushTask(const FAction& function, EPriority priority)
 {
     auto* task = new ThreadTaskDesc { function };
     auto result = task->Result;
@@ -38,7 +38,7 @@ AsyncResult ThreadPool::PushTask(const FAction& function)
         m_freeThreads.pop_front();
         thread->RunTask(task);
     } else {
-        m_tasks.push_back(task);
+        m_tasks[(qint32)priority].push_back(task);
     }
     return result;
 }
@@ -46,7 +46,7 @@ AsyncResult ThreadPool::PushTask(const FAction& function)
 void ThreadPool::Await()
 {
     QMutexLocker locker(&m_taskMutex);
-    while(!m_tasks.empty()) {
+    while(!m_tasks[(qint32)EPriority::Low].empty() || !m_tasks[(qint32)EPriority::High].empty()) {
         m_awaitCondition.wait(&m_taskMutex);
     }
 }
@@ -54,12 +54,17 @@ void ThreadPool::Await()
 ThreadTaskDesc* ThreadPool::takeTask()
 {
     QMutexLocker locker(&m_taskMutex);
-    if(m_tasks.empty()) {
-        return nullptr;
+    if(!m_tasks[(qint32)EPriority::High].empty()) {
+        auto result = m_tasks[(qint32)EPriority::High].front();
+        m_tasks[(qint32)EPriority::High].pop_front();
+        return result;
     }    
-    auto result = m_tasks.front();
-    m_tasks.pop_front();
-    return result;
+    if(!m_tasks[(qint32)EPriority::Low].empty()) {
+        auto result = m_tasks[(qint32)EPriority::Low].front();
+        m_tasks[(qint32)EPriority::Low].pop_front();
+        return result;
+    }
+    return nullptr;
 }
 
 void ThreadPool::markFree(Thread* thread)

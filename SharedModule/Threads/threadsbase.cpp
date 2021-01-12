@@ -50,9 +50,9 @@ AsyncResult ThreadsBase::DoQThreadWorkerWithResult(QObject* threadObject, const 
     return QtInlineEventWithResult::Post(task, threadObject, priority);
 }
 
-AsyncResult ThreadsBase::Async(const FAction& task)
+AsyncResult ThreadsBase::Async(const FAction& task, EPriority priority)
 {
-    return ThreadFunction::Async(task);
+    return ThreadFunction::Async(task, priority);
 }
 
 void ThreadsBase::AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task)

@@ -3,9 +3,9 @@
 #include "threadpool.h"
 #include "thread.h"
 
-AsyncResult ThreadFunction::Async(const FAction& function)
+AsyncResult ThreadFunction::Async(const FAction& function, EPriority priority)
 {
-    return threadPool().PushTask(function);
+    return threadPool().PushTask(function, priority);
 }
 
 ThreadPool& ThreadFunction::threadPool()
