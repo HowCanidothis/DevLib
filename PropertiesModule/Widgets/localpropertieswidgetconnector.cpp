@@ -10,6 +10,7 @@
 #include <QComboBox>
 #include <QRadioButton>
 #include <QLabel>
+#include <QDateTimeEdit>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -223,4 +224,39 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
     }
 }
 
+LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalProperty<QDate> * property, QDateEdit * dateTime)
+    : Super([dateTime, property](){
+                dateTime->setDate(*property);
+            },
+            [dateTime, property](){
+                *property = dateTime->date();
+            }
+    )
+{
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(dateTime, &QDateEdit::dateChanged, [this](){
+        m_propertySetter();
+    });
+}
+
+LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty<QDateTime>* property, QDateTimeEdit* dateTime)
+    : Super([dateTime, property](){
+                dateTime->setDateTime(*property);
+            },
+            [dateTime, property](){
+                *property = dateTime->dateTime();
+            }
+    )
+{
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(dateTime, &QDateTimeEdit::dateTimeChanged, [this](){
+        m_propertySetter();
+    });
+}
 #endif

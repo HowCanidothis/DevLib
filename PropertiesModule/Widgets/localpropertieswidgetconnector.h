@@ -119,6 +119,19 @@ public:
     LocalPropertiesTextEditConnector(LocalProperty<QString>* property, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
 };
 
+class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesDateConnector(LocalProperty<QDate>* property, class QDateEdit* dateTime);
+};
+
+class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesDateTimeConnector(LocalProperty<QDateTime>* property, class QDateTimeEdit* dateTime);
+};
 #endif
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H
