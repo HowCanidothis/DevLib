@@ -232,6 +232,15 @@ public:
         OnChanged();
     }
 
+    void Change(const FAction& handler)
+    {
+        OnAboutToBeReseted();
+        handler();
+        OnReseted();
+        OnChanged();
+    }
+
+
     void Remove(const QSet<qint32>& indexes)
     {
         OnAboutToBeReseted();
