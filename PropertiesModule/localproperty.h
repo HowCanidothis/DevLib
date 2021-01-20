@@ -87,6 +87,15 @@ public:
         }
     }
 
+    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
+    DispatcherConnection ConnectFrom(LocalProperty<T2>& another, const Evaluator& thisEvaluator)
+    {
+        *this = thisEvaluator(another.Native());
+        return another.OnChange.Connect(this, [this, thisEvaluator, &another]{
+            *this = thisEvaluator(another.Native());
+        });
+    }
+
     DispatcherConnection ConnectFrom(const LocalProperty& another)
     {
         *this = another.Native();
