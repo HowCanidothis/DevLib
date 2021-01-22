@@ -13,7 +13,7 @@ IgnoreWheelWithoutFocusAttachment::IgnoreWheelWithoutFocusAttachment()
 void IgnoreWheelWithoutFocusAttachment::Attach(QWidget* widget)
 {
     widget->installEventFilter(&getInstance());
-    widget->setFocusPolicy(Qt::ClickFocus);
+    widget->setFocusPolicy(Qt::StrongFocus);
 }
 
 void IgnoreWheelWithoutFocusAttachment::AttachRecursive(QWidget* widget, const std::function<bool (QWidget* w)>& filter)
@@ -21,7 +21,7 @@ void IgnoreWheelWithoutFocusAttachment::AttachRecursive(QWidget* widget, const s
     WidgetContent::ForeachChildWidget(widget, [filter](QWidget* w){
         if(filter(w)) {
             w->installEventFilter(&getInstance());
-            w->setFocusPolicy(Qt::ClickFocus);
+            w->setFocusPolicy(Qt::StrongFocus);
         }
     });
 }
