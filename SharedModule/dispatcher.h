@@ -216,10 +216,16 @@ public:
         connectionSubscribe.Subscribes.insert(connectionSubscribe.LastId++, handler);
         qint32 id = connectionSubscribe.LastId - 1;
         return DispatcherConnection([this, key, id]{
-            QMutexLocker lock(&m_mutex);
+            FCommonDispatcherAction subscribe;
+            QMutexLocker locker(&m_mutex);
             auto foundIt = m_connectionSubscribes.find(key);
             if(foundIt != m_connectionSubscribes.end()) {
-                foundIt.value().Subscribes.remove(id);
+                auto& subscribes = foundIt.value().Subscribes;
+                auto subscribeIt = subscribes.find(id);
+                if(subscribeIt != subscribes.end()) {
+                    subscribe = *subscribeIt;
+                    subscribes.remove(id);
+                }
             }
         }, [this](const DispatcherConnectionSafePtr& connection){
             QMutexLocker lock(&m_mutex);

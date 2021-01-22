@@ -2,6 +2,9 @@
 
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QTableView>
+#include <QHeaderView>
+#include <QClipboard>
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
 {
@@ -47,3 +50,37 @@ void WidgetContent::ForeachChildWidget(QWidget* target, const std::function<void
         handler(childWidget);
     }
 }
+
+void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
+{
+    auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
+    if(selectedIndexes.isEmpty()) {
+        return;
+    }
+
+    auto* header = tableView->horizontalHeader();
+    std::sort(selectedIndexes.begin(), selectedIndexes.end(), [header](const QModelIndex& f, const QModelIndex& s) {
+        if(f.row() == s.row()) {
+            return header->visualIndex(f.column()) < header->visualIndex(s.column());
+        }
+
+        return f.row() < s.row();
+    });
+
+    QString text;
+    auto rowIndex = selectedIndexes.first().row();
+    for(const auto& index : selectedIndexes) {
+        if(header->isSectionHidden(index.column())) {
+            continue;
+        }
+        if(rowIndex != index.row()) {
+            rowIndex = index.row();
+            text += "\n";
+        }
+        text += index.data().toString() + "\t";
+    }
+
+    QClipboard* clipboard = qApp->clipboard();
+    clipboard->setText(text);
+}
+
