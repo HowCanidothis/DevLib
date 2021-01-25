@@ -14,6 +14,7 @@ class _Export ThreadsBase
 public:
 
     static bool IsTerminated();
+    static AsyncResult DoMainWithResult(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoMain(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoMainAwait(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoQThreadWorker(QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
@@ -24,8 +25,8 @@ public:
 };
 
 template<class T>
-void Promise<T>::ThenMain(const typename PromiseData<T>::FCallback& handler) const {
-    m_data->then([handler](const T& value){
+DispatcherConnection Promise<T>::ThenMain(const typename PromiseData<T>::FCallback& handler) const {
+    return m_data->then([handler](const T& value){
         ThreadsBase::DoMain([handler, value]{
             handler(value);
         });

@@ -36,6 +36,7 @@ protected:
 
 protected:
     GtRenderer* m_renderer;
+    std::atomic_bool m_destroyed;
 };
 
 using GtDrawableBasePtr = SharedPointer<GtDrawableBase>;

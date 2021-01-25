@@ -13,6 +13,11 @@ ThreadsBase::ThreadsBase()
 
 }
 
+AsyncResult ThreadsBase::DoMainWithResult(const FAction& task, Qt::EventPriority priority)
+{
+    return QtInlineEventWithResult::Post(task, priority);
+}
+
 void ThreadsBase::DoMain(const FAction& task, Qt::EventPriority priority)
 {
     QtInlineEvent::Post(task, priority);

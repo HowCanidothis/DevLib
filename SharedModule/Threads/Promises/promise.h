@@ -45,13 +45,14 @@ private:
         onFinished -= this;
     }
 
-    void then(const FCallback& handler)
+    DispatcherConnection then(const FCallback& handler)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         if(m_isResolved) {
             handler(m_result);
+            return DispatcherConnection();
         } else {
-            onFinished.Connect(this, handler);
+            return onFinished.Connect(this, handler);
         }
     }
 
@@ -62,7 +63,7 @@ private:
 };
 
 template<class T>
-class Promise ATTACH_MEMORY_SPY(Promise<T>)
+class Promise
 {
     SharedPointer<PromiseData<T>> m_data;
 public:
@@ -73,8 +74,8 @@ public:
 
     const T& GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isResolved; }
-    void Then(const typename PromiseData<T>::FCallback& handler) const { m_data->then(handler); }
-    void ThenMain(const typename PromiseData<T>::FCallback& handler) const;
+    DispatcherConnection Then(const typename PromiseData<T>::FCallback& handler) const { return m_data->then(handler); }
+    DispatcherConnection ThenMain(const typename PromiseData<T>::FCallback& handler) const;
     void Resolve(bool value) const {  m_data->resolve(value); }
     void Mute() { m_data->mute(); }
 };
