@@ -39,6 +39,7 @@
 #include "Threads/ThreadFunction/threadpool.h"
 #include "Threads/threadtimer.h"
 #include "Threads/threadcalculator.h"
+#include "delayedcall.h"
 #include "FullTextSearch/ftsdictionary.h"
 #include "flags.h"
 #include "profile_utils.h"

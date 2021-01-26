@@ -90,6 +90,14 @@ public:
     }
 };
 
+class AsyncSuccess : public AsyncResult
+{
+public:
+    AsyncSuccess() {
+        Resolve(true);
+    }
+};
+
 class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 {
     template<class T> friend class QtFutureWatcher;

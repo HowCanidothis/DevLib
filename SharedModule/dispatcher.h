@@ -297,6 +297,8 @@ public:
         auto foundIt = m_multiSubscribes.find(subscribeHandler.Key);
         if(foundIt == m_multiSubscribes.end()) {
             foundIt = m_multiSubscribes.insert(subscribeHandler.Key, { subscribeHandler.Handler });
+        } else {
+            foundIt.value().Handler = subscribeHandler.Handler;
         }
         foundIt.value().Counter++;
         return *this;

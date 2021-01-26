@@ -6,13 +6,16 @@
 #include "SharedModule/dispatcher.h"
 #include "threadsbase.h"
 
-using ThreadHandler = std::function<void (const FAction& action)>;
+using ThreadHandler = std::function<AsyncResult (const FAction& action)>;
 
-const ThreadHandler ThreadHandlerMain = [](const FAction& action) {
+const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult {
     if(QThread::currentThread() == qApp->thread()) {
         action();
+        AsyncResult result;
+        result.Resolve(true);
+        return result;
     } else {
-        ThreadsBase::DoMain(action);
+        return ThreadsBase::DoMainWithResult(action);
     }
 };
 
