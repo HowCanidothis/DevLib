@@ -68,8 +68,9 @@ QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptio
     spin->setDecimals(m_precision);
     spin->setRange(m_min, m_max);
     spin->setSingleStep(m_step);
+    OnEditorAboutToBeShown(spin, index);
     connect(spin, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, index](double value){
-        emit const_cast<DelegatesDoubleSpinBox*>(this)->valueChanged(value, index);
+        OnEditorValueChanged(value, index);
     });
     return spin;
 }

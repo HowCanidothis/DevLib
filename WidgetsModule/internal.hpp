@@ -36,6 +36,8 @@
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
 
+#include "Managers/widgetsdialogsmanager.h"
+
 #endif
 
 #endif // INTERNAL_H

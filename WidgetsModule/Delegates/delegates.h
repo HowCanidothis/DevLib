@@ -37,8 +37,8 @@ public:
     void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
     void SetRange(double min, double max);
     
-signals:
-    void valueChanged(double, const QModelIndex&);
+    CommonDispatcher<class QDoubleSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
+    CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
     
 private:
     int m_precision;

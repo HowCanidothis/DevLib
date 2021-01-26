@@ -12,6 +12,8 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
+
 QAction* createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu)
 {
     auto result = new QAction(title, menu);
@@ -47,6 +49,7 @@ QAction* createColorAction(const QString& title, const QColor& color, const std:
     static QPixmap pixmap(10,10);
     auto* colorAction = createAction(title, [handler, color](QAction* action){
         QColorDialog dialog(qApp->activeWindow());
+        WidgetsDialogsManager::GetInstance().OnDialogCreated(&dialog);
         dialog.setCurrentColor(color);
         if(dialog.exec() == QDialog::Accepted) {
             auto result = dialog.currentColor();
