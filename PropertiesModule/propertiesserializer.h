@@ -16,7 +16,13 @@ struct Serializer<LocalProperty<T>>
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
-        buffer << data.m_value;
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            T value;
+            buffer << value;
+            data = value;
+        } else {
+            buffer << data.m_value;
+        }
     }
 };
 
@@ -33,7 +39,13 @@ struct Serializer<LocalPropertySequentialEnum<T>>
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
-        buffer << data.m_value;
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            qint32 value;
+            buffer << value;
+            data = value;
+        } else {
+            buffer << data.m_value;
+        }
     }
 };
 
@@ -45,16 +57,27 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         buffer << data.m_value;
-        buffer << data.m_max;
-        buffer << data.m_min;
+
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_MinMaxProperties)) {
+            buffer << data.m_max;
+            buffer << data.m_min;
+        }
     }
 
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
-        buffer << data.m_value;
-        buffer << data.m_max;
-        buffer << data.m_min;
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            T value;
+            buffer << value;
+            data = value;
+        } else {
+            buffer << data.m_value;
+        }
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_MinMaxProperties)) {
+            buffer << data.m_max;
+            buffer << data.m_min;
+        }
     }
 };
 

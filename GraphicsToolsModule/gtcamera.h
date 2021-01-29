@@ -114,6 +114,7 @@ public:
 
     bool IsFrameChangedReset();
     bool IsFrameChanged() const;
+    bool IsIsometric() const { return m_state.TestFlag(State_Isometric); }
 
     const Point3F& GetEye() const { return m_eye; }
     const Vector3F& GetForward() const { return m_forward; }
@@ -144,8 +145,10 @@ private:
     void adjustIsometricScale();
     void calculateIsometricCoef();
 
-    BoundingRect predicateVisibleRectOnZ(const SizeF &_viewport, float z, bool ortho);
+    BoundingRect predicateVisibleRectOnZ(const SizeF& viewport, float z, bool ortho);
     BoundingRect getVisibleRect();
+
+    Point3F unprojectFocused(const Point2I& screenPosition);
 };
 
 #endif // CAMERA_H

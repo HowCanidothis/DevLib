@@ -2,52 +2,66 @@
 #define STREAMBUFFER_H
 
 #include "stdserializer.h"
+#include "SharedModule/flags.h"
+
+enum SerializationMode {
+    SerializationMode_Default = 0x0,
+    SerializationMode_InvokeProperties = 0x1,
+    SerializationMode_MinMaxProperties = 0x2,
+};
+DECL_FLAGS(SerializationModes, SerializationMode);
 
 template<class Stream>
 class StreamBufferBase
 {
-    bool _isValid;
-    Stream _stream;
-    int32_t _version;
+    bool m_isValid;
+    Stream m_stream;
+    int32_t m_version;
+    SerializationModes m_mode;
 
 public:
     template<class ... Args>
     StreamBufferBase(int64_t magicKey, int32_t version, Args ... args)
-        : _stream(args...)
-        , _version(version)
+        : m_stream(args...)
+        , m_version(version)
+        , m_mode(SerializationMode_Default)
     {
         int64_t testKey = magicKey;
-        if(_stream.good()) {
+        if(m_stream.good()) {
             *this << testKey;
-            _isValid = (testKey == magicKey);
-            if(_isValid) {
-                *this << _version;
+            m_isValid = (testKey == magicKey);
+            if(m_isValid) {
+                *this << m_version;
             }
         } else {
-            _isValid = false;
+            m_isValid = false;
         }
     }
 
     template<class Enum>
     StreamBufferBase(QByteArray* array, Enum flags)
-        : _stream(array, flags)
-        , _version(-1)
+        : m_stream(array, flags)
+        , m_version(-1)
+        , m_mode(SerializationMode_Default)
     {
-        _isValid = _stream.good();
+        m_isValid = m_stream.good();
     }
 
     StreamBufferBase(const QByteArray& array)
-        : _stream(array)
-        , _version(-1)
+        : m_stream(array)
+        , m_version(-1)
+        , m_mode(SerializationMode_Default)
     {
-        _isValid = _stream.good();
+        m_isValid = m_stream.good();
     }
 
-    int32_t GetVersion() const { return _version; }
-    bool IsValid() const { return _isValid; }
-    bool IsGood() const { return _stream.good(); }
+    void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
+    const SerializationModes& GetSerializationMode() const { return m_mode; }
+    int32_t GetVersion() const { return m_version; }
+    bool IsValid() const { return m_isValid; }
+    bool IsGood() const { return m_stream.good(); }
 
-    Stream& GetStream() { return _stream; }
+    Stream& GetStream() { return m_stream; }
 
     template<class T>
     StreamBufferBase& operator<<(T& data);

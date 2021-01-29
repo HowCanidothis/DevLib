@@ -85,7 +85,7 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
     switch (type) {
     case QtCriticalMsg:
         ThreadsBase::DoMain([logger, message, currentDateTime]{
-            if(logger->m_severity >= Warning) {
+            if(logger->m_severity >= Error) {
                 logger->Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
             }
         });

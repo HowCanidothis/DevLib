@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QGuiApplication>
 #include <QWindow>
+#include <QWidget>
 
 WindowResizeAttachment::WindowResizeAttachment()
     : m_borderWidth(6)

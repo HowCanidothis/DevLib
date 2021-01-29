@@ -245,18 +245,20 @@ typedef StreamBufferBase<QDataStreamWriter> QStreamBufferWrite;
 typedef StreamBufferBase<QDataStreamReader> QStreamBufferRead;
 
 template<class T>
-inline QByteArray SerializeToArray(const T& object)
+inline QByteArray SerializeToArray(const T& object, SerializationModes serializationMode = SerializationMode_Default)
 {
     QByteArray array;
     QStreamBufferWrite writer(&array, QIODevice::WriteOnly);
+    writer.SetSerializationMode(serializationMode);
     writer << object;
     return array;
 }
 
 template<class T>
-void DeSerializeFromArray(const QByteArray& array, T& object)
+void DeSerializeFromArray(const QByteArray& array, T& object, SerializationModes serializationMode = SerializationMode_Default)
 {
     QStreamBufferRead reader(array);
+    reader.SetSerializationMode(serializationMode);
     reader << object;
 }
 

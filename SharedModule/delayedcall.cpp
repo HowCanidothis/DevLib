@@ -43,7 +43,7 @@ QHash<void*, DelayedCallPtr>& DelayedCallManager::cachedCalls()
     return result;
 }
 
-AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandler& handler)
+AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandlerNoThreadCheck& handler)
 {
     QMutexLocker locker(mutex());
     auto foundIt = cachedCalls().find(object);
@@ -62,4 +62,22 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
     }
     foundIt.value()->SetAction(action);
     return foundIt.value()->GetResult();
+}
+
+DelayedCallDispatchersCommutator::DelayedCallDispatchersCommutator()
+{
+
+}
+
+void DelayedCallDispatchersCommutator::Subscribe(const ThreadHandlerNoThreadCheck& threadHandler, const QVector<Dispatcher*>& dispatchers)
+{
+    auto callOnChanged = [this, threadHandler]{
+        DelayedCallManager::CallDelayed(&m_delayedCallObject, [this]{
+            Invoke();
+        }, threadHandler);
+    };
+
+    for(auto* dispatcher : dispatchers) {
+        dispatcher->Connect(this, callOnChanged); // Note. eternal subscribe
+    }
 }

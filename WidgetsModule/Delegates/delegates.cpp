@@ -85,7 +85,7 @@ void DelegatesDoubleSpinBox::setEditorData(QWidget* editor, const QModelIndex& i
 
 void DelegatesDoubleSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QDoubleSpinBox* spin = static_cast<QDoubleSpinBox*>(editor);
-    const double& val = spin->value();
+    const double& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
 
     model->setData(index, val, Qt::EditRole);
 }

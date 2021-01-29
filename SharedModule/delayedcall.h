@@ -2,6 +2,7 @@
 #define DELAYEDCALL_H
 
 #include "SharedModule/Threads/Promises/promise.h"
+#include "SharedModule/dispatcher.h"
 
 class DelayedCallObject
 {
@@ -37,15 +38,30 @@ using DelayedCallPtr = SharedPointer<DelayedCall>;
 class DelayedCallManager
 {
 public:
-    static AsyncResult CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandler& handler);
+    static AsyncResult CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandlerNoThreadCheck& handler);
     static AsyncResult CallDelayedMain(DelayedCallObject* object, const FAction& action)
     {
-        return CallDelayed(object, action, [](const FAction& action) -> AsyncResult { return ThreadsBase::DoMainWithResult(action, Qt::LowEventPriority); });
+        return CallDelayed(object, action, ThreadHandlerNoCheckMainLowPriority);
     }
 
 private:
     static QMutex* mutex();
     static QHash<void*, DelayedCallPtr>& cachedCalls();
 };
+
+class DelayedCallDispatchersCommutator : public Dispatcher
+{
+public:
+    DelayedCallDispatchersCommutator();
+
+    // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
+    void Subscribe(const ThreadHandlerNoThreadCheck& threadHandler, const QVector<Dispatcher*>& dispatchers);
+    void SubscribeMain(const QVector<Dispatcher*>& dispatchers) { Subscribe(ThreadHandlerNoCheckMainLowPriority, dispatchers); }
+
+private:
+    DelayedCallObject m_delayedCallObject;
+};
+
+using DispatchersCommutator = DelayedCallDispatchersCommutator;
 
 #endif // DELAYEDCALL_H
