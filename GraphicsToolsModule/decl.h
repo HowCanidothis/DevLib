@@ -19,5 +19,6 @@ using GtMeshBufferPtr = SharedPointer<class GtMeshBuffer>;
 using GtRendererPtr = SharedPointer<class GtRenderer>;
 using GtRendererControllerPtr = SharedPointer<class GtRendererController>;
 using GtFontPtr = SharedPointer<class GtFont>;
+using GtRenderProperties = QHash<Name, QVariant>;
 
 #endif // DECL_H

@@ -65,6 +65,7 @@ class GtCamera : public GtCameraState
     ScopedPointer<GtCameraFocus> m_focus;
     CameraObserverProperties* m_observer;
     std::function<void (qint32&, qint32&)> m_invertRotation;
+    Vector3F m_projectionPlane;
 
 public:
     GtCamera();

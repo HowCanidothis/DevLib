@@ -42,6 +42,11 @@ void GtDrawableBase::Update(const FAction& f)
     }
 }
 
+const GtRenderProperties& GtDrawableBase::getRenderProperties() const
+{
+    return m_renderer->m_renderProperties;
+}
+
 void GtDrawableBase::initialize(GtRenderer* renderer)
 {
     onInitialize(renderer);

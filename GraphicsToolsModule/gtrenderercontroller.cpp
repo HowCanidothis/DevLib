@@ -120,6 +120,20 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
 }
 
+void GtRendererController::SetRenderProperties(const GtRenderProperties& renderProperties)
+{
+    m_renderer->Asynch([this, renderProperties]{
+        m_renderProperties = renderProperties;
+    });
+}
+
+void GtRendererController::SetRenderProperty(const Name& name, const QVariant& value)
+{
+    m_renderer->Asynch([this, name, value]{
+        m_renderProperties.insert(name, value);
+    });
+}
+
 void GtRendererController::SetProjectionProperties(float angle, float nearValue, float farValue)
 {
     m_renderer->Asynch([this, angle, nearValue, farValue]{

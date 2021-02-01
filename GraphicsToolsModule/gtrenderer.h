@@ -7,6 +7,7 @@
 #include <GraphicsToolsModule/Objects/gtmaterialparameterbase.h>
 
 #include "gtrendererbase.h"
+#include "decl.h"
 
 class GtRendererSharedData
 {
@@ -114,6 +115,7 @@ private:
     SharedPointer<GtRendererSharedData> m_sharedData;
     ResourcesSystem m_resourceSystem;
     QVector<GtRendererPtr> m_childRenderers;
+    GtRenderProperties m_renderProperties;
 };
 
 #endif // GTRENDERER_H

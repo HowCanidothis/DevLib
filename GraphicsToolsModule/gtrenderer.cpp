@@ -270,6 +270,7 @@ void GtRenderer::onDraw()
         }
         auto* depthFbo = controller->m_depthFbo.get();
         auto* camera = controller->m_camera.get();
+        m_renderProperties = controller->m_renderProperties;
 
         glViewport(0,0, fbo->width(), fbo->height());
 

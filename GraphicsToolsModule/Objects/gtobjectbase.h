@@ -34,6 +34,8 @@ protected:
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
 
+    const GtRenderProperties& getRenderProperties() const;
+
 protected:
     GtRenderer* m_renderer;
     std::atomic_bool m_destroyed;

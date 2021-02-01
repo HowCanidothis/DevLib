@@ -450,13 +450,18 @@ void GtCamera::adjustIsometricScale()
 {
     if(m_state.TestFlagsAll(State_NeedAdjustScale) && m_isometricCoef != 0.f)
     {
-        auto sideDir = Vector3F::crossProduct(m_forward, m_up);
-        auto projected = Vector3F::dotProduct(m_eye, sideDir) / sideDir.lengthSquared() * sideDir;
-        auto isometricScale = (m_eye - projected).length() / m_isometricCoef;
-        if(isometricScale > 4.f) {
-            m_isometricScale = isometricScale;
-            m_state.AddFlag(State_NeedUpdateProjection);
+        if(m_projectionPlane.isNull()) {
+            auto sideDir = Vector3F::crossProduct(m_forward, m_up);
+            auto projected = Vector3F::dotProduct(m_eye, sideDir) / sideDir.lengthSquared() * sideDir;
+            auto isometricScale = (m_eye - projected).length() / m_isometricCoef;
+            if(isometricScale > 4.f) {
+                m_isometricScale = isometricScale;
+
+            }
+        } else {
+            m_isometricScale = (m_eye * m_projectionPlane).length() / m_isometricCoef;
         }
+        m_state.AddFlag(State_NeedUpdateProjection);
     }
 }
 

@@ -5,6 +5,8 @@
 #include <SharedGuiModule/internal.hpp>
 #include <PropertiesModule/internal.hpp>
 
+#include "decl.h"
+
 class GtCameraAnimationEngine
 {
     template<class ValueType> friend class GtCameraPointsPathEngineBase;
@@ -163,6 +165,8 @@ class GtRendererController : public QObject
 public:
     GtRendererController(GtRenderer* renderer, class ControllersContainer* controllersContainer, struct GtControllersContext* context);
 
+    void SetRenderProperties(const GtRenderProperties& renderProperties);
+    void SetRenderProperty(const Name& name, const QVariant& value);
     void SetProjectionProperties(float angle, float nearValue, float farValue);
 
     void SetEnabled(bool enabled) { m_enabled = enabled; }
@@ -187,6 +191,7 @@ private:
     void setCurrentImage(QImage* image, double renderTime);
     void onInitialize();
     void onDestroy();
+    const GtRenderProperties& getRenderProperties() const { return m_renderProperties; }
 
 private:
     friend class GtRenderer;
@@ -202,6 +207,7 @@ private:
     double m_renderTime;
     std::atomic_bool m_enabled;
     GtCameraAnimationEngine m_cameraAnimationEngine;
+    GtRenderProperties m_renderProperties;
 };
 
 #endif // GTRENDERERCONTROLLER_H
