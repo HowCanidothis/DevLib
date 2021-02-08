@@ -21,6 +21,10 @@ public:
     QMutex Mutex;
 };
 
+const Name RENDER_PROPERTY_CAMERA_STATE_CHANGED = Name("CameraStateChanged");
+const Name RENDER_PROPERTY_FORCE_DISABLE_DEPTH_TEST = Name("ForceDisableDepthTest");
+const Name RENDER_PROPERTY_DRAWING_DEPTH_STAGE = Name("ForceDisableDepthTest");
+
 class GtRenderer : public GtRendererBase, protected OpenGLFunctions
 {
     Q_OBJECT
@@ -79,6 +83,8 @@ public:
     Dispatcher OnAboutToBeDestroyed;
 
 private:
+    void enableDepthTest();
+    void disableDepthTest();
     void construct();
     static GtRenderer*& currentRenderer();
     QOpenGLContext* getContext() { return m_context.get(); }
@@ -105,8 +111,10 @@ private:
     SharedPointer<Matrix4Resource> m_viewport;
     SharedPointer<Resource<Vector3F>> m_eye;
     SharedPointer<Resource<Vector3F>> m_forward;
+    SharedPointer<Resource<Vector3F>> m_side;
     SharedPointer<Resource<Vector3F>> m_up;
     SharedPointer<Resource<Vector2F>> m_screenSize;
+    SharedPointer<Resource<GtCamera*>> m_camera;
 
     qint32 m_queueNumber;
 

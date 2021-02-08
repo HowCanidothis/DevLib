@@ -20,5 +20,17 @@ using GtRendererPtr = SharedPointer<class GtRenderer>;
 using GtRendererControllerPtr = SharedPointer<class GtRendererController>;
 using GtFontPtr = SharedPointer<class GtFont>;
 using GtRenderProperties = QHash<Name, QVariant>;
+using GtDrawableBasePtr = SharedPointer<class GtDrawableBase>;
+
+struct GtDrawableDeleter
+{
+    void operator()(GtDrawableBase* obj);
+};
+
+inline GtDrawableBasePtr make_shared(GtDrawableBase* drawable)
+{
+    return GtDrawableBasePtr(drawable, GtDrawableDeleter());
+}
+
 
 #endif // DECL_H

@@ -52,6 +52,13 @@ struct GtTextGlyphBase
     float XAdvance;
 };
 
+struct GtTextScreenBasedGlyph : GtTextGlyphBase
+{
+    float Align;
+    float TotalWidth;
+    Vector2F Direction;
+};
+
 struct GtTextGlyph : GtTextGlyphBase
 {
     float TotalWidth;
@@ -69,12 +76,14 @@ public:
     std::optional<GtTextGlyphBase> GetGlyph(qint32 unicode) const;
 
     QFontMetrics FontMetrics() const;
+    const float& GetHeight() const { return m_height; }
 
 private:
     qint32 m_borders[4];
     QSize m_size;
     QString m_fontFamily;
     qint32 m_fontSize;
+    float m_height;
     QHash<qint32, GtTextGlyphBase> m_glyphs;
 };
 
@@ -145,7 +154,70 @@ private:
     GtMeshBufferPtr m_buffer;
     GtMeshBufferBuilder m_builder;
     GtFontPtr m_font;
-    QVector<SharedPointer<Property>> m_properties;
+
+    // GtDrawableBase interface
+protected:
+    void drawDepth(OpenGLFunctions* f) override;
+    void draw(OpenGLFunctions* f) override;
+    void onInitialize(OpenGLFunctions* f) override;
+    void onDestroy(OpenGLFunctions* ) override {}
+};
+
+class GtTextScreenDrawable : public GtDrawableBase
+{
+    using Super = GtDrawableBase;
+public:
+#pragma pack(1)
+    struct TextMeshStruct
+    {
+        Point2F Point;
+        GtTextScreenBasedGlyph Glyph;
+    };
+#pragma pack()
+
+    enum TextAlign
+    {
+        TextAlign_HLeft = 0x1,
+        TextAlign_HRight = 0x2,
+        TextAlign_HCenter = TextAlign_HLeft | TextAlign_HRight,
+        TextAlign_VTop = 0x4,
+        TextAlign_VBottom = 0x8,
+        TextAlign_VCenter = TextAlign_VTop | TextAlign_VBottom,
+        TextAlign_Center = TextAlign_VCenter | TextAlign_HCenter
+    };
+    DECL_FLAGS(TextAligns, TextAlign)
+
+    struct TextInfo
+    {
+        QString Text;
+        Vector2F Position;
+        Vector2F Direction;
+
+        TextInfo() = default;
+        TextInfo(const QString& text, const Vector2F& position, const Vector2F& direction)
+            : Text(text)
+            , Position(position)
+            , Direction(direction)
+            , Align(TextAlign_Center)
+        {}
+
+        TextAligns Align;
+
+        TextInfo& SetAlign(TextAligns align) { Align = align; return *this; }
+    };
+
+    GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
+    GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font);
+
+    GtTextDrawableSettings Settings;
+
+    void DisplayText(const QVector<TextInfo>& texts);
+
+private:
+    GtMaterial m_material;
+    GtMeshBufferPtr m_buffer;
+    GtMeshBufferBuilder m_builder;
+    GtFontPtr m_font;
 
     // GtDrawableBase interface
 protected:

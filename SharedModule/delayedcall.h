@@ -7,12 +7,21 @@
 class DelayedCallObject
 {
 public:
+    DelayedCallObject(const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
+        : m_threadHandler(handler)
+    {}
+
     ~DelayedCallObject()
     {
         OnDeleted();
     }
 
+    AsyncResult Call(const FAction& action);
+
     Dispatcher OnDeleted;
+
+private:
+    ThreadHandlerNoThreadCheck m_threadHandler;
 };
 
 class DelayedCall
@@ -61,6 +70,11 @@ public:
 private:
     DelayedCallObject m_delayedCallObject;
 };
+
+inline AsyncResult DelayedCallObject::Call(const FAction& action)
+{
+    return DelayedCallManager::CallDelayed(this, action, m_threadHandler);
+}
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator;
 

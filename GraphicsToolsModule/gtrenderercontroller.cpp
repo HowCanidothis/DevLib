@@ -118,6 +118,20 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
 
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
+    m_renderer->OnAboutToBeDestroyed.Connect(this, [this]{
+        for(auto* drawable : m_drawables) {
+            drawable->Destroy();
+        }
+        m_drawables.clear();
+        m_renderer->ProcessEvents();
+    }).MakeSafe(m_connections);
+}
+
+GtRendererController::~GtRendererController()
+{
+    for(auto* drawable : m_drawables) {
+        drawable->Destroy();
+    }
 }
 
 void GtRendererController::SetRenderProperties(const GtRenderProperties& renderProperties)
@@ -210,6 +224,13 @@ void GtRendererController::setCurrentImage(QImage* image, double renderTime)
     m_outputImage = image;
     m_renderTime = renderTime;
     imageUpdated();
+}
+
+void GtRendererController::draw(OpenGLFunctions* f)
+{
+    for(const auto& drawable : m_drawables) {
+        drawable->draw(f);
+    }
 }
 
 void GtRendererController::onInitialize()

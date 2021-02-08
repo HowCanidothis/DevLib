@@ -164,6 +164,18 @@ class GtRendererController : public QObject
     Q_OBJECT
 public:
     GtRendererController(GtRenderer* renderer, class ControllersContainer* controllersContainer, struct GtControllersContext* context);
+    ~GtRendererController();
+
+    template<class T, typename ...Args>
+    T* CreateDrawable(Args... args)
+    {
+        auto result = new T(m_renderer, args...);
+        m_renderer->Asynch([this, result]{
+            result->initialize(m_renderer);
+        });
+        m_drawables.append(result);
+        return result;
+    }
 
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
@@ -188,6 +200,7 @@ signals:
     void imageUpdated();
 
 private:
+    void draw(OpenGLFunctions* f);
     void setCurrentImage(QImage* image, double renderTime);
     void onInitialize();
     void onDestroy();
@@ -208,6 +221,8 @@ private:
     std::atomic_bool m_enabled;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
+    QVector<GtDrawableBase*> m_drawables;
+    DispatcherConnectionsSafe m_connections;
 };
 
 #endif // GTRENDERERCONTROLLER_H

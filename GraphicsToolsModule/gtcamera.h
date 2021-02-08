@@ -58,8 +58,10 @@ class GtCamera : public GtCameraState
     float m_near;
     float m_far;
     float m_angle;
-    float m_isometricScale;
-    float m_isometricCoef;
+    Point2F m_isometricScale;
+    Point2F m_isometricCoef;
+    Point3F m_isometricCenter;
+    float m_isometricCurtain;
 
     BoundingBox m_sceneBox;
     ScopedPointer<GtCameraFocus> m_focus;
@@ -80,10 +82,12 @@ public:
     void MoveSide(float value);
 
     void MoveFocused(const Point2I& screenPosition);
+    void MoveFocused(const Point2F& screenPosition);
     void Translate(float dx, float dy);
     void SetSceneBox(const BoundingBox& box) { this->m_sceneBox = box; }
     void FocusBind(const Point2I& screen_position, float depth);
     void FocusBind(const Point3F& worldPosition);
+    void FocusRelease();
     void Zoom(bool closer);
     void Rotate(const Point2I& angles) { Rotate(angles.x() , angles.y()); }
     void Rotate(qint32 angleZ, qint32 angleX);
@@ -100,7 +104,8 @@ public:
 
     void InvertRotation(InvertRotationFlags invert);
     void SetAxisSystem(bool leftHanded);
-    void SetIsometricScale(float scale);
+    void SetIsometricCenterAndCertain(const Point3F& center, float distanceFromCenter);
+    void SetIsometricScale(const Point2F& scale);
     void SetIsometric(bool flag);
     void Resize(qint32 width, qint32 height);
     void SetProjectionProperties(float m_angle, float near, float far);
@@ -116,14 +121,13 @@ public:
     bool IsFrameChangedReset();
     bool IsFrameChanged() const;
     bool IsIsometric() const { return m_state.TestFlag(State_Isometric); }
+    const Point2F& GetIsometricScale() const { return m_isometricScale; }
+    const Point3F& GetIsometricCenter() const { return m_isometricCenter; }
+    float GetIsometricCurtain() const { return m_isometricCurtain; }
 
     const Point3F& GetEye() const { return m_eye; }
     const Vector3F& GetForward() const { return m_forward; }
     const Vector3F& GetUp() const { return m_up; }
-    const Point3F GetCenter() const
-    {
-        return m_eye - m_forward * m_eye.z() / m_forward.z();
-    }
     float GetFar() const { return m_far; }
 
     const Matrix4& GetProjection() { updateProjection(); return m_projection; }
@@ -131,7 +135,8 @@ public:
     const Matrix4& GetWorld() { updateWorld(); return m_world; }
     const Matrix4& GetWorldInverted() { updateWorld(); return m_worldInverted; }
     const Matrix4& GetRotation() { updateView(); return m_rotation; }
-    const Matrix4& GetViewport() { updateProjection(); return m_viewportProjection; }
+    const Matrix4& GetViewportProjection() { updateProjection(); return m_viewportProjection; }
+    const SizeF& GetViewport() const { return m_viewport; }
 
     void InstallObserver(const QString& path);
 
@@ -146,10 +151,10 @@ private:
     void adjustIsometricScale();
     void calculateIsometricCoef();
 
-    BoundingRect predicateVisibleRectOnZ(const SizeF& viewport, float z, bool ortho);
-    BoundingRect getVisibleRect();
+    SizeF predicateVisibleSizeOnZ(const SizeF& viewport, float z, bool ortho);
+    SizeF visibleSize();
 
-    Point3F unprojectFocused(const Point2I& screenPosition);
+    Point3F unprojectFocused(const Point2F& screenPosition);
 };
 
 #endif // CAMERA_H

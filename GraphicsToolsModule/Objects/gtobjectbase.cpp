@@ -12,8 +12,21 @@ GtDrawableBase::~GtDrawableBase()
 {
 }
 
+void GtDrawableBase::enableDepthTest()
+{
+    m_renderer->enableDepthTest();
+}
+
+void GtDrawableBase::disableDepthTest()
+{
+    m_renderer->disableDepthTest();
+}
+
 void GtDrawableBase::Destroy()
 {
+    Update([this](OpenGLFunctions* f){
+        onDestroy(f);
+    });
     m_destroyed = true;
     m_renderer->RemoveDrawable(this);
 }
@@ -23,9 +36,13 @@ void GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
     if(m_destroyed) {
         return;
     }
-    m_renderer->Asynch([this, f]{
+    if(QThread::currentThread() == m_renderer) {
         f(m_renderer);
-    });
+    } else {
+        m_renderer->Asynch([this, f]{
+            f(m_renderer);
+        });
+    }
 }
 
 void GtDrawableBase::Update(const FAction& f)

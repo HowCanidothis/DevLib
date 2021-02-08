@@ -2,3 +2,19 @@ CustomPlot {
     qproperty-textPadding: rect(12 0 12 0);
     qproperty-fontSize: 12;
 }
+
+WPSToolTipWidget {
+    background-color: #B5B5B5;
+    color: #1E1E1E;
+    qproperty-opacity: 0;
+}
+
+WPSToolTipWidget QWidget{
+    font-size: 12px;
+    background-color: #B5B5B5;
+    color: #1E1E1E;
+}
+
+ToolTipArrowWidget {
+    background-color: #B5B5B5;
+}

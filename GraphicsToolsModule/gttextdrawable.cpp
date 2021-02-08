@@ -14,9 +14,10 @@ void GtTextMap::LoadFromFnt(const QString& fntFile)
         auto contents = file.readAll();
         QRegExp regexp(R"((\w+)=([^\s]+))");
         qint32 pos = 0;
+        m_height = 0;
 
         qint32 id;
-        GtTextGlyph currentGlyph;
+        GtTextGlyphBase currentGlyph;
         QHash<Name, std::function<void (const QString& ref)>> factory=
         {
         { Name("padding"), [this](const QString& ref) {
@@ -32,7 +33,12 @@ void GtTextMap::LoadFromFnt(const QString& fntFile)
         { Name("x"), [&currentGlyph](const QString& ref) { currentGlyph.X = ref.toFloat(); } },
         { Name("y"), [&currentGlyph](const QString& ref) { currentGlyph.Y = ref.toFloat(); } },
         { Name("width"), [&currentGlyph](const QString& ref) { currentGlyph.Width = ref.toFloat(); } },
-        { Name("height"), [&currentGlyph](const QString& ref) { currentGlyph.Height = ref.toFloat(); } },
+        { Name("height"), [&currentGlyph, this](const QString& ref) {
+            currentGlyph.Height = ref.toFloat();
+            if(currentGlyph.Height > m_height) {
+                m_height = currentGlyph.Height;
+            }
+        } },
         { Name("xoffset"), [&currentGlyph](const QString& ref) { currentGlyph.XOffset = ref.toFloat(); } },
         { Name("yoffset"), [&currentGlyph](const QString& ref) { currentGlyph.YOffset = ref.toFloat(); } },
         { Name("xadvance"), [&currentGlyph](const QString& ref) { currentGlyph.XAdvance = ref.toFloat(); } },
@@ -142,9 +148,9 @@ void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)
 
 void GtTextDrawable::draw(OpenGLFunctions* f)
 {
-    f->glDisable(GL_DEPTH_TEST);
+    disableDepthTest();
     m_material.Draw(f);
-    f->glEnable(GL_DEPTH_TEST);
+    enableDepthTest();
     f->glPointSize(10.f);
 }
 
@@ -163,3 +169,90 @@ GtFont::GtFont(const Name& fontName, const QString& fntPath)
 {
     m_map.LoadFromFnt(fntPath);
 }
+
+GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
+    : Super(renderer)
+    , m_material(GL_POINTS, shaderProgram)
+    , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Custom, QOpenGLBuffer::StaticDraw))
+    , m_font(font)
+{
+    m_material.AddMesh(::make_shared<GtMesh>(m_buffer));
+    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", "screenSize"));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("CONTRAST", &Settings.Contrast.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_SCALE", &Settings.Scale.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Settings.Color.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_COLOR", &Settings.BorderColor.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_HEIGHT", &font->GetMap().GetHeight()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterTexture>("TEXTURE", font->GetName()));
+
+    m_builder.AddComponent<float>(2);
+    m_builder.AddComponent<float>(4);
+    m_builder.AddComponent<float>(2);
+    m_builder.AddComponent<float>(4);
+    m_builder.AddComponent<float>(2);
+
+    Settings.Visible.Subscribe([this]{
+        Update([this]{
+            m_material.SetVisible(Settings.Visible);
+        });
+    });
+}
+
+GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font)
+    : GtTextScreenDrawable(renderer, renderer->GetShaderProgram("DefaultScreenTextShaderProgram"), font)
+{
+
+}
+
+void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
+{
+    Update([texts,this](OpenGLFunctions* f){
+        QVector<TextMeshStruct> mesh;
+        for(const auto& textInfo : texts) {
+            TextMeshStruct currentMeshVertex;
+            currentMeshVertex.Glyph.XAdvance = 0.f;
+            currentMeshVertex.Point = textInfo.Position;
+            currentMeshVertex.Glyph.Direction = textInfo.Direction;
+            currentMeshVertex.Glyph.Align = textInfo.Align;
+            qint32 index = 0;
+            auto meshSize = mesh.size();
+            for(const auto& glyph : textInfo.Text) {
+                auto glyphInfo = m_font->GetMap().GetGlyph(glyph.unicode());
+                if(glyphInfo.has_value()) {
+                    auto oldAdvance = currentMeshVertex.Glyph.XAdvance;
+                    reinterpret_cast<GtTextGlyphBase&>(currentMeshVertex.Glyph) = glyphInfo.value();
+                    currentMeshVertex.Glyph.XAdvance = oldAdvance;
+                    currentMeshVertex.Glyph.Index = index++;
+                    mesh.append(currentMeshVertex);
+                    currentMeshVertex.Glyph.XAdvance += glyphInfo->XAdvance;
+                }
+            }
+            auto totalWidth = currentMeshVertex.Glyph.XAdvance + 10.f * (mesh.size() - meshSize);
+            for(auto& glyph : adapters::range(mesh.begin() + meshSize, mesh.end())) {
+                glyph.Glyph.TotalWidth = totalWidth;
+            }
+        }
+        m_buffer->UpdateVertexArray(mesh, m_builder);
+        m_buffer->UpdateVao(f);
+    });
+}
+
+void GtTextScreenDrawable::draw(OpenGLFunctions* f)
+{
+    disableDepthTest();
+    m_material.Draw(f);
+    enableDepthTest();
+    f->glPointSize(10.f);
+}
+
+void GtTextScreenDrawable::drawDepth(OpenGLFunctions* )
+{
+}
+
+void GtTextScreenDrawable::onInitialize(OpenGLFunctions* f)
+{
+    m_material.Update();
+    m_buffer->Initialize(f);
+}
+

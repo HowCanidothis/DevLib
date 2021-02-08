@@ -102,7 +102,6 @@ AsyncResult ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
 void ThreadEventsContainer::clearEvents()
 {
     m_interupted = true;
-    ProcessEvents();
     QMutexLocker locker(&m_eventsMutex);
     while(!m_events.empty()) {
         delete m_events.front();

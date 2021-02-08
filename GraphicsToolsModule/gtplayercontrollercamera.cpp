@@ -36,13 +36,13 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 {
     ctx().LastScreenPoint = resolutional(event->pos());
     const auto& lastScreenPosition = ctx().LastScreenPoint;
-    if(event->button() == Qt::RightButton) {
+    if(event->button() == Qt::RightButton || event->button() == Qt::LeftButton) {
         auto depth = ctx().DepthBuffer->ValueAt(lastScreenPosition.x(), lastScreenPosition.y());
-        ctx().Camera->FocusBind(lastScreenPosition, depth);
-        return true;
-    } else if(event->button() == Qt::LeftButton) {
-        auto depth = ctx().DepthBuffer->ValueAt(lastScreenPosition.x(), lastScreenPosition.y());
-        ctx().Camera->FocusBind(lastScreenPosition, depth);
+        /*if(qFuzzyCompare(depth,1.f)) {
+            ctx().Camera->FocusRelease();
+        } else {*/
+            ctx().Camera->FocusBind(lastScreenPosition, depth);
+        //}
         return false;
     }
 

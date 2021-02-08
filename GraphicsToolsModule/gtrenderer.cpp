@@ -34,6 +34,18 @@ void GtRenderer::construct()
     });
 }
 
+void GtRenderer::enableDepthTest()
+{
+    if(!m_renderProperties[RENDER_PROPERTY_FORCE_DISABLE_DEPTH_TEST].toBool() || m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE].toBool()) {
+        glEnable(GL_DEPTH_TEST);
+    }
+}
+
+void GtRenderer::disableDepthTest()
+{
+    glDisable(GL_DEPTH_TEST);
+}
+
 GtRenderer::GtRenderer(const QSurfaceFormat& format)
     : Super(format, nullptr)
     , m_sharedData(new GtRendererSharedData(this))
@@ -41,6 +53,7 @@ GtRenderer::GtRenderer(const QSurfaceFormat& format)
     construct();
     auto textShaderProgram = CreateShaderProgram("DefaultTextShaderProgram");
     textShaderProgram->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders("D:/Work/wps-client/libs/Content/Shaders", "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
 }
 
 GtRenderer::~GtRenderer()
@@ -109,7 +122,6 @@ void GtRenderer::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)
 void GtRenderer::RemoveDrawable(GtDrawableBase* drawable)
 {
     Asynch([this, drawable]{
-        drawable->onDestroy(this);
         m_scene->RemoveDrawable(drawable);
     });
 }
@@ -183,6 +195,10 @@ void GtRenderer::onInitialize()
         return new Vector3F();
     });
 
+    m_resourceSystem.RegisterResource("side", []{
+        return new Vector3F();
+    });
+
     m_resourceSystem.RegisterResource("up", []{
         return new Vector3F();
     });
@@ -203,8 +219,12 @@ void GtRenderer::onInitialize()
         return new Matrix4;
     });
 
-    m_resourceSystem.RegisterResource("viewport", []{
+    m_resourceSystem.RegisterResource("viewportProjection", []{
         return new Matrix4;
+    });
+
+    m_resourceSystem.RegisterResource("camera", []{
+        return new GtCamera*;
     });
 
     m_scene = new GtScene();
@@ -225,7 +245,9 @@ void GtRenderer::onInitialize()
     m_view = m_resourceSystem.GetResource<Matrix4>("view");
     m_projection = m_resourceSystem.GetResource<Matrix4>("projection");
     m_rotation = m_resourceSystem.GetResource<Matrix4>("rotation");
-    m_viewport = m_resourceSystem.GetResource<Matrix4>("viewport");
+    m_viewport = m_resourceSystem.GetResource<Matrix4>("viewportProjection");
+    m_side = m_resourceSystem.GetResource<Vector3F>("side");
+    m_camera = m_resourceSystem.GetResource<GtCamera*>("camera");
 
     // TODO. Must have state machine feather
     glDisable(GL_CULL_FACE);
@@ -258,7 +280,7 @@ SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queu
 
 void GtRenderer::onDraw()
 {
-    if(!isInitialized() /*|| !m_camera->IsFrameChangedReset()*/) {
+    if(!isInitialized()) {
         return;
     }
 
@@ -270,11 +292,13 @@ void GtRenderer::onDraw()
         }
         auto* depthFbo = controller->m_depthFbo.get();
         auto* camera = controller->m_camera.get();
+        auto cameraStateChanged = camera->IsFrameChangedReset();
         m_renderProperties = controller->m_renderProperties;
+        m_renderProperties[RENDER_PROPERTY_CAMERA_STATE_CHANGED] = cameraStateChanged;
 
         glViewport(0,0, fbo->width(), fbo->height());
 
-        m_viewport->Data().Set(camera->GetViewport());
+        m_viewport->Data().Set(camera->GetViewportProjection());
         m_rotation->Data().Set(camera->GetRotation());
         m_projection->Data().Set(camera->GetProjection());
         m_view->Data().Set(camera->GetView());
@@ -284,6 +308,8 @@ void GtRenderer::onDraw()
         m_forward->Data().Set(camera->GetForward());
         m_invertedMv->Data().Set(camera->GetView().inverted().transposed());
         m_screenSize->Data().Set(Vector2F(fbo->size().width(), fbo->size().height()));
+        m_side->Data().Set(Vector3F::crossProduct(m_up->Data().Get(), m_forward->Data().Get()).normalized());
+        m_camera->Data().Set(camera);
 
         fbo->bind();
 
@@ -291,7 +317,13 @@ void GtRenderer::onDraw()
 
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);
+            if(m_renderProperties.contains(RENDER_PROPERTY_FORCE_DISABLE_DEPTH_TEST)) {
+                glDisable(GL_DEPTH_TEST);
+            } else {
+                glEnable(GL_DEPTH_TEST);
+            }
             m_scene->draw(this);
+            controller->draw(this);
         }
 
         fbo->release();
@@ -300,7 +332,15 @@ void GtRenderer::onDraw()
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        m_scene->drawDepth(this);
+        { // TODO. Fixing binding issues with shared resources
+            QMutexLocker locker(&m_sharedData->Mutex);
+            m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = true;
+            glEnable(GL_DEPTH_TEST);
+
+            m_scene->drawDepth(this);
+
+            m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = false;
+        }
 
         depthFbo->Release();
 

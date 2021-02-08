@@ -7,6 +7,7 @@
 
 class ToolTipWidget : public QFrame
 {
+    Q_OBJECT
     using Super = QFrame;
 public:
     ToolTipWidget(QWidget* parent);

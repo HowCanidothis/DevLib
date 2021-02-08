@@ -62,8 +62,7 @@ GtCamera::GtCamera()
     : m_near(1.f)
     , m_far(150.f)
     , m_angle(45.f)
-    , m_isometricScale(1.f)
-    , m_isometricCoef(0.f)
+    , m_isometricCurtain(0.f)
     , m_focus(nullptr)
     , m_observer(nullptr)
     , m_invertRotation([](qint32&,qint32&){})
@@ -128,6 +127,11 @@ void GtCamera::MoveSide(float value)
 
 void GtCamera::MoveFocused(const Point2I& screenPosition)
 {
+    MoveFocused(Point2F(screenPosition.x(), screenPosition.y()));
+}
+
+void GtCamera::MoveFocused(const Point2F& screenPosition)
+{
     if(m_focus != nullptr) {
         auto newPoint = unprojectFocused(screenPosition);
         const auto& oldPoint = m_focus->GetScenePoint();
@@ -141,6 +145,11 @@ void GtCamera::Translate(float dx, float dy)
     m_eye.setX(m_eye.x() + dx);
     m_eye.setY(m_eye.y() + dy);
     m_state.AddFlag(State_NeedUpdateView);
+}
+
+void GtCamera::FocusRelease()
+{
+    m_focus = nullptr;
 }
 
 void GtCamera::FocusBind(const Point2I& screen_position, float depth)
@@ -159,23 +168,29 @@ void GtCamera::Zoom(bool closer)
     if(m_focus != nullptr) {
         ray = m_focus->GetScenePoint() - m_eye;
     } else {
-        ray = GetCenter() - m_eye;
+        return;
     }
+
     if(closer && ray.lengthSquared() < m_near) {
         return;
     }
 
     if(m_state.TestFlag(State_Isometric)) {
-        m_isometricScale *= closer ? 0.75f : 1.25f;
         m_state.RemoveFlag(State_AutoIsometricScaling);
-        m_state.AddFlag(State_NeedUpdateProjection);
+        auto screenPoint = Project(m_focus->GetScenePoint());
+
+        m_isometricScale *= closer ? 0.75f : 1.25f;
+        auto distance = m_isometricScale.x() * m_isometricCoef.x();
+        m_eye = m_focus->GetScenePoint() - ray.normalized() * distance;
+
+        m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
+        MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
+    } else {
+        float denum = closer ? 4.f : -4.f;
+        Point3F neye = m_eye + ray / denum;
+        m_eye = neye;
+        m_state.AddFlag(State_NeedUpdateView);
     }
-
-    float denum = closer ? 4.f : -4.f;
-    Point3F neye = m_eye + ray / denum;
-    m_eye = neye;
-    m_state.AddFlag(State_NeedUpdateView);
-
 }
 
 void GtCamera::Rotate(qint32 angleZ, qint32 angleX)
@@ -266,7 +281,7 @@ void GtCamera::SetAxisSystem(bool leftHanded)
     }
 }
 
-void GtCamera::SetIsometricScale(float scale) {
+void GtCamera::SetIsometricScale(const Point2F& scale) {
     m_isometricScale = scale;
     m_state.RemoveFlag(State_AutoIsometricScaling);
     m_state.AddFlag(State_NeedUpdateProjection);
@@ -370,20 +385,22 @@ void GtCamera::updateWorld()
     }
 }
 
-Point3F GtCamera::unprojectFocused(const Point2I& screenPosition)
+Point3F GtCamera::unprojectFocused(const Point2F& screenPosition)
 {
+    Q_ASSERT(m_focus != nullptr);
     auto x = screenPosition.x(), y = screenPosition.y();
     Point3F unproj0 = Unproject(x, y, 0.f);
     Point3F unproj1 = Unproject(x, y, 1.f);
 
     Vector3F rayDirection = unproj1 - unproj0;
-    float dist;
-    if(m_focus != nullptr) {
-        dist = (m_focus->GetScenePoint() - unproj0).length() / rayDirection.length();
-    } else {
-        dist = 100.f / m_far;
-    }
-    return unproj0 + rayDirection * dist;
+    float dist = (m_focus->GetScenePoint() - unproj0).length();
+    return unproj0 + rayDirection.normalized() * dist;
+}
+
+void GtCamera::SetIsometricCenterAndCertain(const Point3F& center, float distanceFromCenter)
+{
+    m_isometricCenter = center;
+    m_isometricCurtain = distanceFromCenter;
 }
 
 void GtCamera::updateProjection()
@@ -391,12 +408,12 @@ void GtCamera::updateProjection()
     if(m_state.TestFlag(State_ChangedProjection)) {
         m_projection.setToIdentity();
         m_viewportProjection.setToIdentity();
-        float w = m_viewport.width();
-        float h = m_viewport.height();
-        m_viewportProjection.ortho(-w, w,-h, h, m_near, m_far);
+        float w = m_viewport.width() / 2.f;
+        float h = m_viewport.height() / 2.f;
+        m_viewportProjection.ortho(-w, w, -h, h, m_near, m_far);
         if(m_state.TestFlag(State_Isometric)) {
-            float w = m_viewport.width() * m_isometricScale;
-            float h = m_viewport.height() * m_isometricScale;
+            float w = m_viewport.width() * m_isometricScale.x();
+            float h = m_viewport.height() * m_isometricScale.y();
             m_projection.ortho(-w, w,-h, h, -m_far, m_far);
         }
         else {
@@ -410,8 +427,6 @@ void GtCamera::updateProjection()
 void GtCamera::updateView()
 {
     if(m_state.TestFlag(State_ChangedView)) {
-        if(!m_state.TestFlag(State_PredictionMode)) validateCameraPosition(m_eye);
-
         m_view.setToIdentity();
         m_rotation.setToIdentity();
 
@@ -433,47 +448,36 @@ void GtCamera::updateView()
     }
 }
 
-void GtCamera::validateCameraPosition(Point3F& p) const
-{
-    if(m_sceneBox.IsNull()) {
-        return;
-    }
-    if(p.x() < m_sceneBox.X()) p.setX(m_sceneBox.X());
-    else if(p.x() > m_sceneBox.Right()) p.setX(m_sceneBox.Right());
-    if(p.y() < m_sceneBox.Y()) p.setY(m_sceneBox.Y());
-    else if(p.y() > m_sceneBox.Bottom()) p.setY(m_sceneBox.Bottom());
-    if(p.z() < m_sceneBox.Back()) p.setZ(m_sceneBox.Back());
-    else if(p.z() > m_sceneBox.Front()) p.setZ(m_sceneBox.Front());
-}
-
 void GtCamera::adjustIsometricScale()
 {
-    if(m_state.TestFlagsAll(State_NeedAdjustScale) && m_isometricCoef != 0.f)
+    if(m_state.TestFlagsAll(State_NeedAdjustScale) && !m_isometricCoef.isNull())
     {
-        if(m_projectionPlane.isNull()) {
-            auto sideDir = Vector3F::crossProduct(m_forward, m_up);
-            auto projected = Vector3F::dotProduct(m_eye, sideDir) / sideDir.lengthSquared() * sideDir;
-            auto isometricScale = (m_eye - projected).length() / m_isometricCoef;
-            if(isometricScale > 4.f) {
-                m_isometricScale = isometricScale;
-
-            }
+        float distance;
+        if(m_focus != nullptr) {
+            distance = Vector3F::dotProduct(m_focus->GetScenePoint() - m_eye, m_forward) / m_forward.lengthSquared();
         } else {
-            m_isometricScale = (m_eye * m_projectionPlane).length() / m_isometricCoef;
+            distance = m_isometricCurtain + Vector3F::dotProduct(m_isometricCenter - m_eye, m_forward);
         }
-        m_state.AddFlag(State_NeedUpdateProjection);
+
+        Point2F isometricScale = Point2F(distance,distance) / m_isometricCoef;
+        if(!qFuzzyCompare(isometricScale.x(), m_isometricScale.x()) || !qFuzzyCompare(isometricScale.y(), m_isometricScale.y())) {
+            m_isometricScale = isometricScale;
+            m_state.AddFlag(State_NeedUpdateProjection);
+        }
     }
 }
 
 void GtCamera::calculateIsometricCoef()
 {
-    m_isometricScale = 1.f;
-    BoundingRect rect = predicateVisibleRectOnZ(m_viewport, 10000.f, false);
-    BoundingRect isometric_rect = predicateVisibleRectOnZ(m_viewport, 10000.f, true);
-    m_isometricCoef = 10000.f * isometric_rect.Width() / rect.Width();
+    m_isometricScale = Point2F(1.f,1.f);
+    m_isometricCoef = Point2F();
+    auto size = predicateVisibleSizeOnZ(m_viewport, 10000.f, false);
+    auto isometricSize = predicateVisibleSizeOnZ(m_viewport, 10000.f, true);
+    m_isometricCoef.X() = 10000.f * isometricSize.width() / size.width();
+    m_isometricCoef.Y() = 10000.f * isometricSize.height() / size.height();
 }
 
-BoundingRect GtCamera::predicateVisibleRectOnZ(const SizeF& viewport, float z, bool ortho)
+SizeF GtCamera::predicateVisibleSizeOnZ(const SizeF& viewport, float z, bool ortho)
 {
     GtCameraStateSaver c(this); Q_UNUSED(c)
     m_viewport = SizeF(viewport.width(), viewport.height());
@@ -483,10 +487,10 @@ BoundingRect GtCamera::predicateVisibleRectOnZ(const SizeF& viewport, float z, b
 
     m_state.AddFlag(State_NeedUpdate);
     m_state.ChangeFromBoolean(State_Isometric, ortho);
-    return getVisibleRect();
+    return visibleSize();
 }
 
-BoundingRect GtCamera::getVisibleRect()
+SizeF GtCamera::visibleSize()
 {
     qint32 w = m_viewport.width();
     qint32 h = m_viewport.height();
@@ -494,10 +498,6 @@ BoundingRect GtCamera::getVisibleRect()
     v[0] = UnprojectPlane(0,0);
     v[1] = UnprojectPlane(0,h);
     v[2] = UnprojectPlane(w,h);
-    v[3] = UnprojectPlane(w,0);
 
-    std::pair<Point3F*, Point3F*> mmx = std::minmax_element(v, v + 4, [](const Point3F& f, const Point3F& s){ return f.x() < s.x(); });
-    std::pair<Point3F*, Point3F*> mmy =std::minmax_element(v, v + 4, [](const Point3F& f, const Point3F& s){ return f.y() < s.y(); });
-
-    return BoundingRect(Point2F(mmx.first->x(), mmy.first->y()), Point2F(mmx.second->x(), mmy.second->y()));
+    return SizeF((v[2] - v[0]).length(), (v[1] - v[0]).length());
 }

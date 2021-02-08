@@ -7,6 +7,7 @@
 
 class ToolTipArrowWidget : public QWidget
 {
+    Q_OBJECT
     using Super = QWidget;
 public:
     ToolTipArrowWidget(QWidget* targetWidget);

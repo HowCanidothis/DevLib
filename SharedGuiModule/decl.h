@@ -181,6 +181,12 @@ public:
         if(!qFuzzyIsNull(y() - other.y())) return y() < other.y();
         else return z() < other.z();
     }
+
+    bool EqualTo(const Vector3F& another, float epsilon = std::numeric_limits<float>().epsilon()) const
+    {
+        return ::fuzzyCompare(another.x(), x(), epsilon) && ::fuzzyCompare(another.y(), y(), epsilon) && ::fuzzyCompare(another.z(), z(), epsilon);
+    }
+
     void FromString(const QString& v){ point3DFromString(*this,v); }
     QString ToString() const { return point3DToString(*this); }
 };
@@ -208,7 +214,7 @@ public:
     float Width() const { return GetWidth(); }
     float Height() const { return GetHeight(); }
     float GetWidth() const { return m_right.X() - m_left.X(); }
-    float GetHeight() const { return m_right.Y() - m_right.Y(); }
+    float GetHeight() const { return m_right.Y() - m_left.Y(); }
 
     bool Intersects(const BoundingRect& other) const
     {
@@ -391,6 +397,11 @@ public:
         Point3F p1 = transform * (m_topLeftFront);
         Point3F p2 = transform * (m_bottomRightBack);
         return BoundingBox(p1, p2, FromUnknownPoints);
+    }
+
+    bool operator!=(const BoundingBox& another) const
+    {
+        return !GetLeft().EqualTo(another.GetLeft()) || !GetRight().EqualTo(another.GetRight());
     }
 
     bool IsNull() const { return m_bottomRightBack == m_topLeftFront; }
