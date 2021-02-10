@@ -4,14 +4,21 @@
 #include <QFileInfo>
 #include <QDateTime>
 
-QtObserver::QtObserver(qint32 msInterval, QObject* parent)
+QtObserver::QtObserver(qint32 msInterval, const ThreadHandlerNoThreadCheck& threadHandler, QObject* parent)
     : QObject(parent)
+    , m_timer(msInterval)
     , m_doObserve([](const Observable*){})
 {
-    m_timer = ThreadTimer::CreateTimer(msInterval);
-    ThreadTimer::AddTimerConnection(m_timer, [this]{
-        onTimeout();
+    m_timer.OnTimeout([this, threadHandler]{
+        threadHandler([this]{
+            onTimeout();
+        });
     });
+}
+
+QtObserver::~QtObserver()
+{
+
 }
 
 void QtObserver::Add(const FCondition& condition, const FHandle& handle)

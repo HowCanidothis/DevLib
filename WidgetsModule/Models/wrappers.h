@@ -215,6 +215,23 @@ public:
         OnChanged();
     }
 
+    qint32 Find(const value_type& value) const
+    {
+        return Find([&value](const value_type& current){ return value == current; });
+    }
+
+    qint32 Find(const std::function<bool (const value_type&)>& searchPredicate) const
+    {
+        auto it = Super::begin();
+        while(it != Super::end()) {
+            if(searchPredicate(*it)) {
+                return std::distance(Super::begin(), it);
+            }
+            it++;
+        }
+        return -1;
+    }
+
     void Append(const value_type& part)
     {
         auto size = GetSize();

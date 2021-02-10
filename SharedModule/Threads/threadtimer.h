@@ -6,46 +6,53 @@
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/array.h"
 #include "SharedModule/smartpointersadapters.h"
+#include "Promises/promise.h"
+#include "SharedModule/External/qtlambdaconnections.h"
 
-class ThreadTimerHandle
+class ThreadTimerManager
 {
-    friend class ThreadTimer;
-    ThreadTimerHandle(QTimer* handle)
-        : m_handle(handle)
-    {}
-public:
-    ~ThreadTimerHandle();
-
-    QTimer* GetTimer() const { return m_handle; }
-
-private:
-    QTimer* m_handle;
-};
-using ThreadTimerHandlePtr = SharedPointer<ThreadTimerHandle>;
-
-class ThreadTimer
-{
-    ThreadTimer();
-    ~ThreadTimer();
+    ThreadTimerManager();
+    ~ThreadTimerManager();
 public:
     static void Initialize() { getInstance(); }
 
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
     static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
-    static ThreadTimerHandlePtr CreateTimer(qint32 msecs);
-    static QMetaObject::Connection AddTimerConnection(const ThreadTimerHandlePtr& handle, const FAction& onTimeout);
-    static void RemoveTimerConnection(const QMetaObject::Connection& connection);
 
 private:
-    friend class ThreadTimerHandle;
-    static ThreadTimer& getInstance();
-    static void deleteTimer(QTimer* timerHandle);
+    friend class ThreadTimer;
+    static QTimer* сreateTimer(qint32 msecs);
+    static QMetaObject::Connection addTimerConnection(QTimer* handle, const FAction& onTimeout);
+    static void removeTimerConnection(const QMetaObject::Connection& connection);
+    static ThreadTimerManager& getInstance();
+    static AsyncResult deleteTimer(QTimer* timerHandle);
 
 private:
     ArrayPointers<class QTimer> m_timers;
     ScopedPointer<QThread> m_thread;
     ScopedPointer<QObject> m_threadWorker;
+};
+
+class ThreadTimer
+{
+    friend class ThreadTimer;
+public:
+    ThreadTimer(qint32 msecs);
+    ~ThreadTimer();
+
+    static void SingleShot(qint32 msecs, const FAction& onTimeout) { ThreadTimerManager::SingleShot(msecs, onTimeout); }
+    static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker) { ThreadTimerManager::SingleShotDoThreadWorker(msecs, onTimeout, threadWorker); }
+    static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout) { ThreadTimerManager::SingleShotDoMain(msecs, onTimeout); }
+
+    QMetaObject::Connection OnTimeout(const FAction& action);
+    QThread* GetThread() const { return ThreadTimerManager::getInstance().m_thread.get(); }
+
+    QTimer* GetTimer() const { return m_handle; }
+
+private:
+    QTimer* m_handle;
+    QtLambdaConnections m_connections;
 };
 
 #endif // THREADTIMER_H

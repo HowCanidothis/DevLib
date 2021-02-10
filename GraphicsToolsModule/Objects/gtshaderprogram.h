@@ -7,7 +7,7 @@
 class GtSharedShaderManager
 {
     GtSharedShaderManager()
-        : m_observer(1000)
+        : m_observer(1000, ThreadHandlerNoCheckMainLowPriority) // TODO. Main Thread?
     {}
 
 public:

@@ -20,13 +20,14 @@ class QtObserver : public QObject
 
     typedef std::function<void (const Observable*)> FObserve;
 
+    ThreadTimer m_timer;
     ArrayPointers<Observable> m_observables;
     QHash<const void*, qint64> m_counters;
-    FObserve m_doObserve;
-    ThreadTimerHandlePtr m_timer;
+    FObserve m_doObserve;    
 
 public:
-    QtObserver(qint32 msInterval, QObject* parent=0);
+    QtObserver(qint32 msInterval, const ThreadHandlerNoThreadCheck& threadHandler, QObject* parent=0);
+    ~QtObserver();
 
     void Add(const FCondition& condition, const FHandle& handle);
     void AddFilePtrObserver(const QString* fileName, const FHandle& handle);
@@ -39,7 +40,7 @@ public:
 
     void Observe() { onTimeout(); }
 
-    static QtObserver* Instance() { static QtObserver* res = new QtObserver(1000); return res; }
+    static QtObserver* Instance() { static QtObserver* res = new QtObserver(1000, ThreadHandlerNoCheckMainLowPriority); return res; }
 private:
     void onTimeout();
 

@@ -53,7 +53,7 @@ GtRenderer::GtRenderer(const QSurfaceFormat& format)
     construct();
     auto textShaderProgram = CreateShaderProgram("DefaultTextShaderProgram");
     textShaderProgram->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders("D:/Work/wps-client/libs/Content/Shaders", "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
 }
 
 GtRenderer::~GtRenderer()

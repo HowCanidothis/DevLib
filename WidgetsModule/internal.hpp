@@ -8,6 +8,7 @@
 #include "Models/modelstree.h"
 #include "Models/wrappers.h"
 #include "Models/modelstablebase.h"
+#include "Models/modelslistbase.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"

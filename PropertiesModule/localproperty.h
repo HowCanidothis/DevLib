@@ -88,12 +88,18 @@ public:
     }
 
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnection ConnectFrom(LocalProperty<T2>& another, const Evaluator& thisEvaluator)
+    DispatcherConnections ConnectFrom(LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
     {
+        DispatcherConnections result;
         *this = thisEvaluator(another.Native());
-        return another.OnChange.Connect(this, [this, thisEvaluator, &another]{
+        auto onChange = [this, thisEvaluator, &another]{
             *this = thisEvaluator(another.Native());
-        });
+        };
+        for(auto* dispatcher : dispatchers) {
+            result += dispatcher->Connect(this, onChange);
+        }
+        result += another.OnChange.Connect(this, onChange);
+        return result;
     }
 
     DispatcherConnection ConnectFrom(const LocalProperty& another)
@@ -367,11 +373,19 @@ public:
 
     void Append(const T& value)
     {
-        auto find = this->m_value.find(value);
-        if(find != this->m_value.end()) {
-            this->m_value.append(value);
-            this->Invoke();
+        this->m_value.append(value);
+        this->Invoke();
+    }
+
+    LocalPropertyVector& operator=(const QVector<T>& another)
+    {
+        if(IsEmpty() && another.isEmpty()) {
+            return this;
         }
+
+        this->m_value = another;
+        this->Invoke();
+        return this;
     }
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }

@@ -9,9 +9,9 @@ template<typename Namespace##VictimClassName, Namespace##VictimClassName M> \
 struct Namespace##Class \
 { \
     template<class T> \
-    friend const Type& Namespace(const T& test) \
+    friend Type& Namespace(const T& test) \
     { \
-        return test.*M; \
+        return const_cast<Type&>(test.*M); \
     } \
 }; \
 template struct Namespace##Class<Namespace##VictimClassName, &VictimClassName::VictimMemberName>
@@ -22,10 +22,10 @@ template<typename Namespace##VictimClassName, Namespace##VictimClassName M> \
 struct Namespace##Class \
 { \
     template<class T> \
-    friend const Type** Namespace(const T& test) \
+    friend Type** Namespace(const T& test) \
     { \
         auto& pp = test.*M; \
-        return reinterpret_cast<const Type**>(pp); \
+        return reinterpret_cast<Type**>(pp); \
     } \
 }; \
 template struct Namespace##Class<Namespace##VictimClassName, &VictimClassName::VictimMemberName>

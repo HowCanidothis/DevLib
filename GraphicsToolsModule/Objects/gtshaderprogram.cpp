@@ -126,6 +126,7 @@ void GtShaderProgram::Update()
     m_shaderProgram = new QOpenGLShaderProgram();
     {
         if(m_shadersPath == ":/") {
+            m_shadersWatcher = nullptr;
             for(Shader* shader : m_shaders) {
                 QOpenGLShader* shaderObject = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
                 if(shaderObject->compileSourceCode(extractShader(shader->File))) {
@@ -133,13 +134,15 @@ void GtShaderProgram::Update()
                 }
             }
         } else {
-            m_shadersWatcher = new QtObserver(1000);
+            m_shadersWatcher = new QtObserver(1000, [this](const FAction& action) -> AsyncResult {
+                return m_renderer->Asynch([action]{
+                    action();
+                });
+            });
             for(Shader* shader : m_shaders) {
                 QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
                 m_shadersWatcher->AddFileObserver(shader->File, [this]{
-                    m_renderer->Asynch([this]{
-                        Update();
-                    });
+                    Update();
                 });
                 if(shader_object->compileSourceCode(extractShader(shader->File))) {
                     m_shaderProgram->addShader(shader_object);
