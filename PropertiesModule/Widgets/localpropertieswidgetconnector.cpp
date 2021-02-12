@@ -19,10 +19,12 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
             widgetSetter();
         }
     })
-    , m_propertySetter([this, propertySetter]{
+    , m_propertySetter([this, propertySetter, widgetSetter]{
         if(!m_ignoreWidgetChange) {
             guards::LambdaGuard guard([this]{ m_ignorePropertyChange = false; }, [this] { m_ignorePropertyChange = true; } );
             propertySetter();
+            guards::LambdaGuard guard2([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
+            widgetSetter();
         }
     })
     , m_ignorePropertyChange(false)

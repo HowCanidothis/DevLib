@@ -7,8 +7,9 @@
 class DelayedCallObject
 {
 public:
-    DelayedCallObject(const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
+    DelayedCallObject(qint32 delayMsecs = 0, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
         : m_threadHandler(handler)
+        , m_delay(delayMsecs)
     {}
 
     ~DelayedCallObject()
@@ -21,7 +22,9 @@ public:
     Dispatcher OnDeleted;
 
 private:
+    friend class DelayedCallManager;
     ThreadHandlerNoThreadCheck m_threadHandler;
+    qint32 m_delay;
 };
 
 class DelayedCall
@@ -29,8 +32,9 @@ class DelayedCall
 public:
     DelayedCall(const FAction& action, QMutex* mutex, DelayedCallObject* object);
 
-    void Call();
-    void SetAction(const FAction &action);
+    virtual void Call();
+    virtual AsyncResult Invoke(const ThreadHandlerNoThreadCheck& threadHandler, const FAction& delayedCall, qint32 delay);
+    void SetAction(const FAction& action);
     void SetResult(const AsyncResult& result);
 
     const AsyncResult& GetResult() const { return m_result; }
@@ -38,8 +42,22 @@ public:
 private:
     FAction m_action;
     DispatcherConnectionSafePtr m_connection;
+    DispatcherConnectionSafePtr m_resultConnection;
     AsyncResult m_result;
     QMutex* m_mutex;
+};
+
+class DelayedCallDelayOnCall : public DelayedCall
+{
+    using Super = DelayedCall;
+public:
+    DelayedCallDelayOnCall(const FAction& action, QMutex* mutex, DelayedCallObject* object);
+
+    void Call() override;
+    AsyncResult Invoke(const ThreadHandlerNoThreadCheck& threadHandler, const FAction& delayedCall, qint32 delay) override;
+
+private:
+    std::atomic_int m_counter;
 };
 
 using DelayedCallPtr = SharedPointer<DelayedCall>;
@@ -47,11 +65,7 @@ using DelayedCallPtr = SharedPointer<DelayedCall>;
 class DelayedCallManager
 {
 public:
-    static AsyncResult CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandlerNoThreadCheck& handler);
-    static AsyncResult CallDelayedMain(DelayedCallObject* object, const FAction& action)
-    {
-        return CallDelayed(object, action, ThreadHandlerNoCheckMainLowPriority);
-    }
+    static AsyncResult CallDelayed(DelayedCallObject* object, const FAction& action);
 
 private:
     static QMutex* mutex();
@@ -73,7 +87,7 @@ private:
 
 inline AsyncResult DelayedCallObject::Call(const FAction& action)
 {
-    return DelayedCallManager::CallDelayed(this, action, m_threadHandler);
+    return DelayedCallManager::CallDelayed(this, action);
 }
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator;

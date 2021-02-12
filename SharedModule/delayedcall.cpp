@@ -18,7 +18,14 @@ void DelayedCall::SetAction(const FAction &action)
 
 void DelayedCall::SetResult(const AsyncResult& result)
 {
-    m_result = result;
+    m_resultConnection = result.Then([this](bool value){
+        m_result.Resolve(value);
+    }).MakeSafe();
+}
+
+AsyncResult DelayedCall::Invoke(const ThreadHandlerNoThreadCheck& threadHandler, const FAction& delayedCall, qint32)
+{
+    return threadHandler(delayedCall);
 }
 
 void DelayedCall::Call()
@@ -30,6 +37,33 @@ void DelayedCall::Call()
     }
     action();
 }
+
+DelayedCallDelayOnCall::DelayedCallDelayOnCall(const FAction& action, QMutex* mutex, DelayedCallObject* object)
+    : Super(action, mutex, object)
+    , m_counter(0)
+{
+
+}
+
+void DelayedCallDelayOnCall::Call()
+{
+    if(--m_counter == 0) {
+        Super::Call();
+    }
+}
+
+AsyncResult DelayedCallDelayOnCall::Invoke(const ThreadHandlerNoThreadCheck& threadHandler, const FAction& delayedCall, qint32 delay)
+{
+    m_counter++;
+    AsyncResult result;
+    ThreadTimer::SingleShot(delay, [threadHandler, delayedCall, result]{
+        threadHandler(delayedCall).Then([result](bool value){
+            result.Resolve(value);
+        });
+    });
+    return result;
+}
+
 
 QMutex* DelayedCallManager::mutex()
 {
@@ -43,22 +77,29 @@ QHash<void*, DelayedCallPtr>& DelayedCallManager::cachedCalls()
     return result;
 }
 
-AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action, const ThreadHandlerNoThreadCheck& handler)
+AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action)
 {
     QMutexLocker locker(mutex());
     auto foundIt = cachedCalls().find(object);
     if(foundIt == cachedCalls().end()) {
-        auto delayedCall = ::make_shared<DelayedCall>(action, mutex(), object);
-        cachedCalls().insert(object, delayedCall);
-        auto result = handler([delayedCall]{
+        auto delayedCall = object->m_delay != 0 ? ::make_shared<DelayedCallDelayOnCall>(action, mutex(), object) :
+                                                                                   ::make_shared<DelayedCall>(action, mutex(), object);
+        foundIt = cachedCalls().insert(object, delayedCall);
+        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
             delayedCall->Call();
-        });
-        result.Then([object](bool){
+        }, object->m_delay);
+        delayedCall->GetResult().Then([object](bool){
             QMutexLocker locker(mutex());
             cachedCalls().remove(object);
         });
         delayedCall->SetResult(result);
-        return result;
+        return delayedCall->GetResult();
+    } else if(object->m_delay != 0) {
+        auto delayedCall = foundIt.value();
+        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
+            delayedCall->Call();
+        }, object->m_delay);
+        delayedCall->SetResult(result);
     }
     foundIt.value()->SetAction(action);
     return foundIt.value()->GetResult();
@@ -74,7 +115,7 @@ void DelayedCallDispatchersCommutator::Subscribe(const ThreadHandlerNoThreadChec
     auto callOnChanged = [this, threadHandler]{
         DelayedCallManager::CallDelayed(&m_delayedCallObject, [this]{
             Invoke();
-        }, threadHandler);
+        });
     };
 
     for(auto* dispatcher : dispatchers) {

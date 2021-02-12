@@ -22,6 +22,8 @@ public:
     DispatcherConnectionSafePtr() {}
     DispatcherConnectionSafePtr(const FAction& disconnector, const FDispatcherRegistrator& registrator);
     ~DispatcherConnectionSafePtr();
+
+    DispatcherConnectionSafePtr& operator=(const DispatcherConnectionSafePtr& another);
 };
 
 inline uint qHash(const DispatcherConnectionSafePtr& connection, uint seed = 0)
@@ -65,6 +67,14 @@ inline DispatcherConnectionSafePtr::DispatcherConnectionSafePtr(const FAction& d
     : Super(new DispatcherConnection(disconnector, registrator))
 {
     registrator(*this);
+}
+
+inline DispatcherConnectionSafePtr& DispatcherConnectionSafePtr::operator=(const DispatcherConnectionSafePtr& another)
+{
+    if(get() != nullptr && use_count() == 2) {
+        get()->Disconnect();
+    }
+    return reinterpret_cast<DispatcherConnectionSafePtr&>(Super::operator=(another));
 }
 
 inline DispatcherConnectionSafePtr::~DispatcherConnectionSafePtr()

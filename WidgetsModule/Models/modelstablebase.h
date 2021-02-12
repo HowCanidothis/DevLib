@@ -15,7 +15,7 @@ public:
     void SetData(const ModelsTableWrapperPtr& data);
     const ModelsTableWrapperPtr& GetData() const { return m_data; }
 
-private:
+protected:
     ModelsTableWrapperPtr m_data;
 };
 

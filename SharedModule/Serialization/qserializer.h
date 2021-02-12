@@ -51,6 +51,27 @@ struct Serializer<QString>
 };
 
 template<>
+struct Serializer<QDate>
+{
+    using TypeName = QDate;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        auto julianDate = data.toJulianDay();
+        buffer << julianDate;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        qint64 julianDate;
+        buffer << julianDate;
+        data = QDate::fromJulianDay(julianDate);
+    }
+};
+
+template<>
 struct Serializer<QSize>
 {
     typedef QSize target_type;
