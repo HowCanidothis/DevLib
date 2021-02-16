@@ -11,8 +11,8 @@ class BranchNode
 {
 public:
     //out containers
-    typedef QVector<const ObjectNode*> OutObjectsContainer;
-    typedef QVector<const BranchNode*> OutBranchesContainer;
+    typedef QVector<ObjectNode*> OutObjectsContainer;
+    typedef QVector<BranchNode*> OutBranchesContainer;
     //data containers
     typedef QSet<ObjectNode*> Objects;
 

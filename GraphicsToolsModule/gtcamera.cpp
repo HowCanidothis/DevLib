@@ -179,8 +179,13 @@ void GtCamera::Zoom(bool closer)
         m_state.RemoveFlag(State_AutoIsometricScaling);
         auto screenPoint = Project(m_focus->GetScenePoint());
 
-        m_isometricScale *= closer ? 0.75f : 1.25f;
-        auto distance = m_isometricScale.x() * m_isometricCoef.x();
+        auto isometricScale = m_isometricScale;
+        isometricScale *= closer ? 0.75f : 1.25f;
+        auto distance = isometricScale.x() * isometricScale.x();
+        if(distance > m_far) {
+            return;
+        }
+        m_isometricScale = isometricScale;
         m_eye = m_focus->GetScenePoint() - ray.normalized() * distance;
 
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);

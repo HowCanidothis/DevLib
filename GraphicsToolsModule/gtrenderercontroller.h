@@ -201,6 +201,7 @@ signals:
 
 private:
     void draw(OpenGLFunctions* f);
+    void drawDepth(OpenGLFunctions* f);
     void setCurrentImage(QImage* image, double renderTime);
     void onInitialize();
     void onDestroy();

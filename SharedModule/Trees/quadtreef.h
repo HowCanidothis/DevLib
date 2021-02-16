@@ -34,9 +34,17 @@ public:
     //methods
     void Clear();
     void Compress(){ root->compress(); }
-    ObjectNode* AddObject(ObjectNode *node){ root->add(node); return node; }
-    bool RemoveObject(const ObjectNode *node) { return root->remove(const_cast<ObjectNode*>(node)); }
-    void UpdateObject(const ObjectNode *node){ if(root->remove(node)) root->add(node); }
+    ObjectNode* AddObject(ObjectNode* node){ root->add(node); return node; }
+    bool RemoveObject(const ObjectNode* node)
+    {
+        if(root->remove(const_cast<ObjectNode*>(node))) {
+            OnObjectRemoved(const_cast<ObjectNode*>(node));
+            return true;
+        } else {
+            return false;
+        }
+    }
+    void UpdateObject(const ObjectNode* node){ if(root->remove(node)) root->add(node); }
     void Reconstruct();
 
     //watchers
@@ -53,13 +61,15 @@ public:
         DrawAll = DrawBranches | DrawLeafs | DrawSelectionRect
     };
 
-    void ToImage(QImage *img, BoundingRect *rect=0, qint32 dm= DrawAll) const;
-    void Print(QTextStream * stream) const;
+    void ToImage(QImage* img, BoundingRect* rect=0, qint32 dm= DrawAll) const;
+    void Print(QTextStream* stream) const;
 #endif
-    void GetObjectsAt(const BoundingRect &rect, OutObjectsContainer & c) const { root->getObjectsAt(rect,c); }
+    void GetObjectsAt(const BoundingRect& rect, OutObjectsContainer& c) const { root->getObjectsAt(rect,c); }
     OutObjectsContainer GetObjectsAt(const BoundingRect& rect) const{ OutObjectsContainer res; this->getObjectsAt(rect,res); return res; }
-    OutObjectsContainer GetObjectsAtClosestTo(const BoundingRect& rect, real x, real y) const;
+    OutObjectsContainer GetObjectsAtClosestTo(const BoundingRect& rect) const;
     OutObjectsContainer GetObjectsAll() const { OutObjectsContainer res; getObjects(root,res); return res; }
+
+    CommonDispatcher<ObjectNode*> OnObjectRemoved;
 };
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
@@ -92,17 +102,19 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Reconstruct() {
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::GetObjectsAtClosestTo(const BoundingRect &rect, real x, real y) const
+typename Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::OutObjectsContainer Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::GetObjectsAtClosestTo(const BoundingRect& rect) const
 {
     OutObjectsContainer res;
     root->getObjectsAt(rect, res);
-    std::sort(res.begin(), res.end(), [x,y](const ObjectNode *f, const ObjectNode *s) { return f->getBoundingRect().getCenter().squaredDistanceToPoint(x,y) < s->getBoundingRect().getCenter().squaredDistanceToPoint(x,y); });
+    auto center = rect.getCenter();
+    auto x = center.x, y = center.y;
+    std::sort(res.begin(), res.end(), [x,y](const ObjectNode* f, const ObjectNode* s) { return f->getBoundingRect().getCenter().squaredDistanceToPoint(x,y) < s->getBoundingRect().getCenter().squaredDistanceToPoint(x,y); });
     return res;
 }
 
 #ifndef QUADTREE_NO_IMAGE_OUTPUT
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::ToImage(QImage *img, BoundingRect *rect, qint32 dm) const
+void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::ToImage(QImage* img, BoundingRect* rect, qint32 dm) const
 {
     img->fill(Qt::black);
     struct Scaler{
@@ -171,7 +183,7 @@ void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::ToImage(QImage *img, BoundingRect *r
 }
 
 template<typename ObjectNode, qint32 MAX_OBJECTS_PER_LEAF>
-void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Print(QTextStream *stream) const
+void Tree<ObjectNode,MAX_OBJECTS_PER_LEAF>::Print(QTextStream* stream) const
 {
     typename BranchNode::MemoryStatistic stat;
     root->getStatistics(stat);

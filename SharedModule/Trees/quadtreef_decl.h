@@ -64,10 +64,18 @@ struct Point{
 
 struct BoundingRect
 {
+    enum InitializationMode {
+        Extent
+    };
+
     Point topLeft;
     Point bottomRight;
 
     BoundingRect(){}
+    BoundingRect(real xCenter, real yCenter, real extentX, real extentY, InitializationMode)
+        : topLeft(Point(xCenter - extentX, yCenter - extentY))
+        , bottomRight(Point(xCenter + extentX, yCenter + extentY))
+    {}
     BoundingRect(real xCenter, real yCenter, real w, real h) : topLeft(Point(xCenter - w / 2.f, yCenter - h / 2.f)), bottomRight(Point(xCenter + w / 2.f, yCenter + h / 2.f)) {}
     BoundingRect(const Point& tl, const Point& br) : topLeft(tl), bottomRight(br) {}
     static BoundingRect fromUnknownPoints(real x1, real y1, real x2, real y2);

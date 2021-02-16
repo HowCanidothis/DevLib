@@ -25,6 +25,8 @@ public:
     void Update(const std::function<void (OpenGLFunctions*)>& f);
     void Update(const FAction& f);
 
+    ThreadHandler CreateThreadHandler();
+
 protected:
     friend class GtScene;
     friend class GtRenderer;

@@ -233,6 +233,13 @@ void GtRendererController::draw(OpenGLFunctions* f)
     }
 }
 
+void GtRendererController::drawDepth(OpenGLFunctions* f)
+{
+    for(const auto& drawable : m_drawables) {
+        drawable->drawDepth(f);
+    }
+}
+
 void GtRendererController::onInitialize()
 {
     m_controllersContext->DepthBuffer = new GtDepthBuffer(m_renderer);

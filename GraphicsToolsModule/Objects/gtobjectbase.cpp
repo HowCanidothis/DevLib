@@ -12,6 +12,23 @@ GtDrawableBase::~GtDrawableBase()
 {
 }
 
+ThreadHandler GtDrawableBase::CreateThreadHandler()
+{
+    return [this](const FAction& action) -> AsyncResult {
+        if(m_destroyed) {
+            return AsyncError();
+        }
+        if(QThread::currentThread() == m_renderer) {
+            action();
+            return AsyncSuccess();
+        } else {
+            return m_renderer->Asynch([action]{
+                action();
+            });
+        }
+    };
+}
+
 void GtDrawableBase::enableDepthTest()
 {
     m_renderer->enableDepthTest();

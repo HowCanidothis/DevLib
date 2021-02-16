@@ -338,6 +338,7 @@ void GtRenderer::onDraw()
             glEnable(GL_DEPTH_TEST);
 
             m_scene->drawDepth(this);
+            controller->drawDepth(this);
 
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = false;
         }
