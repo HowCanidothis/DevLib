@@ -104,7 +104,8 @@ bool GtCameraAnimationEngine::IsRunning() const
 }
 
 GtRendererController::GtRendererController(GtRenderer* renderer, ControllersContainer* controllersContainer, GtControllersContext* context)
-    : m_renderer(renderer)
+    : SpaceColor("1e1e1e")
+    , m_renderer(renderer)
     , m_camera(new GtCamera())
     , m_controllersContext(context)
     , m_controllers(controllersContainer)
@@ -119,19 +120,70 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
     m_renderer->OnAboutToBeDestroyed.Connect(this, [this]{
-        for(auto* drawable : m_drawables) {
-            drawable->Destroy();
+        for(const auto& queue : m_drawables) {
+            for(auto* drawable : queue) {
+                drawable->Destroy();
+            }
         }
         m_drawables.clear();
         m_renderer->ProcessEvents();
+        m_renderer = nullptr;
     }).MakeSafe(m_connections);
+
+    SpaceColor.SetSetterHandler(m_renderer->CreateThreadHandler());
+}
+
+void GtRendererController::drawSpace(OpenGLFunctions* f)
+{
+    const auto& color = SpaceColor.Native();
+    f->glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
+    calculateVisibleSize();
 }
 
 GtRendererController::~GtRendererController()
 {
-    for(auto* drawable : m_drawables) {
+    OnAboutToBeDestroyed();
+    if(m_renderer != nullptr) {
+        FutureResult result;
+        result += m_renderer->Asynch([this]{
+            for(const auto& queue : m_drawables) {
+                for(auto* drawable : queue) {
+                    drawable->Destroy();
+                }
+            }
+        });
+        result.Wait();
+    }
+}
+
+void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)
+{
+    auto foundIt = m_drawables.find(queueNumber);
+    if(foundIt != m_drawables.end()) {
+        foundIt.value().removeOne(drawable);
         drawable->Destroy();
     }
+}
+
+void GtRendererController::ClearQueue(qint32 queueNumber)
+{
+    auto foundIt = m_drawables.find(queueNumber);
+    if(foundIt != m_drawables.end()) {
+        m_drawables.erase(foundIt);
+        for(auto* drawable : foundIt.value()) {
+            drawable->Destroy();
+        }
+    }
+}
+
+void GtRendererController::calculateVisibleSize()
+{
+    Point3F p[3];
+    p[0] = m_camera->UnprojectPlane(0.f, 0.f);
+    p[1] = m_camera->UnprojectPlane(0.f, m_camera->GetViewport().height());
+    p[2] = m_camera->UnprojectPlane(m_camera->GetViewport().width(), 0.f);
+
+    m_visibleSize = SizeF((p[2] - p[0]).length(), (p[1] - p[0]).length());
 }
 
 void GtRendererController::SetRenderProperties(const GtRenderProperties& renderProperties)
@@ -228,15 +280,19 @@ void GtRendererController::setCurrentImage(QImage* image, double renderTime)
 
 void GtRendererController::draw(OpenGLFunctions* f)
 {
-    for(const auto& drawable : m_drawables) {
-        drawable->draw(f);
+    for(const auto& queue : m_drawables) {
+        for(auto* drawable : queue) {
+            drawable->draw(f);
+        }
     }
 }
 
 void GtRendererController::drawDepth(OpenGLFunctions* f)
 {
-    for(const auto& drawable : m_drawables) {
-        drawable->drawDepth(f);
+    for(const auto& queue : m_drawables) {
+        for(auto* drawable : queue) {
+            drawable->drawDepth(f);
+        }
     }
 }
 
@@ -247,7 +303,6 @@ void GtRendererController::onInitialize()
 
 void GtRendererController::onDestroy()
 {
-    THREAD_ASSERT_IS_THREAD(m_renderer);
     m_depthFbo = nullptr;
     m_fbo = nullptr;
 }

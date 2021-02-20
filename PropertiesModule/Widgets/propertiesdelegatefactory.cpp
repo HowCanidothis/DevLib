@@ -76,7 +76,7 @@ bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel
                 auto y = regExp.cap(2).toInt();
                 auto width = regExp.cap(3).toInt();
                 auto height = regExp.cap(4).toInt();
-                model->setData(index, Rect(x,y,width,height));
+                model->setData(index, RectI(x,y,width,height));
             }
         }
         return true;

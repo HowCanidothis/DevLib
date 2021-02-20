@@ -21,17 +21,15 @@ GtRenderer::GtRenderer(GtRenderer* baseRenderer)
     construct();
 }
 
+void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName)
+{
+    Q_ASSERT(m_sharedData->ShaderPrograms.contains(sourceName) && !m_sharedData->ShaderPrograms.contains(aliasName));
+    m_sharedData->ShaderPrograms[aliasName] = m_sharedData->ShaderPrograms[sourceName];
+}
+
 void GtRenderer::construct()
 {
-    SpaceColor = "1e1e1e";
     m_queueNumber = 0;
-
-    SpaceColor.Subscribe([this]{
-        Asynch([this]{
-            const auto& color = SpaceColor.Native();
-            glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
-        });
-    });
 }
 
 void GtRenderer::enableDepthTest()
@@ -96,6 +94,12 @@ GtRenderer*& GtRenderer::currentRenderer()
 {
     static thread_local GtRenderer* renderer = nullptr;
     return renderer;
+}
+
+void GtRenderer::CreateFontAlias(const Name& aliasName, const Name& sourceName)
+{
+    Q_ASSERT(m_sharedData->Fonts.contains(sourceName) && !m_sharedData->Fonts.contains(aliasName));
+    m_sharedData->Fonts[aliasName] = m_sharedData->Fonts[sourceName];
 }
 
 const GtFontPtr& GtRenderer::GetFont(const Name& fontName) const
@@ -260,10 +264,6 @@ void GtRenderer::onInitialize()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    const auto& color = SpaceColor.Native();
-    glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
-
-
     for(const auto& controller : m_controllers) {
         controller->onInitialize();
     }
@@ -278,6 +278,20 @@ SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queu
     return ::make_shared<guards::LambdaGuard>([this, old]{ m_queueNumber = old; });
 }
 
+ThreadHandler GtRenderer::CreateThreadHandler()
+{
+    return [this](const FAction& action) -> AsyncResult {
+        if(QThread::currentThread() == this) {
+            action();
+            return AsyncSuccess();
+        } else {
+            return Asynch([action]{
+                action();
+            });
+        }
+    };
+}
+
 void GtRenderer::onDraw()
 {
     if(!isInitialized()) {
@@ -290,11 +304,14 @@ void GtRenderer::onDraw()
         if(fbo == nullptr || !controller->IsEnabled()) {
             continue;
         }
+
         auto* depthFbo = controller->m_depthFbo.get();
         auto* camera = controller->m_camera.get();
         auto cameraStateChanged = camera->IsFrameChangedReset();
         m_renderProperties = controller->m_renderProperties;
         m_renderProperties[RENDER_PROPERTY_CAMERA_STATE_CHANGED] = cameraStateChanged;
+
+        controller->drawSpace(this);
 
         glViewport(0,0, fbo->width(), fbo->height());
 

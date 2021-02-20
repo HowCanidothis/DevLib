@@ -5,6 +5,7 @@
 GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
     : m_renderer(renderer)
     , m_destroyed(false)
+    , m_rendererDrawable(false)
 {
 }
 
@@ -39,41 +40,48 @@ void GtDrawableBase::disableDepthTest()
     m_renderer->disableDepthTest();
 }
 
-void GtDrawableBase::Destroy()
+AsyncResult GtDrawableBase::Destroy()
 {
-    Update([this](OpenGLFunctions* f){
+    auto result = Update([this](OpenGLFunctions* f){
         onDestroy(f);
     });
     m_destroyed = true;
-    m_renderer->RemoveDrawable(this);
+    if(!m_rendererDrawable) {
+        m_renderer->RemoveDrawable(this);
+    } else {
+        m_renderer->Asynch([this]{
+            delete this;
+        });
+    }
+    return result;
 }
 
-void GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
+AsyncResult GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
 {
     if(m_destroyed) {
-        return;
+        return AsyncError();
     }
     if(QThread::currentThread() == m_renderer) {
         f(m_renderer);
-    } else {
-        m_renderer->Asynch([this, f]{
-            f(m_renderer);
-        });
+        return AsyncSuccess();
     }
+    return m_renderer->Asynch([this, f]{
+        f(m_renderer);
+    });
 }
 
-void GtDrawableBase::Update(const FAction& f)
+AsyncResult GtDrawableBase::Update(const FAction& f)
 {
     if(m_destroyed) {
-        return;
+        return AsyncError();
     }
     if(QThread::currentThread() == m_renderer) {
         f();
-    } else {
-        m_renderer->Asynch([f]{
-            f();
-        });
+        return AsyncSuccess();
     }
+    return m_renderer->Asynch([f]{
+        f();
+    });
 }
 
 const GtRenderProperties& GtDrawableBase::getRenderProperties() const

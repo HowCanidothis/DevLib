@@ -59,6 +59,7 @@ class GtCamera : public GtCameraState
     float m_far;
     float m_angle;
     Point2F m_isometricScale;
+    Point2F m_isometricExtraScale;
     Point2F m_isometricCoef;
     Point3F m_isometricCenter;
     float m_isometricCurtain;
@@ -106,6 +107,8 @@ public:
     void SetAxisSystem(bool leftHanded);
     void SetIsometricCenterAndCertain(const Point3F& center, float distanceFromCenter);
     void SetIsometricScale(const Point2F& scale);
+    void SetIsometricExtraScale(const Point2F& extraScale);
+    void AddIsometricExtraScale(const Point2F& extraScale);
     void SetIsometric(bool flag);
     void Resize(qint32 width, qint32 height);
     void SetProjectionProperties(float m_angle, float near, float far);
@@ -137,6 +140,7 @@ public:
     const Matrix4& GetRotation() { updateView(); return m_rotation; }
     const Matrix4& GetViewportProjection() { updateProjection(); return m_viewportProjection; }
     const SizeF& GetViewport() const { return m_viewport; }
+    SizeF CalculateVisibleSize() { return visibleSize(); }
 
     void InstallObserver(const QString& path);
 

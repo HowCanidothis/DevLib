@@ -70,7 +70,7 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     });
 }
 
-LocalPropertyLabelConnector::LocalPropertyLabelConnector(LocalPropertyString* property, class QLabel* label)
+LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
         label->setText(*property);
     }, []{})

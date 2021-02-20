@@ -3,18 +3,31 @@ CustomPlot {
     qproperty-fontSize: 12;
 }
 
-WPSToolTipWidget {
-    background-color: #B5B5B5;
-    color: #1E1E1E;
+VisualizationToolTipWidget {
+    background-color: #007acc;
+    color: white;
     qproperty-opacity: 0;
 }
 
-WPSToolTipWidget QWidget{
+VisualizationToolTipWidget QWidget{
     font-size: 12px;
-    background-color: #B5B5B5;
-    color: #1E1E1E;
+    background-color: #007acc;
+    color: white;
+}
+
+VisualizationToolTipWidget QDoubleSpinBox {
+    border-color: white;
 }
 
 ToolTipArrowWidget {
-    background-color: #B5B5B5;
+    background-color: #007acc;
+}
+
+QChartView {
+    color: white;
+    font-size: 14px;
+}
+
+QGraphicsView {
+    border: 0px;
 }

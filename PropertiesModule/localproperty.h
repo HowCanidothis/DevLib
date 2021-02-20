@@ -183,7 +183,7 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        if(!qFuzzyCompare((double)m_max,max) || !qFuzzyCompare((double)m_min, min)) {
+        if(!qFuzzyCompare((double)m_max,(double)max) || !qFuzzyCompare((double)m_min, (double)min)) {
             m_min = min;
             m_max = max;
             SetValue(Super::m_value);

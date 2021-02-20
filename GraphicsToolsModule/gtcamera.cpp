@@ -62,6 +62,8 @@ GtCamera::GtCamera()
     : m_near(1.f)
     , m_far(150.f)
     , m_angle(45.f)
+    , m_isometricScale(1.f, 1.f)
+    , m_isometricExtraScale(1.f, 1.f)
     , m_isometricCurtain(0.f)
     , m_focus(nullptr)
     , m_observer(nullptr)
@@ -180,6 +182,9 @@ void GtCamera::Zoom(bool closer)
         auto screenPoint = Project(m_focus->GetScenePoint());
 
         auto isometricScale = m_isometricScale;
+        if(qFuzzyIsNull(isometricScale.x()) || qFuzzyIsNull(isometricScale.y())) {
+            isometricScale = Point2F(1.f,1.f) / m_isometricCoef;
+        }
         isometricScale *= closer ? 0.75f : 1.25f;
         auto distance = isometricScale.x() * isometricScale.x();
         if(distance > m_far) {
@@ -286,6 +291,12 @@ void GtCamera::SetAxisSystem(bool leftHanded)
     }
 }
 
+void GtCamera::SetIsometricExtraScale(const Point2F& extraScale)
+{
+    m_isometricExtraScale = extraScale;
+    m_state.AddFlag(State_NeedUpdateProjection);
+}
+
 void GtCamera::SetIsometricScale(const Point2F& scale) {
     m_isometricScale = scale;
     m_state.RemoveFlag(State_AutoIsometricScaling);
@@ -329,6 +340,12 @@ Point3F GtCamera::Unproject(float x, float y, float depth)
     return Point3F(coord.x() * coord.w(),
                      coord.y() * coord.w(),
                      coord.z() * coord.w());
+}
+
+void GtCamera::AddIsometricExtraScale(const Point2F& extraScale)
+{
+    m_isometricExtraScale *= extraScale;
+    m_state.AddFlag(State_NeedUpdateProjection);
 }
 
 Point3F GtCamera::UnprojectPlane(float x, float y)
@@ -417,8 +434,8 @@ void GtCamera::updateProjection()
         float h = m_viewport.height() / 2.f;
         m_viewportProjection.ortho(-w, w, -h, h, m_near, m_far);
         if(m_state.TestFlag(State_Isometric)) {
-            float w = m_viewport.width() * m_isometricScale.x();
-            float h = m_viewport.height() * m_isometricScale.y();
+            float w = m_viewport.width() * m_isometricScale.x() * m_isometricExtraScale.x();
+            float h = m_viewport.height() * m_isometricScale.y() * m_isometricExtraScale.y();
             m_projection.ortho(-w, w,-h, h, -m_far, m_far);
         }
         else {
@@ -475,6 +492,7 @@ void GtCamera::adjustIsometricScale()
 void GtCamera::calculateIsometricCoef()
 {
     m_isometricScale = Point2F(1.f,1.f);
+    m_isometricExtraScale = Point2F(1.f, 1.f);
     m_isometricCoef = Point2F();
     auto size = predicateVisibleSizeOnZ(m_viewport, 10000.f, false);
     auto isometricSize = predicateVisibleSizeOnZ(m_viewport, 10000.f, true);
@@ -499,10 +517,10 @@ SizeF GtCamera::visibleSize()
 {
     qint32 w = m_viewport.width();
     qint32 h = m_viewport.height();
-    Point3F v[4];
-    v[0] = UnprojectPlane(0,0);
-    v[1] = UnprojectPlane(0,h);
-    v[2] = UnprojectPlane(w,h);
+    Point3F v[3];
+    v[0] = UnprojectPlane(0.f,0.f);
+    v[1] = UnprojectPlane(0.f,h);
+    v[2] = UnprojectPlane(w,0.f);
 
     return SizeF((v[2] - v[0]).length(), (v[1] - v[0]).length());
 }

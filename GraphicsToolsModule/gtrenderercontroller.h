@@ -169,13 +169,23 @@ public:
     template<class T, typename ...Args>
     T* CreateDrawable(Args... args)
     {
+        return CreateDrawableQueued<T, Args...>(0, args...);
+    }
+
+    template<class T, typename ...Args>
+    T* CreateDrawableQueued(qint32 queueNumber, Args... args)
+    {
         auto result = new T(m_renderer, args...);
+        result->m_rendererDrawable = true;
         m_renderer->Asynch([this, result]{
             result->initialize(m_renderer);
         });
-        m_drawables.append(result);
+        m_drawables[queueNumber].append(result);
         return result;
     }
+
+    void RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable);
+    void ClearQueue(qint32 queueNumber);
 
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
@@ -191,15 +201,23 @@ public:
     void KeyPressEvent(QKeyEvent* event);
     void KeyReleaseEvent(QKeyEvent* event);
 
+    LocalPropertyColor SpaceColor;
+
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
     GtCamera* GetCamera() { return m_camera.get(); }
     QImage GetCurrentImage() const;
     double GetRenderTime() const { return m_renderTime; }
+    const SizeF& GetVisibleSize() const { return m_visibleSize; }
+
+    Dispatcher OnAboutToBeDestroyed;
 
 signals:
     void imageUpdated();
 
 private:
+    void destroyDrawable(GtDrawableBase* drawable);
+    void calculateVisibleSize();
+    void drawSpace(OpenGLFunctions* f);
     void draw(OpenGLFunctions* f);
     void drawDepth(OpenGLFunctions* f);
     void setCurrentImage(QImage* image, double renderTime);
@@ -222,8 +240,9 @@ private:
     std::atomic_bool m_enabled;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
-    QVector<GtDrawableBase*> m_drawables;
+    QMap<qint32, QVector<GtDrawableBase*>> m_drawables;
     DispatcherConnectionsSafe m_connections;
+    SizeF m_visibleSize;
 };
 
 #endif // GTRENDERERCONTROLLER_H

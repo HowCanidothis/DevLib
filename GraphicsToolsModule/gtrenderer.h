@@ -36,12 +36,14 @@ public:
 
     GtRendererControllerPtr CreateDefaultController();
 
+    void CreateFontAlias(const Name& aliasName, const Name& sourceName);
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
 
     SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
 
+    void CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName);
     GtShaderProgramPtr CreateShaderProgram(const Name& name);
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
     template<class T>
@@ -73,11 +75,11 @@ public:
     void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
 
+    ThreadHandler CreateThreadHandler();
+
     //Point3F Project(const Point3F& position) const;
 
     bool IsBaseRenderer() const { return m_sharedData->BaseRenderer == this; }
-
-    LocalPropertyColor SpaceColor;
 
     Dispatcher OnInitialized;
     Dispatcher OnAboutToBeDestroyed;

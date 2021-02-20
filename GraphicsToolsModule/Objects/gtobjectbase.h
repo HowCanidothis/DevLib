@@ -21,9 +21,9 @@ public:
     GtDrawableBase(class GtRenderer* renderer);
     ~GtDrawableBase();
 
-    void Destroy();
-    void Update(const std::function<void (OpenGLFunctions*)>& f);
-    void Update(const FAction& f);
+    AsyncResult Destroy();
+    AsyncResult Update(const std::function<void (OpenGLFunctions*)>& f);
+    AsyncResult Update(const FAction& f);
 
     ThreadHandler CreateThreadHandler();
 
@@ -44,6 +44,7 @@ protected:
 protected:
     GtRenderer* m_renderer;
     std::atomic_bool m_destroyed;
+    bool m_rendererDrawable;
 };
 
 inline void GtDrawableDeleter::operator()(GtDrawableBase* obj)

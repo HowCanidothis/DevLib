@@ -52,11 +52,11 @@ protected:
     bool m_ignoreWidgetChange;
 };
 
-class _Export LocalPropertyLabelConnector : public LocalPropertiesWidgetConnectorBase
+class _Export LocalPropertiesLabelConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertyLabelConnector(LocalPropertyString* property, class QLabel* label);
+    LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label);
 };
 
 class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetConnectorBase

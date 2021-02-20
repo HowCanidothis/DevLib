@@ -53,8 +53,8 @@ void ToolTipWidget::SetTarget(const QPoint& target)
 
 void ToolTipWidget::updateLocation()
 {
-    QuadTreeF::BoundingRect targetRect(m_target.x(), m_target.y(), 1.f, 1.f);
-    QuadTreeF::BoundingRect parentRect(parentWidget()->width() / 2, parentWidget()->height() / 2, parentWidget()->width() * 2, parentWidget()->height() * 2);
+    QuadTreeF::BoundingRect targetRect(m_target.x(), m_target.y(), 0.f, 0.f);
+    QuadTreeF::BoundingRect parentRect(parentWidget()->width() / 2, parentWidget()->height() / 2, parentWidget()->width(), parentWidget()->height());
 
     auto targetLocation = parentRect.locationOfOther(targetRect);
     switch (targetLocation) {
@@ -64,7 +64,7 @@ void ToolTipWidget::updateLocation()
         updateGeometry(geometry);
         break;
     }
-    case QuadTreeF::Location_TopRight: {
+    default: {
         QRect geometry(m_target.x() - width(), m_target.y(), width(), height());
         geometry.translate(-OffsetFromTarget.Native().x(), OffsetFromTarget.Native().y());
         updateGeometry(geometry);
@@ -82,8 +82,6 @@ void ToolTipWidget::updateLocation()
         updateGeometry(geometry);
         break;
     }
-    default:
-        break;
     }
 }
 

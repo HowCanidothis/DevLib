@@ -23,7 +23,7 @@ typedef Point4F Vector4F;
 typedef QMatrix4x4 Matrix4;
 typedef QSizeF SizeF;
 typedef QSize SizeI;
-typedef QRect Rect;
+typedef QRect RectI;
 
 template<class T> inline static void point2DFromString(T& point, const QString& string){
     static QRegExp re(R"((\()?([^,]+),([^,\)]+)\)?)");
@@ -145,6 +145,11 @@ public:
         if(!qFuzzyIsNull(X() - other.X())) return X() < other.X();
         return Y() < other.Y();
     }
+
+    bool EqualTo(const Vector2F& another, float epsilon = std::numeric_limits<float>().epsilon()) const
+    {
+        return ::fuzzyCompare(another.x(), x(), epsilon) && ::fuzzyCompare(another.y(), y(), epsilon);
+    }
     void FromString(const QString& v){ point2DFromString(*this,v); }
     QString ToString() const { return point2DToString(*this); }
 };
@@ -215,12 +220,38 @@ public:
     float Height() const { return GetHeight(); }
     float GetWidth() const { return m_right.X() - m_left.X(); }
     float GetHeight() const { return m_right.Y() - m_left.Y(); }
+    Point2F GetCenter() const { return (m_right + m_left) / 2.f; }
 
     bool Intersects(const BoundingRect& other) const
     {
         return !(m_right.X() < other.m_left.X() || m_left.X() > other.m_right.X() ||
                  m_right.Y() < other.m_left.Y() || m_left.Y() > other.m_right.Y()
                  );
+    }
+
+    BoundingRect& Unite(const BoundingRect& another)
+    {
+        const auto& tl = another.GetLeft();
+        const auto& br = another.GetRight();
+        if(tl.x() < m_left.x()) {
+            m_left.setX(tl.x());
+        }
+        if(tl.y() < m_left.y()) {
+            m_left.setY(tl.y());
+        }
+
+        if(br.x() > m_right.x()) {
+            m_right.setX(br.x());
+        }
+        if(br.y() > m_right.y()) {
+            m_right.setY(br.y());
+        }
+        return *this;
+    }
+
+    bool operator!= (const BoundingRect& another) const
+    {
+        return !m_left.EqualTo(another.m_left) || !m_right.EqualTo(another.m_right);
     }
 };
 

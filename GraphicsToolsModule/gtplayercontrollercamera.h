@@ -27,9 +27,6 @@ protected:
 
 protected:
     Vector3F m_lastWorldPosition;
-    Vector3F m_lastWorldMovePosition;
-    float m_lastDepth;
-    bool m_disableRotation;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H

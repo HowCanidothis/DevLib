@@ -553,11 +553,11 @@ public:
     ColorProperty& operator=(const QColor& color) { SetValue(color); return *this; }
 };
 
-class RectProperty : public TProperty<Rect>
+class RectProperty : public TProperty<RectI>
 {
-    typedef TProperty<Rect> Super;
+    typedef TProperty<RectI> Super;
 public:
-    RectProperty(const Name& name, const Rect& initial, Options options = Options_Default)
+    RectProperty(const Name& name, const RectI& initial, Options options = Options_Default)
         : Super(name, initial, options)
     {}
 
