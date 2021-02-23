@@ -29,7 +29,8 @@ public:
     {}
     ~GtTexture();
 
-    void SetFormat(const GtTextureFormat& format) { m_format = format; }
+    void SetData(const void* pixels);
+    void SetFormat(const GtTextureFormat& format);
     void SetSize(quint32 w, quint32 h);
     void SetInternalFormat(gTexInternalFormat m_internalFormat);
 
@@ -46,7 +47,7 @@ public:
     gTexTarget GetTarget() const { return m_target; }
     gTexID GetId() const { return m_textureId; }
 
-    virtual void Allocate(const GtTextureFormat& format = GtTextureFormat())=0;
+    virtual void Allocate()=0;
     static GtTexture* Create(OpenGLFunctions* f, gTexTarget m_target, gTexInternalFormat m_internalFormat, const SizeI& m_size, const GtTextureFormat* format);
 
 protected:
@@ -67,7 +68,7 @@ public:
     void LoadImg(const QString& img_file);
     void Load(const QString& dds_file);
     static void bindTexture(OpenGLFunctions* f, gTexUnit unit, gTexID id);
-    void Allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+    void Allocate() Q_DECL_OVERRIDE;
 
 private:
 };
@@ -77,7 +78,7 @@ class GtTexture2DMultisampled : public GtTexture
 public:
     GtTexture2DMultisampled(OpenGLFunctions* f, quint32 m_samples);
 
-    void Allocate(const GtTextureFormat& format = GtTextureFormat()) Q_DECL_OVERRIDE;
+    void Allocate() Q_DECL_OVERRIDE;
 
 private:
     quint32 m_samples;

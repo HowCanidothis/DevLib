@@ -76,8 +76,6 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
     m_sharedData->Fonts.insert(fontName, font);
     m_sharedData->SharedResourcesSystem.RegisterResource(fontName, [this, fntFilePath, texturePath]{
         auto* result = new GtTexture2D(this);
-        GtTextMap map;
-        map.LoadFromFnt(fntFilePath);
         GtTextureFormat format;
         format.MagFilter = GL_LINEAR;
         format.MinFilter = GL_LINEAR;
@@ -86,6 +84,23 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
         format.MipMapLevels = 0;
         result->SetFormat(format);
         result->LoadImg(texturePath);
+        return result;
+    });
+}
+
+void GtRenderer::CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions*)>& textureLoader)
+{
+    m_sharedData->SharedResourcesSystem.RegisterResource(textureName, [this, textureLoader]{
+        return textureLoader(this);
+    });
+}
+
+void GtRenderer::CreateTexture(const Name& textureName, const QString& fileName, const GtTextureFormat& format)
+{
+    CreateTexture(textureName, [fileName, format](OpenGLFunctions* f) {
+        auto* result = new GtTexture2D(f);
+        result->SetFormat(format);
+        result->LoadImg(fileName);
         return result;
     });
 }

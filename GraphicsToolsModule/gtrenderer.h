@@ -38,6 +38,8 @@ public:
 
     void CreateFontAlias(const Name& aliasName, const Name& sourceName);
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
+    void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
+    void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
 

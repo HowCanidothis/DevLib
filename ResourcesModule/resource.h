@@ -1,6 +1,8 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include <SharedModule/internal.hpp>
+
 #include "resourcedata.h"
 
 template<typename T>
@@ -26,5 +28,7 @@ public:
 private:
     Resource& operator=(const Resource& other) = delete;
 };
+
+template<class T> using ResourcePtr = SharedPointer<Resource<T>>;
 
 #endif // RESOURCE_H

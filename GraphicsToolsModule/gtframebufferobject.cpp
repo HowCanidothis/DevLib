@@ -57,7 +57,8 @@ void GtFramebufferObject::Create(const GtFramebufferFormat& format)
         GtTextureFormat depth_format;
         depth_format.PixelFormat = GL_DEPTH_COMPONENT;
         depth_format.PixelType = GL_FLOAT;
-        m_depthTexture->Allocate(depth_format);
+        m_depthTexture->SetFormat(depth_format);
+        m_depthTexture->Allocate();
         f->glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTexture->GetId(), 0);
         break;
     }
@@ -119,7 +120,8 @@ void GtFramebufferObjectMultisampled::Create(const GtFramebufferFormat& format)
         GtTextureFormat depth_format;
         depth_format.PixelFormat = GL_DEPTH_COMPONENT;
         depth_format.PixelType = GL_FLOAT;
-        m_depthTexture->Allocate(depth_format);
+        m_depthTexture->SetFormat(depth_format);
+        m_depthTexture->Allocate();
         f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_depthTexture->GetId(), 0);
         break;
     }
