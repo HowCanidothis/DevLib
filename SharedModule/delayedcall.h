@@ -3,6 +3,7 @@
 
 #include "SharedModule/Threads/Promises/promise.h"
 #include "SharedModule/dispatcher.h"
+#include "SharedModule/Threads/threadsbase.h"
 
 class DelayedCallObject
 {

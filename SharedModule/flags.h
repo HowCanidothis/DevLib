@@ -1,6 +1,8 @@
 #ifndef ATOMICFLAGS_H
 #define ATOMICFLAGS_H
 
+#include <QDebug>
+
 #include <atomic>
 
 template<typename ValueType, typename Enum>

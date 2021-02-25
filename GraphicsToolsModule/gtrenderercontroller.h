@@ -150,7 +150,7 @@ public:
     {
         Q_ASSERT(currentIndex != -1 && !points.isEmpty());
         Super::m_points = points;
-        m_direction = extractPoint(currentIndex) - Super::getCamera()->GetEye();
+        m_direction = Super::extractPoint(currentIndex) - Super::getCamera()->GetEye();
         Super::CurrentIndex.SetMinMax(0, points.size() - 1);
         Super::CurrentIndex = currentIndex;
     }

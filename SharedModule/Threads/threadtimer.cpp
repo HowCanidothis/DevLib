@@ -4,7 +4,7 @@
 #include "SharedModule/Threads/threadsbase.h"
 
 ThreadTimer::ThreadTimer(qint32 msecs)
-    : m_handle(ThreadTimerManager::сreateTimer(msecs))
+    : m_handle(ThreadTimerManager::createTimer(msecs))
 {
 
 }
@@ -68,7 +68,7 @@ void ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
     futureResult.Wait();
 }
 
-QTimer* ThreadTimerManager::сreateTimer(qint32 msecs)
+QTimer* ThreadTimerManager::createTimer(qint32 msecs)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 

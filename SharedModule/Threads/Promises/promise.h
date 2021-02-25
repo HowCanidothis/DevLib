@@ -11,7 +11,6 @@
 #include "SharedModule/smartpointersadapters.h"
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/dispatcher.h"
-#include "SharedModule/interruptor.h"
 
 template<class T>
 class PromiseData ATTACH_MEMORY_SPY(PromiseData<T>)
@@ -75,7 +74,6 @@ public:
     const T& GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isResolved; }
     DispatcherConnection Then(const typename PromiseData<T>::FCallback& handler) const { return m_data->then(handler); }
-    DispatcherConnection ThenMain(const typename PromiseData<T>::FCallback& handler) const;
     void Resolve(bool value) const {  m_data->resolve(value); }
     void Mute() { m_data->mute(); }
 };

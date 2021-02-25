@@ -22,7 +22,7 @@ public:
 
 private:
     friend class ThreadTimer;
-    static QTimer* сreateTimer(qint32 msecs);
+    static QTimer* createTimer(qint32 msecs);
     static QMetaObject::Connection addTimerConnection(QTimer* handle, const FAction& onTimeout);
     static void removeTimerConnection(const QMetaObject::Connection& connection);
     static ThreadTimerManager& getInstance();
@@ -36,7 +36,6 @@ private:
 
 class ThreadTimer
 {
-    friend class ThreadTimer;
 public:
     ThreadTimer(qint32 msecs);
     ~ThreadTimer();

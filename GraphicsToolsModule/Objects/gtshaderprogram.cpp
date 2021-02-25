@@ -99,6 +99,8 @@ QByteArray GtShaderProgram::extractShader(const QString& fileName) const
     if(file.open(QFile::ReadOnly)) {
         auto shader = file.readAll();
         return GtSharedShaderManager::GetInstance().Merge(shader);
+    } else {
+        qDebug() << QString("Unable to open shader file %1").arg(fileName);
     }
     return QByteArray();
 }

@@ -4,6 +4,8 @@
 #include <functional>
 
 #include <Qt>
+#include <QThread>
+#include <QCoreApplication>
 
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/Threads/Promises/promise.h"
@@ -24,14 +26,24 @@ public:
     static void AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task);
 };
 
-template<class T>
-DispatcherConnection Promise<T>::ThenMain(const typename PromiseData<T>::FCallback& handler) const {
-    return m_data->then([handler](const T& value){
-        ThreadsBase::DoMain([handler, value]{
-            handler(value);
-        });
-    });
-}
+using ThreadHandlerNoThreadCheck = std::function<AsyncResult (const FAction& action)>;
+using ThreadHandler = std::function<AsyncResult (const FAction& action)>;
+
+const ThreadHandlerNoThreadCheck ThreadHandlerNoCheckMainLowPriority = [](const FAction& action) -> AsyncResult {
+    return ThreadsBase::DoMainWithResult(action, Qt::LowEventPriority);
+};
+
+const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult {
+    if(QThread::currentThread() == QCoreApplication::instance()->thread()) {
+        action();
+        AsyncResult result;
+        result.Resolve(true);
+        return result;
+    } else {
+        return ThreadsBase::DoMainWithResult(action);
+    }
+};
+
 
 #define THREAD_ASSERT_IS_THREAD(thread) Q_ASSERT(thread == QThread::currentThread());
 #define THREAD_ASSERT_IS_NOT_THREAD(thread) Q_ASSERT(thread != QThread::currentThread());

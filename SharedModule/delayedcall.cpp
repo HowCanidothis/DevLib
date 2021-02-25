@@ -1,5 +1,7 @@
 #include "delayedcall.h"
 
+#include "SharedModule/Threads/threadtimer.h"
+
 DelayedCall::DelayedCall(const FAction& action, QMutex* mutex, DelayedCallObject* object)
     : m_action(action)
     , m_mutex(mutex)

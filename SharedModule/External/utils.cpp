@@ -12,7 +12,12 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#ifdef WIDGETS_MODULE_LIB
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
+void notifyWidgetsManager(QDialog* dialog) { WidgetsDialogsManager::GetInstance().OnDialogCreated(dialog); }
+#else
+void notifyWidgetsManager(QDialog*) {}
+#endif
 
 QAction* createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu)
 {
@@ -49,7 +54,7 @@ QAction* createColorAction(const QString& title, const QColor& color, const std:
     static QPixmap pixmap(10,10);
     auto* colorAction = createAction(title, [handler, color](QAction* action){
         QColorDialog dialog(qApp->activeWindow());
-        WidgetsDialogsManager::GetInstance().OnDialogCreated(&dialog);
+        notifyWidgetsManager(&dialog);
         dialog.setCurrentColor(color);
         if(dialog.exec() == QDialog::Accepted) {
             auto result = dialog.currentColor();

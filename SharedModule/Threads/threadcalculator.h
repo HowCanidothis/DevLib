@@ -6,24 +6,6 @@
 #include "SharedModule/dispatcher.h"
 #include "threadsbase.h"
 
-using ThreadHandlerNoThreadCheck = std::function<AsyncResult (const FAction& action)>;
-using ThreadHandler = std::function<AsyncResult (const FAction& action)>;
-
-const ThreadHandlerNoThreadCheck ThreadHandlerNoCheckMainLowPriority = [](const FAction& action) -> AsyncResult {
-    return ThreadsBase::DoMainWithResult(action, Qt::LowEventPriority);
-};
-
-const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult {
-    if(QThread::currentThread() == qApp->thread()) {
-        action();
-        AsyncResult result;
-        result.Resolve(true);
-        return result;
-    } else {
-        return ThreadsBase::DoMainWithResult(action);
-    }
-};
-
 template<class T>
 class ThreadCalculatorBase
 {
