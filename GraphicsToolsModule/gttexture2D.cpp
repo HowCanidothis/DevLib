@@ -142,6 +142,7 @@ void GtTexture2D::Allocate()
     if(IsCreated() || Create()) {
         GtTextureBinder binder(this);
         if(!m_allocated) {
+            f->glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
             f->glTexImage2D(GL_TEXTURE_2D, 0, m_internalFormat, m_size.width(), m_size.height(), 0, m_format.PixelFormat, m_format.PixelType, m_format.Pixels);
             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_format.MinFilter);
             f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_format.MagFilter);
@@ -151,8 +152,8 @@ void GtTexture2D::Allocate()
                 f->glGenerateMipmap(GL_TEXTURE_2D);
             }
             m_allocated = true;
-        }
-        else {
+        } else {
+            f->glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
             f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_size.width(), m_size.height(), m_format.PixelFormat, m_format.PixelType, m_format.Pixels);
         }
     }

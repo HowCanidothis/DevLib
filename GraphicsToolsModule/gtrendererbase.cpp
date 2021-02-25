@@ -52,7 +52,7 @@ void GtRendererBase::run()
     while (!IsStoped()) {
         auto guard = guards::make(this, &GtRendererBase::fpsBind, &GtRendererBase::fpsRelease);
 
-        callPauseableEvents();
+        callEvents();
 
         fpsBind();
         compute();
