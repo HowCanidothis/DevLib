@@ -1,7 +1,9 @@
-#ifndef DELEGATES_H
-#define DELEGATES_H
+#ifndef WIDGETS_DELEGATES_H
+#define WIDGETS_DELEGATES_H
 
 #include <QStyledItemDelegate>
+
+#include <SharedModule/internal.hpp>
 
 class DelegatesCombobox : public QStyledItemDelegate
 {
