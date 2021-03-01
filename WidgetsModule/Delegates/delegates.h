@@ -9,17 +9,20 @@ class DelegatesCombobox : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    DelegatesCombobox (QObject* parent = nullptr);
-    DelegatesCombobox (const QStringList& valuesList, QObject* parent = nullptr);
+    DelegatesCombobox (Qt::AlignmentFlag aligment = Qt::AlignCenter, QObject* parent = nullptr);
+    DelegatesCombobox (const QStringList& valuesList, Qt::AlignmentFlag aligment = Qt::AlignCenter, QObject* parent = nullptr);
 
+    void setAligment(const Qt::AlignmentFlag& aligment);
     void setValues (const QStringList& valuesList);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
+    CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
 private:
     QStringList m_values;
+    Qt::AlignmentFlag m_aligment;
 };
 
 class DelegatesDoubleSpinBox : public QStyledItemDelegate

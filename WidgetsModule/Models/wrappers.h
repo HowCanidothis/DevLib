@@ -215,6 +215,13 @@ public:
         OnChanged();
     }
 
+    void Clear() {
+        OnAboutToBeReseted();
+        Super::clear();
+        OnReseted();
+        OnChanged();
+    }
+
     qint32 Find(const value_type& value) const
     {
         return Find([&value](const value_type& current){ return value == current; });

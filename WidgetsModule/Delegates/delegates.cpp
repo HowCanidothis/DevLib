@@ -8,15 +8,17 @@
 #include <QDoubleSpinBox>
 #include <SharedModule/internal.hpp>
 
-DelegatesCombobox::DelegatesCombobox(QObject* parent)
+DelegatesCombobox::DelegatesCombobox(Qt::AlignmentFlag aligment, QObject* parent)
     : QStyledItemDelegate(parent)
+    , m_aligment(aligment)
 {
 
 }
 
-DelegatesCombobox::DelegatesCombobox(const QStringList& valuesList, QObject* parent)
+DelegatesCombobox::DelegatesCombobox(const QStringList& valuesList, Qt::AlignmentFlag aligment, QObject* parent)
     : QStyledItemDelegate(parent)
     , m_values(valuesList)
+    , m_aligment(aligment)
 {
 
 }
@@ -25,11 +27,19 @@ void DelegatesCombobox::setValues(const QStringList& valuesList) {
     m_values = valuesList;
 }
 
+void DelegatesCombobox::setAligment(const Qt::AlignmentFlag& aligment)
+{
+    m_aligment = aligment;
+}
+
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
 {
-    QComboBox* combo = new QComboBox(parent);
-    combo->addItems(m_values);
-    return combo;
+    QComboBox* comboBox = new QComboBox(parent);
+    comboBox->addItems(m_values);
+    for (int i = 0; i < comboBox->count() ; ++i) {
+        comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
+    }
+    return comboBox;
 }
 
 void DelegatesCombobox::setEditorData(QWidget* editor, const QModelIndex& index) const {
@@ -37,6 +47,7 @@ void DelegatesCombobox::setEditorData(QWidget* editor, const QModelIndex& index)
 
     QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
     Q_ASSERT(comboBox != nullptr);
+    OnEditorAboutToBeShown(comboBox, index);
     comboBox->setCurrentText(data);
 }
 
