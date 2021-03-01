@@ -514,6 +514,20 @@ protected:
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
+template<class T>
+class _Export VariantProperty : public TPropertyBase<T>
+{
+    using Super = TPropertyBase<T>;
+public:
+    using Super::Super;
+
+    VariantProperty<T>& operator=(const T& value) { Super::SetValue(value); return *this; }
+
+protected:
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
+};
+
 class _Export PropertiesDialogGeometryProperty : protected TProperty<QByteArray>
 {
     typedef TProperty<QByteArray> Super;

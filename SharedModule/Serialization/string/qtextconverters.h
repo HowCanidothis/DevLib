@@ -147,4 +147,44 @@ struct TextConverter<QSet<Key>>
     }
 };
 
+template<>
+struct TextConverter<QPoint>
+{
+    using value_type = QPoint;
+    static QString ToText(const value_type& value)
+    {
+        return "(" + TextConverter<qint32>::ToText(value.x()) + "," + TextConverter<qint32>::ToText(value.y()) + ")";
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        static QRegExp regExp(R"(\(([^,]+),([^\)]+)\))");
+        qint32 pos = 0;
+        value_type result;
+        while((pos = regExp.indexIn(string, pos)) != -1) {
+            result.setX(TextConverter<qint32>::FromText(regExp.cap(1)));
+            result.setY(TextConverter<qint32>::FromText(regExp.cap(2)));
+            pos += regExp.matchedLength();
+        }
+
+        return result;
+    }
+};
+
+#define DECLARE_TEXT_CONVERTER_ALIAS(SourceType, Type) \
+template<> \
+struct TextConverter<Type> \
+{ \
+    using value_type = Type; \
+    static QString ToText(const value_type& value) \
+    { \
+        return TextConverter<SourceType>::ToText((SourceType)value); \
+    } \
+\
+    static value_type FromText(const QString& string) \
+    { \
+        return (value_type)TextConverter<SourceType>::FromText(string); \
+    } \
+};
+
 #endif // QSTRINGCONVERTERS_H

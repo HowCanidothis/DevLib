@@ -24,6 +24,9 @@
 #include "Attachments/ignorewheelwithoutfocusattachment.h"
 #include "Attachments/windowresizeattachment.h"
 #include "Attachments/focuswatcherattachment.h"
+#include "Attachments/floatingwidgetlocationattachment.h"
+
+#include "Components/componentplacer.h"
 
 #include "Layouts/flowlayout.h"
 #include "Layouts/flowwidget.h"

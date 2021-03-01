@@ -88,17 +88,18 @@ public:
     }
 
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectFrom(LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    DispatcherConnections ConnectFrom(const LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
     {
         DispatcherConnections result;
-        *this = thisEvaluator(another.Native());
+        auto& nonConst = const_cast<LocalProperty<T2>&>(another);
+        *this = thisEvaluator(nonConst.Native());
         auto onChange = [this, thisEvaluator, &another]{
             *this = thisEvaluator(another.Native());
         };
         for(auto* dispatcher : dispatchers) {
             result += dispatcher->Connect(this, onChange);
         }
-        result += another.OnChange.Connect(this, onChange);
+        result += nonConst.OnChange.Connect(this, onChange);
         return result;
     }
 
@@ -416,6 +417,21 @@ struct PropertyFromLocalProperty
     static SharedPointer<Property> Create(const Name& name, T& localProperty);
     template<class T>
     inline static SharedPointer<Property> Create(const QString& name, T& localProperty) { return Create(Name(name), localProperty); }
+
+    template<class T>
+    static SharedPointer<Property> CreateVariant(const Name& name, T& localProperty)
+    {
+        auto property = ::make_shared<VariantProperty<typename T::value_type>>(name, localProperty.Native());
+        auto* pProperty = property.get();
+        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, [pProperty, &localProperty]{
+            localProperty = *pProperty;
+        }).MakeSafe();
+
+        property->Subscribe([&localProperty, pProperty, connection]{
+            localProperty = *pProperty;
+        });
+        return property;
+    }
 };
 
 template<>
