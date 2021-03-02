@@ -2,8 +2,7 @@
 
 #include <QOpenGLShaderProgram>
 #include "ResourcesModule/resourcessystem.h"
-
-#include "../internal.hpp"
+#include "GraphicsToolsModule/gtrenderer.h"
 
 GtMaterialParameterMatrix::GtMaterialParameterMatrix(const QString& name, const Name& resource)
     : Super(name, resource)

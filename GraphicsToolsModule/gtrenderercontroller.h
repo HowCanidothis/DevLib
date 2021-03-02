@@ -191,8 +191,6 @@ public:
     void SetRenderProperty(const Name& name, const QVariant& value);
     void SetProjectionProperties(float angle, float nearValue, float farValue);
 
-    void SetEnabled(bool enabled) { m_enabled = enabled; }
-    bool IsEnabled() const { return m_enabled; }
     void Resize(qint32 w, qint32 h);
     void MouseMoveEvent(QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
@@ -202,6 +200,7 @@ public:
     void KeyReleaseEvent(QKeyEvent* event);
 
     LocalPropertyColor SpaceColor;
+    LocalPropertyBool Enabled;
 
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
     GtCamera* GetCamera() { return m_camera.get(); }
@@ -237,7 +236,6 @@ private:
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
     double m_renderTime;
-    std::atomic_bool m_enabled;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
     QMap<qint32, QVector<GtDrawableBase*>> m_drawables;

@@ -105,12 +105,12 @@ bool GtCameraAnimationEngine::IsRunning() const
 
 GtRendererController::GtRendererController(GtRenderer* renderer, ControllersContainer* controllersContainer, GtControllersContext* context)
     : SpaceColor("1e1e1e")
+    , Enabled(true)
     , m_renderer(renderer)
     , m_camera(new GtCamera())
     , m_controllersContext(context)
     , m_controllers(controllersContainer)
-    , m_renderTime(0)
-    , m_enabled(true)
+    , m_renderTime(0)    
     , m_cameraAnimationEngine(renderer, m_camera.get())
 {
     m_controllersContext->Camera = m_camera.get();
@@ -130,7 +130,8 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
         m_renderer = nullptr;
     }).MakeSafe(m_connections);
 
-    SpaceColor.SetSetterHandler(m_renderer->CreateThreadHandler());
+    auto threadHandler = m_renderer->CreateThreadHandler();
+    SpaceColor.SetSetterHandler(threadHandler);
 }
 
 void GtRendererController::drawSpace(OpenGLFunctions* f)

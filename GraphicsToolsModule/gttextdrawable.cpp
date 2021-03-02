@@ -160,7 +160,6 @@ void GtTextDrawable::drawDepth(OpenGLFunctions* )
 
 void GtTextDrawable::onInitialize(OpenGLFunctions* f)
 {
-    m_material.Update();
     m_buffer->Initialize(f);
 }
 
@@ -252,7 +251,6 @@ void GtTextScreenDrawable::drawDepth(OpenGLFunctions* )
 
 void GtTextScreenDrawable::onInitialize(OpenGLFunctions* f)
 {
-    m_material.Update();
     m_buffer->Initialize(f);
 }
 

@@ -2,8 +2,9 @@
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include "../internal.hpp"
 #include "ResourcesModule/resourcessystem.h"
+#include "GraphicsToolsModule/gtrenderer.h"
+#include "GraphicsToolsModule/gttexture2D.h"
 
 GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, const Name& resource)
     : Super(name, resource)
@@ -21,5 +22,7 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
             program->setUniformValue(loc, m_unit);
         };
     }
-    return [](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){};
+    return [this](QOpenGLShaderProgram* , quint32 , OpenGLFunctions* ){
+        qDebug() << "Unable to find resource " << m_resource;
+    };
 }

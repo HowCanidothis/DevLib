@@ -2,8 +2,11 @@
 
 #include <QOpenGLShaderProgram>
 #include "../gtshadowmaptechnique.h"
-#include "../internal.hpp"
 #include "ResourcesModule/resourcessystem.h"
+#include "GraphicsToolsModule/gtrenderer.h"
+#include "GraphicsToolsModule/gttexture2D.h"
+#include "GraphicsToolsModule/gtframebufferobject.h"
+#include "GraphicsToolsModule/gtcamera.h"
 
 GtMaterialParameterShadow::GtMaterialParameterShadow(const QString& name, const Name& resource)
     : Super(name, resource)

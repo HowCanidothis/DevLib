@@ -316,7 +316,7 @@ void GtRenderer::onDraw()
     for(const auto& controller : m_controllers) {
         controller->m_controllers->Input();
         auto* fbo = controller->m_fbo.get();
-        if(fbo == nullptr || !controller->IsEnabled()) {
+        if(fbo == nullptr || !controller->Enabled) {
             continue;
         }
 
