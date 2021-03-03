@@ -11,22 +11,6 @@
 
 class Timer;
 
-class Nanosecs
-{
-public:
-    Nanosecs(double nsecs)
-        : _nsecs(nsecs)
-    {}
-
-    double TimesPerSecond() const;
-    QString ToString(const QString& caption) const;
-
-    operator double() const { return _nsecs; }
-
-private:
-    double _nsecs;
-};
-
 class _Export TimerClocks
 {
 public:

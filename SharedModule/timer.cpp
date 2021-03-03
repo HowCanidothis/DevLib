@@ -33,6 +33,11 @@ Timer::nsecs Timer::Release()
     return res;
 }
 
+Nanosecs Timer::ReleaseNanosecs()
+{
+    return Release();
+}
+
 Timer::msecs Timer::ToMsecs(nsecs nanosecs)
 {
     return duration_cast<milliseconds>(nanoseconds(nanosecs)).count();

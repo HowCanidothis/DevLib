@@ -7,6 +7,22 @@
 #include <functional>
 #include <cmath>
 
+class Nanosecs
+{
+public:
+    Nanosecs(double nsecs)
+        : _nsecs(nsecs)
+    {}
+
+    double TimesPerSecond() const;
+    QString ToString(const QString& caption) const;
+
+    operator double() const { return _nsecs; }
+
+private:
+    double _nsecs;
+};
+
 #ifndef STATIC_LINK
 #if defined(LIBRARY)
 #  define _Export Q_DECL_EXPORT

@@ -381,12 +381,12 @@ public:
     LocalPropertyVector& operator=(const QVector<T>& another)
     {
         if(IsEmpty() && another.isEmpty()) {
-            return this;
+            return *this;
         }
 
         this->m_value = another;
         this->Invoke();
-        return this;
+        return *this;
     }
 
     typename ContainerType::const_iterator begin() const { return this->m_value.begin(); }

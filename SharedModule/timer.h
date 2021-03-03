@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include "shared_decl.h"
+
 class Timer{
     typedef qint64 nsecs;
     typedef qint32 msecs;
@@ -13,6 +15,7 @@ public:
     void Bind();
     nsecs ElapsedTime() const;
     nsecs Release();
+    Nanosecs ReleaseNanosecs();
     static msecs ToMsecs(nsecs nanosecs);
 
     static QString TimeToStringSecs(const QString& lbl, qint64 time);
