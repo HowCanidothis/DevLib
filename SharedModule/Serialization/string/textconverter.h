@@ -12,7 +12,9 @@ struct TextConverter
     }
     static T FromText(const QString& string)
     {
-        return T::FromString(string);
+        T result;
+        result.FromString(string);
+        return result;
     }
 };
 

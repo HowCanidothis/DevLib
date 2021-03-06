@@ -423,13 +423,15 @@ struct PropertyFromLocalProperty
     {
         auto property = ::make_shared<VariantProperty<typename T::value_type>>(name, localProperty.Native());
         auto* pProperty = property.get();
-        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, [pProperty, &localProperty]{
-            localProperty = *pProperty;
-        }).MakeSafe();
+        auto setProperty = [pProperty, &localProperty]{
+            *pProperty = localProperty;
+        };
+        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
 
         property->Subscribe([&localProperty, pProperty, connection]{
             localProperty = *pProperty;
         });
+        setProperty();
         return property;
     }
 };

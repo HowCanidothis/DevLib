@@ -181,6 +181,8 @@ public:
     float& Z() { return operator[](2); }
     float Z() const { return operator[](2); }
 
+    float Sum() const { return x() + y() + z(); }
+
     bool operator <(const Vector3F& other) const{
         if(!qFuzzyIsNull(x() - other.x())) return x() < other.x();
         if(!qFuzzyIsNull(y() - other.y())) return y() < other.y();
@@ -192,8 +194,19 @@ public:
         return ::fuzzyCompare(another.x(), x(), epsilon) && ::fuzzyCompare(another.y(), y(), epsilon) && ::fuzzyCompare(another.z(), z(), epsilon);
     }
 
+    Vector3F normalized() const { return Super::normalized(); }
+
+    Vector3F operator-(const Vector3F& another) const { return static_cast<Vector3F>((toBase() - another.toBase())); }
+    Vector3F operator*(const Vector3F& another) const { return static_cast<Vector3F>((toBase() * another.toBase())); }
+    Vector3F operator*(float value) const { return static_cast<Vector3F>((toBase() * value)); }
+
+    friend Vector3F operator*(float value, const Vector3F& another) { return static_cast<Vector3F>(value * static_cast<const QVector3D&>(another)); }
+
     void FromString(const QString& v){ point3DFromString(*this,v); }
     QString ToString() const { return point3DToString(*this); }
+
+private:
+    const QVector3D& toBase() const { return *this; }
 };
 Q_DECLARE_TYPEINFO(Vector3F, Q_PRIMITIVE_TYPE);
 typedef Vector3F Point3F;

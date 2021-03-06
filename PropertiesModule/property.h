@@ -521,7 +521,7 @@ class _Export VariantProperty : public TPropertyBase<T>
 public:
     using Super::Super;
 
-    VariantProperty<T>& operator=(const T& value) { Super::SetValue(value); return *this; }
+    VariantProperty<T>& operator=(const T& value) { Super::SetValue(TextConverter<typename Super::value_type>::ToText(value)); return *this; }
 
 protected:
     QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
