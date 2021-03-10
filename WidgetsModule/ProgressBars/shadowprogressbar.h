@@ -36,7 +36,9 @@ public:
 
 private:
     Ui::ShadowProgressBar *ui;
-    ProgressBarWithLabel* m_progressBars[8];    
+    ProgressBarWithLabel* m_progressBars[8];
+    QSet<ProcessValue*> m_extraProcesses;
+    QLabel* m_extraProcessesLabel;
 };
 
 #endif // SHADOWPROGRESSBAR_H

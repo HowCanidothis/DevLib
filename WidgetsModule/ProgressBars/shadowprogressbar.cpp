@@ -24,6 +24,9 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
         layout()->addWidget(progressBar);
     }
 
+    layout()->addWidget(m_extraProcessesLabel = new QLabel);
+    m_extraProcessesLabel->setVisible(false);
+
     ProcessFactory::Instance().SetShadowDeterminateCallback([this](ProcessValue* value){
         auto determinateValue = value->AsDeterminate();
         auto processState = determinateValue->GetState();
@@ -41,6 +44,20 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
 
                 if(progressBar->isVisible() != visible) {
                     progressBar->setVisible(visible);
+                    adjustSize();
+                    move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
+                }
+            } else {
+                if(visible) {
+                    m_extraProcesses.insert(value);
+                } else {
+                    m_extraProcesses.remove(value);
+                }
+
+                auto visible = !m_extraProcesses.isEmpty();
+                m_extraProcessesLabel->setText(QString(tr("Additional processes: %1").arg(m_extraProcesses.size())));
+                if(visible != m_extraProcessesLabel->isVisible()) {
+                    m_extraProcessesLabel->setVisible(visible);
                     adjustSize();
                     move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
                 }
