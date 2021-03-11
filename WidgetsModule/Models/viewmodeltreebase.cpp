@@ -76,6 +76,7 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
     }
 
     switch (role) {
+    case Qt::ToolTipRole:
     case Qt::DisplayRole: {
         auto* item = AsItem(index);
         return item->GetLabel();
