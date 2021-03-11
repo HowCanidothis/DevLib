@@ -149,7 +149,7 @@ public:
         return m_subscribes.isEmpty();
     }
 
-    void Invoke(Args... args) const
+    virtual void Invoke(Args... args) const
     {
         QHash<Observer, FCommonDispatcherAction> subscribesCopy;
         {

@@ -93,4 +93,26 @@ inline AsyncResult DelayedCallObject::Call(const FAction& action)
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator;
 
+template<typename ... Args>
+class DelayedCallCommonDispatcher : public CommonDispatcher<Args...>
+{
+    using Super = CommonDispatcher<Args...>;
+public:
+    DelayedCallCommonDispatcher(qint32 delayMsecs = 0, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
+        : m_delayedInvoke(delayMsecs, handler)
+    {}
+
+    void Invoke(Args... args) const override
+    {
+        m_delayedInvoke.Call([this, args...]{
+            Super::Invoke(args...);
+        });
+    }
+
+private:
+    mutable DelayedCallObject m_delayedInvoke;
+};
+
+using DelayedCallDispatcher = DelayedCallCommonDispatcher<>;
+
 #endif // DELAYEDCALL_H

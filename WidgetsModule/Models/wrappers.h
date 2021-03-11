@@ -253,7 +253,6 @@ public:
         OnAboutToBeUpdated();
         handler();
         OnUpdated();
-        OnChanged();
     }
 
     void Change(const FAction& handler)
