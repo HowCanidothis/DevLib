@@ -248,6 +248,14 @@ public:
         OnChanged();
     }
 
+    void Insert(int index, const value_type& part)
+    {
+        OnAboutToInsertRows(index, index);
+        Super::insert(index, part);
+        OnRowsInserted();
+        OnChanged();
+    }
+
     void Update(const FAction& handler)
     {
         OnAboutToBeUpdated();
