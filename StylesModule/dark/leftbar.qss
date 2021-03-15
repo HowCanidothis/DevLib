@@ -71,3 +71,8 @@ MenuBar QLabel#LogoIcon {
 MenuBarMovePane QLabel#Icon {
     background: #3C3C3C;
 }
+
+WidgetsEditingObjectSaveCancelButtons {
+    background: #252526;
+    padding-right: 20px;
+}
