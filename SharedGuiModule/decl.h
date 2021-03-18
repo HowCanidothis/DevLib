@@ -196,9 +196,11 @@ public:
 
     Vector3F normalized() const { return Super::normalized(); }
 
+    Vector3F operator+(const Vector3F& another) const { return static_cast<Vector3F>((toBase() + another.toBase())); }
     Vector3F operator-(const Vector3F& another) const { return static_cast<Vector3F>((toBase() - another.toBase())); }
     Vector3F operator*(const Vector3F& another) const { return static_cast<Vector3F>((toBase() * another.toBase())); }
     Vector3F operator*(float value) const { return static_cast<Vector3F>((toBase() * value)); }
+    Vector3F operator/(float value) const { return static_cast<Vector3F>((toBase() / value)); }
 
     friend Vector3F operator*(float value, const Vector3F& another) { return static_cast<Vector3F>(value * static_cast<const QVector3D&>(another)); }
 

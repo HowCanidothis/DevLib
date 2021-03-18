@@ -449,16 +449,15 @@ void GtCamera::updateProjection()
 void GtCamera::updateView()
 {
     if(m_state.TestFlag(State_ChangedView)) {
-        m_view.setToIdentity();
         m_rotation.setToIdentity();
 
         Vector3F side = Vector3F::crossProduct(-m_forward, m_up).normalized();
         Vector3F upVector = Vector3F::crossProduct(side, -m_forward);
 
-        m_view.setRow(0, Vector4F(-side, 0));
-        m_view.setRow(1, Vector4F(upVector,0));
-        m_view.setRow(2, Vector4F(-m_forward,0));
-        m_view.setRow(3, Vector4F(0,0,0,1));
+        m_view.setRow(0, -side);
+        m_view.setRow(1, upVector);
+        m_view.setRow(2, -m_forward);
+        m_view.setRow(3, Vector4F(0.f, 0.f, 0.f, 1.f));
         m_view.translate(-m_eye);
 
         m_rotation.setRow(0, Vector4F(-side * m_axis.x(), 0));

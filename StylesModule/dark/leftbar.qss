@@ -76,3 +76,12 @@ WidgetsEditingObjectSaveCancelButtons {
     background: #252526;
     padding-right: 20px;
 }
+
+WPSCVisualizationFooter {
+    background: #252526;
+    padding-right: 20px;
+}
+
+WPSCVisualizationFooter QCheckBox {
+    background: #252526;
+}

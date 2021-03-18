@@ -26,6 +26,7 @@ public:
     AsyncResult Update(const FAction& f);
 
     ThreadHandler CreateThreadHandler();
+    ThreadHandlerNoThreadCheck CreateThreadNoCheckHandler();
 
 protected:
     friend class GtScene;

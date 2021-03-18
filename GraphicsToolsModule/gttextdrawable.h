@@ -103,6 +103,19 @@ private:
     GtTextMap m_map;
 };
 
+enum GtTextAlign
+{
+    GtTextAlign_HLeft = 0x1,
+    GtTextAlign_HRight = 0x2,
+    GtTextAlign_HCenter = GtTextAlign_HLeft | GtTextAlign_HRight,
+    GtTextAlign_VTop = 0x4,
+    GtTextAlign_VBottom = 0x8,
+    GtTextAlign_VCenter = GtTextAlign_VTop | GtTextAlign_VBottom,
+    GtTextAlign_Center = GtTextAlign_VCenter | GtTextAlign_HCenter,
+    GtTextAlign_Directional = 0x10
+};
+DECL_FLAGS(GtTextAligns, GtTextAlign)
+
 class GtTextDrawable : public GtDrawableBase
 {
     using Super = GtDrawableBase;
@@ -115,12 +128,9 @@ public:
     };
 #pragma pack()
 
-    enum TextAlign
+    enum Initializer
     {
-        TextAlign_Center,
-        TextAlign_Left,
-        TextAlign_Right,
-        TextAlign_Directional
+        Text3D
     };
 
     struct TextInfo
@@ -134,16 +144,17 @@ public:
             : Text(text)
             , Position(position)
             , Direction(direction)
-            , Align(TextAlign_Center)
+            , Align(GtTextAlign_Center)
         {}
 
-        TextAlign Align;
+        GtTextAlign Align;
         Vector4F OffsetDirection; // w component is for distance
 
-        TextInfo& SetAlign(TextAlign align) { Align = align; return *this; }
+        TextInfo& SetAlign(GtTextAlign align) { Align = align; return *this; }
         TextInfo& SetOffsetDirection(const Vector4F& offsetDirection) { OffsetDirection = offsetDirection; return *this; }
     };
 
+    GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font, Initializer);
     GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
     GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font);
 
@@ -177,18 +188,6 @@ public:
     };
 #pragma pack()
 
-    enum TextAlign
-    {
-        TextAlign_HLeft = 0x1,
-        TextAlign_HRight = 0x2,
-        TextAlign_HCenter = TextAlign_HLeft | TextAlign_HRight,
-        TextAlign_VTop = 0x4,
-        TextAlign_VBottom = 0x8,
-        TextAlign_VCenter = TextAlign_VTop | TextAlign_VBottom,
-        TextAlign_Center = TextAlign_VCenter | TextAlign_HCenter
-    };
-    DECL_FLAGS(TextAligns, TextAlign)
-
     struct TextInfo
     {
         QString Text;
@@ -200,12 +199,12 @@ public:
             : Text(text)
             , Position(position)
             , Direction(direction)
-            , Align(TextAlign_Center)
+            , Align(GtTextAlign_Center)
         {}
 
-        TextAligns Align;
+        GtTextAligns Align;
 
-        TextInfo& SetAlign(TextAligns align) { Align = align; return *this; }
+        TextInfo& SetAlign(GtTextAligns align) { Align = align; return *this; }
     };
 
     GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);

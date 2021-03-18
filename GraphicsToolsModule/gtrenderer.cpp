@@ -49,8 +49,8 @@ GtRenderer::GtRenderer(const QSurfaceFormat& format)
     , m_sharedData(new GtRendererSharedData(this))
 {   
     construct();
-    auto textShaderProgram = CreateShaderProgram("DefaultTextShaderProgram");
-    textShaderProgram->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
     CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
 }
 

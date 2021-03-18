@@ -90,6 +90,7 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_SCALE", &Settings.Scale.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Settings.Color.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_COLOR", &Settings.BorderColor.Native()));
+    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_HEIGHT", &font->GetMap().GetHeight()));
     m_material.AddParameter(::make_shared<GtMaterialParameterTexture>("TEXTURE", font->GetName()));
 
     m_builder.AddComponent<float>(3);
@@ -108,6 +109,12 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
 
 GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
     : GtTextDrawable(renderer, renderer->GetShaderProgram("DefaultTextShaderProgram"), font)
+{
+
+}
+
+GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font, Initializer)
+    : GtTextDrawable(renderer, renderer->GetShaderProgram("DefaultText3DShaderProgram"), font)
 {
 
 }

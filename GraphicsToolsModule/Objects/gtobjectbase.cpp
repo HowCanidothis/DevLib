@@ -30,6 +30,18 @@ ThreadHandler GtDrawableBase::CreateThreadHandler()
     };
 }
 
+ThreadHandlerNoThreadCheck GtDrawableBase::CreateThreadNoCheckHandler()
+{
+    return [this](const FAction& action) -> AsyncResult {
+        if(m_destroyed) {
+            return AsyncError();
+        }
+        return m_renderer->Asynch([action]{
+            action();
+        });
+    };
+}
+
 void GtDrawableBase::enableDepthTest()
 {
     m_renderer->enableDepthTest();
