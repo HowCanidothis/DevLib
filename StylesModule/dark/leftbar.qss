@@ -74,14 +74,15 @@ MenuBarMovePane QLabel#Icon {
 
 WidgetsEditingObjectSaveCancelButtons {
     background: #252526;
-    padding-right: 20px;
+    padding: 10px 20px 10px 20px;
 }
 
 WPSCVisualizationFooter {
     background: #252526;
-    padding-right: 20px;
+    padding: 10px 20px 10px 20px;
 }
 
 WPSCVisualizationFooter QCheckBox {
     background: #252526;
+    font-size: 12px;
 }

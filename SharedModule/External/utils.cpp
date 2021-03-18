@@ -54,6 +54,7 @@ QAction* createColorAction(const QString& title, const QColor& color, const std:
     static QPixmap pixmap(10,10);
     auto* colorAction = createAction(title, [handler, color](QAction* action){
         QColorDialog dialog(qApp->activeWindow());
+        dialog.setModal(true);
         notifyWidgetsManager(&dialog);
         dialog.setCurrentColor(color);
         if(dialog.exec() == QDialog::Accepted) {

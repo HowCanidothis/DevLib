@@ -176,8 +176,12 @@ QPushButton#BtnClose:hover {
 }
 
 MenuBarMovePane {
-    min-height: 30;
-    max-height: 30;
+    min-height: 28px;
+    max-height: 28px;
+}
+
+MenuBarMovePane QPushButton{
+    min-height: 15px;
 }
 
 MenuBar QMenuBar {
@@ -240,11 +244,20 @@ QPushButton#BtnClose:hover {
     border-radius: none;
 }
 
-TreeBar QLabel#Title {
+TreeBar QFrame#Header {
+    background: #252526;
+    border: none;
+    border-bottom: 1px solid #3C3C3C;
+    border-radius: 0px;
+    padding-right: 15px;
     padding-left: 15px;
+}
+
+TreeBar QLabel {    
     padding-top: 12px;
     padding-bottom: 11px;
     background: #252526;
+    color: #9d9d9d;
 }
 
 MenuBarMovePane QLabel#Icon {
@@ -270,4 +283,18 @@ MenuBar QLabel#LogoIcon {
     padding-right: 10px;
     border: none;
     image: url(:/Logo.svg);
+}
+
+MainWindow QFrame#Footer {
+    min-height: 22px;
+    max-height: 22px;
+    border-radius: 0px;
+    border: none;
+    background: #007acc;
+    padding: 0px;
+}
+
+QFrame#Footer QLabel {
+    background: #007acc;
+    padding-left: 15px;
 }

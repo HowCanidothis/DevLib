@@ -24,6 +24,8 @@ public:
         return debug.maybeSpace();
     }
 
+    static Name FromValue(qint32 value) { Name result; result.m_value = value; return result; }
+
 private:
     QString m_text;
     qint32 m_value;

@@ -7,7 +7,7 @@
 #include <QWidget>
 
 WindowResizeAttachment::WindowResizeAttachment()
-    : m_borderWidth(6)
+    : m_borderWidth(10)
     , m_draggingLocation(Location_Default)
     , m_previousMoveLocation(Location_Default)
 {
@@ -23,7 +23,7 @@ WindowResizeAttachment::Location WindowResizeAttachment::findLocation(QWindow* w
     if (window->visibility() != QWindow::Windowed) {
         return Location_Default;
     }
-    auto rect = window->geometry();
+    auto rect = window->frameGeometry();
 
     qint32 location = Location_Default;
     location |= abs(pos.x() - rect.left()) <= m_borderWidth ? Location_Left : Location_Default;
