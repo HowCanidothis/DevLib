@@ -28,6 +28,9 @@ public:
     ThreadHandler CreateThreadHandler();
     ThreadHandlerNoThreadCheck CreateThreadNoCheckHandler();
 
+    template<class T>
+    T* As() { return reinterpret_cast<T*>(this); }
+
 protected:
     friend class GtScene;
     friend class GtRenderer;

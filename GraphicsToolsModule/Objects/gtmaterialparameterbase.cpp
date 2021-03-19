@@ -26,12 +26,17 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
 void GtMaterialParameterBase::updateLocation(const QOpenGLShaderProgram* program)
 {
     auto it = m_locations.insert(program, program->uniformLocation(m_name));
-    if(*it == -1) {
+    if(*it == -1 && m_required) {
         qCWarning(LC_SYSTEM) << "location not found" << m_name << "for shaders:";
         for(const auto* shader : program->shaders()) {
             qCWarning(LC_SYSTEM) << shader->sourceCode();
         }
     }
+}
+
+void GtMaterialParameterBase::SetRequired(bool required)
+{
+    m_required = required;
 }
 
 class GtRenderer* GtMaterialParameterBase::currentRenderer()

@@ -147,10 +147,10 @@ public:
             , Align(GtTextAlign_Center)
         {}
 
-        GtTextAlign Align;
+        GtTextAligns Align;
         Vector4F OffsetDirection; // w component is for distance
 
-        TextInfo& SetAlign(GtTextAlign align) { Align = align; return *this; }
+        TextInfo& SetAlign(GtTextAligns align) { Align = align; return *this; }
         TextInfo& SetOffsetDirection(const Vector4F& offsetDirection) { OffsetDirection = offsetDirection; return *this; }
     };
 
@@ -161,6 +161,7 @@ public:
     void DisplayText(const QVector<TextInfo>& texts);
 
     GtTextDrawableSettings Settings;
+    LocalProperty<QMatrix4x4> Transform;
 
 private:
     GtMaterial m_material;

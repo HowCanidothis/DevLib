@@ -15,7 +15,7 @@ public:
     GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program);
     virtual ~GtMaterial();
 
-    void AddParameter(const SharedPointer<GtMaterialParameterBase>&);
+    void AddParameter(const SharedPointer<GtMaterialParameterBase>&, bool required = true);
     void AddMesh(const SharedPointer<GtMesh>& mesh);
     void Draw(OpenGLFunctions* f);
     void SetVisible(bool visible);

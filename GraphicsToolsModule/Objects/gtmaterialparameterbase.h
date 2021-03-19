@@ -31,6 +31,7 @@ class GtMaterialParameterBase : public GtObjectBase
 protected:
     GtMaterialParameterBase(const QString& name)
         : m_name(name)
+        , m_required(true)
     {}
 public:
     typedef std::function<void(QOpenGLShaderProgram* program, gLocID m_location, OpenGLFunctions* f)> FDelegate;
@@ -51,6 +52,8 @@ public:
     {}
     virtual ~GtMaterialParameterBase();
 
+    void SetRequired(bool required);
+
 protected:
     friend class GtMaterial;
     void bind(QOpenGLShaderProgram* program, OpenGLFunctions* f);
@@ -64,6 +67,7 @@ protected:
 protected:
     FDelegate m_delegate;
     QString m_name;
+    bool m_required;
 
     QHash<const QOpenGLShaderProgram*, gLocID> m_locations;
     static GtMaterial*& material() { static GtMaterial* res; return res; }

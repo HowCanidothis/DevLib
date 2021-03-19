@@ -25,8 +25,9 @@ GtMaterial::~GtMaterial()
     m_shaderProgram->OnUpdated -= this;
 }
 
-void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& parameter)
+void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& parameter, bool required)
 {
+    parameter->SetRequired(required);
     m_parameters.append(parameter);
 }
 
