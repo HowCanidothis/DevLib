@@ -257,7 +257,7 @@ class LocalPropertyPtr : public LocalProperty<T*>
 {
     using Super = LocalProperty<T*>;
 public:
-    LocalPropertyPtr(T* initial)
+    LocalPropertyPtr(T* initial = nullptr)
         : Super(initial)
     {}
 

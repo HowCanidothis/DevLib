@@ -26,6 +26,24 @@ struct DescProcessValueState
     {}
 };
 
+struct DescProcessDeterminateValueState : DescProcessValueState
+{
+    int CurrentStep;
+    int StepsCount;
+
+    DescProcessDeterminateValueState(const std::wstring& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged)
+        : DescProcessValueState(title, depth, isFinished, isCancelable, isTitleChanged)
+        , CurrentStep(currentStep)
+        , StepsCount(stepsCount)
+    {}
+
+    DescProcessDeterminateValueState()
+        : DescProcessValueState(std::wstring(), -1, false, false, false)
+        , CurrentStep(0)
+        , StepsCount(0)
+    {}
+};
+
 class _Export ProcessValue
 {
 protected:
@@ -39,6 +57,7 @@ public:
     void Cancel();
 
     DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged() }; }
+    virtual DescProcessDeterminateValueState GetCommonState() const { return DescProcessDeterminateValueState(GetTitle(), GetDepth(), IsFinished(), IsCancelable(), 0, 0, IsTitleChanged()); }
     int GetDepth() const { return m_valueDepth; }
     const std::wstring& GetTitle() const { return m_title; }
     bool IsFinished() const { return m_isFinished; }
@@ -66,18 +85,6 @@ protected:
     bool m_isTitleChanged;
 };
 
-struct DescProcessDeterminateValueState : DescProcessValueState
-{
-    int CurrentStep;
-    int StepsCount;
-
-    DescProcessDeterminateValueState(const std::wstring& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged)
-        : DescProcessValueState(title, depth, isFinished, isCancelable, isTitleChanged)
-        , CurrentStep(currentStep)
-        , StepsCount(stepsCount)
-    {}
-};
-
 class ProcessDeterminateValue : public ProcessValue
 {
     typedef ProcessValue Super;
@@ -87,6 +94,7 @@ public:
     ~ProcessDeterminateValue();
 
     DescProcessDeterminateValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged() }; }
+    DescProcessDeterminateValueState GetCommonState() const override { return DescProcessDeterminateValueState(GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged()); }
     int GetCurrentStep() const { return m_currentStep; }
     int GetStepsCount() const { return m_stepsCount; }
     virtual ProcessDeterminateValue* AsDeterminate() override{ return this; }

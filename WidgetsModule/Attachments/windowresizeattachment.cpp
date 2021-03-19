@@ -7,7 +7,7 @@
 #include <QWidget>
 
 WindowResizeAttachment::WindowResizeAttachment()
-    : m_borderWidth(10)
+    : m_borderWidth(8)
     , m_draggingLocation(Location_Default)
     , m_previousMoveLocation(Location_Default)
 {

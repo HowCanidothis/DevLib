@@ -15,3 +15,8 @@ MainProgressBar QRoundProgressBar#SubProgressBar {
     font-size: 2px;
     qproperty-ringWidth: 10;
 }
+
+QWidget#FooterProgressBar{
+    max-height: 5px;
+    max-width: 40px;
+}

@@ -86,3 +86,17 @@ WPSCVisualizationFooter QCheckBox {
     background: #252526;
     font-size: 12px;
 }
+
+
+MainWindow QFrame#Footer {
+    background: #007acc;
+}
+
+QFrame#Footer QLabel {
+    background: #007acc;
+}
+
+QFrame#Footer QLabel#FooterProgressBarLabel{
+    font-size: 8px;
+    qproperty-alignment: 'AlignVCenter | AlignLeft';
+}

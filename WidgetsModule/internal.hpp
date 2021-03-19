@@ -15,6 +15,7 @@
 
 #include "ProgressBars/mainprogressbar.h"
 #include "ProgressBars/shadowprogressbar.h"
+#include "ProgressBars/shadowprogressbaroneforall.h"
 
 #include "ToolTip/tooltipwidget.h"
 #include "ToolTip/tooltiparrowwidget.h"

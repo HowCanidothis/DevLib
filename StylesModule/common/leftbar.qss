@@ -290,11 +290,5 @@ MainWindow QFrame#Footer {
     max-height: 22px;
     border-radius: 0px;
     border: none;
-    background: #007acc;
-    padding: 0px;
-}
-
-QFrame#Footer QLabel {
-    background: #007acc;
-    padding-left: 15px;
+    padding: 0px 15px 0px 15px; 
 }

@@ -5,19 +5,19 @@
 
 ProgressBarAttachment::ProgressBarAttachment(QWidget* target)
     : m_target(target)
-    , m_progressBarPane(new MainProgressBar(target, Qt::Window | Qt::FramelessWindowHint))
-    , m_shadowProgressBarPane(new ShadowProgressBar(target, Qt::Window | Qt::FramelessWindowHint))
 {
 
 }
 
 void ProgressBarAttachment::EnableProgressBar()
 {
+    m_progressBarPane = new MainProgressBar(m_target, Qt::Window | Qt::FramelessWindowHint);
     m_progressBarPane->installEventFilter(this);
 }
 
 void ProgressBarAttachment::EnableShadowProgressBar()
 {
+    m_shadowProgressBarPane = new ShadowProgressBar(m_target, Qt::Window | Qt::FramelessWindowHint);
     m_shadowProgressBarPane->setAttribute(Qt::WA_NoSystemBackground);
     m_shadowProgressBarPane->setAttribute(Qt::WA_TranslucentBackground);
     m_shadowProgressBarPane->installEventFilter(this);
