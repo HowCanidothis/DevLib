@@ -76,11 +76,10 @@ private:
 class DelayedCallDispatchersCommutator : public Dispatcher
 {
 public:
-    DelayedCallDispatchersCommutator();
+    DelayedCallDispatchersCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority);
 
     // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
-    void Subscribe(const ThreadHandlerNoThreadCheck& threadHandler, const QVector<Dispatcher*>& dispatchers);
-    void SubscribeMain(const QVector<Dispatcher*>& dispatchers) { Subscribe(ThreadHandlerNoCheckMainLowPriority, dispatchers); }
+    void Subscribe(const QVector<Dispatcher*>& dispatchers);
 
 private:
     DelayedCallObject m_delayedCallObject;

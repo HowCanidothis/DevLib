@@ -107,14 +107,15 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
     return foundIt.value()->GetResult();
 }
 
-DelayedCallDispatchersCommutator::DelayedCallDispatchersCommutator()
+DelayedCallDispatchersCommutator::DelayedCallDispatchersCommutator(qint32 msecs, const ThreadHandlerNoThreadCheck& threadHandler)
+    : m_delayedCallObject(msecs, threadHandler)
 {
 
 }
 
-void DelayedCallDispatchersCommutator::Subscribe(const ThreadHandlerNoThreadCheck& threadHandler, const QVector<Dispatcher*>& dispatchers)
+void DelayedCallDispatchersCommutator::Subscribe(const QVector<Dispatcher*>& dispatchers)
 {
-    auto callOnChanged = [this, threadHandler]{
+    auto callOnChanged = [this]{
         DelayedCallManager::CallDelayed(&m_delayedCallObject, [this]{
             Invoke();
         });

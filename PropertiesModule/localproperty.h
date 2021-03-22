@@ -348,6 +348,42 @@ public:
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
 };
 
+class LocalPropertyBoolCommutator : public LocalProperty<bool>
+{
+    using Super = LocalProperty<bool>;
+public:
+    LocalPropertyBoolCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+        : Super(false)
+        , m_commutator(msecs, threadHandler)
+    {
+        m_commutator += { this, [this]{
+            bool result = false;
+            for(auto* property : m_properties) {
+                if(*property) {
+                    result = true;
+                }
+            }
+            SetValue(result);
+        }};
+    }
+
+    void ConnectProperties(const QVector<LocalProperty<bool>*>& properties)
+    {
+        Q_ASSERT(m_properties.isEmpty());
+        m_properties = properties;
+        QVector<Dispatcher*> dispatchers;
+        for(auto* property : properties) {
+            dispatchers.append(&property->OnChange);
+        }
+        m_commutator.Subscribe(dispatchers);
+    }
+
+private:
+    DelayedCallDispatchersCommutator m_commutator;
+    ThreadHandlerNoThreadCheck m_threadHandler;
+    QVector<LocalProperty<bool>*> m_properties;
+};
+
 template<class T>
 class LocalPropertyVector : public LocalProperty<QVector<T>>
 {
