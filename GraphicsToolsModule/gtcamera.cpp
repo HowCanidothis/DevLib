@@ -111,7 +111,7 @@ void GtCamera::SetPosition(const Point3F& eye, const Vector3F& forward, const Ve
     this->m_eye = eye;
     this->m_forward = forward;
     this->m_up = up;
-    m_state.AddFlag(State_NeedUpdateView);
+    m_state.AddFlags(State_NeedUpdateView | State_AutoIsometricScaling);
 }
 
 void GtCamera::MoveForward(float value)

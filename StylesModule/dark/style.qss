@@ -940,33 +940,7 @@ QLCDNumber:disabled {
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qprogressbar
 
 --------------------------------------------------------------------------- */
-QProgressBar {
-  background-color: #1E1E1E;
-  border: 1px solid #3C3C3C;
-  color: #F0F0F0;
-  border-radius: 4px;
-  text-align: center;
-}
 
-QProgressBar:disabled {
-  background-color: #1E1E1E;
-  border: 1px solid #3C3C3C;
-  color: #787878;
-  border-radius: 4px;
-  text-align: center;
-}
-
-QProgressBar::chunk {
-  background-color: #007acc;
-  color: #1E1E1E;
-  border-radius: 4px;
-}
-
-QProgressBar::chunk:disabled {
-  background-color: #14506E;
-  color: #787878;
-  border-radius: 4px;
-}
 
 /* ------------------------------------------------------------------------ */
 /* BUTTONS ---------------------------------------------------------------- */

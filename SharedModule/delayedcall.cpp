@@ -113,7 +113,7 @@ DelayedCallDispatchersCommutator::DelayedCallDispatchersCommutator(qint32 msecs,
 
 }
 
-void DelayedCallDispatchersCommutator::Subscribe(const QVector<Dispatcher*>& dispatchers)
+DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(const QVector<Dispatcher*>& dispatchers)
 {
     auto callOnChanged = [this]{
         DelayedCallManager::CallDelayed(&m_delayedCallObject, [this]{
@@ -121,7 +121,9 @@ void DelayedCallDispatchersCommutator::Subscribe(const QVector<Dispatcher*>& dis
         });
     };
 
+    DispatcherConnections result;
     for(auto* dispatcher : dispatchers) {
-        dispatcher->Connect(this, callOnChanged); // Note. eternal subscribe
+        result += dispatcher->Connect(this, callOnChanged); // Note. eternal subscribe
     }
+    return result;
 }

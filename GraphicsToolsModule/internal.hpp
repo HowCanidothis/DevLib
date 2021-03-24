@@ -20,6 +20,8 @@
 #include "gttextdrawable.h"
 #include "gtmeshloader.h"
 #include "gtrenderercontroller.h"
+#include "gtellipselinedrawable.h"
+#include "gtlinesdrawable.h"
 #endif
 
 #endif // INTERNAL_HPP

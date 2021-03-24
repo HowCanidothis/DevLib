@@ -77,16 +77,43 @@ WidgetsEditingObjectSaveCancelButtons {
     padding: 10px 20px 10px 20px;
 }
 
-WPSCVisualizationFooter {
+QFrame[Footer="true"]
+{
+    border: none;
+    border-radius: 0px;
     background: #252526;
     padding: 10px 20px 10px 20px;
 }
 
-WPSCVisualizationFooter QCheckBox {
+QFrame[Footer="true"] QLabel
+{
     background: #252526;
     font-size: 12px;
 }
 
+QFrame[Footer="true"] QCheckBox
+{
+    background: #252526;
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QLabel
+{
+    background: #252526;
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QDoubleSpinBox
+{
+    background: #252526;
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QSpinBox
+{
+    background: #252526;
+    font-size: 12px;
+}
 
 MainWindow QFrame#Footer {
     background: #007acc;

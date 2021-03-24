@@ -352,30 +352,31 @@ class LocalPropertyBoolCommutator : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;
 public:
-    LocalPropertyBoolCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-        : Super(false)
+    LocalPropertyBoolCommutator(bool defaultState = false, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+        : Super(defaultState)
         , m_commutator(msecs, threadHandler)
     {
-        m_commutator += { this, [this]{
-            bool result = false;
+        m_commutator += { this, [defaultState, this]{
+            bool result = defaultState;
+            bool oppositeState = !result;
             for(auto* property : m_properties) {
-                if(*property) {
-                    result = true;
+                if(*property == oppositeState) {
+                    result = oppositeState;
+                    break;
                 }
             }
             SetValue(result);
         }};
     }
 
-    void ConnectProperties(const QVector<LocalProperty<bool>*>& properties)
+    DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
     {
-        Q_ASSERT(m_properties.isEmpty());
-        m_properties = properties;
         QVector<Dispatcher*> dispatchers;
         for(auto* property : properties) {
             dispatchers.append(&property->OnChange);
         }
-        m_commutator.Subscribe(dispatchers);
+        m_properties += properties;
+        return m_commutator.Subscribe(dispatchers);
     }
 
 private:
