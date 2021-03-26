@@ -10,7 +10,7 @@ class FTSObject
 public:
     FTSObject(FTSDictionary* dictionary);
 
-    void AddRow(const QString& string, qint32 rowId);
+    void AddRow(const QString& string, size_t rowId);
 
 private:
     FTSDictionary* m_dictionary;
@@ -19,7 +19,7 @@ private:
 struct FTSObjectRow
 {
     FTSObject* Object;
-    qint32 Id;
+    size_t Id;
 
     bool operator==(const FTSObjectRow& another) const { return Object == another.Object && Id == another.Id; }
 };
@@ -51,7 +51,7 @@ public:
     FTSMatchResult Match(const QString& string) const;
 
 private:
-    void addRow(FTSObject* object, const QString& string, qint32 rowId);
+    void addRow(FTSObject* object, const QString& string, size_t rowId);
     bool parseString(const QString& string, const std::function<void (const Name& stringPart)>& onStringPartSplited) const;
 
 private:

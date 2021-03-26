@@ -116,12 +116,14 @@ QMenu* createPreventedFromClosingMenu(const QString& title, QMenu* menu)
     return result;
 }
 
-void forEachModelIndex(QAbstractItemModel* model, QModelIndex parent, const std::function<void (const QModelIndex&)>& function)
+void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex&)>& function)
 {
     auto rowCount = model->rowCount(parent);
     for(int r = 0; r < rowCount; ++r) {
         QModelIndex index = model->index(r, 0, parent);
-        function(index);
+        if(function(index)) {
+            return;
+        }
         // here is your applicable code
         if( model->hasChildren(index) ) {
             forEachModelIndex(model, index, function);

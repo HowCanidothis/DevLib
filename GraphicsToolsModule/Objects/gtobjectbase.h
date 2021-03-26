@@ -41,6 +41,7 @@ protected:
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
 
+    void delayedDraw(const FAction& draw);
     void enableDepthTest();
     void disableDepthTest();
     const GtRenderProperties& getRenderProperties() const;

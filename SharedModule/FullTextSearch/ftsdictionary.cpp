@@ -11,7 +11,7 @@ FTSDictionary::FTSDictionary()
 {
 }
 
-void FTSDictionary::addRow(FTSObject* object, const QString& string, qint32 rowId)
+void FTSDictionary::addRow(FTSObject* object, const QString& string, size_t rowId)
 {
     parseString(string, [this, object, rowId](const Name& stringPart){
         m_dictionary[stringPart].insert({object,rowId});
@@ -94,7 +94,7 @@ FTSObject::FTSObject(FTSDictionary* dictionary)
 }
 
 
-void FTSObject::AddRow(const QString& string, qint32 rowId)
+void FTSObject::AddRow(const QString& string, size_t rowId)
 {
     m_dictionary->addRow(this, string, rowId);
 }

@@ -30,6 +30,11 @@ ThreadHandler GtDrawableBase::CreateThreadHandler()
     };
 }
 
+void GtDrawableBase::delayedDraw(const FAction& draw)
+{
+    m_renderer->addDelayedDraw(draw);
+}
+
 ThreadHandlerNoThreadCheck GtDrawableBase::CreateThreadNoCheckHandler()
 {
     return [this](const FAction& action) -> AsyncResult {

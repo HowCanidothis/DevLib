@@ -8,7 +8,7 @@
 #include <QAbstractItemModel>
 #include "SharedModule/internal.hpp"
 
-_Export void forEachModelIndex(QAbstractItemModel* model, QModelIndex parent, const std::function<void (const QModelIndex& index)>& function);
+_Export void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex& index)>& function);
 _Export class QAction* createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu);
 _Export class QAction* createAction(const QString &title, const std::function<void (QAction*)> &handle, QWidget* menu);
 _Export class QAction* createCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler, QWidget* menu);

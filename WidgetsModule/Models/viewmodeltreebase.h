@@ -8,6 +8,7 @@
 
 class ViewModelTreeBase : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     ViewModelTreeBase();
     ~ViewModelTreeBase();

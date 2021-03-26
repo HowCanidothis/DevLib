@@ -44,6 +44,11 @@ void GtRenderer::disableDepthTest()
     glDisable(GL_DEPTH_TEST);
 }
 
+void GtRenderer::addDelayedDraw(const FAction& drawAction)
+{
+    m_delayedDraws.append(drawAction);
+}
+
 GtRenderer::GtRenderer(const QSurfaceFormat& format)
     : Super(format, nullptr)
     , m_sharedData(new GtRendererSharedData(this))
@@ -319,7 +324,7 @@ void GtRenderer::onDraw()
         if(fbo == nullptr || !controller->Enabled) {
             continue;
         }
-
+        m_delayedDraws.clear();
         auto* depthFbo = controller->m_depthFbo.get();
         auto* camera = controller->m_camera.get();
         auto cameraStateChanged = camera->IsFrameChangedReset();
@@ -355,6 +360,9 @@ void GtRenderer::onDraw()
                 glEnable(GL_DEPTH_TEST);
             }
             m_scene->draw(this);
+            for(const auto& draws : m_delayedDraws) {
+                draws();
+            }
             controller->draw(this);
         }
 
