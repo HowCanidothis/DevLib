@@ -348,12 +348,12 @@ void GtRenderer::onDraw()
         m_side->Data().Set(Vector3F::crossProduct(m_up->Data().Get(), m_forward->Data().Get()).normalized());
         m_camera->Data().Set(camera);
 
-        fbo->bind();
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);
+            fbo->bind();
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
             if(m_renderProperties.contains(RENDER_PROPERTY_FORCE_DISABLE_DEPTH_TEST)) {
                 glDisable(GL_DEPTH_TEST);
             } else {
@@ -364,16 +364,13 @@ void GtRenderer::onDraw()
                 draws();
             }
             controller->draw(this);
-        }
 
-        fbo->release();
+            fbo->release();
 
-        depthFbo->Bind();
+            depthFbo->Bind();
 
-        glClear(GL_DEPTH_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT);
 
-        { // TODO. Fixing binding issues with shared resources
-            QMutexLocker locker(&m_sharedData->Mutex);
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = true;
             glEnable(GL_DEPTH_TEST);
 
@@ -381,12 +378,12 @@ void GtRenderer::onDraw()
             controller->drawDepth(this);
 
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = false;
-        }
 
-        depthFbo->Release();
+            depthFbo->Release();
 
-        auto* image = new QImage(fbo->toImage());
-        controller->setCurrentImage(image, GetComputeTime());
+            auto* image = new QImage(fbo->toImage());
+            controller->setCurrentImage(image, GetComputeTime());
+        }       
     }
 
 
