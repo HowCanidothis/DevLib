@@ -31,3 +31,7 @@ QChartView {
 QGraphicsView {
     border: 0px;
 }
+
+OffsetView {
+    padding: 10px 10px 10px 10px;
+}

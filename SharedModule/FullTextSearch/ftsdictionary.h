@@ -40,6 +40,7 @@ class FTSMatchResult : public QVector<FTSMatchedObject>
 {
 public:
     void Sort();
+    void SortAndFilter();
 };
 
 class FTSDictionary

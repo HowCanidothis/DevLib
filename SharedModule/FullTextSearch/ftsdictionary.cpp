@@ -25,6 +25,18 @@ void FTSMatchResult::Sort()
     });
 }
 
+void FTSMatchResult::SortAndFilter()
+{
+    if(!isEmpty()) {
+        Sort();
+        auto bestMatches = first().matchesCount;
+        auto newEnd = std::remove_if(begin(), end(), [bestMatches](const FTSMatchedObject& f){
+            return bestMatches != f.matchesCount;
+        });
+        resize(std::distance(begin(), newEnd));
+    }
+}
+
 FTSMatchResult FTSDictionary::Match(const QString& string) const
 {
     FTSMatchResult result;

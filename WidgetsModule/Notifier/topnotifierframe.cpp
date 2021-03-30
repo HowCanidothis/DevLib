@@ -10,6 +10,8 @@ TopNotifierFrame::TopNotifierFrame(QWidget* parent)
     ui->setupUi(this);
     ui->BtnAction->setVisible(false);
 
+    move((parent->size().width() - width()) / 2, 0);
+
     parent->installEventFilter(this);
     hide();
 }

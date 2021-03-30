@@ -127,3 +127,7 @@ QFrame#Footer QLabel#FooterProgressBarLabel{
     font-size: 8px;
     qproperty-alignment: 'AlignVCenter | AlignLeft';
 }
+
+QTreeView#OffsetsTreeView {
+    background: #1e1e1e;
+}

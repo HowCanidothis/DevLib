@@ -360,10 +360,10 @@ void GtRenderer::onDraw()
                 glEnable(GL_DEPTH_TEST);
             }
             m_scene->draw(this);
+            controller->draw(this);
             for(const auto& draws : m_delayedDraws) {
                 draws();
             }
-            controller->draw(this);
 
             fbo->release();
 
