@@ -18,7 +18,7 @@ public:
     {}
     ~ThreadCalculatorBase()
     {
-        safeQuit();
+        SafeQuit();
     }
 
     void Calculate()
@@ -54,10 +54,7 @@ public:
         });
     }
 
-    CommonDispatcher<const T&> OnCalculated;
-
-protected:
-    void safeQuit()
+    void SafeQuit()
     {
         m_destroying = true;
         while(m_isCalculating) {
@@ -65,6 +62,9 @@ protected:
         }
     }
 
+    CommonDispatcher<const T&> OnCalculated;
+
+protected:
     virtual T calculate() const = 0;
     virtual void prepare() {}
 
