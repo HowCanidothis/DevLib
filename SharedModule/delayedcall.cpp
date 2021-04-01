@@ -81,7 +81,12 @@ QHash<void*, DelayedCallPtr>& DelayedCallManager::cachedCalls()
 
 AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action)
 {
+    static thread_local bool locked = false;
+    if(locked) {
+        return AsyncError();
+    }
     QMutexLocker locker(mutex());
+    guards::LambdaGuard guard([]{ locked = false; }, []{ locked = true; });
     auto foundIt = cachedCalls().find(object);
     if(foundIt == cachedCalls().end()) {
         auto delayedCall = object->m_delay != 0 ? ::make_shared<DelayedCallDelayOnCall>(action, mutex(), object) :
@@ -91,6 +96,9 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
             delayedCall->Call();
         }, object->m_delay);
         delayedCall->GetResult().Then([object](bool){
+            if(locked) {
+                return;
+            }
             QMutexLocker locker(mutex());
             cachedCalls().remove(object);
         });

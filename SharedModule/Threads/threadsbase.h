@@ -30,10 +30,16 @@ using ThreadHandlerNoThreadCheck = std::function<AsyncResult (const FAction& act
 using ThreadHandler = std::function<AsyncResult (const FAction& action)>;
 
 const ThreadHandlerNoThreadCheck ThreadHandlerNoCheckMainLowPriority = [](const FAction& action) -> AsyncResult {
+    if(QCoreApplication::instance() == nullptr) {
+        return AsyncError();
+    }
     return ThreadsBase::DoMainWithResult(action, Qt::LowEventPriority);
 };
 
 const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult {
+    if(QCoreApplication::instance() == nullptr) {
+        return AsyncError();
+    }
     if(QThread::currentThread() == QCoreApplication::instance()->thread()) {
         action();
         AsyncResult result;

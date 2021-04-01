@@ -6,15 +6,26 @@
 #include "SharedModule/dispatcher.h"
 #include "threadsbase.h"
 
+struct ThreadCalculatorData
+{
+    std::atomic_bool Destroyed = false;
+    bool NeedRecalculate = false;
+    bool Calculating = false;
+    ThreadHandler Handler;
+
+    ThreadCalculatorData(const ThreadHandler& handler)
+        : Handler(handler)
+    {}
+};
+
+using ThreadCalculatorDataPtr = SharedPointer<ThreadCalculatorData>;
+
 template<class T>
 class ThreadCalculatorBase
 {
 public:
     ThreadCalculatorBase(const ThreadHandler& threadHandler)
-        : m_isCalculating(false)
-        , m_needToRecalculate(false)
-        , m_threadHandler(threadHandler)
-        , m_destroying(false)
+        : m_data(::make_shared<ThreadCalculatorData>(threadHandler))
     {}
     ~ThreadCalculatorBase()
     {
@@ -23,28 +34,24 @@ public:
 
     void Calculate()
     {
-        m_threadHandler([this]{
-            if(m_isCalculating) {
-                m_needToRecalculate = true;
+        m_data->Handler([this]{
+            if(m_data->Calculating) {
+                m_data->NeedRecalculate = true;
                 return;
             }
 
-            m_isCalculating = true;
+            m_data->Calculating = true;
             prepare();
-            ThreadsBase::Async([this]{
-                if(m_destroying) {
-                    m_isCalculating = false;
-                    return;
-                }
+            auto data = m_data;
+            ThreadsBase::Async([this, data]{
                 auto result = calculate();
-                m_threadHandler([this, result]{
-                    bool destroying = m_destroying;
-                    m_isCalculating = false;
-                    if(destroying) {
+                data->Handler([this, result, data]{
+                    if(data->Destroyed) {
                         return;
                     }
-                    if(m_needToRecalculate) {
-                        m_needToRecalculate = false;
+                    data->Calculating = false;
+                    if(data->NeedRecalculate) {
+                        data->NeedRecalculate = false;
                         Calculate();
                     } else {
                         OnCalculated(result);
@@ -56,10 +63,7 @@ public:
 
     void SafeQuit()
     {
-        m_destroying = true;
-        while(m_isCalculating) {
-            qApp->processEvents();
-        }
+        m_data->Destroyed = true;
     }
 
     CommonDispatcher<const T&> OnCalculated;
@@ -69,12 +73,8 @@ protected:
     virtual void prepare() {}
 
 protected:
-    ThreadHandler m_threadHandler;
 
-private:
-    std::atomic_bool m_isCalculating;
-    std::atomic_bool m_needToRecalculate;
-    std::atomic_bool m_destroying;
+    ThreadCalculatorDataPtr m_data;
 };
 
 template<class T>

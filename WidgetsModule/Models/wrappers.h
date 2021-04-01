@@ -48,7 +48,7 @@ public:
     Dispatcher OnRowsRemoved;
     Dispatcher OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
-    DelayedCallDispatcher OnChanged;
+    Dispatcher OnChanged;
     CommonDispatcher<qint32> OnAboutToChangeRow;
     CommonDispatcher<qint32> OnRowChanged;
 
