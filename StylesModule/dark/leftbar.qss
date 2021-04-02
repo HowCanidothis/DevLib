@@ -119,6 +119,10 @@ MainWindow QFrame#Footer {
     background: #007acc;
 }
 
+DDFooter QLabel{
+    font-size: 12px;
+}
+
 QFrame#Footer QLabel {
     background: #007acc;
 }

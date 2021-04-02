@@ -57,6 +57,16 @@ class _Export LocalPropertiesLabelConnector : public LocalPropertiesWidgetConnec
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label);
+    template<class T>
+    LocalPropertiesLabelConnector(LocalPropertySequentialEnum<T>* property, QLabel* label)
+        : Super([label, property]{
+            label->setText(EnumHelper<T>::GetNames()[(qint32)property->Native()]);
+        }, []{})
+    {
+        property->GetDispatcher().Connect(this, [this]{
+            m_widgetSetter();
+        }).MakeSafe(m_dispatcherConnections);
+    }
 };
 
 class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetConnectorBase
