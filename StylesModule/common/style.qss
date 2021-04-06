@@ -1,3 +1,8 @@
+
+QWidget {
+    font-family: "Segoe Ui";
+}
+
 FlowWidget {
     qproperty-hSpacing: 10;
     qproperty-vSpacing: 10;

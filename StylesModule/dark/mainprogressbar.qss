@@ -23,7 +23,6 @@ QWidget#FooterProgressBar{
 }
 
 QProgressBar {
-  background-color: #007acc;
   border: 1px solid white;
   color: #F0F0F0;
   border-radius: 4px;
@@ -34,4 +33,12 @@ QProgressBar::chunk {
   background-color: white;
   color: #1E1E1E;
   border-radius: 4px;
+}
+
+QFrame[ApplicationMode="1"] QProgressBar{
+    background-color: #B200FF;
+}
+
+QFrame[ApplicationMode="2"] QProgressBar{
+    background-color: #007acc;
 }

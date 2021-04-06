@@ -285,7 +285,7 @@ MenuBar QLabel#LogoIcon {
     image: url(:/Logo.svg);
 }
 
-MainWindow QFrame#Footer {
+QFrame#MainFooter {
     min-height: 22px;
     max-height: 22px;
     border-radius: 0px;

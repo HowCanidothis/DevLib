@@ -8,7 +8,7 @@ class StyleUtils
     StyleUtils();
 public:
 
-    static void ApplyStyleProperty(const char* propertyName, class QWidget* target, const QVariant& value);
+    static void ApplyStyleProperty(const char* propertyName, class QWidget* target, const QVariant& value, bool recursive = false);
     // Qt bug? Widgets which don't participate at layout system does not update their padding
     // SizeAdjuster fixes this issue
     static void InstallSizeAdjuster(QWidget* widget);

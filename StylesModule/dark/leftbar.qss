@@ -115,19 +115,27 @@ QFrame[Footer="true"] QSpinBox
     font-size: 12px;
 }
 
-MainWindow QFrame#Footer {
-    background: #007acc;
-}
-
 DDFooter QLabel{
     font-size: 12px;
 }
 
-QFrame#Footer QLabel {
+QFrame[ApplicationMode="1"]{
+    background: #B200FF;
+}
+
+QFrame[ApplicationMode="2"]{
     background: #007acc;
 }
 
-QFrame#Footer QLabel#FooterProgressBarLabel{
+QFrame[ApplicationMode="1"] QWidget{
+    background: #B200FF;
+}
+
+QFrame[ApplicationMode="2"] QWidget{
+    background: #007acc;
+}
+
+QFrame#MainFooter QLabel#FooterProgressBarLabel{
     font-size: 8px;
     qproperty-alignment: 'AlignVCenter | AlignLeft';
 }
