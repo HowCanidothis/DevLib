@@ -1,6 +1,7 @@
 
 QWidget {
     font-family: "Segoe Ui";
+    font-size: 14px;
 }
 
 FlowWidget {

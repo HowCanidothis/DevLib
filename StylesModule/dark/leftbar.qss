@@ -120,7 +120,7 @@ DDFooter QLabel{
 }
 
 QFrame[ApplicationMode="1"]{
-    background: #B200FF;
+    background: #68217A;
 }
 
 QFrame[ApplicationMode="2"]{
@@ -128,7 +128,7 @@ QFrame[ApplicationMode="2"]{
 }
 
 QFrame[ApplicationMode="1"] QWidget{
-    background: #B200FF;
+    background: #68217A;
 }
 
 QFrame[ApplicationMode="2"] QWidget{

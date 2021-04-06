@@ -62,7 +62,6 @@ See Qt documentation:
 
 --------------------------------------------------------------------------- */
 QWidget {
-  font-size: 14px;
   background-color: #1E1E1E;
   border: 0px solid #3C3C3C;
   padding: 0px;

@@ -36,7 +36,7 @@ QProgressBar::chunk {
 }
 
 QFrame[ApplicationMode="1"] QProgressBar{
-    background-color: #B200FF;
+    background-color: #68217A;
 }
 
 QFrame[ApplicationMode="2"] QProgressBar{
