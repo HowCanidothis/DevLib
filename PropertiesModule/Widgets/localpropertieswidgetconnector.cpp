@@ -104,8 +104,12 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
     : Super([spinBox, property](){
-                spinBox->setRange(property->GetMin(), property->GetMax());
-                spinBox->setValue(*property);
+                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+                    spinBox->setRange(property->GetMin(), property->GetMax());
+                }
+                if(spinBox->value() != *property) {
+                    spinBox->setValue(*property);
+                }
             },
             [spinBox, property](){
                 *property = spinBox->value();
@@ -127,8 +131,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
     : Super([spinBox, property](){
-                spinBox->setRange(property->GetMin(), property->GetMax());
-                spinBox->setValue(*property);
+                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+                    spinBox->setRange(property->GetMin(), property->GetMax());
+                }
+                if(spinBox->value() != *property) {
+                    spinBox->setValue(*property);
+                }
             },
             [spinBox, property](){
                 *property = spinBox->value();
@@ -150,8 +158,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
 
 LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, QSpinBox* spinBox)
     : Super([spinBox, property](){
-                spinBox->setRange(property->GetMin(), property->GetMax());
-                spinBox->setValue(*property);
+                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+                    spinBox->setRange(property->GetMin(), property->GetMax());
+                }
+                if(spinBox->value() != *property) {
+                    spinBox->setValue(*property);
+                }
             },
             [spinBox, property](){
                 *property = spinBox->value();

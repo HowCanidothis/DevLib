@@ -26,6 +26,7 @@
 #include "Attachments/windowresizeattachment.h"
 #include "Attachments/focuswatcherattachment.h"
 #include "Attachments/floatingwidgetlocationattachment.h"
+#include "Attachments/widgetsmenulocationattachment.h"
 
 #include "Components/componentplacer.h"
 

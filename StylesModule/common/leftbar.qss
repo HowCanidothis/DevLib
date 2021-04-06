@@ -292,3 +292,31 @@ MainWindow QFrame#Footer {
     border: none;
     padding: 0px 15px 0px 15px; 
 }
+
+DDFooter QMenuBar {
+    font-size: 12px;
+    background: #007acc;
+}
+
+DDFooter QMenu::item{
+    font-size: 12px;
+    background: #007acc;
+}
+
+DDFooter QMenu::item::selected{
+    background: #1F8AD2;
+}
+
+DDFooter QMenuBar::item {
+  color: white;
+  background: transparent;
+  padding: 5px 8px 2px 8px;
+}
+
+DDFooter QMenuBar::item::selected {
+    background: #1F8AD2;
+} 
+
+DDFooter QMenuBar::item::pressed:disabled {
+    background: #007acc;
+} 

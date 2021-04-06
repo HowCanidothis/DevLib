@@ -1699,9 +1699,9 @@ QHeaderView::section {
   text-align: left;
 }
 
-QHeaderView::section:checked {
+QHeaderView::section:hover {
   color: #F0F0F0;
-  background-color: #007acc;
+  background-color: #505050;
 }
 
 QHeaderView::section:checked:disabled {
