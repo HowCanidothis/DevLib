@@ -1,12 +1,22 @@
 #include "delayedcall.h"
 
+#include <QUuid>
+
 #include "SharedModule/Threads/threadtimer.h"
+
+DelayedCallObject::DelayedCallObject(qint32 delayMsecs, const ThreadHandlerNoThreadCheck& handler)
+    : m_threadHandler(handler)
+    , m_delay(delayMsecs)
+    , m_id(QUuid::createUuid().toString())
+{
+}
 
 DelayedCall::DelayedCall(const FAction& action, QMutex* mutex, DelayedCallObject* object)
     : m_action(action)
     , m_mutex(mutex)
+    , m_id(object->GetId())
 {
-    m_connection = object->OnDeleted.Connect(nullptr, [this]{
+    m_connection = object->OnDeleted.Connect(this, [this]{
         QMutexLocker locker(m_mutex);
         m_action = []{};
     }).MakeSafe();
@@ -73,9 +83,9 @@ QMutex* DelayedCallManager::mutex()
     return &result;
 }
 
-QHash<void*, DelayedCallPtr>& DelayedCallManager::cachedCalls()
+QHash<Name, DelayedCallPtr>& DelayedCallManager::cachedCalls()
 {
-    static QHash<void*, DelayedCallPtr> result;
+    static QHash<Name, DelayedCallPtr> result;
     return result;
 }
 
@@ -87,20 +97,21 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
     }
     QMutexLocker locker(mutex());
     guards::LambdaGuard guard([]{ locked = false; }, []{ locked = true; });
-    auto foundIt = cachedCalls().find(object);
+    auto foundIt = cachedCalls().find(object->GetId());
     if(foundIt == cachedCalls().end()) {
         auto delayedCall = object->m_delay != 0 ? ::make_shared<DelayedCallDelayOnCall>(action, mutex(), object) :
                                                                                    ::make_shared<DelayedCall>(action, mutex(), object);
-        foundIt = cachedCalls().insert(object, delayedCall);
+        foundIt = cachedCalls().insert(object->GetId(), delayedCall);
         auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
             delayedCall->Call();
         }, object->m_delay);
-        delayedCall->GetResult().Then([object](bool){
+        auto* pDelayedCall = delayedCall.get();
+        delayedCall->GetResult().Then([pDelayedCall](bool){
             if(locked) {
                 return;
             }
             QMutexLocker locker(mutex());
-            cachedCalls().remove(object);
+            cachedCalls().remove(pDelayedCall->GetId());
         });
         delayedCall->SetResult(result);
         return delayedCall->GetResult();

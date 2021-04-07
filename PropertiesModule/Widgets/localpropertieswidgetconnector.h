@@ -103,8 +103,8 @@ class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidg
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, double presicion = 0.009);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, float presicion = 0.009f);
 };
 
 class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase

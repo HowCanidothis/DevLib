@@ -102,12 +102,12 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
-    : Super([spinBox, property](){
-                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, double presicion)
+    : Super([spinBox, property, presicion](){
+                if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), presicion) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), presicion)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }
-                if(spinBox->value() != *property) {
+                if(!fuzzyCompare(spinBox->value(), *property, presicion)) {
                     spinBox->setValue(*property);
                 }
             },
@@ -129,12 +129,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     });
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
-    : Super([spinBox, property](){
-                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, float presicion)
+    : Super([spinBox, property, presicion](){
+                if(!fuzzyCompare((float)spinBox->minimum(), property->GetMin(), presicion) || !fuzzyCompare((float)spinBox->maximum(), property->GetMax(), presicion)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }
-                if(spinBox->value() != *property) {
+                if(!fuzzyCompare((float)spinBox->value(), *property, presicion)) {
                     spinBox->setValue(*property);
                 }
             },

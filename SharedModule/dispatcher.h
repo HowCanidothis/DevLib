@@ -99,7 +99,7 @@ public:
 };
 
 template<typename ... Args>
-class CommonDispatcher ATTACH_MEMORY_SPY(CommonDispatcher<Args...>)
+class CommonDispatcher
 {
 public:
     enum SubscribeMode {

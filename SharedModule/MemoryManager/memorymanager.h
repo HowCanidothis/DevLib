@@ -41,14 +41,14 @@ public:
         m_tracedIds.insert(id);
     }
 
-    template<class TargetType, class T = TargetType>
+    template<class T>
     void TestObjects(const std::function<void (T*)>& handler)
     {
         QMutexLocker locker(&m_mutex);
-        auto foundIt = m_spies.find(typeid(TargetType).hash_code());
+        auto foundIt = m_spies.find(typeid(T).hash_code());
         if(foundIt != m_spies.end()) {
             for(const auto& spy : foundIt.value()) {
-                auto* concreteSpy = reinterpret_cast<TargetType*>(spy.Target);
+                auto* concreteSpy = reinterpret_cast<T*>(spy.Target);
                 auto tSpy = dynamic_cast<T*>(concreteSpy);
                 if(tSpy != nullptr) {
                     handler(tSpy);

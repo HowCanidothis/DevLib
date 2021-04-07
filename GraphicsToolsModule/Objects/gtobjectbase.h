@@ -15,7 +15,7 @@ public:
     virtual void MapProperties(QtObserver* ) {}
 };
 
-class GtDrawableBase : public GtObjectBase
+class GtDrawableBase : public GtObjectBase ATTACH_MEMORY_SPY_2(GtDrawableBase)
 {
 public:
     GtDrawableBase(class GtRenderer* renderer);
