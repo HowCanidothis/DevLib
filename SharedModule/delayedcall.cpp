@@ -7,14 +7,19 @@
 DelayedCallObject::DelayedCallObject(qint32 delayMsecs, const ThreadHandlerNoThreadCheck& handler)
     : m_threadHandler(handler)
     , m_delay(delayMsecs)
-    , m_id(QUuid::createUuid().toString())
+    , m_id(generateId())
 {
+}
+
+qint32 DelayedCallObject::generateId()
+{
+    static qint32 id = 0;
+    return id++;
 }
 
 DelayedCall::DelayedCall(const FAction& action, QMutex* mutex, DelayedCallObject* object)
     : m_action(action)
     , m_mutex(mutex)
-    , m_id(object->GetId())
 {
     m_connection = object->OnDeleted.Connect(this, [this]{
         QMutexLocker locker(m_mutex);
@@ -83,9 +88,9 @@ QMutex* DelayedCallManager::mutex()
     return &result;
 }
 
-QHash<Name, DelayedCallPtr>& DelayedCallManager::cachedCalls()
+QHash<qint32, DelayedCallPtr>& DelayedCallManager::cachedCalls()
 {
-    static QHash<Name, DelayedCallPtr> result;
+    static QHash<qint32, DelayedCallPtr> result;
     return result;
 }
 
@@ -105,13 +110,13 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
         auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
             delayedCall->Call();
         }, object->m_delay);
-        auto* pDelayedCall = delayedCall.get();
-        delayedCall->GetResult().Then([pDelayedCall](bool){
+        qint32 id = object->GetId();
+        delayedCall->GetResult().Then([id](bool){
             if(locked) {
                 return;
             }
             QMutexLocker locker(mutex());
-            cachedCalls().remove(pDelayedCall->GetId());
+            cachedCalls().remove(id);
         });
         delayedCall->SetResult(result);
         return delayedCall->GetResult();

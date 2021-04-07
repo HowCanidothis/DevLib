@@ -19,13 +19,15 @@ public:
 
     Dispatcher OnDeleted;
 
-    const Name& GetId() const { return m_id; }
+    qint32 GetId() const { return m_id; }
 
 private:
+    static qint32 generateId();
+
     friend class DelayedCallManager;
     ThreadHandlerNoThreadCheck m_threadHandler;
     qint32 m_delay;
-    Name m_id;
+    qint32 m_id;
 };
 
 class DelayedCall
@@ -39,8 +41,6 @@ public:
     void SetResult(const AsyncResult& result);
 
     const AsyncResult& GetResult() const { return m_result; }
-    const Name& GetId() const { return m_id; }
-
 
 private:
     FAction m_action;
@@ -48,7 +48,6 @@ private:
     DispatcherConnectionSafePtr m_resultConnection;
     AsyncResult m_result;
     QMutex* m_mutex;
-    Name m_id;
 };
 
 class DelayedCallDelayOnCall : public DelayedCall
@@ -73,7 +72,7 @@ public:
 
 private:
     static QMutex* mutex();
-    static QHash<Name, DelayedCallPtr>& cachedCalls();
+    static QHash<qint32, DelayedCallPtr>& cachedCalls();
 };
 
 class DelayedCallDispatchersCommutator : public Dispatcher
