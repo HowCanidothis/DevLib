@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QApplication>
 
 #include <PropertiesModule/internal.hpp>
 

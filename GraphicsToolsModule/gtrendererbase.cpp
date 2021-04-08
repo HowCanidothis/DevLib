@@ -9,6 +9,7 @@ GtRendererBase::GtRendererBase(const QSurfaceFormat& format, GtRendererBase* sha
     , m_surface(new QOffscreenSurface)
     , m_isInitialized(false)
     , m_shareRenderer(sharedRenderer)
+    , m_isValid(true)
 {
     m_context->setFormat(m_surfaceFormat);
     if(m_shareRenderer != nullptr) {
@@ -29,7 +30,10 @@ GtRendererBase::~GtRendererBase()
 void GtRendererBase::run()
 {
     if(m_shareRenderer != nullptr) {
-        while(!m_shareRenderer->m_isInitialized);
+        while(!m_shareRenderer->m_isInitialized && m_shareRenderer->m_isValid);
+        if(!m_shareRenderer->m_isValid) {
+            return;
+        }
     }
 
     if(!m_context->isValid()) {
@@ -45,7 +49,10 @@ void GtRendererBase::run()
     qCInfo(LC_UI) << QString("OpenGL is initialized") << m_context->format();
 
     m_context->makeCurrent(m_surface.get());
-    onInitialize();
+    if(!onInitialize()) {
+        m_isValid = false;
+        return;
+    }
 
     m_isInitialized = true;
 

@@ -1,8 +1,6 @@
 #ifndef THREADCALCULATOR_H
 #define THREADCALCULATOR_H
 
-#include <QApplication>
-
 #include "SharedModule/dispatcher.h"
 #include "threadsbase.h"
 

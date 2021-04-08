@@ -188,11 +188,11 @@ GtRendererPtr GtRenderer::CreateSharedRenderer()
     return m_childRenderers.last();
 }
 
-void GtRenderer::onInitialize()
+bool GtRenderer::onInitialize()
 {
     if(!initializeOpenGLFunctions()) {
         qCInfo(LC_SYSTEM) << "Cannot initialize opengl functions";
-        return;
+        return false;
     }
 
     currentRenderer() = this;

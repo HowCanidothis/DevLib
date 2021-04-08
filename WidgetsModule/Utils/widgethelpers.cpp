@@ -5,6 +5,7 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QClipboard>
+#include <QApplication>
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
 {

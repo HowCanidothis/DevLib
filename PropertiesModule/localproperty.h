@@ -545,6 +545,8 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     return property;
 }
 
+#ifdef QT_GUI_LIB
+
 template<>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<QColor>& localProperty)
 {
@@ -553,6 +555,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     connectProperty(pProperty, localProperty);
     return property;
 }
+#endif
 
 template<typename Enum>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertySequentialEnum<Enum>& localProperty)

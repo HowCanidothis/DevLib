@@ -17,7 +17,7 @@ private:
     void compute() override;
 
 protected:
-    virtual void onInitialize() = 0;
+    virtual bool onInitialize() = 0;
     virtual void onDraw() = 0;
     virtual void onDestroy() = 0;
 
@@ -28,6 +28,7 @@ protected:
     ScopedPointer<class QOffscreenSurface> m_surface;
     std::atomic_bool m_isInitialized;
     GtRendererBase* m_shareRenderer;
+    std::atomic_bool m_isValid;
 };
 
 #endif // GTRENDERERBASE_H

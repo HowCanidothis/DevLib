@@ -96,7 +96,7 @@ private:
 
     // GtRenderThread interface
 protected:
-    void onInitialize() override;
+    bool onInitialize() override;
     void onDraw() override;
     void onDestroy() override;
 
