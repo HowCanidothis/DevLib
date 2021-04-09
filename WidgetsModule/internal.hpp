@@ -42,6 +42,8 @@
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
 
+#include "Widgets/widgetsspinboxwithcustomdisplay.h"
+
 #include "Managers/widgetsdialogsmanager.h"
 
 #endif

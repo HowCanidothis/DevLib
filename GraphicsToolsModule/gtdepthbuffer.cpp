@@ -4,6 +4,8 @@
 
 GtDepthBuffer::GtDepthBuffer(OpenGLFunctions* f)
     : m_f(f)
+    , m_context(nullptr)
+    , m_frameBuffer(nullptr)
 {
 
 }
@@ -16,6 +18,9 @@ void GtDepthBuffer::SetFrameBuffer(GtFramebufferObjectBase* frameBuffer, QOpenGL
 
 float GtDepthBuffer::ValueAt(qint32 x, qint32 y)
 {
+    if(m_frameBuffer == nullptr || m_context == nullptr) {
+        return 0.f;
+    }
     m_context->makeCurrent(m_context->surface());
     m_frameBuffer->BindRead();
     float value[81];

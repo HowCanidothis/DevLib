@@ -289,6 +289,8 @@ bool GtRenderer::onInitialize()
     }
 
     OnInitialized();
+
+    return true;
 }
 
 SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queueNumber)

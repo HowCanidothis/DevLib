@@ -112,6 +112,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_controllers(controllersContainer)
     , m_renderTime(0)    
     , m_cameraAnimationEngine(renderer, m_camera.get())
+    , m_resize(100, renderer->CreateThreadHandler())
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -310,7 +311,7 @@ void GtRendererController::onDestroy()
 
 void GtRendererController::Resize(qint32 w, qint32 h)
 {
-    m_renderer->Asynch([this, w, h]{
+    m_resize.Call([this, w, h]{
         GtFramebufferFormat depthFboFormat;
         depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);
 

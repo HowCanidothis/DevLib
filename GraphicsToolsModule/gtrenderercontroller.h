@@ -241,6 +241,7 @@ private:
     QMap<qint32, QVector<GtDrawableBase*>> m_drawables;
     DispatcherConnectionsSafe m_connections;
     SizeF m_visibleSize;
+    DelayedCallObject m_resize;
 };
 
 #endif // GTRENDERERCONTROLLER_H
