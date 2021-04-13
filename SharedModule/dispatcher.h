@@ -102,9 +102,6 @@ template<typename ... Args>
 class CommonDispatcher
 {
 public:
-    enum SubscribeMode {
-        RepeatableSameSubscribe
-    };
     using Type = void (Args...);
     using Observer = void*;
     using FCommonDispatcherAction = std::function<Type>;
@@ -116,25 +113,8 @@ public:
         qint32 LastId = 0;
     };
 
-    struct RepeatableSameSubscribeAction
-    {
-        FCommonDispatcherAction Handler;
-        qint32 Counter = 1;
-    };
-    struct RepeatableSameSubscribeUnsubscriber
-    {
-        SubscribeMode Multi;
-        Observer Key;
-    };
-
     struct ActionHandler
     {
-        Observer Key;
-        FCommonDispatcherAction Handler;
-    };
-    struct RepeatableSameSubscribeHandler
-    {
-        SubscribeMode Multi;
         Observer Key;
         FCommonDispatcherAction Handler;
     };
@@ -159,15 +139,6 @@ public:
         for(const auto& subscribe : subscribesCopy)
         {
             subscribe(args...);
-        }
-        QHash<Observer, RepeatableSameSubscribeAction> multiSubscribesCopy;
-        {
-            QMutexLocker locker(&m_mutex);
-            multiSubscribesCopy = m_multiSubscribes;
-        }
-        for(const auto& subscribe : multiSubscribesCopy)
-        {
-            subscribe.Handler(args...);
         }
         QHash<Observer, ConnectionSubscribe> connectionSubscribesCopy;
         {
@@ -259,7 +230,6 @@ public:
     void operator-=(Observer observer)
     {
         FCommonDispatcherAction action;
-        RepeatableSameSubscribeAction multiAction;
         ConnectionSubscribe connection;
         {
             QMutexLocker lock(&m_mutex);
@@ -278,40 +248,7 @@ public:
                 }
             }
             m_connectionSubscribes.remove(observer);
-            auto foundIt = m_multiSubscribes.find(observer);
-            if(foundIt != m_multiSubscribes.end()) {
-                if(--foundIt.value().Counter == 0) {
-                    multiAction = foundIt.value();
-                    m_multiSubscribes.erase(foundIt);
-                }
-            }
         }
-    }
-
-    CommonDispatcher& operator-=(const RepeatableSameSubscribeUnsubscriber& unsubscriber)
-    {
-        QMutexLocker lock(&m_mutex);
-        auto foundIt = m_multiSubscribes.find(unsubscriber.Key);
-        if(foundIt != m_multiSubscribes.end()) {
-            if(--foundIt.value().Counter == 0) {
-                m_multiSubscribes.erase(foundIt);
-            }
-        }
-        return *this;
-    }
-
-
-    CommonDispatcher& operator+=(const RepeatableSameSubscribeHandler& subscribeHandler)
-    {
-        QMutexLocker lock(&m_mutex);
-        auto foundIt = m_multiSubscribes.find(subscribeHandler.Key);
-        if(foundIt == m_multiSubscribes.end()) {
-            foundIt = m_multiSubscribes.insert(subscribeHandler.Key, { subscribeHandler.Handler });
-        } else {
-            foundIt.value().Handler = subscribeHandler.Handler;
-        }
-        foundIt.value().Counter++;
-        return *this;
     }
 
 private:
@@ -319,7 +256,6 @@ private:
     QSet<DispatcherConnectionSafePtr> m_safeConnections;
     QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
     QHash<Observer, FCommonDispatcherAction> m_subscribes;
-    QHash<Observer, RepeatableSameSubscribeAction> m_multiSubscribes;
     mutable QMutex m_mutex;
 };
 

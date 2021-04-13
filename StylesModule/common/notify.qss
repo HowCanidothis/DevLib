@@ -39,6 +39,17 @@ QPushButton#notify-close-btn {
     max-width: 20px;
     min-height: 20px;
     max-height: 20px;
+    padding: 0px;
     margin: 4px 0px 0px 68px;
-    border-image: url(":/rc/window_close.png")
+    background: none;
+    border: none;
+}
+
+QPushButton#notify-close-btn:hover {
+    color: #007acc;
+    border: none;
+}
+
+QPushButton#notify-close-btn:pressed {
+    border: none;
 }

@@ -519,6 +519,15 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyString& localProperty)
+{
+    auto property = ::make_shared<StringProperty>(name, localProperty.Native());
+    auto* pProperty = property.get();
+    connectProperty(pProperty, localProperty);
+    return property;
+}
+
+template<>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<bool>& localProperty)
 {
     auto property = ::make_shared<BoolProperty>(name, localProperty.Native());
