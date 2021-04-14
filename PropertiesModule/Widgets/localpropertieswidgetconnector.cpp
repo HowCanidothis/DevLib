@@ -11,6 +11,7 @@
 #include <QRadioButton>
 #include <QLabel>
 #include <QDateTimeEdit>
+#include <QMenu>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -31,6 +32,16 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
     , m_ignoreWidgetChange(false)
 {
     m_widgetSetter();
+}
+
+LocalPropertiesMenuLabelConnector::LocalPropertiesMenuLabelConnector(LocalPropertyString* property, QMenu* menu)
+    : Super([menu, property]{
+        menu->setTitle(*property);
+    }, []{})
+{
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, QCheckBox* checkBox)

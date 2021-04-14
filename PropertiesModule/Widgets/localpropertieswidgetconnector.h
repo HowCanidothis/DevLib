@@ -52,6 +52,33 @@ protected:
     bool m_ignoreWidgetChange;
 };
 
+class _Export LocalPropertiesMenuLabelConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesMenuLabelConnector(LocalPropertyString* property, QMenu* menu);
+};
+
+class LocalPropertiesMenuActionsConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    template<class T>
+    LocalPropertiesMenuActionsConnector(LocalPropertySequentialEnum<T>* property, QMenu* menu, const std::function<void (QAction* action, qint32 index)>& actionsRules = [](QAction*,qint32){})
+        : Super([]{
+        }, []{})
+    {
+        qint32 value = (qint32)T::First;
+        for(const auto& name : property->GetNames()) {
+            auto* action = createAction(name, [property, value]{
+                *property = (T)value;
+            }, menu);
+            actionsRules(action, value);
+            value++;
+        }
+    }
+};
+
 class _Export LocalPropertiesLabelConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;

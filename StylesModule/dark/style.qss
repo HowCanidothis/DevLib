@@ -1022,28 +1022,22 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtoolbutton
 --------------------------------------------------------------------------- */
 QToolButton {
   background-color: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: none;
   margin: 0px;
-  padding: 2px;
+  padding: 2px 18px 2px 2px;
+  color: #9d9d9d;
   /* The subcontrols below are used only in the DelayedPopup mode */
   /* The subcontrols below are used only in the MenuButtonPopup mode */
   /* The subcontrol below is used only in the InstantPopup or DelayedPopup mode */
 }
 
 QToolButton:checked {
-  background-color: transparent;
-  border: 1px solid #007acc;
 }
 
 QToolButton:checked:disabled {
-  border: 1px solid #14506E;
 }
 
 QToolButton:pressed {
-  margin: 1px;
-  background-color: transparent;
-  border: 1px solid #007acc;
 }
 
 QToolButton:disabled {
@@ -1051,17 +1045,7 @@ QToolButton:disabled {
 }
 
 QToolButton:hover {
-  border: 1px solid #007acc;
-}
-
-QToolButton[popupMode="0"] {
-  /* Only for DelayedPopup */
-  padding-right: 2px;
-}
-
-QToolButton[popupMode="1"] {
-  /* Only for MenuButtonPopup */
-  padding-right: 20px;
+  background: #505050;
 }
 
 QToolButton[popupMode="1"]::menu-button {
@@ -1070,50 +1054,45 @@ QToolButton[popupMode="1"]::menu-button {
 
 QToolButton[popupMode="1"]::menu-button:hover {
   border: none;
-  border-left: 1px solid #007acc;
   border-radius: 0;
-}
-
-QToolButton[popupMode="2"] {
-  /* Only for InstantPopup */
-  padding-right: 2px;
 }
 
 QToolButton::menu-button {
   padding: 2px;
-  border-radius: 4px;
-  border: 1px solid #3C3C3C;
-  width: 12px;
+  width: 24px;
   outline: none;
+  border: none;
 }
 
 QToolButton::menu-button:hover {
-  border: 1px solid #007acc;
+  border: none;
 }
 
 QToolButton::menu-button:checked:hover {
-  border: 1px solid #007acc;
+  border: none;
 }
 
 QToolButton::menu-indicator {
   image: url(":/qss_icons/rc/arrow_down.png");
-  height: 8px;
-  width: 8px;
-  top: 0;
-  /* Exclude a shift for better image */
-  left: -2px;
-  /* Shift it a bit */
+  height: 12px;
+  width: 12px;
+  left: -4px;
+  top: -6px;
 }
 
 QToolButton::menu-arrow {
   image: url(":/qss_icons/rc/arrow_down.png");
-  height: 8px;
-  width: 8px;
 }
 
 QToolButton::menu-arrow:hover {
-  image: url(":/qss_icons/rc/arrow_down_focus.png");
+  image: url(":/qss_icons/rc/arrow_down.png");
 }
+
+QToolButton#BtnSpaces
+{
+    max-height: 28px;
+}
+
 
 /* QCommandLinkButton -----------------------------------------------------
 

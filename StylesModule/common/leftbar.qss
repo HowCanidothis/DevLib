@@ -134,7 +134,7 @@ QTreeView {
 }
 
 MenuBar {
-    min-height: 30;
+    min-height: 28px;
 }
 
 MenuBar {
