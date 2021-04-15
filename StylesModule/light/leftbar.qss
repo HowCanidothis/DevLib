@@ -74,81 +74,55 @@ MenuBarMovePane QLabel#Icon {
 
 WidgetsEditingObjectSaveCancelButtons {
     background: #252526;
-    padding: 10px 20px 10px 20px;
 }
 
 QFrame[Footer="true"]
 {
-    border: none;
-    border-radius: 0px;
     background: #252526;
-    padding: 10px 20px 10px 20px;
 }
 
 QFrame[Footer="true"] QLabel
 {
     background: #252526;
-    font-size: 12px;
 }
 
 QFrame[Footer="true"] QCheckBox
 {
     background: #252526;
-    font-size: 12px;
 }
 
 QFrame[Footer="true"] QLabel
 {
     background: #252526;
-    font-size: 12px;
 }
 
 QFrame[Footer="true"] QDoubleSpinBox
 {
     background: #252526;
-    font-size: 12px;
 }
 
 QFrame[Footer="true"] QSpinBox
 {
     background: #252526;
-    font-size: 12px;
-}
-
-DDFooter QLabel{
-    font-size: 12px;
-}
-
-QFrame[ApplicationMode="1"]{
-    background: #68217A;
-}
-
-QFrame[ApplicationMode="2"]{
-    background: #007acc;
-}
-
-QFrame[ApplicationMode="1"] QWidget{
-    background: #68217A;
-}
-
-QFrame[ApplicationMode="2"] QWidget{
-    background: #007acc;
-}
-
-QFrame#MainFooter QLabel#FooterProgressBarLabel{
-    font-size: 8px;
-    qproperty-alignment: 'AlignVCenter | AlignLeft';
 }
 
 QTreeView#OffsetsTreeView {
-    background: #1e1e1e;
+    background: white;
 }
 
 TreeBar QFrame#Header {
-    background: #252526;
+    background: #f3f3f3;
+}
+
+TreeBar QTreeView {
+    background: #f3f3f3;
+}
+
+TreeBar QTreeView:hover {
+    background: #f3f3f3;
 }
 
 TreeBar QLabel {    
-    background: #252526;
+    background: #f3f3f3;
     color: #9d9d9d;
 }

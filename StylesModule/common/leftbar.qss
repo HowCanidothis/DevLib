@@ -245,7 +245,6 @@ QPushButton#BtnClose:hover {
 }
 
 TreeBar QFrame#Header {
-    background: #252526;
     border: none;
     border-bottom: 1px solid #3C3C3C;
     border-radius: 0px;
@@ -256,8 +255,6 @@ TreeBar QFrame#Header {
 TreeBar QLabel {    
     padding-top: 12px;
     padding-bottom: 11px;
-    background: #252526;
-    color: #9d9d9d;
 }
 
 MenuBarMovePane QLabel#Icon {
@@ -320,3 +317,70 @@ DDFooter QMenuBar::item::selected {
 DDFooter QMenuBar::item::pressed:disabled {
     background: #007acc;
 } 
+
+QFrame#MainFooter QLabel#FooterProgressBarLabel{
+    font-size: 8px;
+    qproperty-alignment: 'AlignVCenter | AlignLeft';
+}
+
+QFrame[ApplicationMode="1"]{
+    background: #68217A;
+}
+
+QFrame[ApplicationMode="2"]{
+    background: #007acc;
+}
+
+QFrame[ApplicationMode="1"] QWidget{
+    background: #68217A;
+    color: white;
+}
+
+QFrame[ApplicationMode="2"] QWidget{
+    background: #007acc;
+    color: white;
+}
+
+WidgetsEditingObjectSaveCancelButtons {
+    padding: 10px 20px 10px 20px;
+}
+
+QFrame[Footer="true"]
+{
+    border: none;
+    border-radius: 0px;
+    padding: 10px 20px 10px 20px;
+}
+
+QFrame[Footer="true"] QLabel
+{
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QCheckBox
+{
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QLabel
+{
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QDoubleSpinBox
+{
+    font-size: 12px;
+}
+
+QFrame[Footer="true"] QSpinBox
+{
+    font-size: 12px;
+}
+
+DDFooter QLabel{
+    font-size: 12px;
+}
+
+OffsetView {
+    padding: 10px 10px 10px 10px;
+}

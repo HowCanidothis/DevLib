@@ -1,7 +1,7 @@
 @import url("common/properties.qss");
 @import url("dark/style.qss");
-@import url("dark/mainprogressbar.qss");
-@import url("dark/topnotifierframe.qss");
+@import url("common/mainprogressbar.qss");
+@import url("common/topnotifierframe.qss");
 @import url("dark/ads.qss");
 @import url("common/leftbar.qss");
 @import url("dark/leftbar.qss");

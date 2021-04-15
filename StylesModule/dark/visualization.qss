@@ -22,16 +22,3 @@ VisualizationToolTipWidget QDoubleSpinBox {
 ToolTipArrowWidget {
     background-color: #007acc;
 }
-
-QChartView {
-    color: white;
-    font-size: 14px;
-}
-
-QGraphicsView {
-    border: 0px;
-}
-
-OffsetView {
-    padding: 10px 10px 10px 10px;
-}
