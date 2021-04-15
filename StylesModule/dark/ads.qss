@@ -116,6 +116,7 @@ QWidget #tabsMenuButton {
     padding-right: 10px;
     border: none;
     border-radius: 0px;
+    min-height: 24px;
 }
 
 QWidget #dockAreaCloseButton {

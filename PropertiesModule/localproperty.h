@@ -460,12 +460,21 @@ struct PropertyFromLocalProperty
     {
         auto property = ::make_shared<PointerProperty<T>>(name, localProperty.Native());
         auto* pProperty = property.get();
-        auto setProperty = [pProperty, &localProperty]{
-            *pProperty = localProperty;
+        auto sync = ::make_shared<std::atomic_bool>(false);
+        auto setProperty = [pProperty, &localProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                *pProperty = localProperty;
+                *sync = false;
+            }
         };
         DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
-        pProperty->Subscribe([&localProperty, connection, pProperty]{
-            localProperty = *pProperty;
+        pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                localProperty = *pProperty;
+                *sync = false;
+            }
         });
         return property;
     }
@@ -475,12 +484,21 @@ struct PropertyFromLocalProperty
     {
         auto property = ::make_shared<VariantProperty<typename T::value_type>>(name, "");
         auto* pProperty = property.get();
-        auto setProperty = [pProperty, &localProperty]{
-            *pProperty = localProperty;
+        auto sync = ::make_shared<std::atomic_bool>(false);
+        auto setProperty = [pProperty, &localProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                *pProperty = localProperty;
+                *sync = false;
+            }
         };
         DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
-        pProperty->Subscribe([&localProperty, connection, pProperty]{
-            localProperty = *pProperty;
+        pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                localProperty = *pProperty;
+                *sync = false;
+            }
         });
         setProperty();
         return property;
@@ -490,12 +508,21 @@ private:
     template<class T, class T2>
     static void connectProperty(T* pProperty, T2& localProperty)
     {
-        auto setProperty = [pProperty, &localProperty]{
-            pProperty->SetValue(localProperty.Native());
+        auto sync = ::make_shared<std::atomic_bool>(false);
+        auto setProperty = [pProperty, &localProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                pProperty->SetValue(localProperty.Native());
+                *sync = false;
+            }
         };
         DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
-        pProperty->Subscribe([&localProperty, connection, pProperty]{
-            localProperty = *pProperty;
+        pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
+            if(!*sync) {
+                *sync = true;
+                localProperty = *pProperty;
+                *sync = false;
+            }
         });
     }
 };
