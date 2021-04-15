@@ -129,6 +129,16 @@ QGroupBox::indicator {
   width: 12px;
 }
 
+QGroupBox::indicator:unchecked {
+    border: none;
+    image: url(":/qss_icons/rc/checkbox_unchecked.png");
+}
+
+QGroupBox::indicator:checked {
+    border: none;
+    image: url(":/qss_icons/rc/checkbox_checked.png");
+}
+
 QGroupBox::indicator:unchecked:hover, QGroupBox::indicator:unchecked:focus, QGroupBox::indicator:unchecked:pressed {
   border: none;
   image: url(":/qss_icons/rc/checkbox_unchecked_focus.png");
@@ -297,7 +307,7 @@ QAbstractScrollArea {
 
 QScrollBar:horizontal {
   height: 10px;
-  margin: 0px 0px 0px 24px;
+  margin: 0px 0px 0px 0px;
   border: none;
 }
 

@@ -507,27 +507,19 @@ https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qscrollbar
 --------------------------------------------------------------------------- */
 
 QScrollBar:horizontal {
-  height: 10px;
-  margin: 0px 0px 0px 24px;
-  border: none;
   background: #252526;
 }
 
 QScrollBar:vertical {
   background: #252526;
-  border: none;
-  width: 10px;
-  margin: 0px;
 }
 
 QScrollBar::handle:horizontal {
   background-color: #787878;
-  min-width: 8px;
 }
 
 QScrollBar::handle:horizontal:hover {
   background-color: #9d9d9d;
-  min-width: 8px;
 }
 
 QScrollBar::handle:horizontal:focus {
@@ -536,7 +528,6 @@ QScrollBar::handle:horizontal:focus {
 
 QScrollBar::handle:vertical {
   background-color: #787878;
-  min-height: 10px;
 }
 
 QScrollBar::handle:vertical:hover {
@@ -555,89 +546,6 @@ QScrollBar::sub-page:vertical {
   background: transparent;
 }
 
-QScrollBar::add-line:horizontal {
-  margin: 0px 0px 0px 0px;
-  border-image: url(":/qss_icons/rc/arrow_right_disabled.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: right;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:horizontal:hover, QScrollBar::add-line:horizontal:on {
-  border-image: url(":/qss_icons/rc/arrow_right.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: right;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:vertical {
-  margin: 3px 0px 3px 0px;
-  border-image: url(":/qss_icons/rc/arrow_down_disabled.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: bottom;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:vertical:hover, QScrollBar::add-line:vertical:on {
-  border-image: url(":/qss_icons/rc/arrow_down.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: bottom;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:horizontal {
-  margin: 0px 3px 0px 3px;
-  border-image: url(":/qss_icons/rc/arrow_left_disabled.png");
-  height: 0px;
-  width: 0x;
-  subcontrol-position: left;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:horizontal:hover, QScrollBar::sub-line:horizontal:on {
-  border-image: url(":/qss_icons/rc/arrow_left.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: left;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical {
-  margin: 3px 0px 3px 0px;
-  border-image: url(":/qss_icons/rc/arrow_up_disabled.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: top;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical:hover, QScrollBar::sub-line:vertical:on {
-  border-image: url(":/qss_icons/rc/arrow_up.png");
-  height: 0px;
-  width: 0px;
-  subcontrol-position: top;
-  subcontrol-origin: margin;
-}
-
-QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal {
-  background: none;
-}
-
-QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-  background: none;
-}
-
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-  background: none;
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-  background: none;
-}
 
 /* QTextEdit --------------------------------------------------------------
 
