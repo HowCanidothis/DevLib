@@ -362,7 +362,6 @@ QMenuBar {
 }
 
 QMenuBar:focus {
-  border: 1px solid #007acc;
 }
 
 QMenuBar::item {
