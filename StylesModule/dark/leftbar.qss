@@ -41,6 +41,10 @@ LeftBar QFrame {
     min-width: 1;
 }
 
+LeftBar {
+    background: #333333;
+}
+
 MenuBar {
     background: #3C3C3C;
 }

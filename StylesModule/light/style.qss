@@ -660,6 +660,11 @@ QHeaderView::section:checked:disabled {
   background-color: #14506E;
 }
 
+QHeaderView::section:checked {
+  color: #ffffff;
+  background-color: #007acc;
+}
+
 QToolBox {
   border: 1px solid #3C3C3C;
 }
