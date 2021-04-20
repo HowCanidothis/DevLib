@@ -28,6 +28,8 @@ public:
     bool Load(const QString& fileName);
     void Save(const QString& fileName, bool clearFile);
     void SaveSelected(const QString& fileName, const QVector<Name>& propertyNames);
+    QByteArray Store();
+    void Restore(const QByteArray& data);
 
     bool IsEmpty() const { return m_properties.isEmpty(); }
     void Clear();

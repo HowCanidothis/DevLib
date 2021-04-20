@@ -36,6 +36,8 @@ public:
     static PropertiesScope* GetScope(const PropertiesScopeName& scope);
     static PropertiesScope* GetCurrentScope();
 
+    static QByteArray Store(const PropertiesScopeName& scope);
+    static void Restore(const QByteArray& data, const PropertiesScopeName& scope);
     static bool Load(const QString& fileName, const PropertiesScopeName& scope);
     static void Save(const QString& fileName, const PropertiesScopeName& scope, bool clearFile = true);
     static void SaveSelected(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName);

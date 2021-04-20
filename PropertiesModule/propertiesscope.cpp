@@ -157,6 +157,43 @@ void PropertiesScope::SaveSelected(const QString& fileName, const QVector<Name>&
     }
 }
 
+QByteArray PropertiesScope::Store()
+{
+    QByteArray result;
+    QDataStream stream(&result, QIODevice::WriteOnly);
+    for(auto* property : m_properties) {
+        if(property->GetOptions().TestFlag(Property::Option_IsExportable)) {
+            stream << property->GetPropertyName().AsString();
+            stream << property->getValue();
+        }
+    }
+    return result;
+}
+
+void PropertiesScope::Restore(const QByteArray& data)
+{
+    QDataStream stream(data);
+
+    const auto& tree = m_properties;
+
+    while(!stream.atEnd()) {
+        QString propertyName;
+        QVariant propertyValue;
+        stream >> propertyName;
+        stream >> propertyValue;
+        auto find = tree.find(Name(propertyName));
+        if(find == tree.end()) {
+            qCWarning(LC_SYSTEM) << "unknown property" << propertyName;
+        } else {
+            if(find.value()->GetOptions().TestFlag(Property::Option_IsExportable)) {
+                if(!find.value()->SetValue(propertyValue)) {
+                    find.value()->Invoke();
+                }
+            }
+        }
+    }
+}
+
 void PropertiesScope::Clear()
 {
     Q_ASSERT(m_name != PropertiesSystem::Global);

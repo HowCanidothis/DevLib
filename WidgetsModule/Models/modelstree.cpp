@@ -19,7 +19,7 @@ void ModelsTree::remove(ModelsTreeItemBase* parent, const std::function<bool (Mo
 
 void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeItemBase*> toRemove)
 {
-    if(!toRemove.isEmpty()) {
+    if(!toRemove.isEmpty() && parent != nullptr) {
         auto& childs = parent->m_childs;
         struct RemoveGroup
         {

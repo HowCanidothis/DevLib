@@ -290,5 +290,21 @@ struct Serializer<Flags<int32_t, Enum>>
     }
 };
 
+#define DECLARE_SERIALIZER_TYPE_ALIAS(SourceType, Type) \
+template<> \
+struct Serializer<Type> \
+{ \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const Type& type) \
+    { \
+        buffer << reinterpret_cast<const SourceType&>(type); \
+    } \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, Type& type) \
+    { \
+        buffer << reinterpret_cast<SourceType&>(type); \
+    } \
+};
+
 
 #endif

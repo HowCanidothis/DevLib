@@ -63,6 +63,16 @@ void PropertiesSystem::Save(const QString& fileName, const PropertiesScopeName& 
     getOrCreateScope(scope)->Save(fileName, clearFile);
 }
 
+QByteArray PropertiesSystem::Store(const PropertiesScopeName& scope)
+{
+    return getOrCreateScope(scope)->Store();
+}
+
+void PropertiesSystem::Restore(const QByteArray& data, const PropertiesScopeName& scope)
+{
+    getOrCreateScope(scope)->Restore(data);
+}
+
 void PropertiesSystem::SaveSelected(const QString& fileName, const PropertiesScopeName& scope, const QVector<Name>& propertyName)
 {
     getOrCreateScope(scope)->SaveSelected(fileName, propertyName);

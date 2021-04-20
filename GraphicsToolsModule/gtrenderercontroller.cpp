@@ -307,6 +307,7 @@ void GtRendererController::onDestroy()
 {
     m_depthFbo = nullptr;
     m_fbo = nullptr;
+    m_renderer = nullptr;
 }
 
 void GtRendererController::Resize(qint32 w, qint32 h)

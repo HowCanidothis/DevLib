@@ -4,10 +4,10 @@
 
 #include <SharedModule/internal.hpp>
 
-FilesGuard::FilesGuard(const QString& pattern, qint32 maxCount)
+FilesGuard::FilesGuard(const QString& pattern, qint32 maxCount, const QDir& dir)
     : m_pattern(pattern)
     , m_maxCount(maxCount)
-    , m_directory(QDir::current())
+    , m_directory(dir)
 {
 }
 
@@ -17,25 +17,37 @@ void FilesGuard::Checkout()
     qint32 filesToRemove = entries.size() - m_maxCount;
     if(filesToRemove > 0) {
         for(const QString& entry : adapters::range(entries.begin(), entries.begin() + filesToRemove)) {
-            QFile::remove(entry);
+            QFile::remove(m_directory.filePath(entry));
         }
     }
 }
 
-FileNamesGeneratorWithGuard::FileNamesGeneratorWithGuard(const QString& baseName, const QString& format, qint32 maxFilesCount)
+FileNamesGeneratorWithGuard::FileNamesGeneratorWithGuard(const QString& baseName, const QString& format, qint32 maxFilesCount, const QDir& dir)
     : m_baseName(baseName)
     , m_format(format)
-    , m_filesGuard(QString("%1*.%2").arg(baseName, format), maxFilesCount)
+    , m_filesGuard(QString("%1*.%2").arg(baseName, format), maxFilesCount, dir)
 {
 
 }
 
 bool FileNamesGeneratorWithGuard::UpdateFileName(const FileNamesGeneratorWithGuard::FOnNewFileName& onNewFileName)
 {
-    auto currentDate = QDate::currentDate();
-    if(m_currentDate != currentDate) {
+    auto currentDate = QDateTime::currentDateTime();
+    if(m_currentDate.date() != currentDate.date()) {
         m_currentDate = currentDate;
         onNewFileName(currentDate.toString(QString("'%1_'yy'_'MM'_'dd'.%2'").arg(m_baseName, m_format)));
+        m_filesGuard.Checkout();
+        return true;
+    }
+    return false;
+}
+
+bool FileNamesGeneratorWithGuard::UpdateFileNameWithTime(const FileNamesGeneratorWithGuard::FOnNewFileName& onNewFileName)
+{
+    auto currentDate = QDateTime::currentDateTime();
+    if(m_currentDate != currentDate) {
+        m_currentDate = currentDate;
+        onNewFileName(currentDate.toString(QString("'%1_'yy'_'MM'_'dd'_'HH'_'mm'_'ss'.%2'").arg(m_baseName, m_format)));
         m_filesGuard.Checkout();
         return true;
     }
