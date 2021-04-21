@@ -249,6 +249,11 @@ public:
 
     Enum Native() const { return (Enum)Super::m_value; }
 
+    QString GetName()
+    {
+        Q_ASSERT(0<= Super::m_value && Super::m_value < GetNames().size());
+        return GetNames()[Super::m_value];
+    }
     QStringList GetNames() { return EnumHelper<Enum>::GetNames(); }
 };
 
