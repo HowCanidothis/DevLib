@@ -3,6 +3,8 @@
 
 #include <QResizeEvent>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 TopNotifierFrame::TopNotifierFrame(QWidget* parent)
     : Super(parent)
     , ui(new Ui::TopNotifierFrame)
@@ -50,4 +52,21 @@ bool TopNotifierFrame::eventFilter(QObject*, QEvent* event)
     }
 
     return false;
+}
+
+TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame)
+{
+    errors->OnChange.Connect(this, [frame, errors]{
+        ThreadsBase::DoMain([frame, errors]{
+            WidgetAppearance::SetVisibleAnimated(frame, !errors->IsEmpty());
+            QString message;
+            for(const auto& error : *errors) {
+                message += error.Error + "\n";
+            }
+            if(!message.isEmpty()) {
+                message.resize(message.size() - 1);
+            }
+            frame->SetText(message);
+        });
+    }).MakeSafe(m_connections);
 }

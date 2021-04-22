@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QDateTimeEdit>
 #include <QMenu>
+#include <QPushButton>
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -77,6 +78,14 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
+        m_propertySetter();
+    });
+}
+
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, QPushButton* button)
+    : Super([]{}, [dispatcher]{ dispatcher->Invoke(); })
+{
+    m_connections.connect(button, &QPushButton::clicked, [this](){
         m_propertySetter();
     });
 }

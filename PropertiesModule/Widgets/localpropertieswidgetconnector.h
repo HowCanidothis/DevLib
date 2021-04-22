@@ -52,6 +52,13 @@ protected:
     bool m_ignoreWidgetChange;
 };
 
+class _Export LocalPropertiesPushButtonConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QPushButton* button);
+};
+
 class _Export LocalPropertiesMenuLabelConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;

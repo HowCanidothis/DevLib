@@ -9,6 +9,10 @@
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
 {
+    if(widget->isVisibleTo(widget->parentWidget()) == visible) {
+        return;
+    }
+
     if(visible) {
         WidgetAppearance::ShowAnimated(widget);
     } else {

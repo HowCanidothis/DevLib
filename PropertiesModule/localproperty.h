@@ -249,12 +249,12 @@ public:
 
     Enum Native() const { return (Enum)Super::m_value; }
 
-    QString GetName()
+    QString GetName() const
     {
         Q_ASSERT(0<= Super::m_value && Super::m_value < GetNames().size());
         return GetNames()[Super::m_value];
     }
-    QStringList GetNames() { return EnumHelper<Enum>::GetNames(); }
+    QStringList GetNames() const { return EnumHelper<Enum>::GetNames(); }
 };
 
 template<class T>
@@ -334,7 +334,7 @@ public:
     void Insert(const T& value)
     {
         auto find = this->m_value.find(value);
-        if(find != this->m_value.end()) {
+        if(find == this->m_value.end()) {
             this->m_value.insert(value);
             this->Invoke();
         }
@@ -351,6 +351,62 @@ public:
 
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
+};
+
+struct LocalPropertyErrorsContainerValue
+{
+    Name Id;
+    QString Error;
+
+    operator qint32() const { return Id; }
+};
+
+class LocalPropertyErrorsContainer : public LocalPropertySet<LocalPropertyErrorsContainerValue>
+{
+    using Super = LocalPropertySet<LocalPropertyErrorsContainerValue>;
+public:
+    LocalPropertyErrorsContainer()
+        : HasErrors(false)
+    {
+        OnChange += {this, [this]{
+            HasErrors = !IsEmpty();
+        }};
+    }
+
+    void AddError(const Name& errorName, const QString& errorString)
+    {
+        Super::Insert({errorName, errorString});
+    }
+
+    void RemoveError(const Name& errorName)
+    {
+        Super::Remove({ errorName, "" });
+    }
+
+    DispatcherConnection RegisterError(const Name& errorId, const LocalProperty<bool>& property, const QString& errorString, bool inverted = false)
+    {
+#ifdef QT_DEBUG
+        Q_ASSERT(!m_registeredErrors.contains(errorId));
+        m_registeredErrors.insert(errorId);
+#endif
+        auto* pProperty = const_cast<LocalProperty<bool>*>(&property);
+        auto update = [this, errorId, pProperty, errorString, inverted]{
+            if(*pProperty & !inverted) {
+                AddError(errorId, errorString);
+            } else {
+                RemoveError(errorId);
+            }
+        };
+        update();
+        return pProperty->OnChange.Connect(this, update);
+    }
+
+    LocalProperty<bool> HasErrors;
+
+private:
+#ifdef QT_DEBUG
+    QSet<Name> m_registeredErrors;
+#endif
 };
 
 class LocalPropertyBoolCommutator : public LocalProperty<bool>

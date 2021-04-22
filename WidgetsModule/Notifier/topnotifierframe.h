@@ -3,6 +3,8 @@
 
 #include <QFrame>
 
+#include <PropertiesModule/internal.hpp>
+
 namespace Ui {
 class TopNotifierFrame;
 }
@@ -26,6 +28,15 @@ public:
 
 private:
     Ui::TopNotifierFrame *ui;
+};
+
+class TopNotifierFrameErrorsComponent
+{
+public:
+    TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame);
+
+private:
+    DispatcherConnectionsSafe m_connections;
 };
 
 #endif // TOPNOTIFIERWIDGET_H
