@@ -36,6 +36,7 @@ public:
 
     GtRendererControllerPtr CreateDefaultController();
 
+    void UpdateFrame();
     void CreateFontAlias(const Name& aliasName, const Name& sourceName);
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
     void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
@@ -130,6 +131,8 @@ private:
     QVector<GtRendererPtr> m_childRenderers;
     GtRenderProperties m_renderProperties;
     QVector<FAction> m_delayedDraws;
+    std::atomic_bool m_updateRequested;
+    DelayedCallObject m_updateDelayed;
 };
 
 #endif // GTRENDERER_H

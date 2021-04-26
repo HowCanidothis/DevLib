@@ -166,6 +166,8 @@ public:
     GtRendererController(GtRenderer* renderer, class ControllersContainer* controllersContainer, struct GtControllersContext* context);
     ~GtRendererController();
 
+    void UpdateFrame();
+
     template<class T, typename ...Args>
     T* CreateDrawable(Args... args)
     {
@@ -214,6 +216,7 @@ signals:
     void imageUpdated();
 
 private:
+    bool isDirtyReset();
     void destroyDrawable(GtDrawableBase* drawable);
     void calculateVisibleSize();
     void drawSpace(OpenGLFunctions* f);
@@ -242,6 +245,7 @@ private:
     DispatcherConnectionsSafe m_connections;
     SizeF m_visibleSize;
     DelayedCallObject m_resize;
+    bool m_dirty;
 };
 
 #endif // GTRENDERERCONTROLLER_H
