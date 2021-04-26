@@ -17,8 +17,17 @@ GtRendererSharedData::GtRendererSharedData(GtRenderer* base)
 GtRenderer::GtRenderer(GtRenderer* baseRenderer)
     : Super(baseRenderer->m_surfaceFormat, baseRenderer)
     , m_sharedData(baseRenderer->m_sharedData)
+    , m_updateRequested(true)
+    , m_updateDelayed(0, CreateThreadHandler())
 {
     construct();
+}
+
+void GtRenderer::UpdateFrame()
+{
+    m_updateDelayed.Call([this]{
+        m_updateRequested = true;
+    });
 }
 
 void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName)
@@ -326,10 +335,15 @@ void GtRenderer::onDraw()
         if(fbo == nullptr || !controller->Enabled) {
             continue;
         }
+
+        auto* camera = controller->m_camera.get();
+        auto cameraStateChanged = camera->IsFrameChanged();
+
+        if(!controller->isDirtyReset() && !m_updateRequested) {
+            continue;
+        }
         m_delayedDraws.clear();
         auto* depthFbo = controller->m_depthFbo.get();
-        auto* camera = controller->m_camera.get();
-        auto cameraStateChanged = camera->IsFrameChangedReset();
         m_renderProperties = controller->m_renderProperties;
         m_renderProperties[RENDER_PROPERTY_CAMERA_STATE_CHANGED] = cameraStateChanged;
 
@@ -388,7 +402,7 @@ void GtRenderer::onDraw()
         }       
     }
 
-
+    m_updateRequested = false;
 }
 
 void GtRenderer::onDestroy()

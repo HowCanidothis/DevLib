@@ -29,6 +29,10 @@ template<class T>
 class ThreadCalculator
 {
 public:
+    template<typename ... Args> using CalculationData = SharedPointer<std::tuple<Args...>>;
+
+    template<typename ... Args> CalculationData<Args...> PreparationData() { return ::make_shared<std::tuple<Args...>>();  }
+
     ThreadCalculator(const ThreadHandler& threadHandler)
         : m_data(::make_shared<ThreadCalculatorData<T>>(threadHandler))
     {}
@@ -62,7 +66,9 @@ public:
                         data->NeedRecalculate = false;
                         Calculate(data->CalculatorHandler, data->PreparatorHandler);
                     } else {
-                        OnCalculated(result);
+                        if(acceptResult()) {
+                            OnCalculated(result);
+                        }
                     }
                 });
             }, EPriority::Low);
@@ -75,6 +81,9 @@ public:
     }
 
     CommonDispatcher<const T&> OnCalculated;
+
+protected:
+    virtual bool acceptResult() { return true; }
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;

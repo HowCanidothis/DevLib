@@ -113,6 +113,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_renderTime(0)    
     , m_cameraAnimationEngine(renderer, m_camera.get())
     , m_resize(100, renderer->CreateThreadHandler())
+    , m_dirty(true)
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -135,11 +136,23 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     SpaceColor.SetSetterHandler(threadHandler);
 }
 
+bool GtRendererController::isDirtyReset()
+{
+    auto result = m_dirty | GetCamera()->IsFrameChangedReset();
+    m_dirty = false;
+    return result;
+}
+
 void GtRendererController::drawSpace(OpenGLFunctions* f)
 {
     const auto& color = SpaceColor.Native();
     f->glClearColor(color.redF(), color.greenF(), color.blueF(), 1.f);
     calculateVisibleSize();
+}
+
+void GtRendererController::UpdateFrame()
+{
+    m_dirty = true;
 }
 
 GtRendererController::~GtRendererController()
@@ -213,6 +226,7 @@ void GtRendererController::MouseMoveEvent(QMouseEvent* event)
 {
     auto cevent = new QMouseEvent(*event);
     m_renderer->Asynch([this, cevent]{
+        m_dirty = true;
         m_controllers->MouseMoveEvent(cevent);
         delete cevent;
     });
