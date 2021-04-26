@@ -391,7 +391,7 @@ public:
 #endif
         auto* pProperty = const_cast<LocalProperty<bool>*>(&property);
         auto update = [this, errorId, pProperty, errorString, inverted]{
-            if(*pProperty & !inverted) {
+            if(*pProperty ^ inverted) {
                 AddError(errorId, errorString);
             } else {
                 RemoveError(errorId);

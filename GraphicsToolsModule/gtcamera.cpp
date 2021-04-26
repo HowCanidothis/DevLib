@@ -480,8 +480,12 @@ void GtCamera::adjustIsometricScale()
             distance = m_isometricCurtain + Vector3F::dotProduct(m_isometricCenter - m_eye, m_forward);
         }
 
+        if(distance < 0.f) {
+            return;
+        }
+
         Point2F isometricScale = Point2F(distance,distance) / m_isometricCoef;
-        if(!qFuzzyCompare(isometricScale.x(), m_isometricScale.x()) || !qFuzzyCompare(isometricScale.y(), m_isometricScale.y())) {
+        if(!::fuzzyCompare(isometricScale.x(), m_isometricScale.x(), 0.001f) || !::fuzzyCompare(isometricScale.y(), m_isometricScale.y(), 0.001f)) {
             m_isometricScale = isometricScale;
             m_state.AddFlag(State_NeedUpdateProjection);
         }
