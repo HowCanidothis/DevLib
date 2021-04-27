@@ -15,5 +15,7 @@
         <file>light/ads.qss</file>
         <file>light/leftbar.qss</file>
         <file>light/style.qss</file>
+        <file>light/topnotifierframe.qss</file>
+        <file>light/visualization.qss</file>
     </qresource>
 </RCC>
