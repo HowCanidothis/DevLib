@@ -6,7 +6,7 @@
 
 ads--CDockContainerWidget {
     border: none;
-    background: #3c3c3c;
+    background: #EAF5FF;
     margin: 0px;
     padding: 0px;
 }
@@ -19,8 +19,8 @@ ads--CFloatingDockContainer {
 
 ads--CDockWidgetTab
 {
-    background: #2d2d2d;
-    border-color: #1e1e1e;
+    background: #F3F3F3;
+    border-color: #ffffff;
     border-style: solid;
     border-width: 0 1px 0 0;
     padding: 10px 0px 10px 10px;
@@ -29,33 +29,33 @@ ads--CDockWidgetTab
 
 ads--CDockWidgetTab[activeTab="true"]
 {
-    background: #1e1e1e;
+    background: #ffffff;
     padding: 10px 0px 10px 10px;
 }
 
 ads--CDockWidgetTab QLabel
 {
     color: #9d9d9d;
-    background: #2d2d2d;
+    background: #F3F3F3;
     margin-right: 10px;
 }
 
 ads--CDockWidgetTab QLabel#IconLabel
 {
     color: #9d9d9d;
-    background: #2d2d2d;
+    background: #F3F3F3;
     margin: 0px;
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel#IconLabel
 {
-    background: #1e1e1e;
+    background: #ffffff;
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel
 {
     color: #9d9d9d;
-    background: #1e1e1e;
+    background: #ffffff;
 }
 
 ads--CDockAreaWidget {
@@ -69,7 +69,7 @@ ads--CDockAreaTabBar {
 }
 
 ads--CDockAreaTitleBar {
-    background: #252526;
+    background: #F3F3F3;
     margin: 0px;
     padding: 0px;
 }
@@ -137,19 +137,19 @@ QWidget #detachGroupButton {
 }
 
 QWidget #tabsMenuButton:hover {
-    background: #3C3C3C;
+    background: #EAF5FF;
 }
 
 QWidget #dockAreaCloseButton:hover {
-    background: #3C3C3C;
+    background: #EAF5FF;
 }
 
 QWidget #detachGroupButton:hover {
-    background: #3C3C3C;
+    background: #EAF5FF;
 }
 
 ads--CDockManager {
-    background: #1e1e1e;
+    background: #ffffff;
     border: none;
     padding: 0px;
     margin: 0px;

@@ -1,0 +1,24 @@
+CustomPlot {
+    qproperty-textPadding: rect(12 0 12 0);
+    qproperty-fontSize: 12;
+}
+
+VisualizationToolTipWidget {
+    background-color: #007acc;
+    color: white;
+    qproperty-opacity: 0;
+}
+
+VisualizationToolTipWidget QWidget{
+    font-size: 12px;
+    background-color: #007acc;
+    color: white;
+}
+
+VisualizationToolTipWidget QDoubleSpinBox {
+    border-color: white;
+}
+
+ToolTipArrowWidget {
+    background-color: #007acc;
+}

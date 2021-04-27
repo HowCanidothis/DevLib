@@ -77,37 +77,32 @@ MenuBarMovePane QLabel#Icon {
 }
 
 WidgetsEditingObjectSaveCancelButtons {
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QFrame[Footer="true"]
 {
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QFrame[Footer="true"] QLabel
 {
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QFrame[Footer="true"] QCheckBox
 {
-    background: #252526;
-}
-
-QFrame[Footer="true"] QLabel
-{
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QFrame[Footer="true"] QDoubleSpinBox
 {
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QFrame[Footer="true"] QSpinBox
 {
-    background: #252526;
+    background: #F3F3F3;
 }
 
 QTreeView#OffsetsTreeView {
