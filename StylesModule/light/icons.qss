@@ -1,0 +1,5 @@
+MainWindow {
+    qproperty-iconPlanColor: #007acc;
+    qproperty-iconPrototypeColor: #007acc;
+    qproperty-iconSurveyColor: #ff3b30;
+}

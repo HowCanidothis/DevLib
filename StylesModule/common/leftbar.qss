@@ -246,7 +246,6 @@ QPushButton#BtnClose:hover {
 
 TreeBar QFrame#Header {
     border: none;
-    border-bottom: 1px solid #3C3C3C;
     border-radius: 0px;
     padding-right: 15px;
     padding-left: 15px;

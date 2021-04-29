@@ -111,6 +111,7 @@ QTreeView#OffsetsTreeView {
 
 TreeBar QFrame#Header {
     background: #f3f3f3;
+    border-bottom: 1px solid #D2D2D2;
 }
 
 TreeBar QTreeView {

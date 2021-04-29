@@ -2,6 +2,7 @@
 #define QSTRINGCONVERTERS_H
 
 #include <QUrl>
+#include <QColor>
 
 template <>
 struct TextConverter<QUrl>
@@ -76,6 +77,20 @@ struct TextConverter<qint32>
     }
 };
 
+template <>
+struct TextConverter<QColor>
+{
+    using value_type = QColor;
+    static QString ToText(const value_type& value)
+    {
+        return value.name();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return QColor(string);
+    }
+};
 
 template <>
 struct TextConverter<Name>

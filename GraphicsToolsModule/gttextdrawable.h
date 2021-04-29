@@ -162,6 +162,7 @@ public:
 
     GtTextDrawableSettings Settings;
     LocalProperty<QMatrix4x4> Transform;
+    DispatcherConnectionsSafe Connections;
 
 private:
     GtMaterial m_material;
@@ -212,6 +213,7 @@ public:
     GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font);
 
     GtTextDrawableSettings Settings;
+    DispatcherConnectionsSafe Connections;
 
     void DisplayText(const QVector<TextInfo>& texts);
 

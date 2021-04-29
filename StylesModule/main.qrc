@@ -17,5 +17,7 @@
         <file>light/style.qss</file>
         <file>light/topnotifierframe.qss</file>
         <file>light/visualization.qss</file>
+        <file>dark/icons.qss</file>
+        <file>light/icons.qss</file>
     </qresource>
 </RCC>

@@ -10,3 +10,4 @@
 @import url("light/visualization.qss");
 @import url("light/ads.qss");
 @import url("light/topnotifierframe.qss");
+@import url("light/icons.qss");
