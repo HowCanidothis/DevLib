@@ -68,6 +68,7 @@ public:
                     } else {
                         if(acceptResult()) {
                             OnCalculated(result);
+                            onPostRecalculate();
                         }
                     }
                 });
@@ -84,6 +85,7 @@ public:
 
 protected:
     virtual bool acceptResult() { return true; }
+    virtual void onPostRecalculate() {}
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;

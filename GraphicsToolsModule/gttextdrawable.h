@@ -37,6 +37,7 @@ struct GtTextDrawableSettings
         result += BorderWidth.ConnectFrom(another.BorderWidth);
         result += Contrast.ConnectFrom(another.Contrast);
         result += UseDirectionCorrection.ConnectFrom(another.UseDirectionCorrection);
+        result += Visible.ConnectFrom(another.Visible);
         return result;
     }
 };

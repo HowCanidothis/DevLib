@@ -359,6 +359,12 @@ struct LocalPropertyErrorsContainerValue
     QString Error;
 
     operator qint32() const { return Id; }
+
+    friend QDebug operator<<(QDebug debug, const LocalPropertyErrorsContainerValue& value)
+    {
+        debug.maybeSpace() << "Error:" << value.Error;
+        return debug;
+    }
 };
 
 class LocalPropertyErrorsContainer : public LocalPropertySet<LocalPropertyErrorsContainerValue>
@@ -375,15 +381,19 @@ public:
 
     void AddError(const Name& errorName, const QString& errorString)
     {
-        Super::Insert({errorName, errorString});
+        LocalPropertyErrorsContainerValue toInsert{ errorName, errorString };
+        Super::Insert(toInsert);
+        OnErrorAdded(toInsert);
     }
 
     void RemoveError(const Name& errorName)
     {
-        Super::Remove({ errorName, "" });
+        LocalPropertyErrorsContainerValue toRemove{ errorName, "" };
+        Super::Remove(toRemove);
+        OnErrorRemoved(toRemove);
     }
 
-    DispatcherConnection RegisterError(const Name& errorId, const LocalProperty<bool>& property, const QString& errorString, bool inverted = false)
+    DispatcherConnection RegisterError(const Name& errorId, const QString& errorString, const LocalProperty<bool>& property, bool inverted = false)
     {
 #ifdef QT_DEBUG
         Q_ASSERT(!m_registeredErrors.contains(errorId));
@@ -401,7 +411,59 @@ public:
         return pProperty->OnChange.Connect(this, update);
     }
 
+    DispatcherConnections RegisterError(const Name& errorId, const QString& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers)
+    {
+#ifdef QT_DEBUG
+        Q_ASSERT(!m_registeredErrors.contains(errorId));
+        m_registeredErrors.insert(errorId);
+#endif
+        DispatcherConnections result;
+        auto update = [this, validator, errorId, errorString]{
+            if(!validator()) {
+                AddError(errorId, errorString);
+            } else {
+                RemoveError(errorId);
+            }
+        };
+
+        for(auto* dispatcher : dispatchers) {
+            result += dispatcher->Connect(this, update);
+        }
+
+        update();
+        return result;
+    }
+
+    DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
+    {
+        auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
+        auto addError = [this, prefix](const LocalPropertyErrorsContainerValue& value){
+            AddError(Name(prefix + value.Id.AsString()), value.Error);
+        };
+        auto removeError = [this, prefix](const LocalPropertyErrorsContainerValue& value) {
+            RemoveError(Name(prefix + value.Id.AsString()));
+        };
+        DispatcherConnections result;
+        result += pErrors->OnErrorAdded.Connect(this, addError);
+        result += pErrors->OnErrorRemoved.Connect(this, removeError);
+        for(const auto& error : errors) {
+            AddError(Name(prefix + error.Id.AsString()), error.Error);
+        }
+        return result;
+    }
+
+    QString ToString() const
+    {
+        QString resultText;
+        for(const auto& error : *this) {
+            resultText += error.Error + "\n";
+        }
+        return resultText;
+    }
+
     LocalProperty<bool> HasErrors;
+    CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorAdded;
+    CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorRemoved;
 
 private:
 #ifdef QT_DEBUG
@@ -428,6 +490,11 @@ public:
             }
             SetValue(result);
         }};
+    }
+
+    void ClearProperties()
+    {
+        m_properties.clear();
     }
 
     DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
