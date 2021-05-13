@@ -34,7 +34,6 @@ public:
 
     DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
     {
-        THREAD_ASSERT_IS_MAIN();
         DispatcherConnections result;
         for(auto* property : properties) {
             if(*property == !m_defaultState) {
@@ -94,6 +93,7 @@ public:
         m_onChanged.Subscribe({ &m_dependenciesAreUpToDate.OnChange });
 
         Enabled.OnChange += {this, [this, recalculateOnEnabled]{
+            THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onChanged += { this, [this, recalculateOnEnabled]{
                     Valid.SetState(false);
@@ -112,12 +112,14 @@ public:
 
     void RequestRecalculate() const
     {
+        THREAD_ASSERT_IS_MAIN();
         m_dependenciesAreUpToDate.Update();
         m_onChanged.Invoke();
     }
 
     void Disconnect()
     {
+        THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.ClearProperties();
     }
@@ -132,6 +134,7 @@ public:
     template<class T2>
     const StateCalculator& Connect(const StateCalculator<T2>& calculator) const
     {
+        THREAD_ASSERT_IS_MAIN();
         auto& nonConstCalculator = const_cast<StateCalculator<T2>&>(calculator);
         m_dependenciesAreUpToDate.AddProperties({ &nonConstCalculator.Valid }).MakeSafe(m_connections);
         return *this;
@@ -140,6 +143,7 @@ public:
     template<class T2>
     const StateCalculator& Connect(const LocalProperty<T2>& property) const
     {
+        THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
         m_onChanged.Subscribe({ &nonConstProperty.OnChange }).MakeSafe(m_connections);
         return *this;
@@ -147,19 +151,21 @@ public:
 
     const StateCalculator& Connect(StateProperty& dispatcher) const
     {
+        THREAD_ASSERT_IS_MAIN();
         m_dependenciesAreUpToDate.AddProperties({ &dispatcher }).MakeSafe(m_connections);
         return *this;
     }
 
     const StateCalculator& Connect(Dispatcher& onChanged) const
     {
+        THREAD_ASSERT_IS_MAIN();
         m_onChanged.Subscribe({&onChanged}).MakeSafe(m_connections);
         return *this;
     }
 
     const StatePropertyBoolCommutator& GetDependenciesState() const { return m_dependenciesAreUpToDate; }
 
-    LocalPropertyBool Enabled;
+    mutable LocalPropertyBool Enabled;
     StateProperty Valid;
 
 protected:
