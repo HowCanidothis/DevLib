@@ -251,6 +251,15 @@ public:
         }
     }
 
+    void OnFirstInvoke(const FCommonDispatcherAction& action)
+    {
+        auto connections = ::make_shared<DispatcherConnectionsSafe>();
+        Connect(this, [action, connections](Args... args){
+            action(args...);
+            connections->clear();
+        }).MakeSafe(*connections);
+    }
+
 private:
     friend class Connection;
     QSet<DispatcherConnectionSafePtr> m_safeConnections;

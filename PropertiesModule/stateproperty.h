@@ -99,6 +99,8 @@ public:
                     Valid.SetState(false);
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator);
+                    } else {
+                        OnCalculationRejected();
                     }
                 }};
                 if(recalculateOnEnabled) {
@@ -167,6 +169,7 @@ public:
 
     mutable LocalPropertyBool Enabled;
     StateProperty Valid;
+    Dispatcher OnCalculationRejected;
 
 protected:
     void onPostRecalculate() override
