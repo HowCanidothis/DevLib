@@ -461,6 +461,15 @@ public:
         return resultText;
     }
 
+    QStringList ToStringList() const
+    {
+        QStringList result;
+        for(const auto& error : *this) {
+            result += error.Error;
+        }
+        return result;
+    }
+
     LocalProperty<bool> HasErrors;
     CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorAdded;
     CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorRemoved;
