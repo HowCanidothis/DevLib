@@ -91,6 +91,9 @@ public:
         , m_dependenciesAreUpToDate(true)
     {
         m_onChanged.Subscribe({ &m_dependenciesAreUpToDate.OnChange });
+        Valid.ConnectFrom(m_dependenciesAreUpToDate, [this](bool valid){
+            return !valid ? false : Valid.Native();
+        });
 
         Enabled.OnChange += {this, [this, recalculateOnEnabled]{
             THREAD_ASSERT_IS_MAIN();
@@ -130,7 +133,6 @@ public:
     {
         m_preparator = preparator;
         m_calculator = calculator;
-        RequestRecalculate();
     }
 
     template<class T2>
