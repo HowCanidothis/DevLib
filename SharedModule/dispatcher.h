@@ -105,7 +105,7 @@ public:
     using Type = void (Args...);
     using Observer = void*;
     using FCommonDispatcherAction = std::function<Type>;
-
+    using FCommonDispatcherActionWithResult = std::function<bool (Args...)>;
 
     struct ConnectionSubscribe
     {

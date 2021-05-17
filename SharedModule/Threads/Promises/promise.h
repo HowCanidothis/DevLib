@@ -12,20 +12,24 @@
 #include "SharedModule/shared_decl.h"
 #include "SharedModule/dispatcher.h"
 
-template<class T>
-class PromiseData ATTACH_MEMORY_SPY(PromiseData<T>)
+class PromiseData ATTACH_MEMORY_SPY(PromiseData)
 {
 public:
-    using FCallback = std::function<void (const T& )>;
+    using FCallback = std::function<void (bool)>;
     PromiseData()
-        : m_isResolved(false)
+        : m_result(false)
+        , m_isResolved(false)
     {}
     ~PromiseData()
-    {}
+    {
+        if(!m_isResolved) {
+            resolve(false);
+        }
+    }
 
 private:
-    template<class T2> friend class Promise;
-    T m_result;
+    friend class Promise;
+    bool m_result;
     std::atomic_bool m_isResolved;
     CommonDispatcher<bool> onFinished;
     std::mutex m_mutex;
@@ -61,24 +65,38 @@ private:
     }
 };
 
-template<class T>
 class Promise
 {
-    SharedPointer<PromiseData<T>> m_data;
+    SharedPointer<PromiseData> m_data;
 public:
 
     Promise()
-        : m_data(::make_shared<PromiseData<T>>())
+        : m_data(::make_shared<PromiseData>())
     {}
 
-    const T& GetValue() const { return m_data->m_result; }
+    PromiseData* GetData() const { return m_data.get(); }
+    bool GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isResolved; }
-    DispatcherConnection Then(const typename PromiseData<T>::FCallback& handler) const { return m_data->then(handler); }
+    DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     void Resolve(bool value) const {  m_data->resolve(value); }
     void Mute() { m_data->mute(); }
+
+    template<typename ... Args>
+    static Promise OnFirstInvokeWithResult(CommonDispatcher<Args...>& dispatcher, const typename CommonDispatcher<Args...>::FCommonDispatcherActionWithResult& acceptHandler = [](Args...) { return true; })
+    {
+        Promise result;
+        auto connections = ::make_shared<DispatcherConnectionsSafe>();
+        dispatcher.Connect(nullptr, [result, connections, acceptHandler](Args... args){
+            if(acceptHandler(args...)) {
+                connections->clear();
+                result.Resolve(true);
+            }
+        }).MakeSafe(*connections);
+        return result;
+    }
 };
 
-using AsyncResult = Promise<bool>;
+using AsyncResult = Promise;
 
 class AsyncError : public AsyncResult
 {
@@ -129,42 +147,24 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self)
     {
         ref();
-        promise.Then([this, promise, self](const bool& result){
+        promise.Then([this, self](const bool& result){
             if(!result) {
                 m_result = false;
             }
-            *this -= promise;
+            deref();
         });
 
         return;
     }
 
-    template<class T>
-    void addPromise(const Promise<T>& promise, const SharedPointer<FutureResultData>& self)
-    {
-        ref();
-        promise.Then([this, promise, self](const T&){
-            *this -= promise;
-        });
-    }
-
-    void operator-=(const AsyncResult&)
-    {
-        deref();
-    }
-
-    template<class T>
-    void operator-=(const Promise<T>&)
-    {
-        deref();
-    }
-
-    void then(const FAction& action)
+    void then(const std::function<void (bool)>& action)
     {
         if(isFinished()) {
-            action();
+            action(getResult());
         } else {
-            onFinished.Connect(this, action);
+            onFinished.Connect(this, [this, action]{
+                action(m_result);
+            });
         }
     }
 
@@ -202,21 +202,14 @@ public:
     bool IsFinished() const { return m_data->isFinished(); }
     bool GetResult() const { return m_data->getResult(); }
 
-    template<class T>
-    void operator+=(const Promise<T>& promise)
+    void operator+=(const Promise& promise)
     {
         m_data->addPromise(promise, m_data);
     }
 
-    template<class T> // TODO. Unused?
-    void operator-=(const Promise<T>& promise)
+    void Then(const std::function<void (bool)>& action)
     {
-        *m_data -= promise;
-    }
-
-    void Then(const FAction& action)
-    {
-        m_data->then([action]{ action(); });
+        m_data->then(action);
     }
 
     void Wait()
