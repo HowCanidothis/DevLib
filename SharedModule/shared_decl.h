@@ -57,6 +57,12 @@ T clamp(const T& value, const T& min, const T& max) {
     return (value < min) ? min : (max < value) ? max : value;
 }
 
+template<class T>
+T lerp(const T& a, const T& b, double t)
+{
+    return a + t * (b - a);
+}
+
 inline double sign(double value)
 {
     if(value < 0.0) {

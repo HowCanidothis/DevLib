@@ -77,6 +77,11 @@ public:
     {
         Super::SetValue(state);
     }
+
+    DispatcherConnections ConnectFromStateProperty(const StateProperty& property)
+    {
+        return Super::ConnectFrom(property, [this](bool valid) { return valid ? Super::m_value : valid; });
+    }
 };
 
 template<class T>
@@ -195,6 +200,177 @@ private:
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;
+};
+
+template<class T>
+class StateImmutableData {
+    using TPtr = SharedPointer<T>;
+public:
+    class UnLocker : public guards::LambdaGuard
+    {
+        using Super = guards::LambdaGuard;
+    public:
+        UnLocker(const StateImmutableData* table) noexcept
+            : Super([table]{ table->Unlock(); }, []{} )
+        {}
+    };
+
+    StateImmutableData(const TPtr& data)
+        : m_lockCounter(0)
+        , m_isDirty(false)
+#ifndef QT_NO_DEBUG
+        , m_internalEditing(false)
+#endif
+        , Enabled(m_calculator.Enabled)
+        , IsValid(data->IsValid)
+    {
+        m_calculator.OnCalculated += { this, [this](bool){
+            if(m_lockCounter != 0) {
+                m_isDirty = true;
+                if(m_lockCounter == 0) {
+                    m_calculator.RequestRecalculate();
+                }
+                return;
+            }
+
+#ifndef QT_NO_DEBUG
+        guards::LambdaGuard guard([this]{ m_internalEditing = false; }, [this]{ m_internalEditing = true; });
+#endif
+            if(m_handler != nullptr) {
+                auto data = m_handler();
+                m_data->Swap(data);
+            } else {
+                m_data->Clear();
+            }
+            m_data->IsValid.SetState(true);
+        }};
+
+        m_calculator.OnCalculationRejected += { this, [this]{
+            if(m_lockCounter == 0) {
+    #ifndef QT_NO_DEBUG
+                guards::LambdaGuard guard([this]{ m_internalEditing = false; }, [this]{ m_internalEditing = true; });
+    #endif
+                m_data->Clear();
+            }
+        }};
+
+        m_data = data;
+#ifndef QT_NO_DEBUG
+        m_data->OnChanged += { this, [this]{
+            Q_ASSERT(m_internalEditing);
+        }};
+#endif
+        m_data->IsValid.ConnectFrom(m_calculator.Valid, [this](bool valid){
+            return valid ? m_data->IsValid.Native() : false;
+        });
+    }
+
+    void Lock() const
+    {
+        THREAD_ASSERT_IS_MAIN();
+        ++m_lockCounter;
+        Q_ASSERT(m_lockCounter >= 0);
+    }
+
+    void Unlock() const
+    {
+        --m_lockCounter;
+        if(m_lockCounter == 0 && m_isDirty) {
+            m_isDirty = false;
+            ThreadsBase::DoMain([this]{
+                m_calculator.RequestRecalculate();
+            });
+        }
+        Q_ASSERT(m_lockCounter >= 0);
+    }
+
+    void AttachSwap(const TPtr& data)
+    {
+        AttachCopy(data, [data]{
+            return data;
+        });
+    }
+
+    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    {
+        m_calculator.Disconnect();
+
+        if(externalData != nullptr) {
+            m_handler = handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler;
+            m_calculator.Connect(externalData->IsValid).Connect(externalData->OnChanged);
+        } else {
+            m_handler = nullptr;
+        }
+
+        m_calculator.SetCalculator([]{
+            return true;
+        });
+
+        m_calculator.RequestRecalculate();
+    }
+
+    const TPtr& GetData() const { return m_data; }
+
+protected:
+    TPtr m_data;
+    std::function<TPtr ()> m_handler;
+    StateCalculator<bool> m_calculator;
+    mutable std::atomic_int m_lockCounter;
+    mutable std::atomic_bool m_isDirty;
+#ifndef QT_NO_DEBUG
+    bool m_internalEditing;
+#endif
+
+public:
+    LocalPropertyBool& Enabled;
+    StateProperty& IsValid;
+};
+
+template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
+
+template<class T>
+class IStateImmutableData
+{
+public:
+    using TPtr = SharedPointer<T>;
+
+    virtual void Swap(const TPtr& data) = 0;
+    virtual TPtr Clone() const = 0;
+    virtual void Clear() = 0;
+
+    StateProperty IsValid;
+    Dispatcher OnChanged;
+};
+
+template<class T>
+class StateDoubleBufferData
+{
+public:
+    using TPtr = SharedPointer<T>;
+    StateDoubleBufferData(const TPtr& source, const TPtr& immutable)
+        : m_immutableData(::make_shared<StateImmutableData<T>>(immutable))
+        , m_data(source)
+        , Enabled(m_immutableData->Enabled)
+    {
+        Enabled.OnChange += { this, [this, source]{
+            if(Enabled) {
+                m_immutableData->AttachSwap(source);
+            } else {
+                m_immutableData->AttachCopy(nullptr);
+            }
+        }};
+    }
+
+    const TPtr& EditData() { return m_data; }
+    const TPtr& GetData() const { return m_data; }
+    const StateImmutableDataPtr<T>& GetImmutableData() const { return m_immutableData; }
+
+private:
+    StateImmutableDataPtr<T> m_immutableData;
+    TPtr m_data;
+
+public:
+    LocalPropertyBool& Enabled;
 };
 
 #endif // STATEPROPERTY_H
