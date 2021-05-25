@@ -487,23 +487,29 @@ public:
     LocalPropertyBoolCommutator(bool defaultState = false, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
         : Super(defaultState)
         , m_commutator(msecs, threadHandler)
+        , m_defaultState(defaultState)
     {
-        m_commutator += { this, [defaultState, this]{
-            bool result = defaultState;
-            bool oppositeState = !result;
-            for(auto* property : m_properties) {
-                if(*property == oppositeState) {
-                    result = oppositeState;
-                    break;
-                }
-            }
-            SetValue(result);
+        m_commutator += { this, [this]{
+            Update();
         }};
     }
 
     void ClearProperties()
     {
         m_properties.clear();
+    }
+
+    void Update()
+    {
+        bool result = m_defaultState;
+        bool oppositeState = !result;
+        for(auto* property : m_properties) {
+            if(*property == oppositeState) {
+                result = oppositeState;
+                break;
+            }
+        }
+        SetValue(result);
     }
 
     DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
@@ -520,6 +526,7 @@ private:
     DelayedCallDispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
     QVector<LocalProperty<bool>*> m_properties;
+    bool m_defaultState;
 };
 
 template<class T>
