@@ -383,3 +383,23 @@ DDFooter QLabel{
 OffsetView {
     padding: 10px 10px 10px 10px;
 }
+
+WPSCLicenseDialog QLabel#State {
+    color: red;
+}
+
+MenuBar QLabel#ExpiryTimeIcon {
+    color: #9d9d9d;
+    background: transparent;
+    max-height: 10px;
+    max-width: 10px;
+    min-height: 10px;
+    min-width: 10px;
+    margin-left: 50px;
+}
+
+MenuBar QLabel#ExpiryTimeDesc {
+    color: #9d9d9d;
+    background: transparent;
+    margin-left: 5px;
+}

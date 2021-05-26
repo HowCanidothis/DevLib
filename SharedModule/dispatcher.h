@@ -96,6 +96,12 @@ public:
             connection.MakeSafe(safeConnections);
         }
     }
+
+    void MakeSafeReset(DispatcherConnectionsSafe& safeConnections)
+    {
+        safeConnections.clear();
+        MakeSafe(safeConnections);
+    }
 };
 
 template<typename ... Args>

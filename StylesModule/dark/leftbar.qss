@@ -36,8 +36,6 @@ QPushButton#BtnClose:hover {
     image: url(":/menu_bar/close-hover.svg");
 }
 
-
-
 LeftBar QFrame {
     background: white;
     min-width: 1;
