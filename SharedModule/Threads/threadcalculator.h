@@ -79,7 +79,9 @@ public:
                 });
             }, EPriority::Low);
             m_latestTask.Then([data](bool){
-                data->ReleaserHandler();
+                data->Handler([data]{
+                    data->ReleaserHandler();
+                });
             });
         });
     }
