@@ -9,6 +9,7 @@ struct ThreadCalculatorData
 {
     using Calculator = std::function<T ()>;
     using Preparator = FAction;
+    using Releaser = FAction;
 
     std::atomic_bool Destroyed = false;
     bool NeedRecalculate = false;
@@ -16,6 +17,7 @@ struct ThreadCalculatorData
     ThreadHandler Handler;
     Calculator CalculatorHandler = []{ return T(); };
     Preparator PreparatorHandler = []{};
+    Releaser ReleaserHandler = []{};
 
     ThreadCalculatorData(const ThreadHandler& handler)
         : Handler(handler)
@@ -38,14 +40,17 @@ public:
     {}
     ~ThreadCalculator()
     {
+        m_latestTask.Resolve(false);
         SafeQuit();
     }
 
-    void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{})
+    void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
+                   const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
-        m_data->Handler([this, calculator, preparator]{
+        m_data->Handler([this, calculator, preparator, releaser]{
             m_data->PreparatorHandler = preparator;
             m_data->CalculatorHandler = calculator;
+            m_data->ReleaserHandler = releaser;
 
             if(m_data->Calculating) {
                 m_data->NeedRecalculate = true;
@@ -55,7 +60,7 @@ public:
             m_data->Calculating = true;
             m_data->PreparatorHandler();
             auto data = m_data;
-            ThreadsBase::Async([this, data, calculator]{
+            m_latestTask = ThreadsBase::Async([this, data, calculator]{
                 auto result = calculator();
                 data->Handler([this, result, data]{
                     if(data->Destroyed) {
@@ -73,6 +78,9 @@ public:
                     }
                 });
             }, EPriority::Low);
+            m_latestTask.Then([data](bool){
+                data->ReleaserHandler();
+            });
         });
     }
 
@@ -89,6 +97,7 @@ protected:
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;
+    AsyncResult m_latestTask;
 };
 
 #endif // THREADCALCULATOR_H

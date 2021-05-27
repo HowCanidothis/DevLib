@@ -106,7 +106,7 @@ public:
                 m_onChanged += { this, [this, recalculateOnEnabled]{
                     Valid.SetState(false);
                     if(m_dependenciesAreUpToDate) {
-                        Calculate(m_calculator, m_preparator);
+                        Calculate(m_calculator, m_preparator, m_releaser);
                     } else {
                         OnCalculationRejected();
                     }
@@ -134,10 +134,12 @@ public:
         m_dependenciesAreUpToDate.ClearProperties();
     }
 
-    void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{})
+    void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
+                       const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
         m_preparator = preparator;
         m_calculator = calculator;
+        m_releaser = releaser;
     }
 
     template<class T2>
@@ -189,14 +191,16 @@ protected:
     }
 
 private:
-    void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{})
+    void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
+                   const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
-        Super::Calculate(calculator, preparator);
+        Super::Calculate(calculator, preparator, releaser);
     }
 
 private:
     typename ThreadCalculatorData<T>::Calculator m_calculator;
     typename ThreadCalculatorData<T>::Preparator m_preparator;
+    typename ThreadCalculatorData<T>::Releaser m_releaser;
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;

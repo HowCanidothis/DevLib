@@ -50,14 +50,16 @@ void Thread::run()
 
     eventDispatcher()->processEvents(QEventLoop::AllEvents);
 
-    try
-    {
-        m_task->Task();
-        m_task->Result.Resolve(true);
-    }
-    catch (...)
-    {
-        m_task->Result.Resolve(false);
+    if(!m_task->Result.IsResolved()) {
+        try
+        {
+            m_task->Task();
+            m_task->Result.Resolve(true);
+        }
+        catch (...)
+        {
+            m_task->Result.Resolve(false);
+        }
     }
 
     ThreadTaskDesc* nextTask = m_pool->takeTask();
