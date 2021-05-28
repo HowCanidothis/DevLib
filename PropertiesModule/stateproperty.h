@@ -377,4 +377,37 @@ public:
     LocalPropertyBool& Enabled;
 };
 
+class StateUpdateObjectResult
+{
+public:
+    static AsyncResult GenerateUpdateResult(const StateProperty* valid, Dispatcher* onDeleted)
+    {
+        AsyncResult updatedResult;
+        auto* nonConst = const_cast<StateProperty*>(valid);
+        if(*valid) {
+            nonConst->OnChange.OnFirstInvoke([updatedResult, valid, onDeleted]{
+                generateUpdateResult(valid, onDeleted, updatedResult);
+            });
+        } else {
+            generateUpdateResult(valid, onDeleted, updatedResult);
+        }
+        return updatedResult;
+    }
+
+private:
+    static void generateUpdateResult(const StateProperty* valid, Dispatcher* onDeleted, const AsyncResult& updatedResult)
+    {
+        auto connections = ::make_shared<DispatcherConnectionsSafe>();
+        auto* nonConst = const_cast<StateProperty*>(valid);
+        nonConst->OnChange.OnFirstInvoke([updatedResult, connections]{
+            connections->clear();
+            updatedResult.Resolve(true);
+        });
+        onDeleted->Connect(nullptr, [connections, updatedResult]{
+            connections->clear();
+            updatedResult.Resolve(false);
+        }).MakeSafe(*connections);
+    }
+};
+
 #endif // STATEPROPERTY_H
