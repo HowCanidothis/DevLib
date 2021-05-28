@@ -146,7 +146,7 @@ void ToolTipArrowWidget::updateLocation()
         break;
     }
 
-    auto visible = parentWidget()->rect().contains(geometry) && m_targetWidget->isVisibleTo(parentWidget());
+    auto visible = parentWidget()->rect().contains(geometry) && m_targetWidget->isVisible();
     if(visible) {
         setGeometry(geometry);
     }

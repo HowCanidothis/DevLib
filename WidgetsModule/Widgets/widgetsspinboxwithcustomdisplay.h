@@ -29,4 +29,28 @@ private:
     ValueFromTextHandler m_valueFromTextHandler;
 };
 
+class WidgetsDoubleSpinBoxWithCustomDisplay : public QDoubleSpinBox
+{
+    using Super = QDoubleSpinBox;
+public:
+    using ValueFromTextHandler = std::function<double (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, const QString&)>;
+    using TextFromValueHandler = std::function<QString (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double)>;
+    WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
+
+    void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
+    {
+        m_textFromValueHandler = textFromValueHandler;
+        m_valueFromTextHandler = valueFromTextHandler;
+    }
+
+private:
+    QString textFromValue(double val) const override;
+    double valueFromText(const QString& text) const override;
+    QValidator::State validate(QString& input, int& pos) const override;
+
+private:
+    TextFromValueHandler m_textFromValueHandler;
+    ValueFromTextHandler m_valueFromTextHandler;
+};
+
 #endif // WIDGETSSPINBOXWITHCUSTOMDISPLAY_H
