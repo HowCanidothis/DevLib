@@ -17,6 +17,18 @@ ads--CFloatingDockContainer {
     padding: 0px;
 }
 
+ads--CDockAreaTabBar
+{
+    background: #D4D4D4;
+}
+
+QScrollBar#ADSTabAreaHorizontalScrollBar
+{
+    min-height: 3px;
+    max-height: 3px;
+    background: #D4D4D4;
+}
+
 ads--CDockWidgetTab
 {
     background: #F3F3F3;
@@ -137,15 +149,15 @@ QWidget #detachGroupButton {
 }
 
 QWidget #tabsMenuButton:hover {
-    background: #EAF5FF;
+    background: #ececec;
 }
 
 QWidget #dockAreaCloseButton:hover {
-    background: #EAF5FF;
+    background: #ececec;
 }
 
 QWidget #detachGroupButton:hover {
-    background: #EAF5FF;
+    background: #ececec;
 }
 
 ads--CDockManager {

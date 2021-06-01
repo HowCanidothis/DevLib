@@ -17,6 +17,18 @@ ads--CFloatingDockContainer {
     padding: 0px;
 }
 
+ads--CDockAreaTabBar
+{
+    background: #3c3c3c;
+}
+
+QScrollBar#ADSTabAreaHorizontalScrollBar
+{
+    min-height: 3px;
+    max-height: 3px;
+    background: #3c3c3c;
+}
+
 ads--CDockWidgetTab
 {
     background: #2d2d2d;

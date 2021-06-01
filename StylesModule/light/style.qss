@@ -351,7 +351,7 @@ QToolButton {
 }
 
 QToolButton:hover {
-  background: #505050;
+  background: #ececec;
 }
 
 QComboBox {
@@ -509,7 +509,7 @@ QTabWidget::pane {
 }
 
 QTabBar::tab:top:!selected {
-  background: #2d2d2d;
+  background: #F3F3F3;
 }
 
 QTabBar::tab:top:selected {
@@ -540,7 +540,7 @@ QTableView,
 QColumnView {
   background: white;
   color: #414141;
-  gridline-color: #414141;
+  gridline-color: #F3F3F3;
 }
 
 QTreeView:disabled,

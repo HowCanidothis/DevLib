@@ -7,6 +7,63 @@
 #include <QClipboard>
 #include <QApplication>
 
+WidgetsLocalPropertyColorWrapper::WidgetsLocalPropertyColorWrapper(QWidget* widget, const Stack<WidgetsLocalPropertyColorWrapperColorMap>& colorMap)
+    : m_widget(widget)
+{
+    widget->installEventFilter(this);
+    connect(widget, &QWidget::destroyed, [this]{
+        delete this;
+    });
+
+    m_properties.Swap(const_cast<Stack<WidgetsLocalPropertyColorWrapperColorMap>&>(colorMap));
+
+    for(auto& propertyMap : m_properties) {
+        propertyMap.Color->OnChange.Connect(this, [this]{
+            m_updateLater.Call([this]{
+                polish();
+            });
+        }).MakeSafe(m_connections);
+    }
+}
+
+bool WidgetsLocalPropertyColorWrapper::eventFilter(QObject*, QEvent* e)
+{
+    if(e->type() == QEvent::StyleChange) {
+        m_updateLater.Call([this]{
+            polish();
+        });
+    }
+    return false;
+}
+
+void WidgetsLocalPropertyColorWrapper::polish()
+{
+    auto pal = m_widget->palette();
+    for(const auto& propertyMap : m_properties) {
+        pal.setColor((QPalette::ColorRole)propertyMap.Role, *propertyMap.Color);
+    }
+    m_widget->setPalette(pal);
+}
+
+WidgetsObserver::WidgetsObserver()
+{
+    qApp->installEventFilter(this);
+}
+
+WidgetsObserver& WidgetsObserver::GetInstance()
+{
+    static WidgetsObserver res;
+    return res;
+}
+
+bool WidgetsObserver::eventFilter(QObject *watched, QEvent *e)
+{
+    if(e->type() == QEvent::ChildAdded) {
+        OnAdded(watched);
+    }
+    return false;
+}
+
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
 {
     if(widget->isVisibleTo(widget->parentWidget()) == visible) {

@@ -1,7 +1,8 @@
 MainWindow {
-    qproperty-visualizationTextColor: black;
+    qproperty-visualizationTextColor: #3C3C3C;
     qproperty-visualizationTextBorderColor: white;
     qproperty-visualizationBackgroundColor: white;
     qproperty-visualizationBoxColor: #F3F3F3;
     qproperty-visualizationAxisColor: #3C3C3C;
+    qproperty-placeHolderColor: #d4d4d4;
 }

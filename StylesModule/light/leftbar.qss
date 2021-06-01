@@ -1,34 +1,30 @@
 MenuBar {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 MenuBar MenuBarMovePane {
     border: none;
-    background: #3C3C3C;
-}
-
-MenuBarMovePane QLabel#Title {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 QPushButton#BtnMinimize {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 QPushButton#BtnMaximize {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 QPushButton#BtnClose {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 QPushButton#BtnMinimize:hover {
-    background: #505050;
+    background: #ececec;
 }
 
 QPushButton#BtnMaximize:hover {
-    background: #505050;
+    background: #ececec;
 }
 
 QPushButton#BtnClose:hover {
@@ -37,7 +33,7 @@ QPushButton#BtnClose:hover {
 }
 
 LeftBar QFrame {
-    background: white;
+    background: #F3F3F3;
     min-width: 1;
 }
 
@@ -46,11 +42,19 @@ LeftBar {
 }
 
 MenuBar {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 MenuBar QWidget#Menus{
-    background: #3C3C3C;
+    background: #F3F3F3;
+}
+
+MenuBar QMenuBar::item {
+    background: #F3F3F3;
+}
+
+MenuBar QMenuBar::item:selected {
+    background: #ececec;
 }
 
 QWidget[errorSelection="true"]{
@@ -69,11 +73,16 @@ TreeBar QLabel#Title {
 }
 
 MenuBar QLabel#LogoIcon {
-    background: #3C3C3C;
+    background: #F3F3F3;
+}
+
+MenuBarMovePane QLabel#Title {
+    background: #F3F3F3;
+    color: #9d9d9d;
 }
 
 MenuBarMovePane QLabel#Icon {
-    background: #3C3C3C;
+    background: #F3F3F3;
 }
 
 WidgetsEditingObjectSaveCancelButtons {

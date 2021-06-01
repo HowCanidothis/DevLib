@@ -1,6 +1,43 @@
 #ifndef WIDGETHELPERS_H
 #define WIDGETHELPERS_H
 
+#include <PropertiesModule/internal.hpp>
+
+struct WidgetsLocalPropertyColorWrapperColorMap
+{
+    qint32 Role;
+    LocalPropertyColor* Color;
+};
+Q_DECLARE_TYPEINFO(WidgetsLocalPropertyColorWrapperColorMap, Q_PRIMITIVE_TYPE);
+
+class WidgetsLocalPropertyColorWrapper : public QObject
+{
+public:
+    WidgetsLocalPropertyColorWrapper(QWidget* widget, const Stack<WidgetsLocalPropertyColorWrapperColorMap>& colorMap);
+
+private:
+    void polish();
+    bool eventFilter(QObject* watched, QEvent* e) override;
+
+private:
+    Stack<WidgetsLocalPropertyColorWrapperColorMap> m_properties;
+    QWidget* m_widget;
+    DelayedCallObject m_updateLater;
+    DispatcherConnectionsSafe m_connections;
+};
+
+class WidgetsObserver : public QObject
+{
+    WidgetsObserver();
+public:
+    static WidgetsObserver& GetInstance();
+
+    CommonDispatcher<QObject*> OnAdded;
+
+private:
+    bool eventFilter(QObject* watched, QEvent* e) override;
+};
+
 struct WidgetAppearance
 {
     static void SetVisibleAnimated(QWidget* widget, bool visible);

@@ -4,4 +4,5 @@ MainWindow {
     qproperty-visualizationBackgroundColor: #1e1e1e;
     qproperty-visualizationBoxColor: #252526;
     qproperty-visualizationAxisColor: #858585;
+    qproperty-placeHolderColor: #4d4d4d;
 }

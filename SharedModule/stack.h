@@ -172,6 +172,11 @@ public:
         return *(Begin() + index);
     }
 
+    void Swap(Stack& other)
+    {
+        std::swap(other.d, d);
+    }
+
     void Resize(count_t count)
     {
         detachCopy();
@@ -246,6 +251,11 @@ public:
             for(T* v : *this)
                 delete v;
         }
+    }
+
+    void Swap(StackPointers& other)
+    {
+        std::swap(other.d, this->d);
     }
 
     void Clear() {

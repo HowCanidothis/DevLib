@@ -186,8 +186,14 @@ void GtCamera::Zoom(bool closer)
             isometricScale = Point2F(1.f,1.f) / m_isometricCoef;
         }
         isometricScale *= closer ? 0.75f : 1.25f;
-        auto distance = isometricScale.x() * isometricScale.x();
-        if(distance > m_far) {
+        auto distance = isometricScale.x() * m_isometricCoef.x();
+        auto trueDistance = distance * m_isometricExtraScale.x();
+        auto far95 = m_far * 0.95f;
+        if(trueDistance > far95) {
+            distance = distance * far95 / trueDistance;
+            isometricScale = Point2F(distance, distance) / m_isometricCoef;
+        }
+        if(qFuzzyCompare(m_isometricScale,isometricScale)) {
             return;
         }
         m_isometricScale = isometricScale;
