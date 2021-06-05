@@ -21,6 +21,7 @@ using GtRendererControllerPtr = SharedPointer<class GtRendererController>;
 using GtFontPtr = SharedPointer<class GtFont>;
 using GtRenderProperties = QHash<Name, QVariant>;
 using GtDrawableBasePtr = SharedPointer<class GtDrawableBase>;
+using GtRenderPathPtr = SharedPointer<class GtRenderPath>;
 
 struct GtDrawableDeleter
 {

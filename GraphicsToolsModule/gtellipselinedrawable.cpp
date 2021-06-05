@@ -69,9 +69,7 @@ void GtEllipseLineDrawable::draw(OpenGLFunctions* f)
     }
 
     f->glLineWidth(Width);
-    disableDepthTest();
     m_material->Draw(f);
-    enableDepthTest();
     f->glLineWidth(10.f);
 }
 

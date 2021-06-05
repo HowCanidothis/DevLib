@@ -47,8 +47,16 @@ protected:
     }
 };
 
-class GtCameraFocus;
 class GtCamera;
+
+class GtCameraFocus
+{
+    Point3F m_scenePoint;
+public:
+    GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth);
+    GtCameraFocus(GtCamera* target, const Point3F& scenePoint);
+    const Point3F& GetScenePoint() const { return m_scenePoint; }
+};
 
 class GtCamera : public GtCameraState
 {

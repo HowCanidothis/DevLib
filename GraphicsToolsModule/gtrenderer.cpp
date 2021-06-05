@@ -8,6 +8,7 @@
 
 #include "GraphicsToolsModule/Objects/gtshaderprogram.h"
 #include "gtrenderercontroller.h"
+#include "gtrenderpath.h"
 
 GtRendererSharedData::GtRendererSharedData(GtRenderer* base)
     : BaseRenderer(base)
@@ -39,6 +40,7 @@ void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sou
 void GtRenderer::construct()
 {
     m_queueNumber = 0;
+    m_standardMeshs = new GtStandardMeshs();
 }
 
 void GtRenderer::enableDepthTest()
@@ -293,11 +295,13 @@ bool GtRenderer::onInitialize()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    m_standardMeshs->initialize(this);
+
     for(const auto& controller : m_controllers) {
         controller->onInitialize();
     }
 
-    OnInitialized();
+    OnInitialized.Resolve(true);
 
     return true;
 }
@@ -375,7 +379,8 @@ void GtRenderer::onDraw()
             } else {
                 glEnable(GL_DEPTH_TEST);
             }
-            m_scene->draw(this);
+            controller->m_renderPath->Render(m_scene.get(), fbo->handle());
+            //m_scene->DrawAll(this);
             controller->draw(this);
             for(const auto& draws : m_delayedDraws) {
                 draws();
@@ -390,7 +395,7 @@ void GtRenderer::onDraw()
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = true;
             glEnable(GL_DEPTH_TEST);
 
-            m_scene->drawDepth(this);
+            m_scene->DrawDepth(this);
             controller->drawDepth(this);
 
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = false;
@@ -407,6 +412,7 @@ void GtRenderer::onDraw()
 
 void GtRenderer::onDestroy()
 {
+    m_standardMeshs = nullptr;
     m_scene = nullptr;
     for(const auto& controller : m_controllers) {
         controller->onDestroy();

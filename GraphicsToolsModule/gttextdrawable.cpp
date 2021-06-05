@@ -157,10 +157,8 @@ void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)
 
 void GtTextDrawable::draw(OpenGLFunctions* f)
 {
-    disableDepthTest();
     m_material.Draw(f);
-    enableDepthTest();
-    f->glPointSize(10.f);
+    f->glPointSize(10.f); // TODO. ?
 }
 
 void GtTextDrawable::drawDepth(OpenGLFunctions* )
@@ -248,9 +246,7 @@ void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
 
 void GtTextScreenDrawable::draw(OpenGLFunctions* f)
 {
-    disableDepthTest();
     m_material.Draw(f);
-    enableDepthTest();
     f->glPointSize(10.f);
 }
 

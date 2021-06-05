@@ -22,6 +22,7 @@
 #include "gtrenderercontroller.h"
 #include "gtellipselinedrawable.h"
 #include "gtlinesdrawable.h"
+#include "gtrenderpath.h"
 #endif
 
 #endif // INTERNAL_HPP

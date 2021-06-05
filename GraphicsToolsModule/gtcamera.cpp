@@ -36,6 +36,13 @@ GtCameraState::GtCameraState()
 
 }
 
+GtCameraFocus::GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth)
+    : m_scenePoint(qFuzzyCompare((double)depth, 1.0) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
+{}
+GtCameraFocus::GtCameraFocus(GtCamera*, const Point3F& scenePoint)
+    : m_scenePoint(scenePoint)
+{}
+
 class GtCameraStateSaver : protected GtCameraState
 {
     GtCamera* camera;
@@ -43,20 +50,6 @@ public:
     GtCameraStateSaver(GtCamera* camera) : camera(camera) { clone(this, camera); camera->m_state.AddFlag(State_PredictionMode); }
     ~GtCameraStateSaver() { clone(camera, this); }
 };
-
-class GtCameraFocus
-{
-    Point3F m_scenePoint;
-public:
-    GtCameraFocus(GtCamera* target, const Point2I& screenPoint, float depth)
-        : m_scenePoint(qFuzzyCompare((double)depth, 1.0) ? target->Unproject(screenPoint, 0.9999) : target->Unproject(screenPoint,depth))
-    {}
-    GtCameraFocus(GtCamera* target, const Point3F& scenePoint)
-        : m_scenePoint(scenePoint)
-    {}
-    const Point3F& GetScenePoint() const { return m_scenePoint; }
-};
-
 
 GtCamera::GtCamera()
     : m_near(1.f)
@@ -188,11 +181,12 @@ void GtCamera::Zoom(bool closer)
         isometricScale *= closer ? 0.75f : 1.25f;
         auto distance = isometricScale.x() * m_isometricCoef.x();
         auto trueDistance = distance * m_isometricExtraScale.x();
-        auto far95 = m_far * 0.95f;
-        if(trueDistance > far95) {
-            distance = distance * far95 / trueDistance;
+        auto far90 = m_far * 0.90f;
+        if(trueDistance > far90) {
+            distance = distance * far90 / trueDistance;
             isometricScale = Point2F(distance, distance) / m_isometricCoef;
         }
+        qDebug() << m_eye << m_focus->GetScenePoint() << distance << "BEFORE";
         if(qFuzzyCompare(m_isometricScale,isometricScale)) {
             return;
         }
@@ -201,6 +195,7 @@ void GtCamera::Zoom(bool closer)
 
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
+        qDebug() << m_eye << m_focus->GetScenePoint() << distance;
     } else {
         float denum = closer ? 4.f : -4.f;
         Point3F neye = m_eye + ray / denum;

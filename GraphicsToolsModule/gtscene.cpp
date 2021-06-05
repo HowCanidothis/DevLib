@@ -15,7 +15,20 @@ GtScene::~GtScene()
     }
 }
 
-void GtScene::draw(OpenGLFunctions* f)
+void GtScene::DrawFilter(OpenGLFunctions* f, const std::function<bool (qint32)>& filter)
+{
+    auto it = m_drawables.cbegin();
+    while(it != m_drawables.cend()) {
+        if(filter(it.key())) {
+            for(auto* drawable : it.value()) {
+                drawable->draw(f);
+            }
+        }
+        it++;
+    }
+}
+
+void GtScene::DrawAll(OpenGLFunctions* f)
 {
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
@@ -24,7 +37,17 @@ void GtScene::draw(OpenGLFunctions* f)
     }
 }
 
-void GtScene::drawDepth(OpenGLFunctions* f)
+void GtScene::Draw(qint32 queue, OpenGLFunctions* f)
+{
+    auto foundIt = m_drawables.find(queue);
+    if(foundIt != m_drawables.end()) {
+        for(auto* drawable : *foundIt){
+            drawable->draw(f);
+        }
+    }
+}
+
+void GtScene::DrawDepth(OpenGLFunctions* f)
 {
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {

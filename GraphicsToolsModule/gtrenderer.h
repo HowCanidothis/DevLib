@@ -77,6 +77,7 @@ public:
     void AddDrawable(GtDrawableBase* drawable) { AddDrawable(drawable, m_queueNumber); }
     void RemoveDrawable(GtDrawableBase* drawable);
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
+    const class GtStandardMeshs& GetStandardMeshs() const { return *m_standardMeshs; }
 
     ThreadHandler CreateThreadHandler();
 
@@ -84,7 +85,7 @@ public:
 
     bool IsBaseRenderer() const { return m_sharedData->BaseRenderer == this; }
 
-    Dispatcher OnInitialized;
+    AsyncResult OnInitialized;
     Dispatcher OnAboutToBeDestroyed;
 
 private:
@@ -106,6 +107,7 @@ private:
     friend class GtFont;
     friend class GtRendererController;
     friend class GtDrawableBase;
+    friend class GtRenderPath;
 
     QVector<GtRendererControllerPtr> m_controllers;
     ScopedPointer<QImage> m_outputImage;
@@ -121,6 +123,7 @@ private:
     SharedPointer<Resource<Vector3F>> m_up;
     SharedPointer<Resource<Vector2F>> m_screenSize;
     SharedPointer<Resource<GtCamera*>> m_camera;
+    ScopedPointer<GtStandardMeshs> m_standardMeshs;
 
     qint32 m_queueNumber;
 

@@ -57,7 +57,7 @@ public:
 
     void* Map(qint32 offset, qint32 count, QOpenGLBuffer::RangeAccessFlags flags);
     bool UnMap();
-    void Initialize(OpenGLFunctions* f);
+    virtual void Initialize(OpenGLFunctions* f);
     void UpdateVao(OpenGLFunctions* f) { m_vaoBinder(f); }
     void Clear();
     VertexType GetType() const { return m_vertexType; }
@@ -145,5 +145,21 @@ public:
 protected:
     GtMeshBufferPtr m_indicesBuffer;
 };
+
+class GtStandardMeshs
+{
+    friend class GtRenderer;
+    GtStandardMeshs();
+public:
+    const GtMeshPtr& GetQuadMesh2D() const { return m_quad2DMesh; }
+
+private:
+    void initialize(OpenGLFunctions* f);
+    void reset(OpenGLFunctions* f);
+
+private:
+    GtMeshPtr m_quad2DMesh;
+};
+
 
 #endif // GTMESH_H

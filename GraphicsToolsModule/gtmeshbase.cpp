@@ -2,6 +2,8 @@
 
 #include <QOpenGLVertexArrayObject>
 
+#include "gtmeshquad2D.h"
+
 void GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized)
 {
     qint32 attributeIndex = m_currentIndex;
@@ -213,4 +215,14 @@ void GtMeshIndices::Draw(gRenderType renderType, OpenGLFunctions* f)
     QOpenGLVertexArrayObject::Binder binder(m_buffer->GetVaoObject());
     m_indicesBuffer->GetVboObject()->bind();
     f->glDrawElements(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, (const void*)0);
+}
+
+GtStandardMeshs::GtStandardMeshs()
+    : m_quad2DMesh(::make_shared<GtMesh>(GtMeshBufferQuad2D::Create()))
+{
+}
+
+void GtStandardMeshs::initialize(OpenGLFunctions* f)
+{
+    m_quad2DMesh->GetBuffer()->Initialize(f);
 }

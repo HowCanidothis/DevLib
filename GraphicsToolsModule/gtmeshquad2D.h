@@ -2,16 +2,15 @@
 #define GTMESHQUAD2D_H
 #include "gtmeshbase.h"
 
-class GtMeshQuad2D : public GtMesh
+class GtMeshBufferQuad2D : public GtMeshBuffer
 {
-    GtMeshQuad2D(OpenGLFunctions* f);
+    friend class GtStandardMeshs;
+    using Super = GtMeshBuffer;
+    GtMeshBufferQuad2D();
+    void Initialize(OpenGLFunctions* f) override;
 
 public:
-    static GtMeshQuad2D* Instance(OpenGLFunctions* f);
-
-    // GtMeshBase interface
-protected:
-    void updateBuffer();
+    static GtMeshBufferPtr Create();
 };
 
 #endif // GTQUADMESH_H

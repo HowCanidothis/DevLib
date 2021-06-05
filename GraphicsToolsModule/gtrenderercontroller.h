@@ -189,6 +189,7 @@ public:
     void RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable);
     void ClearQueue(qint32 queueNumber);
 
+    void SetRenderPath(const GtRenderPathPtr& renderPath);
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
     void SetProjectionProperties(float angle, float nearValue, float farValue);
@@ -238,6 +239,9 @@ private:
 
     ScopedPointer<class GtFramebufferObjectBase> m_depthFbo;
     ScopedPointer<class QOpenGLFramebufferObject> m_fbo;
+    ScopedPointer<class QOpenGLFramebufferObject> m_nonTransparent;
+    ScopedPointer<class QOpenGLFramebufferObject> m_transparent;
+    ScopedPointer<class QOpenGLFramebufferObject> m_transparentAlpha;
     double m_renderTime;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
@@ -246,6 +250,7 @@ private:
     SizeF m_visibleSize;
     DelayedCallObject m_resize;
     bool m_dirty;
+    GtRenderPathPtr m_renderPath;
 };
 
 #endif // GTRENDERERCONTROLLER_H

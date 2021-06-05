@@ -14,6 +14,7 @@
 #include "gtcamera.h"
 #include "decl.h"
 #include "gtrenderer.h"
+#include "gtrenderpath.h"
 
 GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera* camera)
     : m_camera(camera)
@@ -114,6 +115,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_cameraAnimationEngine(renderer, m_camera.get())
     , m_resize(100, renderer->CreateThreadHandler())
     , m_dirty(true)
+    , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -121,7 +123,9 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
 
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
+
     m_renderer->OnAboutToBeDestroyed.Connect(this, [this]{
+        m_renderPath = nullptr;
         for(const auto& queue : m_drawables) {
             for(auto* drawable : queue) {
                 drawable->Destroy();
@@ -161,6 +165,7 @@ GtRendererController::~GtRendererController()
     if(m_renderer != nullptr) {
         FutureResult result;
         result += m_renderer->Asynch([this]{
+            m_renderPath = nullptr;
             for(const auto& queue : m_drawables) {
                 for(auto* drawable : queue) {
                     drawable->Destroy();
@@ -312,13 +317,20 @@ void GtRendererController::drawDepth(OpenGLFunctions* f)
     }
 }
 
+void GtRendererController::SetRenderPath(const GtRenderPathPtr& renderPath)
+{
+    m_renderPath = renderPath;
+}
+
 void GtRendererController::onInitialize()
 {
     m_controllersContext->DepthBuffer = new GtDepthBuffer(m_renderer);
+    m_renderPath->Initialize();
 }
 
 void GtRendererController::onDestroy()
 {
+    m_renderPath = nullptr;
     m_depthFbo = nullptr;
     m_fbo = nullptr;
     m_renderer = nullptr;
@@ -327,13 +339,13 @@ void GtRendererController::onDestroy()
 void GtRendererController::Resize(qint32 w, qint32 h)
 {
     m_resize.Call([this, w, h]{
+        m_renderPath->Resize(w, h, m_renderer->m_surfaceFormat.samples());
         GtFramebufferFormat depthFboFormat;
         depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);
 
         auto depthFbo = new GtFramebufferObject(m_renderer, {w,h});
         depthFbo->Create(depthFboFormat);
         m_depthFbo = depthFbo;
-
 
         QOpenGLFramebufferObjectFormat format;
         format.setSamples(m_renderer->m_surfaceFormat.samples());
