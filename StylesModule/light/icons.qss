@@ -2,6 +2,6 @@ MainWindow {
     qproperty-iconPlanColor: #007acc;
     qproperty-iconPrototypeColor: #007acc;
     qproperty-iconSurveyColor: #ff3b30;
-    qproperty-iconNetworkOnlineColor: white;
+    qproperty-iconNetworkOnlineColor: #22b14c;
     qproperty-iconNetworkOfflineColor: #ff3b30;
 }
