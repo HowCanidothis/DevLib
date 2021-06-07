@@ -33,9 +33,9 @@ QMainWindow::separator:hover {
 }
 
 QToolTip {
-  background-color: #007acc;
-  border: 1px solid #1E1E1E;
-  color: #1E1E1E;
+  background-color: #1E1E1E;
+  border: 1px solid white;
+  color: white;
 }
 
 QStatusBar {

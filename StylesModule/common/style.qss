@@ -37,6 +37,7 @@ QMainWindow::separator:vertical {
 
 QToolTip {
   padding: 0px;
+  font-family: "Lato";
 }
 
 QStatusBar::item {
