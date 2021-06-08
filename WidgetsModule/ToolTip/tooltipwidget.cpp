@@ -24,7 +24,7 @@ ToolTipWidget::~ToolTipWidget()
 
 }
 
-void ToolTipWidget::SetContent(QWidget* content)
+void ToolTipWidget::SetContent(QWidget* content, bool deletePrevious)
 {
     if(m_content == content) {
         return;
@@ -38,6 +38,9 @@ void ToolTipWidget::SetContent(QWidget* content)
                 break;
             }
         }
+    }
+    if(deletePrevious) {
+        delete m_content;
     }
     m_content = content;
     layout()->addWidget(m_content);

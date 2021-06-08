@@ -186,7 +186,6 @@ void GtCamera::Zoom(bool closer)
             distance = distance * far90 / trueDistance;
             isometricScale = Point2F(distance, distance) / m_isometricCoef;
         }
-        qDebug() << m_eye << m_focus->GetScenePoint() << distance << "BEFORE";
         if(qFuzzyCompare(m_isometricScale,isometricScale)) {
             return;
         }
@@ -195,7 +194,6 @@ void GtCamera::Zoom(bool closer)
 
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
-        qDebug() << m_eye << m_focus->GetScenePoint() << distance;
     } else {
         float denum = closer ? 4.f : -4.f;
         Point3F neye = m_eye + ray / denum;

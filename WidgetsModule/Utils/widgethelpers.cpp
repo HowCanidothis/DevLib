@@ -36,6 +36,18 @@ bool WidgetsLocalPropertyColorWrapper::eventFilter(QObject*, QEvent* e)
     return false;
 }
 
+WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWidget* widget)
+    : Visible(true)
+{
+    connect(widget, &QWidget::destroyed, [this]{
+        delete this;
+    });
+    Visible.OnChange.Connect(this, [this, widget]{
+        widget->setVisible(Visible);
+    }).MakeSafe(m_connections);
+    widget->setVisible(Visible);
+}
+
 void WidgetsLocalPropertyColorWrapper::polish()
 {
     auto pal = m_widget->palette();
@@ -62,6 +74,11 @@ bool WidgetsObserver::eventFilter(QObject *watched, QEvent *e)
         OnAdded(watched);
     }
     return false;
+}
+
+DispatcherConnection WidgetAppearance::ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child)
+{
+    return child->Visible.ConnectFrom(base->Visible);
 }
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
@@ -151,4 +168,3 @@ void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
     QClipboard* clipboard = qApp->clipboard();
     clipboard->setText(text);
 }
-

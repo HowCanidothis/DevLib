@@ -162,6 +162,7 @@ bool ToolTipArrowWidget::eventFilter(QObject*, QEvent* event)
         updateLocation();
         break;
     case QEvent::Show:
+        updateLocation();
         show();
         break;
     case QEvent::Hide:

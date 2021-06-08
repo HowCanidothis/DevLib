@@ -13,7 +13,7 @@ public:
     ToolTipWidget(QWidget* parent);
     ~ToolTipWidget();
 
-    void SetContent(QWidget* content);
+    void SetContent(QWidget* content, bool deletePrevious = true);
     virtual void SetTarget(const QPoint& target);
 
     LocalProperty<QPoint> OffsetFromTarget;

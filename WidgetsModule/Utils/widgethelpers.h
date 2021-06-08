@@ -10,6 +10,28 @@ struct WidgetsLocalPropertyColorWrapperColorMap
 };
 Q_DECLARE_TYPEINFO(WidgetsLocalPropertyColorWrapperColorMap, Q_PRIMITIVE_TYPE);
 
+template<class T>
+class WidgetsLocalPropertyDecimalDisplay : public LocalPropertyLimitedDecimal<T>
+{
+    using Super = LocalPropertyLimitedDecimal<T>;
+public:
+    WidgetsLocalPropertyDecimalDisplay(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)())
+        : Super(value, min, max)
+    {
+        auto update = [this]{
+            DisplayValue.SetMinMax(*this, *this);
+        };
+        this->OnChange.Connect(this, update);
+        update();
+    }
+
+    WidgetsLocalPropertyDecimalDisplay& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
+    WidgetsLocalPropertyDecimalDisplay& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
+    WidgetsLocalPropertyDecimalDisplay& operator=(const T& value) { SetValue(value); return *this; }
+
+    LocalPropertyLimitedDecimal<T> DisplayValue;
+};
+
 class WidgetsLocalPropertyColorWrapper : public QObject
 {
 public:
@@ -23,6 +45,18 @@ private:
     Stack<WidgetsLocalPropertyColorWrapperColorMap> m_properties;
     QWidget* m_widget;
     DelayedCallObject m_updateLater;
+    DispatcherConnectionsSafe m_connections;
+};
+
+class WidgetsLocalPropertyVisibilityWrapper : public QObject
+{
+public:
+    WidgetsLocalPropertyVisibilityWrapper(QWidget* widget);
+
+    LocalPropertyBool Visible;
+
+private:
+    QWidget* m_widget;
     DispatcherConnectionsSafe m_connections;
 };
 
@@ -40,6 +74,7 @@ private:
 
 struct WidgetAppearance
 {
+    static DispatcherConnection ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child);
     static void SetVisibleAnimated(QWidget* widget, bool visible);
     static void ShowAnimated(QWidget* widget);
     static void HideAnimated(QWidget* widget);
