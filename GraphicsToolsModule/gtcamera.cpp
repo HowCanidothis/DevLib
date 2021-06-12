@@ -79,6 +79,12 @@ void GtCamera::Normalize()
     }
 }
 
+void GtCamera::SetUp(const Vector3F& up)
+{
+    m_up = up;
+    m_state.AddFlag(State_NeedUpdateView);
+}
+
 void GtCamera::SetForward(const Vector3F& forward)
 {
     m_forward = forward;

@@ -30,10 +30,11 @@ GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera*
     }).MakeSafe(m_connections);
 }
 
-void GtCameraAnimationEngine::Move(const Point3F& center, const Vector3F& forward, float distance){
+void GtCameraAnimationEngine::Move(const Point3F& center, const Vector3F& forward, const Vector3F& up, float distance){
     if(m_renderer == nullptr) {
         return;
     }
+    auto normalizedUp = up.normalized();
     auto normalizedForward = forward.normalized();
     {
         QMutexLocker locker(&m_mutex);
@@ -41,6 +42,7 @@ void GtCameraAnimationEngine::Move(const Point3F& center, const Vector3F& forwar
     }
     auto eyeAnimation = new QVariantAnimation(m_animation.get());
     auto forwardAnimation = new QVariantAnimation(m_animation.get());
+    auto upAnimation = new QVariantAnimation(m_animation.get());
     eyeAnimation->setStartValue(m_camera->GetEye());
     eyeAnimation->setEasingCurve(m_movementCurve);
     eyeAnimation->setDuration(m_movementDuration);
@@ -63,15 +65,27 @@ void GtCameraAnimationEngine::Move(const Point3F& center, const Vector3F& forwar
         });
     });
 
+    upAnimation->setStartValue(m_camera->GetUp());
+    upAnimation->setEasingCurve(m_rotationCurve);
+    upAnimation->setDuration(m_rotationDuration);
+    upAnimation->setEndValue(normalizedUp);
+
+    QObject::connect(upAnimation, &QVariantAnimation::valueChanged, [this](const QVariant& value){
+        m_renderer->Asynch([this, value]{
+            m_camera->SetUp(value.value<QVector3D>());
+        });
+    });
+
     m_animation->addAnimation(eyeAnimation);
     m_animation->addAnimation(forwardAnimation);
+    m_animation->addAnimation(upAnimation);
 
     m_animation->start();
 }
 
 void GtCameraAnimationEngine::Move(const Point3F& center, float distance)
 {
-    Move(center, m_camera->GetForward(), distance);
+    Move(center, m_camera->GetForward(), m_camera->GetUp(), distance);
 }
 
 void GtCameraAnimationEngine::Move(const Point3F& newEye)

@@ -83,6 +83,7 @@ public:
     ~GtCamera();
 
     void Normalize();
+    void SetUp(const Vector3F& up);
     void SetForward(const Vector3F& forward);
     void SetEye(const Point3F& eye);
     void SetPosition(const Point3F& eye, const Point3F& center);

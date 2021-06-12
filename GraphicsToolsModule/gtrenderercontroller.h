@@ -18,7 +18,7 @@ public:
     void SetRotationDuration(qint32 msecs) { m_rotationDuration = msecs; }
     void SetMovementDuration(qint32 msecs) { m_movementDuration = msecs; }
 
-    void Move(const Point3F& center, const Vector3F& forward, float distance);
+    void Move(const Point3F& center, const Vector3F& forward, const Vector3F& up, float distance);
     void Move(const Point3F& center, float distance);
     void Move(const Point3F& newEye);
 
