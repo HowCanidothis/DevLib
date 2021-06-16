@@ -45,6 +45,15 @@ public:
         return result;
     }
 
+    QString ToString() const
+    {
+        QString result;
+        for(auto* property : m_properties) {
+            result += *property ? "true " : "false ";
+        }
+        return result;
+    }
+
 private:
     bool value() const
     {
@@ -105,6 +114,11 @@ public:
             if(Enabled) {
                 m_onChanged += { this, [this, recalculateOnEnabled]{
                     Valid.SetState(false);
+#ifdef QT_DEBUG
+                    if(!ObjectName.isEmpty()) {
+                        qDebug() << "Is able to calculate" << ObjectName << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? "" : m_dependenciesAreUpToDate.ToString());
+                    }
+#endif
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator, m_releaser);
                     } else {
@@ -179,6 +193,7 @@ public:
     mutable LocalPropertyBool Enabled;
     StateProperty Valid;
     Dispatcher OnCalculationRejected;
+    QString ObjectName;
 
 protected:
     void onPostRecalculate() override

@@ -69,7 +69,7 @@ public:
                     data->Calculating = false;
                     if(data->NeedRecalculate) {
                         data->NeedRecalculate = false;
-                        Calculate(data->CalculatorHandler, data->PreparatorHandler);
+                        Calculate(data->CalculatorHandler, data->PreparatorHandler, data->ReleaserHandler);
                     } else {
                         if(acceptResult()) {
                             OnCalculated(result);
