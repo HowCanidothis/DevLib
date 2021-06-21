@@ -29,6 +29,7 @@ public:
 
     void Update()
     {
+        SetValue(false);
         m_commutator.Invoke();
     }
 
@@ -138,7 +139,6 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         m_dependenciesAreUpToDate.Update();
-        m_onChanged.Invoke();
     }
 
     void Disconnect()

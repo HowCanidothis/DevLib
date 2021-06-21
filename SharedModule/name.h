@@ -24,6 +24,8 @@ public:
         return debug.maybeSpace();
     }
 
+    bool operator==(const Name& another) const { return another.m_value == m_value && (m_text.isEmpty() || another.m_text.isEmpty() || m_text == another.m_text); }
+
     static Name FromValue(qint32 value) { Name result; result.m_value = value; return result; }
 
 private:

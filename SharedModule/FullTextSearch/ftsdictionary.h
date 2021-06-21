@@ -20,6 +20,7 @@ struct FTSObjectRow
 {
     FTSObject* Object;
     size_t Id;
+    double weight;
 
     bool operator==(const FTSObjectRow& another) const { return Object == another.Object && Id == another.Id; }
 };
@@ -27,11 +28,11 @@ struct FTSObjectRow
 struct FTSMatchedObject
 {
     FTSObjectRow Row;
-    qint32 matchesCount;
+    double matchesWeight;
 
     friend QDebug operator<<(QDebug out, const FTSMatchedObject& object)
     {
-        out.space() << "Match:" << object.Row.Object << object.Row.Id << "Count:" << object.matchesCount;
+        out.space() << "Match:" << object.Row.Object << object.Row.Id << "Count:" << object.matchesWeight;
         return out;
     }
 };
@@ -53,7 +54,7 @@ public:
 
 private:
     void addRow(FTSObject* object, const QString& string, size_t rowId);
-    bool parseString(const QString& string, const std::function<void (const Name& stringPart)>& onStringPartSplited) const;
+    bool parseString(const QString& string, const std::function<void (const Name&, double)>& onStringPartSplited) const;
 
 private:
     QHash<Name, QSet<FTSObjectRow>> m_dictionary;

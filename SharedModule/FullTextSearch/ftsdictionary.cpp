@@ -2,7 +2,7 @@
 
 uint qHash(const FTSObjectRow& row, uint seed=0)
 {
-    return qHashBits(&row, sizeof(FTSObjectRow), seed);
+    return qHashBits(&row, sizeof(FTSObjectRow) - sizeof(double), seed);
 }
 
 FTSDictionary::FTSDictionary()
@@ -13,15 +13,15 @@ FTSDictionary::FTSDictionary()
 
 void FTSDictionary::addRow(FTSObject* object, const QString& string, size_t rowId)
 {
-    parseString(string, [this, object, rowId](const Name& stringPart){
-        m_dictionary[stringPart].insert({object,rowId});
+    parseString(string, [this, object, rowId](const Name& stringPart, double weight){
+        m_dictionary[stringPart].insert({object,rowId,weight});
     });
 }
 
 void FTSMatchResult::Sort()
 {
     std::sort(begin(), end(), [](const FTSMatchedObject& f, const FTSMatchedObject& s){
-        return f.matchesCount > s.matchesCount;
+        return f.matchesWeight > s.matchesWeight;
     });
 }
 
@@ -29,9 +29,9 @@ void FTSMatchResult::SortAndFilter()
 {
     if(!isEmpty()) {
         Sort();
-        auto bestMatches = first().matchesCount;
+        auto bestMatches = first().matchesWeight;
         auto newEnd = std::remove_if(begin(), end(), [bestMatches](const FTSMatchedObject& f){
-            return bestMatches != f.matchesCount;
+            return (bestMatches - f.matchesWeight) > 0.5f;
         });
         resize(std::distance(begin(), newEnd));
     }
@@ -40,16 +40,17 @@ void FTSMatchResult::SortAndFilter()
 FTSMatchResult FTSDictionary::Match(const QString& string) const
 {
     FTSMatchResult result;
-    QHash<FTSObjectRow, qint32> rows;
-    parseString(string, [this, &rows](const Name& stringPart) {
+    QHash<FTSObjectRow, double> rows;
+    parseString(string, [this, &rows](const Name& stringPart, double weight) {
+        auto rowView = rows;
         auto foundItDict = m_dictionary.find(stringPart);
         if(foundItDict != m_dictionary.end()) {
             for(const auto& objectRow : foundItDict.value()) {
                 auto foundIt = rows.find(objectRow);
                 if(foundIt == rows.end()) {
-                    rows.insert(objectRow, 1);
+                    rows.insert(objectRow, objectRow.weight * weight);
                 } else {
-                    foundIt.value()++;
+                    foundIt.value() += objectRow.weight * weight;
                 }
             }
         }
@@ -62,7 +63,7 @@ FTSMatchResult FTSDictionary::Match(const QString& string) const
     return result;
 }
 
-bool FTSDictionary::parseString(const QString &string, const std::function<void (const Name&)>& onStringPartSplited) const
+bool FTSDictionary::parseString(const QString &string, const std::function<void (const Name&, double weight)>& onStringPartSplited) const
 {
     if(string.size() < 3) {
         return false;
@@ -71,7 +72,7 @@ bool FTSDictionary::parseString(const QString &string, const std::function<void 
 
     qint32 index = 0;
     while((index = m_digitsRegexp.indexIn(lowerString, index)) != -1) {
-        onStringPartSplited(Name(m_digitsRegexp.cap(1)));
+        onStringPartSplited(Name(m_digitsRegexp.cap(1)), 1.f + float(m_digitsRegexp.cap(1).length()) / string.size());
         index += m_digitsRegexp.matchedLength();
     }
 
@@ -83,6 +84,7 @@ bool FTSDictionary::parseString(const QString &string, const std::function<void 
     auto ie = lowerString.end();
     QString cw(" ");
     cw += *ii1;
+    auto tripletWeight = float(3) / lowerString.size();
     do {
         while(ii2 != ie && cw.size() != 3 ){
             cw += *ii2;
@@ -91,7 +93,7 @@ bool FTSDictionary::parseString(const QString &string, const std::function<void 
         if(cw.size() != 3) {
             break;
         }
-        onStringPartSplited(Name(cw));
+        onStringPartSplited(Name(cw), tripletWeight);
         cw = QString(*ii1);
         ii2 = ii1 + 1;
         ii1++;

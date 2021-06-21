@@ -30,7 +30,7 @@ public:
     };
 
     TimerClocks();
-    ~TimerClocks();
+    virtual ~TimerClocks();
 
     Guard Clock()
     {
@@ -38,7 +38,7 @@ public:
     }
 
     void Bind();
-    qint64 Release();
+    virtual qint64 Release();
     Nanosecs ReleaseNanosecs();
 
     Nanosecs CalculateMeanValue() const;
@@ -46,9 +46,9 @@ public:
     Nanosecs CalculateMaxValue() const;
 
     void ToTextStream(QTextStream& stream) const;
-    QString ToString() const;
+    virtual QString ToString() const;
 
-private:
+protected:
     ScopedPointer<Timer> _timer;
     qint64 _clocks[CLOCKS_COUNT];
     qint32 _currentClockIndex;
@@ -58,11 +58,16 @@ template<class T, template<typename> class Ptr> class Stack;
 
 class _Export PerformanceClocks : public TimerClocks
 {
+    using Super = TimerClocks;
     const char* _function;
     const char* _file;
     quint32 _line;
+    qint64 m_totalTime;
 public:
     PerformanceClocks(const char* function, const char* file, quint32 line);
+
+    qint64 Release() override;
+    QString ToString() const override;
 
     static void PrintReport();
 

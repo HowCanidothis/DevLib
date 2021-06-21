@@ -196,6 +196,53 @@ public:
 
     Vector3F normalized() const { return Super::normalized(); }
 
+    float ProjectToLineSegmentT(const Vector3F& a, const Vector3F& b) const
+    {
+        auto ba = b - a;
+        const float l2 = dotProduct(ba, ba);
+        if (qFuzzyIsNull(l2)) {
+            return 0.0;
+        }
+        auto t = dotProduct(*this - a, ba) / l2;
+        return ::clamp(t, 0.f, 1.f);
+    }
+
+    float SquaredDistanceToPoint(const Vector3F& point) const
+    {
+        auto v = *this - point;
+        return dotProduct(v,v);
+    }
+
+    Vector3F ProjectToLineSegment(const Vector3F& a, const Vector3F& b) const
+    {
+        return ::lerp(a, b, ProjectToLineSegmentT(a,b));
+    }
+
+    Vector3F ProjectToPlane(const Vector3F& planeNormal, const Vector3F& planePosition) const
+    {
+        const auto& p = *this;
+        auto fullDirection = (p - planePosition);
+        auto distToPlane = Vector3F::dotProduct(fullDirection, planeNormal);
+        return p - distToPlane * planeNormal;
+    }
+
+    static std::tuple<Vector3F, float, Vector3F, float, float> DistanceBetweenLineSegments(const Vector3F& a, const Vector3F& b, const Vector3F& c, const Vector3F& d)
+    {
+        auto cd = d - c;
+        float lineDirSqrMag = dotProduct(cd, cd);
+        auto inPlaneA = a - ((dotProduct(a-c, cd)/lineDirSqrMag)*cd);
+        auto inPlaneB = b - ((dotProduct(b-c, cd)/lineDirSqrMag)*cd);
+        auto inPlaneAB = inPlaneB - inPlaneA;
+        auto t = dotProduct(c - inPlaneA, inPlaneA) / dotProduct(inPlaneAB, inPlaneAB);
+        t = inPlaneA.EqualTo(inPlaneB) ? 0.f : t;
+        auto abProjection = ::lerp(a,b,::clamp(t, 0.f, 1.f));
+        auto s = abProjection.ProjectToLineSegmentT(c,d);
+        auto cdPoint = ::lerp(c, d, s);
+        t = cdPoint.ProjectToLineSegmentT(a,b);
+        auto abPoint = ::lerp(a, b, t);
+        return std::make_tuple(abPoint, t, cdPoint, s, cdPoint.distanceToPoint(abPoint));
+    }
+
     Vector3F operator+(const Vector3F& another) const { return static_cast<Vector3F>((toBase() + another.toBase())); }
     Vector3F operator-(const Vector3F& another) const { return static_cast<Vector3F>((toBase() - another.toBase())); }
     Vector3F operator*(const Vector3F& another) const { return static_cast<Vector3F>((toBase() * another.toBase())); }
