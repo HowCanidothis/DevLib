@@ -279,9 +279,7 @@ public:
             Q_ASSERT(m_internalEditing);
         }};
 #endif
-        m_data->IsValid.ConnectFrom(m_calculator.Valid, [this](bool valid){
-            return valid ? m_data->IsValid.Native() : false;
-        });
+        m_data->IsValid.ConnectFromStateProperty(m_calculator.Valid);
     }
 
     void Lock() const
