@@ -119,16 +119,24 @@ QFrame[ApplicationMode="1"]{
     background: #68217A;
 }
 
-QFrame[ApplicationMode="2"]{
+QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
     background: #007acc;
+}
+
+QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
+    background: #c92626;
 }
 
 QFrame[ApplicationMode="1"] QWidget{
     background: #68217A;
 }
 
-QFrame[ApplicationMode="2"] QWidget{
+QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
     background: #007acc;
+}
+
+QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
+    background: #c92626;
 }
 
 QFrame#MainFooter QLabel#FooterProgressBarLabel{

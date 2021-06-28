@@ -285,18 +285,32 @@ QFrame#MainFooter {
     padding: 0px 15px 0px 15px; 
 }
 
-DDFooter QMenuBar {
+DDFooter[DDReferenceMode="0"] QMenuBar {
+    font-size: 12px;
+    background: #007acc;
+}
+DDFooter[DDReferenceMode="1"] QMenuBar {
+    font-size: 12px;
+    background: #c92626;
+}
+
+DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
     background: #007acc;
 }
 
-DDFooter QMenu::item{
+DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
-    background: #007acc;
+    background: #c92626;
 }
 
-DDFooter QMenu::item::selected{
+
+DDFooter[DDReferenceMode="0"] QMenu::item::selected{
     background: #1F8AD2;
+}
+
+DDFooter[DDReferenceMode="1"] QMenu::item::selected{
+    background: #d93f3f;
 }
 
 DDFooter QMenuBar::item {
@@ -305,12 +319,20 @@ DDFooter QMenuBar::item {
   padding: 5px 8px 2px 8px;
 }
 
-DDFooter QMenuBar::item::selected {
+DDFooter[DDReferenceMode="0"] QMenuBar::item::selected {
     background: #1F8AD2;
 } 
 
-DDFooter QMenuBar::item::pressed:disabled {
+DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
+    background: #d93f3f;
+}
+
+DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
     background: #007acc;
+} 
+
+DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
+    background: #c92626;
 } 
 
 QFrame#MainFooter QLabel#FooterProgressBarLabel{
