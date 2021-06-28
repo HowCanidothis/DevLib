@@ -64,14 +64,14 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 }
 
 
-LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit)
+LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit, bool reactive)
     : Super([lineEdit, property](){
                lineEdit->setText(*property);
             },
             [lineEdit, property](){
                *property = lineEdit->text();
             }
-    )
+    ), m_textChanged(250)
 {
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
@@ -80,6 +80,11 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
         m_propertySetter();
     });
+    if(reactive){
+    m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
+        m_textChanged.Call([this]{ THREAD_ASSERT_IS_MAIN() m_propertySetter();});
+    });
+    }
 }
 
 LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, QPushButton* button)
