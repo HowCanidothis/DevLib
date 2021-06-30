@@ -36,13 +36,14 @@ private:
 
     void resolve(bool value)
     {
+        if(m_isResolved) {
+            return;
+        }
         {
             std::unique_lock<std::mutex> lock(m_mutex);
-            if(!m_isResolved) {
-                m_isResolved = true;
-                m_result = value;
-                onFinished(value);
-            }
+            m_isResolved = true;
+            m_result = value;
+            onFinished(value);
         }
 
         onFinished -= this;
