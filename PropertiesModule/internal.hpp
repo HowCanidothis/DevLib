@@ -24,6 +24,7 @@
 #include "propertiesserializer.h"
 #include "Widgets/propertieswidgetsconnector.h"
 #include "Widgets/localpropertieswidgetconnector.h"
+#include "translatormanager.h"
 #endif
 
 #endif // INTERNAL_HPP

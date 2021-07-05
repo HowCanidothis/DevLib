@@ -33,7 +33,7 @@ public:
         })
         , m_validator([](const T& value){ return value; })
     {}
-    ~LocalProperty()
+    virtual ~LocalProperty()
     {
 
     }
@@ -79,6 +79,7 @@ public:
     void SetValue(const T& value)
     {
         auto validatedValue = m_validator(value);
+        validate(validatedValue);
         if(validatedValue != m_value) {
             m_setterHandler([validatedValue, this]{
                 m_value = validatedValue;
@@ -164,6 +165,9 @@ public:
 
     Dispatcher OnChange;
 
+protected:
+    virtual void validate(T&) const {}
+
 private:
     template<class T2> friend struct Serializer;
     mutable FAction m_subscribes;
@@ -192,18 +196,6 @@ public:
         }
     }
 
-    void SetValue(const T& value)
-    {
-        auto validatedValue = Super::m_validator(value);
-        validatedValue = applyMinMax(validatedValue);
-        if(!qFuzzyCompare(double(validatedValue), double(Super::m_value))) {
-            Super::m_setterHandler([validatedValue, this]{
-                Super::m_value = validatedValue;
-                Super::Invoke();
-            });
-        }
-    }
-
     LocalPropertyLimitedDecimal& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
@@ -214,9 +206,13 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    T applyMinMax(const T& value)
+    T applyMinMax(const T& value) const
     {
         return ::clamp(value, m_min, m_max);
+    }
+    void validate(T& value) const override
+    {
+        value = applyMinMax(value);
     }
 
 private:
