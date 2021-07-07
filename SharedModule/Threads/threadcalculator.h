@@ -30,6 +30,31 @@ using ThreadCalculatorDataPtr = SharedPointer<ThreadCalculatorData<T>>;
 template<class T>
 class ThreadCalculator
 {
+    class CurrentData
+    {
+    public:
+        ThreadCalculatorDataPtr<T> Data;
+        typename ThreadCalculatorData<T>::Calculator CurrentCalculator;
+        typename ThreadCalculatorData<T>::Releaser CurrentReleaser;
+        
+        CurrentData(const ThreadCalculatorDataPtr<T>& data)
+            : Data(data)
+            , CurrentCalculator(data->CalculatorHandler)
+            , CurrentReleaser(data->ReleaserHandler)
+        {
+            
+        }
+        
+        ~CurrentData()
+        {
+            auto data = Data;
+            auto currentCalculator = CurrentCalculator;
+            auto currentReleaser = CurrentReleaser;
+            data->Handler([data, currentCalculator, currentReleaser]{});
+        }
+        
+    };
+    
 public:
     template<typename ... Args> using CalculationData = SharedPointer<std::tuple<Args...>>;
 
@@ -51,18 +76,21 @@ public:
             m_data->PreparatorHandler = preparator;
             m_data->CalculatorHandler = calculator;
             m_data->ReleaserHandler = releaser;
-
+            
             if(m_data->Calculating) {
+                m_latestTask.Resolve(false);
                 m_data->NeedRecalculate = true;
                 return;
             }
-
+            
             m_data->Calculating = true;
             m_data->PreparatorHandler();
-            auto data = m_data;
-            m_latestTask = ThreadsBase::Async([this, data, calculator]{
-                auto result = calculator();
-                data->Handler([this, result, data]{
+            
+            auto currentData = ::make_shared<CurrentData>(m_data);
+            m_latestTask = ThreadsBase::Async([this, currentData]{
+                auto result = currentData->CurrentCalculator();
+                currentData->Data->Handler([this, result, currentData]{
+                    const auto& data = currentData->Data;
                     if(data->Destroyed) {
                         return;
                     }
@@ -78,9 +106,9 @@ public:
                     }
                 });
             }, EPriority::Low);
-            m_latestTask.Then([data](bool){
-                data->Handler([data]{
-                    data->ReleaserHandler();
+            m_latestTask.Then([currentData](bool){
+                currentData->Data->Handler([currentData]{
+                    currentData->CurrentReleaser();
                 });
             });
         });

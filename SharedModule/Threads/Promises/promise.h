@@ -36,16 +36,25 @@ private:
 
     void resolve(bool value)
     {
+        resolve([value]{ return value; });
+    }
+    
+    void resolve(const std::function<bool ()>& handler)
+    {
         if(m_isResolved) {
             return;
         }
         {
             std::unique_lock<std::mutex> lock(m_mutex);
+            if(m_isResolved) {
+                return;
+            }
             m_isResolved = true;
+            bool value = handler();
             m_result = value;
             onFinished(value);
         }
-
+        
         onFinished -= this;
     }
 
@@ -80,6 +89,7 @@ public:
     bool IsResolved() const { return m_data->m_isResolved; }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     void Resolve(bool value) const {  m_data->resolve(value); }
+    void Resolve(const std::function<bool ()>& handler) const {  m_data->resolve(handler); }
     void Mute() { m_data->mute(); }
 
     template<typename ... Args>
