@@ -108,12 +108,14 @@ public:
             }, EPriority::Low);
             m_latestTask.Then([currentData](bool){
                 currentData->Data->Handler([currentData]{
+                    currentData->Data->Calculating = false;
                     currentData->CurrentReleaser();
                 });
             });
         });
     }
-
+    
+    bool IsCalculating() const {return m_data->Calculating; }
     void SafeQuit()
     {
         m_data->Destroyed = true;

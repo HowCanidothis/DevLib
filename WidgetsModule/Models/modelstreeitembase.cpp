@@ -105,6 +105,18 @@ void ModelsTreeItemBase::findChildRecursive(ModelsTreeItemBase* item, const Filt
 }
 
 
+void ModelsTreeItemBase::ForeachParent(const HandlerFunc& handler, const FilterFunc& filterFunc) const
+{
+    if(m_parent == nullptr){
+        return;
+    }
+    
+    if(filterFunc(m_parent)){
+        handler(m_parent);
+        m_parent->ForeachParent(handler, filterFunc);
+    }
+}
+
 void ModelsTreeItemBase::ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc) const
 {
     foreachChild(const_cast<ModelsTreeItemBase*>(this), handler, filterFunc);

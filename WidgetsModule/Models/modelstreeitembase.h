@@ -42,6 +42,7 @@ public:
     void RemoveChilds();
     void RemoveChild(qint32 i);
     void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
+    void ForeachParent(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
     const SharedPointer<ModelsTreeItemBase>& GetChildPtr(ModelsTreeItemBase* child) const;
 
     virtual QString GetLabel() const { return QString::number(GetRow()); }
