@@ -19,6 +19,8 @@ class TranslatedString : public LocalPropertyString
 public:
     TranslatedString(const std::function<QString ()>& translationHandler = []{ return QString(); });
 
+    Dispatcher Retranslate;
+
 protected:
     void retranslate();
 

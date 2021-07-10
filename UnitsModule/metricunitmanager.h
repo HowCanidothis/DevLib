@@ -3,92 +3,109 @@
 
 #include <PropertiesModule/internal.hpp>
 
-static const Name METRIC_UNIT_RADIAN = "RADIAN";
-static const Name METRIC_UNIT_DEGREE = "DEGREE";
-static const Name METRIC_UNIT_METER = "METER";
-static const Name METRIC_UNIT_USFT = "USFOOT";
-static const Name METRIC_UNIT_FT = "FOOT";
+#include <qmath.h>
 
 static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;
 
-struct DistanceUnits
-{
-    const TranslatedString* Meters = new TranslatedString([]{ return QObject::tr("m"); });
-    const TranslatedString* Feets = new TranslatedString([]{ return QObject::tr("ft"); });
-    const TranslatedString* USFeets = new TranslatedString([]{ return QObject::tr("usft"); });
-};
-
-struct AngleUnits
-{
-    const TranslatedString* Radians = new TranslatedString([]{ return QObject::tr("rad"); });
-    const TranslatedString* Degrees = new TranslatedString([]{ return "°"; });
-};
-
-struct MetricUnit
-{
-    using FTransform = std::function<double (double)>;
-    const TranslatedString* MetricName;
-    FTransform UnitToBaseValue;
-    FTransform BaseValueToUnit;
-};
-
-using MetricUnitPtr = SharedPointer<MetricUnit>;
-
-class MetricSystem
+class MeasurementUnit
 {
 public:
-    MetricSystem();
+    using FTransform = std::function<double (double)>;
+    using FTranslationHandler = std::function<QString ()>;
+    MeasurementUnit(const FTranslationHandler& translationHandler, double multiplierUnitToBase);
+
+    double FromUnitToBase(double unitValue) const;
+    double FromBaseToUnit(double baseValue) const;
+
+    FTransform GetUnitToBaseConverter() const { return [this](double unit) { return FromUnitToBase(unit); }; }
+    FTransform GetBaseToUnitConverter() const { return [this](double base) { return FromBaseToUnit(base); }; }
+
+    mutable TranslatedString Label;
+private:
+    double m_multiplier;
+};
+
+namespace DistanceUnits
+{
+    static const MeasurementUnit Meters([]{ return QObject::tr("m"); }, 3.280839895);
+    static const MeasurementUnit Feets([]{ return QObject::tr("ft"); }, 1.0);
+    static const MeasurementUnit USFeets([]{ return QObject::tr("usft"); }, 1.000002);
+};
+
+namespace AngleUnits
+{
+    static const MeasurementUnit Radians([]{ return QObject::tr("rad"); }, 1.0);
+    static const MeasurementUnit Degrees([]{ return "°"; }, M_PI / 180.0);
+};
+
+namespace FieldStrengthUnits
+{
+    static const MeasurementUnit NanoTeslas([]{ return QObject::tr("nT"); }, 1.0);
+};
+
+class Measurement
+{
+public:
+    Measurement();
 
     void SetCurrent(const Name& id);
-    MetricSystem& AddMetricUnit(const Name& id, const TranslatedString* label, const MetricUnit::FTransform& unitToBaseValue, const MetricUnit::FTransform& baseValueToUnit);
-    const MetricUnitPtr& GetMetricUnit(const Name& metric) const;
+    Measurement& AddUnit(const Name& id, const MeasurementUnit* unit);
+    const MeasurementUnit* FindUnit(const Name& metric) const;
 
-    const MetricUnit::FTransform& GetCurrentUnitToBaseValueConverter() const;
-    const MetricUnit::FTransform& GetCurrentBaseValueToUnitConverter() const;
+    double CurrentUnitToBaseValue(double currentUnit) const;
+    double BaseValueToCurrentUnit(double baseValue) const;
 
     LocalPropertyString CurrentLabel;
+    LocalPropertyInt CurrentPrecision;
 
     Dispatcher OnCurrentChanged;
 
 private:
-    friend class MetricUnitManager;
-    const MetricUnit* getCurrentMetricUnit() const;
+    friend class MeasurementManager;
+    const MeasurementUnit* getCurrentMeasurementUnit() const;
 
-    QHash<Name, MetricUnitPtr> m_metricUnits;
-    MetricUnit* m_currentUnit;
+    QHash<Name, const MeasurementUnit*> m_metricUnits;
+    const MeasurementUnit* m_currentUnit;
+    DispatcherConnectionsSafe m_currentConnections;
 };
 
-using MetricSystemPtr = SharedPointer<MetricSystem>;
+using MeasurementPtr = SharedPointer<Measurement>;
 
-static const Name METRIC_SYSTEM_ANGLES = "ANGLES";
-static const Name METRIC_SYSTEM_DISTANCES = "DISTANCES";
+static const Name MEASUREMENT_ANGLES = "ANGLES";
+static const Name MEASUREMENT_DISTANCES = "DISTANCES";
+static const Name MEASUREMENT_FIELD_STRENGTH = "FIELD_STRENGTH";
 
-class MetricUnitManager
+struct MeasurementParams
 {
-    Q_DECLARE_TR_FUNCTIONS(MetricUnitManager)
-    MetricUnitManager();
-public:
-    const MetricSystemPtr& GetMetricSystem(const Name& name) const;
-    static MetricUnitManager& GetInstance();
+    Name Measurement;
+    qint32 precision;
+};
 
-    const MetricUnit* GetCurrentUnit(const Name& systemName) const;
+using MeasurementSystem = QHash<Name,MeasurementParams>;
+
+class MeasurementManager
+{
+    Q_DECLARE_TR_FUNCTIONS(MeasurementManager)
+    MeasurementManager();
+public:
+
+    Measurement& AddMeasurement(const Name& name);
+    const MeasurementPtr& GetMeasurement(const Name& name) const;
+    static MeasurementManager& GetInstance();
+
+    const MeasurementUnit* GetCurrentUnit(const Name& systemName) const;
 
     static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
 
 private:
-    MetricSystem& addMetricSystem(const Name& name);
-
-private:
-    QHash<Name, MetricSystemPtr> m_metricSystems;
-    DistanceUnits m_distances;
-    AngleUnits m_angles;
+    QHash<Name, MeasurementPtr> m_metricSystems;
 };
 
-class MetricProperty
+class MeasurementProperty
 {
 public:
-    MetricProperty(const Name& systemName);
+    MeasurementProperty(const Name& systemName);
 
     void Connect(LocalPropertyDouble* baseValueProperty);
     LocalPropertyDouble Value;
@@ -97,24 +114,24 @@ private:
     LocalPropertyDouble* m_currentValue;
     DispatcherConnectionsSafe m_connections;
     DispatcherConnectionSafePtr m_systemConnection;
-    MetricSystemPtr m_metricSystem;
+    MeasurementPtr m_metricSystem;
 };
 
-class MetricTranslatedString : public TranslatedString
+class MeasurementTranslatedString : public TranslatedString
 {
     using Super = TranslatedString;
 public:
-    MetricTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics);
+    MeasurementTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics);
 };
 
 #define METRIC_DISTANCE_UNIT_TO_BASE(x) \
-    MetricUnitManager::GetInstance().GetCurrentUnit(METRIC_SYSTEM_DISTANCES)->UnitToBaseValue(x)
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
 #define METRIC_DISTANCE_BASE_TO_UNIT(x) \
-    MetricUnitManager::GetInstance().GetCurrentUnit(METRIC_SYSTEM_DISTANCES)->BaseValueToUnit(x)
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromBaseToUnit(x)
 
 #define METRIC_ANGLES_UNIT_TO_BASE(x) \
-    MetricUnitManager::GetInstance().GetCurrentUnit(METRIC_SYSTEM_ANGLES)->UnitToBaseValue(x)
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromUnitToBase(x)
 #define METRIC_ANGLES_BASE_TO_UNIT(x) \
-    MetricUnitManager::GetInstance().GetCurrentUnit(METRIC_SYSTEM_ANGLES)->BaseValueToUnit(x)
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromBaseToUnit(x)
 
 #endif // METRICUNITMANAGER_H

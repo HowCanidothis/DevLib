@@ -18,6 +18,8 @@ TranslatedString::TranslatedString(const std::function<QString ()>& translationH
     TranslatorManager::GetInstance().OnLanguageChanged.Connect(this, [this, translationHandler]{
         retranslate();
     }).MakeSafe(m_connections);
+
+    Retranslate += { this, [this]{ retranslate(); }};
 }
 
 void TranslatedString::retranslate()

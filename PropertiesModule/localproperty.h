@@ -6,6 +6,12 @@
 #include "property.h"
 #include "externalproperty.h"
 
+
+template<class T>
+static bool LocalPropertyNotEqual(const T& v1, const T& v2) { return v1 != v2; }
+static bool LocalPropertyNotEqual(const double& v1, const double& v2) { return !qFuzzyCompare(v1, v2); }
+static bool LocalPropertyNotEqual(const float& v1, const float& v2) { return !qFuzzyCompare(v1, v2); }
+
 template<class T, class StorageType = T>
 class LocalProperty
 {
@@ -80,7 +86,7 @@ public:
     {
         auto validatedValue = m_validator(value);
         validate(validatedValue);
-        if(notEqual(validatedValue)) {
+        if(LocalPropertyNotEqual(validatedValue, m_value)) {
             m_setterHandler([validatedValue, this]{
                 m_value = validatedValue;
                 Invoke();
@@ -167,7 +173,6 @@ public:
 
 protected:
     virtual void validate(T&) const {}
-    virtual bool notEqual(const T& another) const { return m_value != another; }
 
 private:
     template<class T2> friend struct Serializer;
@@ -189,7 +194,7 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        if(!qFuzzyCompare((double)m_max,(double)max) || !qFuzzyCompare((double)m_min, (double)min)) {
+        if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
             SetValue(Super::m_value);
@@ -215,7 +220,6 @@ private:
     {
         value = applyMinMax(value);
     }
-    bool notEqual(const T& another) const override { return !qFuzzyCompare((double)m_value, (double)another); }
 
 private:
     template<class T2> friend struct Serializer;
