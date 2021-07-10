@@ -80,7 +80,7 @@ public:
     {
         auto validatedValue = m_validator(value);
         validate(validatedValue);
-        if(validatedValue != m_value) {
+        if(notEqual(validatedValue)) {
             m_setterHandler([validatedValue, this]{
                 m_value = validatedValue;
                 Invoke();
@@ -167,6 +167,7 @@ public:
 
 protected:
     virtual void validate(T&) const {}
+    virtual bool notEqual(const T& another) const { return m_value != another; }
 
 private:
     template<class T2> friend struct Serializer;
@@ -214,6 +215,7 @@ private:
     {
         value = applyMinMax(value);
     }
+    bool notEqual(const T& another) const override { return !qFuzzyCompare((double)m_value, (double)another); }
 
 private:
     template<class T2> friend struct Serializer;
