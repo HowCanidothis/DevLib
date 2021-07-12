@@ -6,6 +6,8 @@
 #include <qmath.h>
 
 static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;
+static constexpr double USFEETS_TO_FEETS_MULTIPLIER = 1.000002;
+static constexpr double DEGREES_TO_RADIANS = M_PI / 180.0;
 
 class MeasurementUnit
 {
@@ -29,19 +31,27 @@ namespace DistanceUnits
 {
     static const MeasurementUnit Meters([]{ return QObject::tr("m"); }, 3.280839895);
     static const MeasurementUnit Feets([]{ return QObject::tr("ft"); }, 1.0);
-    static const MeasurementUnit USFeets([]{ return QObject::tr("usft"); }, 1.000002);
+    static const MeasurementUnit USFeets([]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
 };
 
 namespace AngleUnits
 {
     static const MeasurementUnit Radians([]{ return QObject::tr("rad"); }, 1.0);
-    static const MeasurementUnit Degrees([]{ return "°"; }, M_PI / 180.0);
+    static const MeasurementUnit Degrees([]{ return "°"; }, DEGREES_TO_RADIANS);
 };
 
 namespace FieldStrengthUnits
 {
     static const MeasurementUnit NanoTeslas([]{ return QObject::tr("nT"); }, 1.0);
 };
+
+namespace DLSUnits
+{
+    static const MeasurementUnit RadFeet([]{ return QObject::tr("rad/100ft"); }, 1.0);
+    static const MeasurementUnit DegreeFeet([]{ return QObject::tr("°/100ft"); }, DEGREES_TO_RADIANS);
+    static const MeasurementUnit DegreeUSFeet([]{ return QObject::tr("°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit DegreeMeter([]{ return QObject::tr("°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
+}
 
 class Measurement
 {
@@ -74,6 +84,7 @@ using MeasurementPtr = SharedPointer<Measurement>;
 static const Name MEASUREMENT_ANGLES = "ANGLES";
 static const Name MEASUREMENT_DISTANCES = "DISTANCES";
 static const Name MEASUREMENT_FIELD_STRENGTH = "FIELD_STRENGTH";
+static const Name MEASUREMENT_DLS = "DLS";
 
 struct MeasurementParams
 {
@@ -124,14 +135,23 @@ public:
     MeasurementTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics);
 };
 
-#define METRIC_DISTANCE_UNIT_TO_BASE(x) \
+#define MEASUREMENT_DISTANCE_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
-#define METRIC_DISTANCE_BASE_TO_UNIT(x) \
+#define MEASUREMENT_DISTANCE_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromBaseToUnit(x)
 
-#define METRIC_ANGLES_UNIT_TO_BASE(x) \
+#define MEASUREMENT_ANGLES_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromUnitToBase(x)
-#define METRIC_ANGLES_BASE_TO_UNIT(x) \
+#define MEASUREMENT_ANGLES_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromBaseToUnit(x)
+
+#define MEASUREMENT_DLS_UNIT_TO_BASE(x) \
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromUnitToBase(x)
+#define MEASUREMENT_DLS_BASE_TO_UNIT(x) \
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromBaseToUnit(x)
+
+#define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentLabel
+#define MEASUREMENT_ANGLES_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->CurrentLabel
+#define MEASUREMENT_DLS_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->CurrentLabel
 
 #endif // METRICUNITMANAGER_H

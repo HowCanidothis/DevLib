@@ -211,6 +211,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 void LocalPropertiesWidgetConnectorsContainer::Clear()
 {
     m_connectors.Clear();
+    onClear();
 }
 
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox)

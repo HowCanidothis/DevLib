@@ -84,6 +84,11 @@ MeasurementManager::MeasurementManager()
 
     AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
             .AddUnit("NanoTeslas", &FieldStrengthUnits::NanoTeslas);
+
+    AddMeasurement(MEASUREMENT_DLS)
+            .AddUnit("DegreeUSFeet", &DLSUnits::DegreeUSFeet)
+            .AddUnit("DegreeFeet", &DLSUnits::DegreeFeet)
+            .AddUnit("DegreeMeter", &DLSUnits::DegreeMeter);
 }
 
 const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
@@ -148,7 +153,7 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
 MeasurementTranslatedString::MeasurementTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics)
     : Super([translationHandler, metrics]{
         THREAD_ASSERT_IS_MAIN()
-        static QRegExp regExp("%metric");
+        static QRegExp regExp("%un");
         auto string = translationHandler();
         qint32 index = 0, stringIndex = 0;
         auto it = metrics.begin();

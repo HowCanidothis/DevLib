@@ -22,6 +22,9 @@ public:
     void Clear();
     bool IsEmpty() const { return m_connectors.IsEmpty(); }
 
+protected:
+    virtual void onClear() {}
+
 private:
     StackPointers<LocalPropertiesWidgetConnectorBase> m_connectors;
 };
