@@ -1,5 +1,5 @@
-#ifndef METRICUNITMANAGER_H
-#define METRICUNITMANAGER_H
+#ifndef MEASUREMENTUNITMANAGER_H
+#define MEASUREMENTUNITMANAGER_H
 
 #include <PropertiesModule/internal.hpp>
 
@@ -37,7 +37,7 @@ namespace DistanceUnits
 namespace AngleUnits
 {
     static const MeasurementUnit Radians([]{ return QObject::tr("rad"); }, 1.0);
-    static const MeasurementUnit Degrees([]{ return "°"; }, DEGREES_TO_RADIANS);
+    static const MeasurementUnit Degrees([]{ return "В°"; }, DEGREES_TO_RADIANS);
 };
 
 namespace FieldStrengthUnits
@@ -48,9 +48,9 @@ namespace FieldStrengthUnits
 namespace DLSUnits
 {
     static const MeasurementUnit RadFeet([]{ return QObject::tr("rad/100ft"); }, 1.0);
-    static const MeasurementUnit DegreeFeet([]{ return QObject::tr("°/100ft"); }, DEGREES_TO_RADIANS);
-    static const MeasurementUnit DegreeUSFeet([]{ return QObject::tr("°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
-    static const MeasurementUnit DegreeMeter([]{ return QObject::tr("°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
+    static const MeasurementUnit DegreeFeet([]{ return QObject::tr("В°/100ft"); }, DEGREES_TO_RADIANS);
+    static const MeasurementUnit DegreeUSFeet([]{ return QObject::tr("В°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit DegreeMeter([]{ return QObject::tr("В°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
 }
 
 class Measurement
@@ -128,12 +128,16 @@ private:
     MeasurementPtr m_metricSystem;
 };
 
-class MeasurementTranslatedString : public TranslatedString
+class MeasurementTranslatedString
 {
-    using Super = TranslatedString;
 public:
-    MeasurementTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics);
+    static void AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics);
+
+private:
+    static TranslatedString::FTranslationHandler generateTranslationHandler(const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections);
 };
+
+using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;
 
 #define MEASUREMENT_DISTANCE_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
@@ -154,4 +158,4 @@ public:
 #define MEASUREMENT_ANGLES_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->CurrentLabel
 #define MEASUREMENT_DLS_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->CurrentLabel
 
-#endif // METRICUNITMANAGER_H
+#endif // MEASUREMENTUNITMANAGER_H

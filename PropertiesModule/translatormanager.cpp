@@ -11,7 +11,7 @@ TranslatedString::TranslatedString()
 
 }
 
-TranslatedString::TranslatedString(const std::function<QString ()>& translationHandler)
+TranslatedString::TranslatedString(const FTranslationHandler& translationHandler)
     : Super(translationHandler())
     , m_translationHandler(translationHandler)
 {
@@ -20,6 +20,12 @@ TranslatedString::TranslatedString(const std::function<QString ()>& translationH
     }).MakeSafe(m_connections);
 
     Retranslate += { this, [this]{ retranslate(); }};
+}
+
+void TranslatedString::SetTranslationHandler(const FTranslationHandler& handler)
+{
+    m_translationHandler = handler;
+    retranslate();
 }
 
 void TranslatedString::retranslate()

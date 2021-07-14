@@ -17,7 +17,11 @@ class TranslatedString : public LocalPropertyString
     using Super = LocalPropertyString;
     TranslatedString();
 public:
-    TranslatedString(const std::function<QString ()>& translationHandler = []{ return QString(); });
+    using FTranslationHandler = std::function<QString ()>;
+
+    TranslatedString(const FTranslationHandler& translationHandler = []{ return QString(); });
+
+    void SetTranslationHandler(const FTranslationHandler& handler);
 
     Dispatcher Retranslate;
 
@@ -25,7 +29,7 @@ protected:
     void retranslate();
 
 protected:
-    std::function<QString ()> m_translationHandler;
+    FTranslationHandler m_translationHandler;
     DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_retranslate;
 };

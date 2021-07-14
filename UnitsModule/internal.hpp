@@ -3,7 +3,8 @@
 
 #if defined __cplusplus
 
-#include "metricunitmanager.h"
+#include "measurementunitmanager.h"
+#include "measurementvaluewithunitconnectorscontainer.h"
 
 #endif
 

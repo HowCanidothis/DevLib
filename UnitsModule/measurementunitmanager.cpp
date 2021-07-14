@@ -1,4 +1,4 @@
-#include "metricunitmanager.h"
+#include "measurementunitmanager.h"
 
 #include <qmath.h>
 
@@ -150,8 +150,23 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
     }).MakeSafe();
 }
 
-MeasurementTranslatedString::MeasurementTranslatedString(const std::function<QString ()>& translationHandler, const QVector<Name>& metrics)
-    : Super([translationHandler, metrics]{
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics)
+{
+    DispatcherConnectionsSafe connections;
+    QSet<Name> uniqueMetrics;
+    for(const auto& metric : metrics) {
+        auto foundIt = uniqueMetrics.find(metric);
+        if(foundIt == uniqueMetrics.end()) {
+            string.Retranslate.ConnectFrom(MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentLabel.OnChange).MakeSafe(connections);
+            uniqueMetrics.insert(metric);
+        }
+    }
+    string.SetTranslationHandler(generateTranslationHandler(translationHandler, metrics, connections));
+}
+
+TranslatedString::FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections)
+{
+    return [translationHandler, metrics, connections]{
         THREAD_ASSERT_IS_MAIN()
         static QRegExp regExp("%un");
         auto string = translationHandler();
@@ -169,16 +184,5 @@ MeasurementTranslatedString::MeasurementTranslatedString(const std::function<QSt
         resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
 
         return resultString;
-    })
-{
-    QSet<Name> uniqueMetrics;
-    for(const auto& metric : metrics) {
-        auto foundIt = uniqueMetrics.find(metric);
-        if(foundIt == uniqueMetrics.end()) {
-            MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentLabel.OnChange.Connect(this, [this]{
-                retranslate();
-            }).MakeSafe(m_connections);
-            uniqueMetrics.insert(metric);
-        }
-    }
+    };
 }
