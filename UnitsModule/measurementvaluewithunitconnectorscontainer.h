@@ -38,7 +38,7 @@ public:
     void AddTranslationConnector(const Name& measurement, T* label, const MeasurementValueWithUnitConnectorsContainer::FTranslationHandler& translationHandler = nullptr, const QVector<Dispatcher*>& labelUpdaters = {})
     {
         if(translationHandler == nullptr) {
-            AddConnector<ConnectorType>(&MeasurementManager::GetInstance().GetMeasurement(measurement)->CurrentLabel, label);
+            AddConnector<ConnectorType>(&MeasurementManager::GetInstance().GetMeasurement(measurement)->CurrentUnitLabel, label);
         } else {
             auto data = createTranslationData(measurement, translationHandler, labelUpdaters);
             AddConnector<ConnectorType>(&data->Translation, label);
