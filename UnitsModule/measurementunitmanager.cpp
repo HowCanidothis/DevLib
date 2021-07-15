@@ -102,20 +102,20 @@ MeasurementManager::MeasurementManager()
     AddSystem(UNIT_SYSTEM_API)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
         .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,           2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 2})
+        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
         .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,           2});
     
     AddSystem(UNIT_SYSTEM_API_USFT)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
         .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,         2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 2})
+        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
         .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,         2});
     
     AddSystem(UNIT_SYSTEM_SI)
-        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Radians.Id,           2})
+        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,           2})
         .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Meters.Id,         2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,2})
-        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::RadMeter.Id,            2});
+        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,1})
+        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeMeter.Id,         2});
     
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
@@ -145,7 +145,7 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
     return defaultResult;
 }
 
-const MeasurementSystemPtr& MeasurementManager::GetSystem(const Name & name) const
+const MeasurementSystemPtr& MeasurementManager::GetSystem(const Name& name) const
 {
     static MeasurementSystemPtr defaultResult;
     auto foundIt = m_metricSystems.find(name);
@@ -170,14 +170,18 @@ MeasurementSystem & MeasurementManager::AddSystem(const Name& name)
 {
     Q_ASSERT(!m_metricSystems.contains(name));
     auto result = ::make_shared<MeasurementSystem>(name);
-    m_metricSystems.insert(name, result);
-    m_systemWrapper->Append(result);
+    AddSystem(result);
+    return *result;
+}
+
+void MeasurementManager::AddSystem(const MeasurementSystemPtr & system) {
+    Name key (system->Label.Native());
+    m_metricSystems.insert(key, system);
+    m_systemWrapper->Append(system);
     
     if(CurrentMeasurementSystem.Native().IsNull()) {
-        CurrentMeasurementSystem = name;
+        CurrentMeasurementSystem = key;
     }
-    
-    return *result;
 }
 
 MeasurementManager& MeasurementManager::GetInstance()
@@ -204,6 +208,7 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
         
         auto updateMinMax = [baseValueProperty, this]{
             Value.SetMinMax(m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->GetMin()), m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->GetMax()));
+            Value = m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->Native());
         };
         baseValueProperty->OnMinMaxChanged.Connect(this, updateMinMax).MakeSafe(m_connections);
         updateMinMax();

@@ -41,8 +41,8 @@ using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 namespace DistanceUnits
 {
     static const MeasurementUnit Meters ("Meters", []{return QObject::tr("meters");}, []{ return QObject::tr("m"); }, 3.280839895);
-    static const MeasurementUnit Feets  ("Feets"  , []{return QObject::tr("feets");},  []{ return QObject::tr("ft"); }, 1.0);
-    static const MeasurementUnit USFeets("Usfeets", []{return QObject::tr("usfeets");},[]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit Feets  ("Feets"  , []{return QObject::tr("feet");},  []{ return QObject::tr("ft"); }, 1.0);
+    static const MeasurementUnit USFeets("Usfeets", []{return QObject::tr("US feet");},[]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
 };
 
 namespace AngleUnits
@@ -53,16 +53,16 @@ namespace AngleUnits
 
 namespace FieldStrengthUnits
 {
-    static const MeasurementUnit NanoTeslas("NanoTeslas", []{return QObject::tr("nano tesla");}, []{ return QObject::tr("nT"); }, 1.0);
+    static const MeasurementUnit NanoTeslas("NanoTeslas", []{return QObject::tr("nanoTeslas");}, []{ return QObject::tr("nT"); }, 1.0);
 };
 
 namespace DLSUnits
 {
-    static const MeasurementUnit RadFeet     ("RadianFeet"  , []{return QObject::tr("radians / 100 feets");}, []{ return QObject::tr("rad/100ft"); }, 1.0);
-    static const MeasurementUnit RadMeter    ("RadianMeter" , []{return QObject::tr("radians / 30 meters");}, []{ return QObject::tr("rad/30m"); }, DEGREES_TO_RADIANS / (100.0 / 30.0));
-    static const MeasurementUnit DegreeFeet  ("DegreeFeet"  , []{return QObject::tr("degrees / 100 feets");}, []{ return QObject::tr("В°/100ft"); }, DEGREES_TO_RADIANS);
-    static const MeasurementUnit DegreeUSFeet("DegreeUSFeet", []{return QObject::tr("degrees / 100 usfeets");}, []{ return QObject::tr("В°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
-    static const MeasurementUnit DegreeMeter ("DegreeMeter" , []{return QObject::tr("degrees / 30 meters");}, []{ return QObject::tr("В°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
+    static const MeasurementUnit RadFeet     ("RadianFeet"  , []{return QObject::tr("rad per 100ft");}, []{ return QObject::tr("rad/100ft"); }, 1.0);
+    static const MeasurementUnit RadMeter    ("RadianMeter" , []{return QObject::tr("rad per 30m");}, []{ return QObject::tr("rad/30m"); }, DEGREES_TO_RADIANS / (100.0 / 30.0));
+    static const MeasurementUnit DegreeFeet  ("DegreeFeet"  , []{return QObject::tr("deg per 100ft");}, []{ return QObject::tr("°/100ft"); }, DEGREES_TO_RADIANS);
+    static const MeasurementUnit DegreeUSFeet("DegreeUSFeet", []{return QObject::tr("deg per 100usft");}, []{ return QObject::tr("°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit DegreeMeter ("DegreeMeter" , []{return QObject::tr("deg per 30m");}, []{ return QObject::tr("°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
 }
 
 class Measurement
@@ -126,13 +126,6 @@ public:
     LocalPropertyString Label;
     MeasurementSystem& AddParameter(const Name& measurmentType, const MeasurementParams& param);
     const MeasurementParams& GetParameter(const Name& measurmentType) const;
-    
-public:
-    template<typename Buffer>
-    void Serialize (Buffer& buffer) {
-        buffer << Label;
-        buffer << *reinterpret_cast<Super*>(this);
-    }
 };
 
 using MeasurementSystemPtr = SharedPointer<MeasurementSystem>;
@@ -144,11 +137,14 @@ class MeasurementManager
 {
     Q_DECLARE_TR_FUNCTIONS(MeasurementManager)
     MeasurementManager();
+    friend class Serializer<MeasurementManager>;
+    
 public:
     static MeasurementManager& GetInstance();
     
     Measurement& AddMeasurement(const Name& name);
     MeasurementSystem& AddSystem(const Name& name);
+    void AddSystem(const MeasurementSystemPtr& system);
     const MeasurementPtr& GetMeasurement(const Name& name) const;
     const MeasurementSystemPtr& GetSystem(const Name& name) const;
     
@@ -156,6 +152,9 @@ public:
     
     static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
+    
+    static constexpr double DegreeToRadian(double degree) { return degree * DEGREES_TO_RADIANS; }
+    static constexpr double RadianToDegree(double radian) { return radian / DEGREES_TO_RADIANS; }
     
     LocalProperty<Name> CurrentMeasurementSystem;
     
@@ -170,13 +169,6 @@ private:
     
     QHash<Name, MeasurementSystemPtr> m_metricSystems;
     QHash<Name, MeasurementPtr> m_metricMeasurements;
-    
-public:
-    template<typename Buffer>
-    void Serialize (Buffer& buffer) {
-        buffer << m_metricSystems;
-        buffer << CurrentMeasurementSystem;
-    }
 };
 
 class MeasurementProperty
