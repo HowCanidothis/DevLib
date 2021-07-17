@@ -201,15 +201,25 @@ public:
             OnMinMaxChanged();
         }
     }
-
+    
+    void SetPrecision(const T& precision)
+    {
+        if(LocalPropertyNotEqual(m_precision, precision)){
+            m_precision = precision;
+            OnPrecisionChanged();
+        }
+    }
+    
     LocalPropertyLimitedDecimal& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
 
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
+    const T& GetPrecision() const { return m_precision; }
 
     Dispatcher OnMinMaxChanged;
+    Dispatcher OnPrecisionChanged;
 
 private:
     T applyMinMax(const T& value) const
@@ -225,6 +235,7 @@ private:
     template<class T2> friend struct Serializer;
     T m_min;
     T m_max;
+    T m_precision;
 };
 
 using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;

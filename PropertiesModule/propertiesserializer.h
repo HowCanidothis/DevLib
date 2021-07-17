@@ -60,6 +60,9 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
             buffer << data.m_max;
             buffer << data.m_min;
         }
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_PrecisionProperties)) {
+            buffer << data.m_precision;
+        }
         buffer << data.m_value;
     }
 
@@ -70,6 +73,10 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
             buffer << data.m_max;
             buffer << data.m_min;
         }
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_PrecisionProperties)) {
+            buffer << data.m_precision;
+        }
+        
         if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
             T value;
             buffer << value;
