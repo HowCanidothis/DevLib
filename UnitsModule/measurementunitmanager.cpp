@@ -263,20 +263,20 @@ TranslatedString::FTranslationHandler MeasurementTranslatedString::generateTrans
     };
 }
 
-MeasurementSystem & MeasurementSystem::AddParameter(const Name & measurmentType, const MeasurementParams & param){
+MeasurementSystem & MeasurementSystem::AddParameter(const Name& measurmentType, const MeasurementParams& param){
     Q_ASSERT(!contains(measurmentType));
     insert(measurmentType, param);
     return *this;
 }
 
-const MeasurementParams & MeasurementSystem::GetParameter(const Name & measurmentType) const
+const MeasurementParams & MeasurementSystem::GetParameter(const Name& measurmentType) const
 {
     auto iter = find(measurmentType);
     Q_ASSERT(iter != end());
     return iter.value();
 }
 
-MeasurementParams::MeasurementParams(const Name & measurmentType){
+MeasurementParams::MeasurementParams(const Name& measurmentType){
     const auto& system = MeasurementManager::GetInstance().GetSystem(UNIT_SYSTEM_API);
     *this = system->GetParameter(measurmentType);
 }
