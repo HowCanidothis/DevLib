@@ -201,11 +201,10 @@ using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
 #define MEASUREMENT_DISTANCE_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromBaseToUnit(x)
-
 #define MEASUREMENT_DISTANCE_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->Precision
-#define MEASUREMENT_VIEW_DISTANCE_BASE_TO_UNIT(x) \
-    QString::number(MEASUREMENT_DISTANCE_BASE_TO_UNIT(x), 'g', MEASUREMENT_DISTANCE_PRECISION())
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->Precision
+#define MEASUREMENT_DISTANCE_BASE_TO_UNIT_UI(x) \
+    QString::number(MEASUREMENT_DISTANCE_BASE_TO_UNIT(x), 'f', MEASUREMENT_DISTANCE_PRECISION())
 
 #define MEASUREMENT_ANGLES_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromUnitToBase(x)
@@ -213,6 +212,9 @@ using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromBaseToUnit(x)
 #define MEASUREMENT_ANGLES_PRECISION() \
     MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->Precision
+#define MEASUREMENT_ANGLES_BASE_TO_UNIT_UI(x) \
+    QString::number(MEASUREMENT_ANGLES_BASE_TO_UNIT(x), 'f', MEASUREMENT_ANGLES_PRECISION())
+
 
 #define MEASUREMENT_DLS_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromUnitToBase(x)
@@ -220,6 +222,8 @@ using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromBaseToUnit(x)
 #define MEASUREMENT_DLS_PRECISION() \
     MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->Precision
+#define MEASUREMENT_DLS_BASE_TO_UNIT_UI(x) \
+    QString::number(MEASUREMENT_DLS_BASE_TO_UNIT(x), 'f', MEASUREMENT_DLS_PRECISION())
 
 
 #define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentUnitLabel

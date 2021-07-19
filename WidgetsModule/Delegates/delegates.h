@@ -37,7 +37,6 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
-    QString displayText(const QVariant& value, const QLocale& locale) const override;
 
     void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
     void SetRange(double min, double max);

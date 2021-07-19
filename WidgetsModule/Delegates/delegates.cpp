@@ -105,11 +105,6 @@ void DelegatesDoubleSpinBox::updateEditorGeometry(QWidget* editor, const QStyleO
     editor->setGeometry(option.rect);
 }
 
-QString DelegatesDoubleSpinBox::displayText(const QVariant& value, const QLocale&) const
-{
-    return QString::number(value.toDouble(), 'd', m_precision);
-}
-
 bool DelegatesDoubleSpinBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
     if(event->type() == QEvent::MouseButtonDblClick){

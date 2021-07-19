@@ -213,6 +213,7 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
         baseValueProperty->OnMinMaxChanged.Connect(this, updateMinMax).MakeSafe(m_connections);
         updateMinMax();
         
+        Value.Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_connections);
     }
     m_currentValue = baseValueProperty;
 }

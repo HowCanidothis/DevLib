@@ -60,9 +60,6 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
             buffer << data.m_max;
             buffer << data.m_min;
         }
-        if(buffer.GetSerializationMode().TestFlag(SerializationMode_PrecisionProperties)) {
-            buffer << data.m_precision;
-        }
         buffer << data.m_value;
     }
 
@@ -73,9 +70,6 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
             buffer << data.m_max;
             buffer << data.m_min;
         }
-        if(buffer.GetSerializationMode().TestFlag(SerializationMode_PrecisionProperties)) {
-            buffer << data.m_precision;
-        }
         
         if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
             T value;
@@ -84,6 +78,25 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
         } else {
             buffer << data.m_value;
         }        
+    }
+};
+
+template<typename T>
+struct Serializer<LocalPropertyLimitedDecimalFloat<T>>
+{
+    typedef LocalPropertyLimitedDecimalFloat<T> target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << *static_cast<const LocalPropertyLimitedDecimal<T>*>(&data);
+        buffer << data.Precision;
+    }
+    
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer << *static_cast<LocalPropertyLimitedDecimal<T>*>(&data);
+        buffer << data.Precision;
     }
 };
 

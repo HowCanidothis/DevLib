@@ -135,9 +135,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                 if(!fuzzyCompare(spinBox->value(), *property, presicion)) {
                     spinBox->setValue(*property);
                 }
+                if(spinBox->decimals() != property->Precision){
+                    spinBox->setDecimals(property->Precision);
+                }
             },
             [spinBox, property](){
-                *property = spinBox->value();
+                property->SetValue(spinBox->value());
             }
     )
 {
@@ -148,7 +151,11 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
-
+    property->Precision.OnChange.Connect(this, [spinBox, property]{
+        QSignalBlocker blocker(spinBox);
+        spinBox->setDecimals(property->Precision);
+    }).MakeSafe(m_dispatcherConnections);
+    
     m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
@@ -162,9 +169,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                 if(!fuzzyCompare((float)spinBox->value(), *property, presicion)) {
                     spinBox->setValue(*property);
                 }
+                if(spinBox->decimals() != property->Precision){
+                    spinBox->setDecimals(property->Precision);
+                }
             },
             [spinBox, property](){
-                *property = spinBox->value();
+                  *property = spinBox->value();
             }
     )
 {
@@ -174,6 +184,10 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     property->OnMinMaxChanged.Connect(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
+    }).MakeSafe(m_dispatcherConnections);
+    property->Precision.OnChange.Connect(this, [spinBox, property]{
+        QSignalBlocker blocker(spinBox);
+        spinBox->setDecimals(property->Precision);
     }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
@@ -202,7 +216,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
-
+    
     m_connections.connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
     });

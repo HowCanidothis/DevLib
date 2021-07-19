@@ -202,24 +202,14 @@ public:
         }
     }
     
-    void SetPrecision(const T& precision)
-    {
-        if(LocalPropertyNotEqual(m_precision, precision)){
-            m_precision = precision;
-            OnPrecisionChanged();
-        }
-    }
-    
     LocalPropertyLimitedDecimal& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
-
+    
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
-    const T& GetPrecision() const { return m_precision; }
 
     Dispatcher OnMinMaxChanged;
-    Dispatcher OnPrecisionChanged;
 
 private:
     T applyMinMax(const T& value) const
@@ -235,13 +225,29 @@ private:
     template<class T2> friend struct Serializer;
     T m_min;
     T m_max;
-    T m_precision;
 };
 
 using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
 using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
-using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
-using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
+
+template<class T>
+class LocalPropertyLimitedDecimalFloat : public LocalPropertyLimitedDecimal<T>
+{
+    using Super = LocalPropertyLimitedDecimal<T>;
+public:
+    LocalPropertyLimitedDecimalFloat(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)(), int precison = 2)
+        : Super(value, min, max)
+        , Precision(precison)
+    {}
+    
+    LocalPropertyInt Precision;
+    
+    LocalPropertyLimitedDecimalFloat& operator-=(const T& value) { Super::operator-=(value); return *this; }
+    LocalPropertyLimitedDecimalFloat& operator+=(const T& value) { Super::operator+=(value); return *this; }
+    LocalPropertyLimitedDecimalFloat& operator=(const T& value) { Super::operator=(value); return *this; }
+};
+using LocalPropertyDouble = LocalPropertyLimitedDecimalFloat<double>;
+using LocalPropertyFloat = LocalPropertyLimitedDecimalFloat<float>;
 
 template<typename Enum>
 class LocalPropertySequentialEnum : public LocalPropertyInt
@@ -721,7 +727,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<double>& localProperty)
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimalFloat<double>& localProperty)
 {
     auto property = ::make_shared<DoubleProperty>(name, localProperty.Native(), localProperty.GetMin(), localProperty.GetMax());
     auto* pProperty = property.get();
@@ -730,7 +736,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<float>& localProperty)
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimalFloat<float>& localProperty)
 {
     auto property = ::make_shared<FloatProperty>(name, localProperty.Native(), localProperty.GetMin(), localProperty.GetMax());
     auto* pProperty = property.get();
