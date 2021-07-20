@@ -55,8 +55,8 @@ double WidgetsDoubleSpinBoxWithCustomDisplay::valueFromText(const QString& text)
 QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
     static QRegExp regExp(R"((\d+\.?\d*))");
-
-    if(input.isEmpty() || (input.size() == 1 && input.startsWith("-"))) {
+    
+    if(input.isEmpty() || (input.size() == 1 && input.startsWith("-")) || input.startsWith(".") || input.startsWith(",")) {
         return QValidator::Intermediate;
     }
 

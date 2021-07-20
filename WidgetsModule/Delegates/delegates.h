@@ -25,6 +25,33 @@ private:
     Qt::AlignmentFlag m_aligment;
 };
 
+class DelegatesIntSpinBox : public QStyledItemDelegate
+{
+    Q_OBJECT
+    using Super = QStyledItemDelegate;
+public:
+    DelegatesIntSpinBox (int min = std::numeric_limits<int>().lowest(), int max = (std::numeric_limits<int>().max)(), int step = 1, QObject* parent = nullptr);
+    
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+    
+    void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
+    void SetRange(int min, int max);
+    
+    CommonDispatcher<class QSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
+    CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
+    
+private:
+    int m_min;
+    int m_max;
+    int m_step;
+    
+    std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
+};
+
 class DelegatesDoubleSpinBox : public QStyledItemDelegate
 {
     Q_OBJECT

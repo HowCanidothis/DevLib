@@ -62,6 +62,67 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
+
+DelegatesIntSpinBox::DelegatesIntSpinBox(int min, int max, int step, QObject* parent)
+    : QStyledItemDelegate(parent)
+      , m_min(min)
+      , m_max(max)
+      , m_step(step)
+      , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
+{
+    
+}
+
+QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
+{
+    auto* spin = new QSpinBox (parent);
+    spin->setRange(m_min, m_max);
+    spin->setSingleStep(m_step);
+    OnEditorAboutToBeShown(spin, index);
+    connect(spin, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this, index](int value){
+        OnEditorValueChanged(value, index);
+    });
+    return spin;
+}
+
+void DelegatesIntSpinBox::setEditorData(QWidget* editor, const QModelIndex& index) const {
+    auto data = index.model()->data(index, Qt::EditRole).toInt();
+    auto* spin = qobject_cast<QSpinBox*>(editor);
+    Q_ASSERT(spin != nullptr);
+    spin->setValue(data);
+}
+
+void DelegatesIntSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
+    auto* spin = static_cast<QSpinBox*>(editor);
+    const auto& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
+    
+    model->setData(index, val, Qt::EditRole);
+}
+
+void DelegatesIntSpinBox::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
+    editor->setGeometry(option.rect);
+}
+
+bool DelegatesIntSpinBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+    if(event->type() == QEvent::MouseButtonDblClick){
+        auto isEditable = m_editHandler(model, index);
+        if (!isEditable){///block
+            return true;
+        }
+    }
+    return Super::editorEvent(event, model, option, index);
+}
+
+void DelegatesIntSpinBox::SetEditHandler(const std::function<bool (QAbstractItemModel*, const QModelIndex&)>& handler){
+    m_editHandler = handler;
+}
+
+void DelegatesIntSpinBox::SetRange(int min, int max){
+    m_min = min;
+    m_max = max;
+}
+
 DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double step, int precision, QObject* parent)
     : QStyledItemDelegate(parent)
     , m_precision(precision)
