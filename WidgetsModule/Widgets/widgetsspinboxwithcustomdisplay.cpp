@@ -38,7 +38,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
 
 WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
-    , m_textFromValueHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay*, double value) -> QString { return QString::number(value, 'f', 2); })
+    , m_textFromValueHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return QString::number(value, 'f', spinBox->decimals()); })
     , m_valueFromTextHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay*, const QString& text) -> double { return text.toDouble(); })
 {}
 
