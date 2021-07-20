@@ -19,10 +19,11 @@ public:
     PromiseData()
         : m_result(false)
         , m_isResolved(false)
+        , m_isCompleted(false)
     {}
     ~PromiseData()
     {
-        if(!m_isResolved) {
+        if(!m_isCompleted) {
             resolve(false);
         }
     }
@@ -31,6 +32,7 @@ private:
     friend class Promise;
     bool m_result;
     std::atomic_bool m_isResolved;
+    std::atomic_bool m_isCompleted;
     CommonDispatcher<bool> onFinished;
     std::mutex m_mutex;
 
@@ -45,14 +47,20 @@ private:
             return;
         }
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(m_isResolved) {
-                return;
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                if(m_isResolved) {
+                    return;
+                }
+                m_isResolved = true;
             }
-            m_isResolved = true;
             bool value = handler();
-            m_result = value;
-            onFinished(value);
+            {
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_result = value;
+                onFinished(value);
+                m_isCompleted = true;
+            }            
         }
         
         onFinished -= this;
@@ -61,7 +69,7 @@ private:
     DispatcherConnection then(const FCallback& handler)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        if(m_isResolved) {
+        if(m_isCompleted) {
             handler(m_result);
             return DispatcherConnection();
         } else {
@@ -86,7 +94,7 @@ public:
 
     PromiseData* GetData() const { return m_data.get(); }
     bool GetValue() const { return m_data->m_result; }
-    bool IsResolved() const { return m_data->m_isResolved; }
+    bool IsResolved() const { return m_data->m_isCompleted; }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     void Resolve(bool value) const {  m_data->resolve(value); }
     void Resolve(const std::function<bool ()>& handler) const {  m_data->resolve(handler); }
