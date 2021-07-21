@@ -12,7 +12,7 @@ static constexpr double DEGREES_TO_RADIANS = M_PI / 180.0;
 static const Name MEASUREMENT_ANGLES         = "Angle";
 static const Name MEASUREMENT_DISTANCES      = "Length";
 static const Name MEASUREMENT_FIELD_STRENGTH = "Magnetic Field";
-static const Name MEASUREMENT_DLS            = "Curvature";
+static const Name MEASUREMENT_DLS            = "Dogleg Severity";
 
 class MeasurementUnit
 {
