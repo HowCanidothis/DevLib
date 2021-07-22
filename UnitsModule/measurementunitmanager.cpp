@@ -162,7 +162,7 @@ Measurement& MeasurementManager::AddMeasurement(const Name &name)
     m_metricMeasurements.insert(name, result);
     int index = m_measurmentWrapper->GetSize();
     m_measurmentWrapper->Append(result);
-    result->OnChanged.Connect(this, [this, index]{m_measurmentWrapper->Edit(index, [](const MeasurementPtr& p){ qDebug() << "Change " << p->Label; }); });
+    result->OnChanged.Connect(this, [this, index]{m_measurmentWrapper->Edit(index, [](const MeasurementPtr& ){ }); });
     return *result;
 }
 

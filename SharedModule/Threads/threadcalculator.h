@@ -78,9 +78,13 @@ public:
             m_data->ReleaserHandler = releaser;
             
             if(m_data->Calculating) {
-                m_latestTask.Resolve(false);
-                m_data->NeedRecalculate = true;
-                return;
+                bool resetedInThisThread = false;
+                m_latestTask.Resolve([&resetedInThisThread]{ resetedInThisThread = true; return false; });
+                if(!resetedInThisThread) {
+                    m_data->NeedRecalculate = true;
+                    return;
+                }
+                m_data->NeedRecalculate = false;
             }
             
             m_data->Calculating = true;
@@ -108,7 +112,6 @@ public:
             }, EPriority::Low);
             m_latestTask.Then([currentData](bool){
                 currentData->Data->Handler([currentData]{
-                    currentData->Data->Calculating = false;
                     currentData->CurrentReleaser();
                 });
             });

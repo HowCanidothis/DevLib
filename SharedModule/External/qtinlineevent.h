@@ -31,8 +31,7 @@ class _Export QtInlineEventWithResult : public QtInlineEvent
 public:
     QtInlineEventWithResult(const FAction& function, const AsyncResult& result)
         : Super([function, result]{
-            function();
-            result.Resolve(true);
+            result.Resolve([function]{ function(); return true; });
         })
     {}
 

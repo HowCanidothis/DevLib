@@ -46,22 +46,21 @@ private:
         if(m_isResolved) {
             return;
         }
+        
         {
-            {
-                std::unique_lock<std::mutex> lock(m_mutex);
-                if(m_isResolved) {
-                    return;
-                }
-                m_isResolved = true;
+            std::unique_lock<std::mutex> lock(m_mutex);
+            if(m_isResolved) {
+                return;
             }
-            bool value = handler();
-            {
-                std::unique_lock<std::mutex> lock(m_mutex);
-                m_result = value;
-                onFinished(value);
-                m_isCompleted = true;
-            }            
+            m_isResolved = true;
         }
+        bool value = handler();
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_result = value;
+            onFinished(value);
+            m_isCompleted = true;
+        }            
         
         onFinished -= this;
     }
