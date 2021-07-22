@@ -168,3 +168,20 @@ void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
     QClipboard* clipboard = qApp->clipboard();
     clipboard->setText(text);
 }
+
+WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
+    : Super(parent)
+    , m_filter(filter)
+{
+    parent->installEventFilter(this);
+}
+
+void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
+{
+    new WidgetsAttachment(filter, target);
+}
+
+bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
+{
+    return m_filter(watched, e);
+}

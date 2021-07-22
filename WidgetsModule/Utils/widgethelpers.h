@@ -72,6 +72,22 @@ private:
     bool eventFilter(QObject* watched, QEvent* e) override;
 };
 
+class WidgetsAttachment : public QObject
+{
+    using Super = QObject;
+public:
+    using FFilter = std::function<bool (QObject*, QEvent*)>;
+    WidgetsAttachment(const FFilter& filter, QObject* parent);
+
+    static void Attach(QObject* target, const FFilter& filter);
+
+private:
+    bool eventFilter(QObject* watched, QEvent* e) override;
+
+private:
+    FFilter m_filter;
+};
+
 struct WidgetAppearance
 {
     static DispatcherConnection ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child);
