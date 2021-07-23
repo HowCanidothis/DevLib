@@ -42,3 +42,8 @@ QFrame[ApplicationMode="1"] QProgressBar{
 QFrame[ApplicationMode="2"] QProgressBar{
     background-color: #007acc;
 }
+
+OffsetView QProgressBar {
+    max-height: 3px;
+    border: none;
+}
