@@ -99,17 +99,17 @@ MeasurementManager::MeasurementManager()
         .AddUnit(&DLSUnits::DegreeMeter)
         .AddUnit(&DLSUnits::RadMeter);
     
+	AddSystem(UNIT_SYSTEM_API_USFT)
+		.AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
+		.AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,         2})
+		.AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
+		.AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,         2});
+	
     AddSystem(UNIT_SYSTEM_API)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
         .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,           2})
         .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
         .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,           2});
-    
-    AddSystem(UNIT_SYSTEM_API_USFT)
-        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
-        .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,         2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
-        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,         2});
     
     AddSystem(UNIT_SYSTEM_SI)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,           2})
@@ -194,6 +194,11 @@ const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& systemName
 {
     Q_ASSERT(m_metricMeasurements.contains(systemName));
     return m_metricMeasurements[systemName]->GetCurrentUnit();
+}
+
+QStringList MeasurementManager::DefaultSystems()
+{
+	return {UNIT_SYSTEM_API.AsString(), UNIT_SYSTEM_API_USFT.AsString(), UNIT_SYSTEM_SI.AsString()};
 }
 
 void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)

@@ -158,7 +158,7 @@ public:
     
     LocalProperty<Name> CurrentMeasurementSystem;
     
-    
+	static QStringList DefaultSystems();
     const WPSCUnitSystemTableWrapperPtr& GetSystemsWrapper() const { return m_systemWrapper; }
     const WPSCUnitMeasurementTableWrapperPtr& GetMeasurementWrapper() const { return m_measurmentWrapper; }
     
