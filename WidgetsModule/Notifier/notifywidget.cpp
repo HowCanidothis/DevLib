@@ -58,6 +58,13 @@ NotifyWidget::NotifyWidget (NotifyData* data, int displayTime, QWidget* parent)
     connect(m_closeBtn, &QPushButton::clicked, this, [this]{
         Q_EMIT disappeared();
     });
+    connect(m_bodyLabel, &QLabel::linkActivated, [this](const QString& link){
+        bool accepted = false;
+        LinkActivated(link, accepted);
+        if(!accepted) {
+            QDesktopServices::openUrl(QUrl(link));
+        }
+    });
 }
 
 

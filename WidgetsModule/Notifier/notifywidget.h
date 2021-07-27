@@ -32,6 +32,8 @@ public:
 
     void ShowGriant(qint32 maxHeight);
 
+    CommonDispatcher<const QString&, bool&> LinkActivated;
+
 Q_SIGNALS:
     void disappeared();
 

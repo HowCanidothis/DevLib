@@ -31,6 +31,8 @@ public:
     void SetWidth(qint32 width);
     void SetDisplayTime(int ms);
 
+    CommonDispatcher<const QString&, bool&> LinkActivated;
+
 private Q_SLOTS:
     void rearrange();
     void showNext();

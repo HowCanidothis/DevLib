@@ -130,6 +130,7 @@ void NotifyManager::showNext()
     auto data = m_dataQueue.dequeue();
 
     NotifyWidget* notify = new NotifyWidget(data, this->m_displayTime);
+    LinkActivated.ConnectFrom(notify->LinkActivated);
     notify->setFixedWidth(m_width);
 
     QDesktopWidget* desktop = QApplication::desktop();
