@@ -2,8 +2,9 @@
 
 #include <QObject>
 
-PropertiesLogger::PropertiesLogger()
-    : m_logSeverity("Log/Severity", Logger::Debug)
+PropertiesLogger::PropertiesLogger(const QDir& directory)
+    : Super(directory)
+    , m_logSeverity("Log/Severity", Logger::Debug)
     , m_logMaxDays("Log/MaxDays", 1, 1, 30)
     , m_logConsoleEnabled("Log/ConsoleEnabled", true)
 {

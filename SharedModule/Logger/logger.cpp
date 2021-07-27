@@ -10,8 +10,8 @@
 #include "SharedModule/Threads/threadsbase.h"
 #include "SharedModule/FileSystem/filesguard.h"
 
-Logger::Logger()
-    : m_filesGuard(new FilesGuard("log_*.txt", 1))
+Logger::Logger(const QDir& directory)
+    : m_filesGuard(new FilesGuard("log_*.txt", 1, directory))
     , m_severity(Debug)
     , m_printHandler(&Logger::printBoth)
     , m_messageHandler(&Logger::additionalMessageNoOp)

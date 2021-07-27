@@ -2,7 +2,9 @@
 #define QSTRINGCONVERTERS_H
 
 #include <QUrl>
+#ifdef QT_GUI_LIB
 #include <QColor>
+#endif
 
 template <>
 struct TextConverter<QUrl>
@@ -77,6 +79,7 @@ struct TextConverter<qint32>
     }
 };
 
+#ifdef QT_GUI_LIB
 template <>
 struct TextConverter<QColor>
 {
@@ -91,6 +94,7 @@ struct TextConverter<QColor>
         return QColor(string);
     }
 };
+#endif
 
 template <>
 struct TextConverter<Name>

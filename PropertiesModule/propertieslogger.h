@@ -7,8 +7,9 @@
 
 class PropertiesLogger : public Logger
 {
+    using Super = Logger;
 public:
-    PropertiesLogger();
+    PropertiesLogger(const QDir& directory);
 
 private:
     NamedUIntProperty m_logSeverity;

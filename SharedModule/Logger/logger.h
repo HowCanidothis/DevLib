@@ -17,7 +17,7 @@ public:
         Debug,
     };
 
-    Logger();
+    Logger(const QDir& directory);
     ~Logger();
 
     static void EnableLogging(bool enabled);

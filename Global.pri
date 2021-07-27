@@ -51,27 +51,17 @@ win32-g++ {
 defineTest(setBuildDirectory) {
     buildPath = $$1
 
-    !isEmpty(buildPath) {
-        $$OUT_PWD = $$buildPath
-        export(OUT_PWD)
-    }
-
-    isEmpty(CUSTOM_CONFIGURATION_NAME) {
-        CONFIG(debug, debug|release) {
-            BUILDTYPE = debug
-        } else {
-            BUILDTYPE = release
-        }
+    CONFIG(debug, debug|release) {
+        BUILDTYPE = debug
+        CONFIG += console
+        DESTDIR = $$join(buildPath,,,_debug)
     } else {
-        BUILDTYPE = $$CUSTOM_CONFIGURATION_NAME
+        BUILDTYPE = release
+        DESTDIR = $$join(buildPath,,,_release)
     }
 
-    CONFIG(force_debug_info) {
-        DEFINES += QT_PROFILE
-        export(DEFINES)
-    }
+    message($$DESTDIR)
 
-    DESTDIR = $$OUT_PWD/$$BUILDTYPE/bin
     OBJECTS_DIR = $$OUT_PWD/$$BUILDTYPE/obj
     MOC_DIR = $$OUT_PWD/$$BUILDTYPE/moc
     RCC_DIR = $$OUT_PWD/$$BUILDTYPE/rcc
