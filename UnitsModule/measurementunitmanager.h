@@ -183,7 +183,7 @@ public:
 private:
     LocalPropertyDouble* m_currentValue;
     DispatcherConnectionsSafe m_connections;
-    DispatcherConnectionSafePtr m_systemConnection;
+    DispatcherConnectionsSafe m_systemConnections;
     MeasurementPtr m_metricSystem;
 };
 

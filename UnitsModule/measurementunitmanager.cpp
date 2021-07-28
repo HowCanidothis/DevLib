@@ -225,11 +225,11 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
     : m_currentValue(nullptr)
 {
     m_metricSystem = MeasurementManager::GetInstance().GetMeasurement(systemName);
-    m_systemConnection = m_metricSystem->OnChanged.Connect(this, [this]{
+    m_metricSystem->OnChanged.Connect(this, [this]{
                                                       Connect(m_currentValue);
-                                                  }).MakeSafe();
+                                                  }).MakeSafe(m_systemConnections);
 
-    Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_connections);
+    Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_systemConnections);
 }
 
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics)
