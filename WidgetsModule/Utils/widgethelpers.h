@@ -11,9 +11,9 @@ struct WidgetsLocalPropertyColorWrapperColorMap
 Q_DECLARE_TYPEINFO(WidgetsLocalPropertyColorWrapperColorMap, Q_PRIMITIVE_TYPE);
 
 template<class T>
-class WidgetsLocalPropertyDecimalDisplay : public LocalPropertyLimitedDecimalFloat<T>
+class WidgetsLocalPropertyDecimalDisplay : public LocalPropertyLimitedDecimal<T>
 {
-    using Super = LocalPropertyLimitedDecimalFloat<T>;
+    using Super = LocalPropertyLimitedDecimal<T>;
 public:
     WidgetsLocalPropertyDecimalDisplay(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)())
         : Super(value, min, max)
@@ -29,7 +29,7 @@ public:
     WidgetsLocalPropertyDecimalDisplay& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
     WidgetsLocalPropertyDecimalDisplay& operator=(const T& value) { SetValue(value); return *this; }
 
-    LocalPropertyLimitedDecimalFloat<T> DisplayValue;
+    LocalPropertyLimitedDecimal<T> DisplayValue;
 };
 
 class WidgetsLocalPropertyColorWrapper : public QObject

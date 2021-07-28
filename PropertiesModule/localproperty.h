@@ -710,7 +710,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimalFloat<double>& localProperty)
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<double>& localProperty)
 {
     auto property = ::make_shared<DoubleProperty>(name, localProperty.Native(), localProperty.GetMin(), localProperty.GetMax());
     auto* pProperty = property.get();
@@ -719,7 +719,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimalFloat<float>& localProperty)
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyLimitedDecimal<float>& localProperty)
 {
     auto property = ::make_shared<FloatProperty>(name, localProperty.Native(), localProperty.GetMin(), localProperty.GetMax());
     auto* pProperty = property.get();
