@@ -82,25 +82,6 @@ struct Serializer<LocalPropertyLimitedDecimal<T>>
 };
 
 template<typename T>
-struct Serializer<LocalPropertyLimitedDecimalFloat<T>>
-{
-    typedef LocalPropertyLimitedDecimalFloat<T> target_type;
-    template<class Buffer>
-    static void Write(Buffer& buffer, const target_type& data)
-    {
-        buffer << *static_cast<const LocalPropertyLimitedDecimal<T>*>(&data);
-        buffer << data.Precision;
-    }
-    
-    template<class Buffer>
-    static void Read(Buffer& buffer, target_type& data)
-    {
-        buffer << *static_cast<LocalPropertyLimitedDecimal<T>*>(&data);
-        buffer << data.Precision;
-    }
-};
-
-template<typename T>
 struct Serializer<LocalPropertyVector<T>>
 {
     using TypeName = LocalPropertyVector<T>;

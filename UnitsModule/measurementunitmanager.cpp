@@ -217,8 +217,6 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
         };
         baseValueProperty->OnMinMaxChanged.Connect(this, updateMinMax).MakeSafe(m_connections);
         updateMinMax();
-        
-        Value.Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_connections);
     }
     m_currentValue = baseValueProperty;
 }
@@ -230,6 +228,8 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
     m_systemConnection = m_metricSystem->OnChanged.Connect(this, [this]{
                                                       Connect(m_currentValue);
                                                   }).MakeSafe();
+
+    Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_connections);
 }
 
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics)

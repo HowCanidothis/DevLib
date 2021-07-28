@@ -4,6 +4,15 @@ void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measu
 {
     auto data = createPropertyData(measurement, property);
     AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox);
+
+    auto* measurementProperty = &data->Property;
+
+    auto updatePrecision = [data, measurementProperty, spinBox]{
+        spinBox->setDecimals(measurementProperty->Precision);
+    };
+
+    data->Property.Precision.OnChange.Connect(this, updatePrecision).MakeSafe(m_connections);
+    updatePrecision();
 }
 
 void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)

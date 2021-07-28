@@ -229,25 +229,8 @@ private:
 
 using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
 using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
-
-template<class T>
-class LocalPropertyLimitedDecimalFloat : public LocalPropertyLimitedDecimal<T>
-{
-    using Super = LocalPropertyLimitedDecimal<T>;
-public:
-    LocalPropertyLimitedDecimalFloat(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)(), int precison = 2)
-        : Super(value, min, max)
-        , Precision(precison)
-    {}
-    
-    LocalPropertyInt Precision;
-    
-    LocalPropertyLimitedDecimalFloat& operator-=(const T& value) { Super::operator-=(value); return *this; }
-    LocalPropertyLimitedDecimalFloat& operator+=(const T& value) { Super::operator+=(value); return *this; }
-    LocalPropertyLimitedDecimalFloat& operator=(const T& value) { Super::operator=(value); return *this; }
-};
-using LocalPropertyDouble = LocalPropertyLimitedDecimalFloat<double>;
-using LocalPropertyFloat = LocalPropertyLimitedDecimalFloat<float>;
+using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
+using LocalPropertyFloat = LocalPropertyLimitedDecimal<float>;
 
 template<typename Enum>
 class LocalPropertySequentialEnum : public LocalPropertyInt

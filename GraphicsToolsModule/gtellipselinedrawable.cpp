@@ -70,7 +70,7 @@ void GtEllipseLineDrawable::draw(OpenGLFunctions* f)
 
     f->glLineWidth(Width);
     m_material->Draw(f);
-    f->glLineWidth(10.f);
+    f->glLineWidth(1.f);
 }
 
 void GtEllipseLineDrawable::onInitialize(OpenGLFunctions* f)

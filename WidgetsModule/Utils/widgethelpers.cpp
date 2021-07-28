@@ -130,6 +130,24 @@ void WidgetContent::ForeachChildWidget(QWidget* target, const std::function<void
     }
 }
 
+QList<int> WidgetContent::SelectedRowsSorted(QTableView* tableView)
+{
+    auto ret = SelectedRowsSet(tableView).toList();
+    std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
+    return ret;
+}
+
+QSet<int> WidgetContent::SelectedRowsSet(QTableView* tableView)
+{
+    QSet<int> set;
+    auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
+
+    for(const auto& index : selectedIndexes){
+        set.insert(index.row());
+    }
+    return set;
+}
+
 void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
 {
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();

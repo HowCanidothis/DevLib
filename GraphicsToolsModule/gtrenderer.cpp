@@ -291,7 +291,7 @@ bool GtRenderer::onInitialize()
     glClearStencil(0x00);
 
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(5.f);
+    glLineWidth(1.f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

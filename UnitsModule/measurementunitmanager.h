@@ -178,6 +178,7 @@ public:
     
     void Connect(LocalPropertyDouble* baseValueProperty);
     LocalPropertyDouble Value;
+    LocalPropertyInt Precision;
     
 private:
     LocalPropertyDouble* m_currentValue;
