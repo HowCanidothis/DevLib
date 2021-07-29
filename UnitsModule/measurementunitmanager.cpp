@@ -212,8 +212,12 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
                              }).MakeSafe(m_connections);
         
         auto updateMinMax = [baseValueProperty, this]{
-            Value.SetMinMax(m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->GetMin()), m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->GetMax()));
-            Value = m_metricSystem->BaseValueToCurrentUnit(baseValueProperty->Native());
+            auto convertValue = [this](double source) {
+                auto unitValue = m_metricSystem->BaseValueToCurrentUnit(source);
+                return qIsInf(unitValue) ? source : unitValue;
+            };
+            Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));
+            Value = convertValue(baseValueProperty->Native());
         };
         baseValueProperty->OnMinMaxChanged.Connect(this, updateMinMax).MakeSafe(m_connections);
         updateMinMax();

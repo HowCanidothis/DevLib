@@ -81,9 +81,11 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
         m_propertySetter();
     });
     if(reactive){
-    m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
-        m_textChanged.Call([this]{ THREAD_ASSERT_IS_MAIN() m_propertySetter();});
-    });
+        m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
+            if(!m_ignoreWidgetChange) {
+                m_textChanged.Call([this]{ m_propertySetter(); });
+            }
+        });
     }
 }
 

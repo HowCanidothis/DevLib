@@ -127,6 +127,7 @@ class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetCon
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
      LocalPropertiesLineEditConnector(LocalProperty<QString>* property, class QLineEdit* lineEdit, bool reactive = true);
+
  private:
      DelayedCallObject m_textChanged;
 };

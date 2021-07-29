@@ -3,16 +3,18 @@
 void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
 {
     auto data = createPropertyData(measurement, property);
-    AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox);
-
     auto* measurementProperty = &data->Property;
 
-    auto updatePrecision = [data, measurementProperty, spinBox]{
+    auto updatePrecision = [measurementProperty, spinBox]{
+        QSignalBlocker blocker(spinBox);
         spinBox->setDecimals(measurementProperty->Precision);
+        spinBox->setValue(std::numeric_limits<double>::lowest());
+        spinBox->setValue(measurementProperty->Value);
     };
 
     data->Property.Precision.OnChange.Connect(this, updatePrecision).MakeSafe(m_connections);
     updatePrecision();
+    AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox);
 }
 
 void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
