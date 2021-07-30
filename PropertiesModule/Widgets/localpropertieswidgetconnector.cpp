@@ -242,6 +242,7 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
                     if(i != *property && button->isChecked()) {
                         button->setChecked(false);
                     }
+					i++;
                 }
             },
             [property, this]{
