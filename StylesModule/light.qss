@@ -7,7 +7,7 @@
 @import url("light/style.qss");
 @import url("light/leftbar.qss");
 @import url("common/visualization.qss");
-@import url("light/visualization.qss");
 @import url("light/ads.qss");
 @import url("light/topnotifierframe.qss");
 @import url("light/icons.qss");
+@import url("light/visualization.qss");

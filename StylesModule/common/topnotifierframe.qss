@@ -5,7 +5,6 @@ TopNotifierFrame QLabel{
 
 TopNotifierFrame {
     background: #1464A0;
-    qproperty-opacity: 0.2;
     padding: 10px;
     border: none;
 }
