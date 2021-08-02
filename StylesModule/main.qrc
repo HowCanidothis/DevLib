@@ -19,5 +19,6 @@
         <file>light/visualization.qss</file>
         <file>dark/icons.qss</file>
         <file>light/icons.qss</file>
+        <file>common/visualization.qss</file>
     </qresource>
 </RCC>
