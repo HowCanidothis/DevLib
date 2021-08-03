@@ -9,11 +9,6 @@ static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;
 static constexpr double USFEETS_TO_FEETS_MULTIPLIER = 1.000002;
 static constexpr double DEGREES_TO_RADIANS = M_PI / 180.0;
 
-static const Name MEASUREMENT_ANGLES         = "Angle";
-static const Name MEASUREMENT_DISTANCES      = "Length";
-static const Name MEASUREMENT_FIELD_STRENGTH = "Magnetic Field";
-static const Name MEASUREMENT_DLS            = "Dogleg Severity";
-
 class MeasurementUnit
 {
 public:
@@ -37,33 +32,6 @@ private:
 Q_DECLARE_METATYPE(const MeasurementUnit*)
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
 using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
-
-namespace DistanceUnits
-{
-    static const MeasurementUnit Meters ("Meters", []{return QObject::tr("meters");}, []{ return QObject::tr("m"); }, 3.280839895);
-    static const MeasurementUnit Feets  ("Feets"  , []{return QObject::tr("feet");},  []{ return QObject::tr("ft"); }, 1.0);
-    static const MeasurementUnit USFeets("Usfeets", []{return QObject::tr("US feet");},[]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
-};
-
-namespace AngleUnits
-{
-    static const MeasurementUnit Radians("Radian", []{return QObject::tr("radians");}, []{ return QObject::tr("rad"); }, 1.0);
-    static const MeasurementUnit Degrees("Degree", []{return QObject::tr("degrees");}, []{ return "°"; }, DEGREES_TO_RADIANS);
-};
-
-namespace FieldStrengthUnits
-{
-    static const MeasurementUnit NanoTeslas("NanoTeslas", []{return QObject::tr("nanoTeslas");}, []{ return QObject::tr("nT"); }, 1.0);
-};
-
-namespace DLSUnits
-{
-    static const MeasurementUnit RadFeet     ("RadianFeet"  , []{return QObject::tr("rad per 100ft");}, []{ return QObject::tr("rad/100ft"); }, 1.0);
-    static const MeasurementUnit RadMeter    ("RadianMeter" , []{return QObject::tr("rad per 30m");}, []{ return QObject::tr("rad/30m"); }, DEGREES_TO_RADIANS / (100.0 / 30.0));
-    static const MeasurementUnit DegreeFeet  ("DegreeFeet"  , []{return QObject::tr("deg per 100ft");}, []{ return QObject::tr("°/100ft"); }, DEGREES_TO_RADIANS);
-    static const MeasurementUnit DegreeUSFeet("DegreeUSFeet", []{return QObject::tr("deg per 100usft");}, []{ return QObject::tr("°/100usft"); }, DEGREES_TO_RADIANS / USFEETS_TO_FEETS_MULTIPLIER);
-    static const MeasurementUnit DegreeMeter ("DegreeMeter" , []{return QObject::tr("deg per 30m");}, []{ return QObject::tr("°/30m"); }, DEGREES_TO_RADIANS * (100.0 / METERS_TO_FEETS_MULTIPLIER) / 30.0);
-}
 
 class Measurement
 {
@@ -150,11 +118,11 @@ public:
     
     const MeasurementUnit* GetCurrentUnit(const Name& systemName) const;
     
-    static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
-    static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
+	static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
+	static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
     
-    static constexpr double DegreeToRadian(double degree) { return degree * DEGREES_TO_RADIANS; }
-    static constexpr double RadianToDegree(double radian) { return radian / DEGREES_TO_RADIANS; }
+	static constexpr double DegreeToRadian(double degree) { return degree * DEGREES_TO_RADIANS; }
+	static constexpr double RadianToDegree(double radian) { return radian / DEGREES_TO_RADIANS; }
     
     LocalProperty<Name> CurrentMeasurementSystem;
     
@@ -198,37 +166,15 @@ private:
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;
 
-#define MEASUREMENT_DISTANCE_UNIT_TO_BASE(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
-#define MEASUREMENT_DISTANCE_BASE_TO_UNIT(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromBaseToUnit(x)
-#define MEASUREMENT_DISTANCE_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->Precision
-#define MEASUREMENT_DISTANCE_BASE_TO_UNIT_UI(x) \
-    QString::number(MEASUREMENT_DISTANCE_BASE_TO_UNIT(x), 'f', MEASUREMENT_DISTANCE_PRECISION())
-
-#define MEASUREMENT_ANGLES_UNIT_TO_BASE(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromUnitToBase(x)
-#define MEASUREMENT_ANGLES_BASE_TO_UNIT(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_ANGLES)->FromBaseToUnit(x)
-#define MEASUREMENT_ANGLES_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->Precision
-#define MEASUREMENT_ANGLES_BASE_TO_UNIT_UI(x) \
-    QString::number(MEASUREMENT_ANGLES_BASE_TO_UNIT(x), 'f', MEASUREMENT_ANGLES_PRECISION())
-
-
-#define MEASUREMENT_DLS_UNIT_TO_BASE(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromUnitToBase(x)
-#define MEASUREMENT_DLS_BASE_TO_UNIT(x) \
-    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromBaseToUnit(x)
-#define MEASUREMENT_DLS_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->Precision
-#define MEASUREMENT_DLS_BASE_TO_UNIT_UI(x) \
-    QString::number(MEASUREMENT_DLS_BASE_TO_UNIT(x), 'f', MEASUREMENT_DLS_PRECISION())
-
-
-#define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentUnitLabel
-#define MEASUREMENT_ANGLES_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->CurrentUnitLabel
-#define MEASUREMENT_DLS_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->CurrentUnitLabel
+#define MEASUREMENT_UNIT_TO_BASE(system, x) \
+	MeasurementManager::GetInstance().GetCurrentUnit(system)->FromUnitToBase(x)
+#define MEASUREMENT_BASE_TO_UNIT(system, x) \
+    MeasurementManager::GetInstance().GetCurrentUnit(system)->FromBaseToUnit(x)
+#define MEASUREMENT_PRECISION(system, x) \
+    MeasurementManager::GetInstance().GetMeasurement(system)->Precision
+#define MEASUREMENT_BASE_TO_UNIT_UI(system, x) \
+    QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))
+#define MEASUREMENT_STRING(system) \
+	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
 
 #endif // MEASUREMENTUNITMANAGER_H

@@ -20,7 +20,7 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
-private:
+protected:
     QStringList m_values;
     Qt::AlignmentFlag m_aligment;
 };
@@ -89,13 +89,16 @@ class DelegatesDateTime : public QStyledItemDelegate
 public:
     DelegatesDateTime (QObject* parent = nullptr);
 
+	void SetDisplayFormat(const QString& format) { m_displayFormat = format; }
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-
-signals:
-    void dateTimeChanged(const QDateTime& dateTime, const QModelIndex& index);
+	
+	CommonDispatcher<class QDateTimeEdit*, const QModelIndex&> OnEditorAboutToBeShown;
+	CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
+private:
+	QString m_displayFormat;
 };
 
 class DelegatesCheckBox : public QStyledItemDelegate
@@ -108,4 +111,27 @@ public:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 };
+
+//class DelegatesIconBox : public QStyledItemDelegate
+//{
+//    Q_OBJECT
+//    using Super = QStyledItemDelegate;
+//public:
+//	DelegatesIconBox(const QIcon& icon, QObject* parent = nullptr);
+    
+//	QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+//    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+//    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+//    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+//    bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+    
+//    void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
+    
+//    CommonDispatcher<class QLabel*, const QModelIndex&> OnEditorAboutToBeShown;
+//    CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
+    
+//private:
+//    QIcon m_icon;
+//    std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
+//};
 #endif // DELEGATES_H

@@ -1,6 +1,15 @@
 #include "measurementunitmanager.h"
 
-#include <qmath.h>
+#include "MeasurementTypes/angledeclarations.h"
+#include "MeasurementTypes/distancedeclarations.h"
+#include "MeasurementTypes/doglegdeclarations.h"
+#include "MeasurementTypes/flowspeeddeclarations.h"
+#include "MeasurementTypes/magneticdeclarations.h"
+#include "MeasurementTypes/massdeclarations.h"
+#include "MeasurementTypes/pressuredeclarations.h"
+#include "MeasurementTypes/speeddeclarations.h"
+#include "MeasurementTypes/torquedeclarations.h"
+
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -81,41 +90,103 @@ MeasurementManager::MeasurementManager()
     : m_systemWrapper(::make_shared<WPSCUnitSystemTableWrapper>())
       , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
 {
-    AddMeasurement(MEASUREMENT_ANGLES)
-        .AddUnit(&AngleUnits::Degrees)
-        .AddUnit(&AngleUnits::Radians);
+	AddMeasurement(MEASUREMENT_ANGLES)
+			.AddUnit(&AngleUnits::Degrees)
+			.AddUnit(&AngleUnits::Radians);
+	
+	AddMeasurement(MEASUREMENT_DISTANCES)
+			.AddUnit(&DistanceUnits::USFeets)
+			.AddUnit(&DistanceUnits::Feets)
+			.AddUnit(&DistanceUnits::Meters);
+	
+	AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
+			.AddUnit(&FieldStrengthUnits::NanoTeslas);
+	
+	AddMeasurement(MEASUREMENT_DLS)
+			.AddUnit(&DLSUnits::DegreeUSFeet)
+			.AddUnit(&DLSUnits::DegreeFeet)
+			.AddUnit(&DLSUnits::DegreeMeter)
+			.AddUnit(&DLSUnits::RadMeter);
     
-    AddMeasurement(MEASUREMENT_DISTANCES)
-        .AddUnit(&DistanceUnits::USFeets)
-        .AddUnit(&DistanceUnits::Feets)
-        .AddUnit(&DistanceUnits::Meters);
-    
-    AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
-        .AddUnit(&FieldStrengthUnits::NanoTeslas);
-    
-    AddMeasurement(MEASUREMENT_DLS)
-        .AddUnit(&DLSUnits::DegreeUSFeet)
-        .AddUnit(&DLSUnits::DegreeFeet)
-        .AddUnit(&DLSUnits::DegreeMeter)
-        .AddUnit(&DLSUnits::RadMeter);
-    
+	AddMeasurement(MEASUREMENT_FLOW_SPEED)
+			.AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
+			.AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
+			.AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
+			.AddUnit(&FlowSpeedUnits::CubicMetersPerDay   )
+			.AddUnit(&FlowSpeedUnits::LitersPerSecond     )
+			.AddUnit(&FlowSpeedUnits::LitersPerMinute     )
+			.AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
+			.AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
+	
+	AddMeasurement(MEASUREMENT_MASS)
+			.AddUnit(&MassUnits::Kilograms )
+			.AddUnit(&MassUnits::Grams     )
+			.AddUnit(&MassUnits::Tonnes    )
+			.AddUnit(&MassUnits::Pounds    )
+			.AddUnit(&MassUnits::Kilopounds);
+	
+	AddMeasurement(MEASUREMENT_PRESSURE)
+			.AddUnit(&PressureUnits::Pascals                    )
+			.AddUnit(&PressureUnits::Kilopascals                )
+			.AddUnit(&PressureUnits::Bars                       )
+			.AddUnit(&PressureUnits::Megapascals                )
+			.AddUnit(&PressureUnits::Atmospheres                )
+			.AddUnit(&PressureUnits::KilogramPerSquareCentimeter)
+			.AddUnit(&PressureUnits::PoundsPerSquareInch        )
+			.AddUnit(&PressureUnits::KilopoundsPerSquareInch    )
+			.AddUnit(&PressureUnits::PoundsPerSquareFeet        );
+	
+	AddMeasurement(MEASUREMENT_SPEED)
+			.AddUnit(&SpeedUnits::MetersPerSecond  )
+			.AddUnit(&SpeedUnits::MetersPerMinute  )
+			.AddUnit(&SpeedUnits::MetersPerHour    )
+			.AddUnit(&SpeedUnits::KilometersPerHour)
+			.AddUnit(&SpeedUnits::FeetPerHour      )
+			.AddUnit(&SpeedUnits::USfeetPerHour    )
+			.AddUnit(&SpeedUnits::FeetPerMinute    )
+			.AddUnit(&SpeedUnits::USfeetPerMinute  )
+			.AddUnit(&SpeedUnits::FeetPerSecond    )
+			.AddUnit(&SpeedUnits::USfeetPerSecond  )
+			.AddUnit(&SpeedUnits::MilesPerHour     );
+	
+	AddMeasurement(MEASUREMENT_TORQUE)
+			.AddUnit(&TorqueUnits::NewtonMeters      )
+			.AddUnit(&TorqueUnits::KilonewtonMeters  )
+			.AddUnit(&TorqueUnits::PoundForceFeet    )
+			.AddUnit(&TorqueUnits::KilopoundForceFeet);
+	
 	AddSystem(UNIT_SYSTEM_API_USFT)
-		.AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
-		.AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,         2})
-		.AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
-		.AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,         2});
+		.AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                2})
+		.AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,             2})
+		.AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,     1})
+		.AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,             2})
+	    .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::USfeetPerHour.Id,          2})
+		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,              0})
+		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id, 0})
+		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,    0})
+		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,   2});
 	
     AddSystem(UNIT_SYSTEM_API)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
         .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,           2})
         .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
-        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,           2});
+        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,           2})
+		.AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::FeetPerHour.Id,        2})
+		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,          0})
+		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::Bars.Id,            0})
+		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilonewtonMeters.Id,  0})
+		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::LitersPerSecond.Id,2});
     
     AddSystem(UNIT_SYSTEM_SI)
-        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,           2})
-        .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Meters.Id,         2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,1})
-        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeMeter.Id,         2});
+        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                2})
+        .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Meters.Id,              2})
+        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,     1})
+        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeMeter.Id,              2})
+		.AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::MetersPerHour.Id,          2})
+		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Tonnes.Id,                  0})
+		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id, 0})
+		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,    0})
+		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,   2});
     
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
