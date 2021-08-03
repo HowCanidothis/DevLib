@@ -167,15 +167,15 @@ MeasurementManager::MeasurementManager()
 		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,   2});
 	
     AddSystem(UNIT_SYSTEM_API)
-        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,            2})
-        .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,           2})
-        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id, 1})
-        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,           2})
-		.AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::FeetPerHour.Id,        2})
-		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,          0})
-		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::Bars.Id,            0})
-		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilonewtonMeters.Id,  0})
-		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::LitersPerSecond.Id,2});
+        .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                2})
+        .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,               2})
+        .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,     1})
+        .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,               2})
+		.AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::FeetPerHour.Id,            2})
+		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,              0})
+		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id, 0})
+		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,    0})
+		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,   0});
     
     AddSystem(UNIT_SYSTEM_SI)
         .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                2})
@@ -184,9 +184,10 @@ MeasurementManager::MeasurementManager()
         .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeMeter.Id,              2})
 		.AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::MetersPerHour.Id,          2})
 		.AddParameter(MEASUREMENT_MASS,              {MassUnits::Tonnes.Id,                  0})
-		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id, 0})
-		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,    0})
-		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,   2});
+		.AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::Bars.Id,                0})
+		.AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilonewtonMeters.Id,      0})
+		.AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::LitersPerSecond.Id,    0});
+		
     
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
