@@ -207,19 +207,17 @@ QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionView
 }
 
 void DelegatesDateTime::setEditorData(QWidget* editor, const QModelIndex& index) const {
-    auto varData = index.model()->data(index, Qt::EditRole);
-    auto data = varData.toDateTime();
-
+    const auto& dateTime = index.model()->data(index, Qt::EditRole).toDateTime();
+	
     QDateTimeEdit* dt = qobject_cast<QDateTimeEdit*>(editor);
     Q_ASSERT(dt != nullptr);
-    dt->setDateTime(data);
+	dt->setTimeSpec(dateTime.timeSpec());
+    dt->setDateTime(dateTime);
 }
 
 void DelegatesDateTime::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QDateTimeEdit* dt = static_cast<QDateTimeEdit*>(editor);
-    const auto& val = dt->dateTime();
-
-    model->setData(index, val, Qt::EditRole);
+    model->setData(index, dt->dateTime(), Qt::EditRole);
 }
 
 void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
