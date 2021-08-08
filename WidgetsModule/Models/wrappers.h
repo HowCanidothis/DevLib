@@ -204,8 +204,11 @@ class TModelsTableWrapper : private Container, public ModelsTableWrapper
 {
     using Super = Container;
 public:
+    using container_type = Container;
     using value_type = typename Super::value_type;
     using Super::Super;
+
+    TModelsTableWrapper<Container>& BaseWrapper() { return *this; }
 
     void Swap(Super& another)
     {

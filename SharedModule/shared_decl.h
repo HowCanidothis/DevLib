@@ -7,6 +7,16 @@
 #include <functional>
 #include <cmath>
 
+#include "flags.h"
+
+enum SerializationMode {
+    SerializationMode_Default = 0x0,
+    SerializationMode_InvokeProperties = 0x1,
+    SerializationMode_MinMaxProperties = 0x2,
+    SerializationMode_UserDefined = 0x200
+};
+DECL_FLAGS(SerializationModes, SerializationMode);
+
 class Nanosecs
 {
 public:

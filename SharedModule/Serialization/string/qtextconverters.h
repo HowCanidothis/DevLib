@@ -21,6 +21,51 @@ struct TextConverter<QUrl>
     }
 };
 
+template <>
+struct TextConverter<QByteArray>
+{
+    using value_type = QByteArray;
+    static QString ToText(const value_type& value)
+    {
+        return value;
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return string.toLatin1();
+    }
+};
+
+template <>
+struct TextConverter<QDateTime>
+{
+    using value_type = QDateTime;
+    static QString ToText(const value_type& value)
+    {
+        return value.toString();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return QDateTime::fromString(string);
+    }
+};
+
+template <>
+struct TextConverter<QDate>
+{
+    using value_type = QDate;
+    static QString ToText(const value_type& value)
+    {
+        return value.toString();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return QDate::fromString(string);
+    }
+};
+
 template <class T>
 struct TextConverter<QList<T>>
 {
@@ -74,6 +119,45 @@ struct TextConverter<qint32>
     }
 
     static value_type FromText(const QString& string)
+    {
+        return string.toInt();
+    }
+};
+
+template<>
+struct TextConverter<double>
+{
+    static QString ToText(double value)
+    {
+        return QString::number(value, 'f', 14);
+    }
+    static double FromText(const QString& string)
+    {
+        return string.toDouble();
+    }
+};
+
+template<>
+struct TextConverter<float>
+{
+    static QString ToText(float value)
+    {
+        return QString::number(value, 'f', 7);
+    }
+    static float FromText(const QString& string)
+    {
+        return string.toFloat();
+    }
+};
+
+template<>
+struct TextConverter<bool>
+{
+    static QString ToText(bool value)
+    {
+        return QString::number((qint32)value);
+    }
+    static bool FromText(const QString& string)
     {
         return string.toInt();
     }

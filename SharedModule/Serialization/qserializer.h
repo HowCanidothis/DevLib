@@ -146,15 +146,24 @@ struct Serializer<QDateTime>
     template<class Buffer>
     static void Write(Buffer& buffer, const Type& type)
     {
-        qint64 julianDay = type.toMSecsSinceEpoch();
-        buffer << julianDay;
+        static qint64 invalidValue = -1;
+        if(!type.isValid()) {
+            buffer << invalidValue;
+        } else {
+            qint64 julianDay = type.toMSecsSinceEpoch();
+            buffer << julianDay;
+        }
     }
     template<class Buffer>
     static void Read(Buffer& buffer, Type& type)
     {
         qint64 julianDay;
         buffer << julianDay;
-        type = QDateTime::fromMSecsSinceEpoch(julianDay);
+        if(julianDay == -1) {
+            type = QDateTime();
+        } else {
+            type = QDateTime::fromMSecsSinceEpoch(julianDay);
+        }
     }
 };
 

@@ -35,24 +35,36 @@ class ThreadCalculator
     public:
         ThreadCalculatorDataPtr<T> Data;
         typename ThreadCalculatorData<T>::Calculator CurrentCalculator;
-        typename ThreadCalculatorData<T>::Releaser CurrentReleaser;
+
         
         CurrentData(const ThreadCalculatorDataPtr<T>& data)
             : Data(data)
             , CurrentCalculator(data->CalculatorHandler)
-            , CurrentReleaser(data->ReleaserHandler)
+            , m_currentReleaser(data->ReleaserHandler)
+            , m_released(false)
         {
             
         }
         
         ~CurrentData()
         {
+            Q_ASSERT(m_released);
             auto data = Data;
             auto currentCalculator = CurrentCalculator;
-            auto currentReleaser = CurrentReleaser;
+            auto currentReleaser = m_currentReleaser;
             data->Handler([data, currentCalculator, currentReleaser]{});
         }
-        
+
+        void Release() {
+            if(!m_released) {
+                m_released = true;
+                m_currentReleaser();
+            }
+        }
+
+    private:
+        typename ThreadCalculatorData<T>::Releaser m_currentReleaser;
+        bool m_released;
     };
     
 public:
@@ -94,6 +106,7 @@ public:
             m_latestTask = ThreadsBase::Async([this, currentData]{
                 auto result = currentData->CurrentCalculator();
                 currentData->Data->Handler([this, result, currentData]{
+                    currentData->Release();
                     const auto& data = currentData->Data;
                     if(data->Destroyed) {
                         return;
@@ -112,7 +125,7 @@ public:
             }, EPriority::Low);
             m_latestTask.Then([currentData](bool){
                 currentData->Data->Handler([currentData]{
-                    currentData->CurrentReleaser();
+                    currentData->Release();
                 });
             });
         });

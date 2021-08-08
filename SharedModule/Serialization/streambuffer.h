@@ -4,15 +4,6 @@
 #include "stdserializer.h"
 #include "SharedModule/flags.h"
 
-enum SerializationMode {
-    SerializationMode_Default = 0x0,
-    SerializationMode_InvokeProperties = 0x1,
-    SerializationMode_MinMaxProperties = 0x2,
-    SerializationMode_PrecisionProperties = 0x4,
-    SerializationMode_UserDefined = 0x200
-};
-DECL_FLAGS(SerializationModes, SerializationMode);
-
 template<class Stream>
 class StreamBufferBase
 {
@@ -56,6 +47,13 @@ public:
     {
         m_isValid = m_stream.good();
     }
+
+    void OpenSection(const QString&) {}
+    template<class T>
+    T& Attr(const QString&, T& value) const { return value; }
+    template<class T>
+    T& Sect(const QString&, T& value) const { return value; }
+    void CloseSection(){}
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }

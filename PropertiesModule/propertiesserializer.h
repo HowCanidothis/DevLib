@@ -110,4 +110,53 @@ struct Serializer<LocalPropertyVector<T>>
     }
 };
 
+#define SERIALIZER_XML_DECLARE_PROPERTY_TYPE(PropertyType) \
+template<class T> \
+struct SerializerXml<PropertyType<T>> \
+{ \
+    using Type = PropertyType<T>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object) \
+    { \
+        T value; \
+        buffer << object.Mutate(value); \
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) { \
+            object.Value = value; \
+        } else { \
+            object.Value.EditSilent() = value; \
+        } \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        const auto& value = object.Value.Native(); \
+        buffer << object.Mutate(const_cast<T&>(value)); \
+    } \
+};
+
+template<class T>
+struct SerializerXml<LocalPropertySequentialEnum<T>>
+{
+    using Type = LocalPropertySequentialEnum<T>;
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
+    {
+        qint32 value;
+        buffer << object.Mutate(value);
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            object.Value = (T)value;
+        } else {
+            object.Value.m_value = value;
+        }
+    }
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        buffer << object.Mutate(object.Value.m_value);
+    }
+};
+
+SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalProperty)
+SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalPropertyLimitedDecimal)
+
 #endif // PROPERTIESSERIALIZER_H

@@ -226,21 +226,106 @@ public:
         return p - distToPlane * planeNormal;
     }
 
-    static std::tuple<Vector3F, float, Vector3F, float, float> DistanceBetweenLineSegments(const Vector3F& a, const Vector3F& b, const Vector3F& c, const Vector3F& d)
+    static std::tuple<Vector3F, float, Vector3F, float, float> DistanceBetweenLineSegments(const Vector3F& ap, const Vector3F& bp, const Vector3F& cp, const Vector3F& dp)
     {
-        auto cd = d - c;
-        float lineDirSqrMag = dotProduct(cd, cd);
-        auto inPlaneA = a - ((dotProduct(a-c, cd)/lineDirSqrMag)*cd);
-        auto inPlaneB = b - ((dotProduct(b-c, cd)/lineDirSqrMag)*cd);
-        auto inPlaneAB = inPlaneB - inPlaneA;
-        auto t = dotProduct(c - inPlaneA, inPlaneA) / dotProduct(inPlaneAB, inPlaneAB);
-        t = inPlaneA.EqualTo(inPlaneB) ? 0.f : t;
-        auto abProjection = ::lerp(a,b,::clamp(t, 0.f, 1.f));
-        auto s = abProjection.ProjectToLineSegmentT(c,d);
-        auto cdPoint = ::lerp(c, d, s);
-        t = cdPoint.ProjectToLineSegmentT(a,b);
-        auto abPoint = ::lerp(a, b, t);
-        return std::make_tuple(abPoint, t, cdPoint, s, cdPoint.distanceToPoint(abPoint));
+        const double SMALL_NUM = 0.0000000001;
+        auto u = bp - ap;
+        auto v = dp - cp;
+        auto w = ap - cp;
+
+        double a = dotProduct(u, u);         // always >= 0
+        double b = dotProduct(u, v);
+        double c = dotProduct(v, v);         // always >= 0
+        double d = dotProduct(u, w);
+        double e = dotProduct(v, w);
+        double D = a * c - b * b;        // always >= 0
+        double sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
+        double tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
+
+        // compute the line parameters of the two closest points
+        if (D < SMALL_NUM) { // the lines are almost parallel
+            sN = 0.0;         // force using point P0 on segment S1
+            sD = 1.0;         // to prevent possible division by 0.0 later
+            tN = e;
+            tD = c;
+        } else {                 // get the closest points on the infinite lines
+            sN = (b * e - c * d);
+            tN = (a * e - b * d);
+            if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
+                sN = 0.0;
+                tN = e;
+                tD = c;
+            } else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+                sN = sD;
+                tN = e + b;
+                tD = c;
+            }
+        }
+
+        if (tN < 0.0) {            // tc < 0 => the t=0 edge is visible
+            tN = 0.0;
+            // recompute sc for this edge
+            if (-d < 0.0) {
+                sN = 0.0;
+            } else if (-d > a) {
+                sN = sD;
+            } else {
+                sN = -d;
+                sD = a;
+            }
+        } else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+            tN = tD;
+            // recompute sc for this edge
+            if ((-d + b) < 0.0) {
+                sN = 0;
+            } else if ((-d + b) > a) {
+                sN = sD;
+            } else {
+                sN = (-d + b);
+                sD = a;
+            }
+        }
+        // finally do the division to get sc and tc
+        sc = (abs(sN) < SMALL_NUM ? 0.0 : sN / sD);
+        tc = (abs(tN) < SMALL_NUM ? 0.0 : tN / tD);
+
+        auto point1 = ap + u * sc;
+        auto point2 = cp + v * tc;
+
+        // get the difference of the two closest points
+        auto dP = (w + u * sc) - v * tc;  // =  S1(sc) - S2(tc)
+
+        return std::make_tuple(point1, sc, point2, tc, dP.length());
+
+        /*auto segA = ap, segC = cp, segB = bp, segD = dp;
+        auto inPlaneA = segA.ProjectToPlane(segC, segD-segC);
+        auto inPlaneB = segB.ProjectToPlane(segC, segD-segC);
+        auto inPlaneBA = inPlaneB-inPlaneA;
+        auto t = dotProduct(segC-inPlaneA, inPlaneBA)/dotProduct(inPlaneBA, inPlaneBA);
+        t = !inPlaneA.EqualTo(inPlaneB) ? t : 0.f; // Zero's t if parallel
+        auto segABtoLineCD = ::lerp(segA, segB, ::clamp(t, 0.f, 1.f));
+
+        auto s = segABtoLineCD.ProjectToLineSegmentT(segC, segD);
+        auto segCDtoSegAB = ::lerp(segC, segD, s);
+        t = segCDtoSegAB.ProjectToLineSegmentT(segA, segB);
+        auto segABtoSegCD = ::lerp(segA, segB, t);
+        return std::make_tuple(segABtoSegCD, t, segCDtoSegAB, s, segABtoSegCD.distanceToPoint(segCDtoSegAB));*/
+
+        /*{
+            auto cd = d - c;
+            float lineDirSqrMag = dotProduct(cd, cd);
+            auto inPlaneA = a - ((dotProduct(a-c, cd)/lineDirSqrMag)*cd);
+            auto inPlaneB = b - ((dotProduct(b-c, cd)/lineDirSqrMag)*cd);
+            auto inPlaneAB = inPlaneB - inPlaneA;
+            auto t = dotProduct(c - inPlaneA, inPlaneA) / dotProduct(inPlaneAB, inPlaneAB);
+            t = inPlaneA.EqualTo(inPlaneB) ? 0.f : t;
+            auto abProjection = ::lerp(a,b,::clamp(t, 0.f, 1.f));
+            auto s = abProjection.ProjectToLineSegmentT(c,d);
+            auto cdPoint = ::lerp(c, d, s);
+            t = cdPoint.ProjectToLineSegmentT(a,b);
+            auto abPoint = ::lerp(a, b, t);
+        }*/
+
     }
 
     Vector3F operator+(const Vector3F& another) const { return static_cast<Vector3F>((toBase() + another.toBase())); }
