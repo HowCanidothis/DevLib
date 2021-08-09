@@ -10,6 +10,7 @@ class FilesGuard
 public:
     FilesGuard(const QString& pattern, qint32 maxCount, const QDir& dir = QDir::current());
 
+    const QDir& GetDirectory() const { return m_directory; }
     void SetDirectory(const QDir& directory) { m_directory = directory; }
     void SetPattern(const QString& pattern) { m_pattern = pattern; }
     void SetMaxCount(qint32 count) { m_maxCount = count; }

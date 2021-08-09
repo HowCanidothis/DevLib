@@ -149,11 +149,10 @@ void Logger::checkDate()
     QDate currentDate = QDate::currentDate();
     if(m_currentDate != currentDate) {
         m_currentDate = currentDate;
-        m_file = new QFile(m_currentDate.toString("'log_'yy'_'MM'_'dd'.txt'"));
+        m_file = new QFile(m_filesGuard->GetDirectory().filePath(m_currentDate.toString("'log_'yy'_'MM'_'dd'.txt'")));
         if(m_file->open(QFile::WriteOnly | QFile::Append)) {
             m_fileStream = new QTextStream(m_file.data());
-
-        m_filesGuard->Checkout();
+            m_filesGuard->Checkout();
         } else {
             m_printHandler = &Logger::printWithoutFile;
         }
