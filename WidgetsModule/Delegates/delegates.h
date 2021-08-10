@@ -57,7 +57,10 @@ class DelegatesDoubleSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesDoubleSpinBox (double min = std::numeric_limits<double>().lowest(), double max = (std::numeric_limits<double>().max)(), double step = 1.0, int precision = 2, QObject* parent = nullptr);
+	DelegatesDoubleSpinBox (QObject* parent = nullptr) : DelegatesDoubleSpinBox(std::numeric_limits<double>().lowest(), (std::numeric_limits<double>().max)(), parent) {}
+	DelegatesDoubleSpinBox (double min, double max, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, 1.0, parent) {}
+	DelegatesDoubleSpinBox (double min, double max, double step, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, step, 2, parent){}
+	DelegatesDoubleSpinBox (double min, double max, double step, int precision, QObject* parent = nullptr);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -70,15 +73,14 @@ public:
     
     CommonDispatcher<class QDoubleSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
-    
-private:
+	
+protected:
     int m_precision;
     double m_min;
     double m_max;
     double m_step;
     
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
-    
 };
 
 //TODO ADD FORMAT

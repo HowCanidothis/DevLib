@@ -132,7 +132,6 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double st
     , m_step(step)
     , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
-    
 }
 
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
