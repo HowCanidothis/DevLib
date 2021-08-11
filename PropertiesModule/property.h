@@ -30,19 +30,19 @@ struct PropertyValueExtractorPrivate<SharedPointer<T>>
 template<typename T>
 struct PropertyValueExtractorPrivate<QList<T>>
 {
-    static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value); }
+    static QVariant ExtractVariant(const QList<T>& value) { return TextConverter<QList<T>>::ToText(value, TextConverterContext::DefaultContext()); }
 };
 
 template<typename Key, typename Value>
 struct PropertyValueExtractorPrivate<QHash<Key, Value>>
 {
-    static QVariant ExtractVariant(const QHash<Key, Value>& value) { return TextConverter<QHash<Key, Value>>::ToText(value); }
+    static QVariant ExtractVariant(const QHash<Key, Value>& value) { return TextConverter<QHash<Key, Value>>::ToText(value, TextConverterContext::DefaultContext()); }
 };
 
 template<typename Key>
 struct PropertyValueExtractorPrivate<QSet<Key>>
 {
-    static QVariant ExtractVariant(const QSet<Key>& value) { return TextConverter<QSet<Key>>::ToText(value); }
+    static QVariant ExtractVariant(const QSet<Key>& value) { return TextConverter<QSet<Key>>::ToText(value, TextConverterContext::DefaultContext()); }
 };
 
 class _Export Property {
@@ -393,7 +393,7 @@ public:
     }
 
 protected:
-    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value, TextConverterContext::DefaultContext()); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
@@ -462,7 +462,7 @@ public:
     QSet<Key> GetPreviousValue() const { return TextConverter<typename Super::value_type>::FromText(Super::m_previousValue.toString()); }
 
 protected:
-    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value, TextConverterContext::DefaultContext()); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
@@ -510,7 +510,7 @@ public:
     }
 
 protected:
-    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value); }
+    QVariant getValue() const Q_DECL_OVERRIDE { return TextConverter<typename Super::value_type>::ToText(Super::m_value, TextConverterContext::DefaultContext()); }
     void setValueInternal(const QVariant& value) Q_DECL_OVERRIDE { Super::m_value = TextConverter<typename Super::value_type>::FromText(value.toString()); }
 };
 
@@ -521,7 +521,7 @@ class _Export VariantProperty : public TProperty<QString>
 public:
     using Super::Super;
 
-    VariantProperty<T>& operator=(const T& value) { Super::SetValue(TextConverter<T>::ToText(value)); return *this; }
+    VariantProperty<T>& operator=(const T& value) { Super::SetValue(TextConverter<T>::ToText(value, TextConverterContext::DefaultContext())); return *this; }
 
     operator T() const { return TextConverter<T>::FromText(Super::m_value); }
 };

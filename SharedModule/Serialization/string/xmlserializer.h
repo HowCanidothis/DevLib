@@ -5,6 +5,7 @@
 #include <QBuffer>
 
 #include "SharedModule/shared_decl.h"
+#include "SharedModule/Serialization/qserializer.h"
 
 enum class SerializerValueType
 {
@@ -134,30 +135,19 @@ struct SerializerXml<QSet<T>>
     using Type = QSet<T>;
 
     template<class Buffer>
-    static void Read(Buffer& reader, const SerializerXmlObject<Type>& object)
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
-        reader.OpenSection(object.Name);
-        qint32 count = object.Value.size();
-        reader << reader.Attr("Size", count);
-        object.Value.clear();
-        while(count--) {
-            T element;
-            reader << reader.Sect("element", element);
-            object.Value.insert(element);
-        }
-        reader.CloseSection();
+        buffer.OpenSection(object.Name);
+        Serializer<Type>::Read(buffer, object.Value);
+        buffer.CloseSection();
     }
 
     template<class Buffer>
-    static void Write(Buffer& writer, const SerializerXmlObject<Type>& object)
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
-        writer.OpenSection(object.Name);
-        qint32 count = object.Value.size();
-        writer << writer.Attr("Size", count);
-        for(const auto& element : object.Value) {
-            writer << writer.Sect("element", const_cast<T&>(element));
-        }
-        writer.CloseSection();
+        buffer.OpenSection(object.Name);
+        Serializer<Type>::Write(buffer, object.Value);
+        buffer.CloseSection();
     }
 };
 
@@ -196,6 +186,8 @@ public:
         : m_mode(SerializationMode_Default)
     {}
 
+    StandardVariantPropertiesContainer Properties;
+
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
 
@@ -223,13 +215,18 @@ public:
         : m_writer(writer)
     {}
 
+    void SetTextConverterContext(const TextConverterContext& context)
+    {
+        m_context = context;
+    }
+
     template<class T>
     void SerializeAtomic(const SerializerXmlObject<T>& object)
     {
         if(object.Type == SerializerValueType::Attribute) {
-            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value));
+            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value, m_context));
         } else {
-            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value));
+            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value, m_context));
         }
     }
 
@@ -257,6 +254,7 @@ public:
 
 private:
     QXmlStreamWriter* m_writer;
+    TextConverterContext m_context;
 };
 
 class SerializerXmlReadBuffer : public SerializerXmlBufferBase
@@ -313,15 +311,40 @@ private:
     QXmlStreamReader* m_reader;
 };
 
+struct DescSerializationXMLWriteProperties
+{
+    bool AutoFormating = false;
+    SerializationModes Mode = SerializationMode_Default;
+    TextConverterContext Context;
+
+    DescSerializationXMLWriteProperties& SetAutoFormating(bool autoFormating) { AutoFormating = autoFormating; return *this; }
+    DescSerializationXMLWriteProperties& SetTextConverterContext(const TextConverterContext& context) { Context = context; return *this; }
+    DescSerializationXMLWriteProperties& SetSerializationMode(SerializationModes serializationMode) { Mode = serializationMode; return *this; }
+};
+
 template<class T>
-inline QByteArray SerializeToXML(const T& object, bool autoFormating = false, SerializationModes serializationMode = SerializationMode_Default)
+inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWriteProperties& properties)
 {
     QByteArray array;
     QXmlStreamWriter writer(&array);
-    writer.setAutoFormatting(autoFormating);
+    writer.setAutoFormatting(properties.AutoFormating);
     SerializerXmlWriteBuffer buffer(&writer);
-    buffer.SetSerializationMode(serializationMode);
+    buffer.SetSerializationMode(properties.Mode);
+    buffer.SetTextConverterContext(properties.Context);
     buffer << const_cast<T&>(object);
+    return array;
+}
+
+template<class T>
+inline QByteArray SerializeToXML(const QString& startSection, const T& object, const DescSerializationXMLWriteProperties& properties)
+{
+    QByteArray array;
+    QXmlStreamWriter writer(&array);
+    writer.setAutoFormatting(properties.AutoFormating);
+    SerializerXmlWriteBuffer buffer(&writer);
+    buffer.SetSerializationMode(properties.Mode);
+    buffer.SetTextConverterContext(properties.Context);
+    buffer << buffer.Sect(startSection, const_cast<T&>(object));
     return array;
 }
 
@@ -332,18 +355,6 @@ void DeSerializeFromXML(const QByteArray& array, T& object, SerializationModes s
     SerializerXmlReadBuffer buffer(&reader);
     buffer.SetSerializationMode(serializationMode);
     buffer << object;
-}
-
-template<class T>
-inline QByteArray SerializeToXML(const QString& name, const T& object, bool autoFormating = false, SerializationModes serializationMode = SerializationMode_Default)
-{
-    QByteArray array;
-    QXmlStreamWriter writer(&array);
-    writer.setAutoFormatting(autoFormating);
-    SerializerXmlWriteBuffer buffer(&writer);
-    buffer.SetSerializationMode(serializationMode);
-    buffer << buffer.Sect(name, const_cast<T&>(object));
-    return array;
 }
 
 template<class T>

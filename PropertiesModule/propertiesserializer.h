@@ -26,6 +26,29 @@ struct Serializer<LocalProperty<T>>
     }
 };
 
+template<>
+struct Serializer<StateProperty>
+{
+    typedef StateProperty target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.m_value;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            bool value;
+            buffer << value;
+            data.SetState(value);
+        } else {
+            buffer << data.m_value;
+        }
+    }
+};
+
 template<typename T>
 struct Serializer<LocalPropertySequentialEnum<T>>
 {
@@ -153,6 +176,29 @@ struct SerializerXml<LocalPropertySequentialEnum<T>>
     static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
         buffer << object.Mutate(object.Value.m_value);
+    }
+};
+
+template<>
+struct SerializerXml<StateProperty>
+{
+    using Type = StateProperty;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& data)
+    {
+        buffer << data.Mutate(data.Value.m_value);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            bool value;
+            buffer << buffer.Sect(data.Name, value);
+            data.Value.SetState(value);
+        } else {
+            buffer << data.Mutate(data.Value.m_value);
+        }
     }
 };
 

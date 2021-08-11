@@ -3,6 +3,27 @@
 
 #include "stdserializer.h"
 #include "SharedModule/flags.h"
+#include "SharedModule/name.h"
+
+static QVariant StreamBufferBaseDefaultPropertyResult;
+
+class StandardVariantPropertiesContainer
+{
+    QHash<Name,QVariant> m_properties;
+public:
+    void SetProperty(const Name& propertyName, const QVariant& value)
+    {
+        m_properties.insert(propertyName, value);
+    }
+    const QVariant& GetProperty(const Name& propertyName) const
+    {
+        auto foundIt = m_properties.find(propertyName);
+        if(foundIt != m_properties.end()) {
+            return foundIt.value();
+        }
+        return StreamBufferBaseDefaultPropertyResult;
+    }
+};
 
 template<class Stream>
 class StreamBufferBase
@@ -53,7 +74,7 @@ public:
     T& Attr(const QString&, T& value) const { return value; }
     template<class T>
     T& Sect(const QString&, T& value) const { return value; }
-    void CloseSection(){}
+    void CloseSection(){}   
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
@@ -66,6 +87,8 @@ public:
     template<class T>
     StreamBufferBase& operator<<(T& data);
     StreamBufferBase& operator<<(const PlainData& data);
+
+    StandardVariantPropertiesContainer Properties;
 };
 
 template<class Stream>

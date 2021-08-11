@@ -3,10 +3,12 @@
 
 #include <QString>
 
+#include "textconvertercontext.h"
+
 template <class T>
 struct TextConverter
 {    
-    static QString ToText(const T& value)
+    static QString ToText(const T& value, const TextConverterContext& context)
     {
         return value.ToString();
     }

@@ -116,24 +116,33 @@ struct Serializer<QSet<T>>
     template<class Buffer>
     static void Write(Buffer& buffer, const target_type& data)
     {
-        qint32 size = data.size();
-        buffer << size;
-        for(const T& value : data) {
-            buffer << value;
+        qint32 count = data.size();
+        buffer << buffer.Attr("Size", count);
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_Sorted_Containers)) {
+            auto list = data.toList();
+            std::sort(list.begin(), list.end());
+            for(const auto& element : list) {
+                buffer << buffer.Sect("element", const_cast<T&>(element));
+            }
+        } else {
+            for(const auto& element : data) {
+                buffer << buffer.Sect("element", const_cast<T&>(element));
+            }
         }
     }
 
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
-        qint32 size;
-        buffer << size;
-        if(size) {
-            data.reserve(size);
-            while(size--) {
-                T value;
-                buffer << value;
-                data.insert(value);
+        qint32 count = data.size();
+        buffer << buffer.Attr("Size", count);
+        data.clear();
+        if(count) {
+            data.reserve(count);
+            while(count--) {
+                T element;
+                buffer << buffer.Sect("element", element);
+                data.insert(element);
             }
         }
     }
