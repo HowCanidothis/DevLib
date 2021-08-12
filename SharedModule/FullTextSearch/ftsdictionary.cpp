@@ -48,9 +48,9 @@ FTSMatchResult FTSDictionary::Match(const QString& string) const
             for(const auto& objectRow : foundItDict.value()) {
                 auto foundIt = rows.find(objectRow);
                 if(foundIt == rows.end()) {
-                    rows.insert(objectRow, objectRow.weight * weight);
+                    rows.insert(objectRow, qMin(objectRow.weight, weight));
                 } else {
-                    foundIt.value() += objectRow.weight * weight;
+                    foundIt.value() += qMin(objectRow.weight, weight);
                 }
             }
         }
@@ -61,6 +61,52 @@ FTSMatchResult FTSDictionary::Match(const QString& string) const
     }
 
     return result;
+}
+
+QMap<qint32, FTSMatchedObject> FTSDictionary::Map(const QStringList& strings) const
+{
+    QMap<qint32, FTSMatchedObject> bestMapping;
+    QVector<FTSMatchResult> temp;
+    for(const auto& string : strings) {
+        auto res = Match(string);
+        res.Sort();
+        temp.append(res);
+    }
+
+    QHash<FTSObjectRow, qint32> objectsUse;
+
+    QVector<qint32> indices;
+    indices.resize(temp.size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    while(!indices.isEmpty()) {
+        QVector<qint32> newIndices;
+        for(qint32 row : indices) {
+            const auto& tempResult = temp[row];
+            bestMapping[row] = { {nullptr, 0, 0.0}, 0.0 };
+            for(const auto& match : tempResult) {
+                auto foundIt = objectsUse.find(match.Row);
+                if(foundIt != objectsUse.end()) {
+                    auto oldIndex = foundIt.value();
+                    auto currentMatch = bestMapping[oldIndex].matchesWeight;
+                    if(currentMatch < match.matchesWeight) {
+                        objectsUse.erase(foundIt);
+                        bestMapping[row] = match;
+                        objectsUse[match.Row] = row;
+                        newIndices.append(oldIndex);
+                        break;
+                    }
+                } else {
+                    objectsUse.insert(match.Row, row);
+                    bestMapping[row] = match;
+                    break;
+                }
+            }
+        }
+        indices = newIndices;
+    }
+
+    return bestMapping;
 }
 
 bool FTSDictionary::parseString(const QString &string, const std::function<void (const Name&, double weight)>& onStringPartSplited) const
@@ -84,7 +130,7 @@ bool FTSDictionary::parseString(const QString &string, const std::function<void 
     auto ie = lowerString.end();
     QString cw(" ");
     cw += *ii1;
-    auto tripletWeight = float(3) / lowerString.size();
+    auto tripletWeight = 1.f / (lowerString.size() - 1);
     do {
         while(ii2 != ie && cw.size() != 3 ){
             cw += *ii2;
