@@ -105,7 +105,7 @@ class MeasurementManager
 {
     Q_DECLARE_TR_FUNCTIONS(MeasurementManager)
     MeasurementManager();
-    friend class Serializer<MeasurementManager>;
+    friend struct Serializer<MeasurementManager>;
     
 public:
     static MeasurementManager& GetInstance();

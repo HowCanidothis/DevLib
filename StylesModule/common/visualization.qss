@@ -4,21 +4,29 @@ CustomPlot {
 }
 
 VisualizationToolTipWidget {
-    background-color: #007acc;
-    color: white;
-    qproperty-opacity: 0;
+    qproperty-opacity: 0.8;
+}
+
+VisualizationToolTipWidget[type="0"]{
+    border: none;
+}
+
+VisualizationToolTipWidget[type="1"]{
+    border: 1px solid #ff3b30;
+}
+
+VisualizationToolTipWidget[type="2"]{
+    border: 1px solid #007aff;
+}
+
+VisualizationToolTipWidget[type="3"]{
+    border: 1px solid #42d552;
+}
+
+VisualizationToolTipWidget[type="4"]{
+    border: 1px solid #848894;
 }
 
 VisualizationToolTipWidget QWidget{
     font-size: 12px;
-    background-color: #007acc;
-    color: white;
-}
-
-VisualizationToolTipWidget QDoubleSpinBox {
-    border-color: white;
-}
-
-ToolTipArrowWidget {
-    background-color: #007acc;
 }

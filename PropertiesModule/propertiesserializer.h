@@ -26,6 +26,29 @@ struct Serializer<LocalProperty<T>>
     }
 };
 
+template<>
+struct Serializer<StateProperty>
+{
+    typedef StateProperty target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.m_value;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            bool value;
+            buffer << value;
+            data.SetState(value);
+        } else {
+            buffer << data.m_value;
+        }
+    }
+};
+
 template<typename T>
 struct Serializer<LocalPropertySequentialEnum<T>>
 {
@@ -109,5 +132,77 @@ struct Serializer<LocalPropertyVector<T>>
         vector.Invoke();
     }
 };
+
+#define SERIALIZER_XML_DECLARE_PROPERTY_TYPE(PropertyType) \
+template<class T> \
+struct SerializerXml<PropertyType<T>> \
+{ \
+    using Type = PropertyType<T>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object) \
+    { \
+        T value; \
+        buffer << object.Mutate(value); \
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) { \
+            object.Value = value; \
+        } else { \
+            object.Value.EditSilent() = value; \
+        } \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        const auto& value = object.Value.Native(); \
+        buffer << object.Mutate(const_cast<T&>(value)); \
+    } \
+};
+
+template<class T>
+struct SerializerXml<LocalPropertySequentialEnum<T>>
+{
+    using Type = LocalPropertySequentialEnum<T>;
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
+    {
+        qint32 value;
+        buffer << object.Mutate(value);
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            object.Value = (T)value;
+        } else {
+            object.Value.m_value = value;
+        }
+    }
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        buffer << object.Mutate(object.Value.m_value);
+    }
+};
+
+template<>
+struct SerializerXml<StateProperty>
+{
+    using Type = StateProperty;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& data)
+    {
+        buffer << data.Mutate(data.Value.m_value);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            bool value;
+            buffer << buffer.Sect(data.Name, value);
+            data.Value.SetState(value);
+        } else {
+            buffer << data.Mutate(data.Value.m_value);
+        }
+    }
+};
+
+SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalProperty)
+SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalPropertyLimitedDecimal)
 
 #endif // PROPERTIESSERIALIZER_H

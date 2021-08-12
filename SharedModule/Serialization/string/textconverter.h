@@ -3,10 +3,12 @@
 
 #include <QString>
 
+#include "textconvertercontext.h"
+
 template <class T>
 struct TextConverter
 {    
-    static QString ToText(const T& value)
+    static QString ToText(const T& value, const TextConverterContext& context)
     {
         return value.ToString();
     }
@@ -15,19 +17,6 @@ struct TextConverter
         T result;
         result.FromString(string);
         return result;
-    }
-};
-
-template<>
-struct TextConverter<double>
-{
-    static QString ToText(double value)
-    {
-        return QString::number(value, 'f', 6);
-    }
-    static double FromText(const QString& string)
-    {
-        return string.toDouble();
     }
 };
 

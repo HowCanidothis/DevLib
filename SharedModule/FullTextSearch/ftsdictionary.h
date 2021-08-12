@@ -51,6 +51,7 @@ public:
     FTSDictionary();
 
     FTSMatchResult Match(const QString& string) const;
+    QMap<qint32, FTSMatchedObject> Map(const QStringList& strings) const;
 
 private:
     void addRow(FTSObject* object, const QString& string, size_t rowId);

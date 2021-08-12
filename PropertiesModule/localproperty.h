@@ -176,6 +176,7 @@ protected:
 
 private:
     template<class T2> friend struct Serializer;
+    template<class T2> friend struct SerializerXml;
     mutable FAction m_subscribes;
 };
 

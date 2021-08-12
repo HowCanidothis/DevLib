@@ -7,6 +7,17 @@
 #include <functional>
 #include <cmath>
 
+#include "flags.h"
+
+enum SerializationMode {
+    SerializationMode_Default = 0x0,
+    SerializationMode_InvokeProperties = 0x1,
+    SerializationMode_MinMaxProperties = 0x2,
+    SerializationMode_Sorted_Containers = 0x4,
+    SerializationMode_UserDefined = 0x200
+};
+DECL_FLAGS(SerializationModes, SerializationMode);
+
 class Nanosecs
 {
 public:
@@ -42,14 +53,6 @@ enum class EPriority {
     High,
     Low,
     Count
-};
-
-class _Export DirBinder
-{
-    QString old_path;
-public:
-    explicit DirBinder(const QString& dir);
-    ~DirBinder();
 };
 
 template<typename T>

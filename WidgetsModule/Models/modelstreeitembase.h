@@ -75,6 +75,4 @@ protected:
 
 Q_DECLARE_METATYPE(SharedPointer<ModelsTreeItemBase>)
 
-using ModelsTreeItemBasePtr = SharedPointer<ModelsTreeItemBase>;
-
 #endif // MODELSTREEITEM_H

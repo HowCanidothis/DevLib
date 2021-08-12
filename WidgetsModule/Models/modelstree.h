@@ -5,6 +5,8 @@
 
 #include "wrappers.h"
 
+using ModelsTreeItemBasePtr = SharedPointer<class ModelsTreeItemBase>;
+
 class ModelsTreeItemBase;
 
 class ModelsTree : public ModelsTreeWrapper

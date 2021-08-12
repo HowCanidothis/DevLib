@@ -3,15 +3,27 @@
 
 #include "stdserializer.h"
 #include "SharedModule/flags.h"
+#include "SharedModule/name.h"
 
-enum SerializationMode {
-    SerializationMode_Default = 0x0,
-    SerializationMode_InvokeProperties = 0x1,
-    SerializationMode_MinMaxProperties = 0x2,
-    SerializationMode_PrecisionProperties = 0x4,
-    SerializationMode_UserDefined = 0x200
+static QVariant StreamBufferBaseDefaultPropertyResult;
+
+class StandardVariantPropertiesContainer
+{
+    QHash<Name,QVariant> m_properties;
+public:
+    void SetProperty(const Name& propertyName, const QVariant& value)
+    {
+        m_properties.insert(propertyName, value);
+    }
+    const QVariant& GetProperty(const Name& propertyName) const
+    {
+        auto foundIt = m_properties.find(propertyName);
+        if(foundIt != m_properties.end()) {
+            return foundIt.value();
+        }
+        return StreamBufferBaseDefaultPropertyResult;
+    }
 };
-DECL_FLAGS(SerializationModes, SerializationMode);
 
 template<class Stream>
 class StreamBufferBase
@@ -57,6 +69,13 @@ public:
         m_isValid = m_stream.good();
     }
 
+    void OpenSection(const QString&) {}
+    template<class T>
+    T& Attr(const QString&, T& value) const { return value; }
+    template<class T>
+    T& Sect(const QString&, T& value) const { return value; }
+    void CloseSection(){}   
+
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
     int32_t GetVersion() const { return m_version; }
@@ -68,6 +87,8 @@ public:
     template<class T>
     StreamBufferBase& operator<<(T& data);
     StreamBufferBase& operator<<(const PlainData& data);
+
+    StandardVariantPropertiesContainer Properties;
 };
 
 template<class Stream>
