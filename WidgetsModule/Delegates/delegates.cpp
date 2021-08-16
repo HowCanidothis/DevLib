@@ -189,6 +189,7 @@ void DelegatesDoubleSpinBox::SetRange(double min, double max){
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
 	, m_displayFormat("MM/dd/yy hh:mm:ss")
+	, m_locale(QLocale::system())
 {
     
 }
@@ -221,6 +222,11 @@ void DelegatesDateTime::setModelData(QWidget* editor, QAbstractItemModel* model,
 
 void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
     editor->setGeometry(option.rect);
+}
+
+void DelegatesDateTime::SetLocale(const QLocale& locale)
+{
+	m_locale = locale;
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
