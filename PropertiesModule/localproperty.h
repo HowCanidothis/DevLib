@@ -590,6 +590,7 @@ DECLARE_LOCAL_PROPERTY_TYPE(LocalPropertyFilePath, LocalProperty<QString>)
 using LocalPropertyBool = LocalProperty<bool>;
 using LocalPropertyColor = LocalProperty<QColor>;
 using LocalPropertyString = LocalProperty<QString>;
+using LocalPropertyLocale = LocalProperty<QLocale>;
 
 using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
@@ -752,6 +753,15 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     );
     result->SetNames(localProperty.GetNames());
     return std::move(result);
+}
+
+template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<QLocale>& localProperty)
+{
+    auto property = ::make_shared<TProperty<QLocale>>(name, localProperty.Native());
+    auto* pProperty = property.get();
+    connectProperty(pProperty, localProperty);
+    return property;
 }
 
 #endif // LOCALPROPERTY_H

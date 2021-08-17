@@ -105,7 +105,7 @@ struct SerializerXml<QVector<T>>
     static void Read(Buffer& reader, const SerializerXmlObject<Type>& object)
     {
         reader.OpenSection(object.Name);
-        qint32 count = object.Value.size();
+        qint32 count = 0;
         reader << reader.Attr("Size", count);
         object.Value.clear();
         while(count--) {

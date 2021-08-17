@@ -197,7 +197,8 @@ DelegatesDateTime::DelegatesDateTime(QObject* parent)
 QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* editor = new QDateTimeEdit(parent);
-    editor->setDisplayFormat(m_displayFormat);
+//    editor->setDisplayFormat(m_displayFormat);
+	editor->setLocale(m_locale);
     editor->setTimeSpec(Qt::UTC);
 	OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateTimeEdit::dateTimeChanged, [this, index](const QDateTime&dateTime){
@@ -227,6 +228,11 @@ void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOption
 void DelegatesDateTime::SetLocale(const QLocale& locale)
 {
 	m_locale = locale;
+}
+
+QString DelegatesDateTime::displayText(const QVariant& value, const QLocale& locale) const
+{
+	return m_locale.toString(value.toDateTime(), QLocale::ShortFormat);
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)

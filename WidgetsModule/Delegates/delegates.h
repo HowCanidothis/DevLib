@@ -93,15 +93,15 @@ public:
 
 	void SetLocale(const QLocale& locale);
 	void SetDisplayFormat(const QString& format) { m_displayFormat = format; }
-	QString displayText(const QVariant& value, const QLocale& locale) const override { return m_locale.toString(value.toDateTime(), m_displayFormat); }
+	QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 	
-	CommonDispatcher<class QDateTimeEdit*, const QModelIndex&> OnEditorAboutToBeShown;
+	CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
 	CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
-private:
+protected:
 	QString m_displayFormat;
 	QLocale m_locale;
 };
