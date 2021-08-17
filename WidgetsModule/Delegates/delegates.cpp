@@ -96,7 +96,11 @@ void DelegatesIntSpinBox::setModelData(QWidget* editor, QAbstractItemModel* mode
     auto* spin = static_cast<QSpinBox*>(editor);
     const auto& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
     
-    model->setData(index, val, Qt::EditRole);
+    bool accept = true;
+    OnEditingFinished(val, index, accept);
+    if(accept) {
+        model->setData(index, val, Qt::EditRole);
+    }
 }
 
 void DelegatesIntSpinBox::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
@@ -159,7 +163,11 @@ void DelegatesDoubleSpinBox::setModelData(QWidget* editor, QAbstractItemModel* m
     QDoubleSpinBox* spin = static_cast<QDoubleSpinBox*>(editor);
     const double& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
 
-    model->setData(index, val, Qt::EditRole);
+    bool accept = true;
+    OnEditingFinished(val, index, accept);
+    if(accept) {
+        model->setData(index, val, Qt::EditRole);
+    }
 }
 
 void DelegatesDoubleSpinBox::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
