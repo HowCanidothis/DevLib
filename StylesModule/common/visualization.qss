@@ -27,6 +27,14 @@ VisualizationToolTipWidget[type="4"]{
     border: 1px solid #848894;
 }
 
+VisualizationToolTipWidget[type="5"]{
+    border: 1px solid #ff9500;
+}
+
+VisualizationToolTipWidget[type="6"]{
+    border: 1px solid #68217A;
+}
+
 VisualizationToolTipWidget QWidget{
     font-size: 12px;
 }

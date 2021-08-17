@@ -43,6 +43,7 @@ public:
     
     CommonDispatcher<class QSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
+    CommonDispatcher<int, const QModelIndex&, bool&> OnEditingFinished;
     
 private:
     int m_min;
@@ -73,8 +74,9 @@ public:
     
     CommonDispatcher<class QDoubleSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
-	
-protected:
+    CommonDispatcher<double, const QModelIndex&, bool&> OnEditingFinished;
+    
+private:
     int m_precision;
     double m_min;
     double m_max;
