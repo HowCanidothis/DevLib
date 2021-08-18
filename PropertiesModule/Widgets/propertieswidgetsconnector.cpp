@@ -214,7 +214,7 @@ PropertiesComboBoxConnector::PropertiesComboBoxConnector(const Name& propertyNam
                               },
                               comboBox)
 {
-    m_connection = connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this](qint32 value){
+    m_connection = connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this](qint32 value){
         PropertyChangeGuard guard(this);
         m_propertyPtr.GetProperty()->SetValue(value);
     });

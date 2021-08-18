@@ -66,7 +66,9 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 
 LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit, bool reactive)
     : Super([lineEdit, property](){
-               lineEdit->setText(*property);
+               if(lineEdit->text() != *property) {
+                   lineEdit->setText(*property);
+               }
             },
             [lineEdit, property](){
                *property = lineEdit->text();
@@ -77,14 +79,15 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
-        m_propertySetter();
-    });
     if(reactive){
         m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
             if(!m_ignoreWidgetChange) {
                 m_textChanged.Call([this]{ m_propertySetter(); });
             }
+        });
+    } else {
+        m_connections.connect(lineEdit, &QLineEdit::editingFinished, [this](){
+            m_propertySetter();
         });
     }
 }
@@ -229,7 +232,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
+    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
         m_propertySetter();
     });
 }
