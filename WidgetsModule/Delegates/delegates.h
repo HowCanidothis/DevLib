@@ -45,7 +45,7 @@ public:
     CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
     CommonDispatcher<int, const QModelIndex&, bool&> OnEditingFinished;
     
-private:
+protected:
     int m_min;
     int m_max;
     int m_step;
@@ -76,7 +76,7 @@ public:
     CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
     CommonDispatcher<double, const QModelIndex&, bool&> OnEditingFinished;
     
-private:
+protected:
     int m_precision;
     double m_min;
     double m_max;
