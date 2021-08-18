@@ -229,7 +229,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::currentIndexChanged), [this]{
+    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
         m_propertySetter();
     });
 }
