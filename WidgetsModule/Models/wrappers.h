@@ -251,6 +251,14 @@ public:
         OnChanged();
     }
 
+	void Insert(int index, int count, const value_type& part = value_type())
+	{
+		OnAboutToInsertRows(index, index + count - 1);
+        Super::insert(index, count, part);
+        OnRowsInserted();
+        OnChanged();
+	}
+	
     void Insert(int index, const value_type& part)
     {
         OnAboutToInsertRows(index, index);

@@ -3,6 +3,10 @@ MainWindow {
     qproperty-iconPrototypeColor: #007acc;
     qproperty-iconSurveyColor: #ff3b30;
     qproperty-iconSlideSheetColor: #68217a;
+    qproperty-iconJobInformationColor: #999;
+    qproperty-iconRunSummaryColor: #6aa84f;
+    qproperty-iconDailyReportColor: #ffff00;
+    qproperty-iconBHAColor: #a4c2f4;
     qproperty-iconNetworkOnlineColor: #22b14c;
     qproperty-iconNetworkOfflineColor: #ff3b30;
 }
