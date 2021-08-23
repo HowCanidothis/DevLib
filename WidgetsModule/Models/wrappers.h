@@ -49,6 +49,7 @@ public:
     Dispatcher OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
+    CommonDispatcher<QSet<qint32>> OnColumnsChanged;
     CommonDispatcher<qint32> OnAboutToChangeRow;
     CommonDispatcher<qint32> OnRowChanged;
 
@@ -216,6 +217,7 @@ public:
         Super::swap(another);
         OnReseted();
         OnChanged();
+        OnColumnsChanged({});
     }
 
     void Clear() {
@@ -223,6 +225,7 @@ public:
         Super::clear();
         OnReseted();
         OnChanged();
+        OnColumnsChanged({});
     }
 
     qint32 Find(const value_type& value) const
@@ -249,6 +252,7 @@ public:
         Super::append(part);
         OnRowsInserted();
         OnChanged();
+        OnColumnsChanged({});
     }
 
     void Insert(int index, const value_type& part)
@@ -257,21 +261,24 @@ public:
         Super::insert(index, part);
         OnRowsInserted();
         OnChanged();
+        OnColumnsChanged({});
     }
 
-    void Update(const FAction& handler)
+    void Update(const FAction& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
         OnAboutToBeUpdated();
         handler();
         OnUpdated();
+        OnColumnsChanged(affectedColumns);
     }
 
-    void Change(const FAction& handler)
+    void Change(const FAction& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
         OnAboutToBeReseted();
         handler();
         OnReseted();
         OnChanged();
+        OnColumnsChanged(affectedColumns);
     }
 
 
@@ -290,14 +297,16 @@ public:
         Super::resize(std::distance(Super::begin(), endIt));
         OnReseted();
         OnChanged();
+        OnColumnsChanged({});
     }
 
-    void Edit(qint32 index, const std::function<void (value_type& value)>& handler)
+    void Edit(qint32 index, const std::function<void (value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
         OnAboutToChangeRow(index);
         handler(Super::operator[](index));
         OnRowChanged(index);
         OnChanged();
+        OnColumnsChanged(affectedColumns);
     }
 
     qint32 IndexOf(const value_type& value) const
