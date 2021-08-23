@@ -83,10 +83,6 @@ DispatcherConnection WidgetAppearance::ConnectWidgetsByVisibility(WidgetsLocalPr
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
 {
-    if(widget->isVisibleTo(widget->parentWidget()) == visible) {
-        return;
-    }
-
     if(visible) {
         WidgetAppearance::ShowAnimated(widget);
     } else {
@@ -94,32 +90,48 @@ void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
     }
 }
 
+static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnimation";
+
+Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
+
 void WidgetAppearance::ShowAnimated(QWidget* widget)
 {
+    auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
+    if(prevAnimation != nullptr) {
+        prevAnimation->stop();
+    }
+
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(widget);
     widget->setGraphicsEffect(effect);
-    QPropertyAnimation *animation = new QPropertyAnimation(effect,"opacity");
+    SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
+    widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(2000);
     animation->setStartValue(0.0);
     animation->setEndValue(0.8);
     animation->setEasingCurve(QEasingCurve::InBack);
-    animation->start(QPropertyAnimation::DeleteWhenStopped);
+    animation->start();
     widget->show();
 }
 
 void WidgetAppearance::HideAnimated(QWidget* widget)
 {
+    auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
+    if(prevAnimation != nullptr) {
+        prevAnimation->stop();
+    }
+
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(widget);
     widget->setGraphicsEffect(effect);
-    QPropertyAnimation *animation = new QPropertyAnimation(effect,"opacity");
+    SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
+    widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(2000);
     animation->setStartValue(0.8);
     animation->setEndValue(0);
     animation->setEasingCurve(QEasingCurve::OutBack);
-    animation->connect(animation, &QPropertyAnimation::finished, [widget]{
+    animation->connect(animation.get(), &QPropertyAnimation::finished, [widget]{
         widget->hide();
     });
-    animation->start(QPropertyAnimation::DeleteWhenStopped);
+    animation->start();
 }
 
 void WidgetContent::ForeachChildWidget(QWidget* target, const std::function<void (QWidget*)>& handler)
