@@ -54,6 +54,7 @@ struct ModelsTableBaseDecorator
     static void Sort(const typename Wrapper::Container& rows, qint32 column, Array<qint32>& indices);
     static bool SetModelData(const QVariant& value, typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
     static Qt::ItemFlags GetFlags(const typename Wrapper::value_type&, qint32);
+	static QVariant GetHeaderData(int section, Qt::Orientation orientation, qint32 role = Qt::DisplayRole);
 };
 
 template<class Wrapper>
@@ -103,6 +104,11 @@ public:
         return result;
     }
 
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override 
+	{
+		return ModelsTableBaseDecorator<Wrapper>::GetHeaderData(section, orientation, role);
+	}
+	
     Qt::ItemFlags flags(const QModelIndex& index) const override
     {
         if(!index.isValid()) {
