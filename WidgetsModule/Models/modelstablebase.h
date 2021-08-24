@@ -47,28 +47,28 @@ public:
     const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
 };
 
-template<class T>
+template<class Wrapper>
 struct ModelsTableBaseDecorator
 {
-    static QVariant GetModelData(const T& data, qint32 column, qint32 role = Qt::DisplayRole);
-    static void Sort(const QVector<T>& rows, qint32 column, Array<qint32>& indices);
-    static bool SetModelData(const QVariant& value, T& data, qint32 column, qint32 role = Qt::DisplayRole);
-    static Qt::ItemFlags GetFlags(const T&, qint32);
+    static QVariant GetModelData(const typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
+    static void Sort(const typename Wrapper::Container& rows, qint32 column, Array<qint32>& indices);
+    static bool SetModelData(const QVariant& value, typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
+    static Qt::ItemFlags GetFlags(const typename Wrapper::value_type&, qint32);
 };
 
-template<class T>
+template<class Wrapper>
 struct ModelsTableDecoratorHelpers
 {
     template<qint32 Column>
-    static void Sort(const QVector<T>& rows, Array<qint32>& indices)
+    static void Sort(const Wrapper& rows, Array<qint32>& indices)
     {
         std::sort(indices.begin(), indices.end(), [&](qint32 f, qint32 s){
-            return std::get<Column>(rows.at(f)) < std::get<Column>(rows.at(s));
+            return rows.At(f).template Get<Column>() < rows.At(s).template Get<Column>();
         });
     }
 };
 
-template<class Wrapper, class Decorator>
+template<class Wrapper>
 class TModelsDecoratedTable : public TModelsTableBase<Wrapper>
 {
     using Super = TModelsTableBase<Wrapper>;
@@ -76,7 +76,7 @@ public:
     using Super::Super;
 
     qint32 rowCount(const QModelIndex&) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
-    qint32 columnCount(const QModelIndex&) const override { return std::tuple_size<typename Wrapper::value_type>(); }
+    qint32 columnCount(const QModelIndex&) const override { return Wrapper::value_type::count; }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
         if(!index.isValid()) {
@@ -84,7 +84,7 @@ public:
         }
 
         if(Super::GetData() != nullptr) {
-            return Decorator::GetModelData(Super::GetData()->At(index.row()), index.column(), role);
+            return ModelsTableBaseDecorator<Wrapper>::GetModelData(Super::GetData()->At(index.row()), index.column(), role);
         }
         return QVariant();
     }
@@ -97,7 +97,7 @@ public:
 
         if(Super::GetData() != nullptr) {
             Super::GetData()->Edit(index.row(), [&](typename Wrapper::value_type& value){
-                result = Decorator::SetModelData(data, value, index.column(), role);
+                result = ModelsTableBaseDecorator<Wrapper>::SetModelData(data, value, index.column(), role);
             }, {index.column()});
         }
         return result;
@@ -108,11 +108,11 @@ public:
         if(!index.isValid()) {
             return Qt::NoItemFlags;
         }
-        return Decorator::GetFlags(Super::GetData()->At(index.row()), index.column());
+        return ModelsTableBaseDecorator<Wrapper>::GetFlags(Super::GetData()->At(index.row()), index.column());
     }
 };
 
-template<class Wrapper, class Decorator = ModelsTableBaseDecorator<typename Wrapper::value_type>>
+template<class Wrapper>
 class ModelsTableSearchComponent
 {
     struct Cache
@@ -177,8 +177,8 @@ public:
         {
             return first.m_row - another.m_row;
         }
-        reference operator*() const { Q_ASSERT(IsValid()); return std::get<Column>(m_searchComponent->m_wrapper->At(m_cache->SortedData[m_row])); }
-        pointer operator->() const { Q_ASSERT(IsValid()); return &std::get<Column>(m_searchComponent->m_wrapper->At(m_cache->SortedData[m_row])); }
+        reference operator*() const { Q_ASSERT(IsValid()); return m_searchComponent->m_wrapper->At(m_cache->SortedData[m_row]).template Get<Column>(); }
+        pointer operator->() const { Q_ASSERT(IsValid()); return &m_searchComponent->m_wrapper->At(m_cache->SortedData[m_row]).template Get<Column>(); }
         reference value() const { return operator*(); }
         bool operator==(const It& other) const { return !(operator !=(other)); }
         bool IsValid() const { return m_row >= 0 && m_row < m_cache->SortedData.Size(); }
@@ -193,7 +193,7 @@ public:
     {
         auto invalidate = [this](const QSet<qint32>& columns){
             if(columns.isEmpty()) {
-                for(qint32 i(0); i < std::tuple_size_v<value_type>; i++) {
+                for(qint32 i(0); i < value_type::count; i++) {
                     auto& cache = m_sortedColumns[i];
                     cache.IsValid = false;
                     cache.ColumnListener();
@@ -230,10 +230,11 @@ public:
 
     void Sort(qint32 column) const
     {
-        Q_ASSERT(column >= 0 && column < std::tuple_size_v<value_type>);
+        Q_ASSERT(column >= 0 && column < value_type::count);
         auto& cache = m_sortedColumns[column];
         if(!cache.IsValid) {
-            Decorator::Sort(m_wrapper->EditSilent(), column, cache.SortedData);
+            ModelsTableBaseDecorator<Wrapper>::Sort(*m_wrapper, column, cache.SortedData);
+            cache.IsValid = true;
         }
     }
 
@@ -268,8 +269,48 @@ public:
 private:
     template<class T, qint32> friend class iterator;
     SharedPointer<Wrapper> m_wrapper;
-    mutable Cache m_sortedColumns[std::tuple_size_v<typename Wrapper::value_type>];
+    mutable Cache m_sortedColumns[Wrapper::value_type::count];
     DispatcherConnectionsSafe m_connections;
 };
+
+namespace widget_models
+{
+
+template<qint32 Column>
+struct VisitorHelper
+{
+    template<class Wrapper>
+    static void Sort(const Wrapper& rows, Array<qint32>& indices)
+    {
+        std::sort(indices.begin(), indices.end(), [&](qint32 f, qint32 s){
+            return rows.At(f).template Get<Column>() < rows.At(s).template Get<Column>();
+        });
+    }
+};
+
+template <std::size_t L, std::size_t U>
+struct Visitor
+{
+    template <class Wrapper>
+    static void Sort(const Wrapper& rows, Array<qint32>& indices, std::size_t idx)
+    {
+        static constexpr std::size_t MEDIAN = (U - L) / 2 + L;
+        if (idx > MEDIAN)
+            Visitor<MEDIAN, U>::Sort(rows, indices, idx);
+        else if (idx < MEDIAN)
+            Visitor<L, MEDIAN>::Sort(rows, indices, idx);
+        else
+            VisitorHelper<MEDIAN>::Sort(rows, indices);
+    }
+};
+
+template <class Wrapper>
+void sort(const Wrapper& rows, Array<qint32>& indices, std::size_t idx)
+{
+    assert(idx <= Wrapper::value_type::count);
+    Visitor<0, Wrapper::value_type::count>::Sort(rows, indices, idx);
+}
+
+}
 
 #endif // MODELSTABLEBASE_H
