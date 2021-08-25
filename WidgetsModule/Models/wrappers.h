@@ -29,7 +29,7 @@ public:
         OnReseted.Connect(this, [this] { testOutScope(); });
         OnUpdated.Connect(this, [this] { testOutScope(); });
         OnRowsRemoved.Connect(this, [this] { testOutScope(); });
-        OnRowsInserted.Connect(this, [this] { testOutScope(); });
+        OnRowsInserted.Connect(this, [this] (qint32, qint32) { testOutScope(); });
     }
 
     virtual ~ModelsWrapperBase()
@@ -46,12 +46,12 @@ public:
     Dispatcher OnAboutToBeUpdated;
     Dispatcher OnUpdated;
     Dispatcher OnRowsRemoved;
-    Dispatcher OnRowsInserted;
+    CommonDispatcher<qint32, qint32> OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
     CommonDispatcher<QSet<qint32>> OnColumnsChanged;
     CommonDispatcher<qint32> OnAboutToChangeRow;
-    CommonDispatcher<qint32> OnRowChanged;
+    CommonDispatcher<qint32, const QSet<qint32>&> OnRowChanged;
 
 protected:
     void testInScope()
@@ -87,10 +87,10 @@ inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
         emit model->layoutChanged();
     }};
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
-    OnRowsInserted += { model, [model]{ model->endInsertRows(); }};
-    OnRowChanged += { model, [model] (qint32 row){
-        auto startmi = model->index(row, 0);
-        auto endmi = model->index(row, model->columnCount());
+    OnRowsInserted += { model, [model](qint32, qint32){ model->endInsertRows(); }};
+    OnRowChanged += { model, [model] (qint32 row, const QSet<qint32>& columns){
+        auto startmi = model->index(row, columns.isEmpty() ? 0 : *columns.begin());
+        auto endmi = model->index(row, columns.isEmpty() ? model->columnCount() : *(columns.end()-1));
         model->dataChanged(startmi, endmi);
     }};
 }
@@ -250,7 +250,7 @@ public:
         auto size = GetSize();
         OnAboutToInsertRows(size, size);
         Super::append(part);
-        OnRowsInserted();
+        OnRowsInserted(size, 1);
         OnChanged();
         OnColumnsChanged({});
     }
@@ -259,7 +259,7 @@ public:
 	{
 		OnAboutToInsertRows(index, index + count - 1);
         Super::insert(index, count, part);
-        OnRowsInserted();
+        OnRowsInserted(index, count);
         OnChanged();
 	}
 	
@@ -267,7 +267,7 @@ public:
     {
         OnAboutToInsertRows(index, index);
         Super::insert(index, part);
-        OnRowsInserted();
+        OnRowsInserted(index, 1);
         OnChanged();
         OnColumnsChanged({});
     }
@@ -312,7 +312,7 @@ public:
     {
         OnAboutToChangeRow(index);
         handler(Super::operator[](index));
-        OnRowChanged(index);
+        OnRowChanged(index, affectedColumns);
         OnChanged();
         OnColumnsChanged(affectedColumns);
     }

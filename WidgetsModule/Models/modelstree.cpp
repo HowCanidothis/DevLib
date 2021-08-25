@@ -97,7 +97,7 @@ const ModelsTreeItemBasePtr& ModelsTree::Add(const ModelsTreeItemBasePtr& item, 
 {
     OnAboutToInsertRows(parent->GetChilds().size(), parent->GetChilds().size(), parent);
     parent->AddChild(item);
-    OnRowsInserted();
+    OnRowsInserted(parent->GetChilds().size(), 1);
     return item;
 }
 
