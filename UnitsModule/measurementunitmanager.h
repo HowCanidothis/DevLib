@@ -118,8 +118,11 @@ public:
     
     const MeasurementUnit* GetCurrentUnit(const Name& systemName) const;
     
-	static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
-	static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
+    static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
+    static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }
+
+    static constexpr double MetersToFeets(double meters) { return meters * METERS_TO_FEETS_MULTIPLIER; }
+    static constexpr double FeetsToMeters(double feets) { return feets / METERS_TO_FEETS_MULTIPLIER; }
     
 	static constexpr double DegreeToRadian(double degree) { return degree * DEGREES_TO_RADIANS; }
 	static constexpr double RadianToDegree(double radian) { return radian / DEGREES_TO_RADIANS; }
