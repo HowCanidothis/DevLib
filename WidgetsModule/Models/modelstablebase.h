@@ -41,8 +41,19 @@ public:
 		return true;
 	}
 	
+	void AttachDependence(Dispatcher* dispatcher, int first, int last)
+	{
+		dispatcher->Connect(this, [first, last, this]{
+			emit dataChanged(createIndex(0, first), createIndex(rowCount()-1, last));
+			emit headerDataChanged(Qt::Horizontal, first, last);
+		}).MakeSafe(m_connections);
+	}
+	
     void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
     const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
+	
+private:
+	DispatcherConnectionsSafe m_connections;
 };
 
 template<class Wrapper>
