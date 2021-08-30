@@ -63,6 +63,7 @@ NotifyWidget::NotifyWidget (NotifyData* data, int displayTime, QWidget* parent)
         LinkActivated(link, accepted);
         if(!accepted) {
             QDesktopServices::openUrl(QUrl(link));
+            Q_EMIT disappeared();
         }
     });
 }
