@@ -347,6 +347,10 @@ QPushButton:focus {
   border: 1px solid #007acc;
 }
 
+QPushButton#CalendarButton {
+  background-color: transparent;
+}
+
 QToolButton {
   background-color: transparent;
   color: #9d9d9d;
