@@ -74,6 +74,9 @@ public:
     T& Attr(const QString&, T& value) const { return value; }
     template<class T>
     T& Sect(const QString&, T& value) const { return value; }
+    template<class T>
+    T& SectWithContext(const QString&, T& value, const struct TextConverterContext&) { return value; }
+
     void CloseSection(){}   
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }

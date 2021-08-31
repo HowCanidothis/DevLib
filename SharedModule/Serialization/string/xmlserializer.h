@@ -203,6 +203,12 @@ public:
         return SerializerXmlObject<T>(name, value, SerializerValueType::Section);
     }
 
+    template<class T>
+    std::pair<SerializerXmlObject<T>,TextConverterContext> SectWithContext(const QString& name, T& value, const TextConverterContext& context)
+    {
+        return std::make_pair(SerializerXmlObject<T>(name, value, SerializerValueType::Section), context);
+    }
+
 
 private:
     SerializationModes m_mode;
@@ -213,6 +219,7 @@ class SerializerXmlWriteBuffer : public SerializerXmlBufferBase
 public:
     SerializerXmlWriteBuffer(QXmlStreamWriter* writer)
         : m_writer(writer)
+        , m_currentContext(&m_context)
     {}
 
     void SetTextConverterContext(const TextConverterContext& context)
@@ -224,9 +231,9 @@ public:
     void SerializeAtomic(const SerializerXmlObject<T>& object)
     {
         if(object.Type == SerializerValueType::Attribute) {
-            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value, m_context));
+            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value, *m_currentContext));
         } else {
-            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value, m_context));
+            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value, *m_currentContext));
         }
     }
 
@@ -252,9 +259,18 @@ public:
         SerializerXml<T>::Write(*this, attributeValue);
     }
 
+    template<class T>
+    void operator<<(const std::pair<SerializerXmlObject<T>, TextConverterContext>& attributeValueWithContext)
+    {
+        m_currentContext = &attributeValueWithContext.second;
+        SerializerXml<T>::Write(*this, attributeValueWithContext.first);
+        m_currentContext = &m_context;
+    }
+
 private:
     QXmlStreamWriter* m_writer;
     TextConverterContext m_context;
+    const TextConverterContext* m_currentContext;
 };
 
 class SerializerXmlReadBuffer : public SerializerXmlBufferBase
@@ -305,6 +321,12 @@ public:
     void operator<<(const SerializerXmlObject<T>& attributeValue)
     {
         SerializerXml<T>::Read(*this, const_cast<SerializerXmlObject<T>&>(attributeValue));
+    }
+
+    template<class T>
+    void operator<<(const std::pair<SerializerXmlObject<T>, TextConverterContext>& attributeValueWithContext)
+    {
+        operator<<(attributeValueWithContext.first);
     }
 
 private:

@@ -30,8 +30,8 @@ void FocusManager::SetFocusWidget(QWidget* target)
 
 void FocusManager::ResetFocus()
 {
-    m_previousFocusedWidget = nullptr;
     m_focusedWidget = nullptr;
+    m_previousFocusedWidget = nullptr;
 }
 
 FocusWatcherAttachment::FocusWatcherAttachment(QWidget* target)

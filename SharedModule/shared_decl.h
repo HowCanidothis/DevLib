@@ -14,6 +14,8 @@ enum SerializationMode {
     SerializationMode_InvokeProperties = 0x1,
     SerializationMode_MinMaxProperties = 0x2,
     SerializationMode_Sorted_Containers = 0x4,
+    SerializationMode_Comparison = 0x8,
+    SerializationMode_Merge_Containers = 0x10,
     SerializationMode_UserDefined = 0x200
 };
 DECL_FLAGS(SerializationModes, SerializationMode);

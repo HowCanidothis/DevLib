@@ -245,7 +245,7 @@ public:
         return -1;
     }
 
-    void Append(const value_type& part)
+    virtual void Append(const value_type& part)
     {
         auto size = GetSize();
         OnAboutToInsertRows(size, size);
@@ -253,6 +253,23 @@ public:
         OnRowsInserted();
         OnChanged();
         OnColumnsChanged({});
+    }
+
+    void InsertSorted(const value_type& value, const std::function<bool (const value_type& f, const value_type& s )>& lessThan = [](const value_type& f, const value_type& s ){ return f < s; })
+    {
+        auto insertTo = std::lower_bound(begin(), end(), value, lessThan);
+        auto index = std::distance(begin(), insertTo);
+        OnAboutToInsertRows(index, index);
+        Super::insert(index, value);
+        OnRowsInserted();
+        OnChanged();
+        OnColumnsChanged({});
+    }
+
+    template<class T2, typename F = bool (*)(const value_type&, const T2&)>
+    typename Super::const_iterator FindSorted(const T2& value, const F& lessThan) const
+    {
+        return std::lower_bound(begin(), end(), value, lessThan);
     }
 
     void Insert(int index, const value_type& part)
