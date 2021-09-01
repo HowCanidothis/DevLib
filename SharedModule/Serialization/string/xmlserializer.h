@@ -129,27 +129,71 @@ struct SerializerXml<QVector<T>>
     }
 };
 
-template<class T>
-struct SerializerXml<QSet<T>>
-{
-    using Type = QSet<T>;
-
-    template<class Buffer>
-    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Read(buffer, object.Value);
-        buffer.CloseSection();
-    }
-
-    template<class Buffer>
-    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Write(buffer, object.Value);
-        buffer.CloseSection();
-    }
+#define DECLARE_SERIALIZER_XML_TO_SERIALIZER(ObjectType) \
+template<> \
+struct SerializerXml<ObjectType> \
+{ \
+    using Type = ObjectType; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
 };
+
+#define DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(ObjectType) \
+template<class T> \
+struct SerializerXml<ObjectType<T>> \
+{ \
+    using Type = ObjectType<T>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+};
+
+#define DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(ObjectType) \
+template<class T, class T2> \
+struct SerializerXml<ObjectType<T, T2>> \
+{ \
+    using Type = ObjectType<T, T2>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+};
+
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QMap)
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
 
 template<>
 struct SerializerXml<QImage>
