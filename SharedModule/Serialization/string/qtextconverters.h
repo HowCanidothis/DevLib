@@ -68,6 +68,21 @@ struct TextConverter<QDate>
     }
 };
 
+template <>
+struct TextConverter<QTime>
+{
+    using value_type = QTime;
+    static QString ToText(const value_type& value, const TextConverterContext& )
+    {
+        return value.toString();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return QTime::fromString(string);
+    }
+};
+
 template <class T>
 struct TextConverter<QList<T>>
 {

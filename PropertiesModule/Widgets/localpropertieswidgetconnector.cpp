@@ -112,10 +112,12 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
 
 LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
     : Super([textEdit, property](){
-               textEdit->setText(*property);
+               if(textEdit->toPlainText() != *property){
+                   textEdit->setText(*property);
+               }
             }, [textEdit, property]{
                *property = textEdit->toPlainText();
-            })
+            }), m_textChanged(250)
 {
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
@@ -124,7 +126,9 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     switch (submitType) {
     case SubmitType_OnEveryChange:
         m_connections.connect(textEdit, &QTextEdit::textChanged, [this](){
-            m_propertySetter();
+            if(!m_ignoreWidgetChange){
+                m_textChanged.Call([this]{ m_propertySetter();});
+            }
         });
         break;
     default:

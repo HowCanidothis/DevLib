@@ -158,11 +158,24 @@ QList<int> WidgetContent::SelectedColumnsSorted(QTableView* tableView)
 
 QSet<int> WidgetContent::SelectedRowsSet(QTableView* tableView)
 {
-	QSet<int> set;
+	QHash<int, int> hash;
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
 
     for(const auto& index : selectedIndexes){
-        set.insert(index.row());
+        auto iter = hash.find(index.row());
+        if(iter == hash.end()){
+            iter = hash.insert(index.row(), 1);
+        } else {
+            ++iter.value();
+        }
+    }
+    
+    QSet<int> set;
+    auto columnsCount = tableView->model()->columnCount();
+    for(auto iter = hash.begin(); iter != hash.end(); ++iter){
+        if(iter.value() == columnsCount){
+            set.insert(iter.key());
+        }
     }
     return set;
 }

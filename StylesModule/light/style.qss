@@ -287,15 +287,6 @@ QLabel:disabled {
   color: #787878;
 }
 
-QCalendarWidget {
-  border: 1px solid #D2D2D2;
-}
-
-QCalendarWidget:disabled {
-  background-color: #ffffff;
-  color: #787878;
-}
-
 QPushButton {
   background-color: #007acc;
   color: white;

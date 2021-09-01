@@ -176,6 +176,34 @@ struct Serializer<QDateTime>
     }
 };
 
+template<>
+struct Serializer<QTime>
+{
+    typedef QTime Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        static qint32 invalidValue = -1;
+        if(!type.isValid()) {
+            buffer << invalidValue;
+        } else {
+            qint32 msecs = type.msecsSinceStartOfDay();
+            buffer << msecs;
+        }
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        qint32 msecs;
+        buffer << msecs;
+        if(msecs == -1) {
+            type = QTime();
+        } else {
+            type = QTime::fromMSecsSinceStartOfDay(msecs);
+        }
+    }
+};
+
 template<class T>
 struct Serializer<QVector<T>>
 {

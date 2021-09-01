@@ -167,6 +167,9 @@ public:
         SubmitType_OnEveryChange,
     };
     LocalPropertiesTextEditConnector(LocalProperty<QString>* property, class QTextEdit* textEdit, SubmitType submitType = SubmitType_OnEveryChange);
+    
+private:
+    DelayedCallObject m_textChanged;
 };
 
 class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnectorBase

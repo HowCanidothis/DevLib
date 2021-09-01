@@ -34,8 +34,8 @@ public:
 	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
 	{
 		QSet<qint32> indexs;
-		for(int i=0; i<count; ++i){
-			indexs.insert(row + i);
+		while(count){
+            indexs.insert(row + --count);
 		}
 		GetData()->Remove(indexs);
 		return true;
