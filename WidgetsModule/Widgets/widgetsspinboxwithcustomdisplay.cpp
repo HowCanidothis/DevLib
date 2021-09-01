@@ -3,7 +3,7 @@
 WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
     , m_textFromValueHandler([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value) -> QString { return QString::number(value); })
-    , m_valueFromTextHandler([](const WidgetsSpinBoxWithCustomDisplay*, const QString& text) -> qint32 { return text.toInt(); })
+    , m_valueFromTextHandler([](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> qint32 { return ::clamp(text.toInt(), spin->minimum(), spin->maximum()); })
 {}
 
 QString WidgetsSpinBoxWithCustomDisplay::textFromValue(int val) const
@@ -39,7 +39,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
 WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
     , m_textFromValueHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return QString::number(value, 'f', spinBox->decimals()); })
-    , m_valueFromTextHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay*, const QString& text) -> double { return text.toDouble(); })
+    , m_valueFromTextHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double { return ::clamp(text.toDouble(), spin->minimum(), spin->maximum()); })
 {}
 
 QString WidgetsDoubleSpinBoxWithCustomDisplay::textFromValue(double val) const
