@@ -18,7 +18,7 @@ struct Serializer
     template<class Buffer>
     static void Write(Buffer& buffer, const T& data)
     {
-        const_cast<T*>(&data)->Serialize(buffer);
+        const_cast<T&>(data).Serialize(buffer);
     }
     template<class Buffer>
     static void Read(Buffer& buffer, T& data)

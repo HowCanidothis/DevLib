@@ -17,13 +17,11 @@ private:
 
 class PropertiesFileNamesGeneratorFileStream
 {
-    using Super = QStreamBufferWrite;
 public:
     PropertiesFileNamesGeneratorFileStream(int64_t key, int32_t version, const QString& baseName, const QString& format, qint32 maxFilesCount);
 
     template<class T>
     PropertiesFileNamesGeneratorFileStream& operator<<(T& data);
-    PropertiesFileNamesGeneratorFileStream& operator<<(const PlainData& data);
 
 private:
     void updateStream();
@@ -42,15 +40,7 @@ inline PropertiesFileNamesGeneratorFileStream& PropertiesFileNamesGeneratorFileS
     updateStream();
     if(m_stream != nullptr) {
         *m_stream << data;
-    }
-    return *this;
-}
-
-inline PropertiesFileNamesGeneratorFileStream& PropertiesFileNamesGeneratorFileStream::operator<<(const PlainData& data)
-{
-    updateStream();
-    if(m_stream != nullptr) {
-        *m_stream << data;
+        m_stream->Finish();
     }
     return *this;
 }
