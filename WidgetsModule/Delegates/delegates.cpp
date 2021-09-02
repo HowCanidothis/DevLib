@@ -9,6 +9,8 @@
 #include <QDoubleSpinBox>
 #include <SharedModule/internal.hpp>
 
+#include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
+
 DelegatesCombobox::DelegatesCombobox(Qt::AlignmentFlag aligment, QObject* parent)
     : QStyledItemDelegate(parent)
     , m_aligment(aligment)
@@ -140,7 +142,7 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double st
 
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
-    QDoubleSpinBox* spin = new QDoubleSpinBox (parent);
+    auto* spin = new WidgetsDoubleSpinBoxWithCustomDisplay (parent);
     spin->setDecimals(m_precision);
     spin->setRange(m_min, m_max);
     spin->setSingleStep(m_step);
@@ -161,7 +163,7 @@ void DelegatesDoubleSpinBox::setEditorData(QWidget* editor, const QModelIndex& i
 
 void DelegatesDoubleSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QDoubleSpinBox* spin = static_cast<QDoubleSpinBox*>(editor);
-    const double& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
+    double val = spin->value();
 
     bool accept = true;
     OnEditingFinished(val, index, accept);

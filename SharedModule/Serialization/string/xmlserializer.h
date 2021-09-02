@@ -130,27 +130,71 @@ struct SerializerXml<QVector<T>>
     }
 };
 
-template<class T>
-struct SerializerXml<QSet<T>>
-{
-    using Type = QSet<T>;
-
-    template<class Buffer>
-    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Read(buffer, object.Value);
-        buffer.CloseSection();
-    }
-
-    template<class Buffer>
-    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Write(buffer, object.Value);
-        buffer.CloseSection();
-    }
+#define DECLARE_SERIALIZER_XML_TO_SERIALIZER(ObjectType) \
+template<> \
+struct SerializerXml<ObjectType> \
+{ \
+    using Type = ObjectType; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
 };
+
+#define DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(ObjectType) \
+template<class T> \
+struct SerializerXml<ObjectType<T>> \
+{ \
+    using Type = ObjectType<T>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+};
+
+#define DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(ObjectType) \
+template<class T, class T2> \
+struct SerializerXml<ObjectType<T, T2>> \
+{ \
+    using Type = ObjectType<T, T2>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+};
+
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QMap)
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
 
 template<>
 struct SerializerXml<QImage>
@@ -204,6 +248,12 @@ public:
         return SerializerXmlObject<T>(name, value, SerializerValueType::Section);
     }
 
+    template<class T>
+    std::pair<SerializerXmlObject<T>,TextConverterContext> SectWithContext(const QString& name, T& value, const TextConverterContext& context)
+    {
+        return std::make_pair(SerializerXmlObject<T>(name, value, SerializerValueType::Section), context);
+    }
+
 
 private:
     SerializationModes m_mode;
@@ -214,6 +264,7 @@ class SerializerXmlWriteBuffer : public SerializerXmlBufferBase
 public:
     SerializerXmlWriteBuffer(QXmlStreamWriter* writer)
         : m_writer(writer)
+        , m_currentContext(&m_context)
     {}
 
     void SetTextConverterContext(const TextConverterContext& context)
@@ -225,9 +276,9 @@ public:
     void SerializeAtomic(const SerializerXmlObject<T>& object)
     {
         if(object.Type == SerializerValueType::Attribute) {
-            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value, m_context));
+            m_writer->writeAttribute(object.Name, TextConverter<T>::ToText(object.Value, *m_currentContext));
         } else {
-            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value, m_context));
+            m_writer->writeTextElement(object.Name, TextConverter<T>::ToText(object.Value, *m_currentContext));
         }
     }
 
@@ -253,9 +304,18 @@ public:
         SerializerXml<T>::Write(*this, attributeValue);
     }
 
+    template<class T>
+    void operator<<(const std::pair<SerializerXmlObject<T>, TextConverterContext>& attributeValueWithContext)
+    {
+        m_currentContext = &attributeValueWithContext.second;
+        SerializerXml<T>::Write(*this, attributeValueWithContext.first);
+        m_currentContext = &m_context;
+    }
+
 private:
     QXmlStreamWriter* m_writer;
     TextConverterContext m_context;
+    const TextConverterContext* m_currentContext;
 };
 
 class SerializerXmlReadBuffer : public SerializerXmlBufferBase
@@ -306,6 +366,12 @@ public:
     void operator<<(const SerializerXmlObject<T>& attributeValue)
     {
         SerializerXml<T>::Read(*this, const_cast<SerializerXmlObject<T>&>(attributeValue));
+    }
+
+    template<class T>
+    void operator<<(const std::pair<SerializerXmlObject<T>, TextConverterContext>& attributeValueWithContext)
+    {
+        operator<<(attributeValueWithContext.first);
     }
 
 private:
