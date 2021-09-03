@@ -28,28 +28,13 @@ public:
 template<class Stream>
 class StreamBufferBase
 {
-    bool m_isValid;
-    Stream m_stream;
-    int32_t m_version;
-    SerializationModes m_mode;
-
 public:
     template<class ... Args>
-    StreamBufferBase(int64_t magicKey, int32_t version, Args ... args)
+    StreamBufferBase(int32_t version, Args ... args)
         : m_stream(args...)
         , m_version(version)
         , m_mode(SerializationMode_Default)
     {
-        int64_t testKey = magicKey;
-        if(m_stream.good()) {
-            *this << testKey;
-            m_isValid = (testKey == magicKey);
-            if(m_isValid) {
-                *this << m_version;
-            }
-        } else {
-            m_isValid = false;
-        }
     }
 
     template<class Enum>
@@ -92,64 +77,112 @@ public:
     StreamBufferBase& operator<<(const PlainData& data);
 
     StandardVariantPropertiesContainer Properties;
+
+protected:
+    bool m_isValid;
+    Stream m_stream;
+    int32_t m_version;
+    SerializationModes m_mode;
 };
 
 template<class Stream>
-struct SerializerDirectionHelper
+class StreamBufferWriter : public StreamBufferBase<Stream>
 {
-    template<typename T>
-    static void Serialize(StreamBufferBase<Stream>& buffer, const T&);
-};
+    using Super = StreamBufferBase<Stream>;
+public:
+    template<class ... Args>
+    StreamBufferWriter(int64_t magicKey, int32_t version, Args ... args)
+        : Super(version, args...)
+        , m_magicKey(magicKey)
+        , m_isFinished(false)
+    {
+        int64_t testKey = magicKey;
+        if(Super::m_stream.good()) {
+            *this << testKey;
+            *this << Super::m_version;
+        } else {
+            Super::m_isValid = false;
+        }
+    }
 
-template<>
-struct SerializerDirectionHelper<std::istream>
-{
-    typedef StreamBufferBase<std::istream> Buffer;
-    template<typename T>
-    static void Serialize(Buffer& buffer, T& data) { Serializer<T>::Read(buffer, data); }
-};
+    template<class Enum>
+    StreamBufferWriter(QByteArray* array, Enum flags)
+        : Super(array, flags)
+        , m_magicKey(-1)
+        , m_isFinished(true)
+    {}
 
-template<>
-struct SerializerDirectionHelper<std::ostream>
-{
-    typedef StreamBufferBase<std::ostream> Buffer;
-    template<typename T>
-    static void Serialize(Buffer& buffer, const T& data) { Serializer<T>::Write(buffer, data); }
-};
+    ~StreamBufferWriter()
+    {
+        Q_ASSERT(m_isFinished);
+    }
 
-template<>
-struct SerializerDirectionHelper<std::ifstream>
-{
-    typedef StreamBufferBase<std::ifstream> Buffer;
-    template<typename T>
-    static void Serialize(Buffer& buffer, T& data) { Serializer<T>::Read(buffer, data); }
-};
+    void Finish()
+    {
+        Q_ASSERT(!m_isFinished);
+        *this << m_magicKey;
+        m_isFinished = true;
+    }
 
-template<>
-struct SerializerDirectionHelper<std::ofstream>
-{
-    typedef StreamBufferBase<std::ofstream> Buffer;
-    template<typename T>
-    static void Serialize(Buffer& buffer, const T& data) { Serializer<T>::Write(buffer, data); }
-};
+    template<class T>
+    StreamBufferWriter& operator<<(const T& data)
+    {
+        Serializer<T>::Write(*this, data);
+        return *this;
+    }
 
-template<class Stream> template<class T>
-StreamBufferBase<Stream>& StreamBufferBase<Stream>::operator<<(T& data)
-{
-    SerializerDirectionHelper<Stream>::Serialize(*this, data);
-    return *this;
-}
+    StreamBufferWriter& operator<<(const PlainData& data)
+    {
+        Serializer<PlainData>::Write(*this, *const_cast<PlainData*>(&data));
+        return *this;
+    }
+
+private:
+    int64_t m_magicKey;
+    bool m_isFinished;
+};
 
 template<class Stream>
-StreamBufferBase<Stream>& StreamBufferBase<Stream>::operator<<(const PlainData& data)
+class StreamBufferReader : public StreamBufferBase<Stream>
 {
-    SerializerDirectionHelper<Stream>::Serialize(*this, *const_cast<PlainData*>(&data));
-    return *this;
-}
+    using Super = StreamBufferBase<Stream>;
+public:
+    template<class ... Args>
+    StreamBufferReader(int64_t magicKey, int32_t version, Args ... args)
+        : Super(version, args...)
+    {
+        int64_t testKey;
+        if(Super::m_stream.good()) {
+            *this << testKey;
+            Super::m_isValid = (testKey == magicKey);
+            if(Super::m_isValid) {
+                *this << Super::m_version;
+                Super::m_isValid = Super::m_stream.GetLastInt64() == magicKey;
+            }            
+        } else {
+            Super::m_isValid = false;
+        }
+    }
 
-typedef StreamBufferBase<std::istream> StreamBufferRead;
-typedef StreamBufferBase<std::ostream> StreamBufferWrite;
-typedef StreamBufferBase<std::ifstream> StreamBufferReadFile;
-typedef StreamBufferBase<std::ofstream> StreamBufferWriteFile;
+    StreamBufferReader(const QByteArray& array)
+        : Super(array)
+    {}
+
+    template<class T>
+    StreamBufferReader& operator<<(T& data)
+    {
+        Serializer<T>::Read(*this, data);
+        return *this;
+    }
+
+    StreamBufferReader& operator<<(const PlainData& data)
+    {
+        Serializer<PlainData>::Read(*this, *const_cast<PlainData*>(&data));
+        return *this;
+    }
+
+private:
+    int64_t m_magicKey;
+};
 
 #endif // STREAMBUFFER_H

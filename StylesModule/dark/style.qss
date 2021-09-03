@@ -605,8 +605,9 @@ QColumnView::item:!selected:hover {
 }
 
 QTableCornerButton::section {
-  background-color: #1E1E1E;
-  border: 1px transparent #3C3C3C;
+  background-color: #3C3C3C;
+  border-bottom: 1px solid #1E1E1E;
+  border-right: 1px solid #1E1E1E;
 }
 
 QTreeView:selected {
