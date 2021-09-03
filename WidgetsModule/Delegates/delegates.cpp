@@ -198,6 +198,9 @@ void DelegatesDoubleSpinBox::SetRange(double min, double max){
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
+//    , IsRealTime(true)
+//    , StartTime(QDateTime::fromMSecsSinceEpoch(0))
+//    , StopTime(QDateTime::currentDateTime())
 	, m_displayFormat("MM/dd/yy hh:mm:ss")
 	, m_locale(QLocale::system())
 {
@@ -210,6 +213,11 @@ QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionView
 //    editor->setDisplayFormat(m_displayFormat);
 	editor->setLocale(m_locale);
     editor->setTimeSpec(Qt::UTC);
+//    editor->setMinimumDateTime(StartTime);
+//    if(!IsRealTime){
+//        editor->setMaximumDateTime(StopTime);
+//    }
+    
 	OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateTimeEdit::dateTimeChanged, [this, index](const QDateTime&dateTime){
         OnEditorValueChanged(dateTime, index);

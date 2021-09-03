@@ -261,7 +261,7 @@ public:
         auto index = std::distance(begin(), insertTo);
         OnAboutToInsertRows(index, index);
         Super::insert(index, value);
-        OnRowsInserted();
+        OnRowsInserted(index, 1);
         OnChanged();
         OnColumnsChanged({});
     }

@@ -768,3 +768,7 @@ QAbstractView:selected {
   background: #007acc;
   color: #D2D2D2;
 }
+
+QFrame#WPSCDatetimePopupPicker {
+  background: #F3F3F3;
+}
