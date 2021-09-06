@@ -65,11 +65,8 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
 }
 
 
-DelegatesIntSpinBox::DelegatesIntSpinBox(int min, int max, int step, QObject* parent)
+DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
     : QStyledItemDelegate(parent)
-      , m_min(min)
-      , m_max(max)
-      , m_step(step)
       , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
     
@@ -78,8 +75,6 @@ DelegatesIntSpinBox::DelegatesIntSpinBox(int min, int max, int step, QObject* pa
 QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new QSpinBox (parent);
-    spin->setRange(m_min, m_max);
-    spin->setSingleStep(m_step);
     OnEditorAboutToBeShown(spin, index);
     connect(spin, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this, index](int value){
         OnEditorValueChanged(value, index);
@@ -124,17 +119,8 @@ void DelegatesIntSpinBox::SetEditHandler(const std::function<bool (QAbstractItem
     m_editHandler = handler;
 }
 
-void DelegatesIntSpinBox::SetRange(int min, int max){
-    m_min = min;
-    m_max = max;
-}
-
-DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double step, int precision, QObject* parent)
+DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(QObject* parent)
     : QStyledItemDelegate(parent)
-    , m_precision(precision)
-    , m_min(min)
-    , m_max(max)
-    , m_step(step)
     , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
     
@@ -143,9 +129,6 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double st
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new WidgetsDoubleSpinBoxWithCustomDisplay (parent);
-    spin->setDecimals(m_precision);
-    spin->setRange(m_min, m_max);
-    spin->setSingleStep(m_step);
     OnEditorAboutToBeShown(spin, index);
     connect(spin, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, index](double value){
         OnEditorValueChanged(value, index);
@@ -189,11 +172,6 @@ bool DelegatesDoubleSpinBox::editorEvent(QEvent* event, QAbstractItemModel* mode
 
 void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractItemModel*, const QModelIndex&)>& handler){
     m_editHandler = handler;
-}
-
-void DelegatesDoubleSpinBox::SetRange(double min, double max){
-    m_min = min;
-    m_max = max;
 }
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)

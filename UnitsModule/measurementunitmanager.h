@@ -201,6 +201,38 @@ private:
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;
 
+class MeasurementDoubleSpinBoxWrapper
+{
+public:
+    MeasurementDoubleSpinBoxWrapper(const Name& measurementType, QDoubleSpinBox* spinBox)
+        : m_spinBox(spinBox)
+    {
+        const auto& measurement = MeasurementManager::GetInstance().GetMeasurement(measurementType);
+        m_baseToUnitConverter = measurement->GetCurrentUnit()->GetBaseToUnitConverter();
+        spinBox->setDecimals(measurement->Precision);
+    }
+
+    void SetRange(double min, double max)
+    {
+        m_spinBox->setRange(m_baseToUnitConverter(min),m_baseToUnitConverter(max));
+    }
+
+    void SetMinimum(double min, double offset = 0.0)
+    {
+        m_spinBox->setMinimum(m_baseToUnitConverter(min) + offset);
+    }
+
+    void SetMaximum(double max, double offset = 0.0)
+    {
+        m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
+    }
+
+
+protected:
+    QDoubleSpinBox* m_spinBox;
+    MeasurementUnit::FTransform m_baseToUnitConverter;
+};
+
 #define MEASUREMENT_DISTANCE_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromUnitToBase(x)
 #define MEASUREMENT_DISTANCE_BASE_TO_UNIT(x) \
