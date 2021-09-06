@@ -198,9 +198,6 @@ void DelegatesDoubleSpinBox::SetRange(double min, double max){
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
-//    , IsRealTime(true)
-//    , StartTime(QDateTime::fromMSecsSinceEpoch(0))
-//    , StopTime(QDateTime::currentDateTime())
 	, m_displayFormat("MM/dd/yy hh:mm:ss")
 	, m_locale(QLocale::system())
 {
@@ -210,13 +207,8 @@ DelegatesDateTime::DelegatesDateTime(QObject* parent)
 QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* editor = new QDateTimeEdit(parent);
-//    editor->setDisplayFormat(m_displayFormat);
 	editor->setLocale(m_locale);
     editor->setTimeSpec(Qt::UTC);
-//    editor->setMinimumDateTime(StartTime);
-//    if(!IsRealTime){
-//        editor->setMaximumDateTime(StopTime);
-//    }
     
 	OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateTimeEdit::dateTimeChanged, [this, index](const QDateTime&dateTime){
@@ -290,47 +282,3 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
     }
     return Super::editorEvent(event, model, option, index);
 }
-////////////////////////////////////
-//DelegatesIconBox::DelegatesIconBox(const QIcon& icon, QObject* parent)
-//    : QStyledItemDelegate(parent)
-//	, m_icon(icon)
-//    , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
-//{
-    
-//}
-
-//QWidget* DelegatesIconBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
-//{
-//    auto* label = new QLabel (parent);
-//    OnEditorAboutToBeShown(label, index);
-//    return spin;
-//}
-
-//void DelegatesIconBox::setEditorData(QWidget* editor, const QModelIndex& index) const {
-//    auto data = index.model()->data(index, Qt::EditRole).toInt();
-//    auto* spin = qobject_cast<QSpinBox*>(editor);
-//    Q_ASSERT(spin != nullptr);
-//    spin->setValue(data);
-//}
-
-//void DelegatesIconBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-//    auto* spin = static_cast<QSpinBox*>(editor);
-//    const auto& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
-    
-//    model->setData(index, val, Qt::EditRole);
-//}
-
-//void DelegatesIconBox::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
-//    editor->setGeometry(option.rect);
-//}
-
-//bool DelegatesIconBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
-//{
-//    if(event->type() == QEvent::MouseButtonDblClick){
-//        auto isEditable = m_editHandler(model, index);
-//        if (!isEditable){///block
-//            return true;
-//        }
-//    }
-//    return Super::editorEvent(event, model, option, index);
-//}
