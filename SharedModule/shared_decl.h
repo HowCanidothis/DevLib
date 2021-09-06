@@ -99,6 +99,24 @@ inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>(
     return qAbs(v1 - 0.0) < epsilon;
 }
 
+namespace sm_internal
+{
+    template<std::uint64_t B, unsigned char E, typename T>
+    struct power_of
+    {
+        static constexpr T value = T(B) * power_of<B, E - 1, T>::value;
+    };
+
+    template<std::uint64_t B, typename T>
+    struct power_of<B, 0, T>
+    {
+        static constexpr T value = T(1);
+    };
+
+    template<std::uint64_t B, unsigned char E, typename T>
+    inline constexpr auto power_of_v = power_of<B, E, T>::value;
+}
+
 inline double round(double value, int decimals)
 {
     return std::round(value * decimals) / decimals;
@@ -107,6 +125,18 @@ inline double round(double value, int decimals)
 inline float round(float value, int decimals)
 {
     return std::round(value * decimals) / decimals;
+}
+
+template<qint32 Decimals>
+inline double round(double value)
+{
+    return round(value, sm_internal::power_of<10,Decimals,double>::value);
+}
+
+template<qint32 Decimals>
+inline float round(float value)
+{
+    return round(value, sm_internal::power_of<10,Decimals,float>::value);
 }
 
 inline QString dToStr(double value, qint32 precision = 2)
