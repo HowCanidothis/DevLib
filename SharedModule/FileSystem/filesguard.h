@@ -5,6 +5,8 @@
 #include <QDate>
 #include <functional>
 
+#include "SharedModule/dispatcher.h"
+
 class FilesGuard
 {
 public:
@@ -15,6 +17,8 @@ public:
     void SetPattern(const QString& pattern) { m_pattern = pattern; }
     void SetMaxCount(qint32 count) { m_maxCount = count; }
     void Checkout();
+
+    mutable Dispatcher OnFilesRemoved;
 
 private:
     QString m_pattern;
@@ -27,6 +31,8 @@ class FileNamesGeneratorWithGuard
     using FOnNewFileName = std::function<void (const QString& newFileName)>;
 public:
     FileNamesGeneratorWithGuard(const QString& baseName, const QString& format, qint32 maxFilesCount, const QDir& dir = QDir::current());
+
+    const FilesGuard& GetFilesGuard() const { return m_filesGuard; }
 
     bool UpdateFileName(const FOnNewFileName& onNewFileName);
     bool UpdateFileNameWithTime(const FOnNewFileName& onNewFileName);

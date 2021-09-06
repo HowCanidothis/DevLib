@@ -789,14 +789,14 @@ QTreeView:branch:open:has-children:!has-siblings:hover, QTreeView:branch:open:ha
 
 QTreeView::indicator:checked,
 QListView::indicator:checked {
-  image: url(":/qss_icons/rc/checkbox_checked.png");
+  image: url(":/qss_icons/rc/checkbox_checked_focus.png");
 }
 
 QTreeView::indicator:checked:hover, QTreeView::indicator:checked:focus, QTreeView::indicator:checked:pressed,
 QListView::indicator:checked:hover,
 QListView::indicator:checked:focus,
 QListView::indicator:checked:pressed {
-  image: url(":/qss_icons/rc/checkbox_checked_focus.png");
+  image: url(":/qss_icons/rc/checkbox_indeterminate_focus.png");
 }
 
 QTreeView::indicator:unchecked,
@@ -813,14 +813,14 @@ QListView::indicator:unchecked:pressed {
 
 QTreeView::indicator:indeterminate,
 QListView::indicator:indeterminate {
-  image: url(":/qss_icons/rc/checkbox_indeterminate.png");
+  image: url(":/qss_icons/rc/checkbox_checked.png");
 }
 
 QTreeView::indicator:indeterminate:hover, QTreeView::indicator:indeterminate:focus, QTreeView::indicator:indeterminate:pressed,
 QListView::indicator:indeterminate:hover,
 QListView::indicator:indeterminate:focus,
 QListView::indicator:indeterminate:pressed {
-  image: url(":/qss_icons/rc/checkbox_indeterminate_focus.png");
+  image: url(":/qss_icons/rc/checkbox_checked_focus.png");
 }
 
 QTreeView,
