@@ -9,7 +9,7 @@ class ModelsTableBase : public QAbstractTableModel
 {
     using Super = QAbstractTableModel;
 public:
-    ModelsTableBase(QObject* parent);
+    ModelsTableBase(QObject* parent = nullptr);
     ~ModelsTableBase();
 
     void SetData(const ModelsTableWrapperPtr& data);
@@ -26,8 +26,34 @@ class TModelsTableBase : public ModelsTableBase
 public:
     using Super::Super;
 
+	bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+	{
+		GetData()->Insert(row, count);
+		return true;
+	}
+	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+	{
+		QSet<qint32> indexs;
+		while(count){
+            indexs.insert(row + --count);
+		}
+		GetData()->Remove(indexs);
+		return true;
+	}
+	
+	void AttachDependence(Dispatcher* dispatcher, int first, int last)
+	{
+		dispatcher->Connect(this, [first, last, this]{
+			emit dataChanged(createIndex(0, first), createIndex(rowCount()-1, last));
+			emit headerDataChanged(Qt::Horizontal, first, last);
+		}).MakeSafe(m_connections);
+	}
+	
     void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
     const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
+	
+private:
+	DispatcherConnectionsSafe m_connections;
 };
 
 template<class Wrapper>
@@ -37,6 +63,7 @@ struct ModelsTableBaseDecorator
     static void Sort(const typename Wrapper::Container& rows, qint32 column, Array<qint32>& indices);
     static bool SetModelData(const QVariant& value, typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
     static Qt::ItemFlags GetFlags(const typename Wrapper::value_type&, qint32);
+	static QVariant GetHeaderData(int section, Qt::Orientation orientation, qint32 role = Qt::DisplayRole);
 };
 
 template<class Wrapper>
@@ -58,8 +85,8 @@ class TModelsDecoratedTable : public TModelsTableBase<Wrapper>
 public:
     using Super::Super;
 
-    qint32 rowCount(const QModelIndex&) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
-    qint32 columnCount(const QModelIndex&) const override { return Wrapper::value_type::count; }
+    qint32 rowCount(const QModelIndex& index = QModelIndex()) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
+    qint32 columnCount(const QModelIndex& index = QModelIndex()) const override { return Wrapper::value_type::count; }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
         if(!index.isValid()) {
@@ -86,6 +113,11 @@ public:
         return result;
     }
 
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const override 
+	{
+		return ModelsTableBaseDecorator<Wrapper>::GetHeaderData(section, orientation, role);
+	}
+	
     Qt::ItemFlags flags(const QModelIndex& index) const override
     {
         if(!index.isValid()) {

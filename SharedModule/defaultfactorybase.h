@@ -13,10 +13,13 @@ class DefaultFactoryBase
     typedef QHash<QString, DelegateCreator> Delegates;
 
 public:
-    DefaultFactoryBase()
+	using ExtensionTemplate = std::function<QString(const QString&)>;
+	static ExtensionTemplate DefaultGenerator;
+    
+	DefaultFactoryBase()
         : m_defaultDelegate([] { return nullptr; })
     {}
-
+	
     DelegateObject* Create(const QString& extension) const;
     ScopedPointer<DelegateObject> CreateScoped(const QString& extension) const {
         return ScopedPointer<DelegateObject>(Create(extension));
@@ -24,7 +27,7 @@ public:
 
     bool IsSupport(const QString& extension) const { return m_delegates.contains(extension); }
     QString GetSupportedExtensions(const QString& suffix) const;
-	QStringList GenerateSupportedExtensions(const std::function<QString(const QString&)>& func = [](const QString& str) {return QString("%1 (*.%2)").arg(str.toUpper(), str.toLower()); }) const;
+	QStringList GenerateSupportedExtensions(const ExtensionTemplate& func = DefaultGenerator) const;
 	
 protected:
     void associate(const QString& formats, const DelegateCreator& importerCreator);
@@ -83,4 +86,6 @@ void DefaultFactoryBase<DelegateObject>::setDefault(const DelegateCreator& impor
     m_defaultDelegate = importerCreator;
 }
 
+template<class DelegateObject>
+std::function<QString(const QString&)> DefaultFactoryBase<DelegateObject>::DefaultGenerator = [](const QString& str) {return QString("%1 (*.%2)").arg(str.toUpper(), str.toLower()); };
 #endif // DEFAULTFACTORYBASE_H

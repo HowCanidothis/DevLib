@@ -1,5 +1,6 @@
 #include "delegates.h"
 
+#include <QLabel>
 #include <QSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
@@ -137,7 +138,6 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(double min, double max, double st
     , m_step(step)
     , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
-    
 }
 
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
@@ -198,40 +198,51 @@ void DelegatesDoubleSpinBox::SetRange(double min, double max){
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
+	, m_displayFormat("MM/dd/yy hh:mm:ss")
+	, m_locale(QLocale::system())
 {
     
 }
 
 QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
-    auto editor = new QDateTimeEdit(parent);
-    editor->setDisplayFormat("MM/dd/yy hh:mm:ss");
+    auto* editor = new QDateTimeEdit(parent);
+	editor->setLocale(m_locale);
     editor->setTimeSpec(Qt::UTC);
+    
+	OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateTimeEdit::dateTimeChanged, [this, index](const QDateTime&dateTime){
-        emit const_cast<DelegatesDateTime*>(this)->dateTimeChanged(dateTime, index);
+        OnEditorValueChanged(dateTime, index);
     });
     return editor;
 }
 
 void DelegatesDateTime::setEditorData(QWidget* editor, const QModelIndex& index) const {
-    auto varData = index.model()->data(index, Qt::EditRole);
-    //        auto data = QDateTime::fromString(strData.toString(), "dd.mm.yy hh.mm");
-    auto data = varData.toDateTime();
-
+    const auto& dateTime = index.model()->data(index, Qt::EditRole).toDateTime();
+	
     QDateTimeEdit* dt = qobject_cast<QDateTimeEdit*>(editor);
     Q_ASSERT(dt != nullptr);
-    dt->setDateTime(data);
+	dt->setTimeSpec(dateTime.timeSpec());
+    dt->setDateTime(dateTime);
 }
 
 void DelegatesDateTime::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QDateTimeEdit* dt = static_cast<QDateTimeEdit*>(editor);
-    const auto& val = dt->dateTime();
-
-    model->setData(index, val, Qt::EditRole);
+    model->setData(index, dt->dateTime(), Qt::EditRole);
 }
 
 void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
     editor->setGeometry(option.rect);
+}
+
+void DelegatesDateTime::SetLocale(const QLocale& locale)
+{
+	m_locale = locale;
+}
+
+QString DelegatesDateTime::displayText(const QVariant& value, const QLocale& locale) const
+{
+	return m_locale.toString(value.toDateTime(), QLocale::ShortFormat);
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)

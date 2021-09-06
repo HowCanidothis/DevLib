@@ -20,7 +20,7 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
-private:
+protected:
     QStringList m_values;
     Qt::AlignmentFlag m_aligment;
 };
@@ -45,7 +45,7 @@ public:
     CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
     CommonDispatcher<int, const QModelIndex&, bool&> OnEditingFinished;
     
-private:
+protected:
     int m_min;
     int m_max;
     int m_step;
@@ -58,7 +58,10 @@ class DelegatesDoubleSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesDoubleSpinBox (double min = std::numeric_limits<double>().lowest(), double max = (std::numeric_limits<double>().max)(), double step = 1.0, int precision = 2, QObject* parent = nullptr);
+	DelegatesDoubleSpinBox (QObject* parent = nullptr) : DelegatesDoubleSpinBox(std::numeric_limits<double>().lowest(), (std::numeric_limits<double>().max)(), parent) {}
+	DelegatesDoubleSpinBox (double min, double max, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, 1.0, parent) {}
+	DelegatesDoubleSpinBox (double min, double max, double step, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, step, 2, parent){}
+	DelegatesDoubleSpinBox (double min, double max, double step, int precision, QObject* parent = nullptr);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -73,14 +76,13 @@ public:
     CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
     CommonDispatcher<double, const QModelIndex&, bool&> OnEditingFinished;
     
-private:
+protected:
     int m_precision;
     double m_min;
     double m_max;
     double m_step;
     
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
-    
 };
 
 //TODO ADD FORMAT
@@ -91,13 +93,19 @@ class DelegatesDateTime : public QStyledItemDelegate
 public:
     DelegatesDateTime (QObject* parent = nullptr);
 
+	void SetLocale(const QLocale& locale);
+	void SetDisplayFormat(const QString& format) { m_displayFormat = format; }
+	QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-
-signals:
-    void dateTimeChanged(const QDateTime& dateTime, const QModelIndex& index);
+	
+	CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
+	CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
+protected:
+	QString m_displayFormat;
+	QLocale m_locale;
 };
 
 class DelegatesCheckBox : public QStyledItemDelegate

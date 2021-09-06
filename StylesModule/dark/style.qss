@@ -289,15 +289,6 @@ QLabel:disabled {
   color: #787878;
 }
 
-QCalendarWidget {
-  border: 1px solid #3C3C3C;
-}
-
-QCalendarWidget:disabled {
-  background-color: #1E1E1E;
-  color: #787878;
-}
-
 QPushButton {
   background-color: #007acc;
   color: white;
@@ -345,6 +336,10 @@ QPushButton:hover {
 
 QPushButton:focus {
   border: 1px solid #007acc;
+}
+
+QPushButton#CalendarButton {
+  background-color: transparent;
 }
 
 QToolButton {
@@ -790,4 +785,8 @@ QAbstractView:hover {
 QAbstractView:selected {
   background: #007acc;
   color: #3C3C3C;
+}
+
+WPSCDatetimePopupPicker {
+  background: #252526;
 }

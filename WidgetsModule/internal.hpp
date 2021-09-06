@@ -39,6 +39,7 @@
 #include "Utils/widgethelpers.h"
 
 #include "Delegates/delegates.h"
+#include "Delegates/unitdelegates.h"
 
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"

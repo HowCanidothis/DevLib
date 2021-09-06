@@ -149,13 +149,44 @@ QList<int> WidgetContent::SelectedRowsSorted(QTableView* tableView)
     return ret;
 }
 
+QList<int> WidgetContent::SelectedColumnsSorted(QTableView* tableView)
+{
+	auto ret = SelectedColumnsSet(tableView).toList();
+	std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
+    return ret;
+}
+
 QSet<int> WidgetContent::SelectedRowsSet(QTableView* tableView)
+{
+	QHash<int, int> hash;
+    auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
+
+    for(const auto& index : selectedIndexes){
+        auto iter = hash.find(index.row());
+        if(iter == hash.end()){
+            iter = hash.insert(index.row(), 1);
+        } else {
+            ++iter.value();
+        }
+    }
+    
+    QSet<int> set;
+    auto columnsCount = tableView->model()->columnCount();
+    for(auto iter = hash.begin(); iter != hash.end(); ++iter){
+        if(iter.value() == columnsCount){
+            set.insert(iter.key());
+        }
+    }
+    return set;
+}
+
+QSet<int> WidgetContent::SelectedColumnsSet(QTableView* tableView)
 {
     QSet<int> set;
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
 
     for(const auto& index : selectedIndexes){
-        set.insert(index.row());
+        set.insert(index.column());
     }
     return set;
 }

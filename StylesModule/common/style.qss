@@ -514,10 +514,6 @@ QAbstractSpinBox::down-arrow:hover {
   image: url(":/qss_icons/rc/arrow_down.png");
 }
 
-QCalendarWidget {
-  border-radius: 4px;
-}
-
 QPushButton {
   border: none;
   font-weight: bold;
@@ -976,3 +972,18 @@ QDateEdit QAbstractItemView {
 PlotWidget {
   padding: 0px;
 }
+
+QCalendarWidget QToolButton#qt_calendar_nextmonth {
+    qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth {
+    qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
+}
+
+
+QCalendarWidget QAbstractItemView:disabled 
+{ 
+color: rgb(64, 64, 64); 
+}
+

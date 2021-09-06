@@ -56,7 +56,7 @@ LeftBar QPushButton#BtnDataBrowser:checked{
     image: url(":/left_bar/text-box-search-outline-hover.svg");
 }
 
-LeftBar QPushButton#BtnWellPlanning{
+LeftBar QPushButton#BtnJobSpace{
     image: url(":/left_bar/studio.svg");
     
     qproperty-text: "";
@@ -68,11 +68,11 @@ LeftBar QPushButton#BtnWellPlanning{
     border: none;
 }
 
-LeftBar QPushButton#BtnWellPlanning:hover{
+LeftBar QPushButton#BtnJobSpace:hover{
     image: url(":/left_bar/studio-hover.svg");
 }
 
-LeftBar QPushButton#BtnWellPlanning:checked{
+LeftBar QPushButton#BtnJobSpace:checked{
     image: url(":/left_bar/studio-hover.svg");
 }
 
@@ -293,17 +293,14 @@ DDFooter[DDReferenceMode="1"] QMenuBar {
     font-size: 12px;
     background: #c92626;
 }
-
 DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
     background: #007acc;
 }
-
 DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
     background: #c92626;
 }
-
 
 DDFooter[DDReferenceMode="0"] QMenu::item::selected{
     background: #1F8AD2;
@@ -352,6 +349,10 @@ QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
     background: #c92626;
 }
 
+QFrame[ApplicationMode="3"]{
+    background: #999999;
+}
+
 QFrame[ApplicationMode="1"] QWidget{
     background: #68217A;
     color: white;
@@ -364,6 +365,11 @@ QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
     background: #c92626;
+    color: white;
+}
+
+QFrame[ApplicationMode="3"] QWidget{
+    background: #999999;
     color: white;
 }
 

@@ -101,12 +101,14 @@ inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>(
 
 inline double round(double value, int decimals)
 {
-    return std::round(value * decimals) / decimals;
+    auto multiplier = pow(10, decimals);
+    return std::round(value * multiplier) / multiplier;
 }
 
 inline float round(float value, int decimals)
 {
-    return std::round(value * decimals) / decimals;
+    auto multiplier = pow(10, decimals);
+    return std::round(value * multiplier) / multiplier;
 }
 
 inline QString dToStr(double value, qint32 precision = 2)

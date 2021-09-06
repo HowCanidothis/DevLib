@@ -91,6 +91,7 @@ SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QByteArray)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(Name)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QDateTime)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QDate)
+SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QTime)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QColor)
 
 SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(SharedPointer)
@@ -105,7 +106,7 @@ struct SerializerXml<QVector<T>>
     static void Read(Buffer& reader, const SerializerXmlObject<Type>& object)
     {
         reader.OpenSection(object.Name);
-        qint32 count = object.Value.size();
+        qint32 count = 0;
         reader << reader.Attr("Size", count);
         object.Value.clear();
         while(count--) {

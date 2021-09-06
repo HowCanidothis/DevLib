@@ -101,7 +101,9 @@ struct WidgetContent
     static void ForeachChildWidget(QWidget* target, const std::function<void (QWidget*)>& handler);
     static void CopySelectedTableContentsToClipboard(class QTableView* tableView);
     static QList<int> SelectedRowsSorted(QTableView* tableView);
-    static QSet<int> SelectedRowsSet(QTableView* tableView);
+	static QList<int> SelectedColumnsSorted(QTableView* tableView);
+	static QSet<int> SelectedRowsSet(QTableView* tableView);
+	static QSet<int> SelectedColumnsSet(QTableView* tableView);
 };
 
 #endif // WIDGETHELPERS_H

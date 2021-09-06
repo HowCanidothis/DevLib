@@ -13,7 +13,8 @@ public:
 
     template<typename ... Args>
     void connect(Args... args);
-
+    void Clear();
+    
 private:
     QVector<QMetaObject::Connection> m_connections;
 };

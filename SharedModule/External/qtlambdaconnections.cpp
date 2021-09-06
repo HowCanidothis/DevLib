@@ -7,7 +7,13 @@ QtLambdaConnections::QtLambdaConnections()
 
 QtLambdaConnections::~QtLambdaConnections()
 {
-    for(const auto& connection : m_connections) {
+    Clear();
+}
+
+void QtLambdaConnections::Clear()
+{
+     for(const auto& connection : m_connections) {
         QObject::disconnect(connection);
     }
+    m_connections.clear();
 }
