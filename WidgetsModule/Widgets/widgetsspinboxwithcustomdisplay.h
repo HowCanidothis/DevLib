@@ -3,7 +3,7 @@
 
 #include <QSpinBox>
 
-#include <SharedModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 class WidgetsSpinBoxWithCustomDisplay : public QSpinBox
 {
@@ -37,6 +37,9 @@ public:
     using TextFromValueHandler = std::function<QString (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double)>;
     WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
 
+    static const ValueFromTextHandler& GetDefaultValueFromTextHandler();
+    static const TextFromValueHandler& GetDefaultTextFromValueHandler();
+
     void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
     {
         m_textFromValueHandler = textFromValueHandler;
@@ -52,6 +55,8 @@ public:
     {
         m_valueFromTextHandler = valueFromTextHandler;
     }
+
+    DispatcherConnection MakeOptional(LocalPropertyBool* valid);
 
 private:
     QString textFromValue(double val) const override;

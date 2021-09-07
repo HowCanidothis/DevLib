@@ -38,9 +38,35 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
 
 WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
-    , m_textFromValueHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return QString::number(value, 'f', spinBox->decimals()); })
-    , m_valueFromTextHandler([](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double { return ::clamp(text.toDouble(), spin->minimum(), spin->maximum()); })
+    , m_textFromValueHandler(GetDefaultTextFromValueHandler())
+    , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
 {}
+
+const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
+{
+    static ValueFromTextHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double { return ::clamp(text.toDouble(), spin->minimum(), spin->maximum()); };
+    return result;
+}
+
+const WidgetsDoubleSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultTextFromValueHandler()
+{
+    static TextFromValueHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return QString::number(value, 'f', spinBox->decimals()); };
+    return result;
+}
+
+DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)
+{
+    SetTextFromValueHandler([valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, double value) -> QString {
+        if(!*valid) {
+            return "-";
+        }
+        return GetDefaultTextFromValueHandler()(spin, value);
+    });
+
+    return valid->OnChange.Connect(this, [this]{
+        setDecimals(decimals());
+    });
+}
 
 QString WidgetsDoubleSpinBoxWithCustomDisplay::textFromValue(double val) const
 {

@@ -785,6 +785,15 @@ private:
 };
 using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
+template<class Property>
+struct LocalPropertyOptional
+{
+    Property Value;
+    LocalPropertyBool IsValid;
+};
+
+using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
+
 struct PropertyFromLocalProperty
 {
     template<typename Enum>

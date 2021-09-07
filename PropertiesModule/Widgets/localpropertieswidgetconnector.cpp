@@ -136,6 +136,17 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
+#ifdef WIDGETS_MODULE_LIB
+
+#include <WidgetsModule/internal.hpp>
+
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double presicion)
+    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, presicion)
+{
+    spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
+}
+#endif
+
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, double presicion)
     : Super([spinBox, property, presicion](){
                 if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), presicion) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), presicion)) {
@@ -309,4 +320,5 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
         m_propertySetter();
     });
 }
+
 #endif

@@ -1,5 +1,28 @@
 #include "measurementvaluewithunitconnectorscontainer.h"
 
+#ifdef WIDGETS_MODULE_LIB
+#include <WidgetsModule/internal.hpp>
+
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
+{
+    AddConnector(measurement, &property->Value, spinBox);
+    spinBox->MakeOptional(&property->IsValid).MakeSafe(m_connections);
+}
+
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox);
+    AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
+}
+
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox);
+    AddTranslationConnector<LocalPropertiesLineEditConnector>(measurement, label, translationHandler, labelUpdaters);
+}
+
+#endif
+
 void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
 {
     auto data = createPropertyData(measurement, property);
