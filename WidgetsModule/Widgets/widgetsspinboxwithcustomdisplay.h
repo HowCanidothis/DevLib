@@ -43,6 +43,16 @@ public:
         m_valueFromTextHandler = valueFromTextHandler;
     }
 
+    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
+    {
+        m_textFromValueHandler = textFromValueHandler;
+    }
+
+    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
+    {
+        m_valueFromTextHandler = valueFromTextHandler;
+    }
+
 private:
     QString textFromValue(double val) const override;
     double valueFromText(const QString& text) const override;
