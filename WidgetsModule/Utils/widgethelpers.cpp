@@ -160,6 +160,30 @@ QSet<int> WidgetContent::SelectedRowsSet(QTableView* tableView)
     return set;
 }
 
+bool WidgetContent::HasParent(QWidget* child, QWidget* parent)
+{
+    bool result = false;
+    ForeachParentWidget(child, [&result, parent](QWidget* gypoParent){
+        if(gypoParent == parent) {
+            result = true;
+            return true;
+        }
+        return false;
+    });
+    return result;
+}
+
+void WidgetContent::ForeachParentWidget(QWidget* target, const std::function<bool(QWidget*)>& handler)
+{
+    auto* parent = target->parentWidget();
+    while(parent != nullptr) {
+        if(handler(parent)) {
+            break;
+        }
+        parent = parent->parentWidget();
+    }
+}
+
 void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
 {
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
