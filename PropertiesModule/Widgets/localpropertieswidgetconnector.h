@@ -145,6 +145,10 @@ class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidg
 public:
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, double presicion = 0.009);
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, float presicion = 0.009f);
+
+#ifdef WIDGETS_MODULE_LIB
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, class WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double presicion = 0.009);
+#endif
 };
 
 class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase
