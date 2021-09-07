@@ -998,3 +998,9 @@ QPushButton#NextDay
     qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
     background: transparent;
 }
+
+QPushButton#ResetButton
+{
+    qproperty-icon: url(":/qss_icons/rc/backup-restore.svg");
+    background: transparent;
+}
