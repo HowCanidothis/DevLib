@@ -68,11 +68,6 @@ public:
     CommonDispatcher<double, const QModelIndex&, bool&> OnEditingFinished;
     
 protected:
-    int m_precision;
-    double m_min;
-    double m_max;
-    double m_step;
-    
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
 };
 

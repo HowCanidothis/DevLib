@@ -119,14 +119,12 @@ namespace sm_internal
 
 inline double round(double value, int decimals)
 {
-    auto multiplier = pow(10, decimals);
-    return std::round(value * multiplier) / multiplier;
+    return std::round(value * decimals) / decimals;
 }
 
 inline float round(float value, int decimals)
 {
-    auto multiplier = pow(10, decimals);
-    return std::round(value * multiplier) / multiplier;
+    return std::round(value * decimals) / decimals;
 }
 
 template<qint32 Decimals>

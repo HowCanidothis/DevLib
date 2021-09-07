@@ -211,5 +211,11 @@ protected:
     QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))
 #define MEASUREMENT_STRING(system) \
 	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
-
+	
+#define ATTACH_MEASUREMENT(system, delegate, min, max) \
+    delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\
+        MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
+        wrapper.SetRange(min, max);\
+	});
+	
 #endif // MEASUREMENTUNITMANAGER_H

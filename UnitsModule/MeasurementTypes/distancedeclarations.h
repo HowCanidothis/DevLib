@@ -22,5 +22,7 @@ namespace DistanceUnits
     QString::number(MEASUREMENT_DISTANCE_BASE_TO_UNIT(x), 'f', MEASUREMENT_DISTANCE_PRECISION())
 
 #define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentUnitLabel
+#define ATTACH_DISTANCE_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_DISTANCES, delegate, min, max)
 
 #endif // DISTANCEDECLARATIONS_H

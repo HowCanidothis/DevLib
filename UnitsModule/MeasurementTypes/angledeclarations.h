@@ -20,5 +20,7 @@ namespace AngleUnits
     QString::number(MEASUREMENT_ANGLES_BASE_TO_UNIT(x), 'f', MEASUREMENT_ANGLES_PRECISION())
 
 #define MEASUREMENT_ANGLES_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->CurrentUnitLabel
+#define ATTACH_ANGLES_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_ANGLES, delegate, min, max)
 
 #endif // ANGLEDECLARATIONS_H
