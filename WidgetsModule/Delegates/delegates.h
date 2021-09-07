@@ -30,7 +30,7 @@ class DelegatesIntSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesIntSpinBox (int min = std::numeric_limits<int>().lowest(), int max = (std::numeric_limits<int>().max)(), int step = 1, QObject* parent = nullptr);
+    DelegatesIntSpinBox (QObject* parent = nullptr);
     
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -39,17 +39,12 @@ public:
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
     
     void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
-    void SetRange(int min, int max);
     
     CommonDispatcher<class QSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<int, const QModelIndex&> OnEditorValueChanged;
     CommonDispatcher<int, const QModelIndex&, bool&> OnEditingFinished;
     
-protected:
-    int m_min;
-    int m_max;
-    int m_step;
-    
+private:    
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
 };
 
@@ -58,10 +53,7 @@ class DelegatesDoubleSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-	DelegatesDoubleSpinBox (QObject* parent = nullptr) : DelegatesDoubleSpinBox(std::numeric_limits<double>().lowest(), (std::numeric_limits<double>().max)(), parent) {}
-	DelegatesDoubleSpinBox (double min, double max, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, 1.0, parent) {}
-	DelegatesDoubleSpinBox (double min, double max, double step, QObject* parent = nullptr) : DelegatesDoubleSpinBox(min, max, step, 2, parent){}
-	DelegatesDoubleSpinBox (double min, double max, double step, int precision, QObject* parent = nullptr);
+    DelegatesDoubleSpinBox (QObject* parent = nullptr);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -70,7 +62,6 @@ public:
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 
     void SetEditHandler(const std::function<bool(QAbstractItemModel*, const QModelIndex&)>& handler);
-    void SetRange(double min, double max);
     
     CommonDispatcher<class QDoubleSpinBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<double, const QModelIndex&> OnEditorValueChanged;
@@ -118,4 +109,5 @@ public:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 };
+
 #endif // DELEGATES_H

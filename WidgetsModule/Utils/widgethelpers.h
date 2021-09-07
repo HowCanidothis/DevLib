@@ -98,6 +98,8 @@ struct WidgetAppearance
 
 struct WidgetContent
 {
+    static bool HasParent(QWidget* child, QWidget* parent);
+    static void ForeachParentWidget(QWidget* target, const std::function<bool(QWidget*)>& handler);
     static void ForeachChildWidget(QWidget* target, const std::function<void (QWidget*)>& handler);
     static void CopySelectedTableContentsToClipboard(class QTableView* tableView);
     static QList<int> SelectedRowsSorted(QTableView* tableView);

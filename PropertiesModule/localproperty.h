@@ -161,7 +161,7 @@ public:
 
     StorageType& EditSilent() { return m_value; }
     const StorageType& Native() const { return m_value; }
-    Dispatcher& GetDispatcher() { return OnChange; }
+    Dispatcher& GetDispatcher() const { return OnChange; }
 
     bool operator!() const { return m_value == false; }
     bool operator!=(const T& value) const { return m_value != value; }
@@ -169,7 +169,7 @@ public:
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
 
-    Dispatcher OnChange;
+    mutable Dispatcher OnChange;
 
 protected:
     virtual void validate(T&) const {}

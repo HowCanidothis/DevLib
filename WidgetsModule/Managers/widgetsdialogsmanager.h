@@ -8,7 +8,23 @@ class WidgetsDialogsManager
 public:
     static WidgetsDialogsManager& GetInstance();
 
+    template<class T>
+    T* ShowOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
+    {
+        auto foundIt = m_taggedDialog.find(tag);
+        if(foundIt != m_taggedDialog.end()) {
+            return reinterpret_cast<T*>(foundIt.value());
+        }
+        auto* result = dialogCreator();
+        OnDialogCreated(result);
+        m_taggedDialog.insert(tag, result);
+        return result;
+    }
+
     CommonDispatcher<QWidget*> OnDialogCreated;
+
+private:
+    QHash<Name, QWidget*> m_taggedDialog;
 };
 
 #endif // WIDGETSDIALOGMANAGER_H

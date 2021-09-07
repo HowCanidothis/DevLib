@@ -19,6 +19,7 @@ void FilesGuard::Checkout()
         for(const QString& entry : adapters::range(entries.begin(), entries.begin() + filesToRemove)) {
             QFile::remove(m_directory.filePath(entry));
         }
+        OnFilesRemoved();
     }
 }
 
