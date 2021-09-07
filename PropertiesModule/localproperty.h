@@ -790,6 +790,14 @@ struct LocalPropertyOptional
 {
     Property Value;
     LocalPropertyBool IsValid;
+
+    LocalPropertyOptional()
+        : IsValid(false)
+    {
+        Value.Subscribe([this]{
+            IsValid = true;
+        });
+    }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
