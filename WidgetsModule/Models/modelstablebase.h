@@ -215,9 +215,11 @@ public:
                 }
             } else {
                 for(qint32 i : columns) {
-                    auto& cache = m_sortedColumns[i];
-                    cache.IsValid = false;
-                    cache.ColumnListener();
+                    if(i<Wrapper::value_type::count){
+                        auto& cache = m_sortedColumns[i];
+                        cache.IsValid = false;
+                        cache.ColumnListener();
+                    }
                 }
             }
         };
@@ -225,6 +227,17 @@ public:
         m_wrapper->OnColumnsChanged.Connect(const_cast<ModelsTableSearchComponent*>(this), invalidate);
     }
 
+    QList<const value_type&> Select(const std::function<bool(const value_type&)>& where)
+    {
+        QList<const value_type&> result;
+        for(const auto& row : *m_wrapper){
+            if(where(row)){
+                result.append(row);
+            }
+        }
+        return result;
+    }
+    
     template<class T, qint32 Column>
     iterator<T, Column> FindEqualOrGreater(const T& value) const
     {

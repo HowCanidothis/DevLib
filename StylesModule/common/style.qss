@@ -987,3 +987,14 @@ QCalendarWidget QAbstractItemView:disabled
 color: rgb(64, 64, 64); 
 }
 
+QPushButton#PrevDay
+{
+    qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
+    background: transparent;
+}
+
+QPushButton#NextDay
+{
+    qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
+    background: transparent;
+}

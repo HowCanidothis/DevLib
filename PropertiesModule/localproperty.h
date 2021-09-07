@@ -660,7 +660,7 @@ class LocalPropertyTime : public LocalProperty<QTime>
 public:
     LocalPropertyTime(const QTime& value = QTime::currentTime(), const QTime& min = QTime::fromMSecsSinceStartOfDay(0))
         : Super(applyRange(value, min, QTime::fromMSecsSinceStartOfDay(24*3600000-1)))
-        , m_realtime(true)
+        , m_realtime(false)
         , m_min(min)
         , m_max(QTime::fromMSecsSinceStartOfDay(24*3600000-1))
     {
