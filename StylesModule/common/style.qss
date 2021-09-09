@@ -1004,3 +1004,42 @@ QPushButton#ResetButton
     qproperty-icon: url(":/qss_icons/rc/backup-restore.svg");
     background: transparent;
 }
+
+WPSCTimeWidget QSpinBox {
+  
+  font: 20px;
+  max-height: 24px;
+  max-width: 40px;
+  padding: 0px;
+  selection-background-color: transparent;
+}
+
+WPSCTimeWidget QSpinBox::up-button {
+  width: 0px;
+}
+
+WPSCTimeWidget QSpinBox::down-button {
+  width: 0px;
+}
+
+WPSCTimeWidget QLabel[splitter] {
+  background-color: transparent;
+  font: bold 20px;
+}
+
+WPSCTimePicker {
+  qproperty-labelSize: 26;
+}
+
+WPSCTimePicker QLabel {
+  font: bold 11px;
+  border-radius: 13px;
+}
+
+WPSCTimePicker QLabel:disabled {
+  background-color: transparent;
+}
+
+WPSCDateTimeWidget {
+   padding: 6px;
+}

@@ -790,3 +790,48 @@ QAbstractView:selected {
 WPSCDatetimePopupPicker {
   background: #252526;
 }
+
+WPSCTimeWidget QSpinBox {
+  color: #F0F0F0;
+  selection-color: #F0F0F0;
+  background-color: transparent;
+  border: none;
+}
+
+WPSCTimeWidget QSpinBox:focus {
+  border: none;
+}
+
+WPSCTimeWidget QSpinBox:hover {
+  border: none;
+  
+}
+
+WPSCTimeWidget QLabel[splitter] {
+  color: #F0F0F0;
+}
+
+WPSCTimeWidget QPushButton {
+  background-color: transparent;
+  color: #707070;
+  border: none;
+  font: bold 12px;
+}
+
+WPSCTimeWidget QPushButton:checked {
+  background-color: transparent;
+  color: #F0F0F0;
+  border: none;
+}
+
+/* TimePicker */
+WPSCTimePicker {
+  qproperty-clockColor: #333333;
+  qproperty-arrowColor: #007acc;
+  qproperty-arrowWidth: 2;
+}
+
+WPSCTimePicker QLabel {
+  color: #F0F0F0;
+  background-color: #007acc;
+}
