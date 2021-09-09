@@ -31,6 +31,7 @@ public:
 
     Qt::CheckState IsChecked(size_t key) const;
     void SetChecked(size_t key, Qt::CheckState value);
+    void ResetUserData(size_t key) { m_userData.remove(key); }
     void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
     QVariant GetUserData(size_t key, const Name& propertyName) const;
 
