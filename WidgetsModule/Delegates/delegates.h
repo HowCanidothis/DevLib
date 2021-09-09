@@ -79,8 +79,6 @@ class DelegatesDateTime : public QStyledItemDelegate
 public:
     DelegatesDateTime (QObject* parent = nullptr);
 
-	void SetLocale(const QLocale& locale);
-	void SetDisplayFormat(const QString& format) { m_displayFormat = format; }
 	QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -89,9 +87,6 @@ public:
 	
 	CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
 	CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
-protected:
-	QString m_displayFormat;
-	QLocale m_locale;
 };
 
 class DelegatesCheckBox : public QStyledItemDelegate

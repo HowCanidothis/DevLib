@@ -338,7 +338,7 @@ QPushButton:focus {
   border: 1px solid #007acc;
 }
 
-QPushButton#CalendarButton {
+WPSCDatetimePopupPicker QPushButton {
   background-color: transparent;
 }
 
@@ -826,7 +826,7 @@ WPSCTimeWidget QPushButton:checked {
 
 /* TimePicker */
 WPSCTimePicker {
-  qproperty-clockColor: #333333;
+  qproperty-clockColor: #252526;
   qproperty-arrowColor: #007acc;
   qproperty-arrowWidth: 2;
 }
@@ -834,4 +834,26 @@ WPSCTimePicker {
 WPSCTimePicker QLabel {
   color: #F0F0F0;
   background-color: #007acc;
+  font: 14px;
+}
+
+WPSCDailyReportView QTextEdit {
+  border: none;
+}
+
+WPSCDailyReportView QTextEdit:hover {
+  border: none;
+}
+
+WPSCDailyReportView QTextEdit:focus {
+  border: none;
+}
+
+WPSCDailyReportView QDateTimeEdit::up-button 
+{
+  width: 0px;
+}
+WPSCDailyReportView QDateTimeEdit::down-button 
+{
+  width: 0px;
 }

@@ -336,7 +336,7 @@ QPushButton:focus {
   border: 1px solid #007acc;
 }
 
-QPushButton#CalendarButton {
+WPSCDatetimePopupPicker QPushButton {
   background-color: transparent;
 }
 
@@ -816,8 +816,21 @@ WPSCTimePicker {
 WPSCTimePicker QLabel {
   color: white;
   background-color: #add6ff;
+  font: 14px;
 }
 
 WPSCTimePicker QLabel:disabled {
   color: #3c3c3c;
+}
+
+WPSCDailyReportView QTextEdit {
+  border: none;
+}
+
+WPSCDailyReportView QTextEdit:hover {
+  border: none;
+}
+
+WPSCDailyReportView QTextEdit:focus {
+  border: none;
 }

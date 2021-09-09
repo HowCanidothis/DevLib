@@ -176,8 +176,6 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
-	, m_displayFormat("MM/dd/yy hh:mm:ss")
-	, m_locale(QLocale::system())
 {
     
 }
@@ -185,9 +183,6 @@ DelegatesDateTime::DelegatesDateTime(QObject* parent)
 QWidget* DelegatesDateTime::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* editor = new QDateTimeEdit(parent);
-	editor->setLocale(m_locale);
-    editor->setTimeSpec(Qt::UTC);
-    
 	OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateTimeEdit::dateTimeChanged, [this, index](const QDateTime&dateTime){
         OnEditorValueChanged(dateTime, index);
@@ -213,14 +208,9 @@ void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
-void DelegatesDateTime::SetLocale(const QLocale& locale)
-{
-	m_locale = locale;
-}
-
 QString DelegatesDateTime::displayText(const QVariant& value, const QLocale& locale) const
 {
-	return m_locale.toString(value.toDateTime(), QLocale::ShortFormat);
+	return locale.toString(value.toDateTime(), QLocale::ShortFormat);
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
