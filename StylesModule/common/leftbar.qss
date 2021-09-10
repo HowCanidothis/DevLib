@@ -287,19 +287,19 @@ QFrame#MainFooter {
 
 DDFooter[DDReferenceMode="0"] QMenuBar {
     font-size: 12px;
-    background: #007acc;
+    background: #1976D2;
 }
 DDFooter[DDReferenceMode="1"] QMenuBar {
     font-size: 12px;
-    background: #c92626;
+    background: #D32F2F;
 }
 DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
-    background: #007acc;
+    background: #1976D2;
 }
 DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
-    background: #c92626;
+    background: #D32F2F;
 }
 
 DDFooter[DDReferenceMode="0"] QMenu::item::selected{
@@ -325,11 +325,11 @@ DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
 }
 
 DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
-    background: #007acc;
+    background: #1976D2;
 } 
 
 DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
-    background: #c92626;
+    background: #D32F2F;
 } 
 
 QFrame#MainFooter QLabel#FooterProgressBarLabel{
@@ -338,38 +338,38 @@ QFrame#MainFooter QLabel#FooterProgressBarLabel{
 }
 
 QFrame[ApplicationMode="1"]{
-    background: #68217A;
+    background: #7B1FA2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
-    background: #007acc;
+    background: #1976D2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
-    background: #c92626;
+    background: #D32F2F;
 }
 
 QFrame[ApplicationMode="3"]{
-    background: #999999;
+    background: #455A64;
 }
 
 QFrame[ApplicationMode="1"] QWidget{
-    background: #68217A;
+    background: #7B1FA2;
     color: white;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
-    background: #007acc;
+    background: #1976D2;
     color: white;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
-    background: #c92626;
+    background: #D32F2F;
     color: white;
 }
 
 QFrame[ApplicationMode="3"] QWidget{
-    background: #999999;
+    background: #455A64;
     color: white;
 }
 

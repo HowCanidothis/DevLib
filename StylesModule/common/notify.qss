@@ -46,7 +46,7 @@ QPushButton#notify-close-btn {
 }
 
 QPushButton#notify-close-btn:hover {
-    color: #007acc;
+    color: #1976D2;
     border: none;
 }
 

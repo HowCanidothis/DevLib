@@ -36,11 +36,11 @@ QProgressBar::chunk {
 }
 
 QFrame[ApplicationMode="1"] QProgressBar{
-    background-color: #68217A;
+    background-color: #7B1FA2;
 }
 
 QFrame[ApplicationMode="2"] QProgressBar{
-    background-color: #007acc;
+    background-color: #1976D2;
 }
 
 OffsetView QProgressBar {

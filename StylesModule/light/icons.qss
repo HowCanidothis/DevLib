@@ -1,8 +1,8 @@
 MainWindow {
-    qproperty-iconPlanColor: #007acc;
-    qproperty-iconPrototypeColor: #007acc;
+    qproperty-iconPlanColor: #1976D2;
+    qproperty-iconPrototypeColor: #1976D2;
     qproperty-iconSurveyColor: #ff3b30;
-    qproperty-iconSlideSheetColor: #68217a;
+    qproperty-iconSlideSheetColor: #7B1FA2;
     qproperty-iconJobInformationColor: #999;
     qproperty-iconRunSummaryColor: #6aa84f;
     qproperty-iconDailyReportColor: #ffff00;

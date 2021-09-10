@@ -212,6 +212,7 @@
         <file>rc/chevron-right.svg</file>
         <file>rc/chevron-left.svg</file>
         <file>rc/backup-restore.svg</file>
+        <file>rc/update.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

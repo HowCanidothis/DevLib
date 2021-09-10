@@ -2,7 +2,7 @@ QWidget {
   background-color: #1E1E1E;
   border: 0px solid #3C3C3C;
   color: #F0F0F0;
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
   selection-color: #F0F0F0;
 }
 
@@ -14,11 +14,11 @@ QWidget:disabled {
 }
 
 QWidget::item:selected {
-  background-color: #007acc;
+  background-color: #1976D2;
 }
 
 QWidget::item:hover {
-  background-color: #007acc;
+  background-color: #1976D2;
   color: #3C3C3C;
 }
 
@@ -29,7 +29,7 @@ QMainWindow::separator {
 
 QMainWindow::separator:hover {
   background-color: #505F69;
-  border: 0px solid #007acc;
+  border: 0px solid #1976D2;
 }
 
 QToolTip {
@@ -44,7 +44,7 @@ QStatusBar {
 }
 
 QStatusBar QToolTip {
-  background-color: #007acc;
+  background-color: #1976D2;
   border: 1px solid #1E1E1E;
   color: #1E1E1E;
 }
@@ -154,7 +154,7 @@ QScrollBar::handle:horizontal:hover {
 }
 
 QScrollBar::handle:horizontal:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QScrollBar::handle:vertical {
@@ -166,7 +166,7 @@ QScrollBar::handle:vertical:hover {
 }
 
 QScrollBar::handle:vertical:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QScrollBar::add-page:vertical {
@@ -184,16 +184,16 @@ QTextEdit {
 }
 
 QTextEdit:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
   color: #F0F0F0;
 }
 
 QTextEdit:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QTextEdit:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -204,16 +204,16 @@ QPlainTextEdit {
 }
 
 QPlainTextEdit:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
   color: #F0F0F0;
 }
 
 QPlainTextEdit:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QPlainTextEdit:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -228,7 +228,7 @@ QToolBar QToolButton {
 }
 
 QToolBar QToolButton:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QToolBar QToolButton:checked {
@@ -237,7 +237,7 @@ QToolBar QToolButton:checked {
 }
 
 QToolBar QToolButton:checked:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QToolButton#qt_toolbar_ext_button {
@@ -264,16 +264,16 @@ QAbstractSpinBox:down-button {
 }
 
 QAbstractSpinBox:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
   color: #F0F0F0;
 }
 
 QAbstractSpinBox:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QAbstractSpinBox:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -290,7 +290,7 @@ QLabel:disabled {
 }
 
 QPushButton {
-  background-color: #007acc;
+  background-color: #1976D2;
   color: white;
 }
 
@@ -311,7 +311,7 @@ QPushButton:checked:disabled {
 }
 
 QPushButton:checked:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -321,11 +321,11 @@ QPushButton:pressed {
 }
 
 QPushButton:pressed:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QPushButton:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -335,7 +335,7 @@ QPushButton:hover {
 }
 
 QPushButton:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 WPSCDatetimePopupPicker QPushButton {
@@ -364,13 +364,13 @@ QCommandLinkButton:disabled {
 
 QComboBox {
   border: 1px solid #3C3C3C;
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
 }
 
 QComboBox QAbstractItemView {
   border: 1px solid #3C3C3C;
   background-color: #1E1E1E;
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
 }
 
 QComboBox QAbstractItemView:hover {
@@ -379,7 +379,7 @@ QComboBox QAbstractItemView:hover {
 }
 
 QComboBox QAbstractItemView:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -393,15 +393,15 @@ QComboBox:disabled {
 }
 
 QComboBox:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QComboBox:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QComboBox:on {
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
 }
 
 QComboBox::indicator {
@@ -442,7 +442,7 @@ QSlider::groove:vertical {
 }
 
 QSlider::add-page:vertical {
-  background: #007acc;
+  background: #1976D2;
   border: 1px solid #3C3C3C;
 }
 
@@ -451,7 +451,7 @@ QSlider::add-page:vertical :disabled {
 }
 
 QSlider::sub-page:horizontal {
-  background: #007acc;
+  background: #1976D2;
   border: 1px solid #3C3C3C;
 }
 
@@ -465,12 +465,12 @@ QSlider::handle:horizontal {
 }
 
 QSlider::handle:horizontal:hover {
-  background: #007acc;
-  border: 1px solid #007acc;
+  background: #1976D2;
+  border: 1px solid #1976D2;
 }
 
 QSlider::handle:horizontal:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QSlider::handle:vertical {
@@ -479,12 +479,12 @@ QSlider::handle:vertical {
 }
 
 QSlider::handle:vertical:hover {
-  background: #007acc;
-  border: 1px solid #007acc;
+  background: #1976D2;
+  border: 1px solid #1976D2;
 }
 
 QSlider::handle:vertical:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QLineEdit {
@@ -499,16 +499,16 @@ QLineEdit:disabled {
 }
 
 QLineEdit:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
   color: #F0F0F0;
 }
 
 QLineEdit:focus {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
 }
 
 QLineEdit:selected {
-  background-color: #007acc;
+  background-color: #1976D2;
   color: #3C3C3C;
 }
 
@@ -563,7 +563,7 @@ QTreeView:selected,
 QListView:selected,
 QTableView:selected,
 QColumnView:selected {
-  background-color: #007acc;
+  background-color: #1976D2;
   color: #3C3C3C;
 }
 
@@ -578,14 +578,14 @@ QTreeView::item:pressed,
 QListView::item:pressed,
 QTableView::item:pressed,
 QColumnView::item:pressed {
-  background-color: #007acc;
+  background-color: #1976D2;
 }
 
 QTreeView::item:selected:hover,
 QListView::item:selected:hover,
 QTableView::item:selected:hover,
 QColumnView::item:selected:hover {
-  background: #007acc;
+  background: #1976D2;
   color: #1E1E1E;
 }
 
@@ -593,14 +593,14 @@ QTreeView::item:selected:active,
 QListView::item:selected:active,
 QTableView::item:selected:active,
 QColumnView::item:selected:active {
-  background-color: #007acc;
+  background-color: #1976D2;
 }
 
 QTreeView::item:!selected:hover,
 QListView::item:!selected:hover,
 QTableView::item:!selected:hover,
 QColumnView::item:!selected:hover {
-  color: #007acc;
+  color: #1976D2;
   background-color: #3C3C3C;
 }
 
@@ -688,7 +688,7 @@ QToolBox {
 }
 
 QToolBox:selected {
-  border: 2px solid #007acc;
+  border: 2px solid #1976D2;
 }
 
 QToolBox::tab {
@@ -703,7 +703,7 @@ QToolBox::tab:disabled {
 
 QToolBox::tab:selected {
   background-color: #505F69;
-  border-bottom: 2px solid #007acc;
+  border-bottom: 2px solid #1976D2;
 }
 
 QToolBox::tab:selected:disabled {
@@ -721,8 +721,8 @@ QToolBox::tab:!selected:disabled {
 }
 
 QToolBox::tab:hover {
-  border-color: #007acc;
-  border-bottom: 2px solid #007acc;
+  border-color: #1976D2;
+  border-bottom: 2px solid #1976D2;
 }
 
 QToolBox QScrollArea QWidget QWidget {
@@ -759,12 +759,12 @@ QSplitter::handle:hover {
 }
 
 QDateEdit {
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
   border: 1px solid #3C3C3C;
 }
 
 QDateEdit:on {
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
 }
 
 QDateEdit::drop-down {
@@ -774,16 +774,16 @@ QDateEdit::drop-down {
 QDateEdit QAbstractItemView {
   background-color: #1E1E1E;
   border: 1px solid #3C3C3C;
-  selection-background-color: #007acc;
+  selection-background-color: #1976D2;
 }
 
 QAbstractView:hover {
-  border: 1px solid #007acc;
+  border: 1px solid #1976D2;
   color: #F0F0F0;
 }
 
 QAbstractView:selected {
-  background: #007acc;
+  background: #1976D2;
   color: #3C3C3C;
 }
 
@@ -827,13 +827,13 @@ WPSCTimeWidget QPushButton:checked {
 /* TimePicker */
 WPSCTimePicker {
   qproperty-clockColor: #252526;
-  qproperty-arrowColor: #007acc;
+  qproperty-arrowColor: #1976D2;
   qproperty-arrowWidth: 2;
 }
 
 WPSCTimePicker QLabel {
   color: #F0F0F0;
-  background-color: #007acc;
+  background-color: #1976D2;
   font: 14px;
 }
 
@@ -856,4 +856,13 @@ WPSCDailyReportView QDateTimeEdit::up-button
 WPSCDailyReportView QDateTimeEdit::down-button 
 {
   width: 0px;
+}
+
+WPSCDailyReportView QPushButton#CalendarButton {
+  background-color: transparent;
+}
+
+WPSCJobInformationView QPushButton[realtime] {
+  qproperty-icon: url(":/qss_icons/rc/update.svg");
+  background: transparent;
 }

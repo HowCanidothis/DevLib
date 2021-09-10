@@ -32,7 +32,7 @@ VisualizationToolTipWidget[type="5"]{
 }
 
 VisualizationToolTipWidget[type="6"]{
-    border: 1px solid #68217A;
+    border: 1px solid #7B1FA2;
 }
 
 VisualizationToolTipWidget QWidget{

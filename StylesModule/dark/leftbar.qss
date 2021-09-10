@@ -116,27 +116,27 @@ DDFooter QLabel{
 }
 
 QFrame[ApplicationMode="1"]{
-    background: #68217A;
+    background: #7B1FA2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
-    background: #007acc;
+    background: #1976D2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
-    background: #c92626;
+    background: #D32F2F;
 }
 
 QFrame[ApplicationMode="1"] QWidget{
-    background: #68217A;
+    background: #7B1FA2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
-    background: #007acc;
+    background: #1976D2;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
-    background: #c92626;
+    background: #D32F2F;
 }
 
 QFrame#MainFooter QLabel#FooterProgressBarLabel{
