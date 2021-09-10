@@ -7,9 +7,6 @@
 
 class ModelsTreeItemBase
 {
-    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
-    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
-
     friend class ModelsTree;
     template<class T> friend struct Serializer;
 
@@ -18,6 +15,9 @@ class ModelsTreeItemBase
     QHash<size_t, QHash<Name, QVariant>> m_userData;
 
 public:
+    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
+    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
+
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
     ModelsTreeItemBase(const ModelsTreeItemBase& o);
     ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);

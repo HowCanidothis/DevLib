@@ -10,7 +10,6 @@ ViewModelTreeBase::~ViewModelTreeBase()
 {
     if(m_data != nullptr) {
         m_data->OnAboutToBeDestroyed -= this;
-    } else {
         m_data->DisconnectModel(this);
     }
 }
@@ -22,10 +21,12 @@ void ViewModelTreeBase::SetData(const ModelsTreeWrapperPtr& data)
         m_data->DisconnectModel(this);
     }
     m_data = data;
-    m_data->ConnectModel(this);
-    m_data->OnAboutToBeDestroyed += { this, [this] {
-        m_data = nullptr;
-    }};
+    if(m_data != nullptr) {
+        m_data->ConnectModel(this);
+        m_data->OnAboutToBeDestroyed += { this, [this] {
+            m_data = nullptr;
+        }};
+    }
     endResetModel();
 }
 

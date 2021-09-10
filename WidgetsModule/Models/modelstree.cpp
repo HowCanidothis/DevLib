@@ -62,7 +62,7 @@ void ModelsTree::ForeachChangeValue(const std::function<bool (ModelsTreeItemBase
 {
     m_root->ForeachChild([handler, this](ModelsTreeItemBase* item){
         if(handler(item)) {
-            OnTreeValueChanged(item, {});
+            OnTreeValueChanged(0, item, {});
         }
     });
 }
@@ -127,13 +127,69 @@ void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)
     OnRowsRemoved();
 }
 
+void ModelsTree::SetCheckedRecursive(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checkState, const ModelsTreeItemBase::FilterFunc& funcFilter)
+{
+    if(item->IsChecked(key) == checkState) {
+        return;
+    }
+
+    SetChecked(key, item, checkState);
+
+    if(funcFilter != nullptr) {
+        item->ForeachChild([checkState, this, &key](ModelsTreeItemBase* item){
+            SetChecked(key, item, checkState);
+        }, funcFilter);
+    }
+
+    auto parents = item->GetPath();
+
+    for(auto* parent : adapters::reverse(parents)) {
+        Qt::CheckState rootCheckState = Qt::Unchecked;
+        bool hasUnChecked = false;
+        bool hasChecked = false;
+        for(const auto& child : parent->GetChilds()) {
+            if(rootCheckState == Qt::PartiallyChecked) {
+                break;
+            }
+            switch(child->IsChecked(key)) {
+            case Qt::PartiallyChecked:
+                rootCheckState = Qt::PartiallyChecked;
+                break;
+            case Qt::Checked:
+                if(hasUnChecked) {
+                    rootCheckState = Qt::PartiallyChecked;
+                } else {
+                    hasChecked = true;
+                }
+                break;
+            case Qt::Unchecked:
+                if(hasChecked) {
+                    rootCheckState = Qt::PartiallyChecked;
+                } else {
+                    hasUnChecked = true;
+                }
+                break;
+            default: break;
+            };
+        }
+        if(rootCheckState != Qt::PartiallyChecked) {
+            if(hasChecked) {
+                rootCheckState = Qt::Checked;
+            } else {
+                rootCheckState = Qt::Unchecked;
+            }
+        }
+        SetChecked(key, parent, rootCheckState);
+    }
+}
+
 void ModelsTree::SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked) {
     if (item->IsChecked(key) == checked) {
         return;
     }
 
     item->SetChecked(key, checked);
-    OnTreeValueChanged(item, {Qt::CheckStateRole});
+    OnTreeValueChanged(key, item, {Qt::CheckStateRole});
 //    OnChanged();
 }
 
