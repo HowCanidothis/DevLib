@@ -597,27 +597,11 @@ class LocalPropertyDate : public LocalProperty<QDate>
 {
     using Super = LocalProperty<QDate>;
 public:
-    LocalPropertyDate(const QDate& value = QDate::currentDate(), const QDate& min = QDate::fromJulianDay(-784350574879))
-        : Super(QDate::fromJulianDay(::clamp(value.toJulianDay(), min.toJulianDay(), 784354017364)))
-        , m_realtime(true)
-        , m_min(min)
-        , m_max(QDate::fromJulianDay(784354017364))
-    {}
-    
-    LocalPropertyDate(const QDate& value, const QDate& min, const QDate& max)
-        : Super(QDate::fromJulianDay(::clamp(value.toJulianDay(), min.toJulianDay(), max.toJulianDay())))
-        , m_realtime(false)
+    LocalPropertyDate(const QDate& value = QDate::currentDate(), const QDate& min = QDate::fromJulianDay(-784350574879), const QDate& max = QDate())
+        : Super(applyRange(value, min, max))
         , m_min(min)
         , m_max(max)
     {}
-
-    void SetRealTime(bool rt = true)
-    {
-        if(m_realtime != rt){
-            m_realtime = rt;
-            SetValue(Super::m_value);
-        }
-    }
     
     void SetMinMax(const QDate& min, const QDate& max)
     {
@@ -639,9 +623,11 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
+    inline static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max) { return QDate::fromJulianDay(::clamp(cur.toJulianDay(), min.toJulianDay(), max.toJulianDay())); }
+    
     QDate applyMinMax(const QDate& value) const
     {
-        return QDate::fromJulianDay(::clamp(value.toJulianDay(), m_min.toJulianDay(), m_realtime ? 784354017364 : m_max.toJulianDay()));
+        return applyRange(value, m_min, m_max.isValid() ? m_max : QDate::currentDate());
     }
     void validate(QDate& value) const override
     {
@@ -650,7 +636,6 @@ private:
 
 private:
     template<class T2> friend struct Serializer;
-    bool m_realtime;
     QDate m_min;
     QDate m_max;
 };
@@ -658,29 +643,11 @@ class LocalPropertyTime : public LocalProperty<QTime>
 {
     using Super = LocalProperty<QTime>;
 public:
-    LocalPropertyTime(const QTime& value = QTime::currentTime(), const QTime& min = QTime::fromMSecsSinceStartOfDay(0))
-        : Super(applyRange(value, min, QTime::fromMSecsSinceStartOfDay(24*3600000-1)))
-        , m_realtime(false)
-        , m_min(min)
-        , m_max(QTime::fromMSecsSinceStartOfDay(24*3600000-1))
-    {
-    }
-    
-    LocalPropertyTime(const QTime& value, const QTime& min, const QTime& max)
+    LocalPropertyTime(const QTime& value = QTime::currentTime(), const QTime& min = QTime::fromMSecsSinceStartOfDay(0), const QTime& max = QTime())
         : Super(applyRange(value, min, max))
-        , m_realtime(false)
         , m_min(min)
         , m_max(max)
-    {}
-
-    void SetRealTime(bool rt = true)
     {
-        if(m_realtime != rt){
-            m_realtime = rt;
-            if(!m_realtime){
-                SetValue(Super::m_value);
-            }
-        }
     }
     
     void SetMinMax(const QTime& min, const QTime& max)
@@ -707,7 +674,7 @@ private:
     
     QTime applyMinMax(const QTime& value) const
     {
-        return applyRange(value, m_min, m_realtime ? QTime::currentTime() : m_max);
+        return applyRange(value, m_min, m_max.isValid() ? m_max : QTime::currentTime());
     }
     void validate(QTime& value) const override
     {
@@ -716,36 +683,27 @@ private:
 
 private:
     template<class T2> friend struct Serializer;
-    bool m_realtime;
     QTime m_min;
     QTime m_max;
 };
+
 class LocalPropertyDateTime : public LocalProperty<QDateTime>
 {
     using Super = LocalProperty<QDateTime>;
 public:
     LocalPropertyDateTime(const QDateTime& value = QDateTime::currentDateTime(), const QDateTime& min = QDateTime::fromMSecsSinceEpoch(0))
         : Super(applyRange(value, min, QDateTime::fromMSecsSinceEpoch((std::numeric_limits<qint64>::max)())))
-        , RealTime(true)
         , m_min(min)
-        , m_max(QDateTime::fromMSecsSinceEpoch((std::numeric_limits<qint64>::max)()))
     {
     }
     
     LocalPropertyDateTime(const QDateTime& value, const QDateTime& min, const QDateTime& max)
         : Super(applyRange(value, min, max))
-        , RealTime(false)
         , m_min(min)
         , m_max(max)
     {
-        RealTime.Subscribe([this]{
-            if(!RealTime){
-                SetValue(Super::m_value);
-            }
-        });
     }
 
-    LocalPropertyBool RealTime;
     void SetMinMax(const QDateTime& min, const QDateTime& max)
     {
         if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
@@ -766,11 +724,11 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    inline static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max) { return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), min.toMSecsSinceEpoch(), max.toMSecsSinceEpoch())); }
+    inline static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max) { return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), min.toMSecsSinceEpoch(), max.isValid() ? max.toMSecsSinceEpoch() : QDateTime::currentDateTime().toMSecsSinceEpoch())); }
     
     QDateTime applyMinMax(const QDateTime& value) const
     {
-        return applyRange(value, m_min, m_realtime ? QDateTime::currentDateTime() : m_max);
+        return applyRange(value, m_min, m_max.isValid() ? m_max : QDateTime::currentDateTime());
     }
     void validate(QDateTime& value) const override
     {
@@ -779,7 +737,6 @@ private:
 
 private:
     template<class T2> friend struct Serializer;
-    bool m_realtime;
     QDateTime m_min;
     QDateTime m_max;
 };
