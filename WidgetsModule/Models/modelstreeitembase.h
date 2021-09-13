@@ -7,9 +7,6 @@
 
 class ModelsTreeItemBase
 {
-    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
-    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
-
     friend class ModelsTree;
     template<class T> friend struct Serializer;
 
@@ -18,6 +15,9 @@ class ModelsTreeItemBase
     QHash<size_t, QHash<Name, QVariant>> m_userData;
 
 public:
+    using HandlerFunc = std::function<void (ModelsTreeItemBase*)>;
+    using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
+
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
     ModelsTreeItemBase(const ModelsTreeItemBase& o);
     ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);
@@ -31,6 +31,7 @@ public:
 
     Qt::CheckState IsChecked(size_t key) const;
     void SetChecked(size_t key, Qt::CheckState value);
+    void ResetUserData(size_t key) { m_userData.remove(key); }
     void SetUserData(size_t key, const Name& propertyName, const QVariant& value);
     QVariant GetUserData(size_t key, const Name& propertyName) const;
 

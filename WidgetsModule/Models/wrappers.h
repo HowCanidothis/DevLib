@@ -124,7 +124,7 @@ public:
     CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToRemoveRows;
     CommonDispatcher<qint32,qint32,ModelsTreeItemBase*> OnAboutToInsertRows;
 
-    CommonDispatcher<ModelsTreeItemBase*,QVector<int>> OnTreeValueChanged;
+    CommonDispatcher<size_t, ModelsTreeItemBase*,QVector<int>> OnTreeValueChanged;
 
     virtual ModelsTreeItemBase* GetRoot() = 0;
 };
@@ -147,7 +147,7 @@ inline void ModelsTreeWrapper::ConnectModel(QAbstractItemModel* qmodel)
             model->beginRemoveRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
         }
     }};
-    OnTreeValueChanged += {model, [model](ModelsTreeItemBase* item, QVector<int> roles){
+    OnTreeValueChanged += {model, [model](size_t, ModelsTreeItemBase* item, QVector<int> roles){
         auto index = model->createIndex(item->GetRow(), 0, item);
         emit model->dataChanged(index, index, roles);
     }};
