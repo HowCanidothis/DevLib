@@ -46,18 +46,20 @@ void WidgetsAdjustableTableView::updateSizeHintCache() const
         m_contentsWidth = 0;
         m_contentsHeight = 0;
 
-        auto rowCount = model()->rowCount();
-        if(rowCount != 0) {
-            for(qint32 i(0); i < rowCount; i++) {
-                m_contentsHeight += rowHeight(i);
-            }
-            auto columnCount = model()->columnCount();
-            for(qint32 j(0); j < columnCount; j++) {
-                m_contentsWidth += columnWidth(j);
-            }
+        if(model() != nullptr) {
+            auto rowCount = model()->rowCount();
+            if(rowCount != 0) {
+                for(qint32 i(0); i < rowCount; i++) {
+                    m_contentsHeight += rowHeight(i);
+                }
+                auto columnCount = model()->columnCount();
+                for(qint32 j(0); j < columnCount; j++) {
+                    m_contentsWidth += columnWidth(j);
+                }
 
-            m_contentsWidth += contentsMargins().left() + contentsMargins().right();
-            m_contentsHeight += horizontalHeader()->sizeHint().height() + contentsMargins().top() + contentsMargins().bottom();
+                m_contentsWidth += contentsMargins().left() + contentsMargins().right();
+                m_contentsHeight += horizontalHeader()->sizeHint().height() + contentsMargins().top() + contentsMargins().bottom();
+            }
         }
         m_isDirty = false;
     }

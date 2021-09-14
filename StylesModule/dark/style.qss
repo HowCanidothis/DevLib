@@ -4,6 +4,7 @@ QWidget {
   color: #F0F0F0;
   selection-background-color: #1976D2;
   selection-color: #F0F0F0;
+ /*qproperty-focusPolicy: "Qt::StrongFocus";*/
 }
 
 QWidget:disabled {
@@ -12,6 +13,24 @@ QWidget:disabled {
   selection-background-color: #14506E;
   selection-color: #787878;
 }
+
+QWidget[readOnly="true"] {
+  background-color: #1E1E1E;
+  color: #787878;
+  selection-background-color: #14506E;
+  selection-color: #787878;
+  /*qproperty-focusPolicy: "Qt::ClickFocus";*/
+}
+
+QWidget[readOnly="true"]:hover {
+  color: #787878;
+  border-color: #787878;
+}
+
+QWidget[readOnly="true"]:focus {
+  border-color: #787878;
+}
+
 
 QWidget::item:selected {
   background-color: #1976D2;
@@ -866,3 +885,10 @@ WPSCDailyReportView QPushButton#CalendarButton {
   qproperty-icon: url(":/qss_icons/rc/update.svg");
   background: transparent;
 }*/
+
+WPSCWidgetsCalendarWidget
+{ 
+    qproperty-outOfRangeBorder: transparent;
+    qproperty-outOfRangeColor: transparent;
+    qproperty-outOfRangeBackground: #3C3C3C;
+}

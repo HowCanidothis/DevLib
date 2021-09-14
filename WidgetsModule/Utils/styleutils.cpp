@@ -25,9 +25,8 @@ StyleUtils::StyleUtils()
 
 }
 
-void StyleUtils::ApplyStyleProperty(const char* propertyName, QWidget* target, const QVariant& value, bool recursive)
+void StyleUtils::UpdateStyle(class QWidget* target, bool recursive)
 {
-    target->setProperty(propertyName, value);
     auto* style = target->style();
     style->unpolish(target);
     style->polish(target);
@@ -38,6 +37,12 @@ void StyleUtils::ApplyStyleProperty(const char* propertyName, QWidget* target, c
             style->polish(widget);
         });
     }
+}
+
+void StyleUtils::ApplyStyleProperty(const char* propertyName, QWidget* target, const QVariant& value, bool recursive)
+{
+    target->setProperty(propertyName, value);
+    UpdateStyle(target, recursive);
 }
 
 void StyleUtils::InstallSizeAdjuster(QWidget* widget)
