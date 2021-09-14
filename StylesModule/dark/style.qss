@@ -862,7 +862,7 @@ WPSCDailyReportView QPushButton#CalendarButton {
   background-color: transparent;
 }
 
-WPSCJobInformationView QPushButton[realtime] {
+/*WPSCJobInformationView QPushButton[realtime] {
   qproperty-icon: url(":/qss_icons/rc/update.svg");
   background: transparent;
-}
+}*/

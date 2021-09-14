@@ -717,6 +717,8 @@ public:
     LocalPropertyDateTime& operator-=(const QDateTime& value) { SetValue(Super::Native().addMSecs(-value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator+=(const QDateTime& value) { SetValue(Super::Native().addMSecs(value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator=(const QDateTime& value) { SetValue(value); return *this; }
+    operator const QDateTime& () const { return Super::m_value; }
+    bool IsRealTime() const { return !m_value.isValid(); }
     
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
@@ -728,7 +730,7 @@ private:
     
     QDateTime applyMinMax(const QDateTime& value) const
     {
-        return applyRange(value, m_min, m_max.isValid() ? m_max : QDateTime::currentDateTime());
+        return value.isValid() ? applyRange(value, m_min, m_max.isValid() ? m_max : QDateTime::currentDateTime()) : value;
     }
     void validate(QDateTime& value) const override
     {
