@@ -885,3 +885,10 @@ WPSCJobInformationView QPushButton[realtime] {
   qproperty-icon: url(":/qss_icons/rc/update.svg");
   background: transparent;
 }
+
+WPSCWidgetsCalendarWidget
+{ 
+    qproperty-outOfRangeBorder: transparent;
+    qproperty-outOfRangeColor: transparent;
+    qproperty-outOfRangeBackground: #3C3C3C;
+}
