@@ -886,9 +886,14 @@ WPSCJobInformationView QPushButton[realtime] {
   background: transparent;
 }
 
+QCalendarWidget QAbstractItemView:disabled 
+{ 
+    color: rgb(64, 64, 64); 
+}
+
 WPSCWidgetsCalendarWidget
 { 
     qproperty-outOfRangeBorder: transparent;
-    qproperty-outOfRangeColor: transparent;
-    qproperty-outOfRangeBackground: #3C3C3C;
+    qproperty-outOfRangeColor: #404040;
+    qproperty-outOfRangeBackground: transparent;
 }
