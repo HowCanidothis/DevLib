@@ -980,12 +980,6 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
 }
 
-
-QCalendarWidget QAbstractItemView:disabled 
-{ 
-color: rgb(64, 64, 64); 
-}
-
 QPushButton#PrevDay
 {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");

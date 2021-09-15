@@ -838,3 +838,15 @@ WPSCDailyReportView QTextEdit:focus {
 WPSCDailyReportView QPushButton#CalendarButton {
   background-color: transparent;
 }
+
+WPSCWidgetsCalendarWidget
+{ 
+    qproperty-outOfRangeBorder: transparent;
+    qproperty-outOfRangeColor: #9d9d9d;
+    qproperty-outOfRangeBackground: transparent;
+}
+
+QCalendarWidget QAbstractItemView:disabled 
+{ 
+    color: #9d9d9d; 
+}
