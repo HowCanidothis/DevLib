@@ -60,7 +60,7 @@ template<class Wrapper>
 struct ModelsTableBaseDecorator
 {
     static QVariant GetModelData(const typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
-    static void Sort(const typename Wrapper::Container& rows, qint32 column, Array<qint32>& indices);
+    static void Sort(const typename Wrapper::container_type& rows, qint32 column, Array<qint32>& indices);
     static bool SetModelData(const QVariant& value, typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
     static Qt::ItemFlags GetFlags(const typename Wrapper::value_type&, qint32);
 	static QVariant GetHeaderData(int section, Qt::Orientation orientation, qint32 role = Qt::DisplayRole);
@@ -85,18 +85,16 @@ class TModelsDecoratedTable : public TModelsTableBase<Wrapper>
 public:
     using Super::Super;
 
-    qint32 rowCount(const QModelIndex& index = QModelIndex()) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
-    qint32 columnCount(const QModelIndex& index = QModelIndex()) const override { return Wrapper::value_type::count; }
+    qint32 rowCount(const QModelIndex&  = QModelIndex()) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
+    qint32 columnCount(const QModelIndex&  = QModelIndex()) const override { return Wrapper::value_type::count; }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
         if(!index.isValid()) {
             return QVariant();
         }
 
-        if(Super::GetData() != nullptr) {
-            return ModelsTableBaseDecorator<Wrapper>::GetModelData(Super::GetData()->At(index.row()), index.column(), role);
-        }
-        return QVariant();
+        Q_ASSERT(Super::GetData() != nullptr);
+        return ModelsTableBaseDecorator<Wrapper>::GetModelData(Super::GetData()->At(index.row()), index.column(), role);
     }
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role = Qt::DisplayRole) override
     {
@@ -105,11 +103,10 @@ public:
             return result;
         }
 
-        if(Super::GetData() != nullptr) {
-            Super::GetData()->Edit(index.row(), [&](typename Wrapper::value_type& value){
-                result = ModelsTableBaseDecorator<Wrapper>::SetModelData(data, value, index.column(), role);
-            }, {index.column()});
-        }
+        Q_ASSERT(Super::GetData() != nullptr);
+        Super::GetData()->Edit(index.row(), [&](typename Wrapper::value_type& value){
+            result = ModelsTableBaseDecorator<Wrapper>::SetModelData(data, value, index.column(), role);
+        }, {index.column()});
         return result;
     }
 

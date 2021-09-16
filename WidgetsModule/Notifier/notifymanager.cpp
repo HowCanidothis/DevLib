@@ -10,59 +10,52 @@
 
 NotifyManager::NotifyManager(QObject *parent)
     : QObject(parent)
-    , m_enabled(true)
-    , m_bottom(10)
-    , m_right(10)
-    , m_space(20)
-    , m_width(300)
-    , m_displayTime(3 * 1000)
-    , m_reservedHeight(300)
-    , m_freeHeight(QApplication::desktop()->availableGeometry().height() - m_reservedHeight)
-    , m_maxHeight(m_freeHeight)
+    , BottomMargin(10)
+    , RightMargin(10)
+    , Spacing(20)
+    , DisplayTime(3 * 1000)
+    , Width(300)
+    , Height(50)
+    , ReservedHeight(300)
+    , IsNotifactionsEnabled(true)
+    , m_freeHeight(QApplication::desktop()->availableGeometry().height() - ReservedHeight)
+    , m_exceedData(::make_shared<NotifyData>(Warning, ""))
+    , m_exceedCounter(0)
 {
+    m_onLayoutChanged.Subscribe({ &BottomMargin.OnChange, &RightMargin.OnChange, &Spacing.OnChange, &Width.OnChange, &ReservedHeight.OnChange });
+    m_onLayoutChanged.Connect(this, [this]{
+        rearrange();
+    });
 }
 
 NotifyManager::~NotifyManager()
 {
-    for(auto unShowedMsgs : m_dataQueue) {
-        delete  unShowedMsgs;
-    }
-}
-
-void formattedText(const QString& body, QString& formattedBody, QString& formatedExtendedBody)
-{
-    QString fmtMsg = body;
-    fmtMsg.replace("\\n", "<br/>");
-    QStringList bodies = fmtMsg.split("EXTENDED_BODY:");
-    formattedBody = bodies.first();
-    if(bodies.size() == 2) {
-        formatedExtendedBody = bodies.last();
-    }
-}
-
-void NotifyManager::EnableNotifications(bool enabled)
-{
-    m_enabled = enabled;
 }
 
 void NotifyManager::Notify(NotifyManager::MessageType messageType, const QString& body)
 {
-    if(!m_enabled) {
+    if(!IsNotifactionsEnabled) {
         return;
     }
-    QString formattedBody, formattedExtendedBody;
-    formattedText(body, formattedBody, formattedExtendedBody);
-    auto data = new NotifyData(messageType, formattedBody, formattedExtendedBody);
+    auto formatedBody = body;
+    formatedBody.replace("\\n", "<br/>");
+    auto data = ::make_shared<NotifyData>(messageType, formatedBody);
 
-    m_dataQueue.enqueue(data);
+    if(m_dataQueue.size() < 10) {
+        m_exceedCounter = 0;
+        m_dataQueue.enqueue(data);
+    } else if(m_exceedCounter == 0) {
+        m_dataQueue.enqueue(m_exceedData);
+        m_exceedCounter++;
+    } else {
+        m_exceedCounter++;
+    }
+    OnDataRecieved(data);
     showNext();
 }
 
 void NotifyManager::Notify(QtMsgType qtMessageType, const QString& body)
 {
-    if(!m_enabled) {
-        return;
-    }
     switch (qtMessageType) {
     case QtWarningMsg: Notify(NotifyManager::Warning, body); break;
     case QtCriticalMsg: Notify(NotifyManager::Error, body); break;
@@ -77,23 +70,6 @@ NotifyManager& NotifyManager::GetInstance()
     return manager;
 }
 
-void NotifyManager::SetMargins(qint32 bottom, qint32 right, qint32 space)
-{
-    m_bottom = bottom;
-    m_right = right;
-    m_space = space;
-}
-
-void NotifyManager::SetWidth(qint32 width)
-{
-    m_width = width;
-}
-
-void NotifyManager::SetDisplayTime(int ms)
-{
-    m_displayTime = ms;
-}
-
 void NotifyManager::rearrange()
 {
     QDesktopWidget *desktop = QApplication::desktop();
@@ -103,9 +79,11 @@ void NotifyManager::rearrange()
     qint32 index = 1;
     qint32 height = 0;
     for(NotifyWidget* notifyWidget : m_notifyList) {
-        height += notifyWidget->sizeHint().height() + m_space;
-        QPoint pos = bottomRignt - QPoint(m_width + m_right, height + m_bottom);
-        notifyWidget->setProperty("position", pos);
+        height += notifyWidget->height() + Spacing;
+        QPoint pos = bottomRignt - QPoint(Width + RightMargin, height + BottomMargin);
+        notifyWidget->setFixedWidth(Width);
+        //notifyWidget->setFixedHeight(Height);
+        notifyWidget->setProperty("pos", pos);
         QPropertyAnimation *animation = new QPropertyAnimation(notifyWidget, "pos", this);
         animation->setStartValue(notifyWidget->pos());
         animation->setEndValue(pos);
@@ -118,7 +96,7 @@ void NotifyManager::rearrange()
         index++;
     }
 
-    m_freeHeight = bottomRignt.y() - height - m_reservedHeight;
+    m_freeHeight = bottomRignt.y() - height - ReservedHeight;
 }
 
 void NotifyManager::showNext()
@@ -129,18 +107,23 @@ void NotifyManager::showNext()
 
     auto data = m_dataQueue.dequeue();
 
-    NotifyWidget* notify = new NotifyWidget(data, this->m_displayTime);
-    LinkActivated.ConnectFrom(notify->LinkActivated);
-    notify->setFixedWidth(m_width);
+    if(data == m_exceedData) {
+        m_exceedData->Body = tr("Over %1 messages skipped due to exceeding the queue").arg(m_exceedCounter);
+    }
+
+    NotifyWidget* notify = new NotifyWidget(data);
+    OnLinkActivated.ConnectFrom(notify->OnLinkActivated);
+    notify->setFixedWidth(Width);
+    //notify->setFixedHeight(Height);
 
     QDesktopWidget* desktop = QApplication::desktop();
     QRect desktopRect = desktop->availableGeometry();
 
-    notify->ShowGriant(m_maxHeight);
+    notify->ShowGriant(DisplayTime);
 
-    qint32 usedSpace = notify->height() + m_space;
+    qint32 usedSpace = notify->height() + Spacing;
     QPoint bottomRignt = desktopRect.bottomRight();
-    QPoint pos = bottomRignt - QPoint(notify->width() + m_right, (bottomRignt.y() - m_freeHeight - m_reservedHeight) + usedSpace + m_bottom);
+    QPoint pos = bottomRignt - QPoint(notify->width() + RightMargin, (bottomRignt.y() - m_freeHeight - ReservedHeight) + usedSpace + BottomMargin);
 
     // TODO. Due to limitations of OS and Qt. Synchronize this values with styleSheets borders
     QPainterPath path;
@@ -152,10 +135,10 @@ void NotifyManager::showNext()
     notify->move(pos);
     m_notifyList.append(notify);
 
-    connect(notify, &NotifyWidget::disappeared, this, [notify, this](){
-        this->m_notifyList.removeOne(notify);
-        this->rearrange();
-        this->showNext();
+    notify->OnDisappeared.Connect(this, [notify, this](){
+        m_notifyList.removeOne(notify);
+        rearrange();
+        showNext();
 
         notify->deleteLater();
     });

@@ -1,56 +1,33 @@
-﻿#ifndef NOTIFY_H
-#define NOTIFY_H
+#ifndef NOTIFYWIDGET_H
+#define NOTIFYWIDGET_H
 
-#include <QLabel>
+#include <QFrame>
 
-#include <SharedModule/internal.hpp>
+#include "notifydeclarations.h"
 
-class QPushButton;
+namespace Ui {
+class NotifyWidget;
+}
 
-class NotifyData {
-public:
-    NotifyData(qint32 type, const QString& body, const QString& extendedBody, const QString& icon = "", const QString& url = "")
-        : Icon(icon)
-        , Body(body)
-        , ExtendedBody(extendedBody)
-        , Url(url)
-        , Type(type)
-    {}
-
-    QString Icon;
-    QString Body;
-    QString ExtendedBody;
-    QString Url;
-    qint32 Type;
-};
-
-class NotifyWidget : public QLabel
+class NotifyWidget : public QFrame
 {
     Q_OBJECT
+    using Super = QFrame;
 public:
-    explicit NotifyWidget(NotifyData* data, int m_displayTime, QWidget* parent = 0);
+    explicit NotifyWidget(const NotifyDataPtr& data, QWidget* parent = 0);
+    ~NotifyWidget();
 
-    void ShowGriant(qint32 maxHeight);
+    void ShowGriant(qint32 displayTime);
 
-    CommonDispatcher<const QString&, bool&> LinkActivated;
-
-Q_SIGNALS:
-    void disappeared();
+    CommonDispatcher<const QString&, bool&> OnLinkActivated;
+    Dispatcher OnDisappeared;
 
 private:
-    int m_displayTime;
-    bool m_autoHide;
+    Ui::NotifyWidget *ui;
+    NotifyDataPtr m_data;
 
-    ScopedPointer<NotifyData> m_data;
-
-    QLabel* m_iconLabel;
-    QLabel* m_bodyLabel;
-
-    QPushButton* m_closeBtn;
-
+private:
     void hideGriant();
-
-    void mousePressEvent(QMouseEvent* event);
 };
 
-#endif // NOTIFY_H
+#endif // NOTIFYWIDGET_H

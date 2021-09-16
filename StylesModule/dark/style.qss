@@ -320,7 +320,6 @@ QPushButton:disabled {
 
 QPushButton:checked {
   background-color: #3C3C3C;
-  border: 1px solid #3C3C3C;
 }
 
 QPushButton:checked:disabled {
@@ -337,6 +336,7 @@ QPushButton:checked:selected {
 QPushButton:pressed {
   background-color: #1E1E1E;
   border: 1px solid #1E1E1E;
+  padding: 1px;
 }
 
 QPushButton:pressed:hover {
@@ -351,10 +351,6 @@ QPushButton:selected {
 QPushButton:hover {
   color: #F0F0F0;
   background: #189EF7;
-}
-
-QPushButton:focus {
-  border: 1px solid #1976D2;
 }
 
 WPSCDatetimePopupPicker QPushButton {

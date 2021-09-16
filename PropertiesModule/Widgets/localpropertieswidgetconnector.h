@@ -60,6 +60,7 @@ class _Export LocalPropertiesPushButtonConnector : public LocalPropertiesWidgetC
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QPushButton* button);
+    LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button);
 };
 
 class _Export LocalPropertiesMenuLabelConnector : public LocalPropertiesWidgetConnectorBase

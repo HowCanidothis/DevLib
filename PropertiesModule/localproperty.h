@@ -334,22 +334,26 @@ public:
         }
     }
 
-    void Insert(const T& value)
+    bool Insert(const T& value)
     {
         auto find = this->m_value.find(value);
         if(find == this->m_value.end()) {
             this->m_value.insert(value);
             this->Invoke();
+            return true;
         }
+        return false;
     }
 
-    void Remove(const T& value)
+    bool Remove(const T& value)
     {
         auto find = this->m_value.find(value);
         if(find != this->m_value.end()) {
             this->m_value.erase(find);
             this->Invoke();
+            return true;
         }
+        return false;
     }
 
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
@@ -385,15 +389,17 @@ public:
     void AddError(const Name& errorName, const QString& errorString)
     {
         LocalPropertyErrorsContainerValue toInsert{ errorName, errorString };
-        Super::Insert(toInsert);
-        OnErrorAdded(toInsert);
+        if(Super::Insert(toInsert)) {
+            OnErrorAdded(toInsert);
+        }
     }
 
     void RemoveError(const Name& errorName)
     {
         LocalPropertyErrorsContainerValue toRemove{ errorName, "" };
-        Super::Remove(toRemove);
-        OnErrorRemoved(toRemove);
+        if(Super::Remove(toRemove)) {
+            OnErrorRemoved(toRemove);
+        }
     }
 
     DispatcherConnection RegisterError(const Name& errorId, const QString& errorString, const LocalProperty<bool>& property, bool inverted = false)

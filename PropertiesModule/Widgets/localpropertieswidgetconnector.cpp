@@ -100,6 +100,24 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatche
     });
 }
 
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button)
+    : Super([button,checkedProperty]{
+                button->setChecked(*checkedProperty);
+            }, [button,checkedProperty]{
+                *checkedProperty = button->isChecked();
+            })
+{
+    Q_ASSERT(button->isCheckable());
+
+    checkedProperty->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(button, &QPushButton::clicked, [this](){
+        m_propertySetter();
+    });
+}
+
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
         label->setText(*property);

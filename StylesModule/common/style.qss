@@ -522,14 +522,10 @@ QPushButton {
 }
 
 QPushButton:checked {
-  border-radius: 4px;
-  padding: 3px;
   outline: none;
 }
 
 QPushButton:checked:disabled {
-  border-radius: 4px;
-  padding: 3px;
   outline: none;
 }
 
