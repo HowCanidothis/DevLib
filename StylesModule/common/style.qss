@@ -825,8 +825,11 @@ QColumnView {
 }
 
 QTreeView {
-  padding-left: 5px;
-  qproperty-iconSize: 19px;
+  qproperty-iconSize: 16px 19px;
+}
+
+QTableView {
+  qproperty-iconSize: 9px 12px;
 }
 
 QTreeView::item:!selected:hover,

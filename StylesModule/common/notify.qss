@@ -33,3 +33,18 @@ NotifyWidget#warningnotify-background QLabel{
     background: #FF5722;
     color: #FFFFFF;
 }
+
+QLabel#NotificationCounter {
+    background: #F44336;
+    max-height: 12px;
+    min-height: 12px;
+    max-width: 12px;
+    min-width: 12px;
+    font-size: 7px;
+    qproperty-alignment: "Qt::AlignCenter";
+    border-radius: 6px;
+}
+
+NotifyButton {
+    qproperty-offset: 0px 0px;
+}

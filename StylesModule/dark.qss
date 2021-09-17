@@ -10,3 +10,4 @@
 @import url("common/topnotifierframe.qss");
 @import url("dark/icons.qss");
 @import url("dark/visualization.qss");
+@import url("dark/notify.qss");

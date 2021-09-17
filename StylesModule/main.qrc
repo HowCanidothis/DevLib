@@ -20,5 +20,7 @@
         <file>dark/icons.qss</file>
         <file>light/icons.qss</file>
         <file>common/visualization.qss</file>
+        <file>light/notify.qss</file>
+        <file>dark/notify.qss</file>
     </qresource>
 </RCC>

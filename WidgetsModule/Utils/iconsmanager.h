@@ -14,10 +14,32 @@ struct IconsPalette
 
     DispatcherConnections ConnectFrom(IconsPalette& another)
     {
-        NormalColor.ConnectFrom(another.NormalColor);
-        DisabledColor.ConnectFrom(another.DisabledColor);
-        ActiveColor.ConnectFrom(another.ActiveColor);
-        SelectedColor.ConnectFrom(another.SelectedColor);
+        DispatcherConnections result;
+        result += NormalColor.ConnectFrom(another.NormalColor);
+        result += DisabledColor.ConnectFrom(another.DisabledColor);
+        result += ActiveColor.ConnectFrom(another.ActiveColor);
+        result += SelectedColor.ConnectFrom(another.SelectedColor);
+        return result;
+    }
+
+    DispatcherConnections ConnectFrom(const LocalPropertyColor& color)
+    {
+        DispatcherConnections result;
+        result += NormalColor.ConnectFrom(color);
+        result += DisabledColor.ConnectFrom(color);
+        result += ActiveColor.ConnectFrom(color);
+        result += SelectedColor.ConnectFrom(color);
+        return result;
+    }
+
+    DispatcherConnections ConnectFrom(const LocalPropertyColor& color, const LocalPropertyColor& checked)
+    {
+        DispatcherConnections result;
+        result += NormalColor.ConnectFrom(color);
+        result += DisabledColor.ConnectFrom(color);
+        result += ActiveColor.ConnectFrom(color);
+        result += SelectedColor.ConnectFrom(checked);
+        return result;
     }
 };
 
@@ -28,7 +50,7 @@ public:
     IconsSvgIcon();
     IconsSvgIcon(const QString& filePath);
 
-    IconsPalette& EditPalette();
+    IconsPalette& EditPalette() const;
 
 private:
     class SvgIconEngine* m_engine;
@@ -40,12 +62,15 @@ public:
     IconsManager(qint32 iconsCount);
 
     IconsSvgIcon RegisterIcon(qint32 index, const QString& path);
-    const QIcon& GetIcon(qint32 index) const;
+    IconsSvgIcon RegisterIcon(const Name& id, const QString& path);
+    const IconsSvgIcon& GetIcon(qint32 index) const;
+    const IconsSvgIcon& GetIcon(const Name& id) const;
 
     static IconsManager& GetInstance();
 
 private:
     QVector<IconsSvgIcon> m_icons;
+    QHash<Name, IconsSvgIcon> m_taggedIcons;
     static IconsManager* m_instance;
 };
 

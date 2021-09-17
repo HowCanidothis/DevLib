@@ -4,13 +4,15 @@
 #include <QAbstractItemModel>
 
 #include "wrappers.h"
-
+#include "WidgetsModule/Utils/iconsmanager.h"
 
 class ViewModelTreeBase : public QAbstractItemModel
 {
     Q_OBJECT
+    using Super = QAbstractItemModel;
+
 public:
-    ViewModelTreeBase();
+    ViewModelTreeBase(QObject* parent);
     ~ViewModelTreeBase();
 
     void SetData(const ModelsTreeWrapperPtr& wrapper);
@@ -27,12 +29,17 @@ public:
 
 protected:
     ModelsTreeWrapperPtr m_data;
+    IconsSvgIcon m_errorIcon;
+    IconsSvgIcon m_warningIcon;
 };
 
 template<class T>
 class TViewModelTreeBase : public ViewModelTreeBase
 {
+    using Super = ViewModelTreeBase;
 public:
+    using Super::Super;
+
     const SharedPointer<T>& GetData() const { return m_data.Cast<T>(); }
 };
 

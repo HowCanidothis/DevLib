@@ -1,6 +1,10 @@
 #include "componentplacer.h"
 
 #include <QWidget>
+#include <QResizeEvent>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/styleutils.h"
 
 ComponentPlacer::ComponentPlacer(qint32 delayMsecs, const ThreadHandlerNoThreadCheck& handler)
     : m_locator([]{ return QPoint(); })
@@ -18,9 +22,9 @@ void ComponentPlacer::Initialize()
     TargetSize.Subscribe(fupdateLocation);
     Offset.Subscribe(fupdateLocation);
 
-    Location.OnChange += {this, [this]{
+    Location.Subscribe([this]{
         updateLocator();
-    }};
+    });
     updateLocator();
 }
 

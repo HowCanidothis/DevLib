@@ -6,21 +6,34 @@
 #include "WidgetsModule/Components/componentplacer.h"
 #include "WidgetsModule/Utils/styleutils.h"
 
-FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset)
-    : m_componentPlacer(::make_scoped<ComponentPlacer>(500))
+FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget, qint32 delay)
+    : m_componentPlacer(::make_scoped<ComponentPlacer>(delay))
     , m_target(target)
 {
     m_componentPlacer->Location = location;
     m_componentPlacer->Offset = offset;
 
-    target->parent()->installEventFilter(this);
     target->installEventFilter(this);
+    target->parent()->installEventFilter(this);
 
-    m_componentPlacer->Initialize();
+    if(relativeWidget != nullptr && relativeWidget != m_target->parentWidget()) {
+        m_parent = relativeWidget;
+        relativeWidget->installEventFilter(this);
+        m_componentPlacer->Initialize();
 
-    m_componentPlacer->ResultPosition.Subscribe([this]{
-        m_target->move(m_componentPlacer->ResultPosition);
-    });;
+        m_componentPlacer->ResultPosition.Subscribe([this, relativeWidget]{
+            auto* parent = m_target->parentWidget();
+            m_target->move(relativeWidget->mapTo(parent, m_componentPlacer->ResultPosition));
+            m_target->raise();
+        });
+    } else {
+        m_parent = target->parentWidget();
+        m_componentPlacer->Initialize();
+
+        m_componentPlacer->ResultPosition.Subscribe([this]{
+            m_target->move(m_componentPlacer->ResultPosition);
+        });;
+    }
     StyleUtils::InstallSizeAdjuster(target);
 }
 
@@ -31,8 +44,10 @@ bool FloatingWidgetLocationAttachment::eventFilter(QObject* watched, QEvent* eve
         auto* resizeEvent = reinterpret_cast<QResizeEvent*>(event);
         if(watched == m_target) {
             m_componentPlacer->TargetSize = resizeEvent->size();
-        } else {
+        } else if(watched == m_parent){
             m_componentPlacer->ParentSize = resizeEvent->size();
+        } else {
+            m_componentPlacer->ResultPosition.Invoke();
         }
     } break;
     default:

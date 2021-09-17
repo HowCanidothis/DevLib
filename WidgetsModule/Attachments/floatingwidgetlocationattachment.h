@@ -7,8 +7,8 @@
 class FloatingWidgetLocationAttachment : public QObject
 {
 public:
-    FloatingWidgetLocationAttachment(class QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset);
-    static void Attach(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset) { new FloatingWidgetLocationAttachment(target, location, offset); }
+    FloatingWidgetLocationAttachment(class QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget = nullptr, qint32 delay = 500);
+    static void Attach(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget = nullptr) { new FloatingWidgetLocationAttachment(target, location, offset, relativeWidget); }
 
     class ComponentPlacer* GetComponentPlacer() { return m_componentPlacer.get(); }
 
@@ -19,6 +19,7 @@ public:
 private:
     ScopedPointer<ComponentPlacer> m_componentPlacer;
     QWidget* m_target;
+    QWidget* m_parent;
 };
 
 #endif // FLOATINGWIDGETLOCATIONATTACHMENT_H

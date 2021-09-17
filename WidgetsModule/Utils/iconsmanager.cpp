@@ -34,9 +34,17 @@ public:
     }
 
 private:
+    struct HashKey
+    {
+        QIcon::Mode Mode;
+        QIcon::State State;
+
+        operator qint64() const { return *(qint64*)this; }
+    };
+
     friend class SvgIconEngine;
     QSvgRenderer Renderer;
-    QHash<Size, QHash<QIcon::Mode, QPixmap>> Cache;
+    QHash<Size, QHash<HashKey, QPixmap>> Cache;
     QDomDocument Source;
     bool IsValid;
 };
@@ -85,7 +93,8 @@ SvgIconEngine::SvgIconEngine()
 
     auto resetCache = [this](QIcon::Mode mode) {
         for(auto& modes : d->Cache) {
-            modes.remove(mode);
+            modes.remove({ mode, QIcon::On });
+            modes.remove({ mode, QIcon::Off });
         }
     };
 
@@ -150,18 +159,18 @@ QPixmap SvgIconEngine::pixmap(const QSize& size, QIcon::Mode mode,
 
     auto foundIt = d->Cache.find(size);
     if(foundIt != d->Cache.end()) {
-        auto foundItPixmap = foundIt.value().find(mode);
+        auto foundItPixmap = foundIt.value().find({ mode, state });
         if(foundItPixmap != foundIt.value().end()) {
             return foundItPixmap.value();
         }
 
         auto pixmap = generatePixmap(size,mode,state);
-        foundIt.value().insert(mode, pixmap);
+        foundIt.value().insert({ mode, state }, pixmap);
         return pixmap;
     }
 
     auto pixmap = generatePixmap(size,mode,state);
-    d->Cache.insert(size, { {mode, pixmap} });
+    d->Cache.insert(size, { { { mode, state }, pixmap} });
     return pixmap;
 }
 
@@ -223,17 +232,21 @@ void SvgIconEngine::setAttributeRecursive(QDomElement elem, QString strtagname, 
     }
 }
 
-QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon::State) const
+QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) const
 {
     Q_ASSERT(d->IsValid);
 
     auto& doc = d->Source;
     // recurivelly change color
-    switch (mode) {
-    case QIcon::Active: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.ActiveColor.Native().name()); break;
-    case QIcon::Disabled: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Native().name()); break;
-    case QIcon::Selected: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name()); break;
-    default: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
+    if(state == QIcon::On) {
+        setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name());
+    } else {
+        switch (mode) {
+        case QIcon::Active: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.ActiveColor.Native().name()); break;
+        case QIcon::Disabled: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Native().name()); break;
+        case QIcon::Selected: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name()); break;
+        default: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
+        }
     }
 
     // create svg renderer with edited contents
@@ -255,7 +268,7 @@ IconsSvgIcon::IconsSvgIcon(const QString& filePath)
     m_engine->GetData()->FilePath = filePath;
 }
 
-IconsPalette& IconsSvgIcon::EditPalette()
+IconsPalette& IconsSvgIcon::EditPalette() const
 {
     return m_engine->GetData()->Palette;
 }
@@ -274,9 +287,27 @@ IconsSvgIcon IconsManager::RegisterIcon(qint32 index, const QString& path)
     return result;
 }
 
-const QIcon& IconsManager::GetIcon(qint32 index) const
+IconsSvgIcon IconsManager::RegisterIcon(const Name& id, const QString& path)
+{
+    Q_ASSERT(!m_taggedIcons.contains(id));
+    IconsSvgIcon result(path);
+    m_taggedIcons.insert(id, result);
+    return result;
+}
+
+const IconsSvgIcon& IconsManager::GetIcon(qint32 index) const
 {
     return m_icons.at(index);
+}
+
+const IconsSvgIcon& IconsManager::GetIcon(const Name& id) const
+{
+    static IconsSvgIcon defaultIcon;
+    auto foundIt = m_taggedIcons.find(id);
+    if(foundIt != m_taggedIcons.end()) {
+        return foundIt.value();
+    }
+    return defaultIcon;
 }
 
 IconsManager& IconsManager::GetInstance()

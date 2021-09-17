@@ -13,6 +13,7 @@
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"
 #include "Notifier/notifyconsole.h"
+#include "Notifier/notifybutton.h"
 
 #include "ProgressBars/mainprogressbar.h"
 #include "ProgressBars/shadowprogressbar.h"

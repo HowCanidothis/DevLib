@@ -6,6 +6,8 @@
 #include <QTextDocument>
 #include <QSortFilterProxyModel>
 
+#include "WidgetsModule/Utils/iconsmanager.h"
+
 #include "notifywidget.h"
 #include "notifymanager.h"
 
@@ -61,7 +63,12 @@ class NotifyConsoleViewModel : public TModelsTableBase<NotifyConsoleDataWrapper>
 {
     using Super = TModelsTableBase<NotifyConsoleDataWrapper>;
 public:
-    using Super::Super;
+    NotifyConsoleViewModel(QObject* parent)
+        : Super(parent)
+    {
+        m_errorIcon = IconsManager::GetInstance().GetIcon("ErrorIcon");
+        m_warningIcon = IconsManager::GetInstance().GetIcon("WarningIcon");
+    }
 
     // QAbstractItemModel interface
 public:
@@ -86,11 +93,10 @@ public:
         case Qt::EditRole:
         case Qt::DisplayRole:
             return GetData()->At(index.row())->Data->GetData((NotifyData::Columns)(index.column() + 1));
-        case Qt::BackgroundRole:
+        case Qt::DecorationRole:
             switch(GetData()->At(index.row())->Data->Type) {
-            case NotifyManager::Warning: return QColor("#FF5722");
-            case NotifyManager::Error: return QColor("#F44336");
-            case NotifyManager::Info: return QColor("#4CAF50");
+            case NotifyManager::Warning: return m_warningIcon;
+            case NotifyManager::Error: return m_errorIcon;
             default: break;
             }
         default:
@@ -99,6 +105,10 @@ public:
 
         return QVariant();
     }
+
+private:
+    IconsSvgIcon m_errorIcon;
+    IconsSvgIcon m_warningIcon;
 };
 
 class ConsoleSortFilterViewModel : public QSortFilterProxyModel
@@ -137,7 +147,7 @@ bool ConsoleSortFilterViewModel::filterAcceptsRow(int source_row, const QModelIn
         return false;
     }
     if(!StringFilter.Native().isEmpty()) {
-        return data->Data->Body.contains(StringFilter);
+        return data->Data->Body.contains(StringFilter, Qt::CaseInsensitive);
     }
     return true;
 }
@@ -150,6 +160,7 @@ NotifyConsole::NotifyConsole(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->BtnShowCategories->setVisible(false);
     auto viewModel = new NotifyConsoleViewModel(this);
     viewModel->SetData(Data);
 
@@ -185,6 +196,21 @@ NotifyConsole::NotifyConsole(QWidget *parent)
 NotifyConsole::~NotifyConsole()
 {
     delete ui;
+}
+
+void NotifyConsole::SetCloseIcon(const IconsSvgIcon& closeIcon)
+{
+    ui->BtnCloseConsole->setIcon(closeIcon);
+}
+
+void NotifyConsole::SetCleanIcon(const IconsSvgIcon& cleanIcon)
+{
+    ui->BtnClear->setIcon(cleanIcon);
+}
+
+void NotifyConsole::SetWarningIcon(const IconsSvgIcon& cleanIcon)
+{
+    ui->BtnShowWarnings->setIcon(cleanIcon);
 }
 
 void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler)
@@ -250,7 +276,7 @@ void NotifyConsole::DetachErrorsContainer(LocalPropertyErrorsContainer* containe
     erasePermanentErrors();
 }
 
-void NotifyConsole::on_BtnClose_clicked()
+void NotifyConsole::on_BtnCloseConsole_clicked()
 {
     IsOpened = false;
 }
