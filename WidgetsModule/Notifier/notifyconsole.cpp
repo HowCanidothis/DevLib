@@ -235,7 +235,16 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
         auto id = error.Id;
         auto consoleData = ::make_shared<NotifyConsoleData>();
         consoleData->ErrorHandler = new NotifyErrorContainerData( [handler, id]{ handler(id); }, container, id );
-        consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native());
+        switch(error.Type) {
+        case QtMsgType::QtCriticalMsg:
+        case QtMsgType::QtFatalMsg:
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native());
+            break;
+        default:
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, error.Error->Native());
+            break;
+        }
+
         auto* pConsoleData = consoleData.get();
         auto* pError = error.Error.get();
         error.Error->OnChange.Connect(this, [this, pError, pConsoleData]{

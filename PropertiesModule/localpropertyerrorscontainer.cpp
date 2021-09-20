@@ -15,14 +15,14 @@ LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
     }).MakeSafe(m_connections);
 }
 
-void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString& errorString)
+void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString& errorString, QtMsgType severity)
 {
-    AddError(errorName, ::make_shared<TranslatedString>([errorString]{ return errorString; }));
+    AddError(errorName, ::make_shared<TranslatedString>([errorString]{ return errorString; }), severity);
 }
 
-void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString)
+void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity)
 {
-    LocalPropertyErrorsContainerValue toInsert{ errorName, errorString };
+    LocalPropertyErrorsContainerValue toInsert{ errorName, errorString, severity };
     OnErrorsLabelsChanged.ConnectFrom(errorString->OnChange).MakeSafe(m_connections);
     if(Super::Insert(toInsert)) {
         OnErrorAdded(toInsert);
@@ -37,16 +37,16 @@ void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
     }
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted)
+DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted, QtMsgType severity)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
     auto* pProperty = const_cast<LocalProperty<bool>*>(&property);
-    auto update = [this, errorId, pProperty, errorString, inverted]{
+    auto update = [this, errorId, pProperty, errorString, inverted, severity]{
         if(*pProperty ^ inverted) {
-            AddError(errorId, errorString);
+            AddError(errorId, errorString, severity);
         } else {
             RemoveError(errorId);
         }
@@ -55,16 +55,16 @@ DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& err
     return pProperty->OnChange.Connect(this, update);
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
     DispatcherConnections result;
-    auto update = [this, validator, errorId, errorString]{
+    auto update = [this, validator, errorId, errorString, severity]{
         if(!validator()) {
-            AddError(errorId, errorString);
+            AddError(errorId, errorString, severity);
         } else {
             RemoveError(errorId);
         }

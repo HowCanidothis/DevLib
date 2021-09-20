@@ -8,6 +8,7 @@ struct LocalPropertyErrorsContainerValue
 {
     Name Id;
     TranslatedStringPtr Error;
+    QtMsgType Type = QtMsgType::QtCriticalMsg;
 
     operator qint32() const { return Id; }
 };
@@ -18,12 +19,12 @@ class LocalPropertyErrorsContainer : public LocalPropertySet<LocalPropertyErrors
 public:
     LocalPropertyErrorsContainer();
 
-    void AddError(const Name& errorName, const QString& errorString);
-    void AddError(const Name& errorName, const TranslatedStringPtr& errorString);
+    void AddError(const Name& errorName, const QString& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
+    void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
     void RemoveError(const Name& errorName);
 
-    DispatcherConnection RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted = false);
-    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers);
+    DispatcherConnection RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg);
+    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg);
     DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors);
 
     QString ToString() const;
