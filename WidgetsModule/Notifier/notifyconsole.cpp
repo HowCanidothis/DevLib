@@ -21,6 +21,9 @@ public:
                                      const QModelIndex &index) const override;
 
     QSize sizeHint(const QStyleOptionViewItem &inOption, const QModelIndex &index) const override;
+
+    qint32 Width = 0;
+    qint32 Height = 40;
 };
 
 void RichTextItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem& inOption,
@@ -30,12 +33,20 @@ void RichTextItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem& 
 
     QStyle* style = option.widget? option.widget->style() : QApplication::style();
 
+    QTextOption textOption;
+    textOption.setAlignment(option.displayAlignment);
+
     QTextDocument doc;
+    doc.setDefaultFont(option.font);
+    doc.setDefaultTextOption(textOption);
+    doc.setTextWidth(option.rect.width());
+    doc.setIndentWidth(0.0);
     doc.setHtml(option.text);
 
     /// Painting item without text
     option.text = QString();
-    style->drawControl(QStyle::CE_ItemViewItem, &option, painter);
+    option.state &= ~QStyle::State_HasFocus;
+    style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
 
@@ -49,14 +60,9 @@ void RichTextItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem& 
     painter->restore();
 }
 
-QSize RichTextItemDelegate::sizeHint(const QStyleOptionViewItem &inOption, const QModelIndex &index) const {
-    QStyleOptionViewItem option = inOption;
-    initStyleOption(&option, index);
-
-    QTextDocument doc;
-    doc.setHtml(option.text);
-    doc.setTextWidth(option.rect.width());
-    return QSize(doc.idealWidth(), doc.size().height());
+QSize RichTextItemDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const
+{
+    return QSize(Width, Height);
 }
 
 class NotifyConsoleViewModel : public TModelsTableBase<NotifyConsoleDataWrapper>
@@ -66,8 +72,6 @@ public:
     NotifyConsoleViewModel(QObject* parent)
         : Super(parent)
     {
-        m_errorIcon = IconsManager::GetInstance().GetIcon("ErrorIcon");
-        m_warningIcon = IconsManager::GetInstance().GetIcon("WarningIcon");
     }
 
     // QAbstractItemModel interface
@@ -81,7 +85,7 @@ public:
     }
     int columnCount(const QModelIndex&) const override
     {
-        return 1;
+        return 2;
     }
     QVariant data(const QModelIndex& index, int role) const override
     {
@@ -94,21 +98,25 @@ public:
         case Qt::DisplayRole:
             return GetData()->At(index.row())->Data->GetData((NotifyData::Columns)(index.column() + 1));
         case Qt::DecorationRole:
-            switch(GetData()->At(index.row())->Data->Type) {
-            case NotifyManager::Warning: return m_warningIcon;
-            case NotifyManager::Error: return m_errorIcon;
-            default: break;
+            if(index.column() == 0) {
+                switch(GetData()->At(index.row())->Data->Type) {
+                case NotifyManager::Warning: return m_warningIcon;
+                case NotifyManager::Error: return m_errorIcon;
+                default: break;
+                }
             }
+            break;
+        case Qt::TextAlignmentRole:
+            if((index.column() + 1) == NotifyData::Column_Time) {
+                return Qt::AlignCenter;
+            }
+            break;
         default:
             break;
         }
 
         return QVariant();
     }
-
-private:
-    IconsSvgIcon m_errorIcon;
-    IconsSvgIcon m_warningIcon;
 };
 
 class ConsoleSortFilterViewModel : public QSortFilterProxyModel
@@ -157,6 +165,7 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     , Data(::make_shared<NotifyConsoleDataWrapper>())
     , IsOpened(true)
     , ui(new Ui::NotifyConsole)
+    , m_updateErrors(500)
 {
     ui->setupUi(this);
 
@@ -191,6 +200,11 @@ NotifyConsole::NotifyConsole(QWidget *parent)
             data->ErrorHandler->Action();
         }
     });
+
+    m_updateErrors.Connect(this, [this]{
+        Data->OnAboutToBeUpdated();
+        Data->OnUpdated();
+    });
 }
 
 NotifyConsole::~NotifyConsole()
@@ -221,7 +235,14 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
         auto id = error.Id;
         auto consoleData = ::make_shared<NotifyConsoleData>();
         consoleData->ErrorHandler = new NotifyErrorContainerData( [handler, id]{ handler(id); }, container, id );
-        consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error);
+        consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native());
+        auto* pConsoleData = consoleData.get();
+        auto* pError = error.Error.get();
+        error.Error->OnChange.Connect(this, [this, pError, pConsoleData]{
+            pConsoleData->Data->Body = pError->Native();
+            m_updateErrors();
+        }).MakeSafe(pConsoleData->ErrorHandler->Connections);
+
         Data->Append(consoleData);
     };
 

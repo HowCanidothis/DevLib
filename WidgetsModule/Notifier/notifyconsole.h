@@ -44,6 +44,7 @@ private:
     QHash<LocalPropertyErrorsContainer*, QSet<Name>> m_permanentErrorsToErase;
     LocalPropertyColor m_showWarningsNormalColor;
     LocalPropertyColor m_showWarningsSelectedColor;
+    DelayedCallDispatcher m_updateErrors;
 };
 
 #endif // NOTIFYCONSOLE_H

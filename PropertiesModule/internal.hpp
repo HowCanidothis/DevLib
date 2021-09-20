@@ -25,6 +25,8 @@
 #include "Widgets/propertieswidgetsconnector.h"
 #include "Widgets/localpropertieswidgetconnector.h"
 #include "translatormanager.h"
+#include "localpropertydeclarations.h"
+#include "localpropertyerrorscontainer.h"
 #endif
 
 #endif // INTERNAL_HPP

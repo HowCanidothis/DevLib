@@ -2,6 +2,7 @@
 #define TRANSLATORMANAGER_H
 
 #include "localproperty.h"
+#include "localpropertydeclarations.h"
 
 class TranslatorManager
 {
@@ -17,9 +18,8 @@ class TranslatedString : public LocalPropertyString
     using Super = LocalPropertyString;
     TranslatedString();
 public:
-    using FTranslationHandler = std::function<QString ()>;
-
     TranslatedString(const FTranslationHandler& translationHandler = []{ return QString(); });
+    TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);
 
     void SetTranslationHandler(const FTranslationHandler& handler);
 
@@ -33,7 +33,5 @@ protected:
     DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_retranslate;
 };
-
-using TranslatedStringPtr = SharedPointer<class TranslatedString>;
 
 #endif // TRANSLATORMANAGER_H

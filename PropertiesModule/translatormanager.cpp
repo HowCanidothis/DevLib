@@ -22,6 +22,14 @@ TranslatedString::TranslatedString(const FTranslationHandler& translationHandler
     Retranslate += { this, [this]{ retranslate(); }};
 }
 
+TranslatedString::TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators)
+    : TranslatedString(translationHandler)
+{
+    for(auto* retranslator : retranslators) {
+        Retranslate.ConnectFrom(*retranslator).MakeSafe(m_connections);
+    }
+}
+
 void TranslatedString::SetTranslationHandler(const FTranslationHandler& handler)
 {
     m_translationHandler = handler;

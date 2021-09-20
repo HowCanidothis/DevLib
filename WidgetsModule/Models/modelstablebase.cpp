@@ -2,6 +2,8 @@
 
 ModelsTableBase::ModelsTableBase(QObject* parent)
     : Super(parent)
+    , m_errorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
+    , m_warningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
 {
 
 }

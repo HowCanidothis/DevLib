@@ -161,10 +161,10 @@ private:
 class MeasurementTranslatedString
 {
 public:
-    static void AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics);
 
 private:
-    static TranslatedString::FTranslationHandler generateTranslationHandler(const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections);
+    static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections);
 };
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;

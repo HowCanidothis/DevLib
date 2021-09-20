@@ -4,6 +4,7 @@
 #include <QAbstractTableModel>
 
 #include "wrappers.h"
+#include "WidgetsModule/Utils/iconsmanager.h"
 
 class ModelsTableBase : public QAbstractTableModel
 {
@@ -17,6 +18,8 @@ public:
 
 protected:
     ModelsTableWrapperPtr m_data;
+    IconsSvgIcon m_errorIcon;
+    IconsSvgIcon m_warningIcon;
 };
 
 template<class T>

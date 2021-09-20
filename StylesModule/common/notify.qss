@@ -48,3 +48,7 @@ QLabel#NotificationCounter {
 NotifyButton {
     qproperty-offset: 0px 0px;
 }
+
+NotifyConsole QTableView {
+    font-size: 10px;
+}

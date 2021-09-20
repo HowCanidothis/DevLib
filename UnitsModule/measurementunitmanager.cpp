@@ -321,7 +321,7 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
     Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_systemConnections);
 }
 
-void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics)
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics)
 {
     DispatcherConnectionsSafe connections;
     QSet<Name> uniqueMetrics;
@@ -335,7 +335,7 @@ void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& str
     string.SetTranslationHandler(generateTranslationHandler(translationHandler, metrics, connections));
 }
 
-TranslatedString::FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const TranslatedString::FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections)
+FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections)
 {
     return [translationHandler, metrics, connections]{
         THREAD_ASSERT_IS_MAIN()

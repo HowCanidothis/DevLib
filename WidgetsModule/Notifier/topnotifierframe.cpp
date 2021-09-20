@@ -56,17 +56,19 @@ bool TopNotifierFrame::eventFilter(QObject*, QEvent* event)
 
 TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame)
 {
-    errors->OnChange.Connect(this, [frame, errors]{
+    auto setText = [frame, errors]{
         ThreadsBase::DoMain([frame, errors]{
             WidgetAppearance::SetVisibleAnimated(frame, !errors->IsEmpty());
             QString message;
             for(const auto& error : *errors) {
-                message += error.Error + "\n";
+                message += error.Error->Native() + "\n";
             }
             if(!message.isEmpty()) {
                 message.resize(message.size() - 1);
             }
             frame->SetText(message);
         });
-    }).MakeSafe(m_connections);
+    };
+    errors->OnChange.Connect(this, setText).MakeSafe(m_connections);
+    errors->OnErrorsLabelsChanged.Connect(this, setText).MakeSafe(m_connections);
 }
