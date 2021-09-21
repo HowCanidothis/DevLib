@@ -29,7 +29,7 @@ namespace DistanceUnits
 
 #define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentUnitLabel
 #define ATTACH_DISTANCE_MEASUREMENT(delegate, min, max) \
-    ATTACH_MEASUREMENT(MEASUREMENT_DISTANCES, delegate, min, max)
+    ATTACH_MEASUREMENT(MEASUREMENT_DISTANCES, delegate, min, max, 1)
 
 #define MEASUREMENT_DIAMETER_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DIAMETER)->FromUnitToBase(x)
@@ -41,7 +41,7 @@ namespace DistanceUnits
     QString::number(MEASUREMENT_DIAMETER_BASE_TO_UNIT(x), 'f', MEASUREMENT_DIAMETER_PRECISION())
 
 #define MEASUREMENT_DIAMETER_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DIAMETER)->CurrentUnitLabel
-#define ATTACH_DIAMETER_MEASUREMENT(delegate, min, max) \
-    ATTACH_MEASUREMENT(MEASUREMENT_DIAMETER, delegate, min, max)
+#define ATTACH_DIAMETER_MEASUREMENT(delegate, min, max, step) \
+    ATTACH_MEASUREMENT(MEASUREMENT_DIAMETER, delegate, min, max, step)
 
 #endif // DISTANCEDECLARATIONS_H

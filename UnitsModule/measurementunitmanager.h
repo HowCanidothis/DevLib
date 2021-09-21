@@ -195,6 +195,9 @@ public:
         m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
     }
 
+    void SetStep(double step){
+        m_spinBox->setSingleStep(m_baseToUnitConverter(step));
+    }
 
 protected:
     QDoubleSpinBox* m_spinBox;
@@ -212,10 +215,11 @@ protected:
 #define MEASUREMENT_STRING(system) \
 	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
 	
-#define ATTACH_MEASUREMENT(system, delegate, min, max) \
+#define ATTACH_MEASUREMENT(system, delegate, min, max, step) \
     delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\
         MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
         wrapper.SetRange(min, max);\
+        wrapper.SetStep(step);\
 	});
 	
 #endif // MEASUREMENTUNITMANAGER_H
