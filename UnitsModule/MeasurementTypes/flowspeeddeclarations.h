@@ -1,7 +1,7 @@
 #ifndef FLOWSPEEDDECLARATIONS_H
 #define FLOWSPEEDDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_FLOW_SPEED = "Flow Speed";
 
@@ -13,7 +13,7 @@ namespace FlowSpeedUnits
     static const MeasurementUnit CubicMetersPerDay    ("CubicMetersPerDay"   , []{return QObject::tr("cubic meters per day");   }, []{ return QObject::tr("m3/day"); }, 0.1834529    );
     static const MeasurementUnit LitersPerSecond      ("LitersPerSecond"     , []{return QObject::tr("liters per second");      }, []{ return QObject::tr("l/s");    }, 15.8503      );
     static const MeasurementUnit LitersPerMinute      ("LitersPerMinute"     , []{return QObject::tr("liters per minute");      }, []{ return QObject::tr("l/min");  }, 0.2642       );
-    static const MeasurementUnit GallonsPerMinute     ("GallonsPerMinute"    , []{return QObject::tr("gallons per minute");     }, []{ return QObject::tr("gal/min");}, 1            );
+    static const MeasurementUnit GallonsPerMinute     ("GallonsPerMinute"    , []{return QObject::tr("gallons per minute");     }, []{ return QObject::tr("gpm");}, 1            );
 	static const MeasurementUnit BarrelsPerMinute     ("BarrelsPerMinute"    , []{return QObject::tr("barrels per minute");     }, []{ return QObject::tr("bbl/min");}, 42.0000211   );
 }
 
