@@ -898,3 +898,14 @@ WPSCWidgetsCalendarWidget
     qproperty-outOfRangeColor: #404040;
     qproperty-outOfRangeBackground: transparent;
 }
+
+QDateEdit::drop-down
+{
+    image: url(":/qss_icons/rc/calendar-month.svg");
+    width: 16px;
+}
+
+WPSCDatetimePopupPicker QPushButton#CalendarButton
+{
+    qproperty-icon: url(":/qss_icons/rc/calendar-month.svg");
+}
