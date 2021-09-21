@@ -833,7 +833,12 @@ WPSCTimeWidget QPushButton {
   font: bold 12px;
 }
 
-WPSCTimeWidget QPushButton:checked {
+WPSCTimeWidget QPushButton:disabled {
+  background: transparent;
+  color: #707070;
+}
+
+WPSCTimeWidget QPushButton[active = "true"] {
   background-color: transparent;
   color: #F0F0F0;
   border: none;
