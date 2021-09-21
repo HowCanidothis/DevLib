@@ -1,7 +1,7 @@
 #ifndef DOGLEGDECLARATIONS_H
 #define DOGLEGDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_DLS = "Dogleg Severity";
 

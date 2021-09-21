@@ -1,7 +1,7 @@
 #ifndef ANGLEDECLARATIONS_H
 #define ANGLEDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 static const Name MEASUREMENT_ANGLES = "Angle";
 
 namespace AngleUnits

@@ -1,7 +1,7 @@
 #ifndef DISTANCEDECLARATIONS_H
 #define DISTANCEDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_DISTANCES      = "Length";
 static const Name MEASUREMENT_DIAMETER       = "Bit Diameter";

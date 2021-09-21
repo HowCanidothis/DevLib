@@ -1,7 +1,7 @@
 #ifndef PRESSUREDECLARATIONS_H
 #define PRESSUREDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_PRESSURE = "Pressure";
 

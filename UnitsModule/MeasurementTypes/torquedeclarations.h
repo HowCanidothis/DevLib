@@ -1,7 +1,7 @@
 #ifndef TORQUEDECLARATIONS_H
 #define TORQUEDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_TORQUE = "Torque";
 

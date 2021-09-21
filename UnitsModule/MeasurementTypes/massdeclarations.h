@@ -1,7 +1,7 @@
 #ifndef MASSDECLARATIONS_H
 #define MASSDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_MASS = "Mass";
 

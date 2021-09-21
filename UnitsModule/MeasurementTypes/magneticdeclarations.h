@@ -1,7 +1,7 @@
 #ifndef MAGNETICDECLARATIONS_H
 #define MAGNETICDECLARATIONS_H
 
-#include "measurementunitmanager.h"
+#include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_FIELD_STRENGTH = "Magnetic Field";
 
