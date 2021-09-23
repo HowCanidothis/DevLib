@@ -219,7 +219,12 @@ protected:
     delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\
         MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
         wrapper.SetRange(min, max);\
-        wrapper.SetStep(step);\
-	});
-	
+        sp->setSingleStep(step);\
+    });
+
+#define ATTACH_MEASUREMENT_COLUMN(column, tv, system, min, max, step) {\
+    auto delegate = new DelegatesDoubleSpinBox(tv); \
+    ATTACH_MEASUREMENT(system, delegate, min, max, step) \
+    tv->setItemDelegateForColumn(column, delegate); }
+
 #endif // MEASUREMENTUNITMANAGER_H

@@ -569,13 +569,13 @@ class LocalPropertyDateTime : public LocalProperty<QDateTime>
     using Super = LocalProperty<QDateTime>;
 public:
     LocalPropertyDateTime(const QDateTime& value = QDateTime::currentDateTime(), const QDateTime& min = QDateTime::fromMSecsSinceEpoch(0))
-        : Super(applyRange(value, min, QDateTime::fromMSecsSinceEpoch((std::numeric_limits<qint64>::max)())))
+        : Super(value.isValid() ? applyRange(value, min, QDateTime::fromMSecsSinceEpoch((std::numeric_limits<qint64>::max)())) : value)
         , m_min(min)
     {
     }
     
     LocalPropertyDateTime(const QDateTime& value, const QDateTime& min, const QDateTime& max)
-        : Super(applyRange(value, min, max))
+        : Super(value.isValid() ? applyRange(value, min, max) : value)
         , m_min(min)
         , m_max(max)
     {
