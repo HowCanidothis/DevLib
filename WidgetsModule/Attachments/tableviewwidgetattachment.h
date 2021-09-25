@@ -4,33 +4,21 @@
 #include <QTableView>
 #include <QComboBox>
 
-#include <SharedModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 class TableViewColumnsWidgetAttachment : public QObject
 {
     using Super = QObject;
-public:
-    TableViewColumnsWidgetAttachment(QTableView* targetTableView);
-
-    void SetWidget(qint32 columnIndex, QWidget* widget);
-    bool eventFilter(QObject *watched, QEvent *event) Q_DECL_OVERRIDE;
-
-    qint32 IndexOf(QWidget* widget) const;
-
-private:
-    Stack<QWidget*> m_attachmentWidgets;
-    QTableView* m_targetTableView;
-};
-
-class TableViewColumnsWidgetAttachmentDynamic : public QObject
-{
-    using Super = QObject;
     using CreateDelegate = std::function<QWidget* ()>;
 public:
-    TableViewColumnsWidgetAttachmentDynamic(QTableView* targetTableView);
+    TableViewColumnsWidgetAttachment(QTableView* targetTableView);
+    ~TableViewColumnsWidgetAttachment();
+
+    LocalPropertyBool IsVisible;
+    DispatcherConnectionsSafe Connections;
+    Dispatcher OnAttachmentsAdjusted;
 
     void Initialize(const CreateDelegate& createDelegate);
-    void SetVisible(bool visible);
 
     qint32 GetAttachmentsCount() const { return m_attachmentWidgets.size(); }
 
@@ -45,6 +33,17 @@ public:
     }
 
     template<class T>
+    qint32 IndexOf(T* widget) const
+    {
+        for(auto it(m_attachmentWidgets.begin()), e(m_attachmentWidgets.end()); it != e; it++) {
+            if(it.value() == widget) {
+                return it.key();
+            }
+        }
+        return -1;
+    }
+
+    template<class T>
     void ForeachAttachment(const std::function<void (qint32, T*)>& onEveryAttachment)
     {
         for(auto it(m_attachmentWidgets.begin()), e(m_attachmentWidgets.end()); it != e; it++) {
@@ -54,14 +53,48 @@ public:
 
 private slots:
     void adjustAttachments(qint32 oldCount, qint32 newCount);
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) Q_DECL_OVERRIDE;
+    void adjustGeometry();
 
 private:
     QHash<qint32, QWidget*> m_attachmentWidgets;
     QTableView* m_targetTableView;
     CreateDelegate m_createDelegate;
+    bool m_owner;
+    QtLambdaConnections m_lconnections;
+    DelayedCallObject m_adjustGeometry;
+};
+
+class WidgetsMatchingAttachment
+{
+public:
+    WidgetsMatchingAttachment(QTableView* table, QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
+
+    LocalPropertyString DateFormat;
+    LocalPropertyString DecimalSeparator;
+    LocalPropertyBool IsVisible;
+    LocalPropertyBool IsEnabled;
+    Dispatcher Match;
+    DelayedCallDispatcher Transite;
+    Dispatcher OnTransited;
+    CommonDispatcher<qint32, qint32> OnMatchingChanged;
+
+    LocalPropertyErrorsContainer Errors;
+
+    static const Name IncorrectDoubleConversionErrorName;
+    static const Name IncorrectIntConversionErrorName;
+
+private:
+    bool hasHeader() const;
+    void matchComboboxes();
+    void match();
+
+private:
+    ScopedPointer<TableViewColumnsWidgetAttachment> m_attachment;
+    QStringList m_requestedColumns;
+    QTableView* m_tableView;
+    ScopedPointer<FTSDictionary> m_dictionary;
+    ScopedPointer<FTSObject> m_matchObject;
+    QAbstractItemModel* m_targetModel;
 };
 
 #endif // TABLEVIEWWIDGETATTACHMENT_H

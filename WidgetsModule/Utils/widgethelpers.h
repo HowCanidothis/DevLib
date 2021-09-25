@@ -106,6 +106,7 @@ struct WidgetContent
 	static QList<int> SelectedColumnsSorted(QTableView* tableView);
 	static QSet<int> SelectedRowsSet(QTableView* tableView);
 	static QSet<int> SelectedColumnsSet(QTableView* tableView);
+    static void SelectRowsAndScrollToFirst(QTableView* table, const QSet<qint32>& rows);
 };
 
 #endif // WIDGETHELPERS_H

@@ -212,6 +212,14 @@ NotifyConsole::~NotifyConsole()
     delete ui;
 }
 
+void NotifyConsole::SetVisibility(ElementVisibilityFlags visibility)
+{
+    ui->BtnCloseConsole->setVisible(visibility.TestFlag(ElementVisibility_Close));
+    ui->BtnClear->setVisible(visibility.TestFlag(ElementVisibility_Clear));
+    ui->BtnShowWarnings->setVisible(visibility.TestFlag(ElementVisibility_ShowWarnings));
+    ui->Filter->setVisible(visibility.TestFlag(ElementVisibility_Filter));
+}
+
 void NotifyConsole::SetCloseIcon(const IconsSvgIcon& closeIcon)
 {
     ui->BtnCloseConsole->setIcon(closeIcon);

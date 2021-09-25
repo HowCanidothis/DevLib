@@ -7,7 +7,14 @@ LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
     , OnErrorsLabelsChanged(500)
 {
     OnChange += {this, [this]{
-        HasErrors = !IsEmpty();
+        HasErrorsOrWarnings = !IsEmpty();
+        for(const auto& value : *this) {
+            if(value.Type == QtMsgType::QtCriticalMsg || value.Type == QtMsgType::QtFatalMsg) {
+                HasErrors = true;
+                return;
+            }
+        }
+        HasErrors = false;
     }};
 
     TranslatorManager::GetInstance().OnLanguageChanged.Connect(this, [this]{
@@ -23,7 +30,10 @@ void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString
 void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity)
 {
     LocalPropertyErrorsContainerValue toInsert{ errorName, errorString, severity };
-    OnErrorsLabelsChanged.ConnectFrom(errorString->OnChange).MakeSafe(m_connections);
+    if(Super::Native().contains(toInsert)) {
+       return;
+    }
+    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(errorString->OnChange).MakeSafe();
     if(Super::Insert(toInsert)) {
         OnErrorAdded(toInsert);
     }
@@ -76,6 +86,14 @@ DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& er
 
     update();
     return result;
+}
+
+void LocalPropertyErrorsContainer::Clear()
+{
+    for(const auto& error : *this) {
+        OnErrorRemoved(error);
+    }
+    Super::Clear();
 }
 
 DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)

@@ -111,7 +111,7 @@ QMap<qint32, FTSMatchedObject> FTSDictionary::Map(const QStringList& strings) co
 
 bool FTSDictionary::parseString(const QString &string, const std::function<void (const Name&, double weight)>& onStringPartSplited) const
 {
-    if(string.size() < 3) {
+    if(string.size() < 2) {
         return false;
     }
     auto lowerString = string.toLower();

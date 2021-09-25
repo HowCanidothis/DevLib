@@ -7,6 +7,8 @@
 #include <QClipboard>
 #include <QApplication>
 
+#include <optional>
+
 WidgetsLocalPropertyColorWrapper::WidgetsLocalPropertyColorWrapper(QWidget* widget, const Stack<WidgetsLocalPropertyColorWrapperColorMap>& colorMap)
     : m_widget(widget)
 {
@@ -212,6 +214,29 @@ void WidgetContent::ForeachParentWidget(QWidget* target, const std::function<boo
             break;
         }
         parent = parent->parentWidget();
+    }
+}
+
+void WidgetContent::SelectRowsAndScrollToFirst(QTableView* table, const QSet<qint32>& rowIndices)
+{
+    table->clearSelection();
+    if(rowIndices.isEmpty()) {
+        return;
+    }
+
+    auto* model = table->model();
+    auto* selection = table->selectionModel();
+    std::optional<qint32> firstIndex;
+    for(int r=0; r<model->rowCount(); ++r){
+        if(rowIndices.contains(r)) {
+            selection->select(model->index(r,0), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+            if(!firstIndex.has_value()) {
+                firstIndex = r;
+            }
+        }
+    }
+    if(firstIndex.has_value()) {
+        table->scrollTo(model->index(firstIndex.value(), 0));
     }
 }
 

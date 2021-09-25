@@ -46,6 +46,7 @@
 #include "TableViews/widgetsadjustabletableview.h"
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"
+#include "Widgets/widgetsimportview.h"
 
 #include "Managers/widgetsdialogsmanager.h"
 

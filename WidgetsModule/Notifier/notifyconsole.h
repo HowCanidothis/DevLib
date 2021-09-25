@@ -16,9 +16,19 @@ class NotifyConsole : public QWidget
     Q_OBJECT
 
 public:
+    enum ElementVisibility
+    {
+        ElementVisibility_Close = 0x1,
+        ElementVisibility_Clear = 0x2,
+        ElementVisibility_ShowWarnings = 0x4,
+        ElementVisibility_Filter = 0x8
+    };
+    DECL_FLAGS(ElementVisibilityFlags, ElementVisibility);
+
     explicit NotifyConsole(QWidget *parent = nullptr);
     ~NotifyConsole();
 
+    void SetVisibility(ElementVisibilityFlags visibility);
     void SetCloseIcon(const class IconsSvgIcon& closeIcon);
     void SetCleanIcon(const IconsSvgIcon& cleanIcon);
     void SetWarningIcon(const IconsSvgIcon& cleanIcon);
