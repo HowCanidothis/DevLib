@@ -1,6 +1,7 @@
 #include "tableviewwidgetattachment.h"
 
 #include <QHeaderView>
+#include <QScrollBar>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
@@ -39,9 +40,8 @@ void TableViewColumnsWidgetAttachment::Initialize(const TableViewColumnsWidgetAt
     m_createDelegate = createDelegate;
     adjustAttachments(0, m_targetTableView->horizontalHeader()->count());
     connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionCountChanged, this, &TableViewColumnsWidgetAttachment::adjustAttachments);
-    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionResized, [this]{
-        adjustGeometry();
-    });
+    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionResized, this, &TableViewColumnsWidgetAttachment::adjustGeometry);
+    connect(m_targetTableView->horizontalScrollBar(), &QScrollBar::valueChanged, this, &TableViewColumnsWidgetAttachment::adjustGeometry);
     adjustGeometry();
 }
 
