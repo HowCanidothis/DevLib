@@ -72,6 +72,7 @@ public:
     explicit WidgetsImportView(QWidget *parent = nullptr);
     ~WidgetsImportView() override;
 	
+    LocalPropertyBool ShowPreview;
 	LocalPropertySequentialEnum<GroupKeyboardSeparator> GroupSeparator;
 	LocalPropertySequentialEnum<DecimalKeyboardSeparator> DecimalSeparator;
 	LocalPropertyString DateTimeFormat;

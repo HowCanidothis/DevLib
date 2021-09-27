@@ -3,6 +3,8 @@
 
 #include <QMenu>
 
+#include <algorithm>
+
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
 
@@ -17,10 +19,26 @@ public:
     QList<QVector<QVariant>> GetData() const;
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const  override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, qint32 role = Qt::EditRole) override
+    {
+        if(!index.isValid()) {
+            return false;
+        }
+        if(role == Qt::EditRole) {
+            m_data[index.row()][index.column()] = value;
+            emit dataChanged(index, index);
+            return true;
+        }
+
+        return false;
+    }
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
-    bool removeColumns(int column, int count, const QModelIndex& parent) override;
+    Qt::ItemFlags flags(const QModelIndex&) const override
+    {
+        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+    }
 
 private:
     QList<QVector<QVariant>> m_data;
@@ -30,6 +48,7 @@ static QVector<QString> SEPARATORS = { " ", ";", "\t", "#", "|", "," };
 
 WidgetsImportView::WidgetsImportView(QWidget *parent)
     : Super(parent)
+    , ShowPreview(true)
     , ui(new Ui::WidgetsImportView)
 {
 	ui->setupUi(this);
@@ -45,7 +64,12 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&GroupSeparator, ui->cbGroup);
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&DecimalSeparator, ui->cbDecimal);
 	m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&DateTimeFormat, ui->leDateTime);
+    m_connectors.AddConnector<LocalPropertiesCheckBoxConnector>(&ShowPreview, ui->ShowPreview);
 	
+    ShowPreview.Subscribe([this]{
+        ui->PreviewTable->setVisible(ShowPreview);
+    });
+
 	Locale.ConnectBoth(ImportLocale, [](const QLocale& locale){
 		switch(locale.language()) {
 		case QLocale::Russian: return int(LocaleType::Russian);
@@ -189,13 +213,19 @@ VariantListModel* WidgetsImportView::GetModel() const {
 
 void VariantListModel::SetData(const QList<QString>& data, const QString& separator){
     QList<QVector<QVariant>> swapData;
+    qint32 maxCount = 0;
     for(const auto& stringRow : data){
         swapData.append(QVector<QVariant>());
         auto splited = stringRow.split(separator);
         for(const auto& split : splited) {
             swapData.last().append(split);
         }
+        maxCount = maxCount > splited.size() ? maxCount : splited.size();
 	}
+    for(auto& data : swapData) {
+        data.resize(maxCount);
+    }
+
     beginResetModel();
 	m_data.swap(swapData);
 	endResetModel();
@@ -237,7 +267,7 @@ QVariant VariantListModel::data(const QModelIndex& index, int role) const {
 	case Qt::DisplayRole:
 	case Qt::EditRole: {
 		const auto& row = m_data[index.row()];
-		return index.column() < row.size() ? row[index.column()] : QVariant();
+        return row[index.column()];
 		}
 	default: return QVariant();
 	}
@@ -246,21 +276,16 @@ QVariant VariantListModel::data(const QModelIndex& index, int role) const {
 
 bool VariantListModel::removeRows(int row, int count, const QModelIndex& parent) {
 	beginRemoveRows(parent, row, row + (count - 1));
-	while(count--){
-        m_data.removeAt(row);
-	}
+    qint32 index = 0; qint32 firstIndex = row; qint32 lastIndex = row + count - 1;
+    auto end = std::remove_if(m_data.begin(), m_data.end(), [&index, firstIndex, lastIndex](const auto&) {
+        if(index >= firstIndex && index <= lastIndex) {
+            index++;
+            return true;
+        }
+        index++;
+        return false;
+    });
+    m_data.erase(end, m_data.end());
 	endRemoveRows();
-	return true;
-}
-
-bool VariantListModel::removeColumns(int column, int count, const QModelIndex& parent) {
-	beginRemoveColumns(parent, column, column + (count - 1));
-	for(auto& rowData : m_data){
-		auto counter = count;
-		while(counter--){
-			rowData.removeAt(column);
-		}
-	}
-	endRemoveColumns();
 	return true;
 }

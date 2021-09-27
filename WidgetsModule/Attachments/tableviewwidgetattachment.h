@@ -80,8 +80,9 @@ public:
 
     LocalPropertyErrorsContainer Errors;
 
-    static const Name IncorrectDoubleConversionErrorName;
-    static const Name IncorrectIntConversionErrorName;
+    static const Name ErrorIncorrectDoubleConversion;
+    static const Name ErrorIncorrectIntConversion;
+    static const Name WarningAutoMatchDisabled;
 
 private:
     bool hasHeader() const;
@@ -95,6 +96,7 @@ private:
     ScopedPointer<FTSDictionary> m_dictionary;
     ScopedPointer<FTSObject> m_matchObject;
     QAbstractItemModel* m_targetModel;
+    QtLambdaConnections m_lconnections;
 };
 
 #endif // TABLEVIEWWIDGETATTACHMENT_H

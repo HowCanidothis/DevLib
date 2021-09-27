@@ -23,6 +23,7 @@ public:
     void AddError(const Name& errorName, const QString& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
     void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
     void RemoveError(const Name& errorName);
+    bool HasError(const Name& errorName) const;
 
     void Clear();
 

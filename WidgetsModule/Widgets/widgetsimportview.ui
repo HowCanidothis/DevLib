@@ -99,6 +99,13 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="ShowPreview">
+       <property name="text">
+        <string>Preview</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -112,8 +119,25 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTableView" name="SourceTable"/>
-     <widget class="QTableView" name="PreviewTable"/>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QTableView" name="SourceTable">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QTableView" name="PreviewTable">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
     </widget>
    </item>
   </layout>

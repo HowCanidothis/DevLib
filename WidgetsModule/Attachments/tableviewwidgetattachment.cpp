@@ -5,8 +5,9 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-const Name WidgetsMatchingAttachment::IncorrectDoubleConversionErrorName = "IncorrectDoubleConversionErrorName";
-const Name WidgetsMatchingAttachment::IncorrectIntConversionErrorName = "IncorrectIntConversionErrorName";
+const Name WidgetsMatchingAttachment::ErrorIncorrectDoubleConversion = "ErrorIncorrectDoubleConversion";
+const Name WidgetsMatchingAttachment::ErrorIncorrectIntConversion = "ErrorIncorrectIntConversion";
+const Name WidgetsMatchingAttachment::WarningAutoMatchDisabled = "WarningAutoMatchDisabled";
 
 TableViewColumnsWidgetAttachment::TableViewColumnsWidgetAttachment(QTableView* targetTableView)
     : IsVisible(false)
@@ -179,14 +180,11 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         m_attachment->ForeachAttachment<QComboBox>([&ok, sourceModel, this, &doubleLocale, start, sourceCount, &doubleErrorsMetaData, &intErrorsMetaData](qint32 sourceColumn, QComboBox* cb){
             auto targetColumn = cb->currentIndex() - 1;
             if(targetColumn < 0) {
-                for(int row = 0; row < sourceCount; ++row){
-                    auto targetIndex = m_targetModel->index(row, targetColumn);
-                    m_targetModel->setData(targetIndex, QVariant());
-                }
                 return;
             }
             for(int row = 0; row < sourceCount; ++row){
-                auto value = sourceModel->data(sourceModel->index(row + start, sourceColumn));
+                auto sourceRow = row + start;
+                auto value = sourceModel->data(sourceModel->index(sourceRow, sourceColumn));
                 auto targetIndex = m_targetModel->index(row, targetColumn);
                 if(value.type() == QVariant::String) {
                     auto type = m_targetModel->data(targetIndex, Qt::EditRole).type();
@@ -199,7 +197,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                     case QVariant::Double: {
                         auto dval = doubleLocale.toDouble(value.toString(), &ok);
                         if(!ok) {
-                            doubleErrorsMetaData.insert(row);
+                            doubleErrorsMetaData.insert(sourceRow);
                         }
                         m_targetModel->setData(targetIndex, dval);
                         break;
@@ -209,7 +207,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                         if(!ok){
                             ival = doubleLocale.toDouble(value.toString(), &ok);
                             if(!ok) {
-                                intErrorsMetaData.insert(row);
+                                intErrorsMetaData.insert(sourceRow);
                             }
                         }
                         m_targetModel->setData(targetIndex, ival);
@@ -223,19 +221,19 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
             }
         });
 
-        Errors.ErrorsMetaData[IncorrectIntConversionErrorName] = QVariant::fromValue(intErrorsMetaData);
-        Errors.ErrorsMetaData[IncorrectDoubleConversionErrorName] = QVariant::fromValue(doubleErrorsMetaData);
+        Errors.ErrorsMetaData[ErrorIncorrectIntConversion] = QVariant::fromValue(intErrorsMetaData);
+        Errors.ErrorsMetaData[ErrorIncorrectDoubleConversion] = QVariant::fromValue(doubleErrorsMetaData);
 
         if(!intErrorsMetaData.isEmpty()) {
-            Errors.AddError(IncorrectIntConversionErrorName, QObject::tr("Unable to convert to integer value"), QtMsgType::QtWarningMsg);
+            Errors.AddError(ErrorIncorrectIntConversion, QObject::tr("Unable to convert to integer value"), QtMsgType::QtWarningMsg);
         } else {
-            Errors.RemoveError(IncorrectIntConversionErrorName);
+            Errors.RemoveError(ErrorIncorrectIntConversion);
         }
 
         if(!doubleErrorsMetaData.isEmpty()) {
-            Errors.AddError(IncorrectDoubleConversionErrorName, QObject::tr("Unable to convert to double value"), QtMsgType::QtWarningMsg);
+            Errors.AddError(ErrorIncorrectDoubleConversion, QObject::tr("Unable to convert to double value"), QtMsgType::QtWarningMsg);
         } else {
-            Errors.RemoveError(IncorrectDoubleConversionErrorName);
+            Errors.RemoveError(ErrorIncorrectDoubleConversion);
         }
 
         OnTransited();
@@ -244,15 +242,20 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     auto transite = [this]{
         Transite();
     };
+    auto match = [this]{
+        Match();
+    };
 
-    DecimalSeparator.Subscribe(transite);
+    DecimalSeparator.Subscribe(match);
     DateFormat.Subscribe(transite);
+
+    m_lconnections.connect(m_tableView->model(), &QAbstractItemModel::dataChanged, transite);
 }
 
 void WidgetsMatchingAttachment::match()
 {
     if(hasHeader()) {
-        Errors.RemoveError("AutoMatchDisabled");
+        Errors.RemoveError(WarningAutoMatchDisabled);
         qint32 counter = 0;
         for(const auto& requestedColumn : m_requestedColumns) {
             m_matchObject->AddRow(requestedColumn, counter);
@@ -261,7 +264,7 @@ void WidgetsMatchingAttachment::match()
 
         matchComboboxes();
     } else {
-        Errors.AddError("AutoMatchDisabled", QObject::tr("Can't recognize header row, automatic fields matching is disabled"), QtWarningMsg);
+        Errors.AddError(WarningAutoMatchDisabled, QObject::tr("Can't recognize header row, automatic fields matching is disabled"), QtWarningMsg);
         m_attachment->ForeachAttachment<QComboBox>([this](qint32 index, QComboBox* comboBox){
             comboBox->setCurrentIndex(index + 1);
             OnMatchingChanged(index, index + 1);
