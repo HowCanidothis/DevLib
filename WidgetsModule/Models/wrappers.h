@@ -50,8 +50,8 @@ public:
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
     CommonDispatcher<QSet<qint32>> OnColumnsChanged;
-    CommonDispatcher<qint32> OnAboutToChangeRow;
-    CommonDispatcher<qint32, const QSet<qint32>&> OnRowChanged;
+    CommonDispatcher<qint32, qint32> OnAboutToChangeRows;
+    CommonDispatcher<qint32, qint32, const QSet<qint32>&> OnRowsChanged;
 
 protected:
     void testInScope()
@@ -88,9 +88,10 @@ inline void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
     }};
     OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
     OnRowsInserted += { model, [model](qint32, qint32){ model->endInsertRows(); }};
-    OnRowChanged += { model, [model] (qint32 row, const QSet<qint32>& columns){
+    OnRowsChanged += { model, [model] (qint32 row, qint32 count, const QSet<qint32>& columns){
         auto startmi = model->index(row, columns.isEmpty() ? 0 : *columns.begin());
-        auto endmi = model->index(row, columns.isEmpty() ? model->columnCount() : *(columns.end()-1));
+//        Q_ASSERT(columns.isEmpty() || *(columns.end()-1) == *std::max_element(columns.constBegin(), columns.constEnd()));//ебанет?
+        auto endmi = model->index(row + count - 1, columns.isEmpty() ? model->columnCount() : *std::max_element(columns.constBegin(), columns.constEnd()));
         model->dataChanged(startmi, endmi);
     }};
 }
@@ -106,7 +107,7 @@ inline void ModelsWrapperBase::DisconnectModel(QAbstractItemModel* qmodel)
     OnRowsRemoved -= model;
     OnRowsInserted -= model;
     OnAboutToBeDestroyed -= model;
-    OnRowChanged -= model;
+    OnRowsChanged -= model;
 }
 
 class ModelsTreeWrapper : public ModelsWrapperBase
@@ -288,6 +289,7 @@ public:
         Super::insert(index, count, part);
         OnRowsInserted(index, count);
         OnChanged();
+        OnColumnsChanged({});
 	}
 	
     void Insert(int index, const value_type& part)
@@ -335,11 +337,22 @@ public:
         OnColumnsChanged({});
     }
 
+    void Edit(qint32 index, qint32 count, const std::function<void (int, value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
+    {
+        OnAboutToChangeRows(index, count);
+        for(int i=0; i<count; ++i){
+            handler(i, Super::operator[](index + i));
+        }
+        OnRowsChanged(index, count, affectedColumns);
+        OnChanged();
+        OnColumnsChanged(affectedColumns);
+    }
+
     void Edit(qint32 index, const std::function<void (value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
-        OnAboutToChangeRow(index);
+        OnAboutToChangeRows(index, 1);
         handler(Super::operator[](index));
-        OnRowChanged(index, affectedColumns);
+        OnRowsChanged(index, 1, affectedColumns);
         OnChanged();
         OnColumnsChanged(affectedColumns);
     }
@@ -350,6 +363,7 @@ public:
     }
 
     Super& EditSilent() { return *this; }
+    const Super& Native() const { return *this; }
 
     const value_type& First() const { return Super::first(); }
     const value_type& Last() const { return Super::last(); }
