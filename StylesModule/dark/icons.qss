@@ -16,4 +16,5 @@ MainWindow {
     qproperty-notifySelectedColor: #F1D66E;
     qproperty-commonWarningColor: #F1D66E;
     qproperty-commonErrorColor: #F44336;
+    qproperty-commonInfoColor: #42d552;
 }

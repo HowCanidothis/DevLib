@@ -41,13 +41,13 @@ void LocalPropertyErrorsContainer::AddError(const Name& errorName, const Transla
 
 bool LocalPropertyErrorsContainer::HasError(const Name& errorName) const
 {
-    LocalPropertyErrorsContainerValue toRemove{ errorName, ::make_shared<TranslatedString>([]{ return QString(); }) };
+    LocalPropertyErrorsContainerValue toRemove{ errorName };
     return Super::IsContains(toRemove);
 }
 
 void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
 {
-    LocalPropertyErrorsContainerValue toRemove{ errorName, ::make_shared<TranslatedString>([]{ return QString(); }) };
+    LocalPropertyErrorsContainerValue toRemove{ errorName };
     if(Super::Remove(toRemove)) {
         OnErrorRemoved(toRemove);
     }

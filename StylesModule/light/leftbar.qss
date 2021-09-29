@@ -61,12 +61,6 @@ QWidget[errorSelection="true"]{
     background: #933C2B;
 }
 
-MainWindow
-{
-    qproperty-errorColor: #933C2B;
-    qproperty-errorTextColor: white;
-}
-
 TreeBar QLabel#Title {
     color: #9d9d9d;
     font-size: 12px;

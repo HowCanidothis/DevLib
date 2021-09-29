@@ -41,6 +41,7 @@ NotifyButton::NotifyButton(QWidget* parent)
             }
         });
     }};
+    m_label->setVisible(false);
 }
 
 NotifyButton::~NotifyButton()

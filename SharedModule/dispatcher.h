@@ -220,6 +220,13 @@ public:
         });
     }
 
+    DispatcherConnection ConnectAndCall(Observer key, const FCommonDispatcherAction& handler)
+    {
+        auto result = Connect(key, handler);
+        handler();
+        return result;
+    }
+
     void Disconnect(const DispatcherConnection& connection)
     {
         connection.Disconnect();

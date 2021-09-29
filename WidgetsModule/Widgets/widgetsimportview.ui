@@ -27,19 +27,6 @@
       <widget class="QComboBox" name="cbLocale"/>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QLabel" name="lbGroupSeparator">
        <property name="text">
         <string>Grouping symbol:</string>
@@ -52,7 +39,7 @@
      <item>
       <widget class="QLabel" name="lbDecimal">
        <property name="text">
-        <string>Decimal symbol:</string>
+        <string>Decimal separator:</string>
        </property>
       </widget>
      </item>
@@ -98,6 +85,19 @@
         <string/>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QCheckBox" name="ShowPreview">

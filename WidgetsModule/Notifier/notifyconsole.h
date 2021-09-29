@@ -21,7 +21,8 @@ public:
         ElementVisibility_Close = 0x1,
         ElementVisibility_Clear = 0x2,
         ElementVisibility_ShowWarnings = 0x4,
-        ElementVisibility_Filter = 0x8
+        ElementVisibility_Filter = 0x8,
+        ElementVisibility_ShowInfos = 0x10
     };
     DECL_FLAGS(ElementVisibilityFlags, ElementVisibility);
 
@@ -32,12 +33,14 @@ public:
     void SetCloseIcon(const class IconsSvgIcon& closeIcon);
     void SetCleanIcon(const IconsSvgIcon& cleanIcon);
     void SetWarningIcon(const IconsSvgIcon& cleanIcon);
+    void SetInfoIcon(const IconsSvgIcon& icon);
     void AttachErrorsContainer(LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler);
     void DetachErrorsContainer(LocalPropertyErrorsContainer* container);
 
     NotifyConsoleDataWrapperPtr Data;
     LocalPropertyBool IsOpened;
     LocalPropertyBool IsShowWarnings;
+    LocalPropertyBool IsShowInfos;
 
 private slots:
     void on_BtnCloseConsole_clicked();

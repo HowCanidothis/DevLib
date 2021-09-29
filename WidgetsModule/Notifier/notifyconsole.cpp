@@ -102,6 +102,7 @@ public:
                 switch(GetData()->At(index.row())->Data->Type) {
                 case NotifyManager::Warning: return m_warningIcon;
                 case NotifyManager::Error: return m_errorIcon;
+                case NotifyManager::Info: return m_infoIcon;
                 default: break;
                 }
             }
@@ -125,6 +126,7 @@ class ConsoleSortFilterViewModel : public QSortFilterProxyModel
 public:
     ConsoleSortFilterViewModel(QObject* parent)
         : Super(parent)
+        , SeverityFilter(NotifyManager::Error | NotifyManager::Warning)
     {
         auto invalidate = [this]{
             m_invalidate.Call([this]{
@@ -140,6 +142,13 @@ public:
     // QSortFilterProxyModel interface
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+    QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override
+    {
+        if(orientation == Qt::Vertical && role == Qt::DisplayRole) {
+            return section + 1;
+        }
+        return Super::headerData(section, orientation, role);
+    }
 
 private:
     NotifyConsoleViewModel* consoleModel() const { return reinterpret_cast<NotifyConsoleViewModel*>(sourceModel()); }
@@ -151,7 +160,7 @@ private:
 bool ConsoleSortFilterViewModel::filterAcceptsRow(int source_row, const QModelIndex&) const
 {
     const auto& data = consoleModel()->GetData()->At(source_row);
-    if(data->Data->Type < SeverityFilter) {
+    if(!(data->Data->Type & SeverityFilter)) {
         return false;
     }
     if(!StringFilter.Native().isEmpty()) {
@@ -164,6 +173,8 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     : QWidget(parent)
     , Data(::make_shared<NotifyConsoleDataWrapper>())
     , IsOpened(true)
+    , IsShowWarnings(true)
+    , IsShowInfos(false)
     , ui(new Ui::NotifyConsole)
     , m_updateErrors(500)
 {
@@ -183,14 +194,27 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         setVisible(IsOpened);
     });
 
+    m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowInfos, ui->BtnShowInfo);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowWarnings, ui->BtnShowWarnings);
     m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&filterModel->StringFilter, ui->Filter);
     IsShowWarnings.Subscribe([filterModel, this]{
+        auto current = filterModel->SeverityFilter.Native();
         if(IsShowWarnings) {
-            filterModel->SeverityFilter = NotifyManager::Warning;
+            current |= NotifyManager::Warning;
         } else {
-            filterModel->SeverityFilter = NotifyManager::Error;
+            current &= ~NotifyManager::Warning;
         }
+        filterModel->SeverityFilter = current;
+    });
+
+    IsShowInfos.Subscribe([filterModel, this]{
+        auto current = filterModel->SeverityFilter.Native();
+        if(IsShowInfos) {
+            current |= NotifyManager::Info;
+        } else {
+            current &= ~NotifyManager::Info;
+        }
+        filterModel->SeverityFilter = current;
     });
 
     connect(ui->TableIssues, &QTableView::doubleClicked, [filterModel, this](const QModelIndex& current) {
@@ -205,6 +229,12 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         Data->OnAboutToBeUpdated();
         Data->OnUpdated();
     });
+
+    auto& icons = IconsManager::GetInstance();
+    SetCloseIcon(icons.GetIcon("CloseIcon"));
+    SetCleanIcon(icons.GetIcon("CleanIcon"));
+    SetWarningIcon(icons.GetIcon("WarningIcon"));
+    SetInfoIcon(icons.GetIcon("InfoIcon"));
 }
 
 NotifyConsole::~NotifyConsole()
@@ -218,6 +248,7 @@ void NotifyConsole::SetVisibility(ElementVisibilityFlags visibility)
     ui->BtnClear->setVisible(visibility.TestFlag(ElementVisibility_Clear));
     ui->BtnShowWarnings->setVisible(visibility.TestFlag(ElementVisibility_ShowWarnings));
     ui->Filter->setVisible(visibility.TestFlag(ElementVisibility_Filter));
+    ui->BtnShowInfo->setVisible(visibility.TestFlag(ElementVisibility_ShowInfos));
 }
 
 void NotifyConsole::SetCloseIcon(const IconsSvgIcon& closeIcon)
@@ -233,6 +264,11 @@ void NotifyConsole::SetCleanIcon(const IconsSvgIcon& cleanIcon)
 void NotifyConsole::SetWarningIcon(const IconsSvgIcon& cleanIcon)
 {
     ui->BtnShowWarnings->setIcon(cleanIcon);
+}
+
+void NotifyConsole::SetInfoIcon(const IconsSvgIcon& icon)
+{
+    ui->BtnShowInfo->setIcon(icon);
 }
 
 void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler)

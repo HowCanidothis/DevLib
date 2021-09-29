@@ -1,73 +1,18 @@
 
-NotifyButton {
-    max-height: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    min-width: 20px;
-    background-color: transparent;
-    padding: 0px;
-    border: none;
-}
-
-NotifyButton:checked {
-    border: none;
-    background: transparent;
-}
-
-NotifyButton:pressed:hover {
-    border: none;
-}
-
-NotifyButton:focus {
-    border: none;
-}
-
 NotifyButton:hover {
     background-color: #505050;
-}
-
-NotifyConsole QPushButton#BtnClear{
-    max-height: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    min-width: 20px;
-    padding: 0px;
-    qproperty-text: "";
-    background-color: transparent;
-    border: none;
 }
 
 NotifyConsole QPushButton#BtnClear:hover{
     background-color: #505050;
 }
 
-NotifyConsole QPushButton#BtnShowWarnings{
-    max-height: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    min-width: 20px;
-    padding: 0px;
-    qproperty-text: "";
-    background: transparent;
-    border: none;
-}
-
-NotifyConsole QPushButton#BtnCloseConsole{
-    max-height: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    min-width: 20px;
-    padding: 0px;
-    qproperty-text: "";
-    background: transparent;
-}
-
 NotifyConsole QPushButton#BtnCloseConsole:hover{
     background-color: #505050;
 }
 
-NotifyConsole QPushButton#BtnCloseConsole:pressed{
-    border: none;
+NotifyConsole QPushButton#BtnShowInfo:hover {
+    background: #505050;
 }
 
 NotifyConsole QPushButton#BtnShowWarnings:hover {

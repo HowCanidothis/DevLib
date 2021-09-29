@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>407</width>
+    <width>488</width>
     <height>229</height>
    </rect>
   </property>
@@ -43,7 +43,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Issues</string>
+        <string>Alerts</string>
        </property>
       </widget>
      </item>
@@ -76,6 +76,16 @@
        </property>
        <property name="text">
         <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="BtnShowInfo">
+       <property name="text">
+        <string>Show Info</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

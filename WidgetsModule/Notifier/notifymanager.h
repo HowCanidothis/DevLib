@@ -17,9 +17,9 @@ class NotifyManager : public QObject
 public:
     enum MessageType
     {
-        Info,
-        Warning,
-        Error
+        Info = 0x1,
+        Warning = 0x2,
+        Error = 0x4
     };
 
 public:

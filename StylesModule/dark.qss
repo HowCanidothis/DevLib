@@ -1,6 +1,5 @@
 @import url("common/style.qss");
 @import url("common/mainprogressbar.qss");
-@import url("common/notify.qss");
 @import url("common/properties.qss");
 @import url("common/leftbar.qss");
 @import url("dark/style.qss");
@@ -10,4 +9,5 @@
 @import url("common/topnotifierframe.qss");
 @import url("dark/icons.qss");
 @import url("dark/visualization.qss");
+@import url("common/notify.qss");
 @import url("dark/notify.qss");
