@@ -9,6 +9,7 @@ struct LocalPropertyErrorsContainerValue
     Name Id;
     TranslatedStringPtr Error;
     QtMsgType Type = QtMsgType::QtCriticalMsg;
+    SharedPointer<LocalPropertyBool> Visible;
     DispatcherConnectionSafePtr Connection;
 
     operator qint32() const { return Id; }
@@ -20,8 +21,8 @@ class LocalPropertyErrorsContainer : public LocalPropertySet<LocalPropertyErrors
 public:
     LocalPropertyErrorsContainer();
 
-    void AddError(const Name& errorName, const QString& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
-    void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg);
+    void AddError(const Name& errorName, const QString& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
+    void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
     void RemoveError(const Name& errorName);
     bool HasError(const Name& errorName) const;
 
@@ -29,8 +30,8 @@ public:
 
     QHash<Name, QVariant> ErrorsMetaData;
 
-    DispatcherConnection RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg);
-    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg);
+    DispatcherConnection RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalProperty<bool>& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
+    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
     DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors);
 
     QString ToString() const;

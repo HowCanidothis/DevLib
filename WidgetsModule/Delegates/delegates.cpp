@@ -221,8 +221,11 @@ DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
 
 void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    bool data = index.model()->data(index, Qt::DisplayRole).toBool();
-    
+    auto value = index.model()->data(index, Qt::DisplayRole);
+    if(value.isNull()){
+        Super::paint(painter, option, index);
+        return;
+    }
     QStyleOptionButton checkboxstyle;
     QRect checkbox_rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator,&checkboxstyle);
     
@@ -230,7 +233,7 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
     checkboxstyle.rect.setLeft(option.rect.x() +
                                  option.rect.width()/2 - checkbox_rect.width()/2);
 
-    if(data) {
+    if(value.toBool()) {
         checkboxstyle.state = QStyle::State_On|QStyle::State_Enabled;
     } else {
         checkboxstyle.state = QStyle::State_Off|QStyle::State_Enabled;

@@ -7,6 +7,7 @@
 #include <QSortFilterProxyModel>
 
 #include "WidgetsModule/Utils/iconsmanager.h"
+#include "WidgetsModule/Delegates/delegates.h"
 
 #include "notifywidget.h"
 #include "notifymanager.h"
@@ -66,10 +67,44 @@ QSize RichTextItemDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIn
     return QSize(Width, Height);
 }
 
+class IconDelegate : public QStyledItemDelegate
+{
+	using Super = QStyledItemDelegate;
+public:
+	IconDelegate(QObject* parent = nullptr) : Super(parent){}
+	QString displayText(const QVariant&, const QLocale&) const override { return ""; }
+	
+	void paint(QPainter* painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
+		Super::paint(painter, option, index);
+		auto icon = index.data(Qt::DisplayRole).toBool() ? IconsManager::GetInstance().GetIcon("Show") : IconsManager::GetInstance().GetIcon("Hide");
+		auto pixMap = icon.pixmap(option.rect.size());
+		painter->drawPixmap(option.rect.center(), pixMap);
+	}
+	
+	bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override {
+        if(event->type() == QEvent::MouseButtonRelease){
+            model->setData(index, !model->data(index).toBool());
+            event->accept();
+        } else if(event->type() == QEvent::MouseButtonDblClick){
+            event->accept();
+            return true;
+        }
+        return Super::editorEvent(event, model, option, index);
+    }
+};
+
 class NotifyConsoleViewModel : public TModelsTableBase<NotifyConsoleDataWrapper>
 {
     using Super = TModelsTableBase<NotifyConsoleDataWrapper>;
 public:
+    enum Columns {
+        C_CheckBox,
+        C_Icon,
+        C_Time = C_Icon,
+        C_Description,
+        C_Count
+    };
+    
     NotifyConsoleViewModel(QObject* parent)
         : Super(parent)
     {
@@ -77,6 +112,29 @@ public:
 
     // QAbstractItemModel interface
 public:
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override 
+    {
+        if(!index.isValid()){
+            return false;
+        }
+        if(role == Qt::EditRole && index.column() == C_CheckBox && GetData()->At(index.row())->Data->Visible != nullptr){
+            GetData()->Edit(index.row(), [value](NotifyConsoleDataPtr& data){
+                *data->Data->Visible = value.toBool();
+            }, {C_CheckBox});
+            return true;
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override
+    {
+        if(index.column() == C_CheckBox && GetData()->At(index.row())->Data->Visible != nullptr) {
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+        } else {
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        }
+    }
+    
     int rowCount(const QModelIndex&) const override
     {
         if(GetData() == nullptr) {
@@ -86,7 +144,7 @@ public:
     }
     int columnCount(const QModelIndex&) const override
     {
-        return 2;
+        return C_Count;
     }
     QVariant data(const QModelIndex& index, int role) const override
     {
@@ -96,10 +154,17 @@ public:
 
         switch (role) {
         case Qt::EditRole:
-        case Qt::DisplayRole:
-            return GetData()->At(index.row())->Data->GetData((NotifyData::Columns)(index.column() + 1));
+        case Qt::DisplayRole: {
+            const auto& data = GetData()->At(index.row())->Data;
+            switch (index.column()) {
+            case C_Time: return data->Time;
+            case C_CheckBox: return data->Visible != nullptr ? data->Visible->Native() : QVariant();
+            case C_Description: return data->Body;
+            default: return QVariant();
+            }
+        }
         case Qt::DecorationRole:
-            if(index.column() == 0) {
+            if(index.column() == C_Icon) {
                 switch(GetData()->At(index.row())->Data->Type) {
                 case NotifyManager::Warning: return m_warningIcon;
                 case NotifyManager::Error: return m_errorIcon;
@@ -109,7 +174,7 @@ public:
             }
             break;
         case Qt::TextAlignmentRole:
-            if((index.column() + 1) == NotifyData::Column_Time) {
+            if(index.column() == C_Time) {
                 return Qt::AlignCenter;
             }
             break;
@@ -191,8 +256,10 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     filterModel->setSourceModel(viewModel);
     ui->TableIssues->setModel(filterModel);
 
-    ui->TableIssues->setItemDelegateForColumn(1, new RichTextItemDelegate(ui->TableIssues));
-
+    ui->TableIssues->setItemDelegateForColumn(0, new IconDelegate(ui->TableIssues));
+    ui->TableIssues->setItemDelegateForColumn(2, new RichTextItemDelegate(ui->TableIssues));
+    ui->TableIssues->horizontalHeader()->resizeSection(0, 24);
+    
     IsOpened.Subscribe([this]{
         setVisible(IsOpened);
     });
@@ -295,10 +362,10 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
         switch(error.Type) {
         case QtMsgType::QtCriticalMsg:
         case QtMsgType::QtFatalMsg:
-            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native());
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native(), error.Visible);
             break;
         default:
-            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, error.Error->Native());
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, error.Error->Native(), error.Visible);
             break;
         }
 
@@ -308,7 +375,12 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
             pConsoleData->Data->Body = pError->Native();
             m_updateErrors();
         }).MakeSafe(pConsoleData->ErrorHandler->Connections);
-
+        if(pConsoleData->Data->Visible != nullptr){
+            pConsoleData->Data->Visible->OnChange.Connect(this, []{
+                //update check role;
+//                Edit
+            }).MakeSafe(pConsoleData->ErrorHandler->Connections);
+        }
         Data->Prepend(consoleData);
     };
 

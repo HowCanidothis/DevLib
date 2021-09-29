@@ -11,19 +11,21 @@ public:
     {
         Column_Type,
         Column_Time,
+        Column_Show,
         Column_Body,
     };
 
-    NotifyData(qint32 type, const QString& body)
+    NotifyData(qint32 type, const QString& body, const SharedPointer<LocalPropertyBool>& visible = nullptr)
         : Body(body)
         , Type(type)
         , DateTime(QDateTime::currentDateTime())
+        , Visible(visible)
     {}
 
     QString Body;
     qint32 Type;
     QDateTime DateTime;
-
+    SharedPointer<LocalPropertyBool> Visible;
     QVariant GetData(Columns column) const
     {
         switch (column) {
