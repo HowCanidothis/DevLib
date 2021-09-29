@@ -67,32 +67,6 @@ QSize RichTextItemDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIn
     return QSize(Width, Height);
 }
 
-class IconDelegate : public QStyledItemDelegate
-{
-	using Super = QStyledItemDelegate;
-public:
-	IconDelegate(QObject* parent = nullptr) : Super(parent){}
-	QString displayText(const QVariant&, const QLocale&) const override { return ""; }
-	
-	void paint(QPainter* painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
-		Super::paint(painter, option, index);
-		auto icon = index.data(Qt::DisplayRole).toBool() ? IconsManager::GetInstance().GetIcon("Show") : IconsManager::GetInstance().GetIcon("Hide");
-		auto pixMap = icon.pixmap(option.rect.size());
-		painter->drawPixmap(option.rect.center(), pixMap);
-	}
-	
-	bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override {
-        if(event->type() == QEvent::MouseButtonRelease){
-            model->setData(index, !model->data(index).toBool());
-            event->accept();
-        } else if(event->type() == QEvent::MouseButtonDblClick){
-            event->accept();
-            return true;
-        }
-        return Super::editorEvent(event, model, option, index);
-    }
-};
-
 class NotifyConsoleViewModel : public TModelsTableBase<NotifyConsoleDataWrapper>
 {
     using Super = TModelsTableBase<NotifyConsoleDataWrapper>;
@@ -256,7 +230,7 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     filterModel->setSourceModel(viewModel);
     ui->TableIssues->setModel(filterModel);
 
-    ui->TableIssues->setItemDelegateForColumn(0, new IconDelegate(ui->TableIssues));
+    ui->TableIssues->setItemDelegateForColumn(0, new DelegatesCheckBox(ui->TableIssues));
     ui->TableIssues->setItemDelegateForColumn(2, new RichTextItemDelegate(ui->TableIssues));
     ui->TableIssues->horizontalHeader()->resizeSection(0, 24);
     
