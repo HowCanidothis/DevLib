@@ -131,7 +131,7 @@ public:
         case Qt::DisplayRole: {
             const auto& data = GetData()->At(index.row())->Data;
             switch (index.column()) {
-            case C_Time: return data->Time;
+            case C_Time: return data->DateTime;
             case C_CheckBox: return data->Visible != nullptr ? data->Visible->Native() : QVariant();
             case C_Description: return data->Body;
             default: return QVariant();
