@@ -37,6 +37,7 @@ void RichTextItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem& 
     textOption.setAlignment(option.displayAlignment);
 
     QTextDocument doc;
+    option.font.setPixelSize(option.font.pixelSize() + 1);
     doc.setDefaultFont(option.font);
     doc.setDefaultTextOption(textOption);
     doc.setTextWidth(option.rect.width());
@@ -175,6 +176,8 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     , IsOpened(true)
     , IsShowWarnings(true)
     , IsShowInfos(false)
+    , IsShowErrors(true)
+    , OnShownMessagesCountChanged(500)
     , ui(new Ui::NotifyConsole)
     , m_updateErrors(500)
 {
@@ -194,28 +197,24 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         setVisible(IsOpened);
     });
 
+    m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowErrors, ui->BtnShowErrors);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowInfos, ui->BtnShowInfo);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowWarnings, ui->BtnShowWarnings);
     m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&filterModel->StringFilter, ui->Filter);
-    IsShowWarnings.Subscribe([filterModel, this]{
-        auto current = filterModel->SeverityFilter.Native();
-        if(IsShowWarnings) {
-            current |= NotifyManager::Warning;
-        } else {
-            current &= ~NotifyManager::Warning;
-        }
-        filterModel->SeverityFilter = current;
-    });
 
-    IsShowInfos.Subscribe([filterModel, this]{
+    auto changeFilter = [filterModel](const LocalPropertyBool& show, NotifyManager::MessageType type){
         auto current = filterModel->SeverityFilter.Native();
-        if(IsShowInfos) {
-            current |= NotifyManager::Info;
+        if(show) {
+            current |= type;
         } else {
-            current &= ~NotifyManager::Info;
+            current &= ~type;
         }
         filterModel->SeverityFilter = current;
-    });
+    };
+
+    IsShowWarnings.Subscribe([changeFilter, this]{ changeFilter(IsShowWarnings, NotifyManager::Warning); });
+    IsShowInfos.Subscribe([changeFilter, this]{ changeFilter(IsShowInfos, NotifyManager::Info); });
+    IsShowErrors.Subscribe([changeFilter, this]{ changeFilter(IsShowErrors, NotifyManager::Error); });
 
     connect(ui->TableIssues, &QTableView::doubleClicked, [filterModel, this](const QModelIndex& current) {
         auto sourceIndex = filterModel->mapToSource(current);
@@ -235,6 +234,14 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     SetCleanIcon(icons.GetIcon("CleanIcon"));
     SetWarningIcon(icons.GetIcon("WarningIcon"));
     SetInfoIcon(icons.GetIcon("InfoIcon"));
+    SetErrorIcon(icons.GetIcon("ErrorIcon"));
+
+    auto emitCountChanged = [this, filterModel]{
+        OnShownMessagesCountChanged(filterModel->rowCount());
+    };
+    connect(filterModel, &QSortFilterProxyModel::rowsInserted, emitCountChanged);
+    connect(filterModel, &QSortFilterProxyModel::rowsRemoved, emitCountChanged);
+    connect(filterModel, &QSortFilterProxyModel::modelReset, emitCountChanged);
 }
 
 NotifyConsole::~NotifyConsole()
@@ -249,11 +256,17 @@ void NotifyConsole::SetVisibility(ElementVisibilityFlags visibility)
     ui->BtnShowWarnings->setVisible(visibility.TestFlag(ElementVisibility_ShowWarnings));
     ui->Filter->setVisible(visibility.TestFlag(ElementVisibility_Filter));
     ui->BtnShowInfo->setVisible(visibility.TestFlag(ElementVisibility_ShowInfos));
+    ui->BtnShowErrors->setVisible(visibility.TestFlag(ElementVisibility_ShowErrors));
 }
 
 void NotifyConsole::SetCloseIcon(const IconsSvgIcon& closeIcon)
 {
     ui->BtnCloseConsole->setIcon(closeIcon);
+}
+
+void NotifyConsole::SetErrorIcon(const IconsSvgIcon& errorIcon)
+{
+    ui->BtnShowErrors->setIcon(errorIcon);
 }
 
 void NotifyConsole::SetCleanIcon(const IconsSvgIcon& cleanIcon)
@@ -296,7 +309,7 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
             m_updateErrors();
         }).MakeSafe(pConsoleData->ErrorHandler->Connections);
 
-        Data->Append(consoleData);
+        Data->Prepend(consoleData);
     };
 
     auto removeError = [this, handler, container](const LocalPropertyErrorsContainerValue& error) {

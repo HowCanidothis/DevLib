@@ -26,6 +26,15 @@ NotifyManager::NotifyManager(QObject *parent)
     m_onLayoutChanged.Connect(this, [this]{
         rearrange();
     });
+
+    m_icons[Info] = IconsManager::GetInstance().GetIcon("InfoIcon");
+    m_icons[Warning] = IconsManager::GetInstance().GetIcon("WarningIcon");
+    m_icons[Error] = IconsManager::GetInstance().GetIcon("ErrorIcon");
+}
+
+void NotifyManager::SetNotifyWidgetIcon(MessageType type, const IconsSvgIcon& icon)
+{
+    m_icons[type] = icon;
 }
 
 NotifyManager::~NotifyManager()
@@ -73,7 +82,7 @@ NotifyManager& NotifyManager::GetInstance()
 void NotifyManager::rearrange()
 {
     QDesktopWidget *desktop = QApplication::desktop();
-    QRect desktopRect = desktop->availableGeometry();
+    QRect desktopRect = desktop->screenGeometry(qApp->focusWidget());
     QPoint bottomRignt = desktopRect.bottomRight();
 
     qint32 index = 1;
@@ -97,6 +106,7 @@ void NotifyManager::rearrange()
     }
 
     m_freeHeight = bottomRignt.y() - height - ReservedHeight;
+    qDebug() << m_freeHeight << bottomRignt << qApp->focusWidget();
 }
 
 void NotifyManager::showNext()
@@ -117,9 +127,9 @@ void NotifyManager::showNext()
     //notify->setFixedHeight(Height);
 
     QDesktopWidget* desktop = QApplication::desktop();
-    QRect desktopRect = desktop->availableGeometry();
+    QRect desktopRect = desktop->screenGeometry(qApp->focusWidget());
 
-    notify->ShowGriant(DisplayTime);
+    notify->ShowGriant(DisplayTime, m_icons[data->Type]);
 
     qint32 usedSpace = notify->height() + Spacing;
     QPoint bottomRignt = desktopRect.bottomRight();

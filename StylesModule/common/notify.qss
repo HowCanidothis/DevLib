@@ -31,7 +31,22 @@ NotifyWidget#warningnotify-background {
 
 NotifyWidget#warningnotify-background QLabel{
     background: #FF5722;
-    color: #FFFFFF;
+    color: 
+    #FFFFFF;
+}
+
+NotifyWidget QPushButton {
+    max-height: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    min-width: 24px;
+    background: transparent;
+    padding: 0px;
+    border: none;
+}
+
+NotifyWidget QPushButton:disabled {
+    background: transparent;
 }
 
 QLabel#NotificationCounter {
@@ -76,18 +91,18 @@ NotifyButton:focus {
     border: none;
 }
 
-NotifyConsole QPushButton#BtnClear{
+NotifyConsole QPushButton#BtnShowWarnings{
     max-height: 24px;
     min-height: 24px;
     max-width: 24px;
     min-width: 24px;
     padding: 0px;
     qproperty-text: "";
-    background-color: transparent;
+    background: transparent;
     border: none;
 }
 
-NotifyConsole QPushButton#BtnShowWarnings{
+NotifyConsole QPushButton#BtnShowErrors{
     max-height: 24px;
     min-height: 24px;
     max-width: 24px;

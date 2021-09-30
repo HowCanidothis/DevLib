@@ -17,7 +17,7 @@ public:
     explicit NotifyWidget(const NotifyDataPtr& data, QWidget* parent = 0);
     ~NotifyWidget();
 
-    void ShowGriant(qint32 displayTime);
+    void ShowGriant(qint32 displayTime, const IconsSvgIcon& icon);
 
     CommonDispatcher<const QString&, bool&> OnLinkActivated;
     Dispatcher OnDisappeared;

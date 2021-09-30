@@ -3,15 +3,15 @@ NotifyButton:hover {
     background-color: #505050;
 }
 
-NotifyConsole QPushButton#BtnClear:hover{
-    background-color: #505050;
-}
-
 NotifyConsole QPushButton#BtnCloseConsole:hover{
     background-color: #505050;
 }
 
 NotifyConsole QPushButton#BtnShowInfo:hover {
+    background: #505050;
+}
+
+NotifyConsole QPushButton#BtnShowErrors:hover {
     background: #505050;
 }
 

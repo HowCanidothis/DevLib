@@ -26,6 +26,8 @@ public:
     explicit NotifyManager( QObject* parent = 0);
     ~NotifyManager();
 
+    void SetNotifyWidgetIcon(MessageType type, const IconsSvgIcon& icon);
+
     void Notify(MessageType messageType, const QString& body);
     void Notify(QtMsgType qtMessageType, const QString& body);
     static NotifyManager& GetInstance();
@@ -53,6 +55,7 @@ private:
     DelayedCallDispatchersCommutator m_onLayoutChanged;
     NotifyDataPtr m_exceedData;
     qint32 m_exceedCounter;
+    IconsSvgIcon m_icons[Error + 1];
 };
 
 #endif // NOTIFYMANAGER_H

@@ -58,8 +58,9 @@ NotifyWidget::~NotifyWidget()
     delete ui;
 }
 
-void NotifyWidget::ShowGriant(qint32 displayTime)
+void NotifyWidget::ShowGriant(qint32 displayTime, const IconsSvgIcon& icon)
 {
+    ui->BtnIcon->setIcon(icon);
     QPropertyAnimation* animation = new QPropertyAnimation(this, "windowOpacity", this);
     animation->setStartValue(0);
     animation->setEndValue(1);

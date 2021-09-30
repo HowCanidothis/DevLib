@@ -17,19 +17,19 @@ public:
     NotifyData(qint32 type, const QString& body)
         : Body(body)
         , Type(type)
-        , Time(QTime::currentTime())
+        , DateTime(QDateTime::currentDateTime())
     {}
 
     QString Body;
     qint32 Type;
-    QTime Time;
+    QDateTime DateTime;
 
     QVariant GetData(Columns column) const
     {
         switch (column) {
         case Column_Type: return Type;
         case Column_Body: return Body;
-        case Column_Time: return Time;
+        case Column_Time: return DateTime;
         default: break;
         }
         return QVariant();

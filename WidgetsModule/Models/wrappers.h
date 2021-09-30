@@ -245,6 +245,16 @@ public:
         return -1;
     }
 
+    virtual void Prepend(const value_type& part)
+    {
+        auto size = GetSize();
+        OnAboutToInsertRows(0, 0);
+        Super::prepend(part);
+        OnRowsInserted(0, 1);
+        OnChanged();
+        OnColumnsChanged({});
+    }
+
     virtual void Append(const value_type& part)
     {
         auto size = GetSize();

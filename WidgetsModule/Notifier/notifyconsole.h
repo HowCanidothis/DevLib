@@ -22,7 +22,8 @@ public:
         ElementVisibility_Clear = 0x2,
         ElementVisibility_ShowWarnings = 0x4,
         ElementVisibility_Filter = 0x8,
-        ElementVisibility_ShowInfos = 0x10
+        ElementVisibility_ShowInfos = 0x10,
+        ElementVisibility_ShowErrors = 0x20
     };
     DECL_FLAGS(ElementVisibilityFlags, ElementVisibility);
 
@@ -31,6 +32,7 @@ public:
 
     void SetVisibility(ElementVisibilityFlags visibility);
     void SetCloseIcon(const class IconsSvgIcon& closeIcon);
+    void SetErrorIcon(const IconsSvgIcon& errorIcon);
     void SetCleanIcon(const IconsSvgIcon& cleanIcon);
     void SetWarningIcon(const IconsSvgIcon& cleanIcon);
     void SetInfoIcon(const IconsSvgIcon& icon);
@@ -41,6 +43,8 @@ public:
     LocalPropertyBool IsOpened;
     LocalPropertyBool IsShowWarnings;
     LocalPropertyBool IsShowInfos;
+    LocalPropertyBool IsShowErrors;
+    DelayedCallCommonDispatcher<qint32> OnShownMessagesCountChanged;
 
 private slots:
     void on_BtnCloseConsole_clicked();
