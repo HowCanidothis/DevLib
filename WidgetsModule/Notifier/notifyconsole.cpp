@@ -270,13 +270,6 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         Data->OnUpdated();
     });
 
-    auto& icons = IconsManager::GetInstance();
-    SetCloseIcon(icons.GetIcon("CloseIcon"));
-    SetCleanIcon(icons.GetIcon("CleanIcon"));
-    SetWarningIcon(icons.GetIcon("WarningIcon"));
-    SetInfoIcon(icons.GetIcon("InfoIcon"));
-    SetErrorIcon(icons.GetIcon("ErrorIcon"));
-
     auto emitCountChanged = [this, filterModel]{
         OnShownMessagesCountChanged(filterModel->rowCount());
     };
@@ -300,24 +293,24 @@ void NotifyConsole::SetVisibility(ElementVisibilityFlags visibility)
     ui->BtnShowErrors->setVisible(visibility.TestFlag(ElementVisibility_ShowErrors));
 }
 
-void NotifyConsole::SetCloseIcon(const IconsSvgIcon& closeIcon)
+void NotifyConsole::SetCloseIcon(const IconsSvgIcon& icon)
 {
-    ui->BtnCloseConsole->setIcon(closeIcon);
+    ui->BtnCloseConsole->setIcon(icon);
 }
 
-void NotifyConsole::SetErrorIcon(const IconsSvgIcon& errorIcon)
+void NotifyConsole::SetErrorIcon(const IconsSvgIcon& icon)
 {
-    ui->BtnShowErrors->setIcon(errorIcon);
+    ui->BtnShowErrors->setIcon(icon);
 }
 
-void NotifyConsole::SetCleanIcon(const IconsSvgIcon& cleanIcon)
+void NotifyConsole::SetCleanIcon(const IconsSvgIcon& icon)
 {
-    ui->BtnClear->setIcon(cleanIcon);
+    ui->BtnClear->setIcon(icon);
 }
 
-void NotifyConsole::SetWarningIcon(const IconsSvgIcon& cleanIcon)
+void NotifyConsole::SetWarningIcon(const IconsSvgIcon& icon)
 {
-    ui->BtnShowWarnings->setIcon(cleanIcon);
+    ui->BtnShowWarnings->setIcon(icon);
 }
 
 void NotifyConsole::SetInfoIcon(const IconsSvgIcon& icon)
