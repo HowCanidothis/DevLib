@@ -124,8 +124,10 @@ NotifyConsole QPushButton#BtnShowInfo{
     border: none;
 }
 
-NotifyConsole QPushButton#BtnClean {
-    qproperty-iconSize: 0px 0px;
+NotifyConsole QPushButton#BtnClear {
+    min-height: 12px;
+    max-height: 12px;
+    margin-right: 10px;
 }
 
 NotifyConsole QLabel#label{
