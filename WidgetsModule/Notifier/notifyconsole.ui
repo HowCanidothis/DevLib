@@ -75,7 +75,7 @@
      <item>
       <widget class="QPushButton" name="BtnShowErrors">
        <property name="text">
-        <string>Show Errors</string>
+        <string>Error Alerts</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -88,7 +88,7 @@
         <string>Show Warnings</string>
        </property>
        <property name="text">
-        <string>Show Warnings</string>
+        <string>Warning Alerts</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -98,7 +98,7 @@
      <item>
       <widget class="QPushButton" name="BtnShowInfo">
        <property name="text">
-        <string>Show Info</string>
+        <string>Success Alerts</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -115,7 +115,7 @@
      <item>
       <widget class="QLineEdit" name="Filter">
        <property name="placeholderText">
-        <string>Filter</string>
+        <string>Filter Alerts</string>
        </property>
       </widget>
      </item>
@@ -138,7 +138,7 @@
         <string>Clear</string>
        </property>
        <property name="text">
-        <string>Clear</string>
+        <string>Clear Resolved</string>
        </property>
       </widget>
      </item>

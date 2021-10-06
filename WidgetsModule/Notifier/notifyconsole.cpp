@@ -230,8 +230,8 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     filterModel->setSourceModel(viewModel);
     ui->TableIssues->setModel(filterModel);
 
-    ui->TableIssues->setItemDelegateForColumn(0, new DelegatesCheckBox(ui->TableIssues));
-    ui->TableIssues->setItemDelegateForColumn(2, new RichTextItemDelegate(ui->TableIssues));
+    ui->TableIssues->setItemDelegateForColumn(NotifyConsoleViewModel::C_CheckBox, new DelegatesCheckBox(ui->TableIssues));
+    ui->TableIssues->setItemDelegateForColumn(NotifyConsoleViewModel::C_Description, new RichTextItemDelegate(ui->TableIssues));
     ui->TableIssues->horizontalHeader()->resizeSection(0, 24);
     
     IsOpened.Subscribe([this]{

@@ -214,6 +214,8 @@
         <file>rc/backup-restore.svg</file>
         <file>rc/update.svg</file>
         <file>rc/calendar-month.svg</file>
+        <file>rc/eye.svg</file>
+        <file>rc/eye-off.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

@@ -147,3 +147,11 @@ NotifyConsole QPushButton#BtnCloseConsole{
 NotifyConsole QPushButton#BtnCloseConsole:pressed{
     border: none;
 }
+
+NotifyConsole QTableView::indicator:unchecked {
+    border-image: url(":/qss_icons/rc/eye.svg");
+}
+
+NotifyConsole QTableView::indicator:checked {
+    border-image: url(":/qss_icons/rc/eye-off.svg");
+}

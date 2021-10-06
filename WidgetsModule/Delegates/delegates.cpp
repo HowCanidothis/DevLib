@@ -239,7 +239,7 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
         checkboxstyle.state = QStyle::State_Off|QStyle::State_Enabled;
     }
 
-    QApplication::style()->drawControl(QStyle::CE_CheckBox,&checkboxstyle, painter);
+    QApplication::style()->drawControl(QStyle::CE_CheckBox,&checkboxstyle, painter, option.widget);
 }
 
 bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)

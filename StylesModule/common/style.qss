@@ -824,6 +824,14 @@ QColumnView {
   outline: none;
 }
 
+QTableView::indicator:unchecked {
+    border-image: url(":/qss_icons/rc/checkbox_unchecked.png");
+}
+
+QTableView::indicator:checked {
+    border-image: url(":/qss_icons/rc/checkbox_checked_focus.png");
+}
+
 QTreeView {
   qproperty-iconSize: 16px 19px;
 }
