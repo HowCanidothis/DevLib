@@ -353,7 +353,7 @@ QPushButton:hover {
   background: #189EF7;
 }
 
-WPSCDatetimePopupPicker QPushButton {
+WidgetsDatetimePopupPicker QPushButton {
   background-color: transparent;
 }
 
@@ -802,56 +802,56 @@ QAbstractView:selected {
   color: #3C3C3C;
 }
 
-WPSCDatetimePopupPicker {
+WidgetsDatetimePopupPicker {
   background: #252526;
 }
 
-WPSCTimeWidget QSpinBox {
+WidgetsTimeWidget QSpinBox {
   color: #F0F0F0;
   selection-color: #F0F0F0;
   background-color: transparent;
   border: none;
 }
 
-WPSCTimeWidget QSpinBox:focus {
+WidgetsTimeWidget QSpinBox:focus {
   border: none;
 }
 
-WPSCTimeWidget QSpinBox:hover {
+WidgetsTimeWidget QSpinBox:hover {
   border: none;
   
 }
 
-WPSCTimeWidget QLabel[splitter] {
+WidgetsTimeWidget QLabel[splitter] {
   color: #F0F0F0;
 }
 
-WPSCTimeWidget QPushButton {
+WidgetsTimeWidget QPushButton {
   background-color: transparent;
   color: #707070;
   border: none;
   font: bold 12px;
 }
 
-WPSCTimeWidget QPushButton:disabled {
+WidgetsTimeWidget QPushButton:disabled {
   background: transparent;
   color: #707070;
 }
 
-WPSCTimeWidget QPushButton[active = "true"] {
+WidgetsTimeWidget QPushButton[active = "true"] {
   background-color: transparent;
   color: #F0F0F0;
   border: none;
 }
 
-/* TimePicker */
-WPSCTimePicker {
+/* WidgetsTimePicker */
+WidgetsTimePicker {
   qproperty-clockColor: #252526;
   qproperty-arrowColor: #1976D2;
   qproperty-arrowWidth: 2;
 }
 
-WPSCTimePicker QLabel {
+WidgetsTimePicker QLabel {
   color: #F0F0F0;
   background-color: #1976D2;
   font: 14px;
@@ -892,11 +892,16 @@ QCalendarWidget QAbstractItemView:disabled
     color: rgb(64, 64, 64); 
 }
 
-WPSCWidgetsCalendarWidget
+WidgetsCalendarWidget
 { 
     qproperty-outOfRangeBorder: transparent;
     qproperty-outOfRangeColor: #404040;
     qproperty-outOfRangeBackground: transparent;
+}
+
+QCalendarWidget QAbstractItemView:disabled 
+{ 
+    color: white; 
 }
 
 QDateEdit::drop-down
@@ -905,7 +910,7 @@ QDateEdit::drop-down
     width: 16px;
 }
 
-WPSCDatetimePopupPicker QPushButton#CalendarButton
+WidgetsDatetimePopupPicker QPushButton#CalendarButton
 {
     qproperty-icon: url(":/qss_icons/rc/calendar-month.svg");
 }

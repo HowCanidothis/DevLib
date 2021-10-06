@@ -997,7 +997,7 @@ QPushButton#ResetButton
     background: transparent;
 }
 
-WPSCTimeWidget QSpinBox {
+WidgetsTimeWidget QSpinBox {
   
   font: 20px;
   max-height: 24px;
@@ -1006,33 +1006,33 @@ WPSCTimeWidget QSpinBox {
   selection-background-color: transparent;
 }
 
-WPSCTimeWidget QSpinBox::up-button {
+WidgetsTimeWidget QSpinBox::up-button {
   width: 0px;
 }
 
-WPSCTimeWidget QSpinBox::down-button {
+WidgetsTimeWidget QSpinBox::down-button {
   width: 0px;
 }
 
-WPSCTimeWidget QLabel[splitter] {
+WidgetsTimeWidget QLabel[splitter] {
   background-color: transparent;
   font: bold 20px;
 }
 
-WPSCTimePicker {
+WidgetsTimePicker {
   qproperty-labelSize: 26;
 }
 
-WPSCTimePicker QLabel {
+WidgetsTimePicker QLabel {
   font: bold;
   border-radius: 13px;
 }
 
-WPSCTimePicker QLabel:disabled {
+WidgetsTimePicker QLabel:disabled {
   background-color: transparent;
 }
 
-WPSCDateTimeWidget {
+WidgetsDateTimeWidget {
    padding: 6px;
 }
 

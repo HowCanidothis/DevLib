@@ -34,4 +34,7 @@ protected:
     DelayedCallObject m_retranslate;
 };
 
+#define TRANSLATED_PTR(handler, translators) \
+    ::make_shared<TranslatedString>([this]{ return handler; }, translators)
+
 #endif // TRANSLATORMANAGER_H

@@ -47,6 +47,12 @@
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "Widgets/widgetsimportview.h"
+#include "Widgets/DateTime/widgetsdatetimeedit.h"
+#include "Widgets/DateTime/widgetsdatetimepopuppicker.h"
+#include "Widgets/DateTime/widgetsdatetimewidget.h"
+#include "Widgets/DateTime/widgetstimepicker.h"
+#include "Widgets/DateTime/widgetstimewidget.h"
+#include "Widgets/DateTime/widgetscalendarwidget.h"
 
 #include "Managers/widgetsdialogsmanager.h"
 

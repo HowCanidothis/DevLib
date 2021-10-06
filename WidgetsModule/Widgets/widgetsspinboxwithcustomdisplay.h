@@ -19,6 +19,11 @@ public:
         m_valueFromTextHandler = valueFromTextHandler;
     }
 
+    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
+    {
+        m_textFromValueHandler = textFromValueHandler;
+    }
+
 private:
     QString textFromValue(int val) const override;
     qint32 valueFromText(const QString& text) const override;

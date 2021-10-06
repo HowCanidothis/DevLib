@@ -336,7 +336,7 @@ QPushButton:focus {
   border: 1px solid #1976D2;
 }
 
-WPSCDatetimePopupPicker QPushButton {
+WidgetsDatetimePopupPicker QPushButton {
   background-color: transparent;
 }
 
@@ -769,57 +769,57 @@ QAbstractView:selected {
   color: #D2D2D2;
 }
 
-QFrame#WPSCDatetimePopupPicker {
+QFrame#WidgetsDatetimePopupPicker {
   background: #F3F3F3;
 }
 
-WPSCTimeWidget QSpinBox {
+WidgetsTimeWidget QSpinBox {
   color: #707070;
   selection-color: #707070;
   background-color: transparent;
   border: none;
 }
 
-WPSCTimeWidget QSpinBox:focus {
+WidgetsTimeWidget QSpinBox:focus {
   border: none;
 }
 
-WPSCTimeWidget QSpinBox:hover {
+WidgetsTimeWidget QSpinBox:hover {
   border: none;
   
 }
 
-WPSCTimeWidget QLabel[splitter] {
+WidgetsTimeWidget QLabel[splitter] {
   color: #707070;
 }
 
-WPSCTimeWidget QPushButton {
+WidgetsTimeWidget QPushButton {
   background-color: transparent;
   color: #b8b8b8;
   border: none;
   font: bold 12px;
 }
 
-WPSCTimeWidget QPushButton:checked {
+WidgetsTimeWidget QPushButton:checked {
   background-color: transparent;
   color: #3c3c3c;
   border: none;
 }
 
-/* TimePicker */
-WPSCTimePicker {
+/* WidgetsTimePicker */
+WidgetsTimePicker {
   qproperty-clockColor: #e0e0e0;
   qproperty-arrowColor: #add6ff;
   qproperty-arrowWidth: 4;
 }
 
-WPSCTimePicker QLabel {
+WidgetsTimePicker QLabel {
   color: white;
   background-color: #add6ff;
   font: 14px;
 }
 
-WPSCTimePicker QLabel:disabled {
+WidgetsTimePicker QLabel:disabled {
   color: #3c3c3c;
 }
 
@@ -839,7 +839,7 @@ WPSCDailyReportView QPushButton#CalendarButton {
   background-color: transparent;
 }
 
-WPSCWidgetsCalendarWidget
+WidgetsCalendarWidget
 { 
     qproperty-outOfRangeBorder: transparent;
     qproperty-outOfRangeColor: #9d9d9d;
@@ -848,5 +848,5 @@ WPSCWidgetsCalendarWidget
 
 QCalendarWidget QAbstractItemView:disabled 
 { 
-    color: #9d9d9d; 
+    color: white; 
 }

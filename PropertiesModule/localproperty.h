@@ -474,7 +474,7 @@ class LocalPropertyDate : public LocalProperty<QDate>
 {
     using Super = LocalProperty<QDate>;
 public:
-    LocalPropertyDate(const QDate& value = QDate::currentDate(), const QDate& min = QDate::fromJulianDay(-784350574879), const QDate& max = QDate())
+    LocalPropertyDate(const QDate& value = QDate(), const QDate& min = QDate(), const QDate& max = QDate())
         : Super(applyRange(value, min, max))
         , m_min(min)
         , m_max(max)
@@ -500,7 +500,13 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    inline static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max) { return QDate::fromJulianDay(::clamp(cur.toJulianDay(), min.toJulianDay(), max.toJulianDay())); }
+    inline static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max)
+    {
+        if(!cur.isValid()) {
+            return cur;
+        }
+        return QDate::fromJulianDay(::clamp(cur.toJulianDay(), min.toJulianDay(), max.toJulianDay()));
+    }
     
     QDate applyMinMax(const QDate& value) const
     {
@@ -520,7 +526,7 @@ class LocalPropertyTime : public LocalProperty<QTime>
 {
     using Super = LocalProperty<QTime>;
 public:
-    LocalPropertyTime(const QTime& value = QTime::currentTime(), const QTime& min = QTime::fromMSecsSinceStartOfDay(0), const QTime& max = QTime())
+    LocalPropertyTime(const QTime& value = QTime(), const QTime& min = QTime(), const QTime& max = QTime())
         : Super(applyRange(value, min, max))
         , m_min(min)
         , m_max(max)
@@ -547,7 +553,13 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    inline static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max) { return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), min.msecsSinceStartOfDay(), max.msecsSinceStartOfDay())); }
+    inline static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max)
+    {
+        if(!cur.isValid()) {
+            return cur;
+        }
+        return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), min.msecsSinceStartOfDay(), max.msecsSinceStartOfDay()));
+    }
     
     QTime applyMinMax(const QTime& value) const
     {
@@ -567,15 +579,9 @@ private:
 class LocalPropertyDateTime : public LocalProperty<QDateTime>
 {
     using Super = LocalProperty<QDateTime>;
-public:
-    LocalPropertyDateTime(const QDateTime& value = QDateTime::currentDateTime(), const QDateTime& min = QDateTime::fromMSecsSinceEpoch(0))
-        : Super(value.isValid() ? applyRange(value, min, QDateTime::fromMSecsSinceEpoch((std::numeric_limits<qint64>::max)())) : value)
-        , m_min(min)
-    {
-    }
-    
-    LocalPropertyDateTime(const QDateTime& value, const QDateTime& min, const QDateTime& max)
-        : Super(value.isValid() ? applyRange(value, min, max) : value)
+public:        
+    LocalPropertyDateTime(const QDateTime& value = QDateTime(), const QDateTime& min = QDateTime(), const QDateTime& max = QDateTime())
+        : Super(applyRange(value, min, max))
         , m_min(min)
         , m_max(max)
     {
@@ -603,7 +609,13 @@ public:
     Dispatcher OnMinMaxChanged;
 
 private:
-    inline static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max) { return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), min.toMSecsSinceEpoch(), max.isValid() ? max.toMSecsSinceEpoch() : QDateTime::currentDateTime().toMSecsSinceEpoch())); }
+    inline static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max)
+    {
+        if(!cur.isValid()) {
+            return cur;
+        }
+        return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), min.toMSecsSinceEpoch(), max.isValid() ? max.toMSecsSinceEpoch() : QDateTime::currentDateTime().toMSecsSinceEpoch()));
+    }
     
     QDateTime applyMinMax(const QDateTime& value) const
     {
@@ -619,6 +631,33 @@ private:
     QDateTime m_min;
     QDateTime m_max;
 };
+
+template<class TimeProperty>
+class LocalPropertyDateTimeRange
+{
+public:
+    using T = typename TimeProperty::value_type;
+
+    static DispatcherConnections Bind(TimeProperty* start, TimeProperty* end)
+    {
+        DispatcherConnections result;
+        end->SetValidator([start](const T& dt){
+            if(start->IsRealTime()) {
+                return T();
+            }
+            return dt;
+        });
+        result += start->OnChange.Connect(end, [start, end]{
+            end->SetMinMax(*start, end->GetMax());
+        });
+        result += end->ConnectFrom(*start, [end](const T& dt){
+            return dt.isValid() ? end->Native() : T();
+        });
+
+        return result;
+    }
+};
+
 using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
 template<class Property>

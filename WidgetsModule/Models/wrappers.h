@@ -301,6 +301,13 @@ public:
         OnColumnsChanged({});
     }
 
+    void UpdateUi(const FAction& handler)
+    {
+        OnAboutToBeUpdated();
+        handler();
+        OnUpdated();
+    }
+
     void Update(const FAction& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
         OnAboutToBeUpdated();
