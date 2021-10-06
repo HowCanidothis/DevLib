@@ -606,24 +606,26 @@ public:
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
 
+    QDateTime GetMinValid() const { return validatedMin(m_min); }
+    QDateTime GetMaxValid() const { return validatedMax(m_max); }
+
     Dispatcher OnMinMaxChanged;
 
 private:
-    inline static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max)
+    static QDateTime validatedMin(const QDateTime& min) { return !min.isValid() ? QDateTime::currentDateTime().addYears(-1000) : min; }
+    static QDateTime validatedMax(const QDateTime& max) { return !max.isValid() ? QDateTime::currentDateTime().addYears(1000) : max; }
+
+    static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max)
     {
         if(!cur.isValid()) {
             return cur;
         }
-        return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), min.toMSecsSinceEpoch(), max.isValid() ? max.toMSecsSinceEpoch() : QDateTime::currentDateTime().toMSecsSinceEpoch()));
+        return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()));
     }
     
-    QDateTime applyMinMax(const QDateTime& value) const
-    {
-        return value.isValid() ? applyRange(value, m_min, m_max.isValid() ? m_max : QDateTime::currentDateTime()) : value;
-    }
     void validate(QDateTime& value) const override
     {
-        value = applyMinMax(value);
+        value = applyRange(value, m_min, m_max);
     }
 
 private:
@@ -647,12 +649,19 @@ public:
             }
             return dt;
         });
-        result += start->OnChange.Connect(end, [start, end]{
+
+        auto updateMinMax = [start, end]{
             end->SetMinMax(*start, end->GetMax());
-        });
+            start->SetMinMax(start->GetMin(), *end);
+        };
+
+        result += start->OnChange.Connect(end, updateMinMax);
+        result += end->OnChange.Connect(end, updateMinMax);
         result += end->ConnectFrom(*start, [end](const T& dt){
             return dt.isValid() ? end->Native() : T();
         });
+
+        updateMinMax();
 
         return result;
     }

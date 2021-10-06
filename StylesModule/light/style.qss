@@ -848,5 +848,5 @@ WidgetsCalendarWidget
 
 QCalendarWidget QAbstractItemView:disabled 
 { 
-    color: white; 
+    color: black; 
 }

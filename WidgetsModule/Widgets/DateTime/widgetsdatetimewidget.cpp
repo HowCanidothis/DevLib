@@ -22,6 +22,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
 	});
 
     auto updateTimeRangeHandler = [this]{
+        auto currentDateTime = QDateTime::currentDateTime();
         ui->calendarWidget->setSelectedDate(CurrentDateTime.Native().date());
         QTime start(0,0), end(23, 59);
 
@@ -32,7 +33,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
             end = CurrentDateTime.GetMax().time();
         }
         Q_ASSERT(!end.isValid() || start <= end);
-        ui->calendarWidget->setDateRange(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
+        ui->calendarWidget->setDateRange(CurrentDateTime.GetMinValid().date(), CurrentDateTime.GetMaxValid().date());
         ui->widget->CurrentTime.SetMinMax(start, end);
     };
 
