@@ -149,9 +149,9 @@ NotifyConsole QPushButton#BtnCloseConsole:pressed{
 }
 
 NotifyConsole QTableView::indicator:unchecked {
-    border-image: url(":/qss_icons/rc/eye.svg");
+    border-image: url(":/qss_icons/rc/eye-off.svg");
 }
 
 NotifyConsole QTableView::indicator:checked {
-    border-image: url(":/qss_icons/rc/eye-off.svg");
+    border-image: url(":/qss_icons/rc/eye.svg");
 }
