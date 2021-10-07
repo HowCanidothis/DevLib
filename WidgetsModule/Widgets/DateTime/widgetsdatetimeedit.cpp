@@ -9,7 +9,7 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
     : Super(parent)
     , m_recursionBlock(false)
 {
-    CurrentDateTime.SetAndSubscribe([this]{
+    auto update = [this]{
         if(m_recursionBlock) {
             return;
         }
@@ -19,7 +19,8 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
         setDisplayFormat(displayFormat());
         setDateTime(CurrentDateTime);
         StyleUtils::UpdateStyle(this);
-    });
+    };
+    CurrentDateTime.SetAndSubscribe(update);
 
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
@@ -28,7 +29,7 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
     });
 
     connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this]{
-        if(m_recursionBlock) {
+        if(m_recursionBlock || CurrentDateTime.IsRealTime()) {
             return;
         }
         guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
