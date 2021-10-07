@@ -321,22 +321,16 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalProperty<QDate> 
     });
 }
 
-LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty<QDateTime>* property, QDateTimeEdit* dateTime)
-    : Super([dateTime, property](){
-                dateTime->setDateTime(*property);
-            },
-            [dateTime, property](){
-                *property = dateTime->dateTime();
-            }
+LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime)
+    : Super([](){},
+            [](){}
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
+    property->ConnectBoth(dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(dateTime, &QDateTimeEdit::dateTimeChanged, [this](){
-        m_propertySetter();
-    });
+    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+        dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 #endif

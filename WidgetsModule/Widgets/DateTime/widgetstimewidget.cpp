@@ -98,8 +98,8 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     CurrentTime.OnMinMaxChanged.Connect(this, updateRange);
     
     auto updateButtonState = [this]{
-        ui->btnAM->setProperty("active", Type == DayType::AM);
-        ui->btnPM->setProperty("active", Type == DayType::PM);
+        ui->btnAM->setProperty("highlighted", Type == DayType::AM);
+        ui->btnPM->setProperty("highlighted", Type == DayType::PM);
         StyleUtils::UpdateStyle(ui->btnAM);
         StyleUtils::UpdateStyle(ui->btnPM);
     };

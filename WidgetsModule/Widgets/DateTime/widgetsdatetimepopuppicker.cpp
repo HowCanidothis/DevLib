@@ -27,11 +27,6 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     auto* menu = createPreventedFromClosingMenu(tr("DateTime"));
     auto* ac = new QWidgetAction(parent);
     m_editor = new WidgetsDateTimeWidget(parent);
-    m_editor->CurrentDateTime.ConnectBoth(ui->dateTimeEdit->IsValid, [](const QDateTime& dt) {
-        return dt.isValid();
-    }, [this](bool isValid){
-        return isValid ? m_editor->CurrentDateTime.Native() : QDateTime();
-    });
     
     ac->setDefaultWidget(m_editor);
     
@@ -46,7 +41,7 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     m_editor->CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
         ui->dateTimeEdit->setDateTimeRange(m_editor->CurrentDateTime.GetMinValid(), m_editor->CurrentDateTime.GetMaxValid());
     });
-    m_connectors.AddConnector<LocalPropertiesWidgetsDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
     m_editor->Locale.ConnectFrom(Locale);
     ui->dateTimeEdit->Locale.ConnectFrom(Locale);
     ui->dateTimeEdit->DisplayFormat.ConnectFrom(DisplayFormat);

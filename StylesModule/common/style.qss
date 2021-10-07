@@ -1027,6 +1027,27 @@ WidgetsTimeWidget QLabel[splitter] {
   font: bold 20px;
 }
 
+WidgetsTimeWidget QPushButton {
+  background-color: transparent;
+  border: none;
+}
+
+WidgetsTimeWidget QPushButton:pressed:hover {
+    border: none;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="true"] {
+  background-color: transparent;
+  font-size: 12px;
+  border: none;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="false"] {
+  background-color: transparent;
+  font-size: 10px;
+  border: none;
+}
+
 WidgetsTimePicker {
   qproperty-labelSize: 26;
 }

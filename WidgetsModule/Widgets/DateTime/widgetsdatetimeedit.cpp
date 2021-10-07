@@ -7,22 +7,39 @@
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
     : Super(parent)
-    , IsValid(true)
+    , m_recursionBlock(false)
 {
-    IsValid.SetAndSubscribe([this]{
-        setReadOnly(!IsValid);
-
-        if(!IsValid) {
-            setDisplayFormat(displayFormat());
+    CurrentDateTime.SetAndSubscribe([this]{
+        if(m_recursionBlock) {
+            return;
         }
+        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        setReadOnly(CurrentDateTime.IsRealTime());
+
+        setDisplayFormat(displayFormat());
+        setDateTime(CurrentDateTime);
         StyleUtils::UpdateStyle(this);
+    });
+
+    setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
+
+    CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
+        setDateTimeRange(CurrentDateTime.GetMinValid(), CurrentDateTime.GetMaxValid());
+    });
+
+    connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this]{
+        if(m_recursionBlock) {
+            return;
+        }
+        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        CurrentDateTime = dateTime();
     });
 
     WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
         if(event->type() == QEvent::KeyPress) {
             auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
             if(keyEvent->key() == Qt::Key_Delete) {
-                IsValid = false;
+                CurrentDateTime = QDateTime();
                 return true;
             }
         }
@@ -40,28 +57,10 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
 
 QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
 {
-    return IsValid ? Super::dateTimeFromText(text) : QDateTime();
+    return !CurrentDateTime.IsRealTime() ? Super::dateTimeFromText(text) : QDateTime();
 }
 
 QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
 {
-    return IsValid ? Super::textFromDateTime(dt) : "";
-}
-
-LocalPropertiesWidgetsDateTimeConnector::LocalPropertiesWidgetsDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime)
- : Super([dateTime, property](){
-            dateTime->setDateTime(*property);
-        },
-        [dateTime, property](){
-            *property = dateTime->IsValid ? dateTime->dateTime() : QDateTime();
-        }
-)
-{
-    property->GetDispatcher().Connect(this, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    m_connections.connect(dateTime, &QDateTimeEdit::dateTimeChanged, [this](){
-        m_propertySetter();
-    });
+    return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
 }

@@ -320,6 +320,7 @@ QPushButton:disabled {
 
 QPushButton:checked {
   background-color: #3C3C3C;
+  border: 1px solid #3C3C3C;
 }
 
 QPushButton:checked:disabled {
@@ -336,7 +337,6 @@ QPushButton:checked:selected {
 QPushButton:pressed {
   background-color: #1E1E1E;
   border: 1px solid #1E1E1E;
-  padding: 1px;
 }
 
 QPushButton:pressed:hover {
@@ -806,44 +806,6 @@ WidgetsDatetimePopupPicker {
   background: #252526;
 }
 
-WidgetsTimeWidget QSpinBox {
-  color: #F0F0F0;
-  selection-color: #F0F0F0;
-  background-color: transparent;
-  border: none;
-}
-
-WidgetsTimeWidget QSpinBox:focus {
-  border: none;
-}
-
-WidgetsTimeWidget QSpinBox:hover {
-  border: none;
-  
-}
-
-WidgetsTimeWidget QLabel[splitter] {
-  color: #F0F0F0;
-}
-
-WidgetsTimeWidget QPushButton {
-  background-color: transparent;
-  color: #707070;
-  border: none;
-  font: bold 12px;
-}
-
-WidgetsTimeWidget QPushButton:disabled {
-  background: transparent;
-  color: #707070;
-}
-
-WidgetsTimeWidget QPushButton[active = "true"] {
-  background-color: transparent;
-  color: #F0F0F0;
-  border: none;
-}
-
 /* WidgetsTimePicker */
 WidgetsTimePicker {
   qproperty-clockColor: #252526;
@@ -913,4 +875,40 @@ QDateEdit::drop-down
 WidgetsDatetimePopupPicker QPushButton#CalendarButton
 {
     qproperty-icon: url(":/qss_icons/rc/calendar-month.svg");
+}
+
+WidgetsTimeWidget QSpinBox {
+  color: #F0F0F0;
+  selection-color: #F0F0F0;
+  background-color: transparent;
+  border: none;
+}
+
+WidgetsTimeWidget QSpinBox:focus {
+  border: none;
+}
+
+WidgetsTimeWidget QSpinBox:hover {
+  border: none;
+}
+
+WidgetsTimeWidget QSpinBox:hover {
+  border: none;
+  
+}
+
+WidgetsTimeWidget QLabel[splitter] {
+  color: #707070;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="true"] {
+  color: white;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="false"]:hover {
+  color: white;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="false"] {
+  color: #707070;
 }

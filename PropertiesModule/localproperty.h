@@ -643,13 +643,6 @@ public:
     static DispatcherConnections Bind(TimeProperty* start, TimeProperty* end)
     {
         DispatcherConnections result;
-        end->SetValidator([start](const T& dt){
-            if(start->IsRealTime()) {
-                return T();
-            }
-            return dt;
-        });
-
         auto updateMinMax = [start, end]{
             end->SetMinMax(*start, end->GetMax());
             start->SetMinMax(start->GetMin(), *end);
@@ -657,9 +650,6 @@ public:
 
         result += start->OnChange.Connect(end, updateMinMax);
         result += end->OnChange.Connect(end, updateMinMax);
-        result += end->ConnectFrom(*start, [end](const T& dt){
-            return dt.isValid() ? end->Native() : T();
-        });
 
         updateMinMax();
 
