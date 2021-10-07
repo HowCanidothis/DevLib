@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>566</width>
+    <width>570</width>
     <height>229</height>
    </rect>
   </property>
@@ -74,6 +74,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="BtnShowErrors">
+       <property name="toolTip">
+        <string>Error Alerts</string>
+       </property>
        <property name="text">
         <string>Error Alerts</string>
        </property>
@@ -85,7 +88,7 @@
      <item>
       <widget class="QPushButton" name="BtnShowWarnings">
        <property name="toolTip">
-        <string>Show Warnings</string>
+        <string>Warning Alerts</string>
        </property>
        <property name="text">
         <string>Warning Alerts</string>
@@ -97,6 +100,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="BtnShowInfo">
+       <property name="toolTip">
+        <string>Success Alerts</string>
+       </property>
        <property name="text">
         <string>Success Alerts</string>
        </property>
@@ -135,7 +141,7 @@
      <item>
       <widget class="QPushButton" name="BtnClear">
        <property name="toolTip">
-        <string>Clear</string>
+        <string>Clear Resolved</string>
        </property>
        <property name="text">
         <string>Clear Resolved</string>
