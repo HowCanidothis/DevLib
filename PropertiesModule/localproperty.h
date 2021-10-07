@@ -497,20 +497,26 @@ public:
     const QDate& GetMin() const { return m_min; }
     const QDate& GetMax() const { return m_max; }
 
+    QDate GetMinValid() const { return validatedMin(m_min); }
+    QDate GetMaxValid() const { return validatedMax(m_max); }
+
     Dispatcher OnMinMaxChanged;
 
 private:
+    static QDate validatedMin(const QDate& min) { return !min.isValid() ? QDate::currentDate().addYears(-1000) : min; }
+    static QDate validatedMax(const QDate& max) { return !max.isValid() ? QDate::currentDate().addYears(1000) : max; }
+
     inline static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max)
     {
         if(!cur.isValid()) {
             return cur;
         }
-        return QDate::fromJulianDay(::clamp(cur.toJulianDay(), min.toJulianDay(), max.toJulianDay()));
+        return QDate::fromJulianDay(::clamp(cur.toJulianDay(), validatedMin(min).toJulianDay(), validatedMax(max).toJulianDay()));
     }
     
     QDate applyMinMax(const QDate& value) const
     {
-        return applyRange(value, m_min, m_max.isValid() ? m_max : QDate::currentDate());
+        return applyRange(value, m_min, m_max);
     }
     void validate(QDate& value) const override
     {

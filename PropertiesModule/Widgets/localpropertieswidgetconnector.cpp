@@ -303,22 +303,28 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
     }
 }
 
-LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalProperty<QDate> * property, QDateEdit * dateTime)
-    : Super([dateTime, property](){
-                dateTime->setDate(*property);
-            },
-            [dateTime, property](){
-                *property = dateTime->date();
-            }
+LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
+    : Super([](){},
+            [](){}
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
+    property->ConnectBoth(dateTime->CurrentDate, [](const QDate& dt){ return dt; }, [](const QDate& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(dateTime, &QDateEdit::dateChanged, [this](){
-        m_propertySetter();
-    });
+    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+        dateTime->CurrentDate.SetMinMax(property->GetMin(), property->GetMax());
+    }).MakeSafe(m_dispatcherConnections);
+}
+
+LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime)
+    : Super([](){},
+            [](){}
+    )
+{
+    property->ConnectBoth(dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+
+    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+        dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime)

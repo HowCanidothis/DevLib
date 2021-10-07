@@ -181,7 +181,8 @@ class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnect
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDateConnector(LocalProperty<QDate>* property, class QDateEdit* dateTime);
+    LocalPropertiesDateConnector(LocalPropertyDate* property, class WidgetsDateEdit* dateTime);
+    LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime);
 };
 
 class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetConnectorBase

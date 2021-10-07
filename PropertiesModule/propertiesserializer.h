@@ -203,6 +203,60 @@ struct SerializerXml<StateProperty>
 };
 
 template<>
+struct Serializer<LocalPropertyDate>
+{
+    typedef LocalPropertyDate target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_MinMaxProperties)) {
+            buffer << data.m_max;
+            buffer << data.m_min;
+        }
+        buffer << data.m_value;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_MinMaxProperties)) {
+            buffer << data.m_max;
+            buffer << data.m_min;
+        }
+
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            QDate value;
+            buffer << value;
+            data = value;
+        } else {
+            buffer << data.m_value;
+        }
+    }
+};
+template<>
+struct SerializerXml<LocalPropertyDate>
+{
+    using Type = LocalPropertyDate;
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
+    {
+        QDate value;
+        buffer << object.Mutate(value);
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            object.Value = value;
+        } else {
+            object.Value.EditSilent() = value;
+        }
+    }
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        const auto& value = object.Value.Native();
+        buffer << object.Mutate(const_cast<QDate&>(value));
+    }
+};
+
+template<>
 struct Serializer<LocalPropertyDateTime>
 {
     typedef LocalPropertyDateTime target_type;

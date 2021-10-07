@@ -736,20 +736,20 @@ QSplitter::handle:hover {
   background-color: #787878;
 }
 
-QDateEdit {
+WidgetsDateEdit {
   selection-background-color: #1976D2;
   border: 1px solid #D2D2D2;
 }
 
-QDateEdit:on {
+WidgetsDateEdit:on {
   selection-background-color: #1976D2;
 }
 
-QDateEdit::drop-down {
+WidgetsDateEdit::drop-down {
   border-left: 1px solid #D2D2D2;
 }
 
-QDateEdit QAbstractItemView {
+WidgetsDateEdit QAbstractItemView {
   background-color: #ffffff;
   border: 1px solid #D2D2D2;
   selection-background-color: #1976D2;

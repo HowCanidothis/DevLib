@@ -945,7 +945,7 @@ QSplitter::handle:vertical {
   image: url(":/qss_icons/rc/line_horizontal.png");
 }
 
-QDateEdit {
+WidgetsDateEdit {
   border-style: solid;
   border-radius: 4px;
   padding-top: 2px;
@@ -955,23 +955,23 @@ QDateEdit {
   min-width: 10px;
 }
 
-QDateEdit::drop-down {
+WidgetsDateEdit::drop-down {
   subcontrol-origin: padding;
   subcontrol-position: top right;
   width: 12px;
 }
 
-QDateEdit::down-arrow {
+WidgetsDateEdit::down-arrow {
   image: url(":/qss_icons/rc/arrow_down_disabled.png");
   height: 8px;
   width: 8px;
 }
 
-QDateEdit::down-arrow:on, QDateEdit::down-arrow:hover, QDateEdit::down-arrow:focus {
+WidgetsDateEdit::down-arrow:on, WidgetsDateEdit::down-arrow:hover, WidgetsDateEdit::down-arrow:focus {
   image: url(":/qss_icons/rc/arrow_down.png");
 }
 
-QDateEdit QAbstractItemView {
+WidgetsDateEdit QAbstractItemView {
   border-radius: 4px;
 }
 

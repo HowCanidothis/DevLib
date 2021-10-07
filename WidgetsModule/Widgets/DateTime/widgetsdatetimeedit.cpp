@@ -1,14 +1,36 @@
 #include "widgetsdatetimeedit.h"
 
 #include <QKeyEvent>
+#include <QCalendarWidget>
 
 #include "WidgetsModule/Utils/styleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
     : Super(parent)
-    , m_recursionBlock(false)
 {
+    init();
+}
+
+WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent)
+    : Super(date, type, parent)
+{
+    init();
+}
+
+QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
+{
+    return !CurrentDateTime.IsRealTime() ? Super::dateTimeFromText(text) : QDateTime();
+}
+
+QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
+{
+    return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
+}
+
+void WidgetsDateTimeEdit::init()
+{
+    m_recursionBlock = false;
     auto update = [this]{
         if(m_recursionBlock) {
             return;
@@ -49,6 +71,9 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
 
     Locale.Subscribe([this]{
         setLocale(Locale);
+        if(calendarWidget() != nullptr) {
+            calendarWidget()->setLocale(Locale);
+        }
     });
 
     DisplayFormat.Subscribe([this]{
@@ -56,12 +81,27 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
     });
 }
 
-QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
+WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
+    : Super(QDate(2000,1,1), QVariant::Date, parent)
 {
-    return !CurrentDateTime.IsRealTime() ? Super::dateTimeFromText(text) : QDateTime();
-}
+    CurrentDateTime.ConnectBoth(CurrentDate, [](const QDateTime& dateTime){
+        if(!dateTime.isValid()) {
+            return QDate();
+        }
+        return dateTime.date();
+    }, [](const QDate& date){
+        if(!date.isValid()) {
+            return QDateTime();
+        }
+        return QDateTime(date, QTime(0,0));
+    });
 
-QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
-{
-    return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
+    CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
+        CurrentDate.SetMinMax(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
+    });
+
+    CurrentDate.OnMinMaxChanged.Connect(this, [this]{
+        CurrentDateTime.SetMinMax(CurrentDate.GetMin().isValid() ? QDateTime(CurrentDate.GetMin(), QTime(0,0)) : QDateTime(),
+                                  CurrentDate.GetMax().isValid() ? QDateTime(CurrentDate.GetMax(), QTime(0,0)) : QDateTime());
+    });
 }

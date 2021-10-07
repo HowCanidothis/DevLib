@@ -773,20 +773,20 @@ QSplitter::handle:hover {
   background-color: #787878;
 }
 
-QDateEdit {
+WidgetsDateEdit {
   selection-background-color: #1976D2;
   border: 1px solid #3C3C3C;
 }
 
-QDateEdit:on {
+WidgetsDateEdit:on {
   selection-background-color: #1976D2;
 }
 
-QDateEdit::drop-down {
+WidgetsDateEdit::drop-down {
   border-left: 1px solid #3C3C3C;
 }
 
-QDateEdit QAbstractItemView {
+WidgetsDateEdit QAbstractItemView {
   background-color: #1E1E1E;
   border: 1px solid #3C3C3C;
   selection-background-color: #1976D2;
@@ -866,7 +866,7 @@ QCalendarWidget QAbstractItemView:disabled
     color: white; 
 }
 
-QDateEdit::drop-down
+WidgetsDateEdit::drop-down
 {
     image: url(":/qss_icons/rc/calendar-month.svg");
     width: 16px;
