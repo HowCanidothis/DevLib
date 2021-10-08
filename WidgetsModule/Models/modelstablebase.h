@@ -198,6 +198,7 @@ public:
         reference value() const { return operator*(); }
         bool operator==(const It& other) const { return !(operator !=(other)); }
         bool IsValid() const { return m_row >= 0 && m_row < m_cache->SortedData.Size(); }
+        qint32 GetRowIndex() const { return m_row; }
         const typename Wrapper::value_type& GetRow() const { Q_ASSERT(IsValid()); return m_searchComponent->m_wrapper->At(m_cache->SortedData[m_row]); }
         qint32 GetSourceRowIndex() const { Q_ASSERT(IsValid()); return m_cache->SortedData[m_row]; }
     };
@@ -251,7 +252,7 @@ public:
     iterator<T, Column> FindEqualOrLower(const T& value) const
     {
         auto foundIt = FindEqualOrGreater<T,Column>(value);
-        if(!foundIt.IsValid() || foundIt.value() != value) {
+        if(!foundIt.IsValid() || foundIt.value() > value) {
             --foundIt;
         }
         return foundIt;

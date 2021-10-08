@@ -83,6 +83,11 @@ public:
     // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
     DispatcherConnections Subscribe(const QVector<CommonDispatcher<>*>& dispatchers);
 
+    void operator()() = delete;
+
+    void InvokeDelayed();
+    void InvokeDirect();
+
 private:
     DelayedCallObject m_delayedCallObject;
 };

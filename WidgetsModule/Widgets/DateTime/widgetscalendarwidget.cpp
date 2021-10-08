@@ -11,6 +11,9 @@ WidgetsCalendarWidget::WidgetsCalendarWidget(QWidget* parent)
     };
     m_outOfRangeColor.Subscribe(updateHandler);
     m_outOfRangeBackground.Subscribe(updateHandler);
+    m_outOfRangeBorder.Subscribe(updateHandler);
+    m_selectedDatesBackground.Subscribe(updateHandler);
+    SelectedDates.Subscribe(updateHandler);
 }
 
 void WidgetsCalendarWidget::paintCell(QPainter* painter, const QRect& rect, const QDate& date) const
@@ -20,11 +23,17 @@ void WidgetsCalendarWidget::paintCell(QPainter* painter, const QRect& rect, cons
         return;
     }
 
-    if (date < minimumDate() || date > maximumDate()) {
+    auto backgroundColor = m_outOfRangeBackground.Native();
+
+    if(date != selectedDate() && SelectedDates.IsContains(date)) {
+        backgroundColor = m_selectedDatesBackground.Native();
+    }
+
+    if (date < minimumDate() || date > maximumDate() || backgroundColor != m_outOfRangeBackground) {
         painter->save();
         auto penColor = painter->pen().color();
         painter->setPen(m_outOfRangeBorder);
-        painter->setBrush(QBrush(m_outOfRangeBackground));
+        painter->setBrush(QBrush(backgroundColor));
         painter->drawRect(rect);
         if(m_outOfRangeColor != Qt::transparent) {
             painter->setPen(m_outOfRangeColor);

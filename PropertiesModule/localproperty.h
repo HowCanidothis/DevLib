@@ -607,8 +607,8 @@ public:
     LocalPropertyDateTime& operator+=(const QDateTime& value) { SetValue(Super::Native().addMSecs(value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator=(const QDateTime& value) { SetValue(value); return *this; }
     operator const QDateTime& () const { return Super::m_value; }
-    bool IsRealTime() const { return !m_value.isValid(); }
-    
+    bool IsRealTime() const { return !m_value.isValid(); }    
+
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
 
@@ -640,14 +640,13 @@ private:
     QDateTime m_max;
 };
 
-template<class TimeProperty>
+
 class LocalPropertyDateTimeRange
 {
 public:
-    using T = typename TimeProperty::value_type;
-
-    static DispatcherConnections Bind(TimeProperty* start, TimeProperty* end)
-    {
+    template<class DateOrTimeProperty>
+    static DispatcherConnections Bind(DateOrTimeProperty* start, DateOrTimeProperty* end)
+    {       
         DispatcherConnections result;
         auto updateMinMax = [start, end]{
             end->SetMinMax(*start, end->GetMax());
@@ -660,6 +659,93 @@ public:
         updateMinMax();
 
         return result;
+    }
+
+    template<class Date>
+    static bool IsSequential(const Date& dt1, const Date& dt2)
+    {
+        enum RangeFlags {
+            Dt1IsOpenDate = 0x1,
+            Dt2IsOpenDate = 0x2,
+
+            RangeNothingKnown = Dt1IsOpenDate | Dt2IsOpenDate,
+            RangeStartIsKnown = Dt2IsOpenDate,
+            RangeEndIsKnown = Dt1IsOpenDate,
+            RangeAllIsKnown = 0x0
+        };
+        auto flags = 0;
+        flags |= !dt1.isValid() ? Dt1IsOpenDate : 0;
+        flags |= !dt2.isValid() ? Dt2IsOpenDate : 0;
+        switch(flags)
+        {
+        case RangeEndIsKnown:
+        case RangeNothingKnown: return false;
+        case RangeStartIsKnown: return true;
+        case RangeAllIsKnown: return dt1 <= dt2;
+        default: Q_ASSERT(false); break;
+        }
+        return false;
+    }
+
+    template<typename DateOrTime>
+    static bool IsInRange(const DateOrTime& dt, const DateOrTime& start, const DateOrTime& end)
+    {
+        enum RangeFlags {
+            StartIsOpenDate = 0x1,
+            EndIsOpenDate = 0x2,
+
+            RangeOpenStart = StartIsOpenDate,
+            RangeFullyOpened = StartIsOpenDate | EndIsOpenDate,
+            RangeOpenEnd = EndIsOpenDate,
+            RangeFullyClosed = 0x0
+        };
+        auto flags = 0;
+        flags |= start.isValid() ? 0 : StartIsOpenDate;
+        flags |= end.isValid() ? 0 : EndIsOpenDate;
+        switch (flags) {
+        case RangeFullyOpened: return true;
+        case RangeOpenStart: return !dt.isValid() ? true : dt <= end;
+        case RangeOpenEnd: return !dt.isValid() ? true : dt >= start;
+        case RangeFullyClosed: return !dt.isValid() ? false : (dt >= start && dt <= end);
+        default: Q_ASSERT(false); break;
+        }
+        return false;
+    }
+
+    template<class Date>
+    static bool IsSequential(const Date& dt1, const Date& dt2, const Date& dt3)
+    {
+        enum RangeFlags {
+            Dt1IsOpenDate = 0x1,
+            Dt2IsOpenDate = 0x2,
+            Dt3IsOpenDate = 0x4,
+
+            RangeNothingKnown = Dt1IsOpenDate | Dt2IsOpenDate | Dt3IsOpenDate,
+            RangeMiddleKnown = Dt1IsOpenDate | Dt3IsOpenDate,
+            RangeStartIsKnown = Dt2IsOpenDate | Dt3IsOpenDate,
+            RangeEndIsKnown = Dt1IsOpenDate | Dt2IsOpenDate,
+            RangeStartMiddleIsKnown = Dt3IsOpenDate,
+            RangeStartEndIsKnown = Dt2IsOpenDate,
+            RangeMiddleEndIsKnown = Dt1IsOpenDate,
+            RangeAllIsKnown = 0x0
+        };
+        auto flags = 0;
+        flags |= !dt1.isValid() ? Dt1IsOpenDate : 0;
+        flags |= !dt2.isValid() ? Dt2IsOpenDate : 0;
+        flags |= !dt3.isValid() ? Dt3IsOpenDate : 0;
+        switch(flags)
+        {
+        case RangeNothingKnown:
+        case RangeMiddleKnown:
+        case RangeStartIsKnown:
+        case RangeStartEndIsKnown:
+        case RangeMiddleEndIsKnown:
+        case RangeEndIsKnown: return false;
+        case RangeStartMiddleIsKnown: return dt2 >= dt1;
+        case RangeAllIsKnown: return dt1 <= dt2 && dt2 <= dt3;
+        default: Q_ASSERT(false); break;
+        }
+        return false;
     }
 };
 

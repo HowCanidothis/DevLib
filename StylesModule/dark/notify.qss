@@ -18,3 +18,8 @@ NotifyConsole QPushButton#BtnShowErrors:hover {
 NotifyConsole QPushButton#BtnShowWarnings:hover {
     background: #505050;
 }
+
+NotifyConsole QTableView{
+    margin-left: 9px;
+    margin-right: 9px;
+}

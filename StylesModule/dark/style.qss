@@ -859,6 +859,7 @@ WidgetsCalendarWidget
     qproperty-outOfRangeBorder: transparent;
     qproperty-outOfRangeColor: #404040;
     qproperty-outOfRangeBackground: transparent;
+    qproperty-selectedDatesBackground: #CDDC39;
 }
 
 QCalendarWidget QAbstractItemView:disabled 

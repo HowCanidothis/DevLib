@@ -987,13 +987,13 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
 }
 
-QPushButton#PrevDay
+QPushButton#btnPrevDay
 {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
     background: transparent;
 }
 
-QPushButton#NextDay
+QPushButton#btnNextDay
 {
     qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
     background: transparent;
