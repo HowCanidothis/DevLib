@@ -125,6 +125,25 @@ struct Serializer<QImage>
     }
 };
 
+template<>
+struct Serializer<QMatrix4x4>
+{
+    typedef QMatrix4x4 target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << PlainData(data.data(), sizeof(float) * 16);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        float values[16];
+        buffer << PlainData(values, sizeof(values));
+        data = QMatrix4x4(values);
+    }
+};
+
 template<class T, class T2>
 struct Serializer<QMap<T, T2>>
 {

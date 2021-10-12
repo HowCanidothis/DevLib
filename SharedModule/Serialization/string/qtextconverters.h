@@ -4,6 +4,7 @@
 #include <QUrl>
 #ifdef QT_GUI_LIB
 #include <QColor>
+#include <QMatrix4x4>
 #endif
 
 #include "textconvertercontext.h"
@@ -288,6 +289,37 @@ struct TextConverter<QPoint>
         }
 
         return result;
+    }
+};
+
+template <>
+struct TextConverter<QMatrix4x4>
+{
+    using value_type = QMatrix4x4;
+    static QString ToText(const value_type& value, const TextConverterContext& context)
+    {
+        QString result;
+        result += "[";
+        for(qint32 i(0); i < 16; i++) {
+            result += "(" + TextConverter<float>::ToText(value.constData()[i], context) + ")";
+        }
+        result += "]";
+        return result;
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        static QRegExp regExp(R"(\(([^\)]+)\))");
+        qint32 pos = 0;
+        value_type result;
+        float values[16];
+        qint32 index = 0;
+        while((pos = regExp.indexIn(string, pos)) != -1) {
+            values[index] = TextConverter<float>::FromText(regExp.cap(1));
+            pos += regExp.matchedLength();
+            index++;
+        }
+        return QMatrix4x4(values);
     }
 };
 
