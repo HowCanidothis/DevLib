@@ -2,13 +2,49 @@
 
 WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
-    , m_textFromValueHandler([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value) -> QString { return QString::number(value); })
-    , m_valueFromTextHandler([](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> qint32 { return ::clamp(text.toInt(), spin->minimum(), spin->maximum()); })
+    , m_textFromValueHandler(GetDefaultTextFromValueHandler())
+    , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
+    , m_emptyInputIsValid(false)
 {}
+
+const WidgetsSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
+{
+    static ValueFromTextHandler result = [](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> qint32 { return ::clamp(text.toInt(), spin->minimum(), spin->maximum()); };
+    return result;
+}
+
+const WidgetsSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsSpinBoxWithCustomDisplay::GetDefaultTextFromValueHandler()
+{
+    static TextFromValueHandler result = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value) -> QString { return QString::number(value); };
+    return result;
+}
 
 QString WidgetsSpinBoxWithCustomDisplay::textFromValue(int val) const
 {
     return m_textFromValueHandler(this, val);
+}
+
+DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)
+{
+    SetTextFromValueHandler([valid](const WidgetsSpinBoxWithCustomDisplay* spin, double value) -> QString {
+        if(!*valid) {
+            return "-";
+        }
+        return GetDefaultTextFromValueHandler()(spin, value);
+    });
+
+    SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(text.isEmpty()) {
+            *valid = false;
+            return value();
+        }
+        return GetDefaultValueFromTextHandler()(spin, text);
+    });
+
+    m_emptyInputIsValid = true;
+    return valid->OnChange.Connect(this, [this]{
+        setDisplayIntegerBase(displayIntegerBase());
+    });
 }
 
 qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
@@ -21,7 +57,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
     static QRegExp regExp(R"((\d+\.?\d*))");
 
     if(input.isEmpty() || (input.size() == 1 && input.startsWith("-"))) {
-        return QValidator::Intermediate;
+        return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
     }
 
     QString inputCopy = input;
@@ -40,6 +76,7 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
+    , m_emptyInputIsValid(true)
 {}
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
@@ -63,6 +100,15 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
+    SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(text.isEmpty()) {
+            *valid = false;
+            return value();
+        }
+        return GetDefaultValueFromTextHandler()(spin, text);
+    });
+
+    m_emptyInputIsValid = true;
     return valid->OnChange.Connect(this, [this]{
         setDecimals(decimals());
     });
@@ -82,6 +128,10 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
 {
     static QRegExp regExp(R"((\d+\.?\d*))");
     
+    if(input.isEmpty()) {
+        return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
+    }
+
     if(input.isEmpty() || (input.size() == 1 && input.startsWith("-")) || input.startsWith(".") || input.startsWith(",")) {
         return QValidator::Intermediate;
     }

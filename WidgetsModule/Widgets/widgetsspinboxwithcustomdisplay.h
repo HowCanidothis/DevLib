@@ -13,6 +13,9 @@ public:
     using TextFromValueHandler = std::function<QString (const WidgetsSpinBoxWithCustomDisplay* spinBox, qint32)>;
     WidgetsSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
 
+    static const ValueFromTextHandler& GetDefaultValueFromTextHandler();
+    static const TextFromValueHandler& GetDefaultTextFromValueHandler();
+
     void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
     {
         m_textFromValueHandler = textFromValueHandler;
@@ -24,6 +27,13 @@ public:
         m_textFromValueHandler = textFromValueHandler;
     }
 
+    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
+    {
+        m_valueFromTextHandler = valueFromTextHandler;
+    }
+
+    DispatcherConnection MakeOptional(LocalPropertyBool* valid);
+
 private:
     QString textFromValue(int val) const override;
     qint32 valueFromText(const QString& text) const override;
@@ -32,6 +42,7 @@ private:
 private:
     TextFromValueHandler m_textFromValueHandler;
     ValueFromTextHandler m_valueFromTextHandler;
+    bool m_emptyInputIsValid;
 };
 
 class WidgetsDoubleSpinBoxWithCustomDisplay : public QDoubleSpinBox
@@ -71,6 +82,7 @@ private:
 private:
     TextFromValueHandler m_textFromValueHandler;
     ValueFromTextHandler m_valueFromTextHandler;
+    bool m_emptyInputIsValid;
 };
 
 #endif // WIDGETSSPINBOXWITHCUSTOMDISPLAY_H

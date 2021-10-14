@@ -767,6 +767,7 @@ struct LocalPropertyOptional
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
+using LocalPropertyIntOptional = LocalPropertyOptional<LocalPropertyInt>;
 
 struct PropertyFromLocalProperty
 {

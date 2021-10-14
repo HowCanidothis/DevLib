@@ -138,17 +138,20 @@ class _Export LocalPropertiesSpinBoxConnector : public LocalPropertiesWidgetConn
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, class QSpinBox* spinBox);
+#ifdef WIDGETS_MODULE_LIB
+    LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, class WidgetsSpinBoxWithCustomDisplay* spinBox);
+#endif
 };
 
 class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, double presicion = 0.009);
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, float presicion = 0.009f);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
 
 #ifdef WIDGETS_MODULE_LIB
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, class WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double presicion = 0.009);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, class WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
 #endif
 };
 

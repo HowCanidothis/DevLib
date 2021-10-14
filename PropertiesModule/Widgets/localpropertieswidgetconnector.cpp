@@ -158,19 +158,27 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 
 #include <WidgetsModule/internal.hpp>
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double presicion)
-    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, presicion)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox)
 {
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
+
+LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, WidgetsSpinBoxWithCustomDisplay* spinBox)
+    : LocalPropertiesSpinBoxConnector(&property->Value, spinBox)
+{
+    spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
+}
+
 #endif
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, double presicion)
-    : Super([spinBox, property, presicion](){
-                if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), presicion) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), presicion)) {
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
+    : Super([spinBox, property](){
+                auto precision = epsilon(spinBox->decimals());
+                if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), precision)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }
-                if(!fuzzyCompare(spinBox->value(), *property, presicion)) {
+                if(!fuzzyCompare(spinBox->value(), *property, precision)) {
                     spinBox->setValue(*property);
                 }
             },
@@ -192,12 +200,13 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     });
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, float presicion)
-    : Super([spinBox, property, presicion](){
-                if(!fuzzyCompare((float)spinBox->minimum(), property->GetMin(), presicion) || !fuzzyCompare((float)spinBox->maximum(), property->GetMax(), presicion)) {
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
+    : Super([spinBox, property](){
+                float precision = epsilon(spinBox->decimals());
+                if(!fuzzyCompare((float)spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare((float)spinBox->maximum(), property->GetMax(), precision)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }
-                if(!fuzzyCompare((float)spinBox->value(), *property, presicion)) {
+                if(!fuzzyCompare((float)spinBox->value(), *property, precision)) {
                     spinBox->setValue(*property);
                 }
             },

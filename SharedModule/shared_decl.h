@@ -117,6 +117,11 @@ namespace sm_internal
     inline constexpr auto power_of_v = power_of<B, E, T>::value;
 }
 
+inline double epsilon(int decimals)
+{
+    return 1.0 / pow(10, decimals);
+}
+
 inline double round(double value, int decimals)
 {
     return std::round(value * decimals) / decimals;
