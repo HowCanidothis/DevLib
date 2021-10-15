@@ -16,6 +16,31 @@ ModelsTableBase::~ModelsTableBase()
     }
 }
 
+QVariant ModelsTableBase::data(const QModelIndex& index, qint32 role) const
+{
+    if(!index.isValid()) {
+        return QVariant();
+    }
+
+    auto foundIt = m_roleDataHandlers.find(role);
+    if(foundIt == m_roleDataHandlers.end()) {
+        return QVariant();
+    }
+    return foundIt.value()(index.row(), index.column());
+}
+
+bool ModelsTableBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)
+{
+    if(!index.isValid()) {
+        return false;
+    }
+    auto foundIt = m_roleSetDataHandlers.find(role);
+    if(foundIt == m_roleSetDataHandlers.end()) {
+        return false;
+    }
+    return foundIt.value()(index.row(), index.column(), data);
+}
+
 void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
 {
     beginResetModel();

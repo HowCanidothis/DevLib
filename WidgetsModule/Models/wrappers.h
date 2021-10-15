@@ -364,6 +364,20 @@ public:
         OnColumnsChanged(affectedColumns);
     }
 
+    bool EditWithCheck(qint32 index, const std::function<FAction (value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
+    {
+        auto updateFunction = handler(Super::operator[](index));
+        if(updateFunction != nullptr) {
+            OnAboutToChangeRows(index, 1);
+            updateFunction();
+            OnRowsChanged(index, 1, affectedColumns);
+            OnChanged();
+            OnColumnsChanged(affectedColumns);
+            return true;
+        }
+        return false;
+    }
+
     qint32 IndexOf(const value_type& value) const
     {
         return Super::indexOf(value);

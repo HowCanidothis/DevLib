@@ -752,6 +752,21 @@ public:
 using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
 template<class Property>
+void LocalPropertySetFromVariant(Property& value, const QVariant&);
+
+template<>
+inline void LocalPropertySetFromVariant<LocalPropertyDouble>(LocalPropertyDouble& property, const QVariant& value)
+{
+    property = value.toDouble();
+}
+
+template<>
+inline void LocalPropertySetFromVariant<LocalPropertyInt>(LocalPropertyInt& property, const QVariant& value)
+{
+    property = value.toInt();
+}
+
+template<class Property>
 struct LocalPropertyOptional
 {
     Property Value;
@@ -764,6 +779,16 @@ struct LocalPropertyOptional
             IsValid = true;
         });
     }
+
+    void FromVariant(const QVariant& value)
+    {
+        if(!value.isValid()) {
+            IsValid = false;
+        } else {
+            LocalPropertySetFromVariant(Value, value);
+        }
+    }
+    QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;

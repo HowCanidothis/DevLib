@@ -109,13 +109,6 @@ public:
         }
     }
     
-    int rowCount(const QModelIndex&) const override
-    {
-        if(GetData() == nullptr) {
-            return 0;
-        }
-        return GetData()->GetSize();
-    }
     int columnCount(const QModelIndex&) const override
     {
         return C_Count;

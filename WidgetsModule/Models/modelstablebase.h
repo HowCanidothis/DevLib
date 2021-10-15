@@ -13,6 +13,9 @@ public:
     ModelsTableBase(QObject* parent = nullptr);
     ~ModelsTableBase();
 
+    QVariant data(const QModelIndex& index, qint32 role) const override;
+    bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
+
     void SetData(const ModelsTableWrapperPtr& data);
     const ModelsTableWrapperPtr& GetData() const { return m_data; }
 
@@ -21,6 +24,8 @@ protected:
     IconsSvgIcon m_errorIcon;
     IconsSvgIcon m_warningIcon;
     IconsSvgIcon m_infoIcon;
+    QHash<qint32, std::function<QVariant (qint32 row, qint32 column)>> m_roleDataHandlers;
+    QHash<qint32, std::function<bool (qint32 row, qint32 column, const QVariant&)>> m_roleSetDataHandlers;
 };
 
 template<class T>
@@ -28,14 +33,25 @@ class TModelsTableBase : public ModelsTableBase
 {
     using Super = ModelsTableBase;
 public:
+    enum VirtualRowsMode{
+        NoVirtualRows = 0,
+        AddVirtualRowToLast
+    };
+
     using Super::Super;
 
-	bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+    void SetMode(VirtualRowsMode mode) { m_virtualRowsMode = mode; }
+
+    qint32 rowCount(const QModelIndex&  = QModelIndex()) const override
+    {
+        return GetData() != nullptr ? (GetData()->GetSize() + m_virtualRowsMode) : 0;
+    }
+    bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
 		GetData()->Insert(row, count);
 		return true;
 	}
-	bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+    bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
 		QSet<qint32> indexs;
 		while(count){
@@ -58,6 +74,7 @@ public:
 	
 private:
 	DispatcherConnectionsSafe m_connections;
+    VirtualRowsMode m_virtualRowsMode = NoVirtualRows;
 };
 
 template<class Wrapper>
@@ -89,7 +106,6 @@ class TModelsDecoratedTable : public TModelsTableBase<Wrapper>
 public:
     using Super::Super;
 
-    qint32 rowCount(const QModelIndex&  = QModelIndex()) const override { return Super::GetData() != nullptr ? Super::GetData()->GetSize() : 0; }
     qint32 columnCount(const QModelIndex&  = QModelIndex()) const override { return Wrapper::value_type::count; }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {

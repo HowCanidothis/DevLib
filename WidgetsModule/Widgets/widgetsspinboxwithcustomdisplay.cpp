@@ -60,6 +60,10 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
         return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
     }
 
+    if(input.size() == 1 && input.startsWith("-")) {
+        return QValidator::Intermediate;
+    }
+
     QString inputCopy = input;
     if(input.startsWith("-")) {
         inputCopy = input.mid(1);
