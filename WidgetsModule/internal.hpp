@@ -9,6 +9,7 @@
 #include "Models/wrappers.h"
 #include "Models/modelstablebase.h"
 #include "Models/modelslistbase.h"
+#include "Models/modelserrorscomponents.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"

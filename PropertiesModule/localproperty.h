@@ -17,15 +17,17 @@ class LocalProperty
 {
     using FSetter = std::function<void ()>;
     using FSetterHandler = std::function<void (const FSetter&)>;
+
+public:
     using FValidator = std::function<T (const T&)>;
+    using value_type = T;
+
 protected:
     StorageType m_value;
     FSetterHandler m_setterHandler;
     FValidator m_validator;
 
 public:
-    using value_type = T;
-
     LocalProperty()
         : m_setterHandler([](const FSetter& setter){
             setter();
@@ -257,7 +259,7 @@ public:
         Q_ASSERT(0<= Super::m_value && Super::m_value < GetNames().size());
         return GetNames()[Super::m_value];
     }
-    QStringList GetNames() const { return EnumHelper<Enum>::GetNames(); }
+    const QStringList& GetNames() const;
 };
 
 template<class T>
@@ -751,24 +753,27 @@ public:
 
 using PropertyFromLocalPropertyContainer = QVector<SharedPointer<Property>>;
 
-template<class Property>
-void LocalPropertySetFromVariant(Property& value, const QVariant&);
+template<class Property, class Validator = typename Property::FValidator>
+void LocalPropertySetFromVariant(Property& value, const QVariant&, const Validator& handler);
 
 template<>
-inline void LocalPropertySetFromVariant<LocalPropertyDouble>(LocalPropertyDouble& property, const QVariant& value)
+inline void LocalPropertySetFromVariant<LocalPropertyDouble>(LocalPropertyDouble& property, const QVariant& value, const LocalPropertyDouble::FValidator& handler)
 {
-    property = value.toDouble();
+    property = handler(value.toDouble());
 }
 
 template<>
-inline void LocalPropertySetFromVariant<LocalPropertyInt>(LocalPropertyInt& property, const QVariant& value)
+inline void LocalPropertySetFromVariant<LocalPropertyInt>(LocalPropertyInt& property, const QVariant& value, const LocalPropertyInt::FValidator& handler)
 {
-    property = value.toInt();
+    property = handler(value.toInt());
 }
 
 template<class Property>
 struct LocalPropertyOptional
 {
+    using FValidator = typename Property::FValidator;
+    using value_type = typename Property::value_type;
+
     Property Value;
     LocalPropertyBool IsValid;
 
@@ -780,15 +785,16 @@ struct LocalPropertyOptional
         });
     }
 
-    void FromVariant(const QVariant& value)
+    void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {
         if(!value.isValid()) {
             IsValid = false;
         } else {
-            LocalPropertySetFromVariant(Value, value);
+            LocalPropertySetFromVariant(Value, value, handler);
         }
     }
-    QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
+    QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
+    QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;

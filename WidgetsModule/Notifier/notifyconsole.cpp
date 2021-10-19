@@ -133,9 +133,9 @@ public:
         case Qt::DecorationRole:
             if(index.column() == C_Icon) {
                 switch(GetData()->At(index.row())->Data->Type) {
-                case NotifyManager::Warning: return m_warningIcon;
-                case NotifyManager::Error: return m_errorIcon;
-                case NotifyManager::Info: return m_infoIcon;
+                case NotifyManager::Warning: return m_iconsContext.WarningIcon;
+                case NotifyManager::Error: return m_iconsContext.ErrorIcon;
+                case NotifyManager::Info: return m_iconsContext.InfoIcon;
                 default: break;
                 }
             }

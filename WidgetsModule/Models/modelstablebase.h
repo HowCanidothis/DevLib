@@ -6,6 +6,17 @@
 #include "wrappers.h"
 #include "WidgetsModule/Utils/iconsmanager.h"
 
+struct ModelsIconsContext
+{
+    IconsSvgIcon ErrorIcon;
+    IconsSvgIcon WarningIcon;
+    IconsSvgIcon InfoIcon;
+
+private:
+    friend class ModelsTableBase;
+    ModelsIconsContext();
+};
+
 class ModelsTableBase : public QAbstractTableModel
 {
     using Super = QAbstractTableModel;
@@ -15,16 +26,18 @@ public:
 
     QVariant data(const QModelIndex& index, qint32 role) const override;
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
+    QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
 
     void SetData(const ModelsTableWrapperPtr& data);
     const ModelsTableWrapperPtr& GetData() const { return m_data; }
+    const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
 protected:
     ModelsTableWrapperPtr m_data;
-    IconsSvgIcon m_errorIcon;
-    IconsSvgIcon m_warningIcon;
-    IconsSvgIcon m_infoIcon;
+    ModelsIconsContext m_iconsContext;
     QHash<qint32, std::function<QVariant (qint32 row, qint32 column)>> m_roleDataHandlers;
+    QHash<qint32, std::function<QVariant (qint32 column)>> m_roleHorizontalHeaderDataHandlers;
+    QHash<qint32, std::function<QVariant (qint32 column)>> m_roleVerticalHeaderDataHandlers;
     QHash<qint32, std::function<bool (qint32 row, qint32 column, const QVariant&)>> m_roleSetDataHandlers;
 };
 
@@ -33,18 +46,11 @@ class TModelsTableBase : public ModelsTableBase
 {
     using Super = ModelsTableBase;
 public:
-    enum VirtualRowsMode{
-        NoVirtualRows = 0,
-        AddVirtualRowToLast
-    };
-
     using Super::Super;
-
-    void SetMode(VirtualRowsMode mode) { m_virtualRowsMode = mode; }
 
     qint32 rowCount(const QModelIndex&  = QModelIndex()) const override
     {
-        return GetData() != nullptr ? (GetData()->GetSize() + m_virtualRowsMode) : 0;
+        return GetData() != nullptr ? GetData()->GetSize() : 0;
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
@@ -71,10 +77,9 @@ public:
 	
     void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
     const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
-	
+
 private:
 	DispatcherConnectionsSafe m_connections;
-    VirtualRowsMode m_virtualRowsMode = NoVirtualRows;
 };
 
 template<class Wrapper>

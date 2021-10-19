@@ -2,9 +2,6 @@
 
 ModelsTableBase::ModelsTableBase(QObject* parent)
     : Super(parent)
-    , m_errorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
-    , m_warningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
-    , m_infoIcon(IconsManager::GetInstance().GetIcon("InfoIcon"))
 {
 
 }
@@ -41,6 +38,23 @@ bool ModelsTableBase::setData(const QModelIndex& index, const QVariant& data, qi
     return foundIt.value()(index.row(), index.column(), data);
 }
 
+QVariant ModelsTableBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
+{
+    if(orientation == Qt::Horizontal) {
+        auto foundIt = m_roleHorizontalHeaderDataHandlers.find(role);
+        if(foundIt == m_roleHorizontalHeaderDataHandlers.end()) {
+            return QVariant();
+        }
+        return foundIt.value()(section);
+    } else {
+        auto foundIt = m_roleVerticalHeaderDataHandlers.find(role);
+        if(foundIt == m_roleVerticalHeaderDataHandlers.end()) {
+            return QVariant();
+        }
+        return foundIt.value()(section);
+    }
+}
+
 void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
 {
     beginResetModel();
@@ -52,4 +66,12 @@ void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
         m_data->ConnectModel(this);
     }
     endResetModel();
+}
+
+ModelsIconsContext::ModelsIconsContext()
+    : ErrorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
+    , WarningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
+    , InfoIcon(IconsManager::GetInstance().GetIcon("InfoIcon"))
+{
+
 }

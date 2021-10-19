@@ -1,5 +1,12 @@
 #include "translatormanager.h"
 
+TranslatorManager::TranslatorManager()
+{
+    OnLanguageChanged += { this, [this]{
+        m_names.clear();
+    } };
+}
+
 TranslatorManager& TranslatorManager::GetInstance()
 {
     static TranslatorManager result;

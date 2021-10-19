@@ -6,12 +6,33 @@
 
 class TranslatorManager
 {
-    TranslatorManager(){}
+    TranslatorManager();
 public:
     static TranslatorManager& GetInstance();
 
+    template<class T>
+    const QStringList& GetEnumNames()
+    {
+        THREAD_ASSERT_IS_MAIN();
+        Name name(typeid (T).name());
+        auto foundIt = m_names.find(name);
+        if(foundIt == m_names.end()) {
+            foundIt = m_names.insert(name, EnumHelper<T>::GetNames());
+        }
+        return foundIt.value();
+    }
+
     Dispatcher OnLanguageChanged;
+
+private:
+    QHash<Name, QStringList> m_names;
 };
+
+template<typename Enum>
+inline const QStringList& LocalPropertySequentialEnum<Enum>::GetNames() const
+{
+    return TranslatorManager::GetInstance().GetEnumNames<Enum>();
+}
 
 class TranslatedString : public LocalPropertyString
 {
@@ -36,5 +57,8 @@ protected:
 
 #define TRANSLATED_PTR(handler, translators) \
     ::make_shared<TranslatedString>([this]{ return handler; }, translators)
+
+#define TRANSLATED_PTR_1(handler) \
+    ::make_shared<TranslatedString>([]{ return handler; })
 
 #endif // TRANSLATORMANAGER_H
