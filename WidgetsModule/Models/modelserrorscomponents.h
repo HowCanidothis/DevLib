@@ -34,22 +34,26 @@ public:
     LocalPropertyInt ErrorFilter;
     QHash<Name, qint32> AttachedErrors;
 
-    bool HasError(const T& value, qint32 errorFlags) const
+    template<class T2>
+    bool HasError(const T2& value, qint32 errorFlags) const
     {
         return value.StateError & ErrorFilter & errorFlags;
     }
 
-    QVariant WarningIcon(const T& value, qint32 errorFlags, const struct ModelsIconsContext& iconsContext) const
+    template<class T2>
+    QVariant WarningIcon(const T2& value, qint32 errorFlags, const struct ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.WarningIcon) : QVariant();
     }
 
-    QVariant ErrorIcon(const T& value, qint32 errorFlags, const ModelsIconsContext& iconsContext) const
+    template<class T2>
+    QVariant ErrorIcon(const T2& value, qint32 errorFlags, const ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.ErrorIcon) : QVariant();
     }
 
-    QString ErrorString(const T& value, qint32 errorFlag) const
+    template<class T2>
+    QString ErrorString(const T2& value, qint32 errorFlag) const
     {
         if(!HasError(value, errorFlag)) {
             return QString();
@@ -61,7 +65,8 @@ public:
         return QString();
     }
 
-    QString ErrorString(const T& value, const QVector<qint32>& sequence) const
+    template<class T2>
+    QString ErrorString(const T2& value, const QVector<qint32>& sequence) const
     {
         for(auto error : sequence) {
             auto errorString = ErrorString(value, error);
@@ -123,21 +128,25 @@ public:
         }
     }
 
-    void Initialize(const WrapperPtr& wrapper) {
-        m_updateHandler = [this, wrapper]{
+    void Initialize(const WrapperPtr& wrapper, const std::function<qint32& (T& data)>& flagsGetter =
+            [](T& data) {
+                return data.StateError;
+            })
+    {
+        m_updateHandler = [this, wrapper, flagsGetter]{
             if(wrapper->IsEmpty()) {
                 ErrorState = 0;
                 return;
             }
 
             auto errorState = 0;
-            wrapper->UpdateUi([&errorState, wrapper, this]{
+            wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter]{
                 auto& native = wrapper->EditSilent();
                 auto prev = native.begin();
                 for(const auto& [code, handler] : m_errorPerRowHandlers) {
                     auto& data = *prev;
-                    auto& flags = data.StateError;
-                    flags.ChangeFromBoolean(code, !handler(data));
+                    auto& flags = flagsGetter(data);
+                    flags |= !handler(data) ? code : 0;
                     errorState |= flags;
                 }
                 if((*prev).HasCriticalError()) {
@@ -146,12 +155,12 @@ public:
                 for(auto nextIt(native.begin() + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
                     auto& prevData = *prev;
                     auto& nextData = *nextIt;
-                    auto& flags = nextData.StateError;
+                    auto& flags = flagsGetter(nextData);
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        flags.ChangeFromBoolean(code, !handler(nextData));
+                        flags |= !handler(nextData) ? code : 0;
                     }
                     for(const auto& [code, handler] : m_errorHandlers) {
-                        flags.ChangeFromBoolean(code, !handler(nextData, prevData));
+                        flags |= !handler(nextData, prevData) ? code : 0;
                     }
                     errorState |= flags;
                     if(!nextData.HasCriticalError()) {
@@ -163,7 +172,49 @@ public:
             ErrorState = errorState;
         };
 
-        ErrorFilter.OnChange.Connect(this, [wrapper]{ wrapper->Update([]{}); });
+        onInitialize(wrapper);
+    }
+
+    void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint32& (T& data)>& flagsGetter =
+            [](T& data) {
+                return data.StateError;
+            })
+    {
+        m_updateHandler = [this, wrapper, flagsGetter]{
+            if(wrapper->IsEmpty()) {
+                ErrorState = 0;
+                return;
+            }
+
+            auto errorState = 0;
+            wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter]{
+                auto& native = wrapper->EditSilent();
+                for(auto& data : native) {
+                    auto& flags = flagsGetter(data);
+                    for(const auto& [code, handler] : m_errorPerRowHandlers) {
+                        flags |= !handler(data) ? code : 0;
+                    }
+                    errorState |= flags;
+                }
+            });
+
+            ErrorState = errorState;
+        };
+
+        onInitialize(wrapper);
+    }
+
+private:
+    void update()
+    {
+        m_updater.Call([this]{
+            m_updateHandler();
+        });
+    }
+
+    void onInitialize(const WrapperPtr& wrapper)
+    {
+        ErrorFilter.OnChange.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
 
         wrapper->OnRowsChanged.Connect(this, [this](int, int, const QSet<int>&){
             update();
@@ -175,14 +226,6 @@ public:
             update();
         }).MakeSafe(m_connection);
         update();
-    }
-
-private:
-    void update()
-    {
-        m_updater.Call([this]{
-            m_updateHandler();
-        });
     }
 
 private:
