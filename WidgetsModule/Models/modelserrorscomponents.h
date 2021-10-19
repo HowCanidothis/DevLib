@@ -130,7 +130,7 @@ public:
 
     void Initialize(const WrapperPtr& wrapper, const std::function<qint32& (T& data)>& flagsGetter =
             [](T& data) {
-                return data.StateError;
+                return (qint32&)data.StateError;
             })
     {
         m_updateHandler = [this, wrapper, flagsGetter]{
@@ -146,7 +146,7 @@ public:
                 for(const auto& [code, handler] : m_errorPerRowHandlers) {
                     auto& data = *prev;
                     auto& flags = flagsGetter(data);
-                    flags |= !handler(data) ? code : 0;
+                    FlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
                     errorState |= flags;
                 }
                 if((*prev).HasCriticalError()) {
@@ -157,10 +157,10 @@ public:
                     auto& nextData = *nextIt;
                     auto& flags = flagsGetter(nextData);
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        flags |= !handler(nextData) ? code : 0;
+                        FlagsHelpers::ChangeFromBoolean(!handler(nextData), flags, code);
                     }
                     for(const auto& [code, handler] : m_errorHandlers) {
-                        flags |= !handler(nextData, prevData) ? code : 0;
+                        FlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
                     }
                     errorState |= flags;
                     if(!nextData.HasCriticalError()) {

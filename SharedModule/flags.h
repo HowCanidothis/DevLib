@@ -5,6 +5,26 @@
 
 #include <atomic>
 
+struct FlagsHelpers
+{
+    static qint32& Remove(qint32& value, qint32 flags)
+    {
+        value &= ~flags;
+        return value;
+    }
+
+    static qint32& Add(qint32& value, qint32 flags)
+    {
+        value |= flags;
+        return value;
+    }
+
+    static qint32& ChangeFromBoolean(bool add, qint32& value, qint32 flags)
+    {
+        return add ? Add(value, flags) : Remove(value, flags);
+    }
+};
+
 template<typename ValueType, typename Enum>
 class Flags{
 public:
