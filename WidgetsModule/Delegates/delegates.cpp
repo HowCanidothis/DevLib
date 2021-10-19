@@ -11,34 +11,17 @@
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
-DelegatesCombobox::DelegatesCombobox(Qt::AlignmentFlag aligment, QObject* parent)
-    : QStyledItemDelegate(parent)
-    , m_aligment(aligment)
-{
 
-}
-
-DelegatesCombobox::DelegatesCombobox(const QStringList& valuesList, Qt::AlignmentFlag aligment, QObject* parent)
-    : QStyledItemDelegate(parent)
-    , m_values(valuesList)
-    , m_aligment(aligment)
-{
-
-}
-
-void DelegatesCombobox::setValues(const QStringList& valuesList) {
-    m_values = valuesList;
-}
-
-void DelegatesCombobox::setAligment(const Qt::AlignmentFlag& aligment)
-{
-    m_aligment = aligment;
-}
+DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& valuesExtractor, QObject* parent)
+    : Super(parent)
+    , m_valuesExtractor(valuesExtractor)
+    , m_aligment(Qt::AlignCenter)
+{}
 
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
 {
     QComboBox* comboBox = new QComboBox(parent);
-    comboBox->addItems(m_values);
+    comboBox->addItems(m_valuesExtractor());
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }

@@ -22,6 +22,12 @@ public:
         return foundIt.value();
     }
 
+    template<class T>
+    static const QStringList& GetNames()
+    {
+        return TranslatorManager::GetInstance().GetEnumNames<T>();
+    }
+
     Dispatcher OnLanguageChanged;
 
 private:

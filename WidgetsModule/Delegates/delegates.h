@@ -8,12 +8,12 @@
 class DelegatesCombobox : public QStyledItemDelegate
 {
     Q_OBJECT
+    using Super = QStyledItemDelegate;
 public:
-    DelegatesCombobox (Qt::AlignmentFlag aligment = Qt::AlignCenter, QObject* parent = nullptr);
-    DelegatesCombobox (const QStringList& valuesList, Qt::AlignmentFlag aligment = Qt::AlignCenter, QObject* parent = nullptr);
+    DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent = nullptr);
 
-    void setAligment(const Qt::AlignmentFlag& aligment);
-    void setValues (const QStringList& valuesList);
+    void SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; }
+
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
@@ -21,7 +21,7 @@ public:
 
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
 protected:
-    QStringList m_values;
+    std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;
 };
 
