@@ -5,37 +5,41 @@
 
 #include <atomic>
 
+template<class T>
 struct FlagsHelpers
 {
-    static qint32& Remove(qint32& value, qint32 flags)
+    static T& Remove(T& value, T flags)
     {
         value &= ~flags;
         return value;
     }
 
-    static qint32& Add(qint32& value, qint32 flags)
+    static T& Add(T& value, T flags)
     {
         value |= flags;
         return value;
     }
 
-    static qint32& ChangeFromBoolean(bool add, qint32& value, qint32 flags)
+    static T& ChangeFromBoolean(bool add, T& value, T flags)
     {
         return add ? Add(value, flags) : Remove(value, flags);
     }
 };
+
+using IntFlagsHelpers = FlagsHelpers<qint32>;
+using LongFlagsHelpers = FlagsHelpers<qint64>;
 
 template<typename ValueType, typename Enum>
 class Flags{
 public:
     typedef Enum enum_type;
 
-    inline int32_t ToInt() const
+    inline ValueType ToInt() const
     {
         return _value;
     }
 
-    constexpr Flags(int32_t i=0)
+    constexpr Flags(ValueType i=0)
         : _value(i)
     {}
     constexpr Flags(Enum e)
@@ -43,27 +47,27 @@ public:
     {}
 
 
-    Flags& SetFlags(int32_t value)
+    Flags& SetFlags(ValueType value)
     {
         _value = value;
         return *this;
     }
 
-    Flags& AddFlags(int32_t flags)
+    Flags& AddFlags(ValueType flags)
     {
         _value |= flags;
         return *this;
     }
-    Flags& RemoveFlags(int32_t flags)
+    Flags& RemoveFlags(ValueType flags)
     {
         _value &= ~flags;
         return *this;
     }
-    bool TestFlagsAll(int32_t flags) const
+    bool TestFlagsAll(ValueType flags) const
     {
         return (_value & flags) == flags;
     }
-    bool TestFlagsAtLeastOne(int32_t flags) const
+    bool TestFlagsAtLeastOne(ValueType flags) const
     {
         return (_value & flags);
     }
@@ -87,7 +91,7 @@ public:
         return _value & flag;
     }
 
-    Flags& ChangeFromBoolean(int32_t flags, bool flag)
+    Flags& ChangeFromBoolean(ValueType flags, bool flag)
     {
         flag ? AddFlags(flags) : RemoveFlags(flags);
         return *this;
@@ -109,13 +113,18 @@ public:
         return *this;
     }
 
-    Flags& operator =(const int32_t e)
+    Flags& operator =(const ValueType e)
     {
         this->_value = e;
         return *this;
     }
 
-    operator int32_t() const
+    operator ValueType&()
+    {
+        return this->_value;
+    }
+
+    operator ValueType() const
     {
         return this->_value;
     }
@@ -134,5 +143,8 @@ typedef Flags<std::atomic_int32_t, Enum> flags;
 
 #define DECL_FLAGS(flags, Enum) \
 typedef Flags<int32_t, Enum> flags;
+
+#define DECL_FLAGS_64(flags, Enum) \
+typedef Flags<int64_t, Enum> flags;
 
 #endif // ATOMICFLAGS_H

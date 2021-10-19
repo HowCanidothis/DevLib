@@ -128,28 +128,30 @@ public:
         }
     }
 
-    void Initialize(const WrapperPtr& wrapper, const std::function<qint32& (T& data)>& flagsGetter =
+    void Initialize(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
             [](T& data) {
-                return (qint32&)data.StateError;
+                return data.StateError;
+            }, const std::function<bool (const T& data)>& hasCriticalErrorsHandler = [](const T& data){
+                return data.HasCriticalError();
             })
     {
-        m_updateHandler = [this, wrapper, flagsGetter]{
+        m_updateHandler = [this, wrapper, flagsGetter, hasCriticalErrorsHandler]{
             if(wrapper->IsEmpty()) {
                 ErrorState = 0;
                 return;
             }
 
             auto errorState = 0;
-            wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter]{
+            wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter, hasCriticalErrorsHandler]{
                 auto& native = wrapper->EditSilent();
                 auto prev = native.begin();
                 for(const auto& [code, handler] : m_errorPerRowHandlers) {
                     auto& data = *prev;
                     auto& flags = flagsGetter(data);
-                    FlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
+                    LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
                     errorState |= flags;
                 }
-                if((*prev).HasCriticalError()) {
+                if(hasCriticalErrorsHandler(*prev)) {
                     return;
                 }
                 for(auto nextIt(native.begin() + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
@@ -157,13 +159,13 @@ public:
                     auto& nextData = *nextIt;
                     auto& flags = flagsGetter(nextData);
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        FlagsHelpers::ChangeFromBoolean(!handler(nextData), flags, code);
+                        LongFlagsHelpers::ChangeFromBoolean(!handler(nextData), flags, code);
                     }
                     for(const auto& [code, handler] : m_errorHandlers) {
-                        FlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
+                        LongFlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
                     }
                     errorState |= flags;
-                    if(!nextData.HasCriticalError()) {
+                    if(!hasCriticalErrorsHandler(nextData)) {
                         prev = nextIt;
                     }
                 }
@@ -175,7 +177,7 @@ public:
         onInitialize(wrapper);
     }
 
-    void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint32& (T& data)>& flagsGetter =
+    void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
             [](T& data) {
                 return data.StateError;
             })
@@ -192,7 +194,7 @@ public:
                 for(auto& data : native) {
                     auto& flags = flagsGetter(data);
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        flags |= !handler(data) ? code : 0;
+                        LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
                     }
                     errorState |= flags;
                 }
