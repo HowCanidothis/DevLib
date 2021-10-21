@@ -14,19 +14,6 @@ ModelsTreeItemBase::~ModelsTreeItemBase()
     }
 }
 
-ModelsTreeItemBase::ModelsTreeItemBase(const ModelsTreeItemBase& o)
-{
-    m_parent = o.m_parent;
-    m_childs = o.m_childs;
-}
-
-ModelsTreeItemBase& ModelsTreeItemBase::operator=(ModelsTreeItemBase& o)
-{
-    m_parent = o.m_parent;
-    m_childs = o.m_childs;
-    return *this;
-}
-
 ModelsTreeItemBase* ModelsTreeItemBase::FindIf(const FilterFunc& filter) const
 {
     ModelsTreeItemBase* result = nullptr;

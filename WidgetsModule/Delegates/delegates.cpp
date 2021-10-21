@@ -210,10 +210,10 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
         return;
     }
     QStyleOptionButton checkboxstyle;
-    QRect checkbox_rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator,&checkboxstyle);
+    QRect checkbox_rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator,&checkboxstyle, option.widget);
     
     checkboxstyle.rect = option.rect;
-    checkboxstyle.rect.setLeft(option.rect.x() +
+    checkboxstyle.rect.setLeft(option.rect.x() - checkbox_rect.x() +
                                  option.rect.width()/2 - checkbox_rect.width()/2);
 
     if(value.toBool()) {

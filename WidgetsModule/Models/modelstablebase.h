@@ -32,6 +32,8 @@ public:
     const ModelsTableWrapperPtr& GetData() const { return m_data; }
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
+    Dispatcher OnModelChanged;
+
 protected:
     ModelsTableWrapperPtr m_data;
     ModelsIconsContext m_iconsContext;

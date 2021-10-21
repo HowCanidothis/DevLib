@@ -63,7 +63,8 @@ int ViewModelTreeBase::rowCount(const QModelIndex& parent) const
         return 0;
     }
     if(parent.isValid()) {
-        return AsItem(parent)->GetChilds().size();
+        auto* item = AsItem(parent);
+        return item->GetChilds().size();
     }
     return m_data->GetRoot()->GetChilds().size();
 }

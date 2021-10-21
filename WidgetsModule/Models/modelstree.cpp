@@ -58,6 +58,12 @@ void ModelsTree::removeChilds(ModelsTreeItemBase* parent, const QSet<ModelsTreeI
     }
 }
 
+void ModelsTree::Edit(ModelsTreeItemBase* item, const FAction& action, const QVector<qint32>& roles)
+{
+    action();
+    OnTreeValueChanged(0, item, roles);
+}
+
 void ModelsTree::ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler)
 {
     m_root->ForeachChild([handler, this](ModelsTreeItemBase* item){

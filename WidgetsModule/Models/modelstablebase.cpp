@@ -66,6 +66,8 @@ void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
         m_data->ConnectModel(this);
     }
     endResetModel();
+
+    OnModelChanged();
 }
 
 ModelsIconsContext::ModelsIconsContext()

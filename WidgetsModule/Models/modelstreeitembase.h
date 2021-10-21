@@ -19,9 +19,7 @@ public:
     using FilterFunc = std::function<bool(ModelsTreeItemBase*)>;
 
     ModelsTreeItemBase(ModelsTreeItemBase* parent = nullptr);
-    ModelsTreeItemBase(const ModelsTreeItemBase& o);
-    ModelsTreeItemBase& operator= (ModelsTreeItemBase& o);
-    ~ModelsTreeItemBase();
+    virtual ~ModelsTreeItemBase();
 
     const QVector<SharedPointer<ModelsTreeItemBase>>& GetChilds() const { return m_childs; }
     ModelsTreeItemBase* GetParent() const { return m_parent; }

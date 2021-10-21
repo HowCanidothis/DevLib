@@ -10,6 +10,7 @@
 #include "Models/modelstablebase.h"
 #include "Models/modelslistbase.h"
 #include "Models/modelserrorscomponents.h"
+#include "Models/modelsfiltermodelbase.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"

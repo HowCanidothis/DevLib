@@ -18,6 +18,7 @@ public:
 
     void Clear();
     const ModelsTreeItemBasePtr& Add(const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
+    void Edit(ModelsTreeItemBase* item, const FAction& action, const QVector<qint32>& roles);
     void ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler);
     void Update(const std::function<void ()>& predicate);
     void Change(const std::function<void ()>& predicate);
