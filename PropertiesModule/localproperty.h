@@ -2,6 +2,7 @@
 #define LOCALPROPERTY_H
 
 #include <limits>
+#include <optional>
 
 #include "property.h"
 #include "externalproperty.h"
@@ -11,6 +12,24 @@ template<class T>
 static bool LocalPropertyNotEqual(const T& v1, const T& v2) { return v1 != v2; }
 static bool LocalPropertyNotEqual(const double& v1, const double& v2) { return !qFuzzyCompare(v1, v2); }
 static bool LocalPropertyNotEqual(const float& v1, const float& v2) { return !qFuzzyCompare(v1, v2); }
+
+template<class value_type>
+struct LocalPropertyDescInitializationParams
+{
+    LocalPropertyDescInitializationParams(const std::optional<value_type>& initial = std::nullopt)
+        : InitialValue(initial)
+    {}
+
+    LocalPropertyDescInitializationParams& SetMin(const value_type& value) { Min = value; return *this; }
+    LocalPropertyDescInitializationParams& SetMax(const value_type& value) { Max = value; return *this; }
+
+    std::optional<value_type> InitialValue;
+    std::optional<value_type> Min;
+    std::optional<value_type> Max;
+};
+
+using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
+using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
 template<class T, class StorageType = T>
 class LocalProperty
@@ -189,6 +208,11 @@ class LocalPropertyLimitedDecimal : public LocalProperty<T>
 {
     using Super = LocalProperty<T>;
 public:
+    LocalPropertyLimitedDecimal(const LocalPropertyDescInitializationParams<T>& params)
+        : LocalPropertyLimitedDecimal(params.InitialValue.has_value() ? params.InitialValue.value() : 0,
+                                      params.Min.has_value() ? params.Min.value() : (std::numeric_limits<T>::lowest)(),
+                                      params.Max.has_value() ? params.Max.value() : (std::numeric_limits<T>::max)())
+    {}
     LocalPropertyLimitedDecimal(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)())
         : Super(::clamp(value, min, max))
         , m_min(min)
@@ -241,7 +265,7 @@ class LocalPropertySequentialEnum : public LocalPropertyInt
     using Super = LocalPropertyInt;
 public:
     LocalPropertySequentialEnum()
-        : Super((qint32)Enum::First,(qint32)Enum::First,(qint32)Enum::Last)
+        : LocalPropertySequentialEnum(Enum::First)
     {}
     LocalPropertySequentialEnum(Enum initial)
         : Super((qint32)initial,(qint32)Enum::First,(qint32)Enum::Last)
@@ -771,11 +795,21 @@ inline void LocalPropertySetFromVariant<LocalPropertyInt>(LocalPropertyInt& prop
 template<class Property>
 struct LocalPropertyOptional
 {
-    using FValidator = typename Property::FValidator;
     using value_type = typename Property::value_type;
+    using InitParams = LocalPropertyDescInitializationParams<value_type>;
+    using FValidator = typename Property::FValidator;    
 
     Property Value;
     LocalPropertyBool IsValid;
+
+    LocalPropertyOptional(const InitParams& params)
+        : Value(params)
+        , IsValid(params.InitialValue.has_value())
+    {
+        Value.Subscribe([this]{
+            IsValid = true;
+        });
+    }
 
     LocalPropertyOptional()
         : IsValid(false)
