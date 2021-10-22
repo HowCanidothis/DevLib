@@ -142,6 +142,37 @@ struct TextConverter<qint32>
     }
 };
 
+template <>
+struct TextConverter<qint64>
+{
+    using value_type = qint64;
+    static QString ToText(const value_type& value, const TextConverterContext& )
+    {
+        return QString::number(value);
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return string.toLongLong();
+    }
+};
+
+template <>
+struct TextConverter<size_t>
+{
+    using value_type = size_t;
+    static QString ToText(const value_type& value, const TextConverterContext& )
+    {
+        return QString::number(value);
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return string.toLongLong();
+    }
+};
+
+
 template<>
 struct TextConverter<double>
 {

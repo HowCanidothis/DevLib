@@ -51,4 +51,47 @@ private:
     qint32 m_value;
 };
 
+template<class Enum>
+class StringsMapper
+{
+public:
+    StringsMapper& Register(const Name& name, Enum value)
+    {
+        m_strToEnum.insert(name, (qint32)value);
+        m_enumToStr.insert((qint32)value, name);
+        return *this;
+    }
+
+    const Name& GetStringOf(Enum value) const
+    {
+        static Name defaultResult;
+        auto foundIt = m_enumToStr.find((qint32)value);
+        if(foundIt != m_enumToStr.end()) {
+            return foundIt.value();
+        }
+        return defaultResult;
+    }
+
+    Enum GetEnumOf(const QString& string) const
+    {
+        return GetEnumOf(Name(string.toLower()));
+    }
+
+    Enum GetEnumOf(const Name& name) const
+    {
+        auto foundIt = m_strToEnum.find(name);
+        if(foundIt != m_strToEnum.end()) {
+            return (Enum)foundIt.value();
+        }
+        return (Enum)-1;
+    }
+
+    template<class T>
+    StringsMapper<T>& Converted() { return reinterpret_cast<StringsMapper<T>&>(*this); }
+
+private:
+    QHash<Name, qint32> m_strToEnum;
+    QHash<qint32, Name> m_enumToStr;
+};
+
 #endif // NAME_H

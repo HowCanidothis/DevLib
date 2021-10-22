@@ -84,7 +84,7 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
 
     switch (type) {
     case QtCriticalMsg:
-        ThreadsBase::DoMain([logger, message, currentDateTime]{
+        logger->m_mainCall.Call([logger, message, currentDateTime]{
             if(logger->m_severity >= Error) {
                 logger->Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
             }
@@ -92,14 +92,14 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
         break;
     case QtWarningMsg:
         if(logger->m_severity >= Warning) {
-            ThreadsBase::DoMain([logger, message, currentDateTime]{
+            logger->m_mainCall.Call([logger, message, currentDateTime]{
                 logger->Print("Warning " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     case QtInfoMsg:
         if(logger->m_severity >= Info) {
-            ThreadsBase::DoMain([logger, message, currentDateTime]{
+            logger->m_mainCall.Call([logger, message, currentDateTime]{
                 logger->Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
@@ -107,7 +107,7 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
     default:
         if(logger->m_severity >= Debug) {
             QString debugLineAndFile = QString("   Loc: [%1:%2] ").arg(context.file, QString::number(context.line));
-            ThreadsBase::DoMain([logger, message, currentDateTime, debugLineAndFile]{
+            logger->m_mainCall.Call([logger, message, currentDateTime, debugLineAndFile]{
                 logger->Print(debugLineAndFile + " Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }

@@ -45,7 +45,6 @@ public:
     ModelsTreeFilterComponent(ModelsFilterModelBase* proxy, const FFilterHandler& handler)
         : m_sourceModel(qobject_cast<ViewModelTreeBase*>(proxy->sourceModel()))
         , m_filterHandler(handler)
-        , m_invalidateFilter(500)
         , m_proxyModel(proxy)
     {
         Q_ASSERT(m_sourceModel != nullptr);
@@ -55,9 +54,7 @@ public:
         };
 
         FilterData.OnChange += { this, [this, proxy]{
-            m_invalidateFilter.Call([proxy]{
-                proxy->InvalidateFilter();
-            });
+            proxy->InvalidateFilter();
         }};
 
         QObject::connect(proxy, &QSortFilterProxyModel::destroyed, [this]{ delete this; });
@@ -117,7 +114,6 @@ private:
 private:
     class ViewModelTreeBase* m_sourceModel;
     FFilterHandler m_filterHandler;
-    DelayedCallObject m_invalidateFilter;
     QtLambdaConnections m_qtConnections;
     ModelsFilterModelBase* m_proxyModel;
     DispatcherConnectionsSafe m_connections;
@@ -136,7 +132,6 @@ public:
     ModelsTableFilterComponent(ModelsFilterModelBase* proxy, const FFilterHandler& handler)
         : m_sourceModel(reinterpret_cast<TModelsTableBase<Wrapper>*>(proxy->sourceModel()))
         , m_filterHandler(handler)
-        , m_invalidateFilter(500)
         , m_proxyModel(proxy)
     {
         Q_ASSERT(m_sourceModel != nullptr);
@@ -149,9 +144,7 @@ public:
         };
 
         FilterData.OnChange += { this, [this, proxy]{
-            m_invalidateFilter.Call([proxy]{
-                proxy->InvalidateFilter();
-            });
+            proxy->InvalidateFilter();
         }};
 
         QObject::connect(proxy, &QSortFilterProxyModel::destroyed, [this]{ delete this; });
@@ -162,7 +155,6 @@ public:
 private:
     TModelsTableBase<Wrapper>* m_sourceModel;
     FFilterHandler m_filterHandler;
-    DelayedCallObject m_invalidateFilter;
     QtLambdaConnections m_qtConnections;
     ModelsFilterModelBase* m_proxyModel;
     DispatcherConnectionsSafe m_connections;

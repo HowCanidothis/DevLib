@@ -3,7 +3,7 @@
 ModelsFilterModelBase::ModelsFilterModelBase(QObject* parent)
     : Super(parent)
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
-    , m_invalidateFilter(1000)
+    , m_invalidateFilter(500)
 {}
 
 void ModelsFilterModelBase::InvalidateFilter()

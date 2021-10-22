@@ -58,6 +58,8 @@
 
 #include "Managers/widgetsdialogsmanager.h"
 
+#include "widgetsserializer.h"
+
 #endif
 
 #endif // INTERNAL_H

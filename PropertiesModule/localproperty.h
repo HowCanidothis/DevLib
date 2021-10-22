@@ -795,6 +795,13 @@ struct LocalPropertyOptional
     }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer << buffer.Attr("Value", Value);
+        buffer << buffer.Attr("IsValid", IsValid);
+    }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;

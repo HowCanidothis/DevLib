@@ -52,6 +52,7 @@ private:
     FPrintToConsole m_printHandler;
     FPrintToConsole m_printHandlerBefore;
     QtMessageHandler m_messageHandler;
+    DelayedCallObject m_mainCall;
 };
 
 #endif // LOGGER_H

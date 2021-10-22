@@ -291,6 +291,19 @@ public:
         OnChanged();
         OnColumnsChanged({});
 	}
+
+    void Insert(int index, qint32 count, const std::function<void (qint32 index, value_type& data)>& dataInitializer)
+    {
+        OnAboutToInsertRows(index, index + count - 1);
+        Super::insert(index, count, value_type());
+        qint32 i = index;
+        for(auto& value : adapters::range(Super::begin() + index, Super::begin() + index + count)) {
+            dataInitializer(i, value);
+        }
+        OnRowsInserted(index, count);
+        OnChanged();
+        OnColumnsChanged({});
+    }
 	
     void Insert(int index, const value_type& part)
     {
