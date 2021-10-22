@@ -495,6 +495,8 @@ using LocalPropertyColor = LocalProperty<QColor>;
 using LocalPropertyString = LocalProperty<QString>;
 using LocalPropertyLocale = LocalProperty<QLocale>;
 
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyBool>)
+
 #include <QDateTime>
 class LocalPropertyDate : public LocalProperty<QDate>
 {
@@ -825,6 +827,7 @@ struct LocalPropertyOptional
             IsValid = false;
         } else {
             LocalPropertySetFromVariant(Value, value, handler);
+            IsValid = true;
         }
     }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }

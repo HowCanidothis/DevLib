@@ -112,6 +112,7 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(QObject* parent)
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new WidgetsDoubleSpinBoxWithCustomDisplay (parent);
+    spin->MakeOptional();
     OnEditorAboutToBeShown(spin, index);
     connect(spin, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, index](double value){
         OnEditorValueChanged(value, index);
@@ -128,13 +129,13 @@ void DelegatesDoubleSpinBox::setEditorData(QWidget* editor, const QModelIndex& i
 }
 
 void DelegatesDoubleSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QDoubleSpinBox* spin = static_cast<QDoubleSpinBox*>(editor);
+    WidgetsDoubleSpinBoxWithCustomDisplay* spin = static_cast<WidgetsDoubleSpinBoxWithCustomDisplay*>(editor);
     double val = spin->value();
 
     bool accept = true;
     OnEditingFinished(val, index, accept);
     if(accept) {
-        model->setData(index, val, Qt::EditRole);
+        model->setData(index, spin->IsValid() ? val : QVariant(), Qt::EditRole);
     }
 }
 

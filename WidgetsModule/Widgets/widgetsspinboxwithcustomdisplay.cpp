@@ -109,6 +109,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
             *valid = false;
             return value();
         }
+        valid->EditSilent() = true;
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
@@ -116,6 +117,19 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
     return valid->OnChange.Connect(this, [this]{
         setDecimals(decimals());
     });
+}
+
+void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()
+{
+    auto property = ::make_shared<LocalPropertyBool>();
+    MakeOptional(property.get());
+    setProperty("IsValid", QVariant::fromValue(property));
+}
+
+bool WidgetsDoubleSpinBoxWithCustomDisplay::IsValid() const
+{
+    auto value = property("IsValid");
+    return !value.isValid() ? true : value.value<SharedPointer<LocalPropertyBool>>()->Native();
 }
 
 QString WidgetsDoubleSpinBoxWithCustomDisplay::textFromValue(double val) const

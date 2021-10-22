@@ -73,6 +73,9 @@ public:
     }
 
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
+    void MakeOptional();
+
+    bool IsValid() const;
 
 private:
     QString textFromValue(double val) const override;
