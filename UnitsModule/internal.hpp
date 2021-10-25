@@ -16,6 +16,16 @@
 #include "MeasurementTypes/speeddeclarations.h"
 #include "MeasurementTypes/torquedeclarations.h"
 
+#include "MeasurementTypes/mudweightdeclaration.h"
+#include "MeasurementTypes/viscositydeclaration.h"
+#include "MeasurementTypes/yieldpointdeclarations.h"
+#include "MeasurementTypes/temperaturedeclarations.h"
+#include "MeasurementTypes/densitydeclarations.h"
+#include "MeasurementTypes/weightperlengthdeclarations.h"
+#include "MeasurementTypes/youngmodulusdeclarations.h"
+#include "MeasurementTypes/yieldstrenghtdeclarations.h"
+#include "MeasurementTypes/thermalexpansiondeclarations.h"
+
 #endif
 
 #endif // INTERNAL_H

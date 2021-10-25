@@ -5,6 +5,7 @@
 
 static const Name MEASUREMENT_DISTANCES      = "Length";
 static const Name MEASUREMENT_DIAMETER       = "Bit Diameter";
+static const Name MEASUREMENT_JET_DIAMETER   = "Jet Diameter";
 
 namespace DistanceUnits
 {
@@ -14,7 +15,7 @@ namespace DistanceUnits
     static const MeasurementUnit Kilometers  ("Kilometers", []{return QObject::tr("kilometers");}, []{ return QObject::tr("km"); }, 3280.839895);
     static const MeasurementUnit Feets       ("Feets"  , []{return QObject::tr("feet");},  []{ return QObject::tr("ft"); }, 1.0);
     static const MeasurementUnit USFeets     ("Usfeets", []{return QObject::tr("US feet");},[]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
-    static const MeasurementUnit Inches      ("Inches", []{return QObject::tr("inches");},[]{ return QObject::tr("in"); }, 1.0 / 12.0);
+    static const MeasurementUnit Inches      ("Inches", []{return QObject::tr("inches");},[]{ return QObject::tr("in"); }, [](double v){ return v/12.0; }, [](double v){ return v*12.0;});
     static const MeasurementUnit Miles       ("Miles", []{return QObject::tr("miles");},[]{ return QObject::tr("miles"); }, 5280);
 };
 

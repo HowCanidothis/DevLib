@@ -1,36 +1,33 @@
 #include "widgetsactivetableattachment.h"
 
 WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
-    : m_activeTable("Application/ActiveEditTable", PropertiesSystem::Global)
-    , m_hasSelection("Application/ActiveEditTableHasSelection", PropertiesSystem::Global)
 {
 }
 
 void WidgetsActiveTableViewAttachment::Attach(QTableView* tableView)
 {
-    tableView->viewport()->installEventFilter(instance());
+    tableView->viewport()->installEventFilter(GetInstance());
 }
 
 bool WidgetsActiveTableViewAttachment::eventFilter(QObject* watched, QEvent* event)
 {
     if(event->type() == QEvent::MouseButtonRelease) {
-        auto* tv = reinterpret_cast<QTableView*>(watched->parent());
-        m_activeTable = tv;
-        auto* selectionModel = m_activeTable->selectionModel();
+        ActiveTable = reinterpret_cast<QTableView*>(watched->parent());
+        auto* selectionModel = ActiveTable->selectionModel();
         if(selectionModel != nullptr) {
-            m_hasSelection = !selectionModel->selectedIndexes().isEmpty();
+            HasSelection = !selectionModel->selectedIndexes().isEmpty();
         } else {
-            m_hasSelection = false;
+            HasSelection = false;
         }
     } else if(event->type() == QEvent::Destroy) {
-        if(m_activeTable == reinterpret_cast<QTableView*>(watched->parent())) {
-            m_activeTable = nullptr;
+        if(ActiveTable.Native() == reinterpret_cast<QTableView*>(watched->parent())) {
+            ActiveTable = nullptr;
         }
     }
     return false;
 }
 
-WidgetsActiveTableViewAttachment* WidgetsActiveTableViewAttachment::instance()
+WidgetsActiveTableViewAttachment* WidgetsActiveTableViewAttachment::GetInstance()
 {
     static WidgetsActiveTableViewAttachment result;
     return &result;

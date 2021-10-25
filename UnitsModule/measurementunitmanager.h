@@ -15,19 +15,21 @@ public:
     using FTransform = std::function<double (double)>;
     using FTranslationHandler = std::function<QString ()>;
     MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, double multiplierUnitToBase);
+    MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, const FTransform& unitToBase, const FTransform& baseToUnit);
     
     double FromUnitToBase(double unitValue) const;
     double FromBaseToUnit(double baseValue) const;
     
-    FTransform GetUnitToBaseConverter() const { return [this](double unit) { return FromUnitToBase(unit); }; }
-    FTransform GetBaseToUnitConverter() const { return [this](double base) { return FromBaseToUnit(base); }; }
+    FTransform GetUnitToBaseConverter() const { return m_unitToBase; }
+    FTransform GetBaseToUnitConverter() const { return m_baseToUnit; }
     
     const Name Id;
     mutable TranslatedString LabelFull;
     mutable TranslatedString Label;
     
 private:
-    double m_multiplier;
+    FTransform m_unitToBase;
+    FTransform m_baseToUnit;
 };
 Q_DECLARE_METATYPE(const MeasurementUnit*)
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
@@ -208,7 +210,7 @@ protected:
 	MeasurementManager::GetInstance().GetCurrentUnit(system)->FromUnitToBase(x)
 #define MEASUREMENT_BASE_TO_UNIT(system, x) \
     MeasurementManager::GetInstance().GetCurrentUnit(system)->FromBaseToUnit(x)
-#define MEASUREMENT_PRECISION(system, x) \
+#define MEASUREMENT_PRECISION(system) \
     MeasurementManager::GetInstance().GetMeasurement(system)->Precision
 #define MEASUREMENT_BASE_TO_UNIT_UI(system, x) \
     QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))

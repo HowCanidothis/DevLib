@@ -248,7 +248,6 @@ public:
 
     virtual void Prepend(const value_type& part)
     {
-        auto size = GetSize();
         OnAboutToInsertRows(0, 0);
         Super::prepend(part);
         OnRowsInserted(0, 1);

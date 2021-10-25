@@ -7,15 +7,14 @@ class WidgetsActiveTableViewAttachment : public QObject
 {
     WidgetsActiveTableViewAttachment();
 public:
+    LocalPropertyBool HasSelection;
+    LocalPropertyPtr<QTableView> ActiveTable;
+
+    static WidgetsActiveTableViewAttachment* GetInstance();
     static void Attach(class QTableView* tableView);
 
 private:
     bool eventFilter(QObject* watched, QEvent* event) override;
-    static WidgetsActiveTableViewAttachment* instance();
-
-private:
-    PointerPropertyPtr<QTableView> m_activeTable;
-    BoolPropertyPtr m_hasSelection;
 };
 
 #endif // WIDGETSACTIVETABLEATTACHMENT_H

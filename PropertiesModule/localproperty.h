@@ -821,6 +821,7 @@ struct LocalPropertyOptional
         });
     }
 
+    LocalPropertyOptional& operator=(const value_type& value) { Value = value; return *this; }
     void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {
         if(!value.isValid()) {

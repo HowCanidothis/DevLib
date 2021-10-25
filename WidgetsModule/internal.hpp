@@ -32,6 +32,7 @@
 #include "Attachments/floatingwidgetlocationattachment.h"
 #include "Attachments/widgetsmenulocationattachment.h"
 #include "Attachments/widgetsactivetableattachment.h"
+#include "Attachments/widgetsstandarttableattachment.h"
 
 #include "Components/componentplacer.h"
 
@@ -46,6 +47,8 @@
 
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
+#include "TableViews/Header/widgetsdraganddropheader.h"
+#include "TableViews/Header/widgetsresizableheaderattachment.h"
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "Widgets/widgetsimportview.h"

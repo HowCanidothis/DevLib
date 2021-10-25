@@ -20,9 +20,9 @@ struct GtTextDrawableSettings
     LocalPropertyBool Visible;
 
     GtTextDrawableSettings()
-        : Scale(0.13)
+        : Scale(0.13f)
         , Color(QColor(Qt::white))
-        , BorderWidth(0.2)
+        , BorderWidth(0.2f)
         , Contrast(3.0)
         , UseDirectionCorrection(true)
         , Visible(true)
