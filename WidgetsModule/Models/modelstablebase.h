@@ -80,6 +80,13 @@ public:
     void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
     const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
 
+protected:
+    bool isLastEditRow(const QModelIndex& index) const
+    {
+        Q_ASSERT(GetData() != nullptr);
+        return GetData()->GetSize() == index.row();
+    }
+
 private:
 	DispatcherConnectionsSafe m_connections;
 };
