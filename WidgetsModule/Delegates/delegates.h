@@ -10,7 +10,7 @@ class DelegatesCombobox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent = nullptr);
+    DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent);
 
     void SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; }
 
@@ -30,7 +30,7 @@ class DelegatesIntSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesIntSpinBox (QObject* parent = nullptr);
+    DelegatesIntSpinBox (QObject* parent);
     
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -53,7 +53,7 @@ class DelegatesDoubleSpinBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesDoubleSpinBox (QObject* parent = nullptr);
+    DelegatesDoubleSpinBox (QObject* parent);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -77,7 +77,7 @@ class DelegatesDateTime : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesDateTime (QObject* parent = nullptr);
+    DelegatesDateTime (QObject* parent);
 
 	QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -94,7 +94,7 @@ class DelegatesCheckBox : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    DelegatesCheckBox (QObject* parent = nullptr);
+    DelegatesCheckBox (QObject* parent);
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
