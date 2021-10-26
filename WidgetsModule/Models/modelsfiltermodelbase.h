@@ -22,7 +22,9 @@ public:
     }
 
     bool filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const override;
+    bool filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const override;
 
+    std::function<bool (qint32, const QModelIndex&)> FilterColumnHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
     Dispatcher OnInvalidated;
