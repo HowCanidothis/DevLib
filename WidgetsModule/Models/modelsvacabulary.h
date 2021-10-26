@@ -76,6 +76,7 @@ public:
     static ModelsVacabularyManager& GetInstance();
 
     void RegisterModel(const Name& modelName, const ModelsVacabularyPtr& vacabulary);
+    const ModelsVacabularyPtr& GetModel(const Name& modelName);
     const ViewModelDataPtr& CreateViewModel(const Name& modelName, qint32 columnIndex);
     const ViewModelDataPtr& GetViewModel(const Name& modelName, qint32 column);
     class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVacabularyRequest* dispatcher);

@@ -132,6 +132,12 @@ ModelsVacabularyManager& ModelsVacabularyManager::GetInstance()
     return result;
 }
 
+const ModelsVacabularyPtr& ModelsVacabularyManager::GetModel(const Name& modelName)
+{
+    Q_ASSERT(m_models.contains(modelName));
+    return m_models[modelName];
+}
+
 const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::CreateViewModel(const Name& modelName, qint32 columnIndex)
 {
     Q_ASSERT(m_models.contains(modelName));

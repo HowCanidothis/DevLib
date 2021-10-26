@@ -11,6 +11,10 @@ void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const QSet<qi
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(tableView);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
+    if(editScope != nullptr){
+        tableView->addActions(editScope->GetActionsQList());
+    }
     tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, ignorColumns)->menuAction());
 
     tableView->setWordWrap(true);
