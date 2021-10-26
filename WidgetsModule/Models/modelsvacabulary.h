@@ -8,6 +8,8 @@
 template<class T>
 class TModelsListBase;
 
+using ModelsVacabularyRequest = CommonDispatcher<qint32>;
+
 class ModelsVacabulary : public TModelsTableWrapper<QVector<QHash<Name, QVariant>>>
 {
     using Super = TModelsTableWrapper<QVector<QHash<Name, QVariant>>>;
@@ -17,7 +19,7 @@ public:
     ModelsVacabulary(const HeaderData& dictionary);
 
     template<class Property>
-    DispatcherConnection CreatePropertyConnection(LocalPropertyOptional<Property>* property, const Name& name, CommonDispatcher<qint32>* indexDispatcher)
+    DispatcherConnection CreatePropertyConnection(LocalPropertyOptional<Property>* property, const Name& name, ModelsVacabularyRequest* indexDispatcher)
     {
         return indexDispatcher->Connect(this, [this, name, property](qint32 index){
             if(!IsValidRow(index)) {
@@ -76,7 +78,7 @@ public:
     void RegisterModel(const Name& modelName, const ModelsVacabularyPtr& vacabulary);
     const ViewModelDataPtr& CreateViewModel(const Name& modelName, qint32 columnIndex);
     const ViewModelDataPtr& GetViewModel(const Name& modelName, qint32 column);
-    class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, CommonDispatcher<qint32>* dispatcher);
+    class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVacabularyRequest* dispatcher);
 
 private:
     QHash<Name, ModelsVacabularyPtr> m_models;

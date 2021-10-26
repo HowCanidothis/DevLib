@@ -164,7 +164,7 @@ const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::GetVie
     return m_cache[modelName][column];
 }
 
-QCompleter* ModelsVacabularyManager::CreateCompleter(const Name& modelName, qint32 column, QObject* parent, CommonDispatcher<qint32>* dispatcher)
+QCompleter* ModelsVacabularyManager::CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVacabularyRequest* dispatcher)
 {
     auto* completer = new QCompleter(parent);
     completer->setCompletionRole(Qt::DisplayRole);
