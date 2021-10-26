@@ -14,7 +14,8 @@ class ModelsVacabulary : public TModelsTableWrapper<QVector<QHash<Name, QVariant
 {
     using Super = TModelsTableWrapper<QVector<QHash<Name, QVariant>>>;
 public:
-    using HeaderData = QVector<std::pair<Name, TranslatedStringPtr>>;
+    using HeaderDataValue = std::pair<Name, TranslatedStringPtr>;
+    using HeaderData = QVector<HeaderDataValue>;
 
     ModelsVacabulary(const HeaderData& dictionary);
 
