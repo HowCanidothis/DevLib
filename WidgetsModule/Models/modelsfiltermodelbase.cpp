@@ -18,7 +18,7 @@ void ModelsFilterModelBase::InvalidateFilter()
 
 bool ModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
-    return filterAcceptsColumn(sourceColumn, sourceParent);
+    return FilterColumnHandler(sourceColumn, sourceParent);
 }
 
 bool ModelsFilterModelBase::filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const
