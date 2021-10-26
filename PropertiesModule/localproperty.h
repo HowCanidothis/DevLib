@@ -794,6 +794,12 @@ inline void LocalPropertySetFromVariant<LocalPropertyInt>(LocalPropertyInt& prop
     property = handler(value.toInt());
 }
 
+template<>
+inline void LocalPropertySetFromVariant<LocalPropertyString>(LocalPropertyString& property, const QVariant& value, const LocalPropertyString::FValidator& handler)
+{
+    property = handler(value.toString());
+}
+
 template<class Property>
 struct LocalPropertyOptional
 {
@@ -824,7 +830,7 @@ struct LocalPropertyOptional
     LocalPropertyOptional& operator=(const value_type& value) { Value = value; return *this; }
     void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {
-        if(!value.isValid()) {
+        if(!value.isValid() || (value.type() == QVariant::String && value.toString().isEmpty())) {
             IsValid = false;
         } else {
             LocalPropertySetFromVariant(Value, value, handler);
@@ -844,6 +850,7 @@ struct LocalPropertyOptional
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
 using LocalPropertyIntOptional = LocalPropertyOptional<LocalPropertyInt>;
+using LocalPropertyStringOptional = LocalPropertyOptional<LocalPropertyString>;
 
 struct PropertyFromLocalProperty
 {

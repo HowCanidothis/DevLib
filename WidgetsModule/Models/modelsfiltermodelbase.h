@@ -12,11 +12,23 @@ public:
     ModelsFilterModelBase(QObject* parent);
 
     void InvalidateFilter();
+    bool IsLastEditRow(const QModelIndex& index) const
+    {
+        return (sourceModel()->rowCount() - 1) == index.row();
+    }
+    bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
+    {
+        return Super::lessThan(f,s);
+    }
 
     bool filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const override;
 
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
+    std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
     Dispatcher OnInvalidated;
+
+protected:
+    bool lessThan(const QModelIndex& f, const QModelIndex& s) const override;
 
 private:
     DelayedCallObject m_invalidateFilter;

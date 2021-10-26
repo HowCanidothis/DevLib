@@ -3,6 +3,7 @@
 ModelsFilterModelBase::ModelsFilterModelBase(QObject* parent)
     : Super(parent)
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
+    , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
     , m_invalidateFilter(500)
 {}
 
@@ -17,4 +18,9 @@ void ModelsFilterModelBase::InvalidateFilter()
 bool ModelsFilterModelBase::filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const
 {
     return FilterHandler(sourceRow, sourceParent);
+}
+
+bool ModelsFilterModelBase::lessThan(const QModelIndex& f, const QModelIndex& s) const
+{
+    return LessThan(f, s);
 }

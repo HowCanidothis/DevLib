@@ -229,6 +229,11 @@ public:
         OnColumnsChanged({});
     }
 
+    bool IsValidRow(qint32 row) const
+    {
+        return row >= 0 && row < GetSize();
+    }
+
     qint32 Find(const value_type& value) const
     {
         return Find([&value](const value_type& current){ return value == current; });
