@@ -26,7 +26,7 @@ public:
     }
 
     template<class T>
-    static const QStringList& GetNames()
+    static QStringList GetNames()
     {
         return TranslatorManager::GetInstance().GetEnumNames<T>();
     }
