@@ -17,6 +17,7 @@ namespace DistanceUnits
     static const MeasurementUnit USFeets     ("Usfeets", []{return QObject::tr("US feet");},[]{ return QObject::tr("usft"); }, USFEETS_TO_FEETS_MULTIPLIER);
     static const MeasurementUnit Inches      ("Inches", []{return QObject::tr("inches");},[]{ return QObject::tr("in"); }, [](double v){ return v/12.0; }, [](double v){ return v*12.0;});
     static const MeasurementUnit Miles       ("Miles", []{return QObject::tr("miles");},[]{ return QObject::tr("miles"); }, 5280);
+    static const MeasurementUnit OnePerThirtyTwoInches ("1/32 Inches", []{return QObject::tr("1/32 inches");},[]{ return QObject::tr("1/32 in"); }, [](double v){ return v/384.0; }, [](double v){ return v*384.0;});
 };
 
 #define MEASUREMENT_DISTANCE_UNIT_TO_BASE(x) \
@@ -44,5 +45,14 @@ namespace DistanceUnits
 #define MEASUREMENT_DIAMETER_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DIAMETER)->CurrentUnitLabel
 #define ATTACH_DIAMETER_MEASUREMENT(delegate, min, max, step) \
     ATTACH_MEASUREMENT(MEASUREMENT_DIAMETER, delegate, min, max, step)
+
+#define MEASUREMENT_JET_DIAMETER_UNIT_TO_BASE(x) \
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_JET_DIAMETER)->FromUnitToBase(x)
+#define MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT(x) \
+    MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_JET_DIAMETER)->FromBaseToUnit(x)
+#define MEASUREMENT_JET_DIAMETER_PRECISION() \
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_JET_DIAMETER)->Precision
+#define MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT_UI(x) \
+    QString::number(MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT(x), 'f', MEASUREMENT_JET_DIAMETER_PRECISION())
 
 #endif // DISTANCEDECLARATIONS_H

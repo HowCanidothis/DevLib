@@ -25,6 +25,7 @@
 #include "MeasurementTypes/youngmodulusdeclarations.h"
 #include "MeasurementTypes/yieldstrenghtdeclarations.h"
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
+#include "MeasurementTypes/areadeclarations.h"
 
 #endif
 
