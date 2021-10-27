@@ -2,6 +2,9 @@
 
 #include <QMenu>
 #include <QTableView>
+
+#include <ActionsModule/internal.hpp>
+
 #include "widgetsactivetableattachment.h"
 #include "WidgetsModule/TableViews/Header/widgetsresizableheaderattachment.h"
 
