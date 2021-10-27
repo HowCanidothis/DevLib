@@ -42,7 +42,8 @@ TModelsListBase<ModelsVacabulary>* ModelsVacabulary::CreateListModel(qint32 colu
     });
 }
 
-ModelsVacabularyViewModel::ModelsVacabularyViewModel()
+ModelsVacabularyViewModel::ModelsVacabularyViewModel(QObject* parent)
+    : Super(parent)
 {
     auto displayEditRoleHandlers = [this](qint32 row, qint32 column) -> QVariant {
         return GetData()->At(row)[GetData()->GetHeader(column).first];
@@ -143,24 +144,38 @@ const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::Create
     Q_ASSERT(m_models.contains(modelName));
     auto data = ::make_shared<ViewModelData>();
     auto* sortModel = new ModelsFilterModelBase(nullptr);
-    sortModel->LessThan = [sortModel](const QModelIndex& f, const QModelIndex& s) {
-        if(sortModel->IsLastEditRow(f)) {
-            return sortModel->sortOrder() == Qt::AscendingOrder ? false : true;
-        }
-        if(sortModel->IsLastEditRow(s)) {
-            return sortModel->sortOrder() == Qt::AscendingOrder ? true : false;
-        }
-        return sortModel->DefaultLessThan(f, s);
-    };
     sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     data->SortedModel = sortModel;
-    auto* listModel = m_models[modelName]->CreateListModel(columnIndex, nullptr);
-    listModel->SetData(m_models[modelName]);
-    data->SourceModel = listModel;
+    const auto& model = m_models[modelName];
+
+    if(columnIndex == -1) {
+        sortModel->LessThan = [sortModel](const QModelIndex& f, const QModelIndex& s) {
+            if(sortModel->IsLastEditRow(f)) {
+                return sortModel->sortOrder() == Qt::AscendingOrder ? false : true;
+            }
+            if(sortModel->IsLastEditRow(s)) {
+                return sortModel->sortOrder() == Qt::AscendingOrder ? true : false;
+            }
+            return sortModel->DefaultLessThan(f, s);
+        };
+
+        auto* sourceModel = new ModelsVacabularyViewModel(nullptr);
+        sourceModel->SetData(model);
+        data->SourceModel = sourceModel;
+    } else {
+
+        auto* listModel = model->CreateListModel(columnIndex, nullptr);
+        listModel->SetData(model);
+        data->SourceModel = listModel;
+        auto* pData = data.get();
+        listModel->GetData()->OnChanged += { this, [sortModel, pData]{
+            pData->Sorter.Call([sortModel]{
+                sortModel->sort(0);
+            });
+        }};
+    }
     data->SortedModel->setSourceModel(data->SourceModel);
-    listModel->GetData()->OnChanged += { this, [sortModel]{
-        sortModel->sort(0);
-    }};
+
 
     return m_cache[modelName].insert(columnIndex, data).value();
 }
@@ -179,7 +194,7 @@ QCompleter* ModelsVacabularyManager::CreateCompleter(const Name& modelName, qint
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setModel(m_cache[modelName][column]->SortedModel);
-    completer->connect(completer, static_cast<void (QCompleter::*)(const QModelIndex&)>(&QCompleter::activated), [completer, this, modelName, column, dispatcher](const QModelIndex& index){
+    completer->connect(completer, static_cast<void (QCompleter::*)(const QModelIndex&)>(&QCompleter::activated), [modelName, dispatcher](const QModelIndex& index){
         dispatcher->Invoke(index.data(Qt::EditRole).toInt());
     });
     return completer;

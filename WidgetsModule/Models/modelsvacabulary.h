@@ -47,7 +47,7 @@ class ModelsVacabularyViewModel : public TModelsTableBase<ModelsVacabulary>
 {
     using Super = TModelsTableBase<ModelsVacabulary>;
 public:
-    ModelsVacabularyViewModel();
+    ModelsVacabularyViewModel(QObject* parent = nullptr);
 
     bool setData(const QModelIndex& index, const QVariant& value, qint32 role) override;
     QVariant data(const QModelIndex& index, qint32 role) const override;
