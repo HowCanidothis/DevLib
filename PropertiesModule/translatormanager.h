@@ -40,6 +40,19 @@ inline const QStringList& LocalPropertySequentialEnum<Enum>::GetNames() const
     return TranslatorManager::GetInstance().GetEnumNames<Enum>();
 }
 
+template<typename Enum>
+inline QStringList LocalPropertySequentialEnum<Enum>::GetNamesThreadSafe() const
+{
+    if(QThread::currentThread() == qApp->thread()) {
+        return TranslatorManager::GetInstance().GetEnumNames<Enum>();
+    }
+    QStringList result;
+    ThreadsBase::DoMainAwait([&result]{
+        result = TranslatorManager::GetInstance().GetEnumNames<Enum>()
+    });
+    return result;
+}
+
 class TranslatedString : public LocalPropertyString
 {
     using Super = LocalPropertyString;

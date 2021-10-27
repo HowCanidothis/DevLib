@@ -283,6 +283,13 @@ public:
         Q_ASSERT(0<= Super::m_value && Super::m_value < GetNames().size());
         return GetNames()[Super::m_value];
     }
+    QString GetNameThreadSafe() const
+    {
+        Q_ASSERT(0<= Super::m_value && Super::m_value < GetNames().size());
+        return GetNamesThreadSafe()[Super::m_value];
+    }
+
+    QStringList GetNamesThreadSafe() const;
     const QStringList& GetNames() const;
 };
 
