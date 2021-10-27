@@ -23,4 +23,6 @@ namespace AreaUnits
 #define MEASUREMENT_AREA_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_AREA_BASE_TO_UNIT(x), 'f', MEASUREMENT_AREA_PRECISION())
 
+#define MEASUREMENT_AREA_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_AREA)->CurrentUnitLabel
+
 #endif // AREADECLARATIONS_H

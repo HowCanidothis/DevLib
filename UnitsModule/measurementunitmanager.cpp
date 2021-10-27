@@ -253,6 +253,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                       2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2});
 
@@ -275,6 +276,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                       2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2});
     
@@ -297,6 +299,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqMilimeters.Id,                   2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Celsius.Id,                 1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2});
 		

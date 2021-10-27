@@ -838,6 +838,7 @@ struct LocalPropertyOptional
             IsValid = true;
         }
     }
+    QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
 
