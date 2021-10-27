@@ -98,7 +98,7 @@ public:
     template<class T>
     LocalPropertiesLabelConnector(LocalPropertySequentialEnum<T>* property, QLabel* label)
         : Super([label, property]{
-            label->setText(EnumHelper<T>::GetNames()[(qint32)property->Native()]);
+            label->setText(TranslatorManager::GetNames<T>()[(qint32)property->Native()]);
         }, []{})
     {
         property->GetDispatcher().Connect(this, [this]{

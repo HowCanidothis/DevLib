@@ -11,9 +11,12 @@ public:
     static TranslatorManager& GetInstance();
 
     template<class T>
-    const QStringList& GetEnumNames()
+    QStringList GetEnumNames()
     {
-        THREAD_ASSERT_IS_MAIN();
+        if(QThread::currentThread() != QCoreApplication::instance()->thread()) {
+            return EnumHelper<T>::GetNames();
+        }
+
         Name name(typeid (T).name());
         auto foundIt = m_names.find(name);
         if(foundIt == m_names.end()) {
@@ -35,22 +38,9 @@ private:
 };
 
 template<typename Enum>
-inline const QStringList& LocalPropertySequentialEnum<Enum>::GetNames() const
+inline QStringList LocalPropertySequentialEnum<Enum>::GetNames() const
 {
     return TranslatorManager::GetInstance().GetEnumNames<Enum>();
-}
-
-template<typename Enum>
-inline QStringList LocalPropertySequentialEnum<Enum>::GetNamesThreadSafe() const
-{
-    if(QThread::currentThread() == qApp->thread()) {
-        return TranslatorManager::GetInstance().GetEnumNames<Enum>();
-    }
-    QStringList result;
-    ThreadsBase::DoMainAwait([&result]{
-        result = TranslatorManager::GetInstance().GetEnumNames<Enum>()
-    });
-    return result;
 }
 
 class TranslatedString : public LocalPropertyString

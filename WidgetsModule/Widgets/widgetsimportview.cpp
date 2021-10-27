@@ -57,9 +57,9 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	auto* model = new VariantListModel(this);
     ui->SourceTable->setModel(model);
 	
-	ui->cbLocale->addItems(EnumHelper<LocaleType>::GetNames());
-    ui->cbGroup->addItems(EnumHelper<GroupKeyboardSeparator>::GetNames());
-    ui->cbDecimal->addItems(EnumHelper<DecimalKeyboardSeparator>::GetNames());
+    ui->cbLocale->addItems(TranslatorManager::GetNames<LocaleType>());
+    ui->cbGroup->addItems(TranslatorManager::GetNames<GroupKeyboardSeparator>());
+    ui->cbDecimal->addItems(TranslatorManager::GetNames<DecimalKeyboardSeparator>());
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&ImportLocale, ui->cbLocale);
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&GroupSeparator, ui->cbGroup);
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&DecimalSeparator, ui->cbDecimal);
@@ -84,7 +84,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	
 	Locale.SetAndSubscribe([this]{
         GroupSeparator = SEPARATORS.indexOf(Locale.Native().groupSeparator());
-		DecimalSeparator = EnumHelper<DecimalKeyboardSeparator>::GetNames().indexOf(Locale.Native().decimalPoint());
+        DecimalSeparator = TranslatorManager::GetNames<DecimalKeyboardSeparator>().indexOf(Locale.Native().decimalPoint());
 		DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : Locale.Native().dateTimeFormat(QLocale::ShortFormat);
 	});
 	DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
@@ -187,7 +187,7 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
     OnTransited.ConnectFrom(m_matchingAttachment->OnTransited);
     m_matchingAttachment->DateFormat.ConnectFrom(DateTimeFormat);
     m_matchingAttachment->DecimalSeparator.ConnectFrom(DecimalSeparator, [](qint32 key){
-        return EnumHelper<DecimalKeyboardSeparator>::GetNames().at(key);
+        return TranslatorManager::GetNames<DecimalKeyboardSeparator>().at(key);
     });
     ui->PreviewTable->setModel(targetModel);
     m_matchingAttachment->IsEnabled = true;
