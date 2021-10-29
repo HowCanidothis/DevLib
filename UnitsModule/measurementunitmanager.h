@@ -216,6 +216,8 @@ protected:
     QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))
 #define MEASUREMENT_STRING(system) \
 	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
+#define MEASUREMENT_DISPATCHER(system) \
+    &MeasurementManager::GetInstance().GetMeasurement(system)->OnChanged
 	
 #define ATTACH_MEASUREMENT(system, delegate, min, max, step) \
     delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\

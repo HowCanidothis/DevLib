@@ -256,7 +256,7 @@ public:
             }
         };
 
-        m_wrapper->OnColumnsChanged.Connect(const_cast<ModelsTableSearchComponent*>(this), invalidate);
+        m_wrapper->OnColumnsChanged.Connect(const_cast<ModelsTableSearchComponent*>(this), invalidate).MakeSafe(m_connections);
     }
 
     QList<const value_type&> Select(const std::function<bool(const value_type&)>& where)

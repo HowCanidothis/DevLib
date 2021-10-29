@@ -32,6 +32,7 @@ namespace DistanceUnits
 #define MEASUREMENT_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentUnitLabel
 #define ATTACH_DISTANCE_MEASUREMENT(delegate, min, max) \
     ATTACH_MEASUREMENT(MEASUREMENT_DISTANCES, delegate, min, max, 1)
+#define MEASUREMENT_DISTANCE_DISPATCHER MEASUREMENT_DISPATCHER(MEASUREMENT_DISTANCES)
 
 #define MEASUREMENT_DIAMETER_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DIAMETER)->FromUnitToBase(x)
@@ -45,6 +46,7 @@ namespace DistanceUnits
 #define MEASUREMENT_DIAMETER_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DIAMETER)->CurrentUnitLabel
 #define ATTACH_DIAMETER_MEASUREMENT(delegate, min, max, step) \
     ATTACH_MEASUREMENT(MEASUREMENT_DIAMETER, delegate, min, max, step)
+#define MEASUREMENT_DIAMETER_DISPATCHER MEASUREMENT_DISPATCHER(MEASUREMENT_DIAMETER)
 
 #define MEASUREMENT_JET_DIAMETER_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_JET_DIAMETER)->FromUnitToBase(x)
@@ -56,5 +58,6 @@ namespace DistanceUnits
     QString::number(MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT(x), 'f', MEASUREMENT_JET_DIAMETER_PRECISION())
 
 #define MEASUREMENT_JET_DISTANCE_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_JET_DIAMETER)->CurrentUnitLabel
+#define MEASUREMENT_JET_DISTANCE_DISPATCHER MEASUREMENT_DISPATCHER(MEASUREMENT_JET_DIAMETER)
 
 #endif // DISTANCEDECLARATIONS_H
