@@ -126,6 +126,23 @@ struct Serializer<QImage>
 };
 
 template<>
+struct Serializer<QVariant>
+{
+    typedef QVariant target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer.GetStream() << data;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer.GetStream() >> data;
+    }
+};
+
+template<>
 struct Serializer<QMatrix4x4>
 {
     typedef QMatrix4x4 target_type;
@@ -148,6 +165,36 @@ template<class T, class T2>
 struct Serializer<QMap<T, T2>>
 {
     typedef QMap<T, T2> target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        qint32 count = data.size();
+        buffer << buffer.Attr("Size", count);
+        for(auto it(data.begin()), e(data.end()); it != e; it++) {
+            buffer << buffer.Sect("key", const_cast<T&>(it.key()));
+            buffer << buffer.Sect("value", const_cast<T2&>(it.value()));
+        }
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        qint32 count = data.size();
+        buffer << buffer.Attr("Size", count);
+        data.clear();
+        while(count--) {
+            T key; T2 value;
+            buffer << buffer.Sect("key", key);
+            buffer << buffer.Sect("value", value);
+            data.insert(key, value);
+        }
+    }
+};
+
+template<class T, class T2>
+struct Serializer<QHash<T, T2>>
+{
+    typedef QHash<T, T2> target_type;
     template<class Buffer>
     static void Write(Buffer& buffer, const target_type& data)
     {

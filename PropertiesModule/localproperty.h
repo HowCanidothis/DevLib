@@ -254,6 +254,7 @@ private:
     T m_max;
 };
 
+using LocalPropertyInt64 = LocalPropertyLimitedDecimal<qint64>;
 using LocalPropertyInt = LocalPropertyLimitedDecimal<qint32>;
 using LocalPropertyUInt = LocalPropertyLimitedDecimal<quint32>;
 using LocalPropertyDouble = LocalPropertyLimitedDecimal<double>;
@@ -828,7 +829,7 @@ struct LocalPropertyOptional
         });
     }
 
-    LocalPropertyOptional& operator=(const value_type& value) { Value = value; return *this; }
+    LocalPropertyOptional& operator=(const value_type& value) { Value = value; IsValid = true; return *this; }
     void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {
         if(!value.isValid() || (value.type() == QVariant::String && value.toString().isEmpty())) {
@@ -842,12 +843,6 @@ struct LocalPropertyOptional
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
 
-    template<class Buffer>
-    void Serialize(Buffer& buffer)
-    {
-        buffer << buffer.Attr("Value", Value);
-        buffer << buffer.Attr("IsValid", IsValid);
-    }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
@@ -1022,6 +1017,18 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     auto* pProperty = property.get();
     connectProperty(pProperty, localProperty);
     return property;
+}
+
+template<class T, class T2>
+inline DispatcherConnection DelayedCallDispatchersCommutator::Subscribe(LocalProperty<T, T2>& property)
+{
+    return Subscribe(&property.OnChange);
+}
+
+template<class T>
+inline DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(LocalPropertyOptional<T>& property)
+{
+    return Subscribe({ &property.Value.OnChange, &property.IsValid.OnChange });
 }
 
 #endif // LOCALPROPERTY_H

@@ -49,6 +49,40 @@ struct Serializer<StateProperty>
     }
 };
 
+template<class T>
+struct Serializer<LocalPropertyOptional<T>>
+{
+    typedef LocalPropertyOptional<T> target_type;
+    using value_type = typename T::value_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& constData)
+    {
+        auto& data = const_cast<target_type&>(constData);
+        buffer << buffer.Attr("IsValid", data.IsValid.EditSilent());
+        if(data.IsValid) {
+            buffer << buffer.Attr("Value", data.Value);
+        }
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        bool valid;
+        buffer << buffer.Attr("IsValid", valid);
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            if(valid) {
+                buffer << buffer.Attr("Value", data.Value);
+            }
+            data.IsValid = valid;
+        } else {
+            if(valid) {
+                buffer << buffer.Attr("Value", data.Value.EditSilent());
+            }
+            data.IsValid.EditSilent() = valid;
+        }
+    }
+};
+
 template<typename T>
 struct Serializer<LocalPropertySequentialEnum<T>>
 {

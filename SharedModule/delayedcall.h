@@ -75,6 +75,9 @@ private:
     static QHash<qint32, DelayedCallPtr>& cachedCalls();
 };
 
+template<class T, class T2> class LocalProperty;
+template<class T> struct LocalPropertyOptional;
+
 class DelayedCallDispatchersCommutator : public Dispatcher
 {
 public:
@@ -82,6 +85,14 @@ public:
 
     // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
     DispatcherConnections Subscribe(const QVector<CommonDispatcher<>*>& dispatchers);
+    DispatcherConnection Subscribe(CommonDispatcher* dispatchers);
+
+#ifdef PROPERTIES_LIB
+    template<class T, class T2>
+    DispatcherConnection Subscribe(LocalProperty<T, T2>& property);
+    template<class T>
+    DispatcherConnections Subscribe(LocalPropertyOptional<T>& property);
+#endif
 
     void operator()() = delete;
 

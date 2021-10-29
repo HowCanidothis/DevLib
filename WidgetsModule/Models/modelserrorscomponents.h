@@ -5,13 +5,13 @@
 
 struct DescModelsErrorComponentAttachToErrorsContainerParameters
 {
-    qint32 ErrorFlags;
+    qint64 ErrorFlags;
     bool EnableFilter = true;
     Name ErrorName;
     TranslatedStringPtr Label;
     QtMsgType MessageType = QtWarningMsg;
 
-    DescModelsErrorComponentAttachToErrorsContainerParameters(const Name& errorName, const TranslatedStringPtr& label, qint32 flags);
+    DescModelsErrorComponentAttachToErrorsContainerParameters(const Name& errorName, const TranslatedStringPtr& label, qint64 flags);
 
     DescModelsErrorComponentAttachToErrorsContainerParameters& SetFilterEnabled(bool enabled) { EnableFilter = enabled; return *this; }
     DescModelsErrorComponentAttachToErrorsContainerParameters& SetSeverity(QtMsgType messageType) { MessageType = messageType; return *this; }
@@ -30,30 +30,30 @@ public:
         , m_updater(1000)
     {}
 
-    LocalPropertyInt ErrorState;
-    LocalPropertyInt ErrorFilter;
-    QHash<Name, qint32> AttachedErrors;
+    LocalPropertyInt64 ErrorState;
+    LocalPropertyInt64 ErrorFilter;
+    QHash<Name, qint64> AttachedErrors;
 
     template<class T2>
-    bool HasError(const T2& value, qint32 errorFlags) const
+    bool HasError(const T2& value, qint64 errorFlags) const
     {
         return value.StateError & ErrorFilter & errorFlags;
     }
 
     template<class T2>
-    QVariant WarningIcon(const T2& value, qint32 errorFlags, const struct ModelsIconsContext& iconsContext) const
+    QVariant WarningIcon(const T2& value, qint64 errorFlags, const struct ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.WarningIcon) : QVariant();
     }
 
     template<class T2>
-    QVariant ErrorIcon(const T2& value, qint32 errorFlags, const ModelsIconsContext& iconsContext) const
+    QVariant ErrorIcon(const T2& value, qint64 errorFlags, const ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.ErrorIcon) : QVariant();
     }
 
     template<class T2>
-    QString ErrorString(const T2& value, qint32 errorFlag) const
+    QString ErrorString(const T2& value, qint64 errorFlag) const
     {
         if(!HasError(value, errorFlag)) {
             return QString();
@@ -66,7 +66,7 @@ public:
     }
 
     template<class T2>
-    QString ErrorString(const T2& value, const QVector<qint32>& sequence) const
+    QString ErrorString(const T2& value, const QVector<qint64>& sequence) const
     {
         for(auto error : sequence) {
             auto errorString = ErrorString(value, error);
@@ -101,7 +101,7 @@ public:
         AttachedErrors.insert(parameters.ErrorName, parameters.ErrorFlags);
     }
 
-    void RegisterError(int error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment)
+    void RegisterError(qint64 error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment)
     {
         Q_ASSERT(m_errorHandlers.find(error) == m_errorHandlers.end());
         m_errorHandlers.insert({ error, checkHandler });
@@ -110,7 +110,7 @@ public:
         }
     }
 
-    void RegisterError(int error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment)
+    void RegisterError(qint64 error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment)
     {
         Q_ASSERT(m_errorPerRowHandlers.find(error) == m_errorPerRowHandlers.end());
         m_errorPerRowHandlers.insert({ error, checkHandler });
@@ -129,7 +129,7 @@ public:
     }
 
     void Initialize(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
-            [](T& data) {
+            [](T& data) -> qint64& {
                 return data.StateError;
             }, const std::function<bool (const T& data)>& hasCriticalErrorsHandler = [](const T& data){
                 return data.HasCriticalError();
@@ -232,12 +232,12 @@ private:
 
 private:
     DispatcherConnectionsSafe m_connection;
-    std::map<qint32, FHandler> m_errorHandlers;
-    std::map<qint32, FPerRowHandler> m_errorPerRowHandlers;
-    QHash<qint32, TranslatedStringPtr> m_errorComments;
+    std::map<qint64, FHandler> m_errorHandlers;
+    std::map<qint64, FPerRowHandler> m_errorPerRowHandlers;
+    QHash<qint64, TranslatedStringPtr> m_errorComments;
     DelayedCallObject m_updater;
     FAction m_updateHandler;
-    QHash<qint32, DescModelsErrorComponentAttachToErrorsContainerParameters> m_errors;
+    QHash<qint64, DescModelsErrorComponentAttachToErrorsContainerParameters> m_errors;
 };
 
 #endif // MODELSERRORSCOMPONENTS_H

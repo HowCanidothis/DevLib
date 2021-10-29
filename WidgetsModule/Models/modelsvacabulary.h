@@ -8,19 +8,19 @@
 template<class T>
 class TModelsListBase;
 
-using ModelsVacabularyRequest = CommonDispatcher<qint32>;
+using ModelsVocabularyRequest = CommonDispatcher<qint32>;
 
-class ModelsVacabulary : public TModelsTableWrapper<QVector<QHash<Name, QVariant>>>
+class ModelsVocabulary : public TModelsTableWrapper<QVector<QHash<Name, QVariant>>>
 {
     using Super = TModelsTableWrapper<QVector<QHash<Name, QVariant>>>;
 public:
     using HeaderDataValue = std::pair<Name, TranslatedStringPtr>;
     using HeaderData = QVector<HeaderDataValue>;
 
-    ModelsVacabulary(const HeaderData& dictionary);
+    ModelsVocabulary(const HeaderData& dictionary);
 
     template<class Property>
-    DispatcherConnection CreatePropertyConnection(LocalPropertyOptional<Property>* property, const Name& name, ModelsVacabularyRequest* indexDispatcher)
+    DispatcherConnection CreatePropertyConnection(LocalPropertyOptional<Property>* property, const Name& name, ModelsVocabularyRequest* indexDispatcher)
     {
         return indexDispatcher->Connect(this, [this, name, property](qint32 index){
             if(!IsValidRow(index)) {
@@ -35,19 +35,19 @@ public:
     qint32 GetColumnsCount() const { return m_header.size(); }
     const std::pair<Name, TranslatedStringPtr>& GetHeader(qint32 column) const;
 
-    static TModelsListBase<ModelsVacabulary>* CreateListModel(qint32 column, QObject* parent);
+    static TModelsListBase<ModelsVocabulary>* CreateListModel(qint32 column, QObject* parent);
 
 private:
     QVector<std::pair<Name, TranslatedStringPtr>> m_header;
 };
 
-using ModelsVacabularyPtr = SharedPointer<ModelsVacabulary>;
+using ModelsVocabularyPtr = SharedPointer<ModelsVocabulary>;
 
-class ModelsVacabularyViewModel : public TModelsTableBase<ModelsVacabulary>
+class ModelsVocabularyViewModel : public TModelsTableBase<ModelsVocabulary>
 {
-    using Super = TModelsTableBase<ModelsVacabulary>;
+    using Super = TModelsTableBase<ModelsVocabulary>;
 public:
-    ModelsVacabularyViewModel(QObject* parent = nullptr);
+    ModelsVocabularyViewModel(QObject* parent = nullptr);
 
     bool setData(const QModelIndex& index, const QVariant& value, qint32 role) override;
     QVariant data(const QModelIndex& index, qint32 role) const override;
@@ -56,9 +56,9 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 };
 
-class ModelsVacabularyManager
+class ModelsVocabularyManager
 {
-    ModelsVacabularyManager();
+    ModelsVocabularyManager();
 public:
     struct ViewModelData
     {
@@ -74,16 +74,16 @@ public:
     };
     using ViewModelDataPtr = SharedPointer<ViewModelData>;
 
-    static ModelsVacabularyManager& GetInstance();
+    static ModelsVocabularyManager& GetInstance();
 
-    void RegisterModel(const Name& modelName, const ModelsVacabularyPtr& vacabulary);
-    const ModelsVacabularyPtr& GetModel(const Name& modelName);
+    void RegisterModel(const Name& modelName, const ModelsVocabularyPtr& vacabulary);
+    const ModelsVocabularyPtr& GetModel(const Name& modelName);
     const ViewModelDataPtr& CreateViewModel(const Name& modelName, qint32 columnIndex);
     const ViewModelDataPtr& GetViewModel(const Name& modelName, qint32 column);
-    class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVacabularyRequest* dispatcher);
+    class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVocabularyRequest* dispatcher);
 
 private:
-    QHash<Name, ModelsVacabularyPtr> m_models;
+    QHash<Name, ModelsVocabularyPtr> m_models;
     QHash<Name, QHash<qint32, ViewModelDataPtr>> m_cache;
 };
 

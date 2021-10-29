@@ -5,11 +5,11 @@
 #include "modelsfiltermodelbase.h"
 #include "modelslistbase.h"
 
-ModelsVacabulary::ModelsVacabulary(const HeaderData& dictionary)
+ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
     : m_header(dictionary)
 {}
 
-const QVariant& ModelsVacabulary::SelectValue(const Name& name, const QHash<Name, QVariant>& row)
+const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name, QVariant>& row)
 {
     static QVariant result;
     auto foundIt = row.find(name);
@@ -19,7 +19,7 @@ const QVariant& ModelsVacabulary::SelectValue(const Name& name, const QHash<Name
     return result;
 }
 
-const std::pair<Name, TranslatedStringPtr>& ModelsVacabulary::GetHeader(qint32 column) const
+const std::pair<Name, TranslatedStringPtr>& ModelsVocabulary::GetHeader(qint32 column) const
 {
     static std::pair<Name, TranslatedStringPtr> result = std::make_pair(Name(), ::make_shared<TranslatedString>([]{ return QString(); }));
     if(column < 0 || column >= m_header.size()) {
@@ -28,21 +28,21 @@ const std::pair<Name, TranslatedStringPtr>& ModelsVacabulary::GetHeader(qint32 c
     return m_header.at(column);
 }
 
-TModelsListBase<ModelsVacabulary>* ModelsVacabulary::CreateListModel(qint32 column, QObject* parent)
+TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
 {
-    return new TModelsListBase<ModelsVacabulary>(parent, [column](const SharedPointer<ModelsVacabulary>& ptr, const QModelIndex& index, qint32 role){
-        if(role == Qt::DisplayRole) {
+    return new TModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role){
+        if(role == Qt::DisplayRole || role == Qt::EditRole) {
             return ptr->SelectValue(ptr->GetHeader(column).first, ptr->At(index.row()));
-        } else if(role == Qt::EditRole) {
+        } else if(role == Qt::UserRole) {
             return QVariant(index.row());
         }
         return QVariant();
-    }, [](const SharedPointer<ModelsVacabulary>& ptr){
+    }, [](const SharedPointer<ModelsVocabulary>& ptr){
         return ptr->GetSize();
     });
 }
 
-ModelsVacabularyViewModel::ModelsVacabularyViewModel(QObject* parent)
+ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
 {
     auto displayEditRoleHandlers = [this](qint32 row, qint32 column) -> QVariant {
@@ -67,7 +67,7 @@ ModelsVacabularyViewModel::ModelsVacabularyViewModel(QObject* parent)
 });
 }
 
-bool ModelsVacabularyViewModel::setData(const QModelIndex& index, const QVariant& value, qint32 role)
+bool ModelsVocabularyViewModel::setData(const QModelIndex& index, const QVariant& value, qint32 role)
 {
     if(!index.isValid()) {
         return false;
@@ -86,7 +86,7 @@ bool ModelsVacabularyViewModel::setData(const QModelIndex& index, const QVariant
     return Super::setData(index, value, role);
 }
 
-QVariant ModelsVacabularyViewModel::data(const QModelIndex& index, qint32 role) const
+QVariant ModelsVocabularyViewModel::data(const QModelIndex& index, qint32 role) const
 {
     if(!index.isValid()) {
         return QVariant();
@@ -99,17 +99,17 @@ QVariant ModelsVacabularyViewModel::data(const QModelIndex& index, qint32 role) 
     return Super::data(index, role);
 }
 
-qint32 ModelsVacabularyViewModel::rowCount(const QModelIndex&) const
+qint32 ModelsVocabularyViewModel::rowCount(const QModelIndex&) const
 {
     return GetData() == nullptr ? 0 : (GetData()->GetSize() + 1);
 }
 
-qint32 ModelsVacabularyViewModel::columnCount(const QModelIndex&) const
+qint32 ModelsVocabularyViewModel::columnCount(const QModelIndex&) const
 {
     return GetData() != nullptr ? GetData()->GetColumnsCount() : 0;
 }
 
-Qt::ItemFlags ModelsVacabularyViewModel::flags(const QModelIndex& index) const
+Qt::ItemFlags ModelsVocabularyViewModel::flags(const QModelIndex& index) const
 {
     if(!index.isValid()) {
         return Qt::NoItemFlags;
@@ -118,28 +118,28 @@ Qt::ItemFlags ModelsVacabularyViewModel::flags(const QModelIndex& index) const
     return Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
-ModelsVacabularyManager::ModelsVacabularyManager()
+ModelsVocabularyManager::ModelsVocabularyManager()
 {}
 
-void ModelsVacabularyManager::RegisterModel(const Name& modelName, const ModelsVacabularyPtr& vacabulary)
+void ModelsVocabularyManager::RegisterModel(const Name& modelName, const ModelsVocabularyPtr& vacabulary)
 {
     Q_ASSERT(!m_models.contains(modelName));
     m_models.insert(modelName, vacabulary);
 }
 
-ModelsVacabularyManager& ModelsVacabularyManager::GetInstance()
+ModelsVocabularyManager& ModelsVocabularyManager::GetInstance()
 {
-    static ModelsVacabularyManager result;
+    static ModelsVocabularyManager result;
     return result;
 }
 
-const ModelsVacabularyPtr& ModelsVacabularyManager::GetModel(const Name& modelName)
+const ModelsVocabularyPtr& ModelsVocabularyManager::GetModel(const Name& modelName)
 {
     Q_ASSERT(m_models.contains(modelName));
     return m_models[modelName];
 }
 
-const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::CreateViewModel(const Name& modelName, qint32 columnIndex)
+const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::CreateViewModel(const Name& modelName, qint32 columnIndex)
 {
     Q_ASSERT(m_models.contains(modelName));
     auto data = ::make_shared<ViewModelData>();
@@ -159,7 +159,7 @@ const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::Create
             return sortModel->DefaultLessThan(f, s);
         };
 
-        auto* sourceModel = new ModelsVacabularyViewModel(nullptr);
+        auto* sourceModel = new ModelsVocabularyViewModel(nullptr);
         sourceModel->SetData(model);
         data->SourceModel = sourceModel;
     } else {
@@ -180,12 +180,12 @@ const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::Create
     return m_cache[modelName].insert(columnIndex, data).value();
 }
 
-const ModelsVacabularyManager::ViewModelDataPtr& ModelsVacabularyManager::GetViewModel(const Name& modelName, qint32 column)
+const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::GetViewModel(const Name& modelName, qint32 column)
 {
     return m_cache[modelName][column];
 }
 
-QCompleter* ModelsVacabularyManager::CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVacabularyRequest* dispatcher)
+QCompleter* ModelsVocabularyManager::CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVocabularyRequest* dispatcher)
 {
     auto* completer = new QCompleter(parent);
     completer->setCompletionRole(Qt::DisplayRole);
@@ -195,7 +195,7 @@ QCompleter* ModelsVacabularyManager::CreateCompleter(const Name& modelName, qint
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setModel(m_cache[modelName][column]->SortedModel);
     completer->connect(completer, static_cast<void (QCompleter::*)(const QModelIndex&)>(&QCompleter::activated), [modelName, dispatcher](const QModelIndex& index){
-        dispatcher->Invoke(index.data(Qt::EditRole).toInt());
+        dispatcher->Invoke(index.data(Qt::UserRole).toInt());
     });
     return completer;
 }
