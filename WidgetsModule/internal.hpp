@@ -52,6 +52,7 @@
 #include "TableViews/Header/widgetsresizableheaderattachment.h"
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"
+#include "Widgets/widgetsresizabletableview.h"
 #include "Widgets/widgetsimportview.h"
 #include "Widgets/DateTime/widgetsdatetimeedit.h"
 #include "Widgets/DateTime/widgetsdatetimepopuppicker.h"
