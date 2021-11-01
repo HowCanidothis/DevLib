@@ -12,6 +12,10 @@ public:
 
     void setModel(QAbstractItemModel *model) override;
     QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+private:
+    void invalidateLayout();
 
 private:
     QtLambdaConnections m_connections;
