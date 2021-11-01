@@ -183,6 +183,9 @@ QTableView* WidgetsImportView::GetPreviewTableView() const
 void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
 {
     m_matchingAttachment = new WidgetsMatchingAttachment(ui->SourceTable, targetModel, targetImportColumns);
+    m_matchingAttachment->IsEnabled = true;
+    m_matchingAttachment->IsVisible = true;
+
     OnMatchingChanged.ConnectFrom(m_matchingAttachment->OnMatchingChanged);
     OnTransited.ConnectFrom(m_matchingAttachment->OnTransited);
     m_matchingAttachment->DateFormat.ConnectFrom(DateTimeFormat);
@@ -190,8 +193,6 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
         return TranslatorManager::GetNames<DecimalKeyboardSeparator>().at(key);
     });
     ui->PreviewTable->setModel(targetModel);
-    m_matchingAttachment->IsEnabled = true;
-    m_matchingAttachment->IsVisible = true;
 }
 
 void WidgetsImportView::SetPreviewModel(QAbstractItemModel* model)
