@@ -15,7 +15,7 @@
 #include "MeasurementTypes/pressuredeclarations.h"
 #include "MeasurementTypes/speeddeclarations.h"
 #include "MeasurementTypes/torquedeclarations.h"
-
+#include "MeasurementTypes/funnelviscositydeclarations.h"
 #include "MeasurementTypes/mudweightdeclaration.h"
 #include "MeasurementTypes/viscositydeclaration.h"
 #include "MeasurementTypes/yieldpointdeclarations.h"
@@ -26,6 +26,7 @@
 #include "MeasurementTypes/yieldstrenghtdeclarations.h"
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
 #include "MeasurementTypes/areadeclarations.h"
+#include "MeasurementTypes/percentsdeclarations.h"
 
 #endif
 

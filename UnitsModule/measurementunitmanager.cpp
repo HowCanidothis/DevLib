@@ -9,7 +9,8 @@
 #include "MeasurementTypes/pressuredeclarations.h"
 #include "MeasurementTypes/speeddeclarations.h"
 #include "MeasurementTypes/torquedeclarations.h"
-
+#include "MeasurementTypes/funnelviscositydeclarations.h"
+#include "MeasurementTypes/percentsdeclarations.h"
 #include "MeasurementTypes/mudweightdeclaration.h"
 #include "MeasurementTypes/viscositydeclaration.h"
 #include "MeasurementTypes/yieldpointdeclarations.h"
@@ -115,6 +116,13 @@ MeasurementManager::MeasurementManager()
 			.AddUnit(&DistanceUnits::USFeets)
 			.AddUnit(&DistanceUnits::Feets)
 			.AddUnit(&DistanceUnits::Meters);
+
+    AddMeasurement(MEASUREMENT_FUNNEL_VISCOSITY)
+            .AddUnit(&FunnelViscosityUnits::SecondsForQuart);
+
+    AddMeasurement(MEASUREMENT_PERCENTS)
+            .AddUnit(&PercentsUnits::Partial)
+            .AddUnit(&PercentsUnits::Percents);
 			
 	AddMeasurement(MEASUREMENT_DIAMETER)
 			.AddUnit(&DistanceUnits::USFeets)
@@ -256,7 +264,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2});
+            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
+            .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
 
     AddSystem(UNIT_SYSTEM_API)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
@@ -279,7 +289,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2});
+            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
+            .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
     
     AddSystem(UNIT_SYSTEM_SI)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
@@ -302,7 +314,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Celsius.Id,                 1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2});
+            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2})
+            .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
 		
     
     CurrentMeasurementSystem.SetAndSubscribe([this]{

@@ -7,7 +7,7 @@ static const Name MEASUREMENT_VISCOSITY = "Viscosity";
 namespace ViscosityUnits
 {
     static const MeasurementUnit Centipoise("Centipoise", []{return QObject::tr("centipoise");}, []{ return QObject::tr("cp"); }, 1.0);
-    static const MeasurementUnit MilliPascalSecond("Millipascal-second", []{return QObject::tr("millipascal-second");}, []{ return QObject::tr("mPa*s"); }, DEGREES_TO_RADIANS);
+    static const MeasurementUnit MilliPascalSecond("Millipascal-second", []{return QObject::tr("millipascal-second");}, []{ return QObject::tr("mPa*s"); }, 1.0);
 };
 
 #define MEASUREMENT_VISCOSITY_UNIT_TO_BASE(x) \
