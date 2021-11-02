@@ -15,7 +15,7 @@ namespace ThermalExpansionUnits
 #define MEASUREMENT_THERMAL_EXPANSION_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_THERMAL_EXPANSION)->FromBaseToUnit(x)
 #define MEASUREMENT_THERMAL_EXPANSION_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_THERMAL_EXPANSION)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_THERMAL_EXPANSION)->CurrentPrecision
 #define MEASUREMENT_THERMAL_EXPANSION_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_THERMAL_EXPANSION_BASE_TO_UNIT(x), 'f', MEASUREMENT_THERMAL_EXPANSION_PRECISION())
 

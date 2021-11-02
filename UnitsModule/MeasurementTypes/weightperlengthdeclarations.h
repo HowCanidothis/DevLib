@@ -17,7 +17,7 @@ namespace WeightPerLengthUnits
 #define MEASUREMENT_WEIGHT_PER_LENGTH_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_WEIGHT_PER_LENGTH)->FromBaseToUnit(x)
 #define MEASUREMENT_WEIGHT_PER_LENGTH_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_WEIGHT_PER_LENGTH)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_WEIGHT_PER_LENGTH)->CurrentPrecision
 #define MEASUREMENT_WEIGHT_PER_LENGTH_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_WEIGHT_PER_LENGTH_BASE_TO_UNIT(x), 'f', MEASUREMENT_WEIGHT_PER_LENGTH_PRECISION())
 

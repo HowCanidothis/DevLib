@@ -50,7 +50,8 @@ public:
     const WPSCUnitTableWrapperPtr& GetTableWrapper() const { return m_wrapper; }
     
     LocalPropertyString Label;
-    LocalPropertyInt Precision;
+    LocalPropertyInt CurrentPrecision;
+    LocalPropertyDouble CurrentStep;
     
     LocalProperty<Name> CurrentUnitId;
     LocalPropertyString CurrentUnitLabel;
@@ -75,15 +76,17 @@ using WPSCUnitMeasurementTableWrapperPtr = SharedPointer<WPSCUnitMeasurementTabl
 struct MeasurementParams
 {
     MeasurementParams(){}
-    MeasurementParams(const Name& id, int precision): UnitId(id), UnitPrecision(precision){}
+    MeasurementParams(const Name& id, int precision, double step = 1.0): UnitId(id), UnitPrecision(precision), UnitStep(step){}
     MeasurementParams(const Name& measurmentType);
     Name UnitId;
     qint32 UnitPrecision;
+    double UnitStep;
     
     template<typename Buffer>
     void Serialize (Buffer& buffer) {
         buffer << UnitId;
         buffer << UnitPrecision;
+        buffer << UnitStep;
     }
 };
 class MeasurementSystem : public QHash<Name,MeasurementParams>
@@ -152,6 +155,7 @@ public:
     void Connect(LocalPropertyDouble* baseValueProperty);
     LocalPropertyDouble Value;
     LocalPropertyInt Precision;
+    LocalPropertyDouble Step;
     
 private:
     LocalPropertyDouble* m_currentValue;
@@ -179,7 +183,8 @@ public:
     {
         const auto& measurement = MeasurementManager::GetInstance().GetMeasurement(measurementType);
         m_baseToUnitConverter = measurement->GetCurrentUnit()->GetBaseToUnitConverter();
-        spinBox->setDecimals(measurement->Precision);
+        spinBox->setDecimals(measurement->CurrentPrecision);
+        spinBox->setSingleStep(measurement->CurrentStep);
     }
 
     void SetRange(double min, double max)
@@ -211,7 +216,7 @@ protected:
 #define MEASUREMENT_BASE_TO_UNIT(system, x) \
     MeasurementManager::GetInstance().GetCurrentUnit(system)->FromBaseToUnit(x)
 #define MEASUREMENT_PRECISION(system) \
-    MeasurementManager::GetInstance().GetMeasurement(system)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(system)->CurrentPrecision
 #define MEASUREMENT_BASE_TO_UNIT_UI(system, x) \
     QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))
 #define MEASUREMENT_STRING(system) \

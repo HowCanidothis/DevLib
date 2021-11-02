@@ -15,7 +15,7 @@ namespace MudWeightUnits
 #define MEASUREMENT_MUD_WEIGHT_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_MUD_WEIGHT)->FromBaseToUnit(x)
 #define MEASUREMENT_MUD_WEIGHT_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_MUD_WEIGHT)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_MUD_WEIGHT)->CurrentPrecision
 #define MEASUREMENT_MUD_WEIGHT_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_MUD_WEIGHT_BASE_TO_UNIT(x), 'f', MEASUREMENT_MUD_WEIGHT_PRECISION())
 

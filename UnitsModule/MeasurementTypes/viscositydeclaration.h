@@ -15,7 +15,7 @@ namespace ViscosityUnits
 #define MEASUREMENT_VISCOSITY_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_VISCOSITY)->FromBaseToUnit(x)
 #define MEASUREMENT_VISCOSITY_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_VISCOSITY)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_VISCOSITY)->CurrentPrecision
 #define MEASUREMENT_VISCOSITY_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_VISCOSITY_BASE_TO_UNIT(x), 'f', MEASUREMENT_VISCOSITY_PRECISION())
 

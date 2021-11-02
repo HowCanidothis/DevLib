@@ -25,7 +25,7 @@ namespace DistanceUnits
 #define MEASUREMENT_DISTANCE_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DISTANCES)->FromBaseToUnit(x)
 #define MEASUREMENT_DISTANCE_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DISTANCES)->CurrentPrecision
 #define MEASUREMENT_DISTANCE_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_DISTANCE_BASE_TO_UNIT(x), 'f', MEASUREMENT_DISTANCE_PRECISION())
 
@@ -39,7 +39,7 @@ namespace DistanceUnits
 #define MEASUREMENT_DIAMETER_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DIAMETER)->FromBaseToUnit(x)
 #define MEASUREMENT_DIAMETER_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DIAMETER)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DIAMETER)->CurrentPrecision
 #define MEASUREMENT_DIAMETER_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_DIAMETER_BASE_TO_UNIT(x), 'f', MEASUREMENT_DIAMETER_PRECISION())
 
@@ -53,7 +53,7 @@ namespace DistanceUnits
 #define MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_JET_DIAMETER)->FromBaseToUnit(x)
 #define MEASUREMENT_JET_DIAMETER_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_JET_DIAMETER)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_JET_DIAMETER)->CurrentPrecision
 #define MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_JET_DIAMETER_BASE_TO_UNIT(x), 'f', MEASUREMENT_JET_DIAMETER_PRECISION())
 

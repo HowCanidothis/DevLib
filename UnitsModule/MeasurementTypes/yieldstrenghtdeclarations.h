@@ -15,7 +15,7 @@ namespace YieldStrengthUnits
 #define MEASUREMENT_YIELD_STRENGTH_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_YIELD_STRENGTH)->FromBaseToUnit(x)
 #define MEASUREMENT_YIELD_STRENGTH_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_YIELD_STRENGTH)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_YIELD_STRENGTH)->CurrentPrecision
 #define MEASUREMENT_YIELD_STRENGTH_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_YIELD_STRENGTH_BASE_TO_UNIT(x), 'f', MEASUREMENT_YIELD_STRENGTH_PRECISION())
 

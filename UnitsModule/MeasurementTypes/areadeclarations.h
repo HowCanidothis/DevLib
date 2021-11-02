@@ -3,7 +3,7 @@
 
 #include "UnitsModule/measurementunitmanager.h"
 
-static const Name MEASUREMENT_AREA      = "AREA";
+static const Name MEASUREMENT_AREA      = "Area";
 static constexpr double SQ_METERS_TO_SQ_FEETS_MULTIPLIER = METERS_TO_FEETS_MULTIPLIER*METERS_TO_FEETS_MULTIPLIER;
 
 namespace AreaUnits
@@ -20,7 +20,7 @@ namespace AreaUnits
 #define MEASUREMENT_AREA_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_AREA)->FromBaseToUnit(x)
 #define MEASUREMENT_AREA_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_AREA)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_AREA)->CurrentPrecision
 #define MEASUREMENT_AREA_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_AREA_BASE_TO_UNIT(x), 'f', MEASUREMENT_AREA_PRECISION())
 

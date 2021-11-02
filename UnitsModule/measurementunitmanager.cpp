@@ -55,7 +55,8 @@ double MeasurementUnit::FromBaseToUnit(double baseValue) const
 
 Measurement::Measurement(const QString& label)
     : Label(label)
-    , Precision(2)
+    , CurrentPrecision(2)
+    , CurrentStep(1.0)
     , m_wrapper(::make_shared<WPSCUnitTableWrapper>())
     , m_currentUnit(nullptr)
 {
@@ -69,7 +70,8 @@ Measurement::Measurement(const QString& label)
     OnChanged.Subscribe({&Label.OnChange,
                            &CurrentUnitId.OnChange,
                            &CurrentUnitLabel.OnChange,
-                           &Precision.OnChange});
+                           &CurrentPrecision.OnChange,
+                           &CurrentStep.OnChange});
 }
 
 Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
@@ -251,7 +253,7 @@ MeasurementManager::MeasurementManager()
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,                    2})
-            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Inches.Id,                     3})
+            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeUSFeet.Id,                    2})
             .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::USfeetPerHour.Id,                 2})
@@ -277,7 +279,7 @@ MeasurementManager::MeasurementManager()
     AddSystem(UNIT_SYSTEM_API)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Feets.Id,                      2})
-            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Inches.Id,                     3})
+            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeFeet.Id,                      2})
             .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::FeetPerHour.Id,                   2})
@@ -303,7 +305,7 @@ MeasurementManager::MeasurementManager()
     AddSystem(UNIT_SYSTEM_SI)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::Meters.Id,                     2})
-            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Milimeters.Id,                 3})
+            .AddParameter(MEASUREMENT_DIAMETER,          {DistanceUnits::Milimeters.Id,                 3, 1.0 })
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_DLS,               {DLSUnits::DegreeMeter.Id,                     2})
             .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::MetersPerHour.Id,                 2})
@@ -336,11 +338,13 @@ MeasurementManager::MeasurementManager()
             const auto& measurement = GetMeasurement(iter.key());
             auto* parameters = &iter.value();
             Q_ASSERT(measurement != nullptr);
+            measurement->CurrentStep = parameters->UnitStep;
             measurement->CurrentUnitId = parameters->UnitId;
-            measurement->Precision = parameters->UnitPrecision;
+            measurement->CurrentPrecision = parameters->UnitPrecision;
             
+            measurement->CurrentStep.OnChange.Connect(this, [parameters, measurement]{parameters->UnitStep = measurement->CurrentStep; }).MakeSafe(m_connections);
             measurement->CurrentUnitId.OnChange.Connect(this, [measurement, parameters]{parameters->UnitId = measurement->CurrentUnitId; }).MakeSafe(m_connections);
-            measurement->Precision.OnChange.Connect(this, [parameters, measurement]{parameters->UnitPrecision = measurement->Precision; }).MakeSafe(m_connections);
+            measurement->CurrentPrecision.OnChange.Connect(this, [parameters, measurement]{parameters->UnitPrecision = measurement->CurrentPrecision; }).MakeSafe(m_connections);
         }
     });
 }
@@ -443,7 +447,8 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
                                                       Connect(m_currentValue);
                                                   }).MakeSafe(m_systemConnections);
 
-    Precision.ConnectFrom(m_metricSystem->Precision).MakeSafe(m_systemConnections);
+    Precision.ConnectFrom(m_metricSystem->CurrentPrecision).MakeSafe(m_systemConnections);
+    Step.ConnectFrom(m_metricSystem->CurrentStep).MakeSafe(m_systemConnections);
 }
 
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics)

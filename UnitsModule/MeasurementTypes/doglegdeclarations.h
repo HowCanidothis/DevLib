@@ -19,7 +19,7 @@ namespace DLSUnits
 #define MEASUREMENT_DLS_BASE_TO_UNIT(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_DLS)->FromBaseToUnit(x)
 #define MEASUREMENT_DLS_PRECISION() \
-    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->Precision
+    MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_DLS)->CurrentPrecision
 #define MEASUREMENT_DLS_BASE_TO_UNIT_UI(x) \
     QString::number(MEASUREMENT_DLS_BASE_TO_UNIT(x), 'f', MEASUREMENT_DLS_PRECISION())
 
