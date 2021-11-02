@@ -230,6 +230,7 @@ MeasurementManager::MeasurementManager()
 
     AddMeasurement(MEASUREMENT_AREA)
             .AddUnit(&AreaUnits::SqMeters)
+            .AddUnit(&AreaUnits::SqCentimeters)
             .AddUnit(&AreaUnits::SqMilimeters)
             .AddUnit(&AreaUnits::SqFeets)
             .AddUnit(&AreaUnits::SqInches);
