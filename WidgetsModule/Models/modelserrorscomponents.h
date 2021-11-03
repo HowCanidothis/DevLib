@@ -145,12 +145,12 @@ public:
             wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter, hasCriticalErrorsHandler]{
                 auto& native = wrapper->EditSilent();
                 auto prev = native.begin();
+                auto& data = *prev;
+                auto& flags = flagsGetter(data);
                 for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                    auto& data = *prev;
-                    auto& flags = flagsGetter(data);
                     LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
-                    errorState |= flags;
                 }
+                errorState |= flags;
                 if(hasCriticalErrorsHandler(*prev)) {
                     return;
                 }
