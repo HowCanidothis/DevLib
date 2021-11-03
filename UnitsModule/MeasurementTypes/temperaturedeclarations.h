@@ -6,8 +6,8 @@ static const Name MEASUREMENT_TEMPERATURE = "Temperature";
 
 namespace TemperatureUnits
 {
-    static const MeasurementUnit Celsius("Celsius", []{return QObject::tr("Celsius");}, []{ return QObject::tr("C"); }, [](double c)->double{return c * 1.8 + 32;}, [](double fa)->double{return ( fa - 32)/1.8;});
-    static const MeasurementUnit Fahrenheit("Fahrenheit", []{return QObject::tr("Fahrenheit");}, []{ return QObject::tr("F"); }, 1);
+    static const MeasurementUnit Celsius("Celsius", []{return QObject::tr("Celsius");}, []{ return QObject::tr("C"); }, 1.0);
+    static const MeasurementUnit Fahrenheit("Fahrenheit", []{return QObject::tr("Fahrenheit");}, []{ return QObject::tr("F"); }, [](double f)->double{return (f - 32.0) * 5.0 / 9.0;}, [](double c)->double{return (c * 9.0/5.0) + 32.0;});
 };
 
 #define MEASUREMENT_TEMPERATURE_UNIT_TO_BASE(x) \
