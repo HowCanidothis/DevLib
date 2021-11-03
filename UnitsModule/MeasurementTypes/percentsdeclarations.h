@@ -8,7 +8,7 @@ static const Name MEASUREMENT_PERCENTS = "Percents";
 namespace PercentsUnits
 {
     static const MeasurementUnit Partial  ("Partial", []{return QObject::tr("partial"); }, []{ return QObject::tr("");  }, 1.0  );
-    static const MeasurementUnit Percents ("Percents", []{return QObject::tr("percents");     }, []{ return "%";   }, 100.0  );
+    static const MeasurementUnit Percents ("Percents", []{return QObject::tr("percents");     }, []{ return "%";   }, 0.01  );
 }
 
 #define MEASUREMENT_PERCENTS_STRING              MEASUREMENT_STRING(MEASUREMENT_PERCENTS)

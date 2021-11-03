@@ -80,6 +80,7 @@ public:
     WidgetsAttachment(const FFilter& filter, QObject* parent);
 
     static void Attach(QObject* target, const FFilter& filter);
+    static QLineEdit* AttachLineEditAdjuster(QLineEdit* edit);
 
 private:
     bool eventFilter(QObject* watched, QEvent* e) override;

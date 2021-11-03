@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QClipboard>
 #include <QApplication>
+#include <QLineEdit>
 
 #include <optional>
 
@@ -276,6 +277,18 @@ WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
 void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
 {
     new WidgetsAttachment(filter, target);
+}
+
+QLineEdit* WidgetsAttachment::AttachLineEditAdjuster(QLineEdit* edit) {
+    auto invalidate = [edit]{
+        QFontMetrics fm(edit->font());
+        int pixelsWide = fm.width(edit->text());
+        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 20;
+        edit->setMinimumWidth(pixelsWide);
+    };
+    QObject::connect(edit, &QLineEdit::textChanged, invalidate);
+    invalidate();
+    return edit;
 }
 
 bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
