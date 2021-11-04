@@ -21,6 +21,7 @@
 #include "MeasurementTypes/yieldstrenghtdeclarations.h"
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
 #include "MeasurementTypes/areadeclarations.h"
+#include "MeasurementTypes/forcedeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -243,6 +244,10 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&AreaUnits::SqFeets)
             .AddUnit(&AreaUnits::SqInches);
 
+    AddMeasurement(MEASUREMENT_FORCE)
+            .AddUnit(&ForceUnits::Kilonewton)
+            .AddUnit(&ForceUnits::KiloPoundsForce);
+
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,                    2})
@@ -263,6 +268,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqCentimeters.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
+            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
             .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
@@ -288,6 +294,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqCentimeters.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
+            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
             .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
@@ -313,6 +320,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqMilimeters.Id,                   2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
+            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::Kilonewton.Id,                    2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Celsius.Id,                 1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2})
             .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })

@@ -27,6 +27,7 @@
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
 #include "MeasurementTypes/areadeclarations.h"
 #include "MeasurementTypes/percentsdeclarations.h"
+#include "MeasurementTypes/forcedeclarations.h"
 
 #endif
 
