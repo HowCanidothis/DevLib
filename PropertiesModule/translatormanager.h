@@ -52,6 +52,7 @@ public:
     TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);
 
     void SetTranslationHandler(const FTranslationHandler& handler);
+    const FTranslationHandler& GetTranslationHandler() const { return m_translationHandler; }
 
     Dispatcher Retranslate;
 
