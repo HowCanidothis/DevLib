@@ -873,11 +873,6 @@ WidgetsDateEdit::drop-down
     width: 16px;
 }
 
-WidgetsDatetimePopupPicker QPushButton#CalendarButton
-{
-    qproperty-icon: url(":/qss_icons/rc/calendar-month.svg");
-}
-
 WidgetsTimeWidget QSpinBox {
   color: #F0F0F0;
   selection-color: #F0F0F0;

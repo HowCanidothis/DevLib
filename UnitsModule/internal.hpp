@@ -28,6 +28,7 @@
 #include "MeasurementTypes/areadeclarations.h"
 #include "MeasurementTypes/percentsdeclarations.h"
 #include "MeasurementTypes/forcedeclarations.h"
+#include "MeasurementTypes/motorspeeddeclarations.h"
 
 #endif
 

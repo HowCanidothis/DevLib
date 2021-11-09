@@ -22,6 +22,7 @@
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
 #include "MeasurementTypes/areadeclarations.h"
 #include "MeasurementTypes/forcedeclarations.h"
+#include "MeasurementTypes/motorspeeddeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -250,6 +251,9 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&ForceUnits::Kilonewton)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
+    AddMeasurement(MEASUREMENT_MOTOR_SPEED)
+        .AddUnit(&MotorSpeedUnits::RevolutionPerGallon);
+
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_DISTANCES,         {DistanceUnits::USFeets.Id,                    2})
@@ -267,13 +271,14 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::PoundsPerSquareInch.Id,   2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::PoundsPerSquareInch.Id,    2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
-            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqCentimeters.Id,                  3})
+            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
-            .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_PERCENTS,         { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_MOTOR_SPEED,      { MotorSpeedUnits::RevolutionPerGallon.Id, 2 })
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
 
     AddSystem(UNIT_SYSTEM_API)
@@ -293,13 +298,14 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::PoundsPerSquareInch.Id,   2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::PoundsPerSquareInch.Id,    2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
-            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqCentimeters.Id,                  3})
+            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
             .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_MOTOR_SPEED,      { MotorSpeedUnits::RevolutionPerGallon.Id, 2 })
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
     
     AddSystem(UNIT_SYSTEM_SI)
@@ -319,13 +325,14 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::Kilopascals.Id,           2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::Kilopascals.Id,            2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::Milimeters.Id,                 2})
-            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqMilimeters.Id,                   2})
+            .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                   2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::Kilonewton.Id,                    2})
             .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Celsius.Id,                 1})
             .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2})
-            .AddParameter(MEASUREMENT_PERCENTS, { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_PERCENTS,         { PercentsUnits::Percents.Id, 2 })
+            .AddParameter(MEASUREMENT_MOTOR_SPEED,      { MotorSpeedUnits::RevolutionPerGallon.Id, 2 })
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY, { FunnelViscosityUnits::SecondsForQuart.Id, 2 });
 		
     

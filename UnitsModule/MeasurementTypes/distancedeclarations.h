@@ -4,7 +4,7 @@
 #include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_DISTANCES      = "Length";
-static const Name MEASUREMENT_DIAMETER       = "Bit Diameter";
+static const Name MEASUREMENT_DIAMETER       = "Tool Diameter";
 static const Name MEASUREMENT_JET_DIAMETER   = "Jet Diameter";
 
 namespace DistanceUnits

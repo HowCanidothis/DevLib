@@ -6,6 +6,7 @@
 #include <QWidgetAction>
 #include <QKeyEvent>
 
+#include <WidgetsModule/internal.hpp>
 #include "widgetsdatetimewidget.h"
 
 WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
@@ -13,6 +14,8 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     , ui(new Ui::WidgetsDatetimePopupPicker)
 {
     ui->setupUi(this);
+    ui->CalendarButton->setIcon(IconsManager::GetInstance().GetIcon("CalendarIcon"));
+
     auto updateLocale = [this]{
         const auto& locale = Locale.Native();
         if(locale == QLocale::English){

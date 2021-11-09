@@ -2,7 +2,7 @@
 #define YOUNGMODULUSDECLARATIONS_H
 
 #include "UnitsModule/measurementunitmanager.h"
-static const Name MEASUREMENT_YOUNG_MODULUS = "Young Modulus";
+static const Name MEASUREMENT_YOUNG_MODULUS = "Young's Modulus";
 
 namespace YoungModulusUnits
 {
