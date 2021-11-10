@@ -5,8 +5,7 @@
 class WidgetsStandartTableAttachment
 {
 public:
-    static void Attach(class QTableView* tableView);
-    static void AttachWithShowHide(class QTableView* tableView, const QSet<qint32>& ignorColumns = {});
+    static void Attach(class QTableView* tableView, const QSet<qint32>& ignoreColumns = {});
 };
 
 #endif // WIDGETSSTANDARTTABLEATTACHMENT_H
