@@ -6,10 +6,10 @@ static const Name MEASUREMENT_TIME = "Time";
 
 namespace TimeUnits
 {
-    static const MeasurementUnit MSeconds("MSeconds",   []{return QObject::tr("msec");}, []{ return QObject::tr("ms"); }, 1.0);
-    static const MeasurementUnit Seconds ("Seconds",    []{return QObject::tr("sec");}, []{ return QObject::tr("s"); }, 1000);
-    static const MeasurementUnit Minutes ("Minutes",    []{return QObject::tr("min");}, []{ return QObject::tr("m"); }, 60000);
-    static const MeasurementUnit Hours   ("Hours",      []{return QObject::tr("hour");}, []{ return QObject::tr("h"); }, 3600000);
+    static const MeasurementUnit MSeconds("MSeconds",   []{return QObject::tr("msec");}, []{ return QObject::tr("ms"); }, 1.0/1000);
+    static const MeasurementUnit Seconds ("Seconds",    []{return QObject::tr("sec");}, []{ return QObject::tr("s"); }, 1);
+    static const MeasurementUnit Minutes ("Minutes",    []{return QObject::tr("min");}, []{ return QObject::tr("m"); }, 60);
+    static const MeasurementUnit Hours   ("Hours",      []{return QObject::tr("hour");}, []{ return QObject::tr("h"); }, 3600);
 };
 
 #define MEASUREMENT_TIME_UNIT_TO_BASE(x) \
