@@ -140,6 +140,8 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&DistanceUnits::Kilometers);
 	
 	AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
+            .AddUnit(&FieldStrengthUnits::MicroTeslas)
+            .AddUnit(&FieldStrengthUnits::Gauss)
 			.AddUnit(&FieldStrengthUnits::NanoTeslas);
 	
 	AddMeasurement(MEASUREMENT_DLS)
