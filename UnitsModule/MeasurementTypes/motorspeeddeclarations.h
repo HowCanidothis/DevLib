@@ -7,7 +7,9 @@ static const Name MEASUREMENT_MOTOR_SPEED = "Motor speed";
 
 namespace MotorSpeedUnits
 {
-    static const MeasurementUnit RevolutionPerGallon("RevolutionPerGallon", []{return QObject::tr("revolution per gallon");}, []{ return QObject::tr("rev/gal"); }, 1.0);
+    static const MeasurementUnit RevolutionPerGallon("RevolutionPerGallon", []{return QObject::tr("revolution per gallon");}, []{ return QObject::tr("rev/gal"); }, 264.172052);
+    static const MeasurementUnit RevolutionPerLiter("RevolutionPerLiter", []{return QObject::tr("revolution per liter");}, []{ return QObject::tr("rev/l"); }, 1000.0);
+    static const MeasurementUnit RevolutionPerCubicMeter("RevolutionPerCubicMeter", []{return QObject::tr("revolution per cubic meter");}, []{ return QObject::tr("rev/m3"); }, 1.0);
 };
 
 #define MEASUREMENT_MOTOR_SPEED_UNIT_TO_BASE(x) \

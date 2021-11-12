@@ -6,8 +6,7 @@ static const Name MEASUREMENT_YIELD_POINT = "Yield Point";
 
 namespace YieldPointUnits
 {
-    static const MeasurementUnit PoundForcePerSquareFoot("PoundForcePerSquareFoot", []{return QObject::tr("pound force per square foot");}, []{ return QObject::tr("lbf/100ft2"); }, 1.0);
-    static const MeasurementUnit Pascal("Pascal", []{return QObject::tr("pascal");}, []{ return QObject::tr("Pa");; }, 0.02088547);
+    // Using Pressure
 };
 
 #define MEASUREMENT_YIELD_POINT_UNIT_TO_BASE(x) \

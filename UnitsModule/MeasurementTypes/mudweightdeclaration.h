@@ -6,8 +6,8 @@ static const Name MEASUREMENT_MUD_WEIGHT = "Mud Weight";
 
 namespace MudWeightUnits
 {
-    static const MeasurementUnit PoundPerGallon("Pound Per Gallon", []{return QObject::tr("pounds per gallog");}, []{ return QObject::tr("ppg"); }, 1.0);
-    static const MeasurementUnit KilogramPerCubicMeter("Kilogram Per Cubic Meter", []{return QObject::tr("kilogram per cubic meter");}, []{ return QObject::tr("kg/m3"); }, 0.0083);
+    static const MeasurementUnit PoundPerGallon("Pound Per Gallon", []{return QObject::tr("pounds per gallog");}, []{ return QObject::tr("ppg"); }, 119.8225188);
+    static const MeasurementUnit KilogramPerCubicMeter("Kilogram Per Cubic Meter", []{return QObject::tr("kilogram per cubic meter");}, []{ return QObject::tr("kg/m3"); }, 1.0);
 };
 
 #define MEASUREMENT_MUD_WEIGHT_UNIT_TO_BASE(x) \

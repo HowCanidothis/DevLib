@@ -6,8 +6,7 @@ static const Name MEASUREMENT_YIELD_STRENGTH = "Yield Strength";
 
 namespace YieldStrengthUnits
 {
-    static const MeasurementUnit PoundsPerSquareInch("PoundsPerSquareInch", []{return QObject::tr("pounds-force/sq.inch");}, []{ return QObject::tr("psi"); }, 1.0);
-    static const MeasurementUnit Kilopascals("Kilopascals", []{return QObject::tr("kilopascals");}, []{ return QObject::tr("kPa"); }, 0.1450377);
+    // Using Pressure
 };
 
 #define MEASUREMENT_YIELD_STRENGTH_UNIT_TO_BASE(x) \

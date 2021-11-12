@@ -204,8 +204,8 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&ViscosityUnits::MilliPascalSecond);
 
     AddMeasurement(MEASUREMENT_YIELD_POINT)
-            .AddUnit(&YieldPointUnits::PoundForcePerSquareFoot)
-            .AddUnit(&YieldPointUnits::Pascal);
+            .AddUnit(&PressureUnits::PoundsPerSquareFeet)
+            .AddUnit(&PressureUnits::Pascals);
 
     AddMeasurement(MEASUREMENT_TEMPERATURE)
             .AddUnit(&TemperatureUnits::Celsius   )
@@ -224,12 +224,12 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&WeightPerLengthUnits::PoundPerInch);
 
     AddMeasurement(MEASUREMENT_YOUNG_MODULUS)
-            .AddUnit(&YoungModulusUnits::PoundsPerSquareInch)
-            .AddUnit(&YoungModulusUnits::Kilopascals);
+            .AddUnit(&PressureUnits::PoundsPerSquareInch)
+            .AddUnit(&PressureUnits::Kilopascals);
 
     AddMeasurement(MEASUREMENT_YIELD_STRENGTH)
-            .AddUnit(&YieldStrengthUnits::PoundsPerSquareInch)
-            .AddUnit(&YieldStrengthUnits::Kilopascals);
+            .AddUnit(&PressureUnits::PoundsPerSquareInch)
+            .AddUnit(&PressureUnits::Kilopascals);
 
     AddMeasurement(MEASUREMENT_THERMAL_EXPANSION)
             .AddUnit(&ThermalExpansionUnits::PerDegreeFahrenheit)
@@ -274,9 +274,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,          2})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {YieldPointUnits::PoundForcePerSquareFoot.Id,  2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::PoundsPerSquareInch.Id,   2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::PoundsPerSquareInch.Id,    2})
+            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,  2})
+            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,   2})
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,    2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
@@ -302,9 +302,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {YieldPointUnits::PoundForcePerSquareFoot.Id,  2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::PoundsPerSquareInch.Id,   2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::PoundsPerSquareInch.Id,    2})
+            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,  2})
+            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,   2})
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,    2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                  3})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
@@ -330,9 +330,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::LitersPerSecond.Id,           0})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::KilogramPerCubicMeter.Id,     2})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::MilliPascalSecond.Id,         2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {YieldPointUnits::Pascal.Id,                   2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {YieldStrengthUnits::Kilopascals.Id,           2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {YoungModulusUnits::Kilopascals.Id,            2})
+            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::Pascals.Id,                   2})
+            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,           2})
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,            2})
             .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqCentimeters.Id,                   2})
             .AddParameter(MEASUREMENT_DENSITY,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
