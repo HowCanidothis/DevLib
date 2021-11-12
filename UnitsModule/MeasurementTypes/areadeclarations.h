@@ -4,15 +4,15 @@
 #include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_AREA      = "Area";
-static constexpr double SQ_METERS_TO_SQ_FEETS_MULTIPLIER = METERS_TO_FEETS_MULTIPLIER*METERS_TO_FEETS_MULTIPLIER;
 
 namespace AreaUnits
 {
-    static const MeasurementUnit SqMeters      ("SqMeters", []{return QObject::tr("square meters");}, []{ return QObject::tr("m2"); }, SQ_METERS_TO_SQ_FEETS_MULTIPLIER);
-    static const MeasurementUnit SqCentimeters ("SqCentimeters", []{return QObject::tr("square centimeters");}, []{ return QObject::tr("cm2"); }, SQ_METERS_TO_SQ_FEETS_MULTIPLIER/10e4);
-    static const MeasurementUnit SqMilimeters  ("SqMilimeters", []{return QObject::tr("square milimeters");}, []{ return QObject::tr("mm2"); }, SQ_METERS_TO_SQ_FEETS_MULTIPLIER/10e6);
-    static const MeasurementUnit SqFeets       ("SqFeets", []{return QObject::tr("square feet");}, []{ return QObject::tr("ft2"); }, 1);
-    static const MeasurementUnit SqInches      ("SqInches", []{return QObject::tr("square inches");}, []{ return QObject::tr("in2"); }, [](double v){ return v/144.0; }, [](double v){ return v*144.0;});
+    static const MeasurementUnit SqMeters      ("SqMeters", []{return QObject::tr("square meters");}, []{ return QObject::tr("m2"); }, 1.0);
+    static const MeasurementUnit SqCentimeters ("SqCentimeters", []{return QObject::tr("square centimeters");}, []{ return QObject::tr("cm2"); }, 0.0001);
+    static const MeasurementUnit SqMilimeters  ("SqMilimeters", []{return QObject::tr("square milimeters");}, []{ return QObject::tr("mm2"); }, 0.000001);
+    static const MeasurementUnit SqFeets       ("SqFeets", []{return QObject::tr("square feet");}, []{ return QObject::tr("ft2"); }, 1.0 / SQ_METERS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit SqUSFeets       ("SqUSFeets", []{return QObject::tr("square US feet");}, []{ return QObject::tr("usft2"); }, SQ_USFEETS_TO_FEETS_MULTIPLIER / SQ_METERS_TO_FEETS_MULTIPLIER);
+    static const MeasurementUnit SqInches      ("SqInches", []{return QObject::tr("square inches");}, []{ return QObject::tr("in2"); }, 1.0 / 144.0 / SQ_METERS_TO_FEETS_MULTIPLIER);
 };
 
 #define MEASUREMENT_AREA_UNIT_TO_BASE(x) \

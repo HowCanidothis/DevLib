@@ -6,11 +6,11 @@ static const Name MEASUREMENT_DENSITY = "Density";
 
 namespace DensityUnits
 {
-    static const MeasurementUnit KilogramsPerCubicMeters("KilogramsPerCubicMeters", []{return QObject::tr("kilograms/cubic meters");}, []{ return QObject::tr("kg/m3"); }, 0.06243);
-    static const MeasurementUnit KilogramsPerLiter("KilogramsPerLiter", []{return QObject::tr("kilograms/liter");}, []{ return QObject::tr("kg/l"); }, 62.42977);
-    static const MeasurementUnit PoundsPerGallon("PoundsPerGallon", []{return QObject::tr("pounds/gallon");}, []{ return QObject::tr("lb/gal"); }, 7.480520);
-    static const MeasurementUnit PoundsPerCubicFeet("PoundsPerCubicFeet", []{return QObject::tr("pounds/cubic feet");}, []{ return QObject::tr("lb/ft3"); }, 1.0);
-    static const MeasurementUnit MilligrammPerLiter("MilligrammPerLiter", []{return QObject::tr("milligrams/liter");}, []{ return QObject::tr("mg/L"); }, 0.000062427962033561);
+    static const MeasurementUnit KilogramsPerCubicMeters("KilogramsPerCubicMeters", []{return QObject::tr("kilograms/cubic meters");}, []{ return QObject::tr("kg/m3"); }, 1.0);
+    static const MeasurementUnit KilogramsPerLiter("KilogramsPerLiter", []{return QObject::tr("kilograms/liter");}, []{ return QObject::tr("kg/l"); }, 1000.0);
+    static const MeasurementUnit PoundsPerGallon("PoundsPerGallon", []{return QObject::tr("pounds/gallon");}, []{ return QObject::tr("lb/gal"); }, 119.826427);
+    static const MeasurementUnit PoundsPerCubicFeet("PoundsPerCubicFeet", []{return QObject::tr("pounds/cubic feet");}, []{ return QObject::tr("lb/ft3"); }, 16.018463);
+    static const MeasurementUnit MilligrammPerLiter("MilligrammPerLiter", []{return QObject::tr("milligrams/liter");}, []{ return QObject::tr("mg/L"); }, 0.001);
 };
 
 #define MEASUREMENT_DENSITY_UNIT_TO_BASE(x) \

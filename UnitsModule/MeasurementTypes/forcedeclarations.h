@@ -6,8 +6,9 @@ static const Name MEASUREMENT_FORCE = "Force";
 
 namespace ForceUnits
 {
-    static const MeasurementUnit Kilonewton("Kilonewton", []{return QObject::tr("kilonewton");}, []{ return QObject::tr("kN"); }, 0.22480894);
-    static const MeasurementUnit KiloPoundsForce("KiloPoundsForce", []{return QObject::tr("1000 pounds-force");}, []{ return QObject::tr("kip"); }, 1);
+    static const MeasurementUnit Newton("Newton", []{return QObject::tr("newton");}, []{ return QObject::tr("N"); }, 1.0);
+    static const MeasurementUnit Kilonewton("Kilonewton", []{return QObject::tr("kilonewton");}, []{ return QObject::tr("kN"); }, 1000.0);
+    static const MeasurementUnit KiloPoundsForce("KiloPoundsForce", []{return QObject::tr("1000 pounds-force");}, []{ return QObject::tr("kip"); }, 4448.22);
 };
 
 #define MEASUREMENT_FORCE_UNIT_TO_BASE(x) \

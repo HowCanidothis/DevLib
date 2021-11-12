@@ -6,7 +6,8 @@ static const Name MEASUREMENT_FUNNEL_VISCOSITY = "FunnelViscosity";
 
 namespace FunnelViscosityUnits
 {
-    static const MeasurementUnit SecondsForQuart("SecondsForQuart", []{return QObject::tr("seconds/quart");}, []{ return QObject::tr("sec/qt"); }, 1.0);
+    static const MeasurementUnit SecondsForCubicMeter("SecondsForCubicMeter", []{return QObject::tr("seconds/cubic meter");}, []{ return QObject::tr("sec/m3"); }, 1.0);
+    static const MeasurementUnit SecondsForQuart("SecondsForQuart", []{return QObject::tr("seconds/quart");}, []{ return QObject::tr("sec/qt"); }, 1.0 / 0.000946353);
 };
 
 #define MEASUREMENT_FUNNEL_VISCOSITY_UNIT_TO_BASE(x) \
