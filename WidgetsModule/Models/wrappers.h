@@ -202,7 +202,7 @@ inline void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
 }
 
 template<class Container>
-class TModelsTableWrapper : private Container, public ModelsTableWrapper
+class TModelsTableWrapper : protected Container, public ModelsTableWrapper
 {
     using Super = Container;
 public:
@@ -330,6 +330,15 @@ public:
         OnAboutToBeUpdated();
         handler();
         OnUpdated();
+        OnColumnsChanged(affectedColumns);
+    }
+
+    void Change(const std::function<void (Container&)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
+    {
+        OnAboutToBeReseted();
+        handler(EditSilent());
+        OnReseted();
+        OnChanged();
         OnColumnsChanged(affectedColumns);
     }
 

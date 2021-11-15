@@ -279,6 +279,35 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
     });
 }
 
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const ModelsStandardListModelPtr& model)
+    : Super([property, comboBox, model]{
+                auto result = model->Find([property](const QHash<qint32, QVariant>& value) {
+                    return value.value(Qt::EditRole).toInt() == *property;
+                });
+                comboBox->setCurrentIndex(result);
+            },
+            [property, comboBox]{
+                *property = comboBox->currentData(Qt::EditRole).toInt();
+            }
+    )
+{
+    auto* comboModel = new ModelsStandardListViewModel(this);
+    comboModel->SetData(model);
+    comboBox->setModel(comboModel);
+
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    model->OnChanged.Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
+        m_propertySetter();
+    });
+}
+
 LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
     : Super([property, buttons]{
                 buttons[*property]->setChecked(true);

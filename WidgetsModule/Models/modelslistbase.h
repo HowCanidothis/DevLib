@@ -57,4 +57,54 @@ private:
     CountExtractor m_countExtractor;
 };
 
+class ModelsStandardListModel : public TModelsTableWrapper<QVector<QHash<qint32, QVariant>>>
+{
+    using Super = TModelsTableWrapper<QVector<QHash<qint32, QVariant>>>;
+public:
+    template<class ... Args>
+    DispatcherConnection AddTrigger(CommonDispatcher<Args...>* dispatcher, const std::function<void (container_type&)>& handler, const std::function<bool ()>& apply = []{ return true; })
+    {
+        auto applyHandler = [apply, handler, this]{
+            if(apply()) {
+                Change(handler);
+            }
+        };
+        auto result = dispatcher->Connect(this, applyHandler);
+        applyHandler();
+        return result;
+    }
+};
+using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
+
+class ModelsStandardListViewModel : public TModelsTableBase<ModelsStandardListModel>
+{
+    using Super = TModelsTableBase<ModelsStandardListModel>;
+public:
+    using Super::Super;
+
+    QVariant data(const QModelIndex& index, int role) const override
+    {
+        if(!index.isValid() || GetData() == nullptr) {
+            return QVariant();
+        }
+
+        return GetData()->At(index.row()).value(role, QVariant());
+    }
+
+    int rowCount(const QModelIndex& index = QModelIndex()) const override
+    {
+        Q_UNUSED(index);
+        if(GetData() == nullptr) {
+            return 0;
+        }
+        return GetData()->GetSize();
+    }
+
+    int columnCount(const QModelIndex& index = QModelIndex()) const override
+    {
+        Q_UNUSED(index);
+        return 1;
+    }
+};
+
 #endif // MODELSLISTBASE_H

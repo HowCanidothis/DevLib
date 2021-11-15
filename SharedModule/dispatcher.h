@@ -59,7 +59,8 @@ public:
     DispatcherConnectionSafePtr MakeSafe() { return DispatcherConnectionSafePtr(m_disconnector, m_registrator); }
     void MakeSafe(DispatcherConnectionsSafe& connections)
     {
-        connections.append(MakeSafe());
+        auto connection = MakeSafe();
+        connections.append(connection);
     }
 };
 

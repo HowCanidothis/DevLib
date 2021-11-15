@@ -121,6 +121,9 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesComboBoxConnector(LocalPropertyInt* property, class QComboBox* comboBox);
+#ifdef WIDGETS_MODULE_LIB
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model);
+#endif
 };
 
 class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase
