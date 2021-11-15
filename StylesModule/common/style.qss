@@ -301,10 +301,6 @@ QAbstractItemView QLineEdit {
   padding: 2px;
 }
 
-QAbstractScrollArea {
-  min-height: 1.25em;
-}
-
 QScrollBar:horizontal {
   height: 3px;
   margin: 0px 0px 0px 0px;

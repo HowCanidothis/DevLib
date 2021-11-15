@@ -42,9 +42,12 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
     });
 
     m_emptyInputIsValid = true;
-    return valid->OnChange.Connect(this, [this]{
+    auto updateDisplay = [this]{
         setDisplayIntegerBase(displayIntegerBase());
-    });
+    };
+    auto result = valid->OnChange.Connect(this, updateDisplay);
+    updateDisplay();
+    return result;
 }
 
 qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
@@ -114,9 +117,12 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
     });
 
     m_emptyInputIsValid = true;
-    return valid->OnChange.Connect(this, [this]{
+    auto updateDisplay = [this]{
         setDecimals(decimals());
-    });
+    };
+    auto result = valid->OnChange.Connect(this, updateDisplay);
+    updateDisplay();
+    return result;
 }
 
 void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()

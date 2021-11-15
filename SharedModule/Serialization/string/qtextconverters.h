@@ -331,9 +331,12 @@ struct TextConverter<QMatrix4x4>
     {
         QString result;
         result += "[";
-        for(qint32 i(0); i < 16; i++) {
-            result += "(" + TextConverter<float>::ToText(value.constData()[i], context) + ")";
-        }
+        const auto* data = value.constData();
+        for(qint32 row(0); row < 4; row++) {
+            for(qint32 col(0); col < 4; col++) {
+                result += "(" + TextConverter<float>::ToText(data[col * 4 + row], context) + ")";
+            }
+        }  
         result += "]";
         return result;
     }
@@ -342,7 +345,6 @@ struct TextConverter<QMatrix4x4>
     {
         static QRegExp regExp(R"(\(([^\)]+)\))");
         qint32 pos = 0;
-        value_type result;
         float values[16];
         qint32 index = 0;
         while((pos = regExp.indexIn(string, pos)) != -1) {
@@ -350,7 +352,9 @@ struct TextConverter<QMatrix4x4>
             pos += regExp.matchedLength();
             index++;
         }
-        return QMatrix4x4(values);
+        auto result = QMatrix4x4(values);
+        result.optimize();
+        return result;
     }
 };
 
