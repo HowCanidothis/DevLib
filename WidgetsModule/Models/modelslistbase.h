@@ -73,6 +73,21 @@ public:
         applyHandler();
         return result;
     }
+
+    template<class Enum>
+    void SetEnum()
+    {
+        Change([](container_type& native){
+            native.clear();
+            auto names = TranslatorManager::GetNames<Enum>();
+            for(qint32 i((qint32)Enum::First), e((qint32)Enum::Last); i <= e; i++) {
+                ModelsStandardListModel::value_type data;
+                data.insert(Qt::DisplayRole, names.at(i));
+                data.insert(Qt::EditRole, i);
+                native.append(data);
+            }
+        });
+    }
 };
 using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
 

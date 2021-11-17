@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QLineEdit>
+#include <QComboBox>
 
 #include <optional>
 
@@ -294,4 +295,25 @@ QLineEdit* WidgetsAttachment::AttachLineEditAdjuster(QLineEdit* edit) {
 bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
 {
     return m_filter(watched, e);
+}
+
+void WidgetContent::ComboboxDisconnectModel(QComboBox* combo)
+{
+    auto* viewModel = combo->model();
+    QObject::disconnect(viewModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                       combo, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+    QObject::disconnect(viewModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+               combo, SLOT(_q_updateIndexBeforeChange()));
+    QObject::disconnect(viewModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+               combo, SLOT(_q_rowsInserted(QModelIndex,int,int)));
+    QObject::disconnect(viewModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+               combo, SLOT(_q_updateIndexBeforeChange()));
+    QObject::disconnect(viewModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+               combo, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
+    QObject::disconnect(viewModel, SIGNAL(destroyed()),
+               combo, SLOT(_q_modelDestroyed()));
+    QObject::disconnect(viewModel, SIGNAL(modelAboutToBeReset()),
+               combo, SLOT(_q_updateIndexBeforeChange()));
+    QObject::disconnect(viewModel, SIGNAL(modelReset()),
+               combo, SLOT(_q_modelReset()));
 }
