@@ -12,7 +12,7 @@ class DelegatesCombobox : public QStyledItemDelegate
 public:
     DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent);
 
-    void SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; }
+    DelegatesCombobox* SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; return this; }
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
