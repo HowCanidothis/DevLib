@@ -56,7 +56,7 @@ public:
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
-		GetData()->Insert(row, count);
+        GetData()->Insert(row > GetData()->GetSize() ? GetData()->GetSize() : row, count);
 		return true;
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
