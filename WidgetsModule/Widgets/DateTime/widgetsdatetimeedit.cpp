@@ -36,11 +36,8 @@ void WidgetsDateTimeEdit::init()
             return;
         }
         guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
-        setReadOnly(CurrentDateTime.IsRealTime());
-
-        setDisplayFormat(displayFormat());
         setDateTime(CurrentDateTime);
-        StyleUtils::UpdateStyle(this);
+        setDisplayFormat(displayFormat());
     };
     CurrentDateTime.SetAndSubscribe(update);
 
@@ -51,10 +48,9 @@ void WidgetsDateTimeEdit::init()
     });
 
     connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this]{
-        if(m_recursionBlock || CurrentDateTime.IsRealTime()) {
+        if(m_recursionBlock) {
             return;
         }
-        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
         CurrentDateTime = dateTime();
     });
 
@@ -62,9 +58,9 @@ void WidgetsDateTimeEdit::init()
         if(event->type() == QEvent::KeyPress) {
             auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
             if(keyEvent->key() == Qt::Key_Delete) {
-                CurrentDateTime = QDateTime();
-                return true;
+                CurrentDateTime = DefaultDateTimeDelegate();
             }
+            return true;
         }
         return false;
     });

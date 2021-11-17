@@ -16,6 +16,7 @@ public:
     LocalPropertyDateTime CurrentDateTime;
     LocalPropertyLocale Locale;
     LocalPropertyString DisplayFormat;
+    std::function<QDateTime ()> DefaultDateTimeDelegate;
 
     QDateTime dateTimeFromText(const QString &text) const override;
     QString textFromDateTime(const QDateTime &dt) const override;
