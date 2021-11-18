@@ -19,7 +19,7 @@ namespace YieldStrengthUnits
     QString::number(MEASUREMENT_YIELD_STRENGTH_BASE_TO_UNIT(x), 'f', MEASUREMENT_YIELD_STRENGTH_PRECISION())
 
 #define MEASUREMENT_YIELD_STRENGTH_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_YIELD_STRENGTH)->CurrentUnitLabel
-#define ATTACH_YIELD_STRENGTH_MEASUREMENT(delegate, min, max, step) \
-    ATTACH_MEASUREMENT(MEASUREMENT_YIELD_STRENGTH, delegate, min, max, step)
+#define ATTACH_YIELD_STRENGTH_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_YIELD_STRENGTH, delegate, min, max)
 
 #endif // YIELDSTRENGHTDECLARATIONS_H

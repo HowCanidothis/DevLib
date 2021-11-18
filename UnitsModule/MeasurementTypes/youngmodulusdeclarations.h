@@ -19,7 +19,7 @@ namespace YoungModulusUnits
     QString::number(MEASUREMENT_YOUNG_MODULUS_BASE_TO_UNIT(x), 'f', MEASUREMENT_YOUNG_MODULUS_PRECISION())
 
 #define MEASUREMENT_YOUNG_MODULUS_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_YOUNG_MODULUS)->CurrentUnitLabel
-#define ATTACH_YOUNG_MODULUS_MEASUREMENT(delegate, min, max, step) \
-    ATTACH_MEASUREMENT(MEASUREMENT_YOUNG_MODULUS, delegate, min, max, step)
+#define ATTACH_YOUNG_MODULUS_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_YOUNG_MODULUS, delegate, min, max)
 
 #endif // YOUNGMODULUSDECLARATIONS_H

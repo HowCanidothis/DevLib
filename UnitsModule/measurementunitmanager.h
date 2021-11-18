@@ -206,10 +206,6 @@ public:
         m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
     }
 
-    void SetStep(double step){
-        m_spinBox->setSingleStep(m_baseToUnitConverter(step));
-    }
-
 protected:
     QDoubleSpinBox* m_spinBox;
     MeasurementUnit::FTransform m_baseToUnitConverter;
@@ -228,16 +224,15 @@ protected:
 #define MEASUREMENT_DISPATCHER(system) \
     &MeasurementManager::GetInstance().GetMeasurement(system)->OnChanged
 	
-#define ATTACH_MEASUREMENT(system, delegate, min, max, step) \
+#define ATTACH_MEASUREMENT(system, delegate, min, max) \
     delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\
         MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
         wrapper.SetRange(min, max);\
-        sp->setSingleStep(step);\
     });
 
-#define ATTACH_MEASUREMENT_COLUMN(column, tv, system, min, max, step) {\
+#define ATTACH_MEASUREMENT_COLUMN(tv, column, system, min, max) {\
     auto delegate = new DelegatesDoubleSpinBox(tv); \
-    ATTACH_MEASUREMENT(system, delegate, min, max, step) \
+    ATTACH_MEASUREMENT(system, delegate, min, max) \
     tv->setItemDelegateForColumn(column, delegate); }
 
 #endif // MEASUREMENTUNITMANAGER_H

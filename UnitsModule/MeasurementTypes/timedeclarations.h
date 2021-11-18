@@ -26,8 +26,8 @@ namespace TimeUnits
 
 #define MEASUREMENT_TIME_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_TIME)->CurrentUnitLabel
 #define MEASUREMENT_TIME_DISPATCHER MEASUREMENT_DISPATCHER(MEASUREMENT_TIME)
-#define ATTACH_TIME_MEASUREMENT(delegate, min, max, step) \
-    ATTACH_MEASUREMENT(MEASUREMENT_TIME, delegate, min, max, step)
+#define ATTACH_TIME_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_TIME, delegate, min, max)
 
 
 #endif // TIMEDECLARATIONS_H

@@ -19,8 +19,8 @@ namespace YieldPointUnits
     QString::number(MEASUREMENT_YIELD_POINT_BASE_TO_UNIT(x), 'f', MEASUREMENT_YIELD_POINT_PRECISION())
 
 #define MEASUREMENT_YIELD_POINT_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_YIELD_POINT)->CurrentUnitLabel
-#define ATTACH_YIELD_POINT_MEASUREMENT(delegate, min, max, step) \
-    ATTACH_MEASUREMENT(MEASUREMENT_YIELD_POINT, delegate, min, max, step)
+#define ATTACH_YIELD_POINT_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_YIELD_POINT, delegate, min, max)
 
 
 

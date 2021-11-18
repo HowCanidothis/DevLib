@@ -21,7 +21,7 @@ namespace AngleUnits
 
 #define MEASUREMENT_ANGLES_STRING MeasurementManager::GetInstance().GetMeasurement(MEASUREMENT_ANGLES)->CurrentUnitLabel
 #define MEASUREMENT_ANGLES_DISPATCHER MEASUREMENT_DISPATCHER(MEASUREMENT_ANGLES)
-#define ATTACH_ANGLES_MEASUREMENT(delegate, min, max, step) \
-    ATTACH_MEASUREMENT(MEASUREMENT_ANGLES, delegate, min, max, step)
+#define ATTACH_ANGLES_MEASUREMENT(delegate, min, max) \
+    ATTACH_MEASUREMENT(MEASUREMENT_ANGLES, delegate, min, max)
 
 #endif // ANGLEDECLARATIONS_H
