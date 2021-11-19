@@ -144,23 +144,28 @@ public:
             auto errorState = 0;
             wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter, hasCriticalErrorsHandler]{
                 auto& native = wrapper->EditSilent();
-                auto prev = native.begin();
-                auto& data = *prev;
-                auto& flags = flagsGetter(data);
-                for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                    LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
+                qint32 startCorrectIndex = 0;
+                qint32 index = 0;
+                bool foundStart = false;
+                for(auto& data : native) {
+                    auto& flags = flagsGetter(data);
+                    for(const auto& [code, handler] : m_errorPerRowHandlers) {
+                        LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
+                    }
+                    if(!foundStart && !hasCriticalErrorsHandler(data)) {
+                        startCorrectIndex = index;
+                        foundStart = true;
+                    }
+                    errorState |= flags;
+                    ++index;
                 }
-                errorState |= flags;
-                if(hasCriticalErrorsHandler(*prev)) {
-                    return;
-                }
-                for(auto nextIt(native.begin() + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
+
+                auto prev = native.begin() + startCorrectIndex;
+
+                for(auto nextIt(native.begin() + startCorrectIndex + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
                     auto& prevData = *prev;
                     auto& nextData = *nextIt;
                     auto& flags = flagsGetter(nextData);
-                    for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        LongFlagsHelpers::ChangeFromBoolean(!handler(nextData), flags, code);
-                    }
                     for(const auto& [code, handler] : m_errorHandlers) {
                         LongFlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
                     }

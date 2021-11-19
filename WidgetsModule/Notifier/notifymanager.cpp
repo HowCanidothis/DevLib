@@ -18,6 +18,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , Height(50)
     , ReservedHeight(300)
     , IsNotifactionsEnabled(true)
+    , DefaultWindow(nullptr)
     , m_freeHeight(QApplication::desktop()->availableGeometry().height() - ReservedHeight)
     , m_exceedData(::make_shared<NotifyData>(Warning, ""))
     , m_exceedCounter(0)
@@ -82,7 +83,14 @@ NotifyManager& NotifyManager::GetInstance()
 void NotifyManager::rearrange()
 {
     QDesktopWidget *desktop = QApplication::desktop();
-    QRect desktopRect = desktop->screenGeometry(qApp->focusWidget());
+    auto* focusWidget = qApp->focusWidget();
+    focusWidget = focusWidget == nullptr ? DefaultWindow : focusWidget;
+    QRect desktopRect;
+    if(focusWidget == nullptr) {
+        desktopRect = desktop->screenGeometry(desktop->primaryScreen());
+    } else {
+        desktopRect = desktop->screenGeometry(focusWidget);
+    }
     QPoint bottomRignt = desktopRect.bottomRight();
 
     qint32 index = 1;
@@ -106,7 +114,6 @@ void NotifyManager::rearrange()
     }
 
     m_freeHeight = bottomRignt.y() - height - ReservedHeight;
-    qDebug() << m_freeHeight << bottomRignt << qApp->focusWidget();
 }
 
 void NotifyManager::showNext()

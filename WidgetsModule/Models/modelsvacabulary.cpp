@@ -163,14 +163,13 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
         sourceModel->SetData(model);
         data->SourceModel = sourceModel;
     } else {
-
         auto* listModel = model->CreateListModel(columnIndex, nullptr);
         listModel->SetData(model);
         data->SourceModel = listModel;
         auto* pData = data.get();
         listModel->GetData()->OnChanged += { this, [sortModel, pData]{
             pData->Sorter.Call([sortModel]{
-                sortModel->sort(0);
+                sortModel->sort(0, sortModel->sortOrder());
             });
         }};
     }

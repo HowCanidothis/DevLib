@@ -35,6 +35,9 @@ void WidgetsResizableTableView::invalidateLayout()
 
 QSize WidgetsResizableTableView::sizeHint() const
 {
+    if(model() == nullptr) {
+        return QSize(-1,-1);
+    }
     int w = verticalHeader()->width() + contentsMargins().left() + contentsMargins().right();
     for (int c = 0; c < model()->columnCount(); ++c) w += columnWidth(c);
 

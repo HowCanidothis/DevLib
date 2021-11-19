@@ -51,6 +51,7 @@ void WidgetsDateTimeEdit::init()
         if(m_recursionBlock) {
             return;
         }
+        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
         CurrentDateTime = dateTime();
     });
 

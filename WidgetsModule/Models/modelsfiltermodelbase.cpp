@@ -16,6 +16,14 @@ void ModelsFilterModelBase::InvalidateFilter()
     });
 }
 
+QVariant ModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
+{
+    if(role == Qt::DisplayRole && orientation == Qt::Vertical) {
+        return section + 1;
+    }
+    return Super::headerData(section, orientation, role);
+}
+
 bool ModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
     return FilterColumnHandler(sourceColumn, sourceParent);

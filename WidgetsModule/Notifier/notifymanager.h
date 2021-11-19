@@ -40,6 +40,7 @@ public:
     LocalPropertyInt Height;
     LocalPropertyInt ReservedHeight;
     LocalPropertyBool IsNotifactionsEnabled;
+    QWidget* DefaultWindow;
 
     CommonDispatcher<const QString&, bool&> OnLinkActivated;
     CommonDispatcher<const NotifyDataPtr&> OnDataRecieved;
