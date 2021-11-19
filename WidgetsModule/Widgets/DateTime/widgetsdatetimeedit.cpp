@@ -61,6 +61,25 @@ void WidgetsDateTimeEdit::init()
             if(keyEvent->key() == Qt::Key_Delete) {
                 CurrentDateTime = DefaultDateTimeDelegate();
             }
+            switch(keyEvent->key()){
+            case Qt::Key_Escape:
+            case Qt::Key_Tab:
+            case Qt::Key_Backtab:
+            case Qt::Key_Backspace:
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+            case Qt::Key_0:
+            case Qt::Key_1:
+            case Qt::Key_2:
+            case Qt::Key_3:
+            case Qt::Key_4:
+            case Qt::Key_5:
+            case Qt::Key_6:
+            case Qt::Key_7:
+            case Qt::Key_8:
+            case Qt::Key_9: return false;
+            default: break;
+            }
             return true;
         }
         return false;

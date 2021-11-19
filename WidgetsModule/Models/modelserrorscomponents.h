@@ -30,6 +30,7 @@ public:
         , m_updater(1000)
     {}
 
+    Dispatcher ErrorsHandled;
     LocalPropertyInt64 ErrorState;
     LocalPropertyInt64 ErrorFilter;
     QHash<Name, qint64> AttachedErrors;
@@ -136,6 +137,7 @@ public:
             })
     {
         m_updateHandler = [this, wrapper, flagsGetter, hasCriticalErrorsHandler]{
+            guards::LambdaGuard guard([this]{ ErrorsHandled(); });
             if(wrapper->IsEmpty()) {
                 ErrorState = 0;
                 return;
@@ -156,11 +158,13 @@ public:
                         startCorrectIndex = index;
                         foundStart = true;
                     }
-                    errorState |= flags;
                     ++index;
                 }
 
                 auto prev = native.begin() + startCorrectIndex;
+                if(prev != native.end()) {
+                    errorState |= flagsGetter(*prev);
+                }
 
                 for(auto nextIt(native.begin() + startCorrectIndex + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
                     auto& prevData = *prev;
@@ -177,6 +181,7 @@ public:
             });
 
             ErrorState = errorState;
+
         };
 
         onInitialize(wrapper);
@@ -188,6 +193,7 @@ public:
             })
     {
         m_updateHandler = [this, wrapper, flagsGetter]{
+            guards::LambdaGuard guard([this]{ ErrorsHandled(); });
             if(wrapper->IsEmpty()) {
                 ErrorState = 0;
                 return;

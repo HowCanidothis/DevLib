@@ -308,13 +308,13 @@ public:
         });
     }
 
-    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    void AttachCopy(const TPtr& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
     {
         m_calculator.Disconnect();
 
         if(externalData != nullptr) {
             m_handler = handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler;
-            m_calculator.Connect(externalData->IsValid).Connect(externalData->OnChanged);
+            connectorHandler(m_calculator);
         } else {
             m_handler = nullptr;
         }
@@ -324,6 +324,13 @@ public:
         });
 
         m_calculator.RequestRecalculate();
+    }
+
+    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    {
+        AttachCopy(externalData, [externalData](StateCalculator<bool>& calculator){
+            calculator.Connect(externalData->IsValid).Connect(externalData->OnChanged);
+        }, handler);
     }
 
     const TPtr& GetData() const { return m_data; }
