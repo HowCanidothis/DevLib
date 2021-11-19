@@ -5,6 +5,8 @@
 #include <QTimer>
 #include <QTimerEvent>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     : Super(parent)
     , m_isDirty(true)
@@ -13,12 +15,14 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    verticalHeader()->setVisible(false);
-    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
+        if(event->type() == QEvent::Show || event->type() == QEvent::StyleChange) {
+            m_isDirty = true;
+            updateGeometry();
+        }
+        return false;
+    });
 }
 
 QSize WidgetsAdjustableTableView::minimumSizeHint() const
@@ -57,8 +61,14 @@ void WidgetsAdjustableTableView::updateSizeHintCache() const
                     m_contentsWidth += columnWidth(j);
                 }
 
+                if(verticalHeader()->isVisible()) {
+                    m_contentsWidth += verticalHeader()->sizeHint().width();
+                }
                 m_contentsWidth += contentsMargins().left() + contentsMargins().right();
-                m_contentsHeight += horizontalHeader()->sizeHint().height() + contentsMargins().top() + contentsMargins().bottom();
+                if(horizontalHeader()->isVisible()) {
+                    m_contentsHeight += horizontalHeader()->sizeHint().height();
+                }
+                m_contentsHeight += contentsMargins().top() + contentsMargins().bottom();
             }
         }
         m_isDirty = false;
