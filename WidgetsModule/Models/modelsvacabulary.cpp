@@ -30,15 +30,18 @@ const std::pair<Name, TranslatedStringPtr>& ModelsVocabulary::GetHeader(qint32 c
 
 TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
 {
-    return new TModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role){
+    return new TModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {
         if(role == Qt::DisplayRole || role == Qt::EditRole) {
-            return ptr->SelectValue(ptr->GetHeader(column).first, ptr->At(index.row()));
+            if(index.row() == 0) {
+                return "";
+            }
+            return ptr->SelectValue(ptr->GetHeader(column).first, ptr->At(index.row() - 1));
         } else if(role == Qt::UserRole) {
-            return QVariant(index.row());
+            return QVariant(index.row() - 1);
         }
         return QVariant();
     }, [](const SharedPointer<ModelsVocabulary>& ptr){
-        return ptr->GetSize();
+        return ptr->GetSize() + 1;
     });
 }
 
