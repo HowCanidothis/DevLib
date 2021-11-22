@@ -16,6 +16,7 @@ enum SerializationMode {
     SerializationMode_Sorted_Containers = 0x4,
     SerializationMode_Comparison = 0x8,
     SerializationMode_Merge_Containers = 0x10,
+    SerializationMode_Cloning = 0x20,
     SerializationMode_UserDefined = 0x200
 };
 DECL_FLAGS(SerializationModes, SerializationMode);

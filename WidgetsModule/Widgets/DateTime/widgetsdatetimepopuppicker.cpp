@@ -41,9 +41,6 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     m_editor->OnNowActivate.Connect(this, [menu, this]{ OnDataCommit(); menu->close(); });
     m_editor->OnApplyActivate.Connect(this, [menu, this]{ OnDataCommit(); menu->close(); });
     
-    m_editor->CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
-        ui->dateTimeEdit->setDateTimeRange(m_editor->CurrentDateTime.GetMinValid(), m_editor->CurrentDateTime.GetMaxValid());
-    });
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
     m_editor->Locale.ConnectFrom(Locale);
     ui->dateTimeEdit->Locale.ConnectFrom(Locale);

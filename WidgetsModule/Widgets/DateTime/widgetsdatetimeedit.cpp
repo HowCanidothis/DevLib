@@ -44,6 +44,10 @@ void WidgetsDateTimeEdit::init()
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
     CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
+        if(m_recursionBlock) {
+            return;
+        }
+        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
         setDateTimeRange(CurrentDateTime.GetMinValid(), CurrentDateTime.GetMaxValid());
     });
 
