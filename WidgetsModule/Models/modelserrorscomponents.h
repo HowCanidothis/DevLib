@@ -54,6 +54,23 @@ public:
     }
 
     template<class T2>
+    QVariant ErrorIcon(const T2& value, const QVector<std::pair<qint64, QtMsgType>>& sequence, const ModelsIconsContext& iconsContext) const
+    {
+        for(const auto& [error, type] : sequence) {
+            if(HasError(value, error)) {
+                switch(type) {
+                case QtCriticalMsg: return iconsContext.ErrorIcon;
+                case QtWarningMsg: return iconsContext.WarningIcon;
+                case QtInfoMsg: return iconsContext.InfoIcon;
+                default: break;
+                }
+                return QVariant();
+            }
+        }
+        return QString();
+    }
+
+    template<class T2>
     QString ErrorString(const T2& value, qint64 errorFlag) const
     {
         if(!HasError(value, errorFlag)) {
@@ -151,6 +168,7 @@ public:
                 bool foundStart = false;
                 for(auto& data : native) {
                     auto& flags = flagsGetter(data);
+                    flags = 0;
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
                         LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
                     }
