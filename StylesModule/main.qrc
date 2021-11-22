@@ -22,5 +22,7 @@
         <file>common/visualization.qss</file>
         <file>light/notify.qss</file>
         <file>dark/notify.qss</file>
+        <file>dark/toolbar.qss</file>
+        <file>light/toolbar.qss</file>
     </qresource>
 </RCC>
