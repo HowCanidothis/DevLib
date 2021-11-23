@@ -24,6 +24,8 @@
 #include "MeasurementTypes/forcedeclarations.h"
 #include "MeasurementTypes/motorspeeddeclarations.h"
 #include "MeasurementTypes/timedeclarations.h"
+#include "MeasurementTypes/volumeperlengthdeclarations.h"
+#include "MeasurementTypes/frequencydeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -263,6 +265,14 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TimeUnits::Minutes)
             .AddUnit(&TimeUnits::Hours);
 
+    AddMeasurement(MEASUREMENT_LINEAR_CAPACITY)
+            .AddUnit(&VolumePerLengthUnits::CubicMeterPerMeter)
+            .AddUnit(&VolumePerLengthUnits::BarrelPerFoot)
+            .AddUnit(&VolumePerLengthUnits::LiterPerMeter);
+
+    AddMeasurement(MEASUREMENT_FRENQUENCY)
+            .AddUnit(&FrequencyUnits::RevolutionPerMinute);
+
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MEASUREMENT_AREA,              {AreaUnits::SqInches.Id,                       3})
@@ -273,8 +283,10 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
+            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
-            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
+            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
+            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
             .AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
@@ -286,7 +298,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
             .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,           1})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        0})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2});
@@ -301,8 +313,10 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
+            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     2})
-            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      2})
+            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
+            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
             .AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
@@ -314,7 +328,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
             .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,           1})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        0})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2});
@@ -330,8 +344,10 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MEASUREMENT_FLOW_SPEED,        {FlowSpeedUnits::LitersPerSecond.Id,           0})
             .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::Kilonewton.Id,                    2})
+            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
             .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
-            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::Milimeters.Id,                 2})
+            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::CubicMeterPerMeter.Id,  2})
+            .AddParameter(MEASUREMENT_JET_DIAMETER,      {DistanceUnits::Milimeters.Id,                 0})
             .AddParameter(MEASUREMENT_MASS,              {MassUnits::Tonnes.Id,                         0})
             .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
             .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::KilogramPerCubicMeter.Id,     2})
@@ -343,7 +359,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
             .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilonewtonMeters.Id,             1})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::MilliPascalSecond.Id,         2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    0})
+            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::Pascals.Id,                    2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2});

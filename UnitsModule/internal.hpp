@@ -30,6 +30,8 @@
 #include "MeasurementTypes/forcedeclarations.h"
 #include "MeasurementTypes/motorspeeddeclarations.h"
 #include "MeasurementTypes/timedeclarations.h"
+#include "MeasurementTypes/volumeperlengthdeclarations.h"
+#include "MeasurementTypes/frequencydeclarations.h"
 
 #endif
 
