@@ -786,22 +786,6 @@ WidgetsTimePicker QLabel:disabled {
   color: #3c3c3c;
 }
 
-WPSCDailyReportView QTextEdit {
-  border: none;
-}
-
-WPSCDailyReportView QTextEdit:hover {
-  border: none;
-}
-
-WPSCDailyReportView QTextEdit:focus {
-  border: none;
-}
-
-WPSCDailyReportView QPushButton#CalendarButton {
-  background-color: transparent;
-}
-
 WidgetsCalendarWidget
 { 
     qproperty-outOfRangeBorder: transparent;

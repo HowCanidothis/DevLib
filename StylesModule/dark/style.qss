@@ -819,31 +819,6 @@ WidgetsTimePicker QLabel {
   font: 14px;
 }
 
-WPSCDailyReportView QTextEdit {
-  border: none;
-}
-
-WPSCDailyReportView QTextEdit:hover {
-  border: none;
-}
-
-WPSCDailyReportView QTextEdit:focus {
-  border: none;
-}
-
-WPSCDailyReportView QDateTimeEdit::up-button 
-{
-  width: 0px;
-}
-WPSCDailyReportView QDateTimeEdit::down-button 
-{
-  width: 0px;
-}
-
-WPSCDailyReportView QPushButton#CalendarButton {
-  background-color: transparent;
-}
-
 /*WPSCJobInformationView QPushButton[realtime] {
   qproperty-icon: url(":/qss_icons/rc/update.svg");
   background: transparent;

@@ -1,11 +1,10 @@
 QPushButton#PropertiesToolBarButton {
     background: #F3F3F3;
     text-align: left;
-    padding: 15px 0px 15px 0px;
+    padding: 10px 0px 10px 0px;
     border: none;
     color: #414141;
     font-weight: bold;
-    font-size: 15px;
 }
 
 QPushButton#PropertiesToolBarButton:hover {
