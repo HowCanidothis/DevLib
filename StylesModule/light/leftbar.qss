@@ -129,3 +129,10 @@ TreeBar QLabel {
     background: #f3f3f3;
     color: #9d9d9d;
 }
+
+MainWindow {
+    qproperty-enabledTableColor: white;
+    qproperty-enabledTableTextColor: black;
+    qproperty-disabledTableColor: #d4d4d4;
+    qproperty-disabledTableTextColor: black;
+}
