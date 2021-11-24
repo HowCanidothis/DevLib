@@ -5,9 +5,21 @@
 #include "modelsfiltermodelbase.h"
 #include "modelslistbase.h"
 
+#ifdef UNITS_MODULE_LIB
+#include <UnitsModule/internal.hpp>
+#endif
+
 ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
     : m_header(dictionary)
-{}
+{
+#ifdef UNITS_MODULE_LIB
+    for(const auto& value : m_header) {
+        if(!value.Measurement.IsNull()) {
+            MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { value.Measurement });
+        }
+    }
+#endif
+}
 
 const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name, QVariant>& row)
 {
@@ -19,9 +31,9 @@ const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name
     return result;
 }
 
-const std::pair<Name, TranslatedStringPtr>& ModelsVocabulary::GetHeader(qint32 column) const
+const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 column) const
 {
-    static std::pair<Name, TranslatedStringPtr> result = std::make_pair(Name(), ::make_shared<TranslatedString>([]{ return QString(); }));
+    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>([]{ return QString(); }), Name()};
     if(column < 0 || column >= m_header.size()) {
         return result;
     }
@@ -35,7 +47,18 @@ TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 colu
             if(index.row() == 0) {
                 return "";
             }
-            return ptr->SelectValue(ptr->GetHeader(column).first, ptr->At(index.row() - 1));
+
+#ifdef UNITS_MODULE_LIB
+            const auto& header = ptr->GetHeader(column);
+            QVariant value = ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
+            if(!header.Measurement.IsNull()) {
+                value = MeasurementManager::GetInstance().GetCurrentUnit(header.Measurement)->GetBaseToUnitConverter()(value.toDouble());
+            }
+            return value;
+#else
+            return ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
+#endif
+
         } else if(role == Qt::UserRole) {
             return QVariant(index.row() - 1);
         }
@@ -48,24 +71,43 @@ TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 colu
 ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
 {
-    auto displayEditRoleHandlers = [this](qint32 row, qint32 column) -> QVariant {
-        return GetData()->At(row)[GetData()->GetHeader(column).first];
+    auto editRoleHandler = [this](qint32 row, qint32 column) -> QVariant {
+        auto ret = GetData()->At(row)[GetData()->GetHeader(column).ColumnKey];
+        auto foundIt = GetterDelegates.find(column);
+        if(foundIt != GetterDelegates.end()) {
+            foundIt.value()(ret);
+        }
+        return ret;
     };
 
-    m_roleDataHandlers.insert(Qt::EditRole, displayEditRoleHandlers);
-    m_roleDataHandlers.insert(Qt::DisplayRole, displayEditRoleHandlers);
+    auto displayRoleHandlers = [this](qint32 row, qint32 column) -> QVariant {
+        auto ret = GetData()->At(row)[GetData()->GetHeader(column).ColumnKey];
+        auto foundIt = GetterDisplayDelegates.find(column);
+        if(foundIt != GetterDisplayDelegates.end()) {
+            foundIt.value()(ret);
+        }
+        return ret;
+    };
+
+    m_roleDataHandlers.insert(Qt::EditRole, editRoleHandler);
+    m_roleDataHandlers.insert(Qt::DisplayRole, displayRoleHandlers);
 
     m_roleHorizontalHeaderDataHandlers.insert(Qt::DisplayRole, [this](qint32 section){
-        return GetData()->GetHeader(section).second->Native();
+        return GetData()->GetHeader(section).Label->Native();
     });
 
     m_roleSetDataHandlers.insert(Qt::EditRole, [this](qint32 row, qint32 column, const QVariant& value) -> bool {
+        QVariant concreteValue = value;
+        auto foundIt = SetterDelegates.find(column);
+        if(foundIt != SetterDelegates.end()) {
+            foundIt.value()(concreteValue);
+        }
         return GetData()->EditWithCheck(row, [&](QHash<Name, QVariant>& row) -> FAction {
-            const auto& key = GetData()->GetHeader(column).first;
-            if(row[key] == value) {
+            const auto& key = GetData()->GetHeader(column).ColumnKey;
+            if(row[key] == concreteValue) {
                 return nullptr;
             }
-            return [&]{ row.insert(key, value); };
+            return [&]{ row.insert(key, concreteValue); };
         }, { column });
 });
 }
@@ -79,11 +121,10 @@ bool ModelsVocabularyViewModel::setData(const QModelIndex& index, const QVariant
     if(isLastEditRow(index)) {
         if(role == Qt::EditRole) {
             QHash<Name, QVariant> newRow;
-            newRow.insert(GetData()->GetHeader(index.column()).first, value);
             GetData()->Append(newRow);
-            return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     return Super::setData(index, value, role);
@@ -163,6 +204,24 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
         };
 
         auto* sourceModel = new ModelsVocabularyViewModel(nullptr);
+#ifdef UNITS_MODULE_LIB
+        qint32 i(0);
+        for(const auto& header : model->GetHeader()) {
+            if(!header.Measurement.IsNull()) {
+                auto measurement = header.Measurement;
+                sourceModel->SetterDelegates.insert(i, [measurement](QVariant& value){
+                    value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetUnitToBaseConverter()(value.toDouble());
+                });
+                sourceModel->GetterDelegates.insert(i, [measurement](QVariant& value){
+                    value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetBaseToUnitConverter()(value.toDouble());
+                });
+                sourceModel->GetterDisplayDelegates.insert(i, [measurement](QVariant& value){
+                    value = MeasurementManager::GetInstance().FromBaseToUnitUi(measurement, value.toDouble());
+                });
+            }
+            ++i;
+        }
+#endif
         sourceModel->SetData(model);
         data->SourceModel = sourceModel;
     } else {

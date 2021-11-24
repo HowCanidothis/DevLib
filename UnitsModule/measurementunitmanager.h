@@ -126,6 +126,8 @@ public:
     const MeasurementSystemPtr& GetSystem(const Name& name) const;
     
     const MeasurementUnit* GetCurrentUnit(const Name& systemName) const;
+
+    QString FromBaseToUnitUi(const Name& systemName, double value) const;
     
     static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }
@@ -218,7 +220,7 @@ protected:
 #define MEASUREMENT_PRECISION(system) \
     MeasurementManager::GetInstance().GetMeasurement(system)->CurrentPrecision
 #define MEASUREMENT_BASE_TO_UNIT_UI(system, x) \
-    QString::number(MEASUREMENT_BASE_TO_UNIT(system, x), 'f', MEASUREMENT_PRECISION(system))
+    MeasurementManager::GetInstance().FromBaseToUnitUi(system, x);
 #define MEASUREMENT_STRING(system) \
 	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
 #define MEASUREMENT_DISPATCHER(system) \

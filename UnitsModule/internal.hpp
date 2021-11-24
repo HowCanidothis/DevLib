@@ -32,6 +32,8 @@
 #include "MeasurementTypes/timedeclarations.h"
 #include "MeasurementTypes/volumeperlengthdeclarations.h"
 #include "MeasurementTypes/frequencydeclarations.h"
+#include "MeasurementTypes/specificheatcapacitydeclarations.h"
+#include "MeasurementTypes/thermalconductivitydeclarations.h"
 
 #endif
 

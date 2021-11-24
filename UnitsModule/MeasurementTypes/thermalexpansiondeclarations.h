@@ -6,8 +6,9 @@ static const Name MEASUREMENT_THERMAL_EXPANSION = "Thermal Expansion";
 
 namespace ThermalExpansionUnits
 {
-    static const MeasurementUnit PerDegreeFahrenheit("PerDegreeFahrenheit", []{return QObject::tr("per degree Fahrenheit");}, []{ return QObject::tr("E-06/F"); }, 1.0 / 1.8);
+    static const MeasurementUnit PerDegreeFahrenheit("PerDegreeFahrenheit", []{return QObject::tr("per degree Fahrenheit");}, []{ return QObject::tr("E-06/F"); }, 1.8);
     static const MeasurementUnit PerDegreeCelsius("PerDegreeCelsius", []{return QObject::tr("per degree Celsius");}, []{ return QObject::tr("E-06/C°"); }, 1.0);
+    static const MeasurementUnit PerDegreeKelvin("PerDegreeKelvin", []{return QObject::tr("per degree Kelvin");}, []{ return QObject::tr("E-06/K"); }, 1.0);
 };
 
 #define MEASUREMENT_THERMAL_EXPANSION_UNIT_TO_BASE(x) \

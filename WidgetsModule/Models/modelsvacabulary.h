@@ -14,7 +14,12 @@ class ModelsVocabulary : public TModelsTableWrapper<QVector<QHash<Name, QVariant
 {
     using Super = TModelsTableWrapper<QVector<QHash<Name, QVariant>>>;
 public:
-    using HeaderDataValue = std::pair<Name, TranslatedStringPtr>;
+    struct HeaderDataValue
+    {
+        Name ColumnKey;
+        TranslatedStringPtr Label;
+        Name Measurement;
+    };
     using HeaderData = QVector<HeaderDataValue>;
 
     ModelsVocabulary(const HeaderData& dictionary);
@@ -33,12 +38,13 @@ public:
     static const QVariant& SelectValue(const Name& name, const QHash<Name, QVariant>& row);
 
     qint32 GetColumnsCount() const { return m_header.size(); }
-    const std::pair<Name, TranslatedStringPtr>& GetHeader(qint32 column) const;
+    const HeaderDataValue& GetHeader(qint32 column) const;
+    const QVector<HeaderDataValue>& GetHeader() const { return m_header; }
 
     static TModelsListBase<ModelsVocabulary>* CreateListModel(qint32 column, QObject* parent);
 
 private:
-    QVector<std::pair<Name, TranslatedStringPtr>> m_header;
+    QVector<HeaderDataValue> m_header;
 };
 
 using ModelsVocabularyPtr = SharedPointer<ModelsVocabulary>;
@@ -54,6 +60,10 @@ public:
     qint32 rowCount(const QModelIndex&) const override;
     qint32 columnCount(const QModelIndex&) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+    QHash<qint32, std::function<void (QVariant&)>> GetterDisplayDelegates;
+    QHash<qint32, std::function<void (QVariant&)>> GetterDelegates;
+    QHash<qint32, std::function<void (QVariant&)>> SetterDelegates;
 };
 
 class ModelsVocabularyManager
@@ -81,6 +91,8 @@ public:
     const ViewModelDataPtr& CreateViewModel(const Name& modelName, qint32 columnIndex);
     const ViewModelDataPtr& GetViewModel(const Name& modelName, qint32 column);
     class QCompleter* CreateCompleter(const Name& modelName, qint32 column, QObject* parent, ModelsVocabularyRequest* dispatcher);
+
+    LocalPropertyLocale Locale;
 
 private:
     QHash<Name, ModelsVocabularyPtr> m_models;

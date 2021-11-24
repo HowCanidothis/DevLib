@@ -26,6 +26,8 @@
 #include "MeasurementTypes/timedeclarations.h"
 #include "MeasurementTypes/volumeperlengthdeclarations.h"
 #include "MeasurementTypes/frequencydeclarations.h"
+#include "MeasurementTypes/thermalconductivitydeclarations.h"
+#include "MeasurementTypes/specificheatcapacitydeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -161,6 +163,14 @@ MeasurementManager::MeasurementManager()
 			.AddUnit(&FlowSpeedUnits::LitersPerMinute     )
 			.AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
 			.AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
+
+    AddMeasurement(MEASUREMENT_THERMAL_CONDUCTIVITY)
+            .AddUnit(&ThermalConductivityUnits::WattMeterCelsius)
+            .AddUnit(&ThermalConductivityUnits::FootHourSquareFootFahrenheit);
+
+    AddMeasurement(MEASUREMENT_SPECIFIC_HEAT_CAPACITY)
+            .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramCelsius)
+            .AddUnit(&SpecificHeatCapacityUnits::PoundFahrenheit);
 	
 	AddMeasurement(MEASUREMENT_MASS)
 			.AddUnit(&MassUnits::Kilograms )
@@ -301,7 +311,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2});
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
+            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
@@ -331,7 +343,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPerSquareFeet.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2});
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
+            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     
     AddSystem(UNIT_SYSTEM_SI)
@@ -362,7 +376,9 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::Pascals.Id,                    2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,                2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2});
+            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2})
+            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
+            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 
 		
     
@@ -445,6 +461,12 @@ const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& systemName
 {
     Q_ASSERT(m_metricMeasurements.contains(systemName));
     return m_metricMeasurements[systemName]->GetCurrentUnit();
+}
+
+QString MeasurementManager::FromBaseToUnitUi(const Name& systemName, double value) const
+{
+    const auto& measurement = GetMeasurement(systemName);
+    return QString::number(measurement->GetCurrentUnit()->GetBaseToUnitConverter()(value), 'f', measurement->CurrentPrecision);
 }
 
 QStringList MeasurementManager::DefaultSystems()
