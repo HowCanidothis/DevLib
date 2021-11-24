@@ -8,6 +8,8 @@
 
 #include <SharedModule/External/external.hpp>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsDragAndDropHeader::WidgetsDragAndDropHeader(QTableView* parent)
     : Super(Qt::Horizontal, parent)
 {
@@ -19,18 +21,22 @@ WidgetsDragAndDropHeader::WidgetsDragAndDropHeader(QTableView* parent)
     setHighlightSections(true);
 }
 
-QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const QSet<qint32>& ignorColumns)
+QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& params)
 {
     auto* result = createPreventedFromClosingMenu(tr("Show Columns"), parent);
-    connect(result, &QMenu::aboutToShow, [result, ignorColumns, this]{
+    connect(result, &QMenu::aboutToShow, [result, params, this]{
         result->clear();
         QTableView* table = qobject_cast<QTableView*> (parentWidget());
         Q_ASSERT(table != nullptr);
 
         auto* model = table->model();
         for(int i=0; i<model->columnCount(); ++i){
-            if(ignorColumns.contains(i)){
-                continue;
+            auto foundIt = params.ColumnsParams.find(i);
+            if(foundIt != params.ColumnsParams.end()){
+                setSectionHidden(i, !foundIt->Visible);
+                if(!foundIt->CanBeHidden) {
+                    continue;
+                }
             }
             auto title = model->headerData(i, orientation()).toString();
             auto* action = createCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
@@ -51,6 +57,17 @@ QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const QSet<
             }
         }
     });
+    if(!params.ColumnsParams.isEmpty()) {
+        WidgetsAttachment::Attach(this, [this,params](QObject*, QEvent* event){
+            if(event->type() == QEvent::Show) {
+                for(auto it(params.ColumnsParams.cbegin()), e(params.ColumnsParams.cend()); it != e; it++){
+                    setSectionHidden(it.key(), !it.value().Visible);
+                }
+            }
+            return false;
+        });
+    }
+
     return result;
 }
 

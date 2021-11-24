@@ -4,6 +4,8 @@
 #include <QPixmap>
 #include <QHeaderView>
 
+#include "WidgetsModule/widgetsdeclarations.h"
+
 class WidgetsDragAndDropHeader: public QHeaderView
 {
     Q_OBJECT
@@ -11,7 +13,7 @@ class WidgetsDragAndDropHeader: public QHeaderView
 public:
     WidgetsDragAndDropHeader(class QTableView* parent = nullptr);
 
-    class QMenu* CreateShowColumsMenu(QMenu* parent, const QSet<qint32>& ignorColumns =  {});
+    class QMenu* CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& ignorColumns = DescColumnsParams());
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void dragMoveEvent(QDragMoveEvent* event) override;

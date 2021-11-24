@@ -8,7 +8,7 @@
 #include "widgetsactivetableattachment.h"
 #include "WidgetsModule/TableViews/Header/widgetsresizableheaderattachment.h"
 
-void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const QSet<qint32>& ignoreColumns)
+void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const DescColumnsParams& params)
 {
     WidgetsActiveTableViewAttachment::Attach(tableView);
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(tableView);
@@ -18,7 +18,7 @@ void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const QSet<qi
     if(editScope != nullptr){
         tableView->addActions(editScope->GetActionsQList());
     }
-    tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, ignoreColumns)->menuAction());
+    tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, params)->menuAction());
 
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();
