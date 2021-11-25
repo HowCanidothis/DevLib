@@ -6,7 +6,7 @@ static const Name MEASUREMENT_THERMAL_CONDUCTIVITY = "Thermal Conductivity";
 
 namespace ThermalConductivityUnits
 {
-    static const MeasurementUnit WattMeterCelsius("WattMeterCelsius", []{return QObject::tr("watt/meter/Celsius");}, []{ return QObject::tr("J/(kg*C°)"); }, 1.0);
+    static const MeasurementUnit WattMeterCelsius("WattMeterCelsius", []{return QObject::tr("watt/meter/Celsius");}, []{ return QObject::tr("W/(m*С)"); }, 1.0);
     static const MeasurementUnit FootHourSquareFootFahrenheit("FootHourSquareFootFahrenheit", []{return QObject::tr("foot/hour/square foot/Fahrenheit");}, []{ return QObject::tr("BTU/(Hr*ft2*F)"); }, 1.7295772);
 };
 
