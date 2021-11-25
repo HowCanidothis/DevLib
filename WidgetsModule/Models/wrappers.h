@@ -330,6 +330,7 @@ public:
         OnAboutToBeUpdated();
         handler();
         OnUpdated();
+        OnChanged();
         OnColumnsChanged(affectedColumns);
     }
 
