@@ -51,7 +51,7 @@ TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 colu
 #ifdef UNITS_MODULE_LIB
             const auto& header = ptr->GetHeader(column);
             QVariant value = ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
-            if(!header.Measurement.IsNull()) {
+            if(value.isValid() && !header.Measurement.IsNull()) {
                 value = MeasurementManager::GetInstance().GetCurrentUnit(header.Measurement)->GetBaseToUnitConverter()(value.toDouble());
             }
             return value;
@@ -210,13 +210,19 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
             if(!header.Measurement.IsNull()) {
                 auto measurement = header.Measurement;
                 sourceModel->SetterDelegates.insert(i, [measurement](QVariant& value){
-                    value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetUnitToBaseConverter()(value.toDouble());
+                    if(value.isValid()) {
+                        value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetUnitToBaseConverter()(value.toDouble());
+                    }
                 });
                 sourceModel->GetterDelegates.insert(i, [measurement](QVariant& value){
-                    value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetBaseToUnitConverter()(value.toDouble());
+                    if(value.isValid()) {
+                        value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetBaseToUnitConverter()(value.toDouble());
+                    }
                 });
                 sourceModel->GetterDisplayDelegates.insert(i, [measurement](QVariant& value){
-                    value = MeasurementManager::GetInstance().FromBaseToUnitUi(measurement, value.toDouble());
+                    if(value.isValid()) {
+                        value = MeasurementManager::GetInstance().FromBaseToUnitUi(measurement, value.toDouble());
+                    }
                 });
             }
             ++i;
