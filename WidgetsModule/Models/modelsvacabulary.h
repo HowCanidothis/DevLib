@@ -45,6 +45,7 @@ public:
 
 private:
     QVector<HeaderDataValue> m_header;
+    DispatcherConnectionsSafe m_connections;
 };
 
 using ModelsVocabularyPtr = SharedPointer<ModelsVocabulary>;

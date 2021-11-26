@@ -12,4 +12,5 @@
 @import url("light/visualization.qss");
 @import url("common/notify.qss");
 @import url("light/notify.qss");
+@import url("common/toolbar.qss");
 @import url("light/toolbar.qss");

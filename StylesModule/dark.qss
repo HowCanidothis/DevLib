@@ -11,4 +11,5 @@
 @import url("dark/visualization.qss");
 @import url("common/notify.qss");
 @import url("dark/notify.qss");
+@import url("common/toolbar.qss");
 @import url("dark/toolbar.qss");
