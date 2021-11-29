@@ -27,6 +27,7 @@ protected:
 
 private:
     void init();
+    virtual void connectLocale();
 
 private:
     bool m_recursionBlock;
@@ -40,6 +41,9 @@ public:
     WidgetsDateEdit(QWidget* parent = nullptr);
 
     LocalPropertyDate CurrentDate;
+
+private:
+    void connectLocale() override;
 };
 
 #endif // WIDGETSDATETIMEEDIT_H

@@ -15,17 +15,6 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
 {
     ui->setupUi(this);
     ui->CalendarButton->setIcon(IconsManager::GetInstance().GetIcon("CalendarIcon"));
-
-    auto updateLocale = [this]{
-        const auto& locale = Locale.Native();
-        if(locale == QLocale::English){
-            DisplayFormat = "MM/dd/yy hh:mm AP";
-        } else {
-            DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
-        }
-    };
-    updateLocale();
-    Locale.OnChange.Connect(this, updateLocale).MakeSafe(m_connections);
     
     auto* menu = createPreventedFromClosingMenu(tr("DateTime"));
     auto* ac = new QWidgetAction(parent);

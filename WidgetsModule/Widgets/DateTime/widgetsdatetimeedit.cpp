@@ -99,6 +99,25 @@ void WidgetsDateTimeEdit::init()
     DisplayFormat.Subscribe([this]{
         setDisplayFormat(DisplayFormat);
     });
+
+    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
+        if(event->type() == QEvent::Show) {
+            connectLocale();
+        }
+        return false;
+    });
+}
+
+void WidgetsDateTimeEdit::connectLocale()
+{
+    Locale.OnChange.ConnectAndCall(this, [this]{
+        const auto& locale = Locale.Native();
+        if(locale == QLocale::English){
+            DisplayFormat = "MM/dd/yy hh:mm AP";
+        } else {
+            DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
+        }
+    });
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
@@ -125,3 +144,16 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
                                   CurrentDate.GetMax().isValid() ? QDateTime(CurrentDate.GetMax(), QTime(0,0)) : QDateTime());
     });
 }
+
+void WidgetsDateEdit::connectLocale()
+{
+    Locale.OnChange.ConnectAndCall(this, [this]{
+        const auto& locale = Locale.Native();
+        if(locale == QLocale::English){
+            DisplayFormat = "MM/dd/yyyy";
+        } else {
+            DisplayFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
+        }
+    });
+}
+
