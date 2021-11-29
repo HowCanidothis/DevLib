@@ -4,5 +4,5 @@ BHAComponentViewBase QScrollArea {
 }
 
 BHAComponentViewBase {
-    max-width: 403px;
+    max-width: 406px;
 }
