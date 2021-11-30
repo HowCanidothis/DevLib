@@ -242,6 +242,7 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
         listModel->SetData(model);
         data->SourceModel = listModel;
         auto* pData = data.get();
+        sortModel->setDynamicSortFilter(false);
         listModel->GetData()->OnChanged += { this, [sortModel, pData]{
             pData->Sorter.Call([sortModel]{
                 sortModel->sort(0, sortModel->sortOrder());

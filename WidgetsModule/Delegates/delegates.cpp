@@ -25,6 +25,11 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }
+    connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+        auto* nonConstThis = const_cast<DelegatesCombobox*>(this);
+        emit nonConstThis->commitData(comboBox);
+        emit nonConstThis->closeEditor(comboBox);
+    });
     return comboBox;
 }
 
