@@ -108,7 +108,9 @@ public:
 
     int rowCount(const QModelIndex& index = QModelIndex()) const override
     {
-        Q_UNUSED(index);
+        if(index.isValid()) {
+            return 0;
+        }
         if(GetData() == nullptr) {
             return 0;
         }
@@ -117,7 +119,9 @@ public:
 
     int columnCount(const QModelIndex& index = QModelIndex()) const override
     {
-        Q_UNUSED(index);
+        if(index.isValid()) {
+            return 0;
+        }
         return 1;
     }
 };

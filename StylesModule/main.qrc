@@ -24,5 +24,6 @@
         <file>dark/notify.qss</file>
         <file>dark/toolbar.qss</file>
         <file>light/toolbar.qss</file>
+        <file>common/toolbar.qss</file>
     </qresource>
 </RCC>

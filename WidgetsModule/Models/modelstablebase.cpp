@@ -57,6 +57,10 @@ QVariant ModelsTableBase::headerData(qint32 section, Qt::Orientation orientation
 
 void ModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
 {
+    if(m_data == data) {
+        return;
+    }
+
     beginResetModel();
     if(m_data != nullptr) {
         m_data->DisconnectModel(this);

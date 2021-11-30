@@ -94,4 +94,6 @@ private:
     QHash<qint32, Name> m_enumToStr;
 };
 
+Q_DECLARE_METATYPE(Name)
+
 #endif // NAME_H

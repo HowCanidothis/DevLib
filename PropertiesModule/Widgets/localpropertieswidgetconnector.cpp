@@ -279,10 +279,42 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
     });
 }
 
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox)
+    : Super([property, comboBox]{
+                qint32 result = 0;
+                forEachModelIndex(comboBox->model(), QModelIndex(), [&result, property](const QModelIndex& index){
+                    if(index.data(Qt::EditRole).value<Name>() == *property) {
+                        return true;
+                    }
+                    result++;
+                    return false;
+                });
+                comboBox->setCurrentIndex(result);
+            },
+            [property, comboBox]{
+                *property = comboBox->currentData(Qt::EditRole).value<Name>();
+            }
+    )
+{
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
+        m_propertySetter();
+    });
+
+}
+
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const ModelsStandardListModelPtr& model)
     : Super([property, comboBox, model]{
-                auto result = model->Find([property](const QHash<qint32, QVariant>& value) {
-                    return value.value(Qt::EditRole).toInt() == *property;
+                qint32 result = 0;
+                forEachModelIndex(comboBox->model(), QModelIndex(), [&result, property](const QModelIndex& index){
+                    if(index.data(Qt::EditRole).toInt() == *property) {
+                        return true;
+                    }
+                    result++;
+                    return false;
                 });
                 comboBox->setCurrentIndex(result);
             },
@@ -291,10 +323,6 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
             }
     )
 {
-    auto* comboModel = new ModelsStandardListViewModel(this);
-    comboModel->SetData(model);
-    comboBox->setModel(comboModel);
-
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
@@ -306,6 +334,14 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
     m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
         m_propertySetter();
     });
+}
+
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, const SharedPointer<ModelsStandardListModel>& model)
+    : LocalPropertiesComboBoxConnector(property, comboBox)
+{
+    model->OnChanged.Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
