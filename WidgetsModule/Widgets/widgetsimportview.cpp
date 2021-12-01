@@ -49,6 +49,7 @@ static QVector<QString> SEPARATORS = { " ", ";", "\t", "#", "|", "," };
 WidgetsImportView::WidgetsImportView(QWidget *parent)
     : Super(parent)
     , ShowPreview(true)
+    , GroupSeparator(GroupKeyboardSeparator::Tab)
     , ui(new Ui::WidgetsImportView)
 {
 	ui->setupUi(this);
@@ -83,7 +84,6 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	});
 	
 	Locale.SetAndSubscribe([this]{
-        GroupSeparator = SEPARATORS.indexOf(Locale.Native().groupSeparator());
         DecimalSeparator = TranslatorManager::GetNames<DecimalKeyboardSeparator>().indexOf(Locale.Native().decimalPoint());
 		DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : Locale.Native().dateTimeFormat(QLocale::ShortFormat);
 	});
