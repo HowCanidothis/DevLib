@@ -41,7 +41,7 @@ NotifyWidget::NotifyWidget(const NotifyDataPtr& data, QWidget *parent)
         OnLinkActivated(link, accepted);
         if(!accepted) {
             QDesktopServices::openUrl(QUrl(link));
-            OnDisappeared();
+            hide();
         }
     });
 
