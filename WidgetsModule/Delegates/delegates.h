@@ -25,6 +25,18 @@ protected:
     Qt::AlignmentFlag m_aligment;
 };
 
+class DelegatesComboboxCustomViewModel : public DelegatesCombobox
+{
+    using Super = DelegatesCombobox;
+public:
+    using ModelGetter = std::function<QAbstractItemModel* ()>;
+    DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent);
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex&) const override;
+
+private:
+    ModelGetter m_getter;
+};
+
 class DelegatesIntSpinBox : public QStyledItemDelegate
 {
     Q_OBJECT

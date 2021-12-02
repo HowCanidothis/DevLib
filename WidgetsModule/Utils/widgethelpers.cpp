@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QKeyEvent>
 
 #include <optional>
 
@@ -295,6 +296,20 @@ QLineEdit* WidgetsAttachment::AttachLineEditAdjuster(QLineEdit* edit) {
 bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
 {
     return m_filter(watched, e);
+}
+
+void WidgetsAttachment::AttachBlockEnter(QObject* target)
+{
+    auto blockEnter = [](QObject*, QEvent* event) {
+        if(event->type() == QEvent::KeyRelease || event->type() == QEvent::KeyPress) {
+            auto* keyEvent = reinterpret_cast<QKeyEvent*>(event);
+            if(keyEvent->key() == Qt::Key_Return) {
+                return true;
+            }
+        }
+        return false;
+    };
+    WidgetsAttachment::Attach(target, blockEnter);
 }
 
 void WidgetContent::ComboboxDisconnectModel(QComboBox* combo)

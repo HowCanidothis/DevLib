@@ -81,6 +81,7 @@ public:
 
     static void Attach(QObject* target, const FFilter& filter);
     static QLineEdit* AttachLineEditAdjuster(QLineEdit* edit);
+    static void AttachBlockEnter(QObject* target);
 
 private:
     bool eventFilter(QObject* watched, QEvent* e) override;

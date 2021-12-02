@@ -11,6 +11,24 @@
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
+DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
+    : Super([]()-> QStringList { return {}; }, parent)
+    , m_getter(getter)
+{}
+
+QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex&) const
+{
+    QComboBox* comboBox = new QComboBox(parent);
+    auto* model = m_getter();
+    comboBox->setModel(model);
+    connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+        auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
+        emit nonConstThis->commitData(comboBox);
+        emit nonConstThis->closeEditor(comboBox);
+    });
+
+    return comboBox;
+}
 
 DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& valuesExtractor, QObject* parent)
     : Super(parent)
