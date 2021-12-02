@@ -22,6 +22,9 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     auto* model = m_getter();
     comboBox->setModel(model);
     connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+        if(comboBox->lineEdit() != nullptr) {
+            return;
+        }
         auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
         emit nonConstThis->commitData(comboBox);
         emit nonConstThis->closeEditor(comboBox);
@@ -44,6 +47,9 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }
     connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+        if(comboBox->lineEdit() != nullptr) {
+            return;
+        }
         auto* nonConstThis = const_cast<DelegatesCombobox*>(this);
         emit nonConstThis->commitData(comboBox);
         emit nonConstThis->closeEditor(comboBox);
