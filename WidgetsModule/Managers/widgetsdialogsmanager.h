@@ -21,6 +21,8 @@ public:
         return result;
     }
 
+    QList<QUrl> SelectDirectory(const QString& dialogHeader, bool isSaveMode, const QString& fileName, const QStringList& filters);
+
     CommonDispatcher<QWidget*> OnDialogCreated;
 
 private:

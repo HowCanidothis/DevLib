@@ -95,6 +95,7 @@ SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QDate)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QTime)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QColor)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QMatrix4x4)
+SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QVariant)
 
 SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(SharedPointer)
 SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(ScopedPointer)
@@ -196,6 +197,7 @@ struct SerializerXml<ObjectType<T, T2>> \
 };
 
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QMap)
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QHash)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
 
 template<>
@@ -261,6 +263,14 @@ private:
     SerializationModes m_mode;
 };
 
+struct SerializerXmlVersionObject
+{
+    QHash<Name, Name> Data;
+
+    QString ToString(const TextConverterContext& context = TextConverterContext()) const { return TextConverter<QHash<Name, Name>>::ToText(Data, context); }
+    void FromString(const QString& string) { Data = TextConverter<QHash<Name, Name>>::FromText(string); }
+};
+
 class SerializerXmlWriteBuffer : public SerializerXmlBufferBase
 {
 public:
@@ -268,6 +278,13 @@ public:
         : m_writer(writer)
         , m_currentContext(&m_context)
     {}
+
+    void WriteVersionInfo(const SerializerXmlVersionObject& versionObject)
+    {
+        OpenSection("MetaData");
+        auto string = versionObject.ToString(m_context);
+        *this << Attr("Info", string);
+    }
 
     void SetTextConverterContext(const TextConverterContext& context)
     {
@@ -326,6 +343,20 @@ public:
     SerializerXmlReadBuffer(QXmlStreamReader* reader)
         : m_reader(reader)
     {}
+
+    SerializerXmlVersionObject ReadVersionInfo()
+    {
+        SerializerXmlVersionObject result;
+        OpenSection("MetaData");
+        if(m_reader->name() != "MetaData") {
+            return result;
+        }
+        QString string;
+        *this << Attr("Info", string);
+        result.FromString(string);
+        CloseSection();
+        return result;
+    }
 
     template<class T>
     void SerializeAtomic(const SerializerXmlObject<T>& object)
