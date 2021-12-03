@@ -229,6 +229,11 @@ public:
         }
     }
 
+    void Reset(const FAction& release)
+    {
+        m_release = release;
+    }
+
     ~LambdaGuard()
     {
         m_release();
