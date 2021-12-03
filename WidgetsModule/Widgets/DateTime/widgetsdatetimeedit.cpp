@@ -97,6 +97,7 @@ void WidgetsDateTimeEdit::init()
     });
 
     DisplayFormat.Subscribe([this]{
+        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
         setDisplayFormat(DisplayFormat);
     });
 
