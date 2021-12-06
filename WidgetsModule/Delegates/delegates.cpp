@@ -10,6 +10,7 @@
 #include <SharedModule/internal.hpp>
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
@@ -19,6 +20,12 @@ DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGe
 QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex&) const
 {
     QComboBox* comboBox = new QComboBox(parent);
+    WidgetsAttachment::Attach(comboBox, [](QObject*, QEvent* event){
+        if(event->type() == QEvent::Wheel) {
+            return true;
+        }
+        return false;
+    });
     auto* model = m_getter();
     comboBox->setModel(model);
     connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
@@ -42,6 +49,12 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
 {
     QComboBox* comboBox = new QComboBox(parent);
+    WidgetsAttachment::Attach(comboBox, [](QObject*, QEvent* event){
+        if(event->type() == QEvent::Wheel) {
+            return true;
+        }
+        return false;
+    });
     comboBox->addItems(m_valuesExtractor());
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
