@@ -12,7 +12,7 @@ ExternalService::ExternalService(const QString& path)
     , m_path(path)
     , m_dying(false)
 {
-    connect(this, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [this](int , QProcess::ExitStatus status){
+    connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this](int , QProcess::ExitStatus status){
         if(m_dying) {
             return;
         }

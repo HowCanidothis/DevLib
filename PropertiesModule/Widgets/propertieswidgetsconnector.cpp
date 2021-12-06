@@ -102,7 +102,7 @@ PropertiesSpinBoxConnector::PropertiesSpinBoxConnector(const Name& propertyName,
                               },
                               spinBox)
 {
-    m_connection = connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int value){
+    m_connection = connect(spinBox, QOverload<qint32>::of(&QSpinBox::valueChanged), [this](int value){
         PropertyChangeGuard guard(this);
         m_propertyPtr.GetProperty()->SetValue(value);
     });
@@ -122,7 +122,7 @@ PropertiesDoubleSpinBoxConnector::PropertiesDoubleSpinBoxConnector(const Name& p
                               },
                               spinBox)
 {
-    m_connection = connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double value){
+    m_connection = connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value){
         PropertyChangeGuard guard(this);
         auto* property = m_propertyPtr.GetProperty();
         property->SetValue(value);
@@ -214,7 +214,7 @@ PropertiesComboBoxConnector::PropertiesComboBoxConnector(const Name& propertyNam
                               },
                               comboBox)
 {
-    m_connection = connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this](qint32 value){
+    m_connection = connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this](qint32 value){
         PropertyChangeGuard guard(this);
         m_propertyPtr.GetProperty()->SetValue(value);
     });

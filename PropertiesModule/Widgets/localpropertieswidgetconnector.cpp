@@ -195,7 +195,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
     
-    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -223,7 +223,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -250,7 +250,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
     
-    m_connections.connect(spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox, QOverload<qint32>::of(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -274,7 +274,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
+    m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
         m_propertySetter();
     });
 }
@@ -300,7 +300,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
+    m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
         m_propertySetter();
     });
 
@@ -331,7 +331,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this]{
+    m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
         m_propertySetter();
     });
 }

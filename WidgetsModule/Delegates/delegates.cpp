@@ -28,7 +28,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     });
     auto* model = m_getter();
     comboBox->setModel(model);
-    connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+    connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32){
         if(comboBox->lineEdit() != nullptr) {
             return;
         }
@@ -59,7 +59,7 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }
-    connect(comboBox, static_cast<void (QComboBox::*)(qint32)>(&QComboBox::activated), [this, comboBox](qint32){
+    connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32){
         if(comboBox->lineEdit() != nullptr) {
             return;
         }
@@ -102,7 +102,7 @@ QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionVi
 {
     auto* spin = new QSpinBox (parent);
     OnEditorAboutToBeShown(spin, index);
-    connect(spin, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this, index](int value){
+    connect(spin, QOverload<qint32>::of(&QSpinBox::valueChanged), [this, index](int value){
         OnEditorValueChanged(value, index);
     });
     return spin;
@@ -156,7 +156,7 @@ QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptio
     auto* spin = new WidgetsDoubleSpinBoxWithCustomDisplay (parent);
     spin->MakeOptional();
     OnEditorAboutToBeShown(spin, index);
-    connect(spin, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this, index](double value){
+    connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, index](double value){
         OnEditorValueChanged(value, index);
     });
     return spin;

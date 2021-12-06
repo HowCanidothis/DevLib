@@ -82,7 +82,7 @@ QAction* createDoubleAction(const QString& title, double value, const std::funct
     layout->addItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     layout->addWidget(spinBox);
     spinBox->setValue(value);
-    QObject::connect(spinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [handler](double value) {
+    QObject::connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [handler](double value) {
         handler(value);
     });
     auto* action = new QWidgetAction(menu);

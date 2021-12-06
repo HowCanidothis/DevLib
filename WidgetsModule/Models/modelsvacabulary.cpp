@@ -270,7 +270,7 @@ QCompleter* ModelsVocabularyManager::CreateCompleter(const Name& modelName, qint
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setModel(m_cache[modelName][column]->SortedModel);
     if(dispatcher != nullptr) {
-        completer->connect(completer, static_cast<void (QCompleter::*)(const QModelIndex&)>(&QCompleter::activated), [modelName, dispatcher](const QModelIndex& index){
+        completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [modelName, dispatcher](const QModelIndex& index){
             dispatcher->Invoke(index.data(Qt::UserRole).toInt());
         });
     }

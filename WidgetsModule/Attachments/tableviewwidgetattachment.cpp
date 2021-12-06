@@ -127,7 +127,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                                          comboBox->setCursor(QCursor(Qt::ArrowCursor));
                                          comboBox->addItems(m_requestedColumns);
                                          comboBox->setCurrentIndex(0);
-                                         QObject::connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [this, comboBox](qint32 index){
+                                         QObject::connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32 index){
                                              m_attachment->ForeachAttachment<QComboBox>([this, index, comboBox](qint32 currentIndex, QComboBox* current) {
                                                  if(current != comboBox && current->currentIndex() == index) {
                                                      current->setCurrentIndex(0);
