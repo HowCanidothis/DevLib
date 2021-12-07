@@ -52,24 +52,25 @@ void WidgetsAdjustableTableView::updateSizeHintCache() const
 
         if(model() != nullptr) {
             auto rowCount = model()->rowCount();
-            if(rowCount != 0) {
-                for(qint32 i(0); i < rowCount; i++) {
-                    m_contentsHeight += rowHeight(i);
-                }
-                auto columnCount = model()->columnCount();
-                for(qint32 j(0); j < columnCount; j++) {
-                    m_contentsWidth += columnWidth(j);
-                }
-
-                if(verticalHeader()->isVisible()) {
-                    m_contentsWidth += verticalHeader()->sizeHint().width();
-                }
-                m_contentsWidth += contentsMargins().left() + contentsMargins().right();
-                if(horizontalHeader()->isVisible()) {
-                    m_contentsHeight += horizontalHeader()->sizeHint().height();
-                }
-                m_contentsHeight += contentsMargins().top() + contentsMargins().bottom();
+            for(qint32 i(0); i < rowCount; i++) {
+                m_contentsHeight += rowHeight(i);
             }
+            auto columnCount = model()->columnCount();
+            for(qint32 j(0); j < columnCount; j++) {
+                m_contentsWidth += columnWidth(j);
+            }
+
+            if(verticalHeader()->isVisible()) {
+                m_contentsWidth += verticalHeader()->sizeHint().width();
+            }
+            m_contentsWidth += contentsMargins().left() + contentsMargins().right();
+            auto headerHeight = horizontalHeader()->sizeHint().height();
+            if(horizontalHeader()->isVisible()) {
+                m_contentsHeight += rowCount ? headerHeight : (headerHeight * 2);
+            } else if(rowCount == 0){
+                m_contentsHeight += headerHeight;
+            }
+            m_contentsHeight += contentsMargins().top() + contentsMargins().bottom();
         }
         m_isDirty = false;
     }

@@ -56,11 +56,13 @@ public:
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
+        Q_ASSERT(GetData() != nullptr);
         GetData()->Insert(row > GetData()->GetSize() ? GetData()->GetSize() : row, count);
 		return true;
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
+        Q_ASSERT(GetData() != nullptr);
 		QSet<qint32> indexs;
 		while(count){
             indexs.insert(row + --count);
