@@ -36,6 +36,9 @@ public:
     void SetCleanIcon(const IconsSvgIcon& cleanIcon);
     void SetWarningIcon(const IconsSvgIcon& cleanIcon);
     void SetInfoIcon(const IconsSvgIcon& icon);
+
+    void AddWarning(const QString& data, const FAction& handler);
+
     void AttachErrorsContainer(LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler);
     void DetachErrorsContainer(LocalPropertyErrorsContainer* container);
 

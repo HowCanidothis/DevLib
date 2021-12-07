@@ -53,9 +53,19 @@ struct NotifyErrorContainerData
     }
 };
 
+struct NotifyWarningData
+{
+    FAction Action;
+
+    NotifyWarningData(const FAction& action)
+        : Action(action)
+    {}
+};
+
 struct NotifyConsoleData
 {
     ScopedPointer<NotifyErrorContainerData> ErrorHandler;
+    ScopedPointer<NotifyWarningData> WarningHandler;
     NotifyDataPtr Data;
 
     NotifyConsoleData(const NotifyDataPtr& data = nullptr)

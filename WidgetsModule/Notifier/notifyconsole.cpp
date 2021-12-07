@@ -256,11 +256,13 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         if(data->ErrorHandler != nullptr && data->ErrorHandler->Action != nullptr) {
             data->ErrorHandler->Action();
         }
+        if(data->WarningHandler != nullptr && data->WarningHandler->Action != nullptr) {
+            data->WarningHandler->Action();
+        }
     });
 
     m_updateErrors.Connect(this, [this]{
-        Data->OnAboutToBeUpdated();
-        Data->OnUpdated();
+        Data->UpdateUi([]{});
     });
 
     auto emitCountChanged = [this, filterModel]{
@@ -269,6 +271,15 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     connect(filterModel, &QSortFilterProxyModel::rowsInserted, emitCountChanged);
     connect(filterModel, &QSortFilterProxyModel::rowsRemoved, emitCountChanged);
     connect(filterModel, &QSortFilterProxyModel::modelReset, emitCountChanged);
+}
+
+void NotifyConsole::AddWarning(const QString& data, const FAction& handler)
+{
+    auto consoleData = ::make_shared<NotifyConsoleData>();
+    consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, data);
+    consoleData->WarningHandler = ::make_scoped<NotifyWarningData>(handler);
+
+    Data->Prepend(consoleData);
 }
 
 NotifyConsole::~NotifyConsole()
