@@ -138,7 +138,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 
 void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()
 {
-    auto property = ::make_shared<LocalPropertyBool>();
+    auto property = ::make_shared<LocalPropertyBool>(true);
     MakeOptional(property.get());
     setProperty("IsValid", QVariant::fromValue(property));
 }
