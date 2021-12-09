@@ -5,13 +5,6 @@
 #include "WidgetsModule/Utils/styleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-struct EventLock {
-    EventLock(const SharedPointer<bool>& val) : ptr(val) {Q_ASSERT(!*ptr); *ptr = true; }
-    ~EventLock(){ Q_ASSERT(*ptr); *ptr = false; }
-    
-    SharedPointer<bool> ptr;
-};
-
 WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     : Super(parent)
 	, CurrentTime(QTime(0,0))
@@ -32,18 +25,16 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         if(*complexTimeLocker){
             return;
         }
-        EventLock lk(complexTimeLocker);
+        guards::LambdaGuard([complexTimeLocker]{ *complexTimeLocker = false; }, [complexTimeLocker]{ *complexTimeLocker = true; });
         Type = CurrentTime.Native().hour() < 12 ?  DayType::AM :  DayType::PM;
         Hour = CurrentTime.Native().hour() - (Type == DayType::AM ? 0 : 12);
         Minutes = CurrentTime.Native().minute();
-//        qDebug() << "CurrentTime.SetAndSubscribe " << CurrentTime.Native() << " ||| "<< Type.GetName() << " " << Hour << " " << Minutes;
     });
     auto buildTime = [this, complexTimeLocker]{
         if(*complexTimeLocker){
             return;
         }
-        EventLock lk(complexTimeLocker);
-//        qDebug() << "buildTime " << Type.GetName() << " " << Hour << " " << Minutes;
+        guards::LambdaGuard([complexTimeLocker]{ *complexTimeLocker = false; }, [complexTimeLocker]{ *complexTimeLocker = true; });
         CurrentTime = QTime(Hour + (Type == DayType::AM ? 0 : 12), Minutes);
     };
     
@@ -58,7 +49,6 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
                 const auto& max = CurrentTime.GetMax();
                 stopMinutes = max.isValid() ? CurrentTime.GetMax().minute() : QTime::currentTime().minute();
             }
-//            qDebug() << "SET MINUTES " << startMinutes << stopMinutes << " Hour " << Hour << " range: " << Hour.GetMin() << Hour.GetMax() << " TIME " << CurrentTime.Native().hour();
             Minutes.SetMinMax(startMinutes, stopMinutes);
         });
     };
@@ -72,12 +62,10 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
             switch (Type.Native()) {
             case DayType::AM: {
                 Hour.SetMinMax(min, qMin(max, 12));
-//                qDebug() << "Set hour min: " << Hour.GetMin() << " max: " << Hour.GetMax() << " type: PM";
                 break;
             }
             case DayType::PM: {
                 Hour.SetMinMax(qMax(0, min - 12), max - 12);
-//                qDebug() << "Set hour min: " << Hour.GetMin() << " max: " << Hour.GetMax() << " type: PM";
                 break;
             }}
             updateMinutesRange();
