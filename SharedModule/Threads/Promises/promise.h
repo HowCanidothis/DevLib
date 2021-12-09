@@ -15,7 +15,7 @@
 class PromiseData ATTACH_MEMORY_SPY(PromiseData)
 {
 public:
-    using FCallback = std::function<void (bool)>;
+    using FCallback = std::function<void (qint8)>;
     PromiseData()
         : m_result(false)
         , m_isResolved(false)
@@ -30,18 +30,18 @@ public:
 
 private:
     friend class Promise;
-    bool m_result;
+    qint8 m_result;
     std::atomic_bool m_isResolved;
     std::atomic_bool m_isCompleted;
-    CommonDispatcher<bool> onFinished;
+    CommonDispatcher<qint8> onFinished;
     std::mutex m_mutex;
 
-    void resolve(bool value)
+    void resolve(qint8 value)
     {
         resolve([value]{ return value; });
     }
     
-    void resolve(const std::function<bool ()>& handler)
+    void resolve(const std::function<qint8 ()>& handler)
     {
         if(m_isResolved) {
             return;
@@ -54,7 +54,7 @@ private:
             }
             m_isResolved = true;
         }
-        bool value = handler();
+        qint8 value = handler();
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_result = value;
@@ -92,11 +92,11 @@ public:
     {}
 
     PromiseData* GetData() const { return m_data.get(); }
-    bool GetValue() const { return m_data->m_result; }
+    qint8 GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isCompleted; }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
-    void Resolve(bool value) const {  m_data->resolve(value); }
-    void Resolve(const std::function<bool ()>& handler) const {  m_data->resolve(handler); }
+    void Resolve(qint8 value) const {  m_data->resolve(value); }
+    void Resolve(const std::function<qint8 ()>& handler) const {  m_data->resolve(handler); }
     void Mute() { m_data->mute(); }
 
     template<typename ... Args>
@@ -136,7 +136,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 {
     template<class T> friend class QtFutureWatcher;
     friend class FutureResult;
-    std::atomic<bool> m_result;
+    std::atomic<qint8> m_result;
     std::atomic<int> m_promisesCounter;
     std::condition_variable m_conditional;
     std::mutex m_mutex;
@@ -160,22 +160,20 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     }
 
     bool isFinished() const { return m_promisesCounter == 0; }
-    bool getResult() const { return m_result; }
+    qint8 getResult() const { return m_result; }
 
     void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self)
     {
         ref();
-        promise.Then([this, self](const bool& result){
-            if(!result) {
-                m_result = false;
-            }
+        promise.Then([this, self](const qint8& result){
+            m_result |= result;
             deref();
         });
 
         return;
     }
 
-    void then(const std::function<void (bool)>& action)
+    void then(const std::function<void (qint8)>& action)
     {
         if(isFinished()) {
             action(getResult());
@@ -198,7 +196,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 
 public:
     FutureResultData()
-        : m_result(true)
+        : m_result(0)
         , m_promisesCounter(0)
     {}
 
@@ -218,14 +216,14 @@ public:
     {}
 
     bool IsFinished() const { return m_data->isFinished(); }
-    bool GetResult() const { return m_data->getResult(); }
+    qint8 GetResult() const { return m_data->getResult(); }
 
     void operator+=(const Promise& promise)
     {
         m_data->addPromise(promise, m_data);
     }
 
-    void Then(const std::function<void (bool)>& action)
+    void Then(const std::function<void (qint8)>& action)
     {
         m_data->then(action);
     }

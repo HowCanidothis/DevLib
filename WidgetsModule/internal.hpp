@@ -60,6 +60,8 @@
 #include "Widgets/DateTime/widgetstimewidget.h"
 #include "Widgets/DateTime/widgetscalendarwidget.h"
 
+#include "Dialogs/widgetsimporttabledialog.h"
+
 #include "Managers/widgetsdialogsmanager.h"
 
 #include "widgetsserializer.h"

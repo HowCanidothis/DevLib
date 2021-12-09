@@ -69,14 +69,15 @@ class WidgetsMatchingAttachment
 public:
     WidgetsMatchingAttachment(QTableView* table, QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
 
+    void Transite();
+
     LocalPropertyString DateFormat;
     LocalPropertyString DecimalSeparator;
     LocalPropertyBool IsVisible;
     LocalPropertyBool IsEnabled;
     Dispatcher Match;
-    DelayedCallDispatcher Transite;
-    Dispatcher OnTransited;
     CommonDispatcher<qint32, qint32> OnMatchingChanged;
+    StateProperty TransitionState;
 
     LocalPropertyErrorsContainer Errors;
 
@@ -97,6 +98,7 @@ private:
     ScopedPointer<FTSObject> m_matchObject;
     QAbstractItemModel* m_targetModel;
     QtLambdaConnections m_lconnections;
+    DelayedCallDispatcher m_transite;
 };
 
 #endif // TABLEVIEWWIDGETATTACHMENT_H

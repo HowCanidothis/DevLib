@@ -96,11 +96,12 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     : DecimalSeparator(".")
     , IsVisible(false)
     , IsEnabled(false)
-    , Transite(1000)
+    , TransitionState(false)
     , m_tableView(table)
     , m_dictionary(::make_scoped<FTSDictionary>())
     , m_matchObject(::make_scoped<FTSObject>(m_dictionary.get()))
     , m_targetModel(targetModel)
+    , m_transite(1000)
 {
     Match += { this, [this]{
         match();
@@ -148,7 +149,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         }
     });
 
-    Transite.Connect(this, [this]{
+    m_transite.Connect(this, [this]{
         if(m_attachment == nullptr) {
             return;
         }
@@ -236,7 +237,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
             Errors.RemoveError(ErrorIncorrectDoubleConversion);
         }
 
-        OnTransited();
+        TransitionState.SetState(false);
     });
 
     auto transite = [this]{
@@ -250,6 +251,12 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     DateFormat.Subscribe(transite);
 
     m_lconnections.connect(m_tableView->model(), &QAbstractItemModel::dataChanged, transite);
+}
+
+void WidgetsMatchingAttachment::Transite()
+{
+    TransitionState.SetValue(true);
+    m_transite();
 }
 
 void WidgetsMatchingAttachment::match()

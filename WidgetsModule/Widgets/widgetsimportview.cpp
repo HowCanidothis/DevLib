@@ -187,7 +187,14 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
     m_matchingAttachment->IsEnabled = true;
     m_matchingAttachment->IsVisible = true;
 
-    OnTransited.ConnectFrom(m_matchingAttachment->OnTransited);
+    m_matchingAttachment->TransitionState.OnChange.Connect(this, [this]{
+        if(m_matchingAttachment->TransitionState) {
+            OnTransitionStarted();
+        } else {
+            OnTransited();
+        }
+    });
+
     m_matchingAttachment->DateFormat.ConnectFrom(DateTimeFormat);
     m_matchingAttachment->DecimalSeparator.ConnectFrom(DecimalSeparator, [](qint32 key){
         return TranslatorManager::GetNames<DecimalKeyboardSeparator>().at(key);
