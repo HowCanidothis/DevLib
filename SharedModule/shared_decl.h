@@ -240,6 +240,32 @@ public:
     }
 };
 
+class BooleanGuard : public LambdaGuard
+{
+    using Super = LambdaGuard;
+public:
+    enum InvertedConstructor
+    {
+        Inverted
+    };
+
+    BooleanGuard(bool* value)
+        : Super([value]{
+            *value = false;
+        }, [value]{
+            *value = true;
+        })
+    {}
+
+    BooleanGuard(bool* value, InvertedConstructor)
+        : Super([value]{
+            *value = true;
+        }, [value]{
+            *value = false;
+        })
+    {}
+};
+
 template<class Owner, typename BindFunc, typename ReleaseFunc>
 CommonGuard<Owner, BindFunc, ReleaseFunc> make(Owner* owner, BindFunc bind, ReleaseFunc release)
 {

@@ -148,8 +148,8 @@ public:
         });
     }
 
-    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectBoth(LocalProperty<T2>& another, const Evaluator& anotherEvaluator, const ThisEvaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
+    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& dispatchers = {})
     {
         DispatcherConnections result;
         another = anotherEvaluator(Native());
@@ -586,20 +586,26 @@ public:
     const QTime& GetMin() const { return m_min; }
     const QTime& GetMax() const { return m_max; }
 
+    QTime GetMinValid() const { return validatedMin(m_min); }
+    QTime GetMaxValid() const { return validatedMax(m_max); }
+
     Dispatcher OnMinMaxChanged;
 
 private:
+    static QTime validatedMin(const QTime& min) { return !min.isValid() ? QTime(0,0) : min; }
+    static QTime validatedMax(const QTime& max) { return !max.isValid() ? QTime(23,59,59,999) : max; }
+
     inline static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max)
     {
         if(!cur.isValid()) {
             return cur;
         }
-        return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), min.msecsSinceStartOfDay(), max.msecsSinceStartOfDay()));
+        return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), validatedMin(min).msecsSinceStartOfDay(), validatedMax(max).msecsSinceStartOfDay()));
     }
-    
+
     QTime applyMinMax(const QTime& value) const
     {
-        return applyRange(value, m_min, m_max.isValid() ? m_max : QTime::currentTime());
+        return applyRange(value, m_min, m_max);
     }
     void validate(QTime& value) const override
     {

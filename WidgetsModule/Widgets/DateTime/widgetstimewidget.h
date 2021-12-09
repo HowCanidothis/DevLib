@@ -34,16 +34,16 @@ public:
     explicit WidgetsTimeWidget(QWidget *parent = nullptr);
     ~WidgetsTimeWidget();
 
-    LocalPropertyTime CurrentTime;
-
 private:
-    LocalPropertyInt Hour;
-    LocalPropertyInt Minutes;
 	LocalPropertySequentialEnum<DayType> Type;
 
     Ui::WidgetsTimeWidget *ui;
     DispatcherConnectionsSafe m_connections;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
+    ScopedPointer<class TimeConverter> m_timeConverter;
+
+public:
+    LocalPropertyTime& CurrentTime;
 };
 
 #endif // WIDGETSTIMEWIDGET_H

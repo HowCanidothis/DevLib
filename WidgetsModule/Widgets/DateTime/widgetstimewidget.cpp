@@ -5,113 +5,108 @@
 #include "WidgetsModule/Utils/styleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
+class TimeConverter
+{
+public:
+    TimeConverter()
+        : Time(QTime::currentTime())
+        , Hours(0, -1, 24)
+        , Minutes(0, -1, 60)
+        , m_recursionLock(false)
+    {
+        auto splitTime = [this]{
+            if(m_recursionLock){
+                return;
+            }
+            guards::BooleanGuard guard(&m_recursionLock);
+            if(Time.Native().isValid()) {
+                Hours = Time.Native().hour();
+                Minutes = Time.Native().minute();
+            } else {
+                Hours = 0;
+                Minutes = 0;
+            }
+        };
+
+        auto buildTime = [this]{
+            if(m_recursionLock){
+                return;
+            }
+            guards::BooleanGuard guard(&m_recursionLock);
+            Time = QTime(Hours, Minutes);
+        };
+
+        Hours.SetValidator([](qint32 value){
+            if(value >= 24) {
+                return 0;
+            } else if(value < 0) {
+                return 23;
+            }
+            return value;
+        });
+
+        Minutes.SetValidator([this](qint32 value){
+            if(value >= 60) {
+                Hours += 1;
+                return 0;
+            } else if(value < 0) {
+                Hours -= 1;
+                return 59;
+            }
+            return value;
+        });
+
+        Time.OnChange += { this, splitTime};
+        Hours.OnChange += { this, buildTime};
+        Minutes.OnChange += { this, buildTime};
+
+        splitTime();
+    }
+
+    LocalPropertyTime Time;
+    LocalPropertyInt Hours;
+    LocalPropertyInt Minutes;
+
+private:
+    bool m_recursionLock;
+};
+
 WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     : Super(parent)
-	, CurrentTime(QTime(0,0))
-    , Hour(0, 0, 12)
-    , Minutes(0, 0, 59)
     , ui(new Ui::WidgetsTimeWidget)
+    , m_timeConverter(new TimeConverter())
+    , CurrentTime(m_timeConverter->Time)
 {
     ui->setupUi(this);
     ui->label->setProperty("splitter", true);
     
-    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&Hour, ui->spHours);
-    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&Minutes, ui->spMinutes);
+    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Hours, ui->spHours);
+    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Minutes, ui->spMinutes);
     connect(ui->btnAM, &QPushButton::pressed, [this](){ Type = DayType::AM; });
     connect(ui->btnPM, &QPushButton::pressed, [this](){ Type = DayType::PM; });
-    
-    auto complexTimeLocker = ::make_shared<bool>(false);
-    CurrentTime.SetAndSubscribe([this, complexTimeLocker]{
-        if(*complexTimeLocker){
-            return;
-        }
-        guards::LambdaGuard([complexTimeLocker]{ *complexTimeLocker = false; }, [complexTimeLocker]{ *complexTimeLocker = true; });
-        Type = CurrentTime.Native().hour() < 12 ?  DayType::AM :  DayType::PM;
-        Hour = CurrentTime.Native().hour() - (Type == DayType::AM ? 0 : 12);
-        Minutes = CurrentTime.Native().minute();
-    });
-    auto buildTime = [this, complexTimeLocker]{
-        if(*complexTimeLocker){
-            return;
-        }
-        guards::LambdaGuard([complexTimeLocker]{ *complexTimeLocker = false; }, [complexTimeLocker]{ *complexTimeLocker = true; });
-        CurrentTime = QTime(Hour + (Type == DayType::AM ? 0 : 12), Minutes);
-    };
-    
-    auto updateDelayMinutes = ::make_shared<DelayedCallObject>();
-    auto updateMinutesRange = [this, updateDelayMinutes]{
-        updateDelayMinutes->Call([this, updateDelayMinutes]{
-            int startMinutes = 0, stopMinutes = 59;
-            if(Hour.GetMin() == Hour.Native()){
-                startMinutes = CurrentTime.GetMin().minute();
-            }
-            if(Hour.GetMax() == Hour.Native()){
-                const auto& max = CurrentTime.GetMax();
-                stopMinutes = max.isValid() ? CurrentTime.GetMax().minute() : QTime::currentTime().minute();
-            }
-            Minutes.SetMinMax(startMinutes, stopMinutes);
-        });
-    };
-    
-    auto updateDelayHours = ::make_shared<DelayedCallObject>();
-    auto updateHourRange = [this, updateMinutesRange, updateDelayHours]{
-        updateDelayHours->Call([this, updateMinutesRange]{
-            const auto& min = CurrentTime.GetMin().hour();
-            const auto& max = CurrentTime.GetMax().isValid() ? CurrentTime.GetMax().hour() : 24;
-            
-            switch (Type.Native()) {
-            case DayType::AM: {
-                Hour.SetMinMax(min, qMin(max, 12));
-                break;
-            }
-            case DayType::PM: {
-                Hour.SetMinMax(qMax(0, min - 12), max - 12);
-                break;
-            }}
-            updateMinutesRange();
-        });
-    };
-    
-    auto updateRange = [this,updateHourRange]{
-        ui->btnAM->setEnabled(CurrentTime.GetMin().hour() < 12);
-        ui->btnPM->setEnabled((CurrentTime.GetMax().isValid() ? CurrentTime.GetMax().hour() : QTime::currentTime().hour()) >= 12);
-        if(Type == DayType::AM && !ui->btnAM->isEnabled()){
-            Type = DayType::PM;
-        } else if(Type == DayType::PM && !ui->btnPM->isEnabled()){
-            Type = DayType::AM;
-        } else {
-            updateHourRange();
-        }
-    };
-    CurrentTime.OnMinMaxChanged.Connect(this, updateRange);
-    
+
     auto updateButtonState = [this]{
         ui->btnAM->setProperty("highlighted", Type == DayType::AM);
         ui->btnPM->setProperty("highlighted", Type == DayType::PM);
         StyleUtils::UpdateStyle(ui->btnAM);
         StyleUtils::UpdateStyle(ui->btnPM);
     };
-    updateButtonState();
-    Type.Subscribe([=]{
-        buildTime();
-        updateHourRange();
-        updateButtonState();
+    m_timeConverter->Hours.ConnectBoth(Type, [](qint32 value) -> qint32 {
+        return qint32(value >= 12 ? DayType::PM : DayType::AM);
+    }, [this](qint32 value) -> qint32 {
+        return m_timeConverter->Hours + ((value == (qint32)DayType::AM) ? -12 : 12);
     });
 
-    Hour.Subscribe([buildTime, updateMinutesRange]{
-        buildTime();
-        updateMinutesRange();
-    });
-    Minutes.Subscribe(buildTime);
+    Type.SetAndSubscribe(updateButtonState);
     
     auto connectHours = [this]{
         m_connections.clear();
         ui->timePicker->Type = ClockType::Hour;
-
-        auto updateRange = [this]{ ui->timePicker->CurrentTime.SetMinMax(Hour.GetMin(), Hour.GetMax()); };
-        updateRange();
-        Hour.OnMinMaxChanged.Connect(this, updateRange).MakeSafe(m_connections);
-        Hour.ConnectBoth(ui->timePicker->CurrentTime, [](int h){ return h; }, [](int h){ return h; }).MakeSafe(m_connections);
+        m_timeConverter->Hours.ConnectBoth(ui->timePicker->CurrentTime, [this](qint32 value){
+            return value + ((Type == DayType::AM) ? 0 : -12);
+        }, [this](qint32 value){
+            return value + ((Type == DayType::AM) ? 0 : 12);
+        }).MakeSafe(m_connections);
     };
     WidgetsAttachment::Attach(ui->spHours, [connectHours](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {
@@ -125,18 +120,29 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         if(e->type() == QEvent::FocusIn) {
             m_connections.clear();
             ui->timePicker->Type = ClockType::Minutes;
-            auto updateRange = [this]{ ui->timePicker->CurrentTime.SetMinMax(Minutes.GetMin(), Minutes.GetMax()); };
-            updateRange();
-            Minutes.OnMinMaxChanged.Connect(this, updateRange).MakeSafe(m_connections);
-            Minutes.ConnectBoth(ui->timePicker->CurrentTime, [](int m){return m; }, [](int m){return m; }).MakeSafe(m_connections);
+            m_timeConverter->Minutes.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_connections);
         }
         return false;
     });
 
+    LocalPropertyString string;
+    LocalPropertyInt intValue;
+
+    string.ConnectBoth(intValue, [](const QString& str){
+        return str.toInt();
+    }, [](qint32 value){
+        return QString::number(value);
+    });
+
+    auto addZeroHoursHandler = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
+        value = value >= 12 ? (value - 12) : value;
+        return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
+    };
+
     auto addZeroHandler = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
         return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
     };
-    ui->spHours->SetTextFromValueHandler(addZeroHandler);
+    ui->spHours->SetTextFromValueHandler(addZeroHoursHandler);
     ui->spMinutes->SetTextFromValueHandler(addZeroHandler);
 }
 
