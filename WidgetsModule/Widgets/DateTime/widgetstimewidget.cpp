@@ -135,7 +135,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     });
 
     auto addZeroHoursHandler = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
-        value = value >= 12 ? (value - 12) : value;
+        value = value > 12 ? (value - 12) : value;
         return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
     };
 

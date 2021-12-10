@@ -113,7 +113,7 @@ void WidgetsDateTimeEdit::connectLocale()
 {
     Locale.OnChange.ConnectAndCall(this, [this]{
         const auto& locale = Locale.Native();
-        if(locale == QLocale::English){
+        if(locale.language() == QLocale::English){
             DisplayFormat = "MM/dd/yy hh:mm AP";
         } else {
             DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
@@ -150,7 +150,7 @@ void WidgetsDateEdit::connectLocale()
 {
     Locale.OnChange.ConnectAndCall(this, [this]{
         const auto& locale = Locale.Native();
-        if(locale == QLocale::English){
+        if(locale.language() == QLocale::English){
             DisplayFormat = "MM/dd/yyyy";
         } else {
             DisplayFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
