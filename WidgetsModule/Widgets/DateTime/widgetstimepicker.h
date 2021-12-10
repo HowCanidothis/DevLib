@@ -12,6 +12,13 @@ enum class ClockType {
     Last = Seconds,
 };
 
+enum class HourFormat {
+    Hour12,
+    Hour24,
+    First = Hour12,
+    Last = Hour24,
+};
+
 template<>
 struct EnumHelper<ClockType>
 {
@@ -19,6 +26,7 @@ struct EnumHelper<ClockType>
     Q_DECLARE_TR_FUNCTIONS(EnumHelper)
 };
 
+class QLabel;
 class WidgetsTimePicker : public QFrame
 {
     Q_OBJECT
@@ -29,11 +37,20 @@ class WidgetsTimePicker : public QFrame
     Q_PROPERTY(QColor arrowColor MEMBER m_arrowColor)
     Q_PROPERTY(QColor clockColor MEMBER m_clockColor)
     
+    struct ClockLabel
+    {
+        ClockLabel(QWidget* parent);
+
+        QLabel* In;
+        QLabel* Out;
+    };
+
 public:
     WidgetsTimePicker(QWidget* parent = nullptr);
 
     LocalPropertyInt CurrentTime;
-    LocalPropertySequentialEnum<ClockType> Type;
+    LocalPropertySequentialEnum<HourFormat> HourType;
+    LocalPropertySequentialEnum<ClockType> TypeClock;
     
     DelayedCallDispatchersCommutator OnChanged;
     
@@ -48,17 +65,18 @@ protected:
     bool hasHeightForWidth() const override { return true; }
 
 private:
-    void updateCenter();
-    void updateClockFace();
-    void updateTimeAngle(QMouseEvent* event);
+    inline int sectionsCount() const { return TypeClock.Native() == ClockType::Hour ? 12 : 60; }
 
 private:
-    int m_count;
-    QPoint m_center;
-	double m_prevAngle;
-	LocalPropertyDouble m_angle;
-    QMap<double, class QLabel*> m_buttons;
-	
+    LocalPropertyBool m_isOut;
+    LocalPropertyDouble m_angle;
+    LocalProperty<QPoint> m_centerPos;
+    LocalProperty<QPoint> m_cursorPos;
+    LocalPropertyPtr<QLabel> m_activeLabel;
+    DispatchersCommutator m_timeChanged;
+
+    QMap<double, ClockLabel> m_labels;
+
     LocalPropertyInt m_labelSize;
     LocalPropertyInt m_arrowWidth;
     LocalPropertyColor m_arrowColor;
