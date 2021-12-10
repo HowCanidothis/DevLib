@@ -149,7 +149,7 @@ public:
     }
 
     template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& dispatchers = {})
+    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& thisDispatchers = {}, const QVector<Dispatcher*>& anotherDispatchers = {})
     {
         DispatcherConnections result;
         another = anotherEvaluator(Native());
@@ -168,11 +168,20 @@ public:
                 *sync = false;
             }
         });
-        for(auto* dispatcher : dispatchers) {
+        for(auto* dispatcher : thisDispatchers) {
             result += dispatcher->Connect(this, [this, anotherEvaluator, &another, sync]{
                 if(!*sync) {
                     *sync = true;
                     another = anotherEvaluator(*this);
+                    *sync = false;
+                }
+            });
+        }
+        for(auto* dispatcher : anotherDispatchers) {
+            result += dispatcher->Connect(this, [this, thisEvaluator, &another, sync]{
+                if(!*sync) {
+                    *sync = true;
+                    *this = thisEvaluator(another);
                     *sync = false;
                 }
             });

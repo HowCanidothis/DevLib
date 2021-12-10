@@ -79,11 +79,29 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
 {
     ui->setupUi(this);
     ui->label->setProperty("splitter", true);
-    
+
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Hours, ui->spHours);
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Minutes, ui->spMinutes);
     connect(ui->btnAM, &QPushButton::pressed, [this](){ Type = DayType::AM; });
     connect(ui->btnPM, &QPushButton::pressed, [this](){ Type = DayType::PM; });
+
+    Locale.Subscribe([this]{ ui->timePicker->HourType = Locale.Native() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24; });
+    auto connections = ::make_shared<DispatcherConnectionsSafe>();
+    ui->timePicker->HourType.SetAndSubscribe([this, connections]{
+        connections->clear();
+
+        auto visible = ui->timePicker->HourType.Native() == HourFormat::Hour12;
+        ui->btnAM->setVisible(visible);
+        ui->btnPM->setVisible(visible);
+
+        if(visible){
+            m_timeConverter->Hours.ConnectBoth(Type, [](qint32 value) -> qint32 {
+                return qint32(value > 12 ? DayType::PM : DayType::AM);
+            }, [this](qint32 value) -> qint32 {
+                return m_timeConverter->Hours + ((value == (qint32)DayType::AM) ? -12 : 12);
+            }).MakeSafe(*connections);
+        }
+    });
 
     auto updateButtonState = [this]{
         ui->btnAM->setProperty("highlighted", Type == DayType::AM);
@@ -91,6 +109,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         StyleUtils::UpdateStyle(ui->btnAM);
         StyleUtils::UpdateStyle(ui->btnPM);
     };
+   
     m_timeConverter->Hours.ConnectBoth(Type, [](qint32 value) -> qint32 {
         return qint32(value >= 12 ? DayType::PM : DayType::AM);
     }, [this](qint32 value) -> qint32 {
@@ -101,11 +120,22 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     
     auto connectHours = [this]{
         m_connections.clear();
-        ui->timePicker->Type = ClockType::Hour;
-        m_timeConverter->Hours.ConnectBoth(ui->timePicker->CurrentTime, [this](qint32 value){
-            return value + ((Type == DayType::AM) ? 0 : -12);
-        }, [this](qint32 value){
-            return value + ((Type == DayType::AM) ? 0 : 12);
+        
+        ui->timePicker->TypeClock = ClockType::Hour;
+        ui->timePicker->HourType.OnChange.ConnectAndCall(this, [this]{
+            m_hourTypeConnections.clear();
+            switch (ui->timePicker->HourType.Native()) {
+            case HourFormat::Hour12:
+                m_timeConverter->Hours.ConnectBoth(ui->timePicker->CurrentTime, [this](qint32 value){
+                    return value + ((Type == DayType::AM) ? 0 : -12);
+                }, [this](qint32 value){
+                    return value + ((Type == DayType::AM) ? 0 : 12);
+                }).MakeSafe(m_hourTypeConnections);
+                break;
+            case HourFormat::Hour24:
+                m_timeConverter->Hours.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_hourTypeConnections);
+                break;
+            }
         }).MakeSafe(m_connections);
     };
     WidgetsAttachment::Attach(ui->spHours, [connectHours](QObject*, QEvent* e){
@@ -119,23 +149,17 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     WidgetsAttachment::Attach(ui->spMinutes, [this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {
             m_connections.clear();
-            ui->timePicker->Type = ClockType::Minutes;
+            
+            m_hourTypeConnections.clear();
+            ui->timePicker->TypeClock = ClockType::Minutes;
             m_timeConverter->Minutes.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_connections);
         }
         return false;
     });
 
-    LocalPropertyString string;
-    LocalPropertyInt intValue;
-
-    string.ConnectBoth(intValue, [](const QString& str){
-        return str.toInt();
-    }, [](qint32 value){
-        return QString::number(value);
-    });
-
-    auto addZeroHoursHandler = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
-        value = value > 12 ? (value - 12) : value;
+    
+    auto addZeroHoursHandler = [this](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
+        value = ui->timePicker->HourType.Native() == HourFormat::Hour12 && value >= 12 ? (value - 12) : value;
         return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
     };
 
