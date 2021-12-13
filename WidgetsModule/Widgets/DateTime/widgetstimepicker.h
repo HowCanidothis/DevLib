@@ -74,6 +74,7 @@ private:
     LocalProperty<QPoint> m_cursorPos;
     LocalPropertyPtr<QLabel> m_activeLabel;
     DispatchersCommutator m_timeChanged;
+    DispatcherConnectionsSafe m_connections;
 
     QMap<double, ClockLabel> m_labels;
 

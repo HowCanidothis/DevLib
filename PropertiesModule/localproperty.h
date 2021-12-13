@@ -31,6 +31,33 @@ struct LocalPropertyDescInitializationParams
 using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
 using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
+static DispatcherConnections LocalPropertiesConnectBoth(const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
+    DispatcherConnections result;
+    auto sync = ::make_shared<std::atomic_bool>(false);
+    auto eval1 = [evaluator1, sync]{
+        if(!*sync) {
+            *sync = true;
+            evaluator1();
+            *sync = false;
+        }
+    };
+    auto eval2 = [evaluator2, sync]{
+        if(!*sync) {
+            *sync = true;
+            evaluator2();
+            *sync = false;
+        }
+    };
+    for(auto* dispatcher : dispatchers1) {
+        result += dispatcher->Connect(nullptr, eval1);
+    }
+    for(auto* dispatcher : dispatchers2) {
+        result += dispatcher->Connect(nullptr, eval2);
+    }
+    eval1();
+    return result;
+}
+
 template<class T, class StorageType = T>
 class LocalProperty
 {
@@ -149,7 +176,7 @@ public:
     }
 
     template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& thisDispatchers = {}, const QVector<Dispatcher*>& anotherDispatchers = {})
+    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& thisDispatchers = {})
     {
         DispatcherConnections result;
         another = anotherEvaluator(Native());
@@ -173,15 +200,6 @@ public:
                 if(!*sync) {
                     *sync = true;
                     another = anotherEvaluator(*this);
-                    *sync = false;
-                }
-            });
-        }
-        for(auto* dispatcher : anotherDispatchers) {
-            result += dispatcher->Connect(this, [this, thisEvaluator, &another, sync]{
-                if(!*sync) {
-                    *sync = true;
-                    *this = thisEvaluator(another);
                     *sync = false;
                 }
             });
