@@ -16,7 +16,13 @@ void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const DescCol
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
     auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
     if(editScope != nullptr){
-        tableView->addActions(editScope->GetActionsQList());
+        auto actions = editScope->GetActionsQList();
+        tableView->addActions(actions);
+        tableView->verticalHeader()->setFocusProxy(tableView);
+        tableView->horizontalHeader()->setFocusProxy(tableView);
+
+        tableView->verticalHeader()->setFocusPolicy(Qt::ClickFocus);
+        tableView->horizontalHeader()->setFocusPolicy(Qt::ClickFocus);
     }
     tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, params)->menuAction());
 
