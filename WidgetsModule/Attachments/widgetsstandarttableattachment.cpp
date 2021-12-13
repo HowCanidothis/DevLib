@@ -10,7 +10,6 @@
 
 void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const DescColumnsParams& params)
 {
-    WidgetsActiveTableViewAttachment::Attach(tableView);
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(tableView);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -18,15 +17,11 @@ void WidgetsStandartTableAttachment::Attach(QTableView* tableView, const DescCol
     if(editScope != nullptr){
         auto actions = editScope->GetActionsQList();
         tableView->addActions(actions);
-        tableView->verticalHeader()->setFocusProxy(tableView);
-        tableView->horizontalHeader()->setFocusProxy(tableView);
-
-        tableView->verticalHeader()->setFocusPolicy(Qt::ClickFocus);
-        tableView->horizontalHeader()->setFocusPolicy(Qt::ClickFocus);
     }
     tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, params)->menuAction());
 
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+    WidgetsActiveTableViewAttachment::Attach(tableView);
 }

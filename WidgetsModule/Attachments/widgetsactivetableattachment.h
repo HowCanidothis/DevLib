@@ -15,6 +15,7 @@ public:
 
 private:
     bool eventFilter(QObject* watched, QEvent* event) override;
+    void updateActiveTableView(QTableView* tableView);
 };
 
 #endif // WIDGETSACTIVETABLEATTACHMENT_H
