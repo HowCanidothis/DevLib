@@ -224,6 +224,8 @@
         <file>rc/file-download.svg</file>
         <file>rc/file-eye.svg</file>
         <file>rc/file-upload.svg</file>
+        <file>rc/file-chart.svg</file>
+        <file>rc/file-chart-outline.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

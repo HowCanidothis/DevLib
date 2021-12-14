@@ -883,38 +883,56 @@ WidgetsTimeWidget QPushButton[highlighted="false"] {
   color: #707070;
 }
 
-WPSCImportExportReportBar QToolButton#btnImport
+WPSCImportExportReportBar QPushButton#btnImport
 {
     image: url(":/qss_icons/rc/file-upload-outline.svg");
     background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
 }
 
-WPSCImportExportReportBar QToolButton#btnExport
+WPSCImportExportReportBar QPushButton#btnExport
 {
     image: url(":/qss_icons/rc/file-download-outline.svg");
     background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
 }
 
-WPSCImportExportReportBar QToolButton#btnReport
+WPSCImportExportReportBar QPushButton#btnReport
 {
-    image: url(":/qss_icons/rc/file-eye-outline.svg");
+    image: url(":/qss_icons/rc/file-chart-outline.svg");
     background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
 }
 
-WPSCImportExportReportBar QToolButton#btnImport:hover
+WPSCImportExportReportBar QPushButton#btnImport:hover
 {
     image: url(":/qss_icons/rc/file-upload.svg");
-    background: transparent;
+    background: #1976D2;
 }
 
-WPSCImportExportReportBar QToolButton#btnExport:hover
+WPSCImportExportReportBar QPushButton#btnExport:hover
 {
     image: url(":/qss_icons/rc/file-download.svg");
-    background: transparent;
+    background: #1976D2;
 }
 
-WPSCImportExportReportBar QToolButton#btnReport:hover
+WPSCImportExportReportBar QPushButton#btnReport:hover
 {
-    image: url(":/qss_icons/rc/file-eye.svg");
-    background: transparent;
+    image: url(":/qss_icons/rc/file-chart.svg");
+    background: #1976D2;
 }
