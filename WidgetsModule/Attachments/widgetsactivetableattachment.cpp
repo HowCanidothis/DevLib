@@ -1,6 +1,7 @@
 #include "widgetsactivetableattachment.h"
 
 #include <QHeaderView>
+#include <QAbstractButton>
 
 WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
 {
@@ -20,10 +21,14 @@ void WidgetsActiveTableViewAttachment::updateActiveTableView(QTableView* tableVi
 void WidgetsActiveTableViewAttachment::Attach(QTableView* tableView)
 {
     tableView->viewport()->installEventFilter(GetInstance());
-
     auto update = [tableView]{
         GetInstance()->updateActiveTableView(tableView);
     };
+
+    if(auto button = tableView->findChild<QAbstractButton*>(QString(), Qt::FindDirectChildrenOnly)) {
+        button->setToolTip(tr("Select All"));
+        connect(button, &QAbstractButton::clicked, update);
+    }
     connect(tableView->horizontalHeader(), &QHeaderView::sectionClicked, update);
     connect(tableView->verticalHeader(), &QHeaderView::sectionClicked, update);
 }
