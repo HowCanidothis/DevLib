@@ -983,21 +983,32 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
 }
 
-QPushButton#btnPrevDay
+WPSCActiveDayComponent QToolButton#btnPrevDay
 {
-    qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
+    image: url(":/qss_icons/rc/chevron-left.svg");
     background: transparent;
 }
 
-QPushButton#btnNextDay
+WPSCActiveDayComponent QToolButton#btnPrevDay:hover{
+    image: url(":/qss_icons/rc/chevron-left-hover.svg");
+    background: transparent;
+}
+
+WPSCActiveDayComponent QToolButton#btnNextDay
 {
-    qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
+    image: url(":/qss_icons/rc/chevron-right.svg");
+    background: transparent;
+}
+
+WPSCActiveDayComponent QToolButton#btnNextDay:hover
+{
+    image: url(":/qss_icons/rc/chevron-right-hover.svg");
     background: transparent;
 }
 
 QPushButton#ResetButton
 {
-    qproperty-icon: url(":/qss_icons/rc/backup-restore.svg");
+    image: url(":/qss_icons/rc/backup-restore.svg");
     background: transparent;
 }
 

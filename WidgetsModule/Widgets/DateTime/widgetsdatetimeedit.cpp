@@ -124,16 +124,16 @@ void WidgetsDateTimeEdit::connectLocale()
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
     : Super(QDate(2000,1,1), QVariant::Date, parent)
 {
-    CurrentDateTime.ConnectBoth(CurrentDate, [](const QDateTime& dateTime){
-        if(!dateTime.isValid()) {
-            return QDate();
-        }
-        return dateTime.date();
-    }, [](const QDate& date){
+    CurrentDate.ConnectBoth(CurrentDateTime, [](const QDate& date){
         if(!date.isValid()) {
             return QDateTime();
         }
         return QDateTime(date, QTime(0,0));
+    }, [](const QDateTime& dateTime){
+        if(!dateTime.isValid()) {
+            return QDate();
+        }
+        return dateTime.date();
     });
 
     CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
