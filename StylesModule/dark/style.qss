@@ -865,7 +865,6 @@ WidgetsTimeWidget QSpinBox:hover {
 
 WidgetsTimeWidget QSpinBox:hover {
   border: none;
-  
 }
 
 WidgetsTimeWidget QLabel[splitter] {
@@ -882,4 +881,40 @@ WidgetsTimeWidget QPushButton[highlighted="false"]:hover {
 
 WidgetsTimeWidget QPushButton[highlighted="false"] {
   color: #707070;
+}
+
+WPSCImportExportReportBar QToolButton#btnImport
+{
+    image: url(":/qss_icons/rc/file-upload-outline.svg");
+    background: transparent;
+}
+
+WPSCImportExportReportBar QToolButton#btnExport
+{
+    image: url(":/qss_icons/rc/file-download-outline.svg");
+    background: transparent;
+}
+
+WPSCImportExportReportBar QToolButton#btnReport
+{
+    image: url(":/qss_icons/rc/file-eye-outline.svg");
+    background: transparent;
+}
+
+WPSCImportExportReportBar QToolButton#btnImport:hover
+{
+    image: url(":/qss_icons/rc/file-upload.svg");
+    background: transparent;
+}
+
+WPSCImportExportReportBar QToolButton#btnExport:hover
+{
+    image: url(":/qss_icons/rc/file-download.svg");
+    background: transparent;
+}
+
+WPSCImportExportReportBar QToolButton#btnReport:hover
+{
+    image: url(":/qss_icons/rc/file-eye.svg");
+    background: transparent;
 }
