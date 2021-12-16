@@ -1136,6 +1136,21 @@ WPSCImportExportReportBar QPushButton#btnReport:hover
     background: #1976D2;
 }
 
+WPSCImportExportReportBar QPushButton#btnImport::disabled
+{
+    image: url(":/qss_icons/rc/file-upload-outline-disable.svg");
+}
+
+WPSCImportExportReportBar QPushButton#btnExport::disabled
+{
+    image: url(":/qss_icons/rc/file-download-outline-disable.svg");
+}
+
+WPSCImportExportReportBar QPushButton#btnReport::disabled
+{
+    image: url(":/qss_icons/rc/file-chart-outline-disable.svg");
+}
+
 WidgetsDatetimePopupPicker QPushButton#CalendarButton
 {
     image: url(":/qss_icons/rc/calendar-month-dark.svg");
