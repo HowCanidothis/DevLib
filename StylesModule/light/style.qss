@@ -765,10 +765,6 @@ QAbstractView:selected {
   color: #D2D2D2;
 }
 
-QFrame#WidgetsDatetimePopupPicker {
-  background: #F3F3F3;
-}
-
 /* WidgetsTimePicker */
 WidgetsTimePicker {
   qproperty-clockColor: #e0e0e0;
@@ -829,4 +825,9 @@ WidgetsTimeWidget QPushButton[highlighted="false"]:hover {
 
 WidgetsTimeWidget QPushButton[highlighted="false"] {
   color: #707070;
+}
+
+WidgetsDatetimePopupPicker QPushButton#CalendarButton
+{
+    image: url(":/qss_icons/rc/calendar-month.svg");
 }
