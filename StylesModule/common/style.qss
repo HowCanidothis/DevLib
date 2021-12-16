@@ -1136,3 +1136,19 @@ WPSCImportExportReportBar QPushButton#btnReport:hover
     background: #1976D2;
 }
 
+WidgetsDatetimePopupPicker QPushButton#CalendarButton
+{
+    image: url(":/qss_icons/rc/calendar-month-dark.svg");
+    background: transparent;
+    qproperty-text: "";
+    min-width: 17px;
+    min-height: 18px;
+    max-width: 17px;
+    max-height: 18px;
+}
+
+WidgetsDatetimePopupPicker QPushButton#CalendarButton:hover
+{
+    image: url(":/qss_icons/rc/calendar-month-dark.svg");
+    background: #1976D2;
+}

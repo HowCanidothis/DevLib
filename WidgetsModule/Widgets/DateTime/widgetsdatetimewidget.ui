@@ -18,13 +18,20 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="WidgetsCalendarWidget" name="calendarWidget" native="true">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="navigationBarVisible" stdset="0">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="WidgetsTimeWidget" name="widget" native="true"/>
+      <widget class="WidgetsTimeWidget" name="widget" native="true">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
