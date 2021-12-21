@@ -31,6 +31,33 @@ struct LocalPropertyDescInitializationParams
 using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
 using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
+static DispatcherConnections LocalPropertiesConnectBoth(const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
+    DispatcherConnections result;
+    auto sync = ::make_shared<std::atomic_bool>(false);
+    auto eval1 = [evaluator1, sync]{
+        if(!*sync) {
+            *sync = true;
+            evaluator1();
+            *sync = false;
+        }
+    };
+    auto eval2 = [evaluator2, sync]{
+        if(!*sync) {
+            *sync = true;
+            evaluator2();
+            *sync = false;
+        }
+    };
+    for(auto* dispatcher : dispatchers1) {
+        result += dispatcher->Connect(nullptr, eval1);
+    }
+    for(auto* dispatcher : dispatchers2) {
+        result += dispatcher->Connect(nullptr, eval2);
+    }
+    eval1();
+    return result;
+}
+
 template<class T, class StorageType = T>
 class LocalProperty
 {

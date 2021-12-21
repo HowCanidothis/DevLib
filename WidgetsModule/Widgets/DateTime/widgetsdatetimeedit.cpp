@@ -60,31 +60,34 @@ void WidgetsDateTimeEdit::init()
     });
 
     WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
-        if(event->type() == QEvent::KeyPress) {
-            auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
-            if(keyEvent->key() == Qt::Key_Delete) {
-                CurrentDateTime = DefaultDateTimeDelegate();
+        switch(event->type()){
+            case QEvent::Show: connectLocale(); break;
+            case QEvent::KeyPress: {
+                auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
+                switch(keyEvent->key()){
+                case Qt::Key_Tab:
+                case Qt::Key_Escape:
+                case Qt::Key_Backtab:
+                case Qt::Key_Backspace:
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                case Qt::Key_Period:
+                case Qt::Key_Left:
+                case Qt::Key_Right:
+                case Qt::Key_0:
+                case Qt::Key_1:
+                case Qt::Key_2:
+                case Qt::Key_3:
+                case Qt::Key_4:
+                case Qt::Key_5:
+                case Qt::Key_6:
+                case Qt::Key_7:
+                case Qt::Key_8:
+                case Qt::Key_9: break;
+                case Qt::Key_Delete: DefaultDateTimeDelegate();
+                default: return true;
+                }
             }
-            switch(keyEvent->key()){
-            case Qt::Key_Escape:
-            case Qt::Key_Tab:
-            case Qt::Key_Backtab:
-            case Qt::Key_Backspace:
-            case Qt::Key_Return:
-            case Qt::Key_Enter:
-            case Qt::Key_0:
-            case Qt::Key_1:
-            case Qt::Key_2:
-            case Qt::Key_3:
-            case Qt::Key_4:
-            case Qt::Key_5:
-            case Qt::Key_6:
-            case Qt::Key_7:
-            case Qt::Key_8:
-            case Qt::Key_9: return false;
-            default: break;
-            }
-            return true;
         }
         return false;
     });
@@ -99,13 +102,6 @@ void WidgetsDateTimeEdit::init()
     DisplayFormat.Subscribe([this]{
         guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
         setDisplayFormat(DisplayFormat);
-    });
-
-    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
-        if(event->type() == QEvent::Show) {
-            connectLocale();
-        }
-        return false;
     });
 }
 
@@ -124,16 +120,16 @@ void WidgetsDateTimeEdit::connectLocale()
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
     : Super(QDate(2000,1,1), QVariant::Date, parent)
 {
-    CurrentDateTime.ConnectBoth(CurrentDate, [](const QDateTime& dateTime){
-        if(!dateTime.isValid()) {
-            return QDate();
-        }
-        return dateTime.date();
-    }, [](const QDate& date){
+    CurrentDate.ConnectBoth(CurrentDateTime, [](const QDate& date){
         if(!date.isValid()) {
             return QDateTime();
         }
         return QDateTime(date, QTime(0,0));
+    }, [](const QDateTime& dateTime){
+        if(!dateTime.isValid()) {
+            return QDate();
+        }
+        return dateTime.date();
     });
 
     CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{

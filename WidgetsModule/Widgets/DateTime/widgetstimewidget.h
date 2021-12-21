@@ -35,15 +35,18 @@ public:
     ~WidgetsTimeWidget();
 
 private:
-	LocalPropertySequentialEnum<DayType> Type;
-
+    LocalPropertySequentialEnum<DayType> Type;
     Ui::WidgetsTimeWidget *ui;
+
     DispatcherConnectionsSafe m_connections;
+    DispatcherConnectionsSafe m_dayTypeConnections;
+    DispatcherConnectionsSafe m_hourTypeConnections;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
     ScopedPointer<class TimeConverter> m_timeConverter;
 
 public:
     LocalPropertyTime& CurrentTime;
+    LocalPropertyLocale Locale;
 };
 
 #endif // WIDGETSTIMEWIDGET_H

@@ -216,6 +216,20 @@
         <file>rc/calendar-month.svg</file>
         <file>rc/eye.svg</file>
         <file>rc/eye-off.svg</file>
+        <file>rc/chevron-right-hover.svg</file>
+        <file>rc/chevron-left-hover.svg</file>
+        <file>rc/file-download-outline.svg</file>
+        <file>rc/file-eye-outline.svg</file>
+        <file>rc/file-upload-outline.svg</file>
+        <file>rc/file-download.svg</file>
+        <file>rc/file-eye.svg</file>
+        <file>rc/file-upload.svg</file>
+        <file>rc/file-chart.svg</file>
+        <file>rc/file-chart-outline.svg</file>
+        <file>rc/calendar-month-dark.svg</file>
+        <file>rc/file-chart-outline-disable.svg</file>
+        <file>rc/file-download-outline-disable.svg</file>
+        <file>rc/file-upload-outline-disable.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

@@ -983,21 +983,42 @@ QCalendarWidget QToolButton#qt_calendar_prevmonth {
     qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
 }
 
-QPushButton#btnPrevDay
+WPSCActiveDayComponent QPushButton#btnPrevDay
 {
-    qproperty-icon: url(":/qss_icons/rc/chevron-left.svg");
+    image: url(":/qss_icons/rc/chevron-left.svg");
     background: transparent;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
 }
 
-QPushButton#btnNextDay
+WPSCActiveDayComponent QPushButton#btnPrevDay:hover{
+    image: url(":/qss_icons/rc/chevron-left-hover.svg");
+    background: #1976D2;
+}
+
+WPSCActiveDayComponent QPushButton#btnNextDay
 {
-    qproperty-icon: url(":/qss_icons/rc/chevron-right.svg");
+    image: url(":/qss_icons/rc/chevron-right.svg");
     background: transparent;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+WPSCActiveDayComponent QPushButton#btnNextDay:hover
+{
+    image: url(":/qss_icons/rc/chevron-right-hover.svg");
+    background: #1976D2;
 }
 
 QPushButton#ResetButton
 {
-    qproperty-icon: url(":/qss_icons/rc/backup-restore.svg");
+    image: url(":/qss_icons/rc/backup-restore.svg");
     background: transparent;
 }
 
@@ -1059,4 +1080,90 @@ WidgetsTimePicker QLabel:disabled {
 
 WidgetsDateTimeWidget {
    padding: 6px;
+}
+
+WPSCImportExportReportBar QPushButton#btnImport
+{
+    image: url(":/qss_icons/rc/file-upload-outline.svg");
+    background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+WPSCImportExportReportBar QPushButton#btnExport
+{
+    image: url(":/qss_icons/rc/file-download-outline.svg");
+    background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+WPSCImportExportReportBar QPushButton#btnReport
+{
+    image: url(":/qss_icons/rc/file-chart-outline.svg");
+    background: transparent;
+    border-radius: 4px;
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+WPSCImportExportReportBar QPushButton#btnImport:hover
+{
+    image: url(":/qss_icons/rc/file-upload.svg");
+    background: #1976D2;
+}
+
+WPSCImportExportReportBar QPushButton#btnExport:hover
+{
+    image: url(":/qss_icons/rc/file-download.svg");
+    background: #1976D2;
+}
+
+WPSCImportExportReportBar QPushButton#btnReport:hover
+{
+    image: url(":/qss_icons/rc/file-chart.svg");
+    background: #1976D2;
+}
+
+WPSCImportExportReportBar QPushButton#btnImport::disabled
+{
+    image: url(":/qss_icons/rc/file-upload-outline-disable.svg");
+}
+
+WPSCImportExportReportBar QPushButton#btnExport::disabled
+{
+    image: url(":/qss_icons/rc/file-download-outline-disable.svg");
+}
+
+WPSCImportExportReportBar QPushButton#btnReport::disabled
+{
+    image: url(":/qss_icons/rc/file-chart-outline-disable.svg");
+}
+
+WidgetsDatetimePopupPicker QPushButton#CalendarButton
+{
+    image: url(":/qss_icons/rc/calendar-month-dark.svg");
+    background: transparent;
+    qproperty-text: "";
+    min-width: 17px;
+    min-height: 18px;
+    max-width: 17px;
+    max-height: 18px;
+}
+
+WidgetsDatetimePopupPicker QPushButton#CalendarButton:hover
+{
+    image: url(":/qss_icons/rc/calendar-month-dark.svg");
+    background: #1976D2;
 }

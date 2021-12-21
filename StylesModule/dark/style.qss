@@ -353,10 +353,6 @@ QPushButton:hover {
   background: #189EF7;
 }
 
-WidgetsDatetimePopupPicker QPushButton {
-  background-color: transparent;
-}
-
 QToolButton {
   background-color: transparent;
   color: #9d9d9d;
@@ -802,10 +798,6 @@ QAbstractView:selected {
   color: #3C3C3C;
 }
 
-WidgetsDatetimePopupPicker {
-  background: #252526;
-}
-
 /* WidgetsTimePicker */
 WidgetsTimePicker {
   qproperty-clockColor: #252526;
@@ -865,7 +857,6 @@ WidgetsTimeWidget QSpinBox:hover {
 
 WidgetsTimeWidget QSpinBox:hover {
   border: none;
-  
 }
 
 WidgetsTimeWidget QLabel[splitter] {
@@ -882,4 +873,9 @@ WidgetsTimeWidget QPushButton[highlighted="false"]:hover {
 
 WidgetsTimeWidget QPushButton[highlighted="false"] {
   color: #707070;
+}
+
+WidgetsDatetimePopupPicker QPushButton#CalendarButton
+{
+    image: url(":/qss_icons/rc/calendar-month-dark.svg");
 }
