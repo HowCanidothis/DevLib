@@ -60,6 +60,18 @@ private:
     DispatcherConnectionsSafe m_connections;
 };
 
+class WidgetsLocalPropertyEnablityWrapper : public QObject
+{
+public:
+    WidgetsLocalPropertyEnablityWrapper(QWidget* widget);
+
+    LocalPropertyBool Enabled;
+
+private:
+    QWidget* m_widget;
+    DispatcherConnectionsSafe m_connections;
+};
+
 class WidgetsObserver : public QObject
 {
     WidgetsObserver();

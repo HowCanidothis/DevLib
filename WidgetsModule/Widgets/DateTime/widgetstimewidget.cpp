@@ -43,7 +43,9 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Hours, ui->spHours);
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Minutes, ui->spMinutes);
 
-    ui->timePicker->HourType.ConnectFrom(Locale, [](const QLocale& locale){ return qint32(locale == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24); });
+    ui->timePicker->HourType.ConnectFrom(Locale, [](const QLocale& locale){
+        return qint32(locale.language() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24);
+    });
 
     WidgetsAttachment::Attach(ui->spHours, [this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {

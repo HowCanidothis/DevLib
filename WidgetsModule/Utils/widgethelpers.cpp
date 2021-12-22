@@ -53,6 +53,19 @@ WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWi
     widget->setVisible(Visible);
 }
 
+WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget* widget)
+    : Enabled(true)
+{
+    connect(widget, &QWidget::destroyed, [this]{
+        delete this;
+    });
+    Enabled.OnChange.Connect(this, [this, widget]{
+        widget->setEnabled(Enabled);
+    }).MakeSafe(m_connections);
+    widget->setEnabled(Enabled);
+}
+
+
 void WidgetsLocalPropertyColorWrapper::polish()
 {
     auto pal = m_widget->palette();

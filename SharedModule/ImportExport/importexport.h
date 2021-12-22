@@ -7,7 +7,8 @@ struct DescImportExportSourceParams
     enum EMode
     {
         Save,
-        Load
+        Load,
+        LoadSingle
     };
 
     QString Label;
@@ -338,7 +339,7 @@ public:
     template<class T>
     static AsyncResult ImportTable(const ImportExportSourcePtr& source, class QAbstractItemModel* model, const DescImportExportTableImport<T>& params)
     {
-        return StandardImportExportDevice(source, QIODevice::WriteOnly, [=]() -> qint8 {
+        return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8 {
             auto data = params.Loader(source);
             if(source->StandardProperties.IsAutoMatching) {
                 auto convertedData = params.Converter(data);
@@ -488,7 +489,7 @@ public:
     {
         auto dataToExport = params.Extractor(source, model, params);
 
-        return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]()-> qint8 {
+        return StandardImportExportDevice(source, QIODevice::WriteOnly, [=]()-> qint8 {
             return params.Saver(source, dataToExport);
         });
     }
