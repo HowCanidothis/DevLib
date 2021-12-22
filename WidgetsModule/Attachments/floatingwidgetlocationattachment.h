@@ -4,11 +4,35 @@
 #include <SharedModule/internal.hpp>
 #include <PropertiesModule/internal.hpp>
 
+struct DescFloatingWidgetLocationAttachmentParams
+{
+    DescFloatingWidgetLocationAttachmentParams(QWidget* target, QuadTreeF::BoundingRect_Location location)
+        : Target(target)
+        , Location(location)
+        , Delay(500)
+        , RelativeParent(nullptr)
+    {}
+
+    QWidget* Target;
+    QuadTreeF::BoundingRect_Location Location;
+    qint32 Delay;
+    QWidget* RelativeParent;
+    QPoint Offset;
+
+    DescFloatingWidgetLocationAttachmentParams& SetOffset(const QPoint& offset) { Offset = offset; return *this; }
+    DescFloatingWidgetLocationAttachmentParams& SetDelay(qint32 delay) { Delay = delay; return *this; }
+    DescFloatingWidgetLocationAttachmentParams& SetRelativeParent(QWidget* parent) { RelativeParent = parent; return *this; }
+};
+
 class FloatingWidgetLocationAttachment : public QObject
 {
-public:
-    FloatingWidgetLocationAttachment(class QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget = nullptr, qint32 delay = 500);
-    static void Attach(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget = nullptr) { new FloatingWidgetLocationAttachment(target, location, offset, relativeWidget); }
+    using Super = QObject;
+    FloatingWidgetLocationAttachment(const DescFloatingWidgetLocationAttachmentParams& params);
+public:       
+    static FloatingWidgetLocationAttachment* Attach(const DescFloatingWidgetLocationAttachmentParams& params)
+    {
+        return new FloatingWidgetLocationAttachment(params); // Note: target takes ownership of the attachment
+    }
 
     class ComponentPlacer* GetComponentPlacer() { return m_componentPlacer.get(); }
 

@@ -197,6 +197,146 @@ enum Sides {
     Sides_Count
 };
 
+namespace lq
+{
+
+template<class Container>
+class Iterators : public QList<typename Container::const_iterator>
+{
+    using Super = QList<typename Container::const_iterator>;
+public:
+    using value_type = typename Container::value_type;
+
+    struct const_iterator
+    {
+        using true_iterator = typename Super::const_iterator;
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type = qptrdiff;
+        using value_type = typename Container::value_type;
+        using pointer = value_type*;
+        using reference = value_type&;
+
+        const_iterator(const true_iterator& iterator)
+            : m_it(iterator)
+        {}
+        const_iterator& operator++()
+        {
+            ++m_it;
+            return *this;
+        }
+
+        const_iterator operator+(qint32 count) const
+        {
+            return const_iterator(m_it + count);
+        }
+
+        const value_type& operator*() const
+        {
+            return **m_it;
+        }
+
+        bool operator!=(const const_iterator& another) const
+        {
+            return m_it != another.m_it;
+        }
+
+    private:
+        true_iterator m_it;
+    };
+
+    const_iterator begin() const { return const_iterator(Super::cbegin()); }
+    const_iterator end() const { return const_iterator(Super::cend()); }
+};
+
+template<class Container>
+bool Join(const Container& container, const std::function<void (const typename Container::value_type& value)>& selector,
+          const std::function<void (const typename Container::value_type& value)>& lastSelector)
+{
+    if(container.begin() == container.end()) {
+        return false;
+    }
+    for(const auto& value : adapters::range(container.begin(), container.end() - 1)) {
+        selector(value);
+    }
+    lastSelector(*(container.end() - 1));
+
+    return true;
+}
+
+template<class Container>
+bool JoinIt(const Container& container, const std::function<void (const typename Container::const_iterator& value)>& selector,
+          const std::function<void (const typename Container::const_iterator& value)>& lastSelector)
+{
+    if(container.begin() == container.end()) {
+        return false;
+    }
+    for(auto it(container.cbegin()), e(container.cend() - 1); it != e; ++it) {
+        selector(it);
+    }
+    lastSelector(container.end() - 1);
+
+    return true;
+}
+
+template<class Container>
+QString Join(const QChar& separator, const Container& container)
+{
+    QString result;
+    Join(container, [&](const typename Container::value_type& value){
+        result.append(value);
+        result.append(separator);
+    }, [&](const typename Container::value_type& value){
+        result.append(value);
+    });
+    return result;
+}
+
+template<class Container>
+QString Join(const QString& separator, const Container& container)
+{
+    QString result;
+    Join(container, [&](const typename Container::value_type& value){
+        result.append(value);
+        result.append(separator);
+    }, [&](const typename Container::value_type& value){
+        result.append(value);
+    });
+    return result;
+}
+
+template<class T, class Container>
+QList<T> Select(const Container& container, const std::function<T (const typename Container::value_type& value)>& selector)
+{
+    QList<T> result;
+    for(const auto& value : container) {
+        result.append(selector(value));
+    }
+    return result;
+}
+
+template<class T, class Container>
+QList<T> SelectIt(const Container& container, const std::function<T (const typename Container::const_iterator& value)>& selector)
+{
+    QList<T> result;
+    for(auto it(container.cbegin()), e(container.cend()); it != e; ++it) {
+        result.append(selector(it));
+    }
+    return result;
+}
+
+template<class Container>
+Iterators<Container> Where(const Container& container, const std::function<bool (const typename Container::value_type& value)>& selector)
+{
+    Iterators<Container> result;
+    for(auto it(container.begin()), e(container.end()); it != e; ++it) {
+        if(selector(*it)) {
+            result.append(it);
+        }
+    }
+    return result;
+}
+}
+
 namespace guards {
 
 template<class Owner, typename BindFunc, typename ReleaseFunc>

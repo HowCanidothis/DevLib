@@ -55,6 +55,7 @@
 #include "Trees/quadtreef.h"
 #include "interruptor.h"
 #include "externalservice.h"
+#include "ImportExport/importexport.h"
 
 #endif
 

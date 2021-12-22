@@ -1,6 +1,7 @@
 #ifndef WIDGETSDIALOGSMANAGER_H
 #define WIDGETSDIALOGSMANAGER_H
 
+#include <SharedModule/internal.hpp>
 
 class WidgetsDialogsManager
 {
@@ -21,12 +22,18 @@ public:
         return result;
     }
 
-    QList<QUrl> SelectDirectory(const QString& dialogHeader, bool isSaveMode, const QString& fileName, const QStringList& filters);
+    QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
     CommonDispatcher<QWidget*> OnDialogCreated;
 
 private:
     QHash<Name, QWidget*> m_taggedDialog;
 };
+
+template<>
+inline QList<ImportExportSourcePtr> ImportExportSource::CreateSources<WidgetsDialogsManager>(const DescImportExportSourceParams& params)
+{
+    return lq::Select<ImportExportSourcePtr>(WidgetsDialogsManager::GetInstance().SelectDirectory(params), [](const QUrl& url){ return ::make_shared<ImportExportFileSource>(url); });
+}
 
 #endif // WIDGETSDIALOGMANAGER_H

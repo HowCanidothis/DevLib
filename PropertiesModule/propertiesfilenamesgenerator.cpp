@@ -12,21 +12,3 @@ PropertiesFileNamesGenerator::PropertiesFileNamesGenerator(const QString& baseNa
         m_filesGuard.Checkout();
     });
 }
-
-PropertiesFileNamesGeneratorFileStream::PropertiesFileNamesGeneratorFileStream(int64_t key, int32_t version, const QString& baseName, const QString& format, qint32 maxFilesCount)
-    : m_fileNamesGenerator(baseName, format, maxFilesCount)
-    , m_key(key)
-    , m_version(version)
-{}
-
-void PropertiesFileNamesGeneratorFileStream::updateStream()
-{
-    m_fileNamesGenerator.UpdateFileName([this](const QString& newFileName){
-        m_file = new QFile(newFileName);
-        if(m_file->open(QFile::WriteOnly)) {
-            m_stream = new QStreamBufferWrite(m_key, m_version, m_file.get());
-        } else {
-            qCritical() << newFileName << "cannot be created. Stream was not initialized";
-        }
-    });
-}

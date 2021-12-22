@@ -5,8 +5,6 @@
 #include "SharedModule/flags.h"
 #include "SharedModule/name.h"
 
-static QVariant StreamBufferBaseDefaultPropertyResult;
-
 class StandardVariantPropertiesContainer
 {
     QHash<Name,QVariant> m_properties;
@@ -17,41 +15,24 @@ public:
     }
     const QVariant& GetProperty(const Name& propertyName) const
     {
+        static QVariant defaultValue;
         auto foundIt = m_properties.find(propertyName);
         if(foundIt != m_properties.end()) {
             return foundIt.value();
         }
-        return StreamBufferBaseDefaultPropertyResult;
+        return defaultValue;
     }
 };
 
 template<class Stream>
-class StreamBufferBase
+class SerializerBufferBase
 {
 public:
-    template<class ... Args>
-    StreamBufferBase(int32_t version, Args ... args)
-        : m_stream(args...)
-        , m_version(version)
-        , m_mode(SerializationMode_Default)
-    {
-    }
-
-    template<class Enum>
-    StreamBufferBase(QByteArray* array, Enum flags)
-        : m_stream(array, flags)
+    SerializerBufferBase(Stream* stream)
+        : m_stream(stream)
         , m_version(-1)
         , m_mode(SerializationMode_Default)
     {
-        m_isValid = m_stream.good();
-    }
-
-    StreamBufferBase(const QByteArray& array)
-        : m_stream(array)
-        , m_version(-1)
-        , m_mode(SerializationMode_Default)
-    {
-        m_isValid = m_stream.good();
     }
 
     void OpenSection(const QString&) {}
@@ -62,127 +43,155 @@ public:
     template<class T>
     T& SectWithContext(const QString&, T& value, const struct TextConverterContext&) { return value; }
 
-    void CloseSection(){}   
+    void CloseSection(){}
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
     int32_t GetVersion() const { return m_version; }
-    bool IsValid() const { return m_isValid; }
-    bool IsGood() const { return m_stream.good(); }
+    bool IsValid() const { return m_stream->device() && m_stream->device()->isOpen(); }
 
-    Stream& GetStream() { return m_stream; }
+    QIODevice* GetDevice() const { return m_stream->device(); }
+    Stream& GetStream() { return *m_stream; }
 
     template<class T>
-    StreamBufferBase& operator<<(T& data);
-    StreamBufferBase& operator<<(const PlainData& data);
+    SerializerBufferBase& operator<<(T& data);
+    SerializerBufferBase& operator<<(const PlainData& data);
 
     StandardVariantPropertiesContainer Properties;
 
 protected:
-    bool m_isValid;
-    Stream m_stream;
+    ScopedPointer<Stream> m_stream;
     int32_t m_version;
     SerializationModes m_mode;
 };
 
-template<class Stream>
-class StreamBufferWriter : public StreamBufferBase<Stream>
+#pragma pack(1)
+struct SerializerVersion
 {
-    using Super = StreamBufferBase<Stream>;
-public:
-    template<class ... Args>
-    StreamBufferWriter(int64_t magicKey, int32_t version, Args ... args)
-        : Super(version, args...)
-        , m_magicKey(magicKey)
-        , m_isFinished(false)
-    {
-        int64_t testKey = magicKey;
-        if(Super::m_stream.good()) {
-            *this << testKey;
-            *this << Super::m_version;
-        } else {
-            Super::m_isValid = false;
-        }
-    }
+    qint64 Format = -1;
+    qint32 Version = -1;
+    qint64 HashSum = -1;
 
-    template<class Enum>
-    StreamBufferWriter(QByteArray* array, Enum flags)
-        : Super(array, flags)
-        , m_magicKey(-1)
-        , m_isFinished(true)
+    SerializerVersion()
     {}
 
-    ~StreamBufferWriter()
+    SerializerVersion(qint64 format, qint32 version)
+        : Format(format)
+        , Version(version)
+    {}
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
     {
-        Q_ASSERT(m_isFinished);
+        buffer << HashSum;
+        buffer << Format;
+        buffer << Version;
+    }
+};
+#pragma pack()
+
+template<class Stream>
+class SerializerHashSumWriter
+{
+    SerializerHashSumWriter(Stream* stream)
+        : m_stream(stream)
+        , m_pos(stream->GetDevice()->pos())
+    {}
+
+public:
+    void WriteHashSum(qint64 hashSum)
+    {
+        auto currentPos = m_stream->GetDevice()->pos();
+        m_stream->GetDevice()->seek(m_pos);
+        *m_stream << hashSum;
+        m_stream->GetDevice()->seek(currentPos);
     }
 
-    void Finish()
+private:
+    template<class T> friend class TSerializerWriteBuffer;
+    Stream* m_stream;
+    qint64 m_pos;
+};
+
+template<class Stream>
+class TSerializerWriteBuffer : public SerializerBufferBase<Stream>
+{
+    using Super = SerializerBufferBase<Stream>;
+public:
+    TSerializerWriteBuffer(QIODevice* device)
+        : Super(new Stream(device))
+    {}
+
+    TSerializerWriteBuffer(QByteArray* array, QIODevice::OpenMode openMode)
+        : Super(new Stream(array, openMode))
+    {}
+
+    ~TSerializerWriteBuffer()
     {
-        Q_ASSERT(!m_isFinished);
-        *this << m_magicKey;
-        m_isFinished = true;
+    }
+
+    SerializerHashSumWriter<TSerializerWriteBuffer> WriteVersion(const SerializerVersion& version)
+    {
+        Q_ASSERT(IsValid());
+        SerializerHashSumWriter<TSerializerWriteBuffer> result(this);
+        *this << version;
+        Super::m_version = version.Version;
+        return result;
     }
 
     template<class T>
-    StreamBufferWriter& operator<<(const T& data)
+    TSerializerWriteBuffer& operator<<(const T& data)
     {
         Serializer<T>::Write(*this, data);
         return *this;
     }
 
-    StreamBufferWriter& operator<<(const PlainData& data)
+    TSerializerWriteBuffer& operator<<(const PlainData& data)
     {
         Serializer<PlainData>::Write(*this, *const_cast<PlainData*>(&data));
         return *this;
     }
-
-private:
-    int64_t m_magicKey;
-    bool m_isFinished;
 };
 
 template<class Stream>
-class StreamBufferReader : public StreamBufferBase<Stream>
+class TSerializerReadBuffer : public SerializerBufferBase<Stream>
 {
-    using Super = StreamBufferBase<Stream>;
+    using Super = SerializerBufferBase<Stream>;
 public:
-    template<class ... Args>
-    StreamBufferReader(int64_t magicKey, int32_t version, Args ... args)
-        : Super(version, args...)
-    {
-        int64_t testKey;
-        if(Super::m_stream.good()) {
-            *this << testKey;
-            Super::m_isValid = (testKey == magicKey);
-            if(Super::m_isValid) {
-                *this << Super::m_version;
-                Super::m_isValid = Super::m_stream.GetLastInt64() == magicKey;
-            }            
-        } else {
-            Super::m_isValid = false;
-        }
-    }
-
-    StreamBufferReader(const QByteArray& array)
-        : Super(array)
+    TSerializerReadBuffer(QIODevice* device)
+        : Super(new Stream(device))
     {}
 
+    TSerializerReadBuffer(const QByteArray& array)
+        : Super(new Stream(array))
+    {}
+
+    SerializerVersion ReadVersion()
+    {
+        SerializerVersion result;
+        if(GetDevice() == nullptr) {
+            return result;
+        }
+        if(GetDevice()->bytesAvailable() < sizeof(SerializerVersion)) {
+            return result;
+        }
+        *this << result;
+        Super::m_version = result.Version;
+        return result;
+    }
+
     template<class T>
-    StreamBufferReader& operator<<(T& data)
+    TSerializerReadBuffer& operator<<(T& data)
     {
         Serializer<T>::Read(*this, data);
         return *this;
     }
 
-    StreamBufferReader& operator<<(const PlainData& data)
+    TSerializerReadBuffer& operator<<(const PlainData& data)
     {
         Serializer<PlainData>::Read(*this, *const_cast<PlainData*>(&data));
         return *this;
     }
-
-private:
-    int64_t m_magicKey;
 };
 
 #endif // STREAMBUFFER_H

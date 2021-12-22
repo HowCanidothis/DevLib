@@ -50,6 +50,17 @@ const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult
     }
 };
 
+inline Promise Promise::ThenMain(const std::function<qint8 (qint8)>& handler)
+{
+    Promise promise;
+    Then([promise, handler](qint8 res){
+        ThreadHandlerMain([promise, handler, res]{
+            promise.Resolve(handler(res));
+        });
+    });
+    return promise;
+}
+
 
 #define THREAD_ASSERT_IS_THREAD(thread) Q_ASSERT(thread == QThread::currentThread());
 #define THREAD_ASSERT_IS_NOT_THREAD(thread) Q_ASSERT(thread != QThread::currentThread());

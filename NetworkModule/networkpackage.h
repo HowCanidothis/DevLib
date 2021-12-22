@@ -46,7 +46,7 @@ public:
     template<class T>
     void Pack(const T& data)
     {
-        QStreamBufferWrite writer(&m_data, QIODevice::WriteOnly);
+        SerializerWriteBuffer writer(&m_data, QIODevice::WriteOnly);
         writer << data;
         pack();
     }
@@ -55,7 +55,7 @@ public:
     T Read() const
     {
         T data;
-        QStreamBufferRead reader(m_data);
+        SerializerReadBuffer reader(m_data);
         reader << data;
         return data;
     }

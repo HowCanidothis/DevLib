@@ -233,12 +233,15 @@ class SerializerXmlBufferBase
 public:
     SerializerXmlBufferBase()
         : m_mode(SerializationMode_Default)
+        , m_version(-1)
     {}
 
     StandardVariantPropertiesContainer Properties;
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
+
+    qint32 GetVersion() const { return m_version; }
 
     template<class T>
     SerializerXmlObject<T> Attr(const QString& name, T& value)
@@ -259,16 +262,47 @@ public:
     }
 
 
-private:
+protected:
     SerializationModes m_mode;
+    qint32 m_version;
 };
 
-struct SerializerXmlVersionObject
+struct SerializerXmlVersion
 {
-    QHash<Name, Name> Data;
+    class DataContainer : public QHash<Name, Name>
+    {
+        using Super = QHash<Name, Name>;
+    public:
+        using Super::Super;
 
-    QString ToString(const TextConverterContext& context = TextConverterContext()) const { return TextConverter<QHash<Name, Name>>::ToText(Data, context); }
-    void FromString(const QString& string) { Data = TextConverter<QHash<Name, Name>>::FromText(string); }
+        QString ToString(const QChar& separator = ';') const;
+        void FromString(const QString& string, const QChar& separator = ';');
+    };
+
+    Name Target;
+    DataContainer Data;
+
+    void SetVersion(qint32 version);
+    bool HasVersion() const;
+    qint32 GetVersion() const;
+
+    void SetFormat(qint64 format);
+    qint64 GetFormat() const;
+
+    SerializerXmlVersion()
+    {}
+
+    SerializerXmlVersion(const Name& target, const DataContainer& data)
+        : Target(target)
+        , Data(data)
+    {}
+
+    SerializerXmlVersion(const Name& target, qint64 format, qint32 version)
+        : Target(target)
+    {
+        SetVersion(version);
+        SetFormat(format);
+    }
 };
 
 class SerializerXmlWriteBuffer : public SerializerXmlBufferBase
@@ -279,11 +313,10 @@ public:
         , m_currentContext(&m_context)
     {}
 
-    void WriteVersionInfo(const SerializerXmlVersionObject& versionObject)
+    void WriteVersion(const SerializerXmlVersion& versionObject, const QChar& separator = ';')
     {
-        OpenSection("MetaData");
-        auto string = versionObject.ToString(m_context);
-        *this << Attr("Info", string);
+        m_version = versionObject.GetVersion();
+        m_writer->writeProcessingInstruction(versionObject.Target.AsString(), versionObject.Data.ToString(separator));
     }
 
     void SetTextConverterContext(const TextConverterContext& context)
@@ -344,17 +377,27 @@ public:
         : m_reader(reader)
     {}
 
-    SerializerXmlVersionObject ReadVersionInfo()
+    SerializerXmlVersion ReadVersion(const QChar& separator = ';')
     {
-        SerializerXmlVersionObject result;
-        OpenSection("MetaData");
-        if(m_reader->name() != "MetaData") {
-            return result;
+        SerializerXmlVersion result;
+        while(!m_reader->atEnd()) {
+            auto tokenType = m_reader->readNext();
+            switch(tokenType)
+            {
+            case QXmlStreamReader::ProcessingInstruction: {
+                result.Data.FromString(m_reader->processingInstructionData().toString(), separator);
+                result.Target = Name(m_reader->processingInstructionTarget().toString());
+                auto hasVersion = result.HasVersion();
+                if(hasVersion) {
+                    m_version = result.GetVersion();
+                    return result;
+                }
+                break;
+            }
+            case QXmlStreamReader::StartDocument: break;
+            default: return result;
+            }
         }
-        QString string;
-        *this << Attr("Info", string);
-        result.FromString(string);
-        CloseSection();
         return result;
     }
 
@@ -386,7 +429,6 @@ public:
 
     void CloseSection()
     {
-
     }
 
     template<class T>

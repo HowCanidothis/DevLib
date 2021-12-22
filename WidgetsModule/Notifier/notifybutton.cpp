@@ -25,9 +25,12 @@ NotifyButton::NotifyButton(QWidget* parent)
 
     m_connectors.AddConnector<LocalPropertiesLabelConnector>(&NotificationsCountString, m_label);
 
-    m_floatingAttachment = new FloatingWidgetLocationAttachment(m_label, QuadTreeF::Location_TopRight, {m_offset.Native().width(), m_offset.Native().height()}, this, 0);
+    auto* attachment = FloatingWidgetLocationAttachment::Attach(DescFloatingWidgetLocationAttachmentParams(m_label, QuadTreeF::Location_TopRight)
+                                                                .SetOffset({m_offset.Native().width(), m_offset.Native().height()})
+                                                                .SetRelativeParent(this)
+                                                                .SetDelay(0));
 
-    m_floatingAttachment->GetComponentPlacer()->Offset.ConnectFrom(m_offset, [](const QSize& size){
+    attachment->GetComponentPlacer()->Offset.ConnectFrom(m_offset, [](const QSize& size){
         return QPoint(size.width(), size.height());
     });
 

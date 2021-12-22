@@ -6,15 +6,18 @@
 #include "WidgetsModule/Components/componentplacer.h"
 #include "WidgetsModule/Utils/styleutils.h"
 
-FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(QWidget* target, QuadTreeF::BoundingRect_Location location, const QPoint& offset, QWidget* relativeWidget, qint32 delay)
-    : m_componentPlacer(::make_scoped<ComponentPlacer>(delay))
-    , m_target(target)
+FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(const DescFloatingWidgetLocationAttachmentParams& params)
+    : Super(params.Target)
+    , m_componentPlacer(::make_scoped<ComponentPlacer>(params.Delay))
+    , m_target(params.Target)
 {
-    m_componentPlacer->Location = location;
-    m_componentPlacer->Offset = offset;
+    m_componentPlacer->Location = params.Location;
+    m_componentPlacer->Offset = params.Offset;
 
-    target->installEventFilter(this);
-    target->parent()->installEventFilter(this);
+    m_target->installEventFilter(this);
+    m_target->parent()->installEventFilter(this);
+
+    auto* relativeWidget = params.RelativeParent;
 
     if(relativeWidget != nullptr && relativeWidget != m_target->parentWidget()) {
         m_parent = relativeWidget;
@@ -27,14 +30,14 @@ FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(QWidget* targ
             m_target->raise();
         });
     } else {
-        m_parent = target->parentWidget();
+        m_parent = m_target->parentWidget();
         m_componentPlacer->Initialize();
 
         m_componentPlacer->ResultPosition.Subscribe([this]{
             m_target->move(m_componentPlacer->ResultPosition);
         });;
     }
-    StyleUtils::InstallSizeAdjuster(target);
+    StyleUtils::InstallSizeAdjuster(m_target);
 }
 
 bool FloatingWidgetLocationAttachment::eventFilter(QObject* watched, QEvent* event)

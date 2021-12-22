@@ -15,34 +15,4 @@ private:
     IntProperty m_maxCount;
 };
 
-class PropertiesFileNamesGeneratorFileStream
-{
-public:
-    PropertiesFileNamesGeneratorFileStream(int64_t key, int32_t version, const QString& baseName, const QString& format, qint32 maxFilesCount);
-
-    template<class T>
-    PropertiesFileNamesGeneratorFileStream& operator<<(T& data);
-
-private:
-    void updateStream();
-
-private:
-    ScopedPointer<QFile> m_file;
-    PropertiesFileNamesGenerator m_fileNamesGenerator;
-    ScopedPointer<QStreamBufferWrite> m_stream;
-    int64_t m_key;
-    int32_t m_version;
-};
-
-template<class T>
-inline PropertiesFileNamesGeneratorFileStream& PropertiesFileNamesGeneratorFileStream::operator<<(T& data)
-{
-    updateStream();
-    if(m_stream != nullptr) {
-        *m_stream << data;
-        m_stream->Finish();
-    }
-    return *this;
-}
-
 #endif // PROPERTIESFILENAMESGENERATOR_H

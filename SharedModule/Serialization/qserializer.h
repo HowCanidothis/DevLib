@@ -9,41 +9,38 @@
 
 #include "streambuffer.h"
 
-class QDataStreamWriter : public QDataStream
+class QStreamBufferDataStream : public QDataStream
 {
     typedef QDataStream Super;
 public:
     using Super::Super;
 
     void write(const char* data, size_t len) { writeRawData(data, (qint32)len); }
+    void read(char* bytes, size_t len) { readRawData(bytes, (qint32)len); }
 
     bool good() const { return device() && device()->isOpen(); }
 };
 
-class QDataStreamReader : public QDataStreamWriter
-{
-    typedef QDataStreamWriter Super;
-public:
-    using Super::Super;
+using SerializerWriteBuffer = TSerializerWriteBuffer<QStreamBufferDataStream>;
+using SerializerReadBuffer = TSerializerReadBuffer<QStreamBufferDataStream>;
 
-    void read(char* bytes, size_t len) { readRawData(bytes, (qint32)len); }
-    int64_t GetLastInt64()
-    {
-        int64_t result = -1;
-        if(Super::device() == nullptr) {
-            return result;
-        }
-        auto totalSize = Super::device()->bytesAvailable();
-        if(totalSize < sizeof(int64_t)) {
-            return result;
-        }
-        auto currentPos = Super::device()->pos();
-        Super::device()->seek(currentPos + totalSize - sizeof(int64_t));
-        readRawData((char*)&result, sizeof(int64_t));
-        Super::device()->seek(currentPos);
-        return result;
-    }
-};
+template<class T>
+inline QByteArray SerializeToArray(const T& object, SerializationModes serializationMode = SerializationMode_Default)
+{
+    QByteArray array;
+    SerializerWriteBuffer writer(&array, QIODevice::WriteOnly);
+    writer.SetSerializationMode(serializationMode);
+    writer << object;
+    return array;
+}
+
+template<class T>
+void DeSerializeFromArray(const QByteArray& array, T& object, SerializationModes serializationMode = SerializationMode_Default)
+{
+    SerializerReadBuffer reader(array);
+    reader.SetSerializationMode(serializationMode);
+    reader << object;
+}
 
 template<>
 struct Serializer<QString>
@@ -403,26 +400,5 @@ struct Serializer<QFlags<Enum>>
         buffer << reinterpret_cast<qint32&>(type);
     }
 };
-
-typedef StreamBufferWriter<QDataStreamWriter> QStreamBufferWrite;
-typedef StreamBufferReader<QDataStreamReader> QStreamBufferRead;
-
-template<class T>
-inline QByteArray SerializeToArray(const T& object, SerializationModes serializationMode = SerializationMode_Default)
-{
-    QByteArray array;
-    QStreamBufferWrite writer(&array, QIODevice::WriteOnly);
-    writer.SetSerializationMode(serializationMode);
-    writer << object;
-    return array;
-}
-
-template<class T>
-void DeSerializeFromArray(const QByteArray& array, T& object, SerializationModes serializationMode = SerializationMode_Default)
-{
-    QStreamBufferRead reader(array);
-    reader.SetSerializationMode(serializationMode);
-    reader << object;
-}
 
 #endif

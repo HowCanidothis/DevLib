@@ -15,17 +15,19 @@ WidgetsDialogsManager& WidgetsDialogsManager::GetInstance()
     return result;
 }
 
-QList<QUrl> WidgetsDialogsManager::SelectDirectory(const QString& dialogHeader, bool isSaveMode, const QString& fileName, const QStringList& filters){
-    QString searchDir(QString("last%1Folder").arg(isSaveMode ? "Save" : "Load"));
+QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){
+    QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;
     auto lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
-    QFileDialog fileDialog(qApp->activeWindow(), dialogHeader, lastSearchFolder);
+    QFileDialog fileDialog(qApp->activeWindow(), params.Label, lastSearchFolder);
     OnDialogCreated(&fileDialog);
-    fileDialog.setNameFilters(filters);
+    fileDialog.setNameFilters(params.Filters);
 
-    if(isSaveMode){ fileDialog.setAcceptMode(QFileDialog::AcceptSave); }
-    fileDialog.selectFile(fileName);
-    fileDialog.setFileMode(isSaveMode ? QFileDialog::AnyFile : QFileDialog::ExistingFiles);
+    if(params.Mode == DescImportExportSourceParams::Save){
+        fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    }
+    fileDialog.selectFile(params.FileName);
+    fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile : QFileDialog::ExistingFiles);
 
     if(fileDialog.exec() == QDialog::Rejected) {
         return {};

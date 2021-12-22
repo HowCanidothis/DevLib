@@ -21,7 +21,6 @@ private:
     class QLabel* m_label;
     LocalPropertyString NotificationsCountString;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
-    ScopedPointer<class FloatingWidgetLocationAttachment> m_floatingAttachment;
     LocalProperty<QSize> m_offset;
 };
 

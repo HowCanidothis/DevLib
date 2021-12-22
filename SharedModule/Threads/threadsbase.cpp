@@ -7,6 +7,7 @@
 #include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
 #include "ThreadFunction/threadpool.h"
+#include "SharedModule/ImportExport/importexport.h"
 
 ThreadsBase::ThreadsBase()
 {
@@ -39,6 +40,7 @@ bool ThreadsBase::IsTerminated()
 void ThreadsBase::TerminateAllAsyncTasks()
 {
     ThreadFunction::threadPool().TerminateAll();
+    ImportExport::threadPool().TerminateAll();
 }
 // Due to Qt arch we have to use threadWorker here
 void ThreadsBase::DoQThreadWorker(QObject* threadObject, const FAction& task, Qt::EventPriority priority)

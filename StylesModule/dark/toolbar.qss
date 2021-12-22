@@ -9,3 +9,22 @@ QPushButton#PropertiesToolBarButton {
 QPushButton#PropertiesToolBarButton:hover {
     background: #505050;
 }
+
+WidgetsFloatingToolBar {
+    border: none;
+    qproperty-direction: 1;
+}
+
+QFrame#ToolsFrame {
+}
+
+WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
+    max-height: 18px;
+    max-width: 18px;
+    min-height: 18px;
+    min-width: 18px;
+}
+
+QWidget#tt {
+    background: green;
+}

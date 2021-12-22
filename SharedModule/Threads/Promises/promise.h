@@ -112,6 +112,8 @@ public:
         }).MakeSafe(*connections);
         return result;
     }
+
+    Promise ThenMain(const std::function<qint8 (qint8)>& handler);
 };
 
 using AsyncResult = Promise;
@@ -161,6 +163,7 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
 
     bool isFinished() const { return m_promisesCounter == 0; }
     qint8 getResult() const { return m_result; }
+    void setResult(qint8 result) { m_result = result; }
 
     void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self)
     {
@@ -217,20 +220,30 @@ public:
 
     bool IsFinished() const { return m_data->isFinished(); }
     qint8 GetResult() const { return m_data->getResult(); }
+    void SetResult(qint8 result) const { m_data->setResult(result); }
 
-    void operator+=(const Promise& promise)
+    void operator+=(const Promise& promise) const
     {
         m_data->addPromise(promise, m_data);
     }
 
-    void Then(const std::function<void (qint8)>& action)
+    void Then(const std::function<void (qint8)>& action) const
     {
         m_data->then(action);
     }
 
-    void Wait()
+    void Wait() const
     {
         m_data->wait();
+    }
+
+    AsyncResult ToAsyncResult() const
+    {
+        AsyncResult result;
+        Then([result](qint8 done){
+            result.Resolve(done);
+        });
+        return result;
     }
 };
 
