@@ -33,6 +33,8 @@ struct ImportExportSourceStandardProperties
     bool IsStrictVersion = true;
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
+    std::function<qint8 (const QList<QString>&)> ImportTableStringHandler;
+    std::function<qint8 (const QList<QVector<QVariant>>&)> ImportTableDataHandler;
 };
 
 using ImportExportSourceStandardPropertiesPtr = SharedPointer<ImportExportSourceStandardProperties>;
@@ -82,10 +84,10 @@ class ImportExportFileSource : public ImportExportSource
 public:
     ImportExportFileSource(const QUrl& filePath)
         : m_file(filePath.toLocalFile())
+        , m_sourceName(filePath.toLocalFile())
     {
-        QFileInfo fileInfo(filePath.toLocalFile());
+        QFileInfo fileInfo(m_sourceName);
         m_extension = Name(fileInfo.suffix());
-        m_sourceName = fileInfo.fileName();
     }
 
     QIODevice* GetDevice() override { return &m_file; }
@@ -341,6 +343,9 @@ public:
     {
         return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8 {
             auto data = params.Loader(source);
+            if(data.isEmpty()) {
+                return false;
+            }
             if(source->StandardProperties.IsAutoMatching) {
                 auto convertedData = params.Converter(data);
                 auto targetCount = model->rowCount();
@@ -359,6 +364,11 @@ public:
                     }
                 }
                 return true;
+            }
+
+            auto hasOverride = applyImportHandler(source, data);
+            if(hasOverride.first) {
+                return hasOverride.second;
             }
 
             FutureResult future;
@@ -523,6 +533,10 @@ public:
 
 private:
     friend class ThreadsBase;
+
+    template<class T>
+    static std::pair<bool, bool> applyImportHandler(const ImportExportSourcePtr& source, const QList<T>& data);
+
     template<class T>
     static AsyncResult importExport(const QList<ImportExportSourcePtr>& sources, const ImportExportFactory<T>& factory, const std::function<AsyncResult (const ImportExportSourcePtr& source, const ImportExportDelegate<T>& delegate)>& delegateCall)
     {
@@ -541,6 +555,26 @@ private:
     static AsyncResult async(const FAction& task, EPriority priority = EPriority::Low);
     static ThreadPool& threadPool();
 };
+
+template<>
+inline std::pair<bool, bool> ImportExport::applyImportHandler<QString>(const ImportExportSourcePtr& source, const QList<QString>& data)
+{
+    const auto& handler = source->StandardProperties.ImportTableStringHandler;
+    if(handler == nullptr) {
+        return std::make_pair(false, false);
+    }
+    return std::make_pair(true, handler(data));
+}
+
+template<>
+inline std::pair<bool, bool> ImportExport::applyImportHandler<QVector<QVariant>>(const ImportExportSourcePtr& source, const QList<QVector<QVariant>>& data)
+{
+    const auto& handler = source->StandardProperties.ImportTableDataHandler;
+    if(handler == nullptr) {
+        return std::make_pair(false, false);
+    }
+    return std::make_pair(true, handler(data));
+}
 
 template<class T>
 inline ImportExportDelegate<T> ImportExportDelegate<T>::CreateSerializerXmlStandardDelegate(const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerXmlReadBuffer&, const T& obj)>& importer, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerXmlWriteBuffer&, const T& obj)>& exporter)

@@ -15,8 +15,8 @@ class QStreamBufferDataStream : public QDataStream
 public:
     using Super::Super;
 
-    void write(const char* data, size_t len) { writeRawData(data, (qint32)len); }
-    void read(char* bytes, size_t len) { readRawData(bytes, (qint32)len); }
+    qint32 write(const char* data, size_t len) { return writeRawData(data, (qint32)len); }
+    qint32 read(char* bytes, size_t len) { return readRawData(bytes, (qint32)len); }
 
     bool good() const { return device() && device()->isOpen(); }
 };

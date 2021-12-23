@@ -78,6 +78,8 @@ TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 colu
 ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
 {
+    setProperty("ExtraFieldsCount", 1);
+
     auto editRoleHandler = [this](qint32 row, qint32 column) -> QVariant {
         auto ret = GetData()->At(row)[GetData()->GetHeader(column).ColumnKey];
         auto foundIt = GetterDelegates.find(column);
