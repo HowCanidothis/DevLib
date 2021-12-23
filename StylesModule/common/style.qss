@@ -1016,12 +1016,6 @@ WPSCActiveDayComponent QPushButton#btnNextDay:hover
     background: #1976D2;
 }
 
-QPushButton#ResetButton
-{
-    image: url(":/qss_icons/rc/backup-restore.svg");
-    background: transparent;
-}
-
 WidgetsTimeWidget QSpinBox {
   
   font: 20px;
@@ -1157,7 +1151,7 @@ WidgetsDatetimePopupPicker QPushButton#CalendarButton
     background: transparent;
     qproperty-text: "";
     min-width: 17px;
-    min-height: 18px;
+    min-height: 14px;
     max-width: 17px;
     max-height: 18px;
 }
@@ -1165,5 +1159,22 @@ WidgetsDatetimePopupPicker QPushButton#CalendarButton
 WidgetsDatetimePopupPicker QPushButton#CalendarButton:hover
 {
     image: url(":/qss_icons/rc/calendar-month-dark.svg");
+    background: #1976D2;
+}
+
+
+QPushButton#ResetButton
+{
+    image: url(":/qss_icons/rc/backup-restore.svg");
+    background: transparent;
+    qproperty-text: "";
+    min-width: 17px;
+    min-height: 14px;
+    max-width: 17px;
+    max-height: 18px;
+}
+
+QPushButton#ResetButton:hover
+{
     background: #1976D2;
 }
