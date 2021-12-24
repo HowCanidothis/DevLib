@@ -53,12 +53,19 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
     for(const auto& source : sources) {
         auto foundIt = m_factory.find(source->GetExtension());
         if(foundIt != m_factory.end()) {
+            bool found = false;
             for(const auto& delegate : foundIt.value()) {
                 if(delegate.first(source)) {
                     future += delegate.second(source);
+                    found = true;
                     break;
                 }
             }
+            if(!found) {
+                source->SetError(tr("File format is not supported"));
+            }
+        } else {
+            source->SetError(tr("%1 extension is not supported").arg(source->GetExtension().AsString()));
         }
     }
     return future.ToAsyncResult();

@@ -33,6 +33,7 @@ struct ImportExportSourceStandardProperties
     bool IsStrictVersion = true;
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
+    bool IsMuted = false;
     std::function<qint8 (const QList<QString>&)> ImportTableStringHandler;
     std::function<qint8 (const QList<QVector<QVariant>>&)> ImportTableDataHandler;
 };
@@ -329,7 +330,9 @@ public:
     static SerializerXmlVersion ReadVersionXML(QIODevice* device, const QChar& separator = ';') {
         QXmlStreamReader xmlReader;
         if(!device->isOpen()) {
-            device->open(QIODevice::ReadOnly);
+            if(!device->open(QIODevice::ReadOnly)) {
+                return SerializerXmlVersion();
+            }
         }
         xmlReader.setDevice(device);
         SerializerXmlReadBuffer buffer(&xmlReader);
@@ -341,7 +344,9 @@ public:
     static SerializerVersion ReadVersion(QIODevice* device) {
         SerializerReadBuffer buffer(device);
         if(!device->isOpen()) {
-            device->open(QIODevice::ReadOnly);
+            if(!device->open(QIODevice::ReadOnly)) {
+                return SerializerVersion();
+            }
         }
         auto result = buffer.ReadVersion();
         device->close();
@@ -402,10 +407,12 @@ public:
         auto tryOpen = [source, handler, mode]() -> qint8 {
             try {
                 if(!source->GetDevice()->open(mode)) {
+                    source->SetError(tr("Device cannot be open(%1)").arg(source->GetDevice()->errorString()));
                     return false;
                 }
                 return handler();
             } catch (...) {
+                source->SetError(tr("Undefined error"));
                 return false;
             }
         };
@@ -457,21 +464,21 @@ public:
             SerializerXmlReadBuffer buffer(&reader);
             auto currentVersion = buffer.ReadVersion();
             if(currentVersion.Target != version->Target) {
-                source->SetError(tr("File corrupted"));
+                source->SetError(tr("File corrupted or cannot be loaded"));
                 return false;
             }
             if(currentVersion.GetFormat() != version->GetFormat()) {
-                source->SetError(tr("Format error"));
+                source->SetError(tr("Format error - expected %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
                 return false;
             }
             auto currentVersionValue = (quint32)currentVersion.GetVersion();
             if(source->StandardProperties.IsStrictVersion) {
                 if(currentVersionValue != (quint32)version->GetVersion()) {
-                    source->SetError(tr("Version is not supported"));
+                    source->SetError(tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
                     return false;
                 }
             } else if(currentVersionValue > (quint32)version->GetVersion()) {
-                source->SetError(tr("Future version error"));
+                source->SetError(tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
                 return false;
             }
             return handler(source, buffer);
@@ -484,20 +491,20 @@ public:
             SerializerReadBuffer buffer(source->GetDevice());
             auto currentVersion = buffer.ReadVersion();
             if(currentVersion.HashSum != buffer.GetDevice()->size()) {
-                source->SetError(tr("File corrupted"));
+                source->SetError(tr("File corrupted or cannot be loaded"));
                 return false;
             }
             if(currentVersion.Format != version->Format) {
-                source->SetError(tr("Format error"));
+                source->SetError(tr("Format error - expected %1, but file version is %2").arg(QString::number(version->Format) , QString::number(currentVersion.Format)));
                 return false;
             }
             if(source->StandardProperties.IsStrictVersion) {
                 if((quint32)currentVersion.Version != (quint32)version->Version) {
-                    source->SetError(tr("Version is not supported"));
+                    source->SetError(tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(version->Version) , QString::number(currentVersion.Version)));
                     return false;
                 }
             } else if((quint32)currentVersion.Version > (quint32)version->Version) {
-                source->SetError(tr("Future version error"));
+                source->SetError(tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(version->Version) , QString::number(currentVersion.Version)));
                 return false;
             }
             return handler(source, buffer);
@@ -556,7 +563,7 @@ private:
             if(foundIt != factory.end()) {
                 future += delegateCall(source, foundIt.value());
             } else {
-                qCCritical(LC_UI) << tr("Format is not supported");
+                source->SetError(tr("%1 extension is not supported").arg(source->GetExtension().AsString()));
             }
         }
         return future.ToAsyncResult();
@@ -632,6 +639,7 @@ inline ImportExportDelegate<T> ImportExportDelegate<T>::CreateSerializerStandard
 
 class ImportExportFormatFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(ImportExportFormatFactory)
 public:
     using FFormatExtractorDelegate = std::function<bool (const ImportExportSourcePtr& source)>;
     using FormatDelegates = QHash<Name, FFormatExtractorDelegate>;
