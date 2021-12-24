@@ -69,6 +69,16 @@ public:
         , m_sourceName(sourceName)
     {}
 
+    ImportExportBufferSource(const Name& extension, const QString& sourceName)
+        : m_extension(extension)
+        , m_sourceName(sourceName)
+    {}
+
+    void SetData(const QByteArray& data)
+    {
+        m_buffer.setData(data);
+    }
+
     QIODevice* GetDevice() override { return &m_buffer; }
     const Name& GetExtension() const override { return m_extension; }
     const QString& GetSourceName() const override { return m_sourceName; }
