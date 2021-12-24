@@ -464,7 +464,7 @@ public:
             SerializerXmlReadBuffer buffer(&reader);
             auto currentVersion = buffer.ReadVersion();
             if(currentVersion.Target != version->Target) {
-                source->SetError(tr("File corrupted or cannot be loaded"));
+                source->SetError(tr("Unexpected file contents"));
                 return false;
             }
             if(currentVersion.GetFormat() != version->GetFormat()) {
