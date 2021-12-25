@@ -24,6 +24,26 @@ public:
         }, {&Hours.OnChange, &Minutes.OnChange}, [this] {
             Time = QTime(Hours, Minutes);
         });
+
+        Hours.SetValidator([](qint32 value){
+            if(value >= 24) {
+                return 0;
+            } else if(value < 0) {
+                return 23;
+            }
+            return value;
+        });
+
+        Minutes.SetValidator([this](qint32 value){
+            if(value >= 60) {
+                Hours += 1;
+                return 0;
+            } else if(value < 0) {
+                Hours -= 1;
+                return 59;
+            }
+            return value;
+        });
     }
 
     LocalPropertyTime Time;
