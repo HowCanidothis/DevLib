@@ -15,6 +15,7 @@ struct DescImportExportSourceParams
     QString FileName;
     EMode Mode;
     QStringList Filters;
+    QString DefaultSuffix;
 
     DescImportExportSourceParams(EMode mode)
         : Mode(mode)
@@ -23,6 +24,7 @@ struct DescImportExportSourceParams
     DescImportExportSourceParams& SetLabel(const QString& label) { Label = label; return *this; }
     DescImportExportSourceParams& SetFileName(const QString& fileName) { FileName = fileName; return *this; }
     DescImportExportSourceParams& SetFilters(const QStringList& filters) { Filters = filters; return *this; }
+    DescImportExportSourceParams& SetDefaultSuffix(const QString& defaultSuffix) { DefaultSuffix = defaultSuffix; return *this; }
 };
 
 struct ImportExportSourceStandardProperties
@@ -52,6 +54,24 @@ public:
 
     template<class T>
     static QList<SharedPointer<ImportExportSource>> CreateSources(const DescImportExportSourceParams& params);
+
+    static QString ParseExtension(const QString& path)
+    {
+        static thread_local QRegExp regExp(R"([^\/\\]+)");
+        static thread_local QRegExp exRegExp(R"(([^\.]*)\.(.*))");
+        QString extension;
+        QString fileName;
+        qint32 index(0);
+        while((index = regExp.indexIn(path, index)) != -1) {
+            fileName = regExp.cap();
+            index += regExp.matchedLength();
+        }
+        if(exRegExp.indexIn(fileName, 0) != -1) {
+            extension = exRegExp.cap(2);
+        }
+
+        return extension;
+    }
 
     StandardVariantPropertiesContainer Properties;
     ImportExportSourceStandardProperties StandardProperties;
@@ -98,7 +118,7 @@ public:
         , m_sourceName(filePath.toLocalFile())
     {
         QFileInfo fileInfo(m_sourceName);
-        m_extension = Name(fileInfo.suffix());
+        m_extension = Name(fileInfo.completeSuffix());
     }
 
     QIODevice* GetDevice() override { return &m_file; }
@@ -175,6 +195,9 @@ public:
 
     void Add(const Name& ext, const ImportExportDelegate<T>& delegate)
     {
+        if(Super::isEmpty()) {
+            m_defaultSuffix = ext;
+        }
         Super::insert(ext, delegate);
         if(delegate.ImportDelegate != nullptr) {
             m_importExtensions.insert(ext);
@@ -183,6 +206,8 @@ public:
             m_exportExtensions.insert(ext);
         }
     }
+
+    const Name& GetDefaultExportSuffix() const { return m_defaultSuffix; }
 
     static QList<QString> ImportExtensionsFilterList(const QList<QString>& extensionsList)
     {
@@ -212,6 +237,7 @@ public:
 private:
     QSet<Name> m_importExtensions;
     QSet<Name> m_exportExtensions;
+    Name m_defaultSuffix;
 };
 
 template<class T>
