@@ -1178,3 +1178,7 @@ QPushButton#ResetButton:hover
 {
     background: #1976D2;
 }
+
+WPSCQuickPlanView QLabel[tiny="true"] {
+    font-size: 12px;
+}
