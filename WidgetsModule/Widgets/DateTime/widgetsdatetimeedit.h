@@ -17,6 +17,7 @@ public:
     LocalPropertyLocale Locale;
     LocalPropertyString DisplayFormat;
     std::function<QDateTime ()> DefaultDateTimeDelegate = []{ return QDateTime(); };
+    void Resize();
 
     QDateTime dateTimeFromText(const QString &text) const override;
     QString textFromDateTime(const QDateTime &dt) const override;
@@ -30,6 +31,8 @@ private:
     virtual void connectLocale();
 
 private:
+    DispatcherConnectionsSafe m_connections;
+    DelayedCallObject m_call;
     bool m_recursionBlock;
 };
 

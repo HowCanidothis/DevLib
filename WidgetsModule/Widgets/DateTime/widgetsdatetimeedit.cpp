@@ -28,18 +28,38 @@ QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
     return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
 }
 
+void WidgetsDateTimeEdit::Resize()
+{
+    m_call.Call([this]{
+        QFontMetrics fm(font());
+        auto t = text();
+        qDebug() << t << this;
+        int pixelsWide = fm.width(t);
+        pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
+        setMinimumWidth(pixelsWide);
+    });
+}
+
 void WidgetsDateTimeEdit::init()
 {
     m_recursionBlock = false;
-    auto update = [this]{
+    Locale.SetAndSubscribe([this]{
+        setLocale(Locale);
+        if(calendarWidget() != nullptr) {
+            calendarWidget()->setLocale(Locale);
+        }
+        Resize();
+    });
+
+    CurrentDateTime.SetAndSubscribe([this]{
         if(m_recursionBlock) {
             return;
         }
-        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        guards::BooleanGuard guard(&m_recursionBlock);
         setDateTime(CurrentDateTime);
         setDisplayFormat(displayFormat());
-    };
-    CurrentDateTime.SetAndSubscribe(update);
+        Resize();
+    });
 
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
@@ -47,7 +67,7 @@ void WidgetsDateTimeEdit::init()
         if(m_recursionBlock) {
             return;
         }
-        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        guards::BooleanGuard guard(&m_recursionBlock);
         setDateTimeRange(CurrentDateTime.GetMinValid(), CurrentDateTime.GetMaxValid());
     });
 
@@ -55,7 +75,7 @@ void WidgetsDateTimeEdit::init()
         if(m_recursionBlock) {
             return;
         }
-        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        guards::BooleanGuard guard(&m_recursionBlock);
         CurrentDateTime = dateTime();
     });
 
@@ -92,21 +112,16 @@ void WidgetsDateTimeEdit::init()
         return false;
     });
 
-    Locale.Subscribe([this]{
-        setLocale(Locale);
-        if(calendarWidget() != nullptr) {
-            calendarWidget()->setLocale(Locale);
-        }
-    });
-
     DisplayFormat.Subscribe([this]{
-        guards::LambdaGuard guard([this]{ m_recursionBlock = false; }, [this]{ m_recursionBlock = true; });
+        guards::BooleanGuard guard(&m_recursionBlock);
         setDisplayFormat(DisplayFormat);
+        Resize();
     });
 }
 
 void WidgetsDateTimeEdit::connectLocale()
 {
+    m_connections.clear();
     Locale.OnChange.ConnectAndCall(this, [this]{
         const auto& locale = Locale.Native();
         if(locale.language() == QLocale::English){
@@ -114,7 +129,7 @@ void WidgetsDateTimeEdit::connectLocale()
         } else {
             DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
         }
-    });
+    }).MakeSafe(m_connections);
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
