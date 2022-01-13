@@ -242,6 +242,42 @@ struct TextConverter<QColor>
         return QColor(string);
     }
 };
+
+template <>
+struct TextConverter<QMatrix4x4>
+{
+    using value_type = QMatrix4x4;
+    static QString ToText(const value_type& value, const TextConverterContext& context)
+    {
+        QString result;
+        result += "[";
+        const auto* data = value.constData();
+        for(qint32 row(0); row < 4; row++) {
+            for(qint32 col(0); col < 4; col++) {
+                result += "(" + TextConverter<float>::ToText(data[col * 4 + row], context) + ")";
+            }
+        }
+        result += "]";
+        return result;
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        static QRegExp regExp(R"(\(([^\)]+)\))");
+        qint32 pos = 0;
+        float values[16];
+        qint32 index = 0;
+        while((pos = regExp.indexIn(string, pos)) != -1) {
+            values[index] = TextConverter<float>::FromText(regExp.cap(1));
+            pos += regExp.matchedLength();
+            index++;
+        }
+        auto result = QMatrix4x4(values);
+        result.optimize();
+        return result;
+    }
+};
+
 #endif
 
 template <>
@@ -334,41 +370,6 @@ struct TextConverter<QPoint>
             pos += regExp.matchedLength();
         }
 
-        return result;
-    }
-};
-
-template <>
-struct TextConverter<QMatrix4x4>
-{
-    using value_type = QMatrix4x4;
-    static QString ToText(const value_type& value, const TextConverterContext& context)
-    {
-        QString result;
-        result += "[";
-        const auto* data = value.constData();
-        for(qint32 row(0); row < 4; row++) {
-            for(qint32 col(0); col < 4; col++) {
-                result += "(" + TextConverter<float>::ToText(data[col * 4 + row], context) + ")";
-            }
-        }  
-        result += "]";
-        return result;
-    }
-
-    static value_type FromText(const QString& string)
-    {
-        static QRegExp regExp(R"(\(([^\)]+)\))");
-        qint32 pos = 0;
-        float values[16];
-        qint32 index = 0;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            values[index] = TextConverter<float>::FromText(regExp.cap(1));
-            pos += regExp.matchedLength();
-            index++;
-        }
-        auto result = QMatrix4x4(values);
-        result.optimize();
         return result;
     }
 };

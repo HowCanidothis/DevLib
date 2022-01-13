@@ -22,6 +22,15 @@ public:
 protected:
     void incomingConnection( qintptr handle ) final;
     virtual void onConnectionLost(qintptr /*descriptor*/) {};
+
+    template<class T>
+    void write(qintptr descriptor, const T& query)
+    {
+        NetworkPackage package;
+        package.Pack(query);
+        write(descriptor, package);
+    }
+
     void write(qintptr descriptor, const NetworkPackage& package);
 
 private:

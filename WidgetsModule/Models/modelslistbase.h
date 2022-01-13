@@ -6,18 +6,18 @@
 #include "modelstablebase.h"
 
 template<class T>
-class TModelsListBase : public ModelsTableBase
+class TViewModelsListBase : public ViewModelsTableBase
 {
-    using Super = ModelsTableBase;
+    using Super = ViewModelsTableBase;
     using ValueExtractor = std::function<QVariant (const SharedPointer<T>&, const QModelIndex&, int)>;
     using CountExtractor = std::function<qint32 (const SharedPointer<T>&)>;
 public:
-    TModelsListBase(QObject* parent, const ValueExtractor& extractor, const CountExtractor& countExtractor)
+    TViewModelsListBase(QObject* parent, const ValueExtractor& extractor, const CountExtractor& countExtractor)
         : Super(parent)
         , m_extractor(extractor)
         , m_countExtractor(countExtractor)
     {}
-    TModelsListBase(QObject* parent)
+    TViewModelsListBase(QObject* parent)
         : Super(parent)
         , m_extractor([](const SharedPointer<T>&, const QModelIndex&, int){ return QVariant(); })
         , m_countExtractor([](const SharedPointer<T>&){ return 0; })
@@ -91,9 +91,9 @@ public:
 };
 using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
 
-class ModelsStandardListViewModel : public TModelsTableBase<ModelsStandardListModel>
+class ModelsStandardListViewModel : public TViewModelsTableBase<ModelsStandardListModel>
 {
-    using Super = TModelsTableBase<ModelsStandardListModel>;
+    using Super = TViewModelsTableBase<ModelsStandardListModel>;
 public:
     using Super::Super;
 

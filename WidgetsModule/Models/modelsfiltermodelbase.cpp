@@ -1,6 +1,6 @@
 #include "modelsfiltermodelbase.h"
 
-ModelsFilterModelBase::ModelsFilterModelBase(QObject* parent)
+ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     : Super(parent)
     , FilterColumnHandler([](qint32, const QModelIndex&){ return true; })
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
@@ -8,7 +8,7 @@ ModelsFilterModelBase::ModelsFilterModelBase(QObject* parent)
     , m_invalidateFilter(500)
 {}
 
-void ModelsFilterModelBase::InvalidateFilter()
+void ViewModelsFilterModelBase::InvalidateFilter()
 {
     m_invalidateFilter.Call([this]{
         invalidateFilter();
@@ -16,7 +16,7 @@ void ModelsFilterModelBase::InvalidateFilter()
     });
 }
 
-QVariant ModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
+QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
     if(role == Qt::DisplayRole && orientation == Qt::Vertical) {
         return section + 1;
@@ -24,17 +24,17 @@ QVariant ModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orien
     return Super::headerData(section, orientation, role);
 }
 
-bool ModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
+bool ViewModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
     return FilterColumnHandler(sourceColumn, sourceParent);
 }
 
-bool ModelsFilterModelBase::filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const
+bool ViewModelsFilterModelBase::filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const
 {
     return FilterHandler(sourceRow, sourceParent);
 }
 
-bool ModelsFilterModelBase::lessThan(const QModelIndex& f, const QModelIndex& s) const
+bool ViewModelsFilterModelBase::lessThan(const QModelIndex& f, const QModelIndex& s) const
 {
     return LessThan(f, s);
 }

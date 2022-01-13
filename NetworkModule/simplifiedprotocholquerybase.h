@@ -5,14 +5,17 @@
 
 enum SimplifiedProtocholQueryType
 {
-    SimplifiedProtocholQuery_Error
+    SimplifiedProtocholQuery_Unknown = -1,
+    SimplifiedProtocholQuery_Error,
+
+    SimplifiedProtocholQuery_Last = 100,
 };
 
 struct SimplifiedProtocholQueryBase
 {
     quint32 PackageType;
 
-    SimplifiedProtocholQueryBase(quint32 packageType = SimplifiedProtocholQuery_Error)
+    SimplifiedProtocholQueryBase(quint32 packageType = SimplifiedProtocholQuery_Unknown)
         : PackageType(packageType)
     {}
 
@@ -29,6 +32,33 @@ struct SimplifiedProtocholQueryBase
         debug << "PackageType" << data.PackageType << "\n";
         debug << ")\n";
         return debug;
+    }
+};
+
+struct SimplifiedProtocholErrorQuery : SimplifiedProtocholQueryBase
+{
+    using Super = SimplifiedProtocholQueryBase;
+
+    Name ErrorId;
+
+    SimplifiedProtocholErrorQuery()
+        : Super(SimplifiedProtocholQuery_Error)
+    {}
+
+    static NetworkPackage CreatePackage(const Name& errorId)
+    {
+        SimplifiedProtocholErrorQuery errorQuery;
+        errorQuery.ErrorId = errorId;
+        NetworkPackage result;
+        result.Pack(errorQuery);
+        return result;
+    }
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        Super::Serialize(buffer);
+        buffer << ErrorId;
     }
 };
 

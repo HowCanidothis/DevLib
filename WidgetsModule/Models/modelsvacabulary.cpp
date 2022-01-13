@@ -47,16 +47,16 @@ const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 colu
     return m_header.at(column);
 }
 
-TModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
+TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
 {
-    return new TModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {
+    return new TViewModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {
         if(role == Qt::DisplayRole || role == Qt::EditRole) {
             if(index.row() == 0) {
                 return "";
             }
 
-#ifdef UNITS_MODULE_LIB
             const auto& header = ptr->GetHeader(column);
+#ifdef UNITS_MODULE_LIB            
             QVariant value = ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
             if(value.isValid() && !header.Measurement.IsNull()) {
                 value = MeasurementManager::GetInstance().GetCurrentUnit(header.Measurement)->GetBaseToUnitConverter()(value.toDouble());
@@ -196,7 +196,7 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
 {
     Q_ASSERT(m_models.contains(modelName));
     auto data = ::make_shared<ViewModelData>();
-    auto* sortModel = new ModelsFilterModelBase(nullptr);
+    auto* sortModel = new ViewModelsFilterModelBase(nullptr);
     sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     data->SortedModel = sortModel;
     const auto& model = m_models[modelName];

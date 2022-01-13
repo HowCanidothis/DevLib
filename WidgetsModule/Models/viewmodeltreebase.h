@@ -6,14 +6,14 @@
 #include "wrappers.h"
 #include "WidgetsModule/Utils/iconsmanager.h"
 
-class ViewModelTreeBase : public QAbstractItemModel
+class ViewModelsTreeBase : public QAbstractItemModel
 {
     Q_OBJECT
     using Super = QAbstractItemModel;
 
 public:
-    ViewModelTreeBase(QObject* parent);
-    ~ViewModelTreeBase();
+    ViewModelsTreeBase(QObject* parent);
+    ~ViewModelsTreeBase();
 
     void SetData(const ModelsTreeWrapperPtr& wrapper);
     const ModelsTreeWrapperPtr& GetData() const { return m_data; }
@@ -34,9 +34,9 @@ protected:
 };
 
 template<class T>
-class TViewModelTreeBase : public ViewModelTreeBase
+class TViewModelTreeBase : public ViewModelsTreeBase
 {
-    using Super = ViewModelTreeBase;
+    using Super = ViewModelsTreeBase;
 public:
     using Super::Super;
 

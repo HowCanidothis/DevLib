@@ -41,18 +41,21 @@ public:
         return value.StateError & ErrorFilter & errorFlags;
     }
 
+    /// deprecated
     template<class T2>
     QVariant WarningIcon(const T2& value, qint64 errorFlags, const struct ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.WarningIcon) : QVariant();
     }
 
+    /// deprecated
     template<class T2>
     QVariant ErrorIcon(const T2& value, qint64 errorFlags, const ModelsIconsContext& iconsContext) const
     {
         return HasError(value, errorFlags) ? QVariant(iconsContext.ErrorIcon) : QVariant();
     }
 
+    /// deprecated
     template<class T2>
     QVariant ErrorIcon(const T2& value, const QVector<std::pair<qint64, QtMsgType>>& sequence, const ModelsIconsContext& iconsContext) const
     {
@@ -63,6 +66,26 @@ public:
                 case QtWarningMsg: return iconsContext.WarningIcon;
                 case QtInfoMsg: return iconsContext.InfoIcon;
                 default: break;
+                }
+                return QVariant();
+            }
+        }
+        return QString();
+    }
+
+    template<class T2>
+    QVariant ErrorIcon(const T2& value, const QVector<qint64>& sequence, const struct ModelsIconsContext& iconsContext) const
+    {
+        for(const auto& error : sequence) {
+            if(HasError(value, error)) {
+                auto foundIt = m_errorTypes.find(error);
+                if(foundIt != m_errorTypes.end()) {
+                    switch(foundIt.value()) {
+                    case QtCriticalMsg: return iconsContext.ErrorIcon;
+                    case QtWarningMsg: return iconsContext.WarningIcon;
+                    case QtInfoMsg: return iconsContext.InfoIcon;
+                    default: break;
+                    }
                 }
                 return QVariant();
             }
@@ -119,22 +142,24 @@ public:
         AttachedErrors.insert(parameters.ErrorName, parameters.ErrorFlags);
     }
 
-    void RegisterError(qint64 error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment)
+    void RegisterError(qint64 error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment, QtMsgType type = QtCriticalMsg)
     {
         Q_ASSERT(m_errorHandlers.find(error) == m_errorHandlers.end());
         m_errorHandlers.insert({ error, checkHandler });
         if(errorComment != nullptr) {
             m_errorComments.insert(error, errorComment);
         }
+        m_errorTypes.insert(error, type);
     }
 
-    void RegisterError(qint64 error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment)
+    void RegisterError(qint64 error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment, QtMsgType type = QtCriticalMsg)
     {
         Q_ASSERT(m_errorPerRowHandlers.find(error) == m_errorPerRowHandlers.end());
         m_errorPerRowHandlers.insert({ error, checkHandler });
         if(errorComment != nullptr) {
             m_errorComments.insert(error, errorComment);
         }
+        m_errorTypes.insert(error, type);
     }
 
     void AddDependencies(const QVector<Dispatcher*>& dispatchers)
@@ -206,7 +231,7 @@ public:
     }
 
     void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
-            [](T& data) {
+            [](T& data) -> qint64& {
                 return data.StateError;
             })
     {
@@ -264,6 +289,7 @@ private:
     std::map<qint64, FHandler> m_errorHandlers;
     std::map<qint64, FPerRowHandler> m_errorPerRowHandlers;
     QHash<qint64, TranslatedStringPtr> m_errorComments;
+    QHash<qint64, QtMsgType> m_errorTypes;
     DelayedCallObject m_updater;
     FAction m_updateHandler;
     QHash<qint64, DescModelsErrorComponentAttachToErrorsContainerParameters> m_errors;

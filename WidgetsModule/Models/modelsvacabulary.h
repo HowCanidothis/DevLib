@@ -6,7 +6,7 @@
 #include "modelstablebase.h"
 
 template<class T>
-class TModelsListBase;
+class TViewModelsListBase;
 
 using ModelsVocabularyRequest = CommonDispatcher<qint32>;
 
@@ -41,7 +41,7 @@ public:
     const HeaderDataValue& GetHeader(qint32 column) const;
     const QVector<HeaderDataValue>& GetHeader() const { return m_header; }
 
-    static TModelsListBase<ModelsVocabulary>* CreateListModel(qint32 column, QObject* parent);
+    static TViewModelsListBase<ModelsVocabulary>* CreateListModel(qint32 column, QObject* parent);
 
 private:
     QVector<HeaderDataValue> m_header;
@@ -50,9 +50,9 @@ private:
 
 using ModelsVocabularyPtr = SharedPointer<ModelsVocabulary>;
 
-class ModelsVocabularyViewModel : public TModelsTableBase<ModelsVocabulary>
+class ModelsVocabularyViewModel : public TViewModelsTableBase<ModelsVocabulary>
 {
-    using Super = TModelsTableBase<ModelsVocabulary>;
+    using Super = TViewModelsTableBase<ModelsVocabulary>;
 public:
     ModelsVocabularyViewModel(QObject* parent = nullptr);
 
@@ -73,7 +73,7 @@ class ModelsVocabularyManager
 public:
     struct ViewModelData
     {
-        class ModelsFilterModelBase* SortedModel;
+        class ViewModelsFilterModelBase* SortedModel;
         QAbstractItemModel* SourceModel;
         DelayedCallObject Sorter;
 

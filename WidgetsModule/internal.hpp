@@ -12,6 +12,7 @@
 #include "Models/modelserrorscomponents.h"
 #include "Models/modelsfiltermodelbase.h"
 #include "Models/modelsvacabulary.h"
+#include "Models/viewmodelsdefaultcomponents.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"

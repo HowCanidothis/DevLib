@@ -13,6 +13,14 @@ class NetworkConnection : public QObject
 public:
     NetworkConnection(INetworkConnectionOutput* output);
 
+    template<class T>
+    void Write(const T& query)
+    {
+        NetworkPackage package;
+        package.Pack(query);
+        Write(package);
+    }
+
     void Write(const NetworkPackage& package);
 
     void Connect(const QHostAddress& host, quint16 port);

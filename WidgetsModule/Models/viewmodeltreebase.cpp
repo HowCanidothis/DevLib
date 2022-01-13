@@ -2,14 +2,14 @@
 
 #include "modelstreeitembase.h"
 
-ViewModelTreeBase::ViewModelTreeBase(QObject* parent)
+ViewModelsTreeBase::ViewModelsTreeBase(QObject* parent)
     : Super(parent)
     , m_errorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
     , m_warningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
 {
 }
 
-ViewModelTreeBase::~ViewModelTreeBase()
+ViewModelsTreeBase::~ViewModelsTreeBase()
 {
     if(m_data != nullptr) {
         m_data->OnAboutToBeDestroyed -= this;
@@ -17,7 +17,7 @@ ViewModelTreeBase::~ViewModelTreeBase()
     }
 }
 
-void ViewModelTreeBase::SetData(const ModelsTreeWrapperPtr& data)
+void ViewModelsTreeBase::SetData(const ModelsTreeWrapperPtr& data)
 {
     beginResetModel();
     if(m_data != nullptr) {
@@ -33,7 +33,7 @@ void ViewModelTreeBase::SetData(const ModelsTreeWrapperPtr& data)
     endResetModel();
 }
 
-QModelIndex ViewModelTreeBase::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ViewModelsTreeBase::index(int row, int column, const QModelIndex& parent) const
 {
     if(!hasIndex(row, column, parent)) {
         return QModelIndex();
@@ -46,7 +46,7 @@ QModelIndex ViewModelTreeBase::index(int row, int column, const QModelIndex& par
     return createIndex(row, column, item);
 }
 
-QModelIndex ViewModelTreeBase::parent(const QModelIndex& child) const
+QModelIndex ViewModelsTreeBase::parent(const QModelIndex& child) const
 {
     auto* node = AsItem(child);
     if(node->GetParent() == m_data->GetRoot()) {
@@ -57,7 +57,7 @@ QModelIndex ViewModelTreeBase::parent(const QModelIndex& child) const
     return createIndex(node->GetParentRow(), 0, node->GetParent());
 }
 
-int ViewModelTreeBase::rowCount(const QModelIndex& parent) const
+int ViewModelsTreeBase::rowCount(const QModelIndex& parent) const
 {
     if(m_data == nullptr) {
         return 0;
@@ -69,12 +69,12 @@ int ViewModelTreeBase::rowCount(const QModelIndex& parent) const
     return m_data->GetRoot()->GetChilds().size();
 }
 
-int ViewModelTreeBase::columnCount(const QModelIndex&) const
+int ViewModelsTreeBase::columnCount(const QModelIndex&) const
 {
     return 1;
 }
 
-QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
+QVariant ViewModelsTreeBase::data(const QModelIndex& index, int role) const
 {
     if(!index.isValid()) {
         return QVariant();
@@ -101,11 +101,11 @@ QVariant ViewModelTreeBase::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-ModelsTreeItemBase* ViewModelTreeBase::AsItem(const QModelIndex& index) const
+ModelsTreeItemBase* ViewModelsTreeBase::AsItem(const QModelIndex& index) const
 {
     return (index.isValid() && index.internalId() != 0) ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();
 }
 
-QModelIndex ViewModelTreeBase::AsIndex(class ModelsTreeItemBase* item) const {
+QModelIndex ViewModelsTreeBase::AsIndex(class ModelsTreeItemBase* item) const {
     return createIndex(item->GetRow(), 0, item);
 }

@@ -67,9 +67,9 @@ QSize RichTextItemDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIn
     return QSize(Width, Height);
 }
 
-class NotifyConsoleViewModel : public TModelsTableBase<NotifyConsoleDataWrapper>
+class NotifyConsoleViewModel : public TViewModelsTableBase<NotifyConsoleDataWrapper>
 {
-    using Super = TModelsTableBase<NotifyConsoleDataWrapper>;
+    using Super = TViewModelsTableBase<NotifyConsoleDataWrapper>;
 public:
     enum Columns {
         C_CheckBox,

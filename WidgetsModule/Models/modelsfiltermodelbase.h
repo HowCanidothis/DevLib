@@ -5,11 +5,11 @@
 
 #include <PropertiesModule/internal.hpp>
 
-class ModelsFilterModelBase : public QSortFilterProxyModel
+class ViewModelsFilterModelBase : public QSortFilterProxyModel
 {
     using Super = QSortFilterProxyModel;
 public:
-    ModelsFilterModelBase(QObject* parent);
+    ViewModelsFilterModelBase(QObject* parent);
 
     void InvalidateFilter();
     bool IsLastEditRow(const QModelIndex& index) const
@@ -38,7 +38,7 @@ private:
     DelayedCallObject m_invalidateFilter;
 };
 
-struct ModelsTextFilterData
+struct ViewModelsTextFilterData
 {
     LocalPropertyString FilterString;
 
@@ -46,20 +46,20 @@ struct ModelsTextFilterData
 
     Dispatcher OnChange;
 
-    ModelsTextFilterData()
+    ViewModelsTextFilterData()
     {
         OnChange.ConnectFrom(FilterString.OnChange);
     }
 };
 
 template<class FilterClassData>
-class ModelsTreeFilterComponent
+class ViewModelsTreeFilterComponent
 {
 public:
     using FFilterHandler = std::function<bool (const FilterClassData& filterData, const class ModelsTreeItemBase*)>;
 
-    ModelsTreeFilterComponent(ModelsFilterModelBase* proxy, const FFilterHandler& handler)
-        : m_sourceModel(qobject_cast<ViewModelTreeBase*>(proxy->sourceModel()))
+    ViewModelsTreeFilterComponent(ViewModelsFilterModelBase* proxy, const FFilterHandler& handler)
+        : m_sourceModel(qobject_cast<ViewModelsTreeBase*>(proxy->sourceModel()))
         , m_filterHandler(handler)
         , m_proxyModel(proxy)
     {
@@ -128,25 +128,25 @@ private:
     }
 
 private:
-    class ViewModelTreeBase* m_sourceModel;
+    class ViewModelsTreeBase* m_sourceModel;
     FFilterHandler m_filterHandler;
     QtLambdaConnections m_qtConnections;
-    ModelsFilterModelBase* m_proxyModel;
+    ViewModelsFilterModelBase* m_proxyModel;
     DispatcherConnectionsSafe m_connections;
 };
 
 template<class T>
-class TModelsTableBase;
+class TViewModelsTableBase;
 
 template<class FilterClassData, class Wrapper>
-class ModelsTableFilterComponent
+class ViewModelsTableFilterComponent
 {
 public:
     using value_type = typename Wrapper::value_type;
     using FFilterHandler = std::function<bool (const FilterClassData& filterData, qint32 index)>;
 
-    ModelsTableFilterComponent(ModelsFilterModelBase* proxy, const FFilterHandler& handler)
-        : m_sourceModel(reinterpret_cast<TModelsTableBase<Wrapper>*>(proxy->sourceModel()))
+    ViewModelsTableFilterComponent(ViewModelsFilterModelBase* proxy, const FFilterHandler& handler)
+        : m_sourceModel(reinterpret_cast<TViewModelsTableBase<Wrapper>*>(proxy->sourceModel()))
         , m_filterHandler(handler)
         , m_proxyModel(proxy)
     {
@@ -169,10 +169,10 @@ public:
     FilterClassData FilterData;
 
 private:
-    TModelsTableBase<Wrapper>* m_sourceModel;
+    TViewModelsTableBase<Wrapper>* m_sourceModel;
     FFilterHandler m_filterHandler;
     QtLambdaConnections m_qtConnections;
-    ModelsFilterModelBase* m_proxyModel;
+    ViewModelsFilterModelBase* m_proxyModel;
     DispatcherConnectionsSafe m_connections;
 };
 
