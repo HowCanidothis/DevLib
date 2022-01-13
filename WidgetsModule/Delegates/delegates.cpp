@@ -234,9 +234,9 @@ void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
-QString DelegatesDateTime::displayText(const QVariant& value, const QLocale& locale) const
+QString DelegatesDateTime::displayText(const QVariant& value, const QLocale&) const
 {
-	return locale.toString(value.toDateTime(), QLocale::ShortFormat);
+    return value.toString();
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)

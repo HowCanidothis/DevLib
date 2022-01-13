@@ -139,11 +139,11 @@ bool ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QV
     bool accept = true;
     auto testHandler = [&](const QVector<ColumnComponentData>& components){
         for(const auto& handlers : components) {
+            accept = true;
             result = handlers.SetterHandler(index, data, accept);
             if(accept) {
                 break;
             }
-            accept = true;
         }
     };
 
@@ -158,11 +158,11 @@ bool ViewModelsTableColumnComponents::GetData(const QModelIndex& index, qint32 r
     bool accept = true;
     auto testHandler = [&](const QVector<ColumnComponentData>& components){
         for(const auto& handlers : components) {
+            accept = true;
             data = handlers.GetterHandler(index, accept);
             if(accept) {
                 break;
-            }
-            accept = true;
+            }            
         }
     };
 
@@ -177,11 +177,11 @@ bool ViewModelsTableColumnComponents::GetHeaderData(qint32 section, qint32 role,
     bool accept = true;
     auto testHandler = [&](const QVector<ColumnComponentData>& data){
         for(const auto& handlers : data) {
+            accept = true;
             header = handlers.GetHeaderHandler(accept);
             if(accept) {
                 break;
-            }
-            accept = true;
+            }            
         }
     };
 
@@ -196,11 +196,11 @@ bool ViewModelsTableColumnComponents::GetFlags(const QModelIndex& index, Qt::Ite
     bool accept = true;
     auto testHandler = [&](const QVector<ColumnFlagsComponentData>& data){
         for(const auto& handlers : data) {
+            accept = true;
             flags = handlers.GetFlagsHandler(index.row(), accept);
             if(accept) {
                 break;
             }
-            accept = false;
         }
     };
 

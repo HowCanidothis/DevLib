@@ -93,6 +93,7 @@ private:
 private:
     ScopedPointer<TableViewColumnsWidgetAttachment> m_attachment;
     QStringList m_requestedColumns;
+    QVector<qint32> m_requestedColumnsIndexes;
     QTableView* m_tableView;
     ScopedPointer<FTSDictionary> m_dictionary;
     ScopedPointer<FTSObject> m_matchObject;

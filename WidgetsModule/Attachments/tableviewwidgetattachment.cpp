@@ -108,14 +108,17 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     }};
 
     m_requestedColumns.append("-");
+    m_requestedColumnsIndexes.append(-1);
     if(targetImportColumns.isEmpty()) {
         for(qint32 i(0); i < targetModel->columnCount(); i++) {
             m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
+            m_requestedColumnsIndexes.append(i);
         }
     } else {
         for(qint32 i(0); i < targetModel->columnCount(); i++) {
             if(targetImportColumns.contains(i)) {
                 m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
+                m_requestedColumnsIndexes.append(i);
             }
         }
     }
@@ -127,6 +130,11 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                                          auto* comboBox = new QComboBox();
                                          comboBox->setCursor(QCursor(Qt::ArrowCursor));
                                          comboBox->addItems(m_requestedColumns);
+                                         auto i = 0;
+                                         for(auto index : m_requestedColumnsIndexes) {
+                                            comboBox->setItemData(i, index, Qt::UserRole);
+                                            ++i;
+                                         }
                                          comboBox->setCurrentIndex(0);
                                          QObject::connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32 index){
                                              m_attachment->ForeachAttachment<QComboBox>([this, index, comboBox](qint32 currentIndex, QComboBox* current) {
@@ -179,7 +187,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         }
 
         m_attachment->ForeachAttachment<QComboBox>([&ok, sourceModel, this, &doubleLocale, start, sourceCount, &doubleErrorsMetaData, &intErrorsMetaData](qint32 sourceColumn, QComboBox* cb){
-            auto targetColumn = cb->currentIndex() - 1;
+            auto targetColumn = cb->currentData().toInt();
             if(targetColumn < 0) {
                 return;
             }
