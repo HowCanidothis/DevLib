@@ -220,7 +220,7 @@ protected:
 #define MEASUREMENT_PRECISION(system) \
     MeasurementManager::GetInstance().GetMeasurement(system)->CurrentPrecision
 #define MEASUREMENT_BASE_TO_UNIT_UI(system, x) \
-    MeasurementManager::GetInstance().FromBaseToUnitUi(system, x);
+    MeasurementManager::GetInstance().FromBaseToUnitUi(system, x)
 #define MEASUREMENT_STRING(system) \
 	MeasurementManager::GetInstance().GetMeasurement(system)->CurrentUnitLabel
 #define MEASUREMENT_DISPATCHER(system) \
