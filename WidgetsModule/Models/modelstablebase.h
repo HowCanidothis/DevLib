@@ -75,10 +75,25 @@ public:
         {
 
         }
+
+        DescAddDefaultModelSourceComponentParams& SetGetter(const FModelGetter<Wrapper>& getter)
+        {
+            Getter = getter;
+            return *this;
+        }
+        DescAddDefaultModelSourceComponentParams& SetSetter(const std::function<void(typename Wrapper::value_type&, const QVariant&)>& handler){
+            Setter = [handler](const QVariant& value, typename Wrapper::value_type& data){ return [&]{ handler(data, value);}; };
+            return *this;
+        }
+        DescAddDefaultModelSourceComponentParams& SetSetter(const FModelSetter<Wrapper>& setter)
+        {
+            Setter = setter;
+            return *this;
+        }
     };
 
     template<class Wrapper>
-    void AddDefaultModelSourceComponent(qint32 column, const FTranslationHandler& header, Wrapper* model, const DescAddDefaultModelSourceComponentParams<Wrapper>& inParams)
+    void AddDefaultModelSourceComponent(qint32 column, const FTranslationHandler& header, const std::function<Wrapper* ()>& getterModel, const DescAddDefaultModelSourceComponentParams<Wrapper>& inParams)
     {
         ColumnComponentData displayRoleComponent;
         auto params = inParams;
@@ -86,11 +101,11 @@ public:
             params.Getter = params.GetterUi;
         }
 
-        displayRoleComponent.GetterHandler = [params, model](const QModelIndex& index, bool&) -> QVariant {
-            if(index.row() >= model->GetSize()) {
+        displayRoleComponent.GetterHandler = [params, getterModel](const QModelIndex& index, bool&) -> QVariant {
+            if(index.row() >= getterModel()->GetSize()) {
                 return "-";
             }
-            return params.GetterUi(model->At(index.row()));
+            return params.GetterUi(getterModel()->At(index.row()));
         };
         displayRoleComponent.GetHeaderHandler = [header](bool&){ return header(); };
 
@@ -98,17 +113,17 @@ public:
         if(params.Setter != nullptr) {
             ColumnComponentData editRoleComponent;
 
-            editRoleComponent.GetterHandler = [params, model](const QModelIndex& index, bool&) -> QVariant {
-                if(index.row() >= model->GetSize()) {
+            editRoleComponent.GetterHandler = [params, getterModel](const QModelIndex& index, bool&) -> QVariant {
+                if(index.row() >= getterModel()->GetSize()) {
                     return QVariant();
                 }
-                return params.Getter(model->At(index.row()));
+                return params.Getter(getterModel()->At(index.row()));
             };
-            editRoleComponent.SetterHandler = [params, model](const QModelIndex& index, const QVariant& data, bool&) -> bool {
-                if(index.row() >= model->GetSize()) {
+            editRoleComponent.SetterHandler = [params, getterModel](const QModelIndex& index, const QVariant& data, bool&) -> bool {
+                if(index.row() >= getterModel()->GetSize()) {
                     return false;
                 }
-                return model->EditWithCheck(index.row(), [&](auto& value){ return params.Setter(data, value); });
+                return getterModel()->EditWithCheck(index.row(), [&](auto& value){ return params.Setter(data, value); });
             };
 
             AddComponent(Qt::EditRole, column, editRoleComponent);

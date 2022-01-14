@@ -39,12 +39,12 @@ public:
     struct ApplyUnitsComponentHandlers
     {
         std::function<double (qint32 row, bool& hasValue)> ValueGetter;
-        std::function<bool (qint32 row, double value)> ValueSetter;
+        std::function<bool (qint32 row, const QVariant& value)> ValueSetter;
         FTranslationHandler Header;
 
         ApplyUnitsComponentHandlers(){}
         ApplyUnitsComponentHandlers(const FTranslationHandler& header, const std::function<double (qint32 row, bool&)>& getter,
-                           const std::function<bool (qint32 row, double value)>& setter)
+                           const std::function<bool (qint32 row, const QVariant& value)>& setter)
             : ValueGetter(getter)
             , ValueSetter(setter)
             , Header(header)
@@ -75,24 +75,61 @@ public:
     void ApplyUnitsComponent(const ApplyUnitsComponentParams& map);
 
     template<class Wrapper>
-    static ApplyUnitsComponentHandlers UnitHandlersFromModelTable(const FTranslationHandler& header, Wrapper* model, const std::function<double& (typename Wrapper::value_type&)>& targetField)
+    static ApplyUnitsComponentHandlers UnitHandlersFromModelTable(const FTranslationHandler& header, const std::function<Wrapper* ()>& getterModel, const std::function<double& (typename Wrapper::value_type&)>& targetField)
     {
         using value_type = typename Wrapper::value_type;
         ApplyUnitsComponentHandlers result;
-        result.ValueGetter = [model, targetField](qint32 row, bool& hasValue) {
-            if(row >= model->GetSize()) {
+        result.ValueGetter = [getterModel, targetField](qint32 row, bool& hasValue) {
+            if(row >= getterModel()->GetSize()) {
                 hasValue = false;
                 return 0.0;
             }
-            return targetField(model->EditSilent()[row]);
+            return targetField(getterModel()->EditSilent()[row]);
         };
 
-        result.ValueSetter = [model, targetField](qint32 row, double value) {
-            if(row >= model->GetSize()) {
+        result.ValueSetter = [getterModel, targetField](qint32 row, const QVariant& value) {
+            if(row >= getterModel()->GetSize()) {
                 return false;
             }
-            return model->EditWithCheck(row, [value, targetField](value_type& data){
-                return [&]{ targetField(data) = value; };
+            return getterModel()->EditWithCheck(row, [value, targetField](value_type& data){
+                return [&]{ targetField(data) = value.toDouble(); };
+            });
+        };
+
+        result.Header = header;
+        return result;
+    }
+
+    template<class Wrapper>
+    static ApplyUnitsComponentHandlers UnitHandlersFromModelTable(const FTranslationHandler& header, const std::function<Wrapper* ()>& getterModel, const std::function<std::optional<double>& (typename Wrapper::value_type&)>& targetField)
+    {
+        using value_type = typename Wrapper::value_type;
+        ApplyUnitsComponentHandlers result;
+        result.ValueGetter = [getterModel, targetField](qint32 row, bool& hasValue) {
+            if(row >= getterModel()->GetSize()) {
+                hasValue = false;
+                return 0.0;
+            }
+            auto& targetFieldOpt = targetField(getterModel()->EditSilent()[row]);
+            if(!targetFieldOpt.has_value()) {
+                hasValue = false;
+                return 0.0;
+            }
+            return targetFieldOpt.value();
+        };
+
+        result.ValueSetter = [getterModel, targetField](qint32 row, const QVariant& value) {
+            if(row >= getterModel()->GetSize()) {
+                return false;
+            }
+            return getterModel()->EditWithCheck(row, [value, targetField](value_type& data){
+                return [&]{
+                    if(value.isValid()) {
+                        targetField(data) = value.toDouble();
+                    } else {
+                        targetField(data) = std::nullopt;
+                    }
+                };
             });
         };
 
