@@ -221,11 +221,15 @@ protected:
 template<class Wrapper>
 struct ModelsTableBaseDecorator
 {
+    /// deprecated
     static QVariant GetModelData(const typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
     static void Sort(const typename Wrapper::container_type& rows, qint32 column, Array<qint32>& indices);
+    /// deprecated
     static bool SetModelData(const QVariant& value, typename Wrapper::value_type& data, qint32 column, qint32 role = Qt::DisplayRole);
+    /// deprecated
     static Qt::ItemFlags GetFlags(const typename Wrapper::value_type&, qint32);
-	static QVariant GetHeaderData(int section, Qt::Orientation orientation, qint32 role = Qt::DisplayRole);
+    /// deprecated
+    static QVariant GetHeaderData(int section, Qt::Orientation orientation, qint32 role = Qt::DisplayRole);
 };
 
 template<class Wrapper>

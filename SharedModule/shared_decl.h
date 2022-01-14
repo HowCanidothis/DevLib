@@ -183,6 +183,9 @@ Range<It> range(It begin, It end) {
 
 }
 
+template <class T>
+inline const T& make_const(T& container) { return container; }
+
 template<typename Enum>
 struct EnumHelper
 {
