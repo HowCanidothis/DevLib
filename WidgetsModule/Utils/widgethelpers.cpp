@@ -243,6 +243,29 @@ void WidgetContent::SelectRowsAndScrollToFirst(QTableView* table, const QSet<qin
     }
 }
 
+void WidgetContent::SelectColumnsAndScrollToFirst(QTableView* table, const QSet<qint32>& columnIndices)
+{
+    table->clearSelection();
+    if(columnIndices.isEmpty()) {
+        return;
+    }
+
+    auto* model = table->model();
+    auto* selection = table->selectionModel();
+    std::optional<qint32> firstIndex;
+    for(int c=0; c<model->columnCount(); ++c){
+        if(columnIndices.contains(c)) {
+            selection->select(model->index(0, c), QItemSelectionModel::Select | QItemSelectionModel::Columns);
+            if(!firstIndex.has_value()) {
+                firstIndex = c;
+            }
+        }
+    }
+    if(firstIndex.has_value()) {
+        table->scrollTo(model->index(0, firstIndex.value()));
+    }
+}
+
 void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
 {
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();

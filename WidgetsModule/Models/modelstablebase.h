@@ -36,6 +36,12 @@ public:
             , GetHeaderHandler([](bool& ) -> QVariant { return QVariant(); })
         {}
 
+        ColumnComponentData(bool propagate)
+            : SetterHandler([](const QModelIndex&, const QVariant&, bool& accepted) -> bool { accepted = false; return false; })
+            , GetterHandler([](const QModelIndex&, bool& accepted) -> QVariant { accepted = false; return QVariant(); })
+            , GetHeaderHandler([](bool& accepted) -> QVariant { accepted = false; return QVariant(); })
+        {}
+
         ColumnComponentData& SetSetter(const FSetterHandler& setter)
         {
             SetterHandler = setter;

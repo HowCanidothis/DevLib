@@ -121,6 +121,7 @@ struct WidgetContent
 	static QSet<int> SelectedRowsSet(QTableView* tableView);
 	static QSet<int> SelectedColumnsSet(QTableView* tableView);
     static void SelectRowsAndScrollToFirst(QTableView* table, const QSet<qint32>& rows);
+    static void SelectColumnsAndScrollToFirst(QTableView* table, const QSet<qint32>& columns);
     static void ComboboxDisconnectModel(class QComboBox* combobox);
 };
 
