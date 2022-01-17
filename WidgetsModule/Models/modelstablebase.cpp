@@ -6,6 +6,8 @@
 
 ViewModelsTableBase::ViewModelsTableBase(QObject* parent)
     : Super(parent)
+    , m_mostLeftColumnToUpdate(-1)
+    , m_mostRightColumnToUpdate(-1)
 {
 
 }
@@ -22,10 +24,11 @@ Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
     if(!index.isValid()) {
         return Qt::NoItemFlags;
     }
-    Qt::ItemFlags result;
-    if(ColumnComponents.GetFlags(index, result)) {
-        return result;
+    auto componentsResult = ColumnComponents.GetFlags(index);
+    if(componentsResult.has_value()) {
+        return componentsResult.value();
     }
+
     return Super::flags(index);
 }
 
@@ -34,9 +37,10 @@ QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const
     if(!index.isValid()) {
         return QVariant();
     }
-    QVariant result;
-    if(ColumnComponents.GetData(index, role, result)) {
-        return result;
+
+    auto componentsResult = ColumnComponents.GetData(index, role);
+    if(componentsResult.has_value()) {
+        return componentsResult.value();
     }
 
     auto foundIt = m_roleDataHandlers.find(role);
@@ -51,9 +55,9 @@ bool ViewModelsTableBase::setData(const QModelIndex& index, const QVariant& data
     if(!index.isValid()) {
         return false;
     }
-    bool result;
-    if(ColumnComponents.SetData(index, data, role, result)) {
-        return result;
+    auto componentsResult = ColumnComponents.SetData(index, data, role);
+    if(componentsResult.has_value()) {
+        return componentsResult.value();
     }
     auto foundIt = m_roleSetDataHandlers.find(role);
     if(foundIt == m_roleSetDataHandlers.end()) {
@@ -65,9 +69,10 @@ bool ViewModelsTableBase::setData(const QModelIndex& index, const QVariant& data
 QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
     if(orientation == Qt::Horizontal) {
-        QVariant result;
-        if(ColumnComponents.GetHeaderData(section, role, result)) {
-            return result;
+
+        auto componentsResult = ColumnComponents.GetHeaderData(section, role);
+        if(componentsResult.has_value()) {
+            return componentsResult.value();
         }
 
         auto foundIt = m_roleHorizontalHeaderDataHandlers.find(role);
@@ -134,80 +139,76 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const Col
     foundIt.value().append(flagsColumnData);
 }
 
-bool ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QVariant& data, qint32 role, bool& result)
+std::optional<bool> ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QVariant& data, qint32 role)
 {
-    bool accept = true;
+    std::optional<bool> result;
     auto testHandler = [&](const QVector<ColumnComponentData>& components){
-        for(const auto& handlers : components) {
-            accept = true;
-            result = handlers.SetterHandler(index, data, accept);
-            if(accept) {
+        for(const auto& handlers : adapters::reverse(components)) {
+            result = handlers.SetterHandler(index, data);
+            if(result.has_value()) {
                 break;
             }
         }
     };
 
     if(callHandler(index.column(), (Qt::ItemDataRole)role, testHandler)) {
-        return accept;
+        return result;
     }
-    return false;
+    return std::nullopt;
 }
 
-bool ViewModelsTableColumnComponents::GetData(const QModelIndex& index, qint32 role, QVariant& data) const
+std::optional<QVariant> ViewModelsTableColumnComponents::GetData(const QModelIndex& index, qint32 role) const
 {
-    bool accept = true;
+    std::optional<QVariant> result;
     auto testHandler = [&](const QVector<ColumnComponentData>& components){
-        for(const auto& handlers : components) {
-            accept = true;
-            data = handlers.GetterHandler(index, accept);
-            if(accept) {
+        for(const auto& handlers : adapters::reverse(components)) {
+            result = handlers.GetterHandler(index);
+            if(result.has_value()) {
                 break;
             }            
         }
     };
 
     if(callHandler(index.column(), (Qt::ItemDataRole)role, testHandler)) {
-        return accept;
+        return result;
     }
-    return false;
+    return std::nullopt;
 }
 
-bool ViewModelsTableColumnComponents::GetHeaderData(qint32 section, qint32 role, QVariant& header) const
+std::optional<QVariant> ViewModelsTableColumnComponents::GetHeaderData(qint32 section, qint32 role) const
 {
-    bool accept = true;
+    std::optional<QVariant> result;
     auto testHandler = [&](const QVector<ColumnComponentData>& data){
-        for(const auto& handlers : data) {
-            accept = true;
-            header = handlers.GetHeaderHandler(accept);
-            if(accept) {
+        for(const auto& handlers : adapters::reverse(data)) {
+            result = handlers.GetHeaderHandler();
+            if(result.has_value()) {
                 break;
             }            
         }
     };
 
     if(callHandler(section, (Qt::ItemDataRole)role, testHandler)) {
-        return accept;
+        return result;
     }
-    return false;
+    return std::nullopt;
 }
 
-bool ViewModelsTableColumnComponents::GetFlags(const QModelIndex& index, Qt::ItemFlags& flags) const
+std::optional<Qt::ItemFlags> ViewModelsTableColumnComponents::GetFlags(const QModelIndex& index) const
 {
-    bool accept = true;
+    std::optional<Qt::ItemFlags> result;
     auto testHandler = [&](const QVector<ColumnFlagsComponentData>& data){
-        for(const auto& handlers : data) {
-            accept = true;
-            flags = handlers.GetFlagsHandler(index.row(), accept);
-            if(accept) {
+        for(const auto& handlers : adapters::reverse(data)) {
+            result = handlers.GetFlagsHandler(index.row());
+            if(result.has_value()) {
                 break;
             }
         }
     };
 
     if(callFlagsHandler(index.column(), testHandler)) {
-        return accept;
+        return result;
     }
-    return false;
+    return std::nullopt;
 }
 
 qint32 ViewModelsTableColumnComponents::GetColumnCount() const

@@ -10,6 +10,11 @@ class TranslatorManager
 public:
     static TranslatorManager& GetInstance();
 
+    template <typename Enum>
+    static bool IsValid(int value) { return static_cast<int>(Enum::First) <= value && value <= static_cast<int>(Enum::Last); }
+    template <typename Enum>
+    static bool IsValid(Enum value) { return IsValid<Enum>( static_cast<int>(value)); }
+
     template<class T>
     QStringList GetEnumNames()
     {

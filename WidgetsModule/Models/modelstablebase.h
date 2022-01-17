@@ -22,24 +22,23 @@ class ViewModelsTableColumnComponents
 public:
     struct ColumnComponentData
     {
-        // Note. By Default handlers does not propagate, set ignore to true to force propagation if needed
-        using FSetterHandler = std::function<bool (const QModelIndex& index, const QVariant& data, bool& )>;
-        using FGetterHandler = std::function<QVariant (const QModelIndex& index, bool& accept)>;
-        using FGetHeaderHandler = std::function<QVariant (bool& accept)>;
+        using FSetterHandler = std::function<std::optional<bool> (const QModelIndex& index, const QVariant& data)>;
+        using FGetterHandler = std::function<std::optional<QVariant> (const QModelIndex& index)>;
+        using FGetHeaderHandler = std::function<std::optional<QVariant> ()>;
         FSetterHandler SetterHandler;
         FGetterHandler GetterHandler;
         FGetHeaderHandler GetHeaderHandler;
 
         ColumnComponentData()
-            : SetterHandler([](const QModelIndex&, const QVariant&, bool&) -> bool { return false; })
-            , GetterHandler([](const QModelIndex&, bool& ) -> QVariant { return QVariant(); })
-            , GetHeaderHandler([](bool& ) -> QVariant { return QVariant(); })
+            : SetterHandler([](const QModelIndex&, const QVariant&) { return false; })
+            , GetterHandler([](const QModelIndex&) { return QVariant(); })
+            , GetHeaderHandler([]() { return QVariant(); })
         {}
 
-        ColumnComponentData(bool propagate)
-            : SetterHandler([](const QModelIndex&, const QVariant&, bool& accepted) -> bool { accepted = false; return false; })
-            , GetterHandler([](const QModelIndex&, bool& accepted) -> QVariant { accepted = false; return QVariant(); })
-            , GetHeaderHandler([](bool& accepted) -> QVariant { accepted = false; return QVariant(); })
+        ColumnComponentData(bool /*propagate*/)
+            : SetterHandler([](const QModelIndex&, const QVariant&) { return std::nullopt; })
+            , GetterHandler([](const QModelIndex&) { return std::nullopt; })
+            , GetHeaderHandler([]{ return std::nullopt; })
         {}
 
         ColumnComponentData& SetSetter(const FSetterHandler& setter)
@@ -61,96 +60,23 @@ public:
 
     struct ColumnFlagsComponentData
     {
-        std::function<Qt::ItemFlags (qint32 row, bool& ignore)> GetFlagsHandler = [](qint32, bool&) { return Qt::NoItemFlags; };
+        std::function<Qt::ItemFlags (qint32 row)> GetFlagsHandler = [](qint32) { return Qt::NoItemFlags; };
     };
 
     ViewModelsTableColumnComponents();
 
-    template<class T> using FModelGetter = std::function<QVariant (const typename T::value_type&)>;
-    template<class T> using FModelSetter = std::function<FAction (const QVariant& data, typename T::value_type&)>;
-
-    template<class Wrapper>
-    struct DescAddDefaultModelSourceComponentParams
-    {
-        FModelGetter<Wrapper> GetterUi;
-        FModelGetter<Wrapper> Getter;
-        FModelSetter<Wrapper> Setter;
-
-        DescAddDefaultModelSourceComponentParams(const FModelGetter<Wrapper>& getterUi)
-            : GetterUi(getterUi)
-        {
-
-        }
-
-        DescAddDefaultModelSourceComponentParams& SetGetter(const FModelGetter<Wrapper>& getter)
-        {
-            Getter = getter;
-            return *this;
-        }
-        DescAddDefaultModelSourceComponentParams& SetSetter(const std::function<void(typename Wrapper::value_type&, const QVariant&)>& handler){
-            Setter = [handler](const QVariant& value, typename Wrapper::value_type& data){ return [&]{ handler(data, value);}; };
-            return *this;
-        }
-        DescAddDefaultModelSourceComponentParams& SetSetter(const FModelSetter<Wrapper>& setter)
-        {
-            Setter = setter;
-            return *this;
-        }
-    };
-
-    template<class Wrapper>
-    void AddDefaultModelSourceComponent(qint32 column, const FTranslationHandler& header, const std::function<Wrapper* ()>& getterModel, const DescAddDefaultModelSourceComponentParams<Wrapper>& inParams)
-    {
-        ColumnComponentData displayRoleComponent;
-        auto params = inParams;
-        if(params.Getter == nullptr) {
-            params.Getter = params.GetterUi;
-        }
-
-        displayRoleComponent.GetterHandler = [params, getterModel](const QModelIndex& index, bool&) -> QVariant {
-            if(index.row() >= getterModel()->GetSize()) {
-                return "-";
-            }
-            return params.GetterUi(getterModel()->At(index.row()));
-        };
-        displayRoleComponent.GetHeaderHandler = [header](bool&){ return header(); };
-
-        AddComponent(Qt::DisplayRole, column, displayRoleComponent);
-        if(params.Setter != nullptr) {
-            ColumnComponentData editRoleComponent;
-
-            editRoleComponent.GetterHandler = [params, getterModel](const QModelIndex& index, bool&) -> QVariant {
-                if(index.row() >= getterModel()->GetSize()) {
-                    return QVariant();
-                }
-                return params.Getter(getterModel()->At(index.row()));
-            };
-            editRoleComponent.SetterHandler = [params, getterModel](const QModelIndex& index, const QVariant& data, bool&) -> bool {
-                if(index.row() >= getterModel()->GetSize()) {
-                    return false;
-                }
-                return getterModel()->EditWithCheck(index.row(), [&](auto& value){ return params.Setter(data, value); });
-            };
-
-            AddComponent(Qt::EditRole, column, editRoleComponent);
-            AddFlagsComponent(column, { [](qint32, bool&) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable; } });
-        } else {
-            AddFlagsComponent(column, { [](qint32, bool&) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; } });
-        }
-    }
-
     void AddComponent(Qt::ItemDataRole role, qint32 column, const ColumnComponentData& columnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
 
-    bool SetData(const QModelIndex& index, const QVariant& data, qint32 role, bool& result);
-    bool GetData(const QModelIndex& index, qint32 role, QVariant& data) const;
-    bool GetHeaderData(qint32 section, qint32 role, QVariant& header) const;
-    bool GetFlags(const QModelIndex& index, Qt::ItemFlags& flags) const;
+    std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
+    std::optional<QVariant> GetData(const QModelIndex& index, qint32 role) const;
+    std::optional<QVariant> GetHeaderData(qint32 section, qint32 role) const;
+    std::optional<Qt::ItemFlags> GetFlags(const QModelIndex& index) const;
 
     qint32 GetColumnCount() const;
 
 private:
-    bool callHandler(qint32 column, Qt::ItemDataRole role, const std::function<void (const QVector<ColumnComponentData>& )>& onFound) const;
+    bool callHandler(qint32 column, Qt::ItemDataRole role, const std::function<void (const QVector<ColumnComponentData>&)>& onFound) const;
     bool callFlagsHandler(qint32 column, const std::function<void (const QVector<ColumnFlagsComponentData>& )>& onFound) const;
 
 private:
@@ -174,11 +100,31 @@ public:
         return ColumnComponents.GetColumnCount();
     }
 
+    void RequestUpdateUi(qint32 left, qint32 right)
+    {
+        if(m_mostLeftColumnToUpdate == -1) {
+            m_mostLeftColumnToUpdate = left;
+        } else {
+            m_mostLeftColumnToUpdate = std::min(m_mostLeftColumnToUpdate, left);
+        }
+
+        if(m_mostRightColumnToUpdate == -1) {
+            m_mostRightColumnToUpdate = right;
+        } else {
+            m_mostRightColumnToUpdate = std::max(m_mostRightColumnToUpdate, right);
+        }
+        m_update.Call([this]{
+            emit dataChanged(createIndex(0, m_mostLeftColumnToUpdate), createIndex(rowCount()-1, m_mostRightColumnToUpdate));
+            emit headerDataChanged(Qt::Horizontal, m_mostLeftColumnToUpdate, m_mostRightColumnToUpdate);
+            m_mostLeftColumnToUpdate = -1;
+            m_mostRightColumnToUpdate = -1;
+        });
+    }
+
     void AttachDependence(Dispatcher* dispatcher, int first, int last)
     {
         dispatcher->Connect(this, [first, last, this]{
-            emit dataChanged(createIndex(0, first), createIndex(rowCount()-1, last));
-            emit headerDataChanged(Qt::Horizontal, first, last);
+            RequestUpdateUi(first, last);
         }).MakeSafe(m_connections);
     }
 
@@ -198,6 +144,9 @@ protected:
     QHash<qint32, std::function<QVariant (qint32 column)>> m_roleVerticalHeaderDataHandlers;
     QHash<qint32, std::function<bool (qint32 row, qint32 column, const QVariant&)>> m_roleSetDataHandlers;
     DispatcherConnectionsSafe m_connections;
+    qint32 m_mostLeftColumnToUpdate;
+    qint32 m_mostRightColumnToUpdate;
+    DelayedCallObject m_update;
 };
 
 template<class T>
@@ -283,9 +232,9 @@ public:
         }
         Q_ASSERT(Super::GetData() != nullptr);
 
-        QVariant result;
-        if(Super::ColumnComponents.GetData(index, role, result)) {
-            return result;
+        auto componentsResult = Super::ColumnComponents.GetData(index, role);
+        if(componentsResult.has_value()) {
+            return componentsResult.value();
         }
 
         return ModelsTableBaseDecorator<Wrapper>::GetModelData(Super::GetData()->At(index.row()), index.column(), role);
@@ -299,8 +248,9 @@ public:
 
         Q_ASSERT(Super::GetData() != nullptr);
 
-        if(Super::ColumnComponents.SetData(index, data, role, result)) {
-            return result;
+        auto componentsResult = Super::ColumnComponents.SetData(index, data, role);
+        if(componentsResult.has_value()) {
+            return componentsResult.value();
         }
 
         Super::GetData()->Edit(index.row(), [&](typename Wrapper::value_type& value){
@@ -311,9 +261,9 @@ public:
 
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override 
 	{
-        QVariant result;
-        if(Super::ColumnComponents.GetHeaderData(section, role, result)) {
-            return result;
+        auto componentsResult = Super::ColumnComponents.GetHeaderData(section, role);
+        if(componentsResult.has_value()) {
+            return componentsResult.value();
         }
 
 		return ModelsTableBaseDecorator<Wrapper>::GetHeaderData(section, orientation, role);
@@ -324,10 +274,12 @@ public:
         if(!index.isValid()) {
             return Qt::NoItemFlags;
         }
-        Qt::ItemFlags result;
-        if(Super::ColumnComponents.GetFlags(index, result)) {
-            return result;
+
+        auto componentsResult = Super::ColumnComponents.GetFlags(index);
+        if(componentsResult.has_value()) {
+            return componentsResult.value();
         }
+
         return ModelsTableBaseDecorator<Wrapper>::GetFlags(Super::GetData()->At(index.row()), index.column());
     }
 };
