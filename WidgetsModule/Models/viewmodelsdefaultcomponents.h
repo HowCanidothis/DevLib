@@ -163,10 +163,11 @@ public:
         auto pMeasurement = m_currentMeasurement.get();
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](const value_type& constValue) -> QVariant {
             auto& value = const_cast<value_type&>(constValue);
-            if(!value.has_value()) {
+            auto& dataValue = getter(value);
+            if(!dataValue.has_value()) {
                 return "-";
             }
-            return QString::number(pMeasurement->BaseValueToCurrentUnit(getter(value)), 'f', pMeasurement->CurrentPrecision);
+            return QString::number(pMeasurement->BaseValueToCurrentUnit(dataValue.value()), 'f', pMeasurement->CurrentPrecision);
         }, [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
             return [&]{
                 if(data.isValid()) {
@@ -177,10 +178,11 @@ public:
             };
         }, [getter, pMeasurement](const value_type& constValue) -> QVariant {
             auto& value = const_cast<value_type&>(constValue);
-            if(!value.has_value()) {
+            auto& dataValue = getter(value);
+            if(!dataValue.has_value()) {
                 return 0.0;
             }
-            return pMeasurement->BaseValueToCurrentUnit(getter(value).value());
+            return pMeasurement->BaseValueToCurrentUnit(dataValue.value());
         });
     }
 #endif
