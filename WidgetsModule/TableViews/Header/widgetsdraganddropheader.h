@@ -11,7 +11,7 @@ class WidgetsDragAndDropHeader: public QHeaderView
     Q_OBJECT
     using Super = QHeaderView;
 public:
-    WidgetsDragAndDropHeader(class QTableView* parent = nullptr);
+    WidgetsDragAndDropHeader(class QTableView* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 
     class QMenu* CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& ignorColumns = DescColumnsParams());
 protected:
@@ -21,7 +21,7 @@ protected:
     void dropEvent(QDropEvent *event) override;
 
 private:
-    QPixmap pixmapForDrag(const int columnIndex) const;
+    QPixmap pixmapForDrag(const int index) const;
 };
 
 #endif // WIDGETSDRAGANDDROPHEADER_H

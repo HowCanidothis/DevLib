@@ -10,8 +10,8 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-WidgetsDragAndDropHeader::WidgetsDragAndDropHeader(QTableView* parent)
-    : Super(Qt::Horizontal, parent)
+WidgetsDragAndDropHeader::WidgetsDragAndDropHeader(QTableView* parent, Qt::Orientation orientation)
+    : Super(orientation, parent)
 {
     setDragEnabled(true);
     setAcceptDrops(true);
@@ -23,14 +23,15 @@ WidgetsDragAndDropHeader::WidgetsDragAndDropHeader(QTableView* parent)
 
 QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& params)
 {
-    auto* result = createPreventedFromClosingMenu(tr("Show Columns"), parent);
+    auto* result = createPreventedFromClosingMenu(orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"), parent);
     connect(result, &QMenu::aboutToShow, [result, params, this]{
         result->clear();
         QTableView* table = qobject_cast<QTableView*> (parentWidget());
         Q_ASSERT(table != nullptr);
 
         auto* model = table->model();
-        for(int i=0; i<model->columnCount(); ++i){
+        auto count = orientation() == Qt::Horizontal ? model->columnCount() : model->rowCount();
+        for(int i=0; i<count; ++i){
             auto foundIt = params.ColumnsParams.find(i);
             if(foundIt != params.ColumnsParams.end()){
                 setSectionHidden(i, !foundIt->Visible);
@@ -42,7 +43,7 @@ QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const DescC
             auto* action = createCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
                 setSectionHidden(i, !checked);
             }, result);
-            action->setProperty("column", i);
+            action->setProperty("index", i);
         }
         auto oldActions = result->actions();
         createAction(tr("Switch"), [oldActions]{
@@ -51,9 +52,9 @@ QMenu* WidgetsDragAndDropHeader::CreateShowColumsMenu(QMenu* parent, const DescC
             }
         }, result);
         for(auto* action : result->actions()){
-            auto column = action->property("column").toInt();
-            if(0 <= column && column < table->model()->columnCount()){
-                action->setChecked(!isSectionHidden(column));
+            auto index = action->property("index").toInt();
+            if(0 <= index && index < count){
+                action->setChecked(!isSectionHidden(index));
             }
         }
     });
@@ -115,23 +116,41 @@ void WidgetsDragAndDropHeader::dropEvent(QDropEvent* event)
     moveSection(indexFrom, indexTo);
 }
 
-QPixmap WidgetsDragAndDropHeader::pixmapForDrag(const int columnIndex) const
+QPixmap WidgetsDragAndDropHeader::pixmapForDrag(const int index) const
 {
     QTableView* table = qobject_cast<QTableView*> (this->parentWidget());
     Q_ASSERT(table != nullptr);
 
-    int height = table->horizontalHeader()->height();
-    for (int iRow = 0; iRow < 5 && iRow < table->model()->rowCount(); ++iRow)
-    {
-        height += table->rowHeight(iRow);
+    QRect rect;
+    switch(orientation()) {
+    case Qt::Vertical: {
+        int fullWidth = width();
+        for (int iRow = 0; iRow < 5 && iRow < table->model()->columnCount(); ++iRow)
+        {
+            fullWidth += table->rowHeight(iRow);
+        }
+
+        fullWidth = qMin(table->width(), fullWidth);
+        auto x = table->columnViewportPosition(0);
+        auto y = table->rowViewportPosition(index) + table->horizontalHeader()->height();
+        rect = QRect(x, y, fullWidth, table->rowHeight(index));
+        break;
+    }
+    case Qt::Horizontal:{
+        int fullHeight = height();
+        for (int iRow = 0; iRow < 5 && iRow < table->model()->rowCount(); ++iRow)
+        {
+            fullHeight += table->rowHeight(iRow);
+        }
+
+        fullHeight = qMin(table->height(), fullHeight);
+        auto x = table->columnViewportPosition(index) + table->verticalHeader()->width();
+        auto y = table->rowViewportPosition(0);
+        rect = QRect(x, y, table->columnWidth(index), fullHeight);
+        break;
+    }
     }
 
-    height = qMin(table->height(), height);
-
-    QRect rect(table->columnViewportPosition(columnIndex) + table->verticalHeader()->width(),
-               table->rowViewportPosition(0),
-               table->columnWidth(columnIndex),
-               height);
     QPixmap pixmap (rect.size());
     table->render(&pixmap, QPoint(), QRegion(rect));
     return pixmap;
