@@ -306,6 +306,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
 
 }
 
+#ifdef WIDGETS_MODULE_LIB
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const ModelsStandardListModelPtr& model)
     : Super([property, comboBox, model]{
                 qint32 result = 0;
@@ -343,6 +344,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 }
+#endif
 
 LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
     : Super([property, buttons]{
@@ -377,6 +379,7 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
     }
 }
 
+#ifdef WIDGETS_MODULE_LIB
 LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
     : Super([](){},
             [](){}
@@ -412,5 +415,7 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
+
+#endif
 
 #endif

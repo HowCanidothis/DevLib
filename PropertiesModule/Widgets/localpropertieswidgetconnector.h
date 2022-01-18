@@ -185,6 +185,8 @@ private:
     DelayedCallObject m_textChanged;
 };
 
+#ifdef WIDGETS_MODULE_LIB
+
 class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
@@ -199,6 +201,8 @@ class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetCon
 public:
     LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, class WidgetsDateTimeEdit* dateTime);
 };
+#endif
+
 #endif
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H

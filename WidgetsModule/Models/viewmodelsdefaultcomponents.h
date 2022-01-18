@@ -138,7 +138,7 @@ public:
         }
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (value_type&)>& getter)
+    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (value_type&)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -147,14 +147,14 @@ public:
         auto pMeasurement = m_currentMeasurement.get();
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](const value_type& value) -> QVariant {
             return QString::number(pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value))), 'f', pMeasurement->CurrentPrecision);
-        }, [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
+        }, readOnly ? nullptr : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
             return [&]{ getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble()); };
         }, [getter, pMeasurement](const value_type& value) -> QVariant {
             return pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value)));
         });
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (value_type&)>& getter)
+    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (value_type&)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -168,7 +168,7 @@ public:
                 return "-";
             }
             return QString::number(pMeasurement->BaseValueToCurrentUnit(dataValue.value()), 'f', pMeasurement->CurrentPrecision);
-        }, [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
+        }, readOnly ? nullptr : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
             return [&]{
                 if(data.isValid()) {
                     getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble());
@@ -194,6 +194,16 @@ private:
     Array<qint32> m_currentMeasurementColumns;
 #endif
 };
+
+#define ViewModelsBuilderColumnUiReadOnly(column, header, getter, getterUi) \
+    builder.AddColumn(column, []{ return header; }, \
+    [](const auto& data)->QVariant { return QVariant::fromValue(getterUi); }, \
+    nullptr, \
+    [](const auto& data)->QVariant { return QVariant::fromValue(getter); })
+
+#define ViewModelsBuilderColumnReadOnly(column, header, getter) \
+    builder.AddColumn(column, []{ return header; }, \
+    [](const auto& data)->QVariant { return QVariant::fromValue(getter); })
 
 #define ViewModelsBuilderColumnUi(column, header, getter, getterUi, setter) \
     builder.AddColumn(column, []{ return header; }, \
