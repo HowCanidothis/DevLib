@@ -53,4 +53,11 @@ SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args
 template<class T, typename ... Args>
 SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...)); }
 
+#define FIRST_DECLARE_POINTERS_BASE(type, sharedPointer, scopedPointer) \
+using type##Ptr = sharedPointer<class type>; \
+using type##UPtr = scopedPointer<type>
+
+#define FIRST_DECLARE_POINTERS(type) \
+FIRST_DECLARE_POINTERS_BASE(type, SharedPointer, ScopedPointer)
+
 #endif // SMARTPOINTERSADAPTERS_H
