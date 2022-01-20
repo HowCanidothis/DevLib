@@ -147,7 +147,7 @@ public:
         auto pMeasurement = m_currentMeasurement.get();
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](const value_type& value) -> QVariant {
             return QString::number(pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value))), 'f', pMeasurement->CurrentPrecision);
-        }, readOnly ? nullptr : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
+        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
             return [&]{ getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble()); };
         }, [getter, pMeasurement](const value_type& value) -> QVariant {
             return pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value)));
@@ -168,7 +168,7 @@ public:
                 return "-";
             }
             return QString::number(pMeasurement->BaseValueToCurrentUnit(dataValue.value()), 'f', pMeasurement->CurrentPrecision);
-        }, readOnly ? nullptr : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
+        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
             return [&]{
                 if(data.isValid()) {
                     getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble());
