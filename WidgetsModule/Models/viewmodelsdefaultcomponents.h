@@ -37,7 +37,9 @@ public:
 
     ~ViewModelsColumnComponentsBuilder()
     {
+#ifdef UNITS_MODULE_LIB
         AttachDependencies();
+#endif
     }
 
     ViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,

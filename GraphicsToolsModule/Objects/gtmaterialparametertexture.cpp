@@ -12,13 +12,17 @@ GtMaterialParameterTexture::GtMaterialParameterTexture(const QString& name, cons
 
 GtMaterialParameterBase::FDelegate GtMaterialParameterTexture::apply()
 {
-    m_texture = currentRenderer()->GetResource<GtTexture>(this->m_resource);
+    m_texture = currentRenderer()->GetResource<GtTexture>(m_resource);
     if(m_texture != nullptr) {
-        gTexID texture = m_texture->Data().Get().GetId();
-        gTexTarget target = m_texture->Data().Get().GetTarget();
-        return [this, texture, target](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
+        gTexID textureId;
+        gTexTarget target;
+        m_texture.GetAccess([&](GtTexture& texture){
+            textureId = texture.GetId();
+            target = texture.GetTarget();
+        });
+        return [this, textureId, target](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
             f->glActiveTexture(m_unit + GL_TEXTURE0);
-            f->glBindTexture(target, texture);
+            f->glBindTexture(target, textureId);
             program->setUniformValue(loc, m_unit);
         };
     }

@@ -75,3 +75,10 @@ void GtRenderPath::enableDepthTest()
 {
     m_renderer->enableDepthTest();
 }
+
+GtRenderPath::GtRenderPath(GtRenderer* f)
+    : m_renderer(f)
+    , f(f)
+{
+
+}

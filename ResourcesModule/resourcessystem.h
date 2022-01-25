@@ -5,44 +5,61 @@
 #include <functional>
 #include <SharedModule/internal.hpp>
 
-#include "resource.h"
+template<class T> class TResource;
 
 class ResourcesSystem
 {
-    typedef QHash<Name, ResourceDataBase*> ResourceCache;
-    ResourceDataBase* getResourceData(const Name& name);
+    typedef QHash<Name, SharedPointer<class ResourceData>> ResourceCache;
+    ResourceData* getResourceData(const Name& name);
 
 public:
     ResourcesSystem() {}
-    void RegisterResource(const Name& name, const std::function<void*()>& fOnCreate, bool multiThread = false);
+    struct DescRegisterResourceParams
+    {
+        std::function<void*()> Initializer;
+        std::function<void (void*)> Releaser;
+        bool ThreadSafe;
+
+        DescRegisterResourceParams(const std::function<void*()>& initializer, const std::function<void (void*)>& releaser, bool threadSafe)
+            : Initializer(initializer)
+            , Releaser(releaser)
+            , ThreadSafe(threadSafe)
+        {}
+
+        template<class T>
+        static DescRegisterResourceParams Create(const std::function<T*()>& initializer, bool threadSafe = false)
+        {
+            return DescRegisterResourceParams([initializer]{ return initializer(); }, [](void* data) { delete (T*)data; }, threadSafe);
+        }
+    };
+    void RegisterResource(const Name& name, const DescRegisterResourceParams& params);
 
     template<class T>
-    SharedPointer<Resource<T>> GetResource(const Name& name, bool silent = false) {
-        ResourceDataBase* data = getResourceData(name);
+    void RegisterResource(const Name& name, bool threadSafe = false)
+    {
+        RegisterResource(name, DescRegisterResourceParams::Create<T>([]() -> T* { return new T(); }, threadSafe));
+    }
+
+    template<class T>
+    void RegisterResource(const Name& name, const std::function<T*()>& initializer, bool threadSafe = false)
+    {
+        RegisterResource(name, DescRegisterResourceParams::Create<T>(initializer, threadSafe));
+    }
+
+    template<class T>
+    TResource<T> GetResource(const Name& name, bool silent = false) {
+        ResourceData* data = getResourceData(name);
         if(data == nullptr) {
             if(!silent) {
                 qCWarning(LC_SYSTEM) << "trying to access undeclared resource" << name;
             }
-            return nullptr;
+            return TResource<T>();
         }
-        return ::make_shared<Resource<T>>(data);
+        return TResource<T>(data);
     }
 
 private:
     ResourceCache m_resources;
-};
-
-class ResourcesSystemCurrentGuard
-{
-public:
-    ResourcesSystemCurrentGuard(ResourcesSystem* storage);
-    ~ResourcesSystemCurrentGuard();
-
-    static ResourcesSystem* GetCurrent() { return current(); }
-
-private:
-    static ResourcesSystem*& current();
-    ResourcesSystem* m_previous;
 };
 
 #endif // RESOURCESSYSTEM_H

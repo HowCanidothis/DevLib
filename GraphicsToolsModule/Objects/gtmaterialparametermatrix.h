@@ -6,7 +6,7 @@
 class GtMaterialParameterMatrix : public GtMaterialResourceParameterBase
 {
     using Super = GtMaterialResourceParameterBase;
-    SharedPointer<Matrix4Resource> m_matrix;
+    Matrix4Resource m_matrix;
 public:
     GtMaterialParameterMatrix(const QString& m_name, const Name& m_resource);
 

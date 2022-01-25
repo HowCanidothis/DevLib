@@ -54,6 +54,13 @@ Latin1Name::Latin1Name(const char* name)
 
 }
 
+Latin1Name::Latin1Name(std::string&& name)
+    : m_text(new std::string(std::move(name)))
+    , m_value(qHashBits(m_text->data(), m_text->size()))
+{
+
+}
+
 void Latin1Name::SetName(const std::string& name)
 {
     m_value = qHashBits(name.data(), name.size());

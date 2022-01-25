@@ -8,7 +8,7 @@ class GtShadowMapTechnique;
 class GtMaterialParameterShadow : public GtMaterialParameterTextureBase
 {
     typedef GtMaterialParameterTextureBase Super;
-    SharedPointer<GtShadowMapTechniqueResource> m_technique;
+    GtShadowMapTechniqueResource m_technique;
     // GtObjectBase interface
 public:
     GtMaterialParameterShadow(const QString& m_name, const Name& m_resource);

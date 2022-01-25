@@ -38,13 +38,26 @@ class _Export Latin1Name
 public:
     Latin1Name();
     Latin1Name(const char* name);
-    Latin1Name(const std::string& name);
+    explicit Latin1Name(const std::string& name);
+    explicit Latin1Name(std::string&& name);
 
     operator qint32() const { return m_value; }
     const std::string& AsLatin1String() const { return *m_text; }
+    QString ToWideString() const { return QString::fromStdString(*m_text); }
     bool IsNull() const { return AsLatin1String().empty(); }
 
+    bool operator==(const Latin1Name& another) const { return another.m_value == m_value && (m_text->empty() || another.m_text->empty() || *m_text == *another.m_text); }
+
     void SetName(const std::string& str);
+
+    friend QDebug operator<<(QDebug debug, const Latin1Name& name) {
+        debug.nospace();
+        for(const auto& ch : name.AsLatin1String()) {
+            debug << ch;
+        }
+        debug.space() << name.m_value;
+        return debug.maybeSpace();
+    }
 
 private:
     SharedPointer<std::string> m_text;

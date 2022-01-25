@@ -1,32 +1,29 @@
 #ifndef PROMISE_H
 #define PROMISE_H
 
+#include <QFuture>
+#include <QFutureWatcher>
+
 #include <functional>
 #include <atomic>
 #include <set>
 #include <mutex>
 #include <condition_variable>
 
-#include "SharedModule/MemoryManager/memorymanager.h"
-#include "SharedModule/smartpointersadapters.h"
-#include "SharedModule/shared_decl.h"
 #include "SharedModule/dispatcher.h"
 
 class PromiseData ATTACH_MEMORY_SPY(PromiseData)
 {
 public:
     using FCallback = std::function<void (qint8)>;
-    PromiseData()
-        : m_result(false)
-        , m_isResolved(false)
-        , m_isCompleted(false)
-    {}
-    ~PromiseData()
-    {
-        if(!m_isCompleted) {
-            resolve(false);
-        }
-    }
+    PromiseData();
+    ~PromiseData();
+
+private:
+    void resolve(qint8 value);
+    void resolve(const std::function<qint8 ()>& handler);
+    DispatcherConnection then(const FCallback& handler);
+    void mute();
 
 private:
     friend class Promise;
@@ -35,51 +32,6 @@ private:
     std::atomic_bool m_isCompleted;
     CommonDispatcher<qint8> onFinished;
     std::mutex m_mutex;
-
-    void resolve(qint8 value)
-    {
-        resolve([value]{ return value; });
-    }
-    
-    void resolve(const std::function<qint8 ()>& handler)
-    {
-        if(m_isResolved) {
-            return;
-        }
-        
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            if(m_isResolved) {
-                return;
-            }
-            m_isResolved = true;
-        }
-        qint8 value = handler();
-        {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_result = value;
-            onFinished(value);
-            m_isCompleted = true;
-        }            
-        
-        onFinished -= this;
-    }
-
-    DispatcherConnection then(const FCallback& handler)
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        if(m_isCompleted) {
-            handler(m_result);
-            return DispatcherConnection();
-        } else {
-            return onFinished.Connect(this, handler);
-        }
-    }
-
-    void mute()
-    {
-         onFinished -= this;
-    }
 };
 
 class Promise
@@ -87,14 +39,13 @@ class Promise
     SharedPointer<PromiseData> m_data;
 public:
 
-    Promise()
-        : m_data(::make_shared<PromiseData>())
-    {}
+    Promise();
 
     PromiseData* GetData() const { return m_data.get(); }
     qint8 GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isCompleted; }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
+    DispatcherConnection Then(const typename PromiseData::FCallback& handler, const class FutureResult& future) const;
     void Resolve(qint8 value) const {  m_data->resolve(value); }
     void Resolve(const std::function<qint8 ()>& handler) const {  m_data->resolve(handler); }
     void Mute() { m_data->mute(); }
@@ -121,17 +72,13 @@ using AsyncResult = Promise;
 class AsyncError : public AsyncResult
 {
 public:
-    AsyncError() {
-        Resolve(false);
-    }
+    AsyncError();
 };
 
 class AsyncSuccess : public AsyncResult
 {
 public:
-    AsyncSuccess() {
-        Resolve(true);
-    }
+    AsyncSuccess();
 };
 
 class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
@@ -143,70 +90,24 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     std::condition_variable m_conditional;
     std::mutex m_mutex;
 
-    void ref()
-    {
-        m_promisesCounter++;
-    }
-    void deref()
-    {
-        m_promisesCounter--;
+    void ref();
+    void deref();
 
-        if(isFinished()) {
-            onFinished();
-            {
-                std::unique_lock<std::mutex> lock(m_mutex);
-                m_conditional.notify_one();
-            }
-            onFinished -= this;
-        }
-    }
+    bool isFinished() const;
 
-    bool isFinished() const { return m_promisesCounter == 0; }
-    qint8 getResult() const { return m_result; }
-    void setResult(qint8 result) { m_result = result; }
+    qint8 getResult() const;
+    void setResult(qint8 result);
 
-    void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self)
-    {
-        ref();
-        promise.Then([this, self](const qint8& result){
-            m_result |= result;
-            deref();
-        });
+    void addPromise(const AsyncResult& promise, const SharedPointer<FutureResultData>& self);
+    void then(const std::function<void (qint8)>& action);
 
-        return;
-    }
-
-    void then(const std::function<void (qint8)>& action)
-    {
-        if(isFinished()) {
-            action(getResult());
-        } else {
-            onFinished.Connect(this, [this, action]{
-                action(m_result);
-            });
-        }
-    }
-
-    void wait()
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        while(!isFinished()) {
-            m_conditional.wait(lock);
-        }
-    }
+    void wait();
 
     Dispatcher onFinished;
 
 public:
-    FutureResultData()
-        : m_result(0)
-        , m_promisesCounter(0)
-    {}
-
-    ~FutureResultData()
-    {
-
-    }
+    FutureResultData();
+    ~FutureResultData();
 };
 
 class FutureResult ATTACH_MEMORY_SPY(FutureResult)
@@ -214,46 +115,25 @@ class FutureResult ATTACH_MEMORY_SPY(FutureResult)
     template<class T> friend class QtFutureWatcher;
     SharedPointer<FutureResultData> m_data;
 public:
-    FutureResult()
-        : m_data(::make_shared<FutureResultData>())
-    {}
+    FutureResult();
 
-    bool IsFinished() const { return m_data->isFinished(); }
-    qint8 GetResult() const { return m_data->getResult(); }
-    void SetResult(qint8 result) const { m_data->setResult(result); }
+    bool IsFinished() const;
+    qint8 GetResult() const;
+    void SetResult(qint8 result) const;
 
-    void operator+=(const Promise& promise) const
-    {
-        m_data->addPromise(promise, m_data);
-    }
+    void operator+=(const Promise& promise) const;
 
-    void Then(const std::function<void (qint8)>& action) const
-    {
-        m_data->then(action);
-    }
+    void Then(const std::function<void (qint8)>& action) const;
+    void Wait() const;
 
-    void Wait() const
-    {
-        m_data->wait();
-    }
-
-    AsyncResult ToAsyncResult() const
-    {
-        AsyncResult result;
-        Then([result](qint8 done){
-            result.Resolve(done);
-        });
-        return result;
-    }
+    AsyncResult ToAsyncResult() const;
 };
 
-#include <QFuture>
-#include <QFutureWatcher>
 template<class T>
 class QtFutureWatcher : public QFutureWatcher<T>
 {
     using Super = QFutureWatcher<T>;
-    QFuture<T> m_future;
+    ScopedPointer<QFuture<T>> m_future;
     AsyncResult m_result;
 public:
     QtFutureWatcher(const QFuture<T>& future, const AsyncResult& result)

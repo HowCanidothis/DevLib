@@ -90,7 +90,7 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
     Q_ASSERT(!m_sharedData->Fonts.contains(fontName));
     GtFontPtr font(new GtFont(fontName, fntFilePath));
     m_sharedData->Fonts.insert(fontName, font);
-    m_sharedData->SharedResourcesSystem.RegisterResource(fontName, [this, fntFilePath, texturePath]{
+    m_sharedData->SharedResourcesSystem.RegisterResource<GtTexture2D>(fontName, [this, fntFilePath, texturePath]{
         auto* result = new GtTexture2D(this);
         GtTextureFormat format;
         format.MagFilter = GL_LINEAR;
@@ -106,7 +106,7 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
 
 void GtRenderer::CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions*)>& textureLoader)
 {
-    m_sharedData->SharedResourcesSystem.RegisterResource(textureName, [this, textureLoader]{
+    m_sharedData->SharedResourcesSystem.RegisterResource<GtTexture>(textureName, [this, textureLoader]{
         return textureLoader(this);
     });
 }
@@ -214,53 +214,18 @@ bool GtRenderer::onInitialize()
         }
     }
 
-    m_resourceSystem.RegisterResource("mvp", []{
-        return new Matrix4();
-    });
-
-    m_resourceSystem.RegisterResource("screenSize", []{
-        return new Vector2F();
-    });
-
-    m_resourceSystem.RegisterResource("invertedMVP", []{
-        return new Matrix4();
-    });
-
-    m_resourceSystem.RegisterResource("eye", []{
-        return new Vector3F();
-    });
-
-    m_resourceSystem.RegisterResource("side", []{
-        return new Vector3F();
-    });
-
-    m_resourceSystem.RegisterResource("up", []{
-        return new Vector3F();
-    });
-
-    m_resourceSystem.RegisterResource("forward", []{
-        return new Vector3F();
-    });
-
-    m_resourceSystem.RegisterResource("view", []{
-        return new Matrix4;
-    });
-
-    m_resourceSystem.RegisterResource("projection", []{
-        return new Matrix4;
-    });
-
-    m_resourceSystem.RegisterResource("rotation", []{
-        return new Matrix4;
-    });
-
-    m_resourceSystem.RegisterResource("viewportProjection", []{
-        return new Matrix4;
-    });
-
-    m_resourceSystem.RegisterResource("camera", []{
-        return new GtCamera*;
-    });
+    m_resourceSystem.RegisterResource<Matrix4>("mvp");
+    m_resourceSystem.RegisterResource<Vector2F>("screenSize");
+    m_resourceSystem.RegisterResource<Matrix4>("invertedMVP");
+    m_resourceSystem.RegisterResource<Vector3F>("eye");
+    m_resourceSystem.RegisterResource<Vector3F>("side");
+    m_resourceSystem.RegisterResource<Vector3F>("up");
+    m_resourceSystem.RegisterResource<Vector3F>("forward");
+    m_resourceSystem.RegisterResource<Matrix4>("view");
+    m_resourceSystem.RegisterResource<Matrix4>("projection");
+    m_resourceSystem.RegisterResource<Matrix4>("rotation");
+    m_resourceSystem.RegisterResource<Matrix4>("viewportProjection");
+    m_resourceSystem.RegisterResource<GtCamera*>("camera");
 
     m_scene = new GtScene();
 
@@ -355,18 +320,18 @@ void GtRenderer::onDraw()
 
         glViewport(0,0, fbo->width(), fbo->height());
 
-        m_viewport->Data().Set(camera->GetViewportProjection());
-        m_rotation->Data().Set(camera->GetRotation());
-        m_projection->Data().Set(camera->GetProjection());
-        m_view->Data().Set(camera->GetView());
-        m_mvp->Data().Set(camera->GetWorld());
-        m_eye->Data().Set(camera->GetEye());
-        m_up->Data().Set(camera->GetUp());
-        m_forward->Data().Set(camera->GetForward());
-        m_invertedMv->Data().Set(camera->GetView().inverted().transposed());
-        m_screenSize->Data().Set(Vector2F(fbo->size().width(), fbo->size().height()));
-        m_side->Data().Set(Vector3F::crossProduct(m_up->Data().Get(), m_forward->Data().Get()).normalized());
-        m_camera->Data().Set(camera);
+        m_viewport = camera->GetViewportProjection();
+        m_rotation = camera->GetRotation();
+        m_projection = camera->GetProjection();
+        m_view = camera->GetView();
+        m_mvp = camera->GetWorld();
+        m_eye = camera->GetEye();
+        m_up = camera->GetUp();
+        m_forward = camera->GetForward();
+        m_invertedMv = camera->GetView().inverted().transposed();
+        m_screenSize = Vector2F(fbo->size().width(), fbo->size().height());
+        m_side = Vector3F::crossProduct(m_up.Get(), m_forward.Get()).normalized();
+        m_camera = camera;
 
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);

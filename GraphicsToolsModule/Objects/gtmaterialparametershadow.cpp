@@ -17,8 +17,10 @@ GtMaterialParameterShadow::GtMaterialParameterShadow(const QString& name, const 
 GtMaterialParameterBase::FDelegate GtMaterialParameterShadow::apply()
 {
     m_technique = currentRenderer()->GetResource<GtShadowMapTechnique>(m_resource);
-    const auto& tech = m_technique->Data().Get();
-    gTexID depth = tech.GetDepthTexture();
+    gTexID depth;
+    m_technique.GetAccess([&](GtShadowMapTechnique& tech){
+        depth = tech.GetDepthTexture();
+    });
     return [this, depth](QOpenGLShaderProgram* program, quint32 loc, OpenGLFunctions* f) {
         GtTexture2D::bindTexture(f, m_unit, depth);
         program->setUniformValue(loc, m_unit);

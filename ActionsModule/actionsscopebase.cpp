@@ -38,7 +38,7 @@ Action* ActionsScopeBase::createAction(const Latin1Name& actionName, const FActi
 
 Latin1Name ActionsScopeBase::GenerateFullActionName(const Latin1Name& actionName) const
 {
-    return m_name.AsLatin1String() + "." + actionName.AsLatin1String();
+    return Latin1Name(m_name.AsLatin1String() + "." + actionName.AsLatin1String());
 }
 
 #endif

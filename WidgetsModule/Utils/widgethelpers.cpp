@@ -51,6 +51,7 @@ WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWi
         widget->setVisible(Visible);
     }).MakeSafe(m_connections);
     widget->setVisible(Visible);
+    Visible.SetSetterHandler(ThreadHandlerMain);
 }
 
 WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget* widget)
@@ -63,6 +64,7 @@ WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget
         widget->setEnabled(Enabled);
     }).MakeSafe(m_connections);
     widget->setEnabled(Enabled);
+    Enabled.SetSetterHandler(ThreadHandlerMain);
 }
 
 

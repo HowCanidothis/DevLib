@@ -12,7 +12,7 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterVector2F::apply()
 {
     m_vector = currentRenderer()->GetResource<Vector2F>(m_resource);
     return  [this](QOpenGLShaderProgram* program, gLocID loc, OpenGLFunctions*) {
-        program->setUniformValue(loc, m_vector->Data().Get());
+        program->setUniformValue(loc, m_vector.Get());
     };
 }
 
@@ -25,6 +25,6 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterVector3F::apply()
 {
     m_vector = currentRenderer()->GetResource<Vector3F>(m_resource);
     return  [this](QOpenGLShaderProgram* program, gLocID loc, OpenGLFunctions*) {
-        program->setUniformValue(loc, m_vector->Data().Get());
+        program->setUniformValue(loc, m_vector.Get());
     };
 }
