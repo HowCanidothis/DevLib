@@ -133,7 +133,7 @@ template<class T>
 class QtFutureWatcher : public QFutureWatcher<T>
 {
     using Super = QFutureWatcher<T>;
-    ScopedPointer<QFuture<T>> m_future;
+    QFuture<T> m_future;
     AsyncResult m_result;
 public:
     QtFutureWatcher(const QFuture<T>& future, const AsyncResult& result)

@@ -45,14 +45,30 @@ Resource::Resource(ResourceData* resourceData)
     m_resourceData->use();
 }
 
+Resource& Resource::operator=(const Resource& another)
+{
+    if(m_resourceData != nullptr) {
+        m_resourceData->release();
+    }
+    m_resourceData = another.m_resourceData;
+    if(m_resourceData != nullptr) {
+        m_resourceData->use();
+    }
+    return *this;
+}
+
 Resource::Resource(const Resource& resource)
     : m_resourceData(resource.m_resourceData)
 {
-    m_resourceData->use();
+    if(m_resourceData != nullptr) {
+        m_resourceData->use();
+    }
 }
 
 Resource::~Resource()
 {
-    m_resourceData->release();
+    if(m_resourceData != nullptr) {
+        m_resourceData->release();
+    }
 }
 

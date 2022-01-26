@@ -10,7 +10,7 @@ template<class T> class TResource;
 class ResourcesSystem
 {
     typedef QHash<Name, SharedPointer<class ResourceData>> ResourceCache;
-    ResourceData* getResourceData(const Name& name);
+    ResourceData* getResourceData(const Name& name) const;
 
 public:
     ResourcesSystem() {}
@@ -47,7 +47,7 @@ public:
     }
 
     template<class T>
-    TResource<T> GetResource(const Name& name, bool silent = false) {
+    TResource<T> GetResource(const Name& name, bool silent = false) const {
         ResourceData* data = getResourceData(name);
         if(data == nullptr) {
             if(!silent) {

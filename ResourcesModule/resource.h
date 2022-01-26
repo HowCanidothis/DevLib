@@ -15,8 +15,8 @@ public:
 protected:
     template<class> friend class TResource;
     friend class Resource;
-    virtual void lock() {}
-    virtual void unlock() {}
+    virtual void lock() const {}
+    virtual void unlock() const {}
     virtual bool isThreadSafe() const { return false; }
 
 private:
@@ -38,12 +38,12 @@ public:
     using Super::Super;
 
 protected:
-    void lock() override { m_mutex.lock(); }
-    void unlock() override { m_mutex.unlock(); }
+    void lock() const override { m_mutex.lock(); }
+    void unlock() const override { m_mutex.unlock(); }
     bool isThreadSafe() const override { return true; }
 
 private:
-    QMutex m_mutex;
+    mutable QMutex m_mutex;
 };
 
 class Resource
@@ -65,6 +65,17 @@ public:
         handler(*(T*)m_resourceData->get());
         m_resourceData->unlock();
     }
+
+    template<class T>
+    void GetAccess(const std::function<void (const T& resourceData)>& handler) const
+    {
+        Q_ASSERT(m_resourceData != nullptr);
+        m_resourceData->lock();
+        handler(*(T*)m_resourceData->get());
+        m_resourceData->unlock();
+    }
+
+    Resource& operator=(const Resource& another);
 
     bool IsNull() const { return m_resourceData == nullptr; }
     bool operator==(void* ptr) const { return m_resourceData == ptr; }
@@ -94,15 +105,14 @@ public:
         Super::GetAccess<T>(handler);
     }
 
-    const T& Get()
+    void GetAccess(const std::function<void (const T& resourceData)>& handler) const
     {
-        if(m_resourceData->isThreadSafe()) {
-            T copyValue;
-            GetAccess([&](T& data){
-                copyValue = data;
-            });
-            return copyValue;
-        }
+        Super::GetAccess<T>(handler);
+    }
+
+    const T& Get() const
+    {
+        Q_ASSERT(!m_resourceData->isThreadSafe());
         return *(T*)m_resourceData->get();
     }
 };

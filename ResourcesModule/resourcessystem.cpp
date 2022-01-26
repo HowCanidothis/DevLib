@@ -3,9 +3,9 @@
 
 #include "resource.h"
 
-ResourceData* ResourcesSystem::getResourceData(const Name& name)
+ResourceData* ResourcesSystem::getResourceData(const Name& name) const
 {
-    ResourceCache& cache = m_resources;
+    const ResourceCache& cache = m_resources;
     auto find = cache.find(name);
     if(find == cache.end()) {
         return nullptr;
