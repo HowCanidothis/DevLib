@@ -136,6 +136,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                                             ++i;
                                          }
                                          comboBox->setCurrentIndex(0);
+                                         Q_ASSERT(comboBox->currentData().toInt() == -1);
                                          QObject::connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32 index){
                                              m_attachment->ForeachAttachment<QComboBox>([this, index, comboBox](qint32 currentIndex, QComboBox* current) {
                                                  if(current != comboBox && current->currentIndex() == index) {
@@ -281,8 +282,14 @@ void WidgetsMatchingAttachment::match()
     } else {
         Errors.AddError(WarningAutoMatchDisabled, QObject::tr("Can't recognize header row, automatic fields matching is disabled"), QtWarningMsg);
         m_attachment->ForeachAttachment<QComboBox>([this](qint32 index, QComboBox* comboBox){
-            comboBox->setCurrentIndex(index + 1);
-            OnMatchingChanged(index, index + 1);
+            auto currentIndex = index + 1;
+            if(comboBox->count() > currentIndex) {
+                comboBox->setCurrentIndex(currentIndex);
+                OnMatchingChanged(index, index + 1);
+            } else {
+                comboBox->setCurrentIndex(0);
+                OnMatchingChanged(index, 0);
+            }
         });
     }
     Transite();
