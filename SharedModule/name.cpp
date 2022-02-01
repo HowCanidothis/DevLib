@@ -1,6 +1,60 @@
 #include "name.h"
 #include <QHashFunctions>
 
+UniName::UniName(const char* name)
+    : m_name(name)
+    , m_latinName(name)
+{
+
+}
+
+UniName::UniName(const Latin1Name& name)
+    : m_name(QString::fromStdString(name.AsLatin1String()))
+    , m_latinName(name)
+{
+
+}
+
+UniName::UniName(const Name& name)
+    : m_name(name)
+    , m_latinName(name.AsString().toStdString())
+{
+
+}
+
+UniName::UniName(const std::string& name)
+    : m_name(QString::fromStdString(name))
+    , m_latinName(name)
+{
+
+}
+
+UniName::UniName(std::string&& name)
+    : m_name(QString::fromStdString(name))
+    , m_latinName(std::move(name))
+{
+
+}
+
+UniName::UniName(const QString& name)
+    : m_name(name)
+    , m_latinName(name.toStdString())
+{
+
+}
+
+void UniName::SetName(const std::string& name)
+{
+    m_name.SetName(QString::fromStdString(name));
+    m_latinName.SetName(name);
+}
+
+void UniName::SetName(const QString& name)
+{
+    m_name.SetName(name);
+    m_latinName.SetName(name.toStdString());
+}
+
 Name::Name()
     : m_value(0)
 {

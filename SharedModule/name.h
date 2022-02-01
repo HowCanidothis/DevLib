@@ -64,6 +64,41 @@ private:
     qint32 m_value;
 };
 
+struct UniName
+{
+    Name m_name;
+    Latin1Name m_latinName;
+public:
+    UniName(const char* name);
+    explicit UniName(const std::string& name);
+    explicit UniName(std::string&& name);
+    explicit UniName(const QString& name);
+    explicit UniName(const Latin1Name& name);
+    explicit UniName(const Name& name);
+
+    void SetName(const std::string& name);
+    void SetName(const QString& name);
+
+    const Name& AsName() const { return m_name; }
+    const Latin1Name& AsLatin1Name() const { return m_latinName; }
+    const std::string& AsLatin1String() const { return m_latinName.AsLatin1String(); }
+    const QString& AsString() const { return m_name.AsString(); }
+
+    bool operator==(const Latin1Name& another) const { return another == m_name; }
+    bool operator==(const Name& another) const { return another == m_latinName; }
+
+    operator qint32() const { return m_name; }
+
+    friend QDebug operator<<(QDebug debug, const UniName& name) {
+        debug.nospace();
+        for(const auto& ch : name.m_latinName.AsLatin1String()) {
+            debug << ch;
+        }
+        debug.space() << name.m_latinName << name.m_name.AsString() << " " << (qint32)name.m_name;
+        return debug.maybeSpace();
+    }
+};
+
 template<class Enum>
 class StringsMapper
 {
