@@ -5,8 +5,19 @@
 #include <QSettings>
 
 WidgetsDialogsManager::WidgetsDialogsManager()
+    : m_defaultParent(nullptr)
 {
 
+}
+
+void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)
+{
+    m_defaultParent = window;
+}
+
+QWidget* WidgetsDialogsManager::GetParentWindow() const
+{
+    return qApp->activeWindow() == nullptr ? m_defaultParent : qApp->activeWindow();
 }
 
 WidgetsDialogsManager& WidgetsDialogsManager::GetInstance()
@@ -19,7 +30,7 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
     QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;
     auto lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
-    QFileDialog fileDialog(qApp->activeWindow(), params.Label, lastSearchFolder);
+    QFileDialog fileDialog(GetParentWindow(), params.Label, lastSearchFolder);
     OnDialogCreated(&fileDialog);
     fileDialog.setNameFilters(params.Filters);
     fileDialog.setDefaultSuffix(params.DefaultSuffix);

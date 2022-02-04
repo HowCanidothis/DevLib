@@ -56,6 +56,7 @@
 #include "interruptor.h"
 #include "externalservice.h"
 #include "ImportExport/importexport.h"
+#include "registrymanager.h"
 
 #endif
 

@@ -55,7 +55,7 @@ public:
     Resource(ResourceData* resourceData);
     Resource(const Resource& resource);
 
-    ~Resource();
+    virtual ~Resource();
 
     template<class T>
     void GetAccess(const std::function<void (T& resourceData)>& handler)

@@ -72,4 +72,5 @@ defineTest(setBuildDirectory) {
     export(MOC_DIR)
     export(RCC_DIR)
     export(UI_DIR)
+    export(CONFIG)
 }

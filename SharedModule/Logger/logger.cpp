@@ -1,10 +1,5 @@
 #include "logger.h"
 
-#ifdef QT_GUI_LIB
-#include <QMessageBox>
-#include <QApplication>
-#endif
-
 #include <QDir>
 #include "SharedModule/External/external.hpp"
 #include "SharedModule/Threads/threadsbase.h"

@@ -9,6 +9,9 @@ class WidgetsDialogsManager
 public:
     static WidgetsDialogsManager& GetInstance();
 
+    void SetDefaultParentWindow(QWidget* window);
+    QWidget* GetParentWindow() const;
+
     template<class T>
     T* ShowOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
     {
@@ -28,6 +31,7 @@ public:
 
 private:
     QHash<Name, QWidget*> m_taggedDialog;
+    QWidget* m_defaultParent;
 };
 
 template<>
