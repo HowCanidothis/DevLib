@@ -831,3 +831,32 @@ WidgetsDatetimePopupPicker QPushButton#CalendarButton
 {
     image: url(":/qss_icons/rc/calendar-month.svg");
 }
+
+BHAComponentViewBase QLabel#lbComponent
+{
+    font-size: 16px;
+    font-weight: bold;
+    background: none;
+}
+
+BHAComponentViewBase QWidget#widgetheader {
+    background: #f3f3f3;
+}
+
+BHAComponentViewBase QPushButton#btnClose
+{
+    background: none;
+    border: none;
+    padding: 3px;
+    min-height: 45px;
+    min-width: 45px;
+    qproperty-icon: url(:/menu_bar/close.svg);
+}
+
+BHAComponentViewBase QPushButton#btnClose:hover
+{
+    background: #ECECEC;
+    min-height: 45px;
+    min-width: 45px;
+    qproperty-icon: url(:/menu_bar/close-hover.svg);
+}
