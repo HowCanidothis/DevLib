@@ -32,7 +32,7 @@ struct ImportExportSourceStandardProperties
     QVariant Error;
     bool IsMultithread = false;
     bool IsCompressed = false;
-    bool IsStrictVersion = true;
+    bool IsStrictVersion = false;
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
     bool IsMuted = false;
