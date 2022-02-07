@@ -24,7 +24,7 @@ bool RegistryManager::Initialize(const QStringList& arguments, bool withAdminRig
     settings->setValue(testRightsName, true);
     if(!settings->value(testRightsName).toBool()) {
 #ifdef WIN64
-        ::ShellExecuteA(0, "runas", QCoreApplication::applicationFilePath().replace('/', '\\').toUtf8().constData(), arguments.join(" ").toUtf8().constData(), 0, SW_SHOWNORMAL);
+        //::ShellExecuteA(0, "runas", QCoreApplication::applicationFilePath().replace('/', '\\').toUtf8().constData(), arguments.join(" ").toUtf8().constData(), 0, SW_SHOWNORMAL);
 #endif
         return false;
     }

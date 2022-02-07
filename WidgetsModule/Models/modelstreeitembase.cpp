@@ -41,10 +41,11 @@ bool ModelsTreeItemBase::HasParentOrEqual(ModelsTreeItemBase* parent) const
     return false;
 }
 
-void ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
+const SharedPointer<ModelsTreeItemBase>& ModelsTreeItemBase::AddChild(const SharedPointer<ModelsTreeItemBase>& item)
 {
     item->m_parent = this;
     m_childs.append(item);
+    return item;
 }
 
 void ModelsTreeItemBase::RemoveChild(qint32 i)
