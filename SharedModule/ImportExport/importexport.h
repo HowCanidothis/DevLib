@@ -489,22 +489,9 @@ public:
             QXmlStreamReader reader(source->GetDevice());
             SerializerXmlReadBuffer buffer(&reader);
             auto currentVersion = buffer.ReadVersion();
-            if(currentVersion.Target != version->Target) {
-                source->SetError(tr("Unexpected file contents"));
-                return false;
-            }
-            if(currentVersion.GetFormat() != version->GetFormat()) {
-                source->SetError(tr("Format error - expected %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
-                return false;
-            }
-            auto currentVersionValue = (quint32)currentVersion.GetVersion();
-            if(source->StandardProperties.IsStrictVersion) {
-                if(currentVersionValue != (quint32)version->GetVersion()) {
-                    source->SetError(tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
-                    return false;
-                }
-            } else if(currentVersionValue > (quint32)version->GetVersion()) {
-                source->SetError(tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
+            auto result = version->CheckVersion(currentVersion, source->StandardProperties.IsStrictVersion);
+            source->SetError(result);
+            if(result.isValid()) {
                 return false;
             }
             return handler(source, buffer);
