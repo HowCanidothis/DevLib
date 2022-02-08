@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>MenuBar/close.svg</file>
+        <file>MenuBar/close-hover.svg</file>
+        <file>MenuBar/doublesquare.svg</file>
+        <file>MenuBar/minimize.svg</file>
+        <file>MenuBar/square.svg</file>
+    </qresource>
+</RCC>

@@ -144,7 +144,7 @@ int FlowLayout::doLayout(const QRect& rect, bool testOnly) const
         }
 
         for(const auto& row : rows) {
-            x = effectiveRect.x() + (effectiveRect.width() - row.ItemsWidth) / 2;
+            x = effectiveRect.x() /*+ (effectiveRect.width() - row.ItemsWidth) / 2*/;
             for(auto* item : row.Items) {
                 item->setGeometry(QRect(QPoint(x, row.Y), item->sizeHint()));
                 x += item->sizeHint().width() + spaceX;

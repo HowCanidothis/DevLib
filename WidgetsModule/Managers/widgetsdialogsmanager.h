@@ -1,7 +1,7 @@
 #ifndef WIDGETSDIALOGSMANAGER_H
 #define WIDGETSDIALOGSMANAGER_H
 
-#include <SharedModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 class WidgetsDialogsManager
 {
@@ -25,7 +25,13 @@ public:
         return result;
     }
 
+    void MakeFrameless(QWidget* widget, bool attachMovePane = true);
+    static void AttachShadow(class QWidget* w);
+
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
+
+    LocalPropertyDouble ShadowBlurRadius;
+    LocalPropertyColor ShadowColor;
 
     CommonDispatcher<QWidget*> OnDialogCreated;
 

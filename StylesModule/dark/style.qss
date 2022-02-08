@@ -899,7 +899,7 @@ BHAComponentViewBase QPushButton#btnClose
     padding: 3px;
     min-height: 45px;
     min-width: 45px;
-    qproperty-icon: url(:/menu_bar/close.svg);
+    qproperty-icon: url(:/MenuBar/close.svg);
 }
 
 BHAComponentViewBase QPushButton#btnClose:hover
@@ -907,5 +907,5 @@ BHAComponentViewBase QPushButton#btnClose:hover
     background: #707070;
     min-height: 45px;
     min-width: 45px;
-    qproperty-icon: url(:/menu_bar/close-hover.svg);
+    qproperty-icon: url(:/MenuBar/close-hover.svg);
 }

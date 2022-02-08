@@ -33,7 +33,7 @@ QPushButton#BtnMaximize:hover {
 
 QPushButton#BtnClose:hover {
     background: #D61425;
-    image: url(":/menu_bar/close-hover.svg");
+    image: url(":/MenuBar/close-hover.svg");
 }
 
 LeftBar QFrame {
