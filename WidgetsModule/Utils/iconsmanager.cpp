@@ -295,6 +295,20 @@ IconsSvgIcon IconsManager::RegisterIcon(const Name& id, const QString& path)
     return result;
 }
 
+IconsSvgIcon IconsManager::RegisterIconWithDefaultColorScheme(const Name& id, const QString& path)
+{
+    auto icon = RegisterIcon(id, path);
+
+    auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
+
+    icon.EditPalette().NormalColor.ConnectFrom(styleSettings.IconPrimaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(styleSettings.IconPrimaryColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(styleSettings.IconSelectionColor);
+    icon.EditPalette().SelectedColor.ConnectFrom(styleSettings.IconSelectionColor);
+
+    return icon;
+}
+
 const IconsSvgIcon& IconsManager::GetIcon(qint32 index) const
 {
     return m_icons.at(index);

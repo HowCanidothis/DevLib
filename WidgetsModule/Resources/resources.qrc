@@ -5,5 +5,6 @@
         <file>MenuBar/doublesquare.svg</file>
         <file>MenuBar/minimize.svg</file>
         <file>MenuBar/square.svg</file>
+        <file>MenuBar/dots-vertical.svg</file>
     </qresource>
 </RCC>

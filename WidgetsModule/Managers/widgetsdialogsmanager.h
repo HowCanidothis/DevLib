@@ -3,12 +3,11 @@
 
 #include <PropertiesModule/internal.hpp>
 
-class WidgetsDialogsManager
+class WidgetsDialogsManager : public SingletoneGlobal<WidgetsDialogsManager>
 {
+    template<class T> friend class SingletoneGlobal;
     WidgetsDialogsManager();
 public:
-    static WidgetsDialogsManager& GetInstance();
-
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 

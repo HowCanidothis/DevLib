@@ -46,6 +46,7 @@
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"
 #include "Utils/widgethelpers.h"
+#include "Utils/widgetsstylesettings.h"
 
 #include "Delegates/delegates.h"
 

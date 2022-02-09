@@ -52,11 +52,11 @@ class WidgetsLocalPropertyVisibilityWrapper : public QObject
 {
 public:
     WidgetsLocalPropertyVisibilityWrapper(QWidget* widget);
+    WidgetsLocalPropertyVisibilityWrapper(QAction* action);
 
     LocalPropertyBool Visible;
 
 private:
-    QWidget* m_widget;
     DispatcherConnectionsSafe m_connections;
 };
 
@@ -64,6 +64,7 @@ class WidgetsLocalPropertyEnablityWrapper : public QObject
 {
 public:
     WidgetsLocalPropertyEnablityWrapper(QWidget* widget);
+    WidgetsLocalPropertyEnablityWrapper(QAction* action);
 
     LocalPropertyBool Enabled;
 

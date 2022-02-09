@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QAction>
 
 #include <optional>
 
@@ -54,6 +55,19 @@ WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWi
     Visible.SetSetterHandler(ThreadHandlerMain);
 }
 
+WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QAction* widget)
+    : Visible(true)
+{
+    connect(widget, &QAction::destroyed, [this]{
+        delete this;
+    });
+    Visible.OnChange.Connect(this, [this, widget]{
+        widget->setVisible(Visible);
+    }).MakeSafe(m_connections);
+    widget->setVisible(Visible);
+    Visible.SetSetterHandler(ThreadHandlerMain);
+}
+
 WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget* widget)
     : Enabled(true)
 {
@@ -67,6 +81,18 @@ WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget
     Enabled.SetSetterHandler(ThreadHandlerMain);
 }
 
+WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QAction* widget)
+    : Enabled(true)
+{
+    connect(widget, &QObject::destroyed, [this]{
+        delete this;
+    });
+    Enabled.OnChange.Connect(this, [this, widget]{
+        widget->setEnabled(Enabled);
+    }).MakeSafe(m_connections);
+    widget->setEnabled(Enabled);
+    Enabled.SetSetterHandler(ThreadHandlerMain);
+}
 
 void WidgetsLocalPropertyColorWrapper::polish()
 {

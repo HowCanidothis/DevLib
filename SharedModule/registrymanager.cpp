@@ -12,13 +12,23 @@ RegistryManager::RegistryManager()
 
 }
 
+SharedPointer<class QSettings> RegistryManager::ProductSettings(const QString& appName) const
+{
+    if(appName.isEmpty()) {
+        return ::make_shared<QSettings>(m_productsPath, QSettings::NativeFormat);
+    }
+    return ::make_shared<QSettings>(QString("%1\\%2\\%3").arg(m_productsPath, QCoreApplication::organizationName(), appName), QSettings::NativeFormat);
+}
+
 bool RegistryManager::Initialize(const QStringList& arguments, bool withAdminRights)
 {
     if(!withAdminRights) {
         m_uninstallPath = "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+        m_productsPath = "HKEY_CURRENT_USER\\SOFTWARE";
         return true;
     }
     m_uninstallPath = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+    m_productsPath = "HKEY_LOCAL_MACHINE\\SOFTWARE";
     static const QString testRightsName("HasRights");
     auto settings = UninstallSettings("");
     settings->setValue(testRightsName, true);

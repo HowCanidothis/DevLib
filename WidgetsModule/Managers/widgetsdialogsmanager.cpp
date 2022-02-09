@@ -25,12 +25,6 @@ QWidget* WidgetsDialogsManager::GetParentWindow() const
     return qApp->activeWindow() == nullptr ? m_defaultParent : qApp->activeWindow();
 }
 
-WidgetsDialogsManager& WidgetsDialogsManager::GetInstance()
-{
-    static WidgetsDialogsManager result;
-    return result;
-}
-
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){
     QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;

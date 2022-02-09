@@ -57,6 +57,7 @@
 #include "externalservice.h"
 #include "ImportExport/importexport.h"
 #include "registrymanager.h"
+#include "sharedsettings.h"
 
 #endif
 
