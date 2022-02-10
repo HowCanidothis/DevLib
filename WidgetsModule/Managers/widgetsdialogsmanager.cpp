@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QSettings>
+#include <QMessageBox>
 
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
@@ -13,6 +14,20 @@ WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
 {
 
+}
+
+void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message)
+{
+    QMessageBox box(GetParentWindow());
+    switch(msgType) {
+    case QtCriticalMsg: box.setIcon(QMessageBox::Critical); break;
+    case QtWarningMsg: box.setIcon(QMessageBox::Warning); break;
+    default: box.setIcon(QMessageBox::Information);
+    break;
+    }
+    box.setText(message);
+    box.setWindowTitle(title);
+    box.exec();
 }
 
 void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)

@@ -11,6 +11,8 @@ public:
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
+    void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
+
     template<class T>
     T* ShowOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
     {

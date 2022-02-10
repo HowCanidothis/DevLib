@@ -20,6 +20,11 @@ struct StyleSettings
     LocalPropertyColor EnabledTableCellColor;
     LocalPropertyColor DisabledTableCellTextColor;
     LocalPropertyColor EnabledTableCellTextColor;
+
+    void Release();
+
+private:
+    ScopedPointer<class QtQSSReader> m_qssReader;
 };
 
 struct PathSettings
@@ -65,6 +70,8 @@ public:
     MetricsSettings MetricSettings;
     SaveLoadSettings SaveLoadSettings;
     LanguageSettings LanguageSettings;
+
+    void Release();
 };
 
 #endif // SHAREDSETTINGS_H

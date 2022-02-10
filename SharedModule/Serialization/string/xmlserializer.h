@@ -564,6 +564,7 @@ bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object,
     }
     buffer.SetSerializationMode(properties.Mode);
     buffer << buffer.Sect(name, object);
+    return true;
 }
 
 template<class T>

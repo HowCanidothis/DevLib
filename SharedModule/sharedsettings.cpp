@@ -44,9 +44,16 @@ LanguageSettings::LanguageSettings()
 
 void StyleSettings::InstallQSSReader(const QString& path, bool dynamic)
 {
-    static QtQSSReader reader;
-    reader.SetEnableObserver(dynamic);
-    reader.Install(path);
+    if(m_qssReader == nullptr) {
+        m_qssReader = new QtQSSReader();
+    }
+    m_qssReader->SetEnableObserver(dynamic);
+    m_qssReader->Install(path);
+}
+
+void StyleSettings::Release()
+{
+    m_qssReader = nullptr;
 }
 
 SaveLoadSettings::SaveLoadSettings()
@@ -60,4 +67,9 @@ SaveLoadSettings::SaveLoadSettings()
 MetricsSettings::MetricsSettings()
 {
     WidgetsDialogsManager::GetInstance().ShadowBlurRadius.ConnectFrom(ShadowBlurRadius);
+}
+
+void SharedSettings::Release()
+{
+    StyleSettings.Release();
 }
