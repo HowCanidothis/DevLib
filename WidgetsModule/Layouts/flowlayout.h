@@ -12,6 +12,8 @@ public:
     explicit FlowLayout(int margin = 0, int hSpacing = 0, int vSpacing = 0);
     ~FlowLayout();
 
+    LocalProperty<Qt::Alignment> Alignment;
+
     void RemoveWidgets(const QSet<QWidget*>& widgets);
     void addItem(QLayoutItem* item) override;
     void SetHorizontalSpacing(qint32 spacing) { setSpacing(spacing); }

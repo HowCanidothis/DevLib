@@ -3,10 +3,15 @@
 #include "flowlayout.h"
 
 FlowLayout::FlowLayout(int margin, int hSpacing, int vSpacing)
-    : m_vSpace(vSpacing)
+    : Alignment(Qt::AlignLeft)
+    , m_vSpace(vSpacing)
 {
     setSpacing(hSpacing);
     setContentsMargins(margin, margin, margin, margin);
+
+    Alignment.OnChange += { this, [this]{
+        activate();
+    }};
 }
 
 FlowLayout::~FlowLayout()
@@ -143,8 +148,25 @@ int FlowLayout::doLayout(const QRect& rect, bool testOnly) const
             row.ItemsWidth += (row.Items.size() - 1) * spaceX;
         }
 
+        using FInitX = std::function<qint32 (const RowInfo& row)>;
+        FInitX initX;
+
+        if(Alignment.Native() & Qt::AlignLeft) {
+            initX = [&](const RowInfo&) {
+                return effectiveRect.x();
+            };
+        } else if(Alignment.Native() & Qt::AlignRight) {
+            initX = [&](const RowInfo& row) {
+                return effectiveRect.width() - row.ItemsWidth;
+            };
+        } else {
+            initX = [&](const RowInfo& row) {
+                return effectiveRect.x() + (effectiveRect.width() - row.ItemsWidth) / 2;
+            };
+        }
+
         for(const auto& row : rows) {
-            x = effectiveRect.x() /*+ (effectiveRect.width() - row.ItemsWidth) / 2*/;
+            x = initX(row);
             for(auto* item : row.Items) {
                 item->setGeometry(QRect(QPoint(x, row.Y), item->sizeHint()));
                 x += item->sizeHint().width() + spaceX;
