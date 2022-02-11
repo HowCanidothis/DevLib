@@ -4,6 +4,7 @@
 
 LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
     : HasErrors(false)
+    , HasErrorsOrWarnings(false)
     , OnErrorsLabelsChanged(500)
 {
     OnChange += {this, [this]{
