@@ -119,15 +119,18 @@ public:
         displayRoleComponent.GetHeaderHandler = [header]{ return header(); };
 
         m_viewModel->ColumnComponents.AddComponent(Qt::DisplayRole, column, displayRoleComponent);
-        if(setter != nullptr) {
-            ViewModelsTableColumnComponents::ColumnComponentData editRoleComponent;
 
-            editRoleComponent.GetterHandler = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
-                if(index.row() >= modelGetter()->GetSize()) {
-                    return QVariant();
-                }
-                return getter(modelGetter()->At(index.row()));
-            };
+        auto editRoleGetter = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
+            if(index.row() >= modelGetter()->GetSize()) {
+                return QVariant();
+            }
+            return getter(modelGetter()->At(index.row()));
+        };
+
+        ViewModelsTableColumnComponents::ColumnComponentData editRoleComponent;
+        editRoleComponent.GetterHandler = editRoleGetter;
+
+        if(setter != nullptr) {
             editRoleComponent.SetterHandler = [modelGetter, setter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
                 if(index.row() >= modelGetter()->GetSize()) {
                     return false;
@@ -135,11 +138,12 @@ public:
                 return modelGetter()->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
             };
 
-            m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);
             m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable; } });
         } else {
             m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; } });
         }
+
+        m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);
 
         return *this;
     }
