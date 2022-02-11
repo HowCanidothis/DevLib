@@ -2,8 +2,7 @@
 
 WidgetsStyleSettings* WidgetsStyleSettings::m_instance = nullptr;
 
-WidgetsStyleSettings::WidgetsStyleSettings(QWidget* mainWidget)
-    : Super(mainWidget)
+WidgetsStyleSettings::WidgetsStyleSettings()
 {
     Q_ASSERT(m_instance == nullptr);
     m_instance = this;

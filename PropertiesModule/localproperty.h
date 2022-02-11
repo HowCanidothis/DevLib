@@ -102,6 +102,15 @@ public:
         });
     }
 
+    bool Change(const std::function<bool (StorageType& type)>& changeHandler)
+    {
+        if(changeHandler(m_value)) {
+            Invoke();
+            return true;
+        }
+        return false;
+    }
+
     void Subscribe(const FAction& subscribe) const
     {
         if(m_subscribes == nullptr) {

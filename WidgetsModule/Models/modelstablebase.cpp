@@ -14,9 +14,7 @@ ViewModelsTableBase::ViewModelsTableBase(QObject* parent)
 
 ViewModelsTableBase::~ViewModelsTableBase()
 {
-    if(m_data != nullptr) {
-        m_data->DisconnectModel(this);
-    }
+
 }
 
 Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
@@ -87,25 +85,6 @@ QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orienta
         }
         return foundIt.value()(section);
     }
-}
-
-void ViewModelsTableBase::SetData(const ModelsTableWrapperPtr& data)
-{
-    if(m_data == data) {
-        return;
-    }
-
-    beginResetModel();
-    if(m_data != nullptr) {
-        m_data->DisconnectModel(this);
-    }
-    m_data = data;
-    if(m_data != nullptr) {
-        m_data->ConnectModel(this);
-    }
-    endResetModel();
-
-    OnModelChanged();
 }
 
 ModelsIconsContext::ModelsIconsContext()

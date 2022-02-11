@@ -19,7 +19,7 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(QColor disabledTableTextColor MEMBER m_disabledTableTextColor)
 
 public:
-    WidgetsStyleSettings(QWidget* mainWidget);
+    WidgetsStyleSettings();
 
 private:
     LocalPropertyColor m_enabledTableColor;

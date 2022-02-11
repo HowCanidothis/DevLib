@@ -152,7 +152,7 @@ TreeBar QLabel {
     color: #9d9d9d;
 }
 
-MainWindow {
+WidgetsStyleSettings {
     qproperty-enabledTableColor: #252526;
     qproperty-enabledTableTextColor: white;
     qproperty-disabledTableColor: rgba(255, 255, 255, 16);

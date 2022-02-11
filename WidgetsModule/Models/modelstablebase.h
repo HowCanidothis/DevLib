@@ -121,15 +121,18 @@ public:
         });
     }
 
-    void AttachDependence(Dispatcher* dispatcher, int first, int last)
+    DispatcherConnection AttachTempDependence(Dispatcher* dispatcher, int first, int last)
     {
-        dispatcher->Connect(this, [first, last, this]{
+        return dispatcher->Connect(this, [first, last, this]{
             RequestUpdateUi(first, last);
-        }).MakeSafe(m_connections);
+        });
     }
 
-    void SetData(const ModelsTableWrapperPtr& data);
-    const ModelsTableWrapperPtr& GetData() const { return m_data; }
+    void AttachDependence(Dispatcher* dispatcher, int first, int last)
+    {
+        AttachTempDependence(dispatcher, first, last).MakeSafe(m_connections);
+    }
+
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
     Dispatcher OnModelChanged;
@@ -137,7 +140,6 @@ public:
     ViewModelsTableColumnComponents ColumnComponents;
 
 protected:
-    ModelsTableWrapperPtr m_data;
     ModelsIconsContext m_iconsContext;
     QHash<qint32, std::function<QVariant (qint32 row, qint32 column)>> m_roleDataHandlers;
     QHash<qint32, std::function<QVariant (qint32 column)>> m_roleHorizontalHeaderDataHandlers;
@@ -154,7 +156,16 @@ class TViewModelsTableBase : public ViewModelsTableBase
 {
     using Super = ViewModelsTableBase;
 public:
-    using Super::Super;
+    TViewModelsTableBase(QObject* parent = nullptr)
+        : Super(parent)
+    {}
+
+    ~TViewModelsTableBase()
+    {
+        if(m_data != nullptr) {
+            m_data->DisconnectModel(this);
+        }
+    }
 
     qint32 rowCount(const QModelIndex&  = QModelIndex()) const override
     {
@@ -177,8 +188,26 @@ public:
 		return true;
 	}
 	
-    void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
-    const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
+    void SetData(const SharedPointer<T>& data)
+    {
+        if(m_data == data) {
+            return;
+        }
+
+        beginResetModel();
+        if(m_data != nullptr) {
+            m_data->DisconnectModel(this);
+        }
+        m_data = data;
+        if(m_data != nullptr) {
+            m_data->ConnectModel(this);
+        }
+        endResetModel();
+
+        OnModelChanged();
+
+    }
+    const SharedPointer<T>& GetData() const { return m_data; }
 
 protected:
     bool isLastEditRow(const QModelIndex& index) const
@@ -186,6 +215,9 @@ protected:
         Q_ASSERT(GetData() != nullptr);
         return GetData()->GetSize() == index.row();
     }
+
+private:
+    SharedPointer<T> m_data;
 };
 
 template<class Wrapper>
