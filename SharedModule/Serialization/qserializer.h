@@ -212,7 +212,7 @@ struct Serializer<std::optional<T>>
         bool valid;
         buffer << buffer.Attr("IsValid", valid);
         if(valid) {
-            target_type value;
+            value_type value;
             buffer << buffer.Attr("Value", value);
             data = value;
         } else {
