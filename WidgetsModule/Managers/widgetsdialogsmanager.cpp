@@ -16,18 +16,29 @@ WidgetsDialogsManager::WidgetsDialogsManager()
 
 }
 
+bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QString& text)
+{
+    QMessageBox dialog(GetParentWindow());
+    dialog.setWindowTitle(label);
+    dialog.setText(text);
+    auto* defaultButton = dialog.addButton(tr("Ok"), QMessageBox::YesRole);
+    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
+    dialog.setDefaultButton(defaultButton);
+    OnDialogCreated(&dialog);
+    auto res = dialog.exec();
+    return res == 0;
+}
+
 void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message)
 {
-    QMessageBox box(GetParentWindow());
-    switch(msgType) {
-    case QtCriticalMsg: box.setIcon(QMessageBox::Critical); break;
-    case QtWarningMsg: box.setIcon(QMessageBox::Warning); break;
-    default: box.setIcon(QMessageBox::Information);
-    break;
-    }
-    box.setText(message);
-    box.setWindowTitle(title);
-    box.exec();
+    QMessageBox dialog(GetParentWindow());
+    dialog.setWindowTitle(title);
+    dialog.setText(message);
+    auto* defaultButton = dialog.addButton(tr("OK"), QMessageBox::YesRole);
+    dialog.setDefaultButton(defaultButton);
+    dialog.setModal(true);
+    OnDialogCreated(&dialog);
+    dialog.exec();
 }
 
 void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)

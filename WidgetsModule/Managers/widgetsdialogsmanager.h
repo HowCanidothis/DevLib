@@ -11,6 +11,7 @@ public:
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
+    bool ShowOkCancelDialog(const QString& label, const QString& text);
     void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
 
     template<class T>
@@ -39,6 +40,8 @@ public:
 private:
     QHash<Name, QWidget*> m_taggedDialog;
     QWidget* m_defaultParent;
+
+    Q_DECLARE_TR_FUNCTIONS(WidgetsDialogsManager)
 };
 
 template<>
