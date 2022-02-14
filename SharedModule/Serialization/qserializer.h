@@ -7,6 +7,8 @@
 
 #include <QDataStream>
 
+#include <optional>
+
 #include "streambuffer.h"
 
 class QStreamBufferDataStream : public QDataStream
@@ -184,6 +186,37 @@ struct Serializer<QMap<T, T2>>
             buffer << buffer.Sect("key", key);
             buffer << buffer.Sect("value", value);
             data.insert(key, value);
+        }
+    }
+};
+
+template<class T>
+struct Serializer<std::optional<T>>
+{
+    typedef std::optional<T> target_type;
+    using value_type = T;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& constData)
+    {
+        bool hasValue = constData.has_value();
+        buffer << buffer.Attr("IsValid", hasValue);
+        if(hasValue) {
+            auto& value = const_cast<value_type&>(constData.value());
+            buffer << buffer.Attr("Value", value);
+        }
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        bool valid;
+        buffer << buffer.Attr("IsValid", valid);
+        if(valid) {
+            target_type value;
+            buffer << buffer.Attr("Value", value);
+            data = value;
+        } else {
+            data = std::nullopt;
         }
     }
 };
