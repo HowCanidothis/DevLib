@@ -65,7 +65,7 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
         fileDialog.setAcceptMode(QFileDialog::AcceptSave);
     }
     fileDialog.selectFile(params.FileName);
-    fileDialog.setDefaultSuffix(params.DefaultSuffix);
+    fileDialog.selectNameFilter(params.DefaultSuffix);
 
     if(fileDialog.exec() == QDialog::Rejected) {
         return {};
