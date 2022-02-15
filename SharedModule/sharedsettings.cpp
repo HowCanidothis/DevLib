@@ -8,6 +8,10 @@ StyleSettings::StyleSettings()
     : DisabledTableCellColor(QColor("#d4d4d4"))
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(ShadowColor);
+
+    StylesQSSFile.OnChange += { this, [this]{
+        InstallQSSReader(StylesQSSFile);
+    }};
 }
 
 void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)

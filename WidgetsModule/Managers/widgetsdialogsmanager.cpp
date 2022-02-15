@@ -58,14 +58,14 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
     QFileDialog fileDialog(GetParentWindow(), params.Label, lastSearchFolder);
     OnDialogCreated(&fileDialog);
     fileDialog.setNameFilters(params.Filters);
-    fileDialog.setDefaultSuffix(params.DefaultSuffix);
+    fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile :
+                                          DescImportExportSourceParams::Load ? QFileDialog::ExistingFiles : QFileDialog::ExistingFile);
 
     if(params.Mode == DescImportExportSourceParams::Save){
         fileDialog.setAcceptMode(QFileDialog::AcceptSave);
     }
     fileDialog.selectFile(params.FileName);
-    fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile :
-                                          DescImportExportSourceParams::Load ? QFileDialog::ExistingFiles : QFileDialog::ExistingFile);
+    fileDialog.setDefaultSuffix(params.DefaultSuffix);
 
     if(fileDialog.exec() == QDialog::Rejected) {
         return {};
