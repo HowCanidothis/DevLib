@@ -65,14 +65,37 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
         fileDialog.setAcceptMode(QFileDialog::AcceptSave);
     }
     fileDialog.selectFile(params.FileName);
-    fileDialog.selectNameFilter(params.DefaultSuffix);
+    fileDialog.setDefaultSuffix(params.DefaultSuffix);
 
     if(fileDialog.exec() == QDialog::Rejected) {
         return {};
     }
 
     internalSettings.setValue(searchDir, fileDialog.directoryUrl().path());
-    return fileDialog.selectedUrls();
+    auto result = fileDialog.selectedUrls();
+    // Qt / Windows bug fix, Native File picker doesn't work correctly if File Extensions is off at the Explorer.exe
+    if(params.Mode == DescImportExportSourceParams::Save && !result.isEmpty()) {
+        QFileInfo fileInfo(result.first().toLocalFile());
+        auto parts = fileInfo.completeSuffix().split(".");
+        qint32 expectedRoots = params.ExpectedExtensionsCount;
+        if(parts.size() == expectedRoots) {
+            return result;
+        }
+        auto baseName = fileInfo.absoluteFilePath();
+        baseName.remove(fileInfo.completeSuffix());
+        QStringList qtBugFixRoots;
+        for(const auto& part : adapters::reverse(parts)) {
+            if(expectedRoots-- == 0) {
+                break;
+            }
+            qtBugFixRoots.prepend(part);
+        }
+        auto url = QUrl::fromLocalFile(baseName + qtBugFixRoots.join('.'));
+        return { url };
+    }
+
+
+    return result;
 }
 
 void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)

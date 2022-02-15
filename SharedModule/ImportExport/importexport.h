@@ -16,15 +16,18 @@ struct DescImportExportSourceParams
     EMode Mode;
     QStringList Filters;
     QString DefaultSuffix;
+    qint32 ExpectedExtensionsCount;
 
     DescImportExportSourceParams(EMode mode)
         : Mode(mode)
+        , ExpectedExtensionsCount(2)
     {}
 
     DescImportExportSourceParams& SetLabel(const QString& label) { Label = label; return *this; }
     DescImportExportSourceParams& SetFileName(const QString& fileName) { FileName = fileName; return *this; }
     DescImportExportSourceParams& SetFilters(const QStringList& filters) { Filters = filters; return *this; }
     DescImportExportSourceParams& SetDefaultSuffix(const QString& defaultSuffix) { DefaultSuffix = defaultSuffix; return *this; }
+    DescImportExportSourceParams& SetExpectedExtensionsCount(qint32 count) { ExpectedExtensionsCount = count; return *this; }
 };
 
 struct ImportExportSourceStandardProperties
@@ -114,8 +117,8 @@ class ImportExportFileSource : public ImportExportSource
 {
 public:
     ImportExportFileSource(const QUrl& filePath)
-        : m_file(filePath.toLocalFile())
-        , m_sourceName(filePath.toLocalFile())
+        : m_sourceName(filePath.toLocalFile())
+        , m_file(m_sourceName)
     {
         QFileInfo fileInfo(m_sourceName);
         m_extension = Name(fileInfo.completeSuffix());
@@ -131,9 +134,9 @@ public:
     }
 
 private:
-    QFile m_file;
-    Name m_extension;
     QString m_sourceName;
+    QFile m_file;
+    Name m_extension;    
 };
 
 struct ImportExportVersion
