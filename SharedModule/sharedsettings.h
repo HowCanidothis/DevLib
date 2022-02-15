@@ -3,6 +3,18 @@
 
 #include <PropertiesModule/internal.hpp>
 
+struct NetworkSettings
+{
+    NetworkSettings(){}
+
+    LocalPropertyString ProxyHost;
+    LocalPropertyString ProxyPassword;
+    LocalPropertyString ProxyUserName;
+    LocalPropertyInt ProxyPort;
+
+    void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
+};
+
 struct StyleSettings
 {
     StyleSettings();
@@ -70,6 +82,9 @@ public:
     MetricsSettings MetricSettings;
     SaveLoadSettings SaveLoadSettings;
     LanguageSettings LanguageSettings;
+    NetworkSettings NetworkSettings;
+
+    void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
 
     void Release();
 };

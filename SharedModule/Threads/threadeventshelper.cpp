@@ -3,7 +3,7 @@
 
 #include "SharedModule/internal.hpp"
 
-ThreadEvent::ThreadEvent(ThreadEvent::FEventHandler handler, const AsyncResult& result)
+ThreadEvent::ThreadEvent(const FAction& handler, const AsyncResult& result)
     : m_handler(handler)
     , m_result(result)
 {}
@@ -18,7 +18,12 @@ void ThreadEvent::call()
     }
 }
 
-TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name& tag, ThreadEvent::FEventHandler handler, const AsyncResult& result)
+ThreadHandler ThreadEventsContainer::CreateThreadHandler()
+{
+    return [this](const FAction& action) -> AsyncResult { return Asynch(action); };
+}
+
+TagThreadEvent::TagThreadEvent(TagThreadEvent::TagsCache* tagsCache, const Name& tag, const FAction& handler, const AsyncResult& result)
     : ThreadEvent(handler, result)
     , m_tag(tag)
     , m_tagsCache(tagsCache)
@@ -58,7 +63,7 @@ void ThreadEventsContainer::Continue()
     m_eventsPaused.wakeAll();
 }
 
-AsyncResult ThreadEventsContainer::Asynch(const Name& tag, ThreadEvent::FEventHandler handler)
+AsyncResult ThreadEventsContainer::Asynch(const Name& tag, const FAction& handler)
 {
     QMutexLocker locker(&m_eventsMutex);
     AsyncResult result;
@@ -91,7 +96,7 @@ void ThreadEventsContainer::Pause(const FOnPause& onPause)
     }*/
 }
 
-AsyncResult ThreadEventsContainer::Asynch(ThreadEvent::FEventHandler handler)
+AsyncResult ThreadEventsContainer::Asynch(const FAction& handler)
 {
     QMutexLocker locker(&m_eventsMutex);
     AsyncResult result;

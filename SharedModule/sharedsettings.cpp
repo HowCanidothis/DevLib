@@ -10,6 +10,15 @@ StyleSettings::StyleSettings()
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(ShadowColor);
 }
 
+void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)
+{
+    prefix += "NetworkSettings/";
+    properties += PropertyFromLocalProperty::Create(prefix + "ProxyUserName", ProxyUserName);
+    properties += PropertyFromLocalProperty::Create(prefix + "ProxyPassword", ProxyPassword);
+    properties += PropertyFromLocalProperty::Create(prefix + "ProxyPort", ProxyPort);
+    properties += PropertyFromLocalProperty::Create(prefix + "ProxyHost", ProxyHost);
+}
+
 PathSettings::PathSettings()
 {
     auto productString = qApp->applicationName();
@@ -72,4 +81,13 @@ MetricsSettings::MetricsSettings()
 void SharedSettings::Release()
 {
     StyleSettings.Release();
+}
+
+void SharedSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)
+{
+    if(prefix.isEmpty()) {
+        prefix = "Settings/";
+    }
+
+    NetworkSettings.CreateGlobalProperties(prefix, properties);
 }
