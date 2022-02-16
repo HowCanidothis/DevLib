@@ -4,6 +4,17 @@
 
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
+NetworkSettings::NetworkSettings()
+{
+    QVector<CommonDispatcher<>*> dispatchers {
+        &ProxyHost.OnChange,
+        &ProxyPassword.OnChange,
+        &ProxyUserName.OnChange,
+        &ProxyPort.OnChange
+    };
+    OnChanged.Subscribe(dispatchers);
+}
+
 StyleSettings::StyleSettings()
     : DisabledTableCellColor(QColor("#d4d4d4"))
 {
@@ -24,31 +35,53 @@ void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPr
 }
 
 PathSettings::PathSettings()
+    : TextComparatorApplicationPath("C:/Program Files/TortoiseGit/bin/TortoiseGitMerge.exe")
+    , TempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
 {
     auto productString = qApp->applicationName();
 
     Q_ASSERT(!productString.isEmpty());
 
-    if(!TempDir.mkpath(QString("%1/Logging").arg(productString))) {
+    if(!TempDir.mkdir(productString)) {
         qCWarning(LC_UI) << "Unable to create temp directory";
     } else {
         TempDir.cd(productString);
+        LoggingDir = TempDir;
+        LoggingDir.mkdir("Logging");
+        LoggingDir.cd("Logging");
     }
 
-    auto pathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    pathList << productString;
-    UserDocumentsPath = pathList.join("/");
-    QDir dir(UserDocumentsPath);
-    if(!dir.exists()){
-        if(!dir.mkpath(UserDocumentsPath)){
-            qWarning(LC_UI()) << tr("Could not create directory %1").arg(UserDocumentsPath.Native());
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + productString;
+    UserDocumentsDir = QDir(path);
+    if(!UserDocumentsDir.exists()){
+        if(!UserDocumentsDir.mkpath(path)){
+            qWarning(LC_UI()) << tr("Could not create directory %1").arg(path);
         }
     }
 }
 
-QString PathSettings::GenerateLocalDataPath(const QString& fileName)
+void PathSettings::Initialize(const QString& productName)
 {
-    return QString("%1/%2").arg(UserDocumentsPath,fileName);
+    auto productString = productName.isEmpty() ? qApp->applicationName() : productName;
+
+    Q_ASSERT(!productString.isEmpty());
+
+    if(!TempDir.mkdir(productString)) {
+        qCWarning(LC_UI) << "Unable to create temp directory";
+    } else {
+        TempDir.cd(productString);
+        LoggingDir = TempDir;
+        LoggingDir.mkdir("Logging");
+        LoggingDir.cd("Logging");
+    }
+
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + productString;
+    UserDocumentsDir = QDir(path);
+    if(!UserDocumentsDir.exists()){
+        if(!UserDocumentsDir.mkpath(path)){
+            qWarning(LC_UI()) << tr("Could not create directory %1").arg(path);
+        }
+    }
 }
 
 LanguageSettings::LanguageSettings()
@@ -75,6 +108,16 @@ SaveLoadSettings::SaveLoadSettings()
     , ApplicationRestoreStateAfterRerun(true)
 {
 
+}
+
+SharedSettings::SharedSettings()
+    : OnChanged(500)
+{
+    QVector<CommonDispatcher<>*> dispatchers {
+        &NetworkSettings.OnChanged
+    };
+
+    OnChanged.Subscribe(dispatchers);
 }
 
 MetricsSettings::MetricsSettings()

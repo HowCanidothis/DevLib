@@ -1,6 +1,8 @@
 #ifndef WIDGETSDIALOGSMANAGER_H
 #define WIDGETSDIALOGSMANAGER_H
 
+#include <QDialogButtonBox>
+
 #include <PropertiesModule/internal.hpp>
 
 class WidgetsDialogsManager : public SingletoneGlobal<WidgetsDialogsManager>
@@ -14,8 +16,27 @@ public:
     bool ShowOkCancelDialog(const QString& label, const QString& text);
     void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
 
+    struct DescCustomDialogParams
+    {
+        QVector<std::tuple<QDialogButtonBox::ButtonRole, QString, FAction>> Buttons;
+        QWidget* View = nullptr;
+        qint32 DefaultButtonIndex = 0;
+        bool DefaultSpacing = true;
+
+        DescCustomDialogParams& FillWithText(const QString& text);
+        DescCustomDialogParams& SetDefaultSpacing(bool defaultSpacing) { DefaultSpacing = defaultSpacing; return *this; }
+        DescCustomDialogParams& AddButton(QDialogButtonBox::ButtonRole role, const QString& text, const FAction& action)
+        {
+            Buttons.append(std::make_tuple(role, text, action));
+            return *this;
+        }
+        DescCustomDialogParams& SetView(QWidget* view) { Q_ASSERT(View == nullptr); View = view; return *this; }
+    };
+
+    QDialog* GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
+
     template<class T>
-    T* ShowOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
+    T* GetOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
     {
         auto foundIt = m_taggedDialog.find(tag);
         if(foundIt != m_taggedDialog.end()) {
@@ -27,6 +48,18 @@ public:
         return result;
     }
 
+    struct DescShowDialogParams
+    {
+        bool Modal = true;
+        bool ResizeToDefault = false;
+
+        DescShowDialogParams& SetModal(bool modal) { Modal = modal; return *this; }
+        DescShowDialogParams& SetResizeToDefault(bool resize) { ResizeToDefault = resize; return *this; }
+    };
+
+    void ShowDialog(QDialog* dialog, const DescShowDialogParams& params);
+
+    void ResizeDialogToDefaults(QWidget* dialog);
     void MakeFrameless(QWidget* widget, bool attachMovePane = true);
     static void AttachShadow(class QWidget* w);
 

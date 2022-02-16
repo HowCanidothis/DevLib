@@ -33,6 +33,19 @@ private:
     std::map<Latin1Name, Action*> m_actionsMap;
 };
 
+class ActionsScope : public ActionsScopeBase
+{
+    using Super = ActionsScopeBase;
+public:
+    ActionsScope(const Latin1Name& scopeName)
+        : Super(scopeName)
+    {}
+
+    void CreateActions() override {}
+
+    Action* CreateAction(const Latin1Name& actionName, const FAction& action) { return Super::createAction(actionName, action); }
+};
+
 #endif
 
 #endif // IACTIONSSCOPE_H

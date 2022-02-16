@@ -6,6 +6,9 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QDesktopWidget>
 
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
@@ -39,6 +42,67 @@ void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& tit
     dialog.setModal(true);
     OnDialogCreated(&dialog);
     dialog.exec();
+}
+
+QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator)
+{
+    return GetOrCreateDialog<QDialog>(tag, [paramsCreator]{
+        auto params = paramsCreator();
+        auto* dialog = new QDialog();
+        auto* vlayout = new QVBoxLayout();
+        dialog->setLayout(vlayout);
+        vlayout->addWidget(params.View);
+        if(!params.DefaultSpacing) {
+            vlayout->setContentsMargins(0,0,0,0);
+            vlayout->setSpacing(0);
+        }
+
+        if(params.Buttons.isEmpty()) {
+            return dialog;
+        }
+
+        auto* buttons = new QDialogButtonBox();
+        vlayout->addWidget(buttons);
+
+        qint32 index = 0;
+        for(const auto& buttonParams : params.Buttons) {
+            const auto& [role, text, inaction] = buttonParams;
+            FAction action = inaction;
+            auto* button = buttons->addButton(text, role);
+            if(index == params.DefaultButtonIndex) {
+                button->setDefault(true);
+            }
+            QObject::connect(button, &QPushButton::clicked, [action]{
+                action();
+            });
+            index++;
+        }
+        return dialog;
+    });
+}
+
+void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogParams& params)
+{
+    dialog->setParent(GetParentWindow(), dialog->windowFlags());
+
+    if(params.ResizeToDefault) {
+        ResizeDialogToDefaults(dialog);
+    }
+
+    dialog->setModal(params.Modal);
+
+    if(params.Modal) {
+        dialog->exec();
+    } else {
+        dialog->show();
+    }
+}
+
+void WidgetsDialogsManager::ResizeDialogToDefaults(QWidget* dialog)
+{
+    auto* desktop = QApplication::desktop();
+    auto size = desktop->screenGeometry(dialog);
+    dialog->resize(2 * size.width() / 3, 2 * size.height() / 3);
 }
 
 void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)
@@ -169,4 +233,11 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget)
     }).MakeSafe(connections);
 
     QObject::connect(widget, &QWidget::destroyed, [connections]{});
+}
+
+WidgetsDialogsManager::DescCustomDialogParams& WidgetsDialogsManager::DescCustomDialogParams::FillWithText(const QString& text)
+{
+    Q_ASSERT(View == nullptr);
+    View = new QLabel(text);
+    return *this;
 }

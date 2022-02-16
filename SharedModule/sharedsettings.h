@@ -5,12 +5,25 @@
 
 struct NetworkSettings
 {
-    NetworkSettings(){}
+    NetworkSettings();
 
     LocalPropertyString ProxyHost;
     LocalPropertyString ProxyPassword;
     LocalPropertyString ProxyUserName;
     LocalPropertyInt ProxyPort;
+
+    DispatchersCommutator OnChanged;
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("NetworkSettings");
+        buffer << buffer.Sect("ProxyHost", ProxyHost);
+        buffer << buffer.Sect("ProxyPassword", ProxyPassword);
+        buffer << buffer.Sect("ProxyUserName", ProxyUserName);
+        buffer << buffer.Sect("ProxyPort", ProxyPort);
+        buffer.CloseSection();
+    }
 
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
 };
@@ -43,10 +56,12 @@ struct PathSettings
 {
     PathSettings();
 
-    LocalPropertyString UserDocumentsPath;
+    LocalPropertyFilePath TextComparatorApplicationPath;
+    QDir UserDocumentsDir;
     QDir TempDir;
+    QDir LoggingDir;
 
-    QString GenerateLocalDataPath(const QString& fileName);
+    void Initialize(const QString& productName);
 
     Q_DECLARE_TR_FUNCTIONS(PathSettings)
 };
@@ -77,12 +92,24 @@ struct LanguageSettings
 class SharedSettings : public Singletone<SharedSettings>
 {
 public:
+    SharedSettings();
+
     StyleSettings StyleSettings;
     PathSettings PathSettings;
     MetricsSettings MetricSettings;
     SaveLoadSettings SaveLoadSettings;
     LanguageSettings LanguageSettings;
     NetworkSettings NetworkSettings;
+
+    DispatchersCommutator OnChanged;
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("Settings");
+        buffer << NetworkSettings;
+        buffer.CloseSection();
+    }
 
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
 
