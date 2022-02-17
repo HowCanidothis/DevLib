@@ -4,7 +4,7 @@
 #if it called twice, it will not include dublicated files
 #removeMain should be always true when it called in pri files and always false in pro, by default it's false
 
-for(VAR,$$list($$(BUILD_BRANCH))) {
+for(VAR,$$list($$(BUILD_CONFIG))) {
     CONFIG += $$VAR
 }
 
