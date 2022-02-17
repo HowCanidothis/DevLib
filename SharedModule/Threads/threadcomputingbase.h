@@ -16,7 +16,7 @@ public:
     virtual ~ThreadComputingBase() Q_DECL_OVERRIDE;
 
     void Start();
-    void Quit();
+    void Quit(unsigned long time = ULONG_MAX);
 
     bool IsStoped() const { return m_stoped; }
 

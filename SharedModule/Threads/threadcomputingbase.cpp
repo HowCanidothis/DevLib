@@ -23,11 +23,14 @@ void ThreadComputingBase::Start()
     start();
 }
 
-void ThreadComputingBase::Quit()
+void ThreadComputingBase::Quit(unsigned long time)
 {
     clearEvents();
     m_stoped = true;
-    wait();
+    if(!wait(time)) {
+        terminate();
+        wait();
+    }
 }
 
 double ThreadComputingBase::GetComputeTime()
