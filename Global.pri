@@ -4,6 +4,10 @@
 #if it called twice, it will not include dublicated files
 #removeMain should be always true when it called in pri files and always false in pro, by default it's false
 
+for(VAR,$$list($$(BUILD_BRANCH))) {
+    CONFIG += $$VAR
+}
+
 defineTest(includeAll) {
 
 sources = $$files(*.cpp, true)
@@ -73,4 +77,21 @@ defineTest(setBuildDirectory) {
     export(RCC_DIR)
     export(UI_DIR)
     export(CONFIG)
+}
+
+defineTest(makeDeploy) {
+    for(FILE,DEPLOY_FILES){
+        QMAKE_POST_LINK +=$$quote($(COPY_DIR) $$system_path($${FILE}) $$system_path($${DESTDIR}) $$escape_expand(\n\t))
+    }
+
+    for(DIR,DEPLOY_DIRS){
+        QMAKE_POST_LINK +=$$quote($(COPY_DIR) $$system_path($${DIR}) $$system_path($${DESTDIR}/$$basename(DIR)) $$escape_expand(\n\t))
+    }
+
+    DEPLOY_COMMAND = $$shell_quote($$system_path($$[QT_INSTALL_BINS]/windeployqt))
+    DEPLOY_ARG += $$shell_quote($$system_path($$DESTDIR/$$TARGET.exe)) $$EOL
+
+    QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_ARG}
+
+    export(QMAKE_POST_LINK)
 }
