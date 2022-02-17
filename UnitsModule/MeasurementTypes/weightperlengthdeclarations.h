@@ -8,7 +8,7 @@ namespace WeightPerLengthUnits
 {
     static const MeasurementUnit KilogramPerMeter("KilogramPerMeter", []{return QObject::tr("kilogram per meter");}, []{ return QObject::tr("kg/m"); }, 1.0);
     static const MeasurementUnit KilogramPerCantimeter("KilogramPerCantimeter", []{return QObject::tr("kilogram per cantimeter");}, []{ return QObject::tr("kg/cm"); }, 100.0);
-    static const MeasurementUnit PoundPerFoot("PoundPerFoot", []{return QObject::tr("pound per foot");}, []{ return QObject::tr("lb/ft"); }, 1.49);
+    static const MeasurementUnit PoundPerFoot("PoundPerFoot", []{return QObject::tr("pound per foot");}, []{ return QObject::tr("lb/ft"); }, 1.48816);
     static const MeasurementUnit PoundPerInch("PoundPerInch", []{return QObject::tr("pound per inch");}, []{ return QObject::tr("lb/in"); }, 17.88);
 };
 

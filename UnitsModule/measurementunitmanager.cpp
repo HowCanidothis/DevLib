@@ -205,6 +205,7 @@ MeasurementManager::MeasurementManager()
 	
 	AddMeasurement(MEASUREMENT_TORQUE)
 			.AddUnit(&TorqueUnits::NewtonMeters      )
+            .AddUnit(&TorqueUnits::DecaNewtonMeters  )
 			.AddUnit(&TorqueUnits::KilonewtonMeters  )
 			.AddUnit(&TorqueUnits::PoundForceFeet    )
 			.AddUnit(&TorqueUnits::KilopoundForceFeet);
