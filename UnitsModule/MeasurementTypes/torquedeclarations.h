@@ -12,6 +12,7 @@ namespace TorqueUnits
     static const MeasurementUnit KilonewtonMeters   ("KilonewtonMeters", []{return QObject::tr("kilonewton meters");   }, []{ return QObject::tr("kNm");   }, 1000.0 );
     static const MeasurementUnit PoundForceFeet     ("PoundForceFeet", []{return QObject::tr("pound-force feet");    }, []{ return QObject::tr("ftlbf"); }, 1.355817952003);
     static const MeasurementUnit KilopoundForceFeet ("KilopoundForceFeet", []{return QObject::tr("kilopound-force feet");}, []{ return QObject::tr("kftlbs");}, 1355.817952);
+    static const MeasurementUnit PoundFoot          ("PoundFoot", []{return QObject::tr("pound-foot");}, []{ return QObject::tr("lbf*ft");}, 0.73756214927727);
 }
 
 #define MEASUREMENT_TORQUE_STRING              MEASUREMENT_STRING(MEASUREMENT_TORQUE)

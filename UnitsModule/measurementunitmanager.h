@@ -21,6 +21,8 @@ public:
     MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, double multiplierUnitToBase);
     MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, const FTransform& unitToBase, const FTransform& baseToUnit);
     
+    void FromUnitToBaseChange(double& unitValue) const;
+    void FromBaseToUnitChange(double& baseValue) const;
     double FromUnitToBase(double unitValue) const;
     double FromBaseToUnit(double baseValue) const;
     

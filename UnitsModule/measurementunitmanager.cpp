@@ -49,6 +49,16 @@ MeasurementUnit::MeasurementUnit(const Name& id, const FTranslationHandler& full
 
 }
 
+void MeasurementUnit::FromUnitToBaseChange(double& unitValue) const
+{
+    unitValue = FromUnitToBase(unitValue);
+}
+
+void MeasurementUnit::FromBaseToUnitChange(double& baseValue) const
+{
+    baseValue = FromBaseToUnit(baseValue);
+}
+
 double MeasurementUnit::FromUnitToBase(double unitValue) const
 {
     return m_unitToBase(unitValue);
@@ -208,7 +218,8 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TorqueUnits::DecaNewtonMeters  )
 			.AddUnit(&TorqueUnits::KilonewtonMeters  )
 			.AddUnit(&TorqueUnits::PoundForceFeet    )
-			.AddUnit(&TorqueUnits::KilopoundForceFeet);
+            .AddUnit(&TorqueUnits::KilopoundForceFeet)
+            .AddUnit(&TorqueUnits::PoundFoot);
 
     AddMeasurement(MEASUREMENT_MUD_WEIGHT)
             .AddUnit(&MudWeightUnits::PoundPerGallon      )
@@ -264,7 +275,9 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&AreaUnits::SqInches);
 
     AddMeasurement(MEASUREMENT_FORCE)
+            .AddUnit(&ForceUnits::Newton)
             .AddUnit(&ForceUnits::Kilonewton)
+            .AddUnit(&ForceUnits::KiloGrammForce)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
     AddMeasurement(MEASUREMENT_MOTOR_SPEED)
