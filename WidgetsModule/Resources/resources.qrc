@@ -7,5 +7,6 @@
         <file>MenuBar/square.svg</file>
         <file>MenuBar/dots-vertical.svg</file>
         <file>MenuBar/refresh.svg</file>
+        <file>MenuBar/help-circle.svg</file>
     </qresource>
 </RCC>

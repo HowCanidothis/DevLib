@@ -59,6 +59,7 @@
 #include "registrymanager.h"
 #include "sharedsettings.h"
 #include "editingobject.h"
+#include "tokenizer.h"
 
 #endif
 
