@@ -38,26 +38,6 @@ PathSettings::PathSettings()
     : TextComparatorApplicationPath("C:/Program Files/TortoiseGit/bin/TortoiseGitMerge.exe")
     , TempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
 {
-    auto productString = qApp->applicationName();
-
-    Q_ASSERT(!productString.isEmpty());
-
-    if(!TempDir.mkdir(productString)) {
-        qCWarning(LC_UI) << "Unable to create temp directory";
-    } else {
-        TempDir.cd(productString);
-        LoggingDir = TempDir;
-        LoggingDir.mkdir("Logging");
-        LoggingDir.cd("Logging");
-    }
-
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/" + productString;
-    UserDocumentsDir = QDir(path);
-    if(!UserDocumentsDir.exists()){
-        if(!UserDocumentsDir.mkpath(path)){
-            qWarning(LC_UI()) << tr("Could not create directory %1").arg(path);
-        }
-    }
 }
 
 void PathSettings::Initialize(const QString& productName)
@@ -66,10 +46,11 @@ void PathSettings::Initialize(const QString& productName)
 
     Q_ASSERT(!productString.isEmpty());
 
-    if(!TempDir.mkdir(productString)) {
+    TempDir.mkdir(productString);
+
+    if(!TempDir.cd(productString)) {
         qCWarning(LC_UI) << "Unable to create temp directory";
     } else {
-        TempDir.cd(productString);
         LoggingDir = TempDir;
         LoggingDir.mkdir("Logging");
         LoggingDir.cd("Logging");

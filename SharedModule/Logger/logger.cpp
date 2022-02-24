@@ -11,9 +11,6 @@ Logger::Logger(const QDir& directory)
     , m_printHandler(&Logger::printBoth)
     , m_messageHandler(&Logger::additionalMessageNoOp)
 {
-    Q_ASSERT(getInstance() == nullptr);
-    getInstance() = this;
-
     qInstallMessageHandler(&messageHandler);
 }
 
@@ -24,31 +21,32 @@ Logger::~Logger()
 
 void Logger::EnableLogging(bool enabled)
 {
-    auto* logger = getInstance();
-    if(!enabled && logger->m_printHandler != &Logger::printNo) {
-        logger->m_printHandlerBefore = logger->m_printHandler;
-        logger->m_printHandler = &Logger::printNo;
-    } else if(enabled && logger->m_printHandler == &Logger::printNo){
-        logger->m_printHandler = logger->m_printHandlerBefore;
+    auto& logger = GetInstance();
+    if(!enabled && logger.m_printHandler != &Logger::printNo) {
+        logger.m_printHandlerBefore = logger.m_printHandler;
+        logger.m_printHandler = &Logger::printNo;
+    } else if(enabled && logger.m_printHandler == &Logger::printNo){
+        logger.m_printHandler = logger.m_printHandlerBefore;
     }
 }
 
 void Logger::SetMaxDays(qint32 maxDays)
 {
-    getInstance()->m_filesGuard->SetMaxCount(maxDays);
+    GetInstance().m_filesGuard->SetMaxCount(maxDays);
 }
 
 void Logger::SetConsoleEnabled(bool enabled)
 {
-    if(getInstance()->m_printHandler == &Logger::printWithoutFile) {
+    auto& logger = GetInstance();
+    if(logger.m_printHandler == &Logger::printWithoutFile) {
         qCritical() << "Unable to write in file, error captured";
         return;
     }
 
     if(enabled) {
-        getInstance()->m_printHandler = &Logger::printBoth;
+        logger.m_printHandler = &Logger::printBoth;
     } else {
-        getInstance()->m_printHandler = &Logger::printWithoutConsole;
+        logger.m_printHandler = &Logger::printWithoutConsole;
     }
 }
 
@@ -59,61 +57,55 @@ void Logger::printNo(const QString&)
 
 void Logger::Print(const QString& message)
 {
-    getInstance()->print(message);
+    GetInstance().print(message);
 }
 
 void Logger::SetAdditionalMessageHandler(const QtMessageHandler& messageHandler)
 {
-    getInstance()->m_messageHandler = messageHandler;
+    GetInstance().m_messageHandler = messageHandler;
 }
 
 void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {
-    Logger* logger = getInstance();
+    Logger& logger = GetInstance();
 
     QString currentDateTime = QTime::currentTime().toString() + ": ";
 
-    logger->m_messageHandler(type, context, message);
+    logger.m_messageHandler(type, context, message);
 
-    logger->checkDate();
+    logger.checkDate();
 
     switch (type) {
     case QtCriticalMsg:
-        logger->m_mainCall.Call([logger, message, currentDateTime]{
-            if(logger->m_severity >= Error) {
-                logger->Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
-            }
-        });
+        if(logger.m_severity >= Error) {
+            ThreadsBase::DoMain([message, currentDateTime]{
+                GetInstance().Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
+            });
+        }
         break;
     case QtWarningMsg:
-        if(logger->m_severity >= Warning) {
-            logger->m_mainCall.Call([logger, message, currentDateTime]{
-                logger->Print("Warning " + currentDateTime + message.toLocal8Bit() + "\n");
+        if(logger.m_severity >= Warning) {
+            ThreadsBase::DoMain([message, currentDateTime]{
+                GetInstance().Print("Warning " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     case QtInfoMsg:
-        if(logger->m_severity >= Info) {
-            logger->m_mainCall.Call([logger, message, currentDateTime]{
-                logger->Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
+        if(logger.m_severity >= Info) {
+            ThreadsBase::DoMain([message, currentDateTime]{
+                GetInstance().Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     default:
-        if(logger->m_severity >= Debug) {
+        if(logger.m_severity >= Debug) {
             QString debugLineAndFile = QString("   Loc: [%1:%2] ").arg(context.file, QString::number(context.line));
-            logger->m_mainCall.Call([logger, message, currentDateTime, debugLineAndFile]{
-                logger->Print(debugLineAndFile + " Info " + currentDateTime + message.toLocal8Bit() + "\n");
+            ThreadsBase::DoMain([message, currentDateTime, debugLineAndFile]{
+                GetInstance().Print(debugLineAndFile + " Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     }
-}
-
-Logger*& Logger::getInstance()
-{
-    static Logger* result;
-    return result;
 }
 
 void Logger::print(const QString& message)
