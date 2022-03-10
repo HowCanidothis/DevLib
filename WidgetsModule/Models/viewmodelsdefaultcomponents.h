@@ -122,6 +122,15 @@ public:
             return nullptr;
         });
     }
+    template<class Enum>
+    ViewModelsColumnComponentsBuilder& AddEnumColumnReadOnly(qint32 column, const FTranslationHandler& header, const std::function<Enum& (value_type&)>& getter)
+    {
+        return AddColumn(column, header, [getter](const value_type& constData)-> QVariant {
+            auto& data = const_cast<value_type&>(constData);
+            return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
+        }, nullptr);
+    }
+
 #ifdef UNITS_MODULE_LIB
     ViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Name& measurementName)
     {
