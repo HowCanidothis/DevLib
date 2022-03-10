@@ -196,6 +196,7 @@ MeasurementManager::MeasurementManager()
 			.AddUnit(&PressureUnits::Megapascals                )
 			.AddUnit(&PressureUnits::Atmospheres                )
 			.AddUnit(&PressureUnits::KilogramPerSquareCentimeter)
+            .AddUnit(&PressureUnits::KilogramPerSquareMeter     )
 			.AddUnit(&PressureUnits::PoundsPerSquareInch        )
 			.AddUnit(&PressureUnits::KilopoundsPerSquareInch    )
 			.AddUnit(&PressureUnits::PoundsPerSquareFeet        );
