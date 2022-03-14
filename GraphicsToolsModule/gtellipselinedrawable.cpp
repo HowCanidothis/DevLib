@@ -52,10 +52,10 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
     };
 
     Width.SetSetterHandler(CreateThreadHandler());
-    Radius.OnChange.Connect(this, recomputePoints);
-    Up.OnChange.Connect(this, recomputePoints);
-    Normal.OnChange.Connect(this, recomputePoints);
-    Position.OnChange.Connect(this, recomputePoints);
+    Radius.OnChanged.Connect(this, recomputePoints);
+    Up.OnChanged.Connect(this, recomputePoints);
+    Normal.OnChanged.Connect(this, recomputePoints);
+    Position.OnChanged.Connect(this, recomputePoints);
 }
 
 void GtEllipseLineDrawable::drawDepth(OpenGLFunctions*)

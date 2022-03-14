@@ -9,7 +9,7 @@ FlowLayout::FlowLayout(int margin, int hSpacing, int vSpacing)
     setSpacing(hSpacing);
     setContentsMargins(margin, margin, margin, margin);
 
-    Alignment.OnChange += { this, [this]{
+    Alignment.OnChanged += { this, [this]{
         activate();
     }};
 }

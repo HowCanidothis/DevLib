@@ -13,7 +13,7 @@ public:
         , Hours(0, -1, 24)
         , Minutes(0, -1, 60)
     {
-        LocalPropertiesConnectBoth({&Time.OnChange}, [this]{
+        LocalPropertiesConnectBoth({&Time.OnChanged}, [this]{
             if(Time.Native().isValid()) {
                 Hours = Time.Native().hour();
                 Minutes = Time.Native().minute();
@@ -21,7 +21,7 @@ public:
                 Hours = 0;
                 Minutes = 0;
             }
-        }, {&Hours.OnChange, &Minutes.OnChange}, [this] {
+        }, {&Hours.OnChanged, &Minutes.OnChanged}, [this] {
             Time = QTime(Hours, Minutes);
         });
 
@@ -117,11 +117,11 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
 
         switch(ui->timePicker->TypeClock.Native()){
         case ClockType::Hour:
-            ui->timePicker->HourType.OnChange.ConnectAndCall(this, [this]{
+            ui->timePicker->HourType.OnChanged.ConnectAndCall(this, [this]{
                 m_hourTypeConnections.clear();
                 switch (ui->timePicker->HourType.Native()) {
                 case HourFormat::Hour12: {
-                    LocalPropertiesConnectBoth( {&m_timeConverter->Hours.OnChange}, [this]{
+                    LocalPropertiesConnectBoth( {&m_timeConverter->Hours.OnChanged}, [this]{
                         const auto& time = m_timeConverter->Hours.Native();
                         if(time <= 12){
                             Type = DayType::AM;
@@ -130,7 +130,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
                             Type = DayType::PM;
                             ui->timePicker->CurrentTime = time - 12;
                         }
-                    }, {&Type.OnChange, &ui->timePicker->CurrentTime.OnChange}, [this]{
+                    }, {&Type.OnChanged, &ui->timePicker->CurrentTime.OnChanged}, [this]{
                         m_timeConverter->Hours = ui->timePicker->CurrentTime.Native() + (Type == DayType::AM ? 0 : 12);
                     }).MakeSafe(m_hourTypeConnections);
                     break;

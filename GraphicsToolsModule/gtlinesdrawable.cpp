@@ -16,7 +16,7 @@ GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr&
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));
 
     Points.SetSetterHandler(CreateThreadHandler());
-    Points.OnChange.Connect(this, [this]{
+    Points.OnChanged.Connect(this, [this]{
         m_buffer->UpdateVertexArray(Points);
     });
 }

@@ -21,7 +21,7 @@ public:
         auto update = [this]{
             DisplayValue.SetMinMax(*this, *this);
         };
-        this->OnChange.Connect(this, update);
+        this->OnChanged.Connect(this, update);
         update();
     }
 

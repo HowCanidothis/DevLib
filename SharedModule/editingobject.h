@@ -22,7 +22,7 @@ public:
     bool IsDirty() const { return m_isDirty; }
     void SetDirty(bool dirty = true);
     bool IsActive() const { return m_isActive; }
-    Dispatcher& OnDirtyChanged() { return m_isDirty.OnChange; }
+    Dispatcher& OnDirtyChanged() { return m_isDirty.OnChanged; }
 
     LocalPropertyBool ForceDirty;
 

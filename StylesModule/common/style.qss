@@ -1,6 +1,6 @@
 
 QWidget {
-    font-family: "Titillium-Web";
+    font-family: "Lato";
     font-size: 14px;
     padding: 0px;
 }

@@ -45,7 +45,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
     auto updateDisplay = [this]{
         setDisplayIntegerBase(displayIntegerBase());
     };
-    auto result = valid->OnChange.Connect(this, updateDisplay);
+    auto result = valid->OnChanged.Connect(this, updateDisplay);
     updateDisplay();
     return result;
 }
@@ -86,15 +86,26 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     , m_emptyInputIsValid(true)
 {}
 
-static QRegExp regExpFractial(R"((\d+)(\s)(\d+)?(\/)?(\d+)?)");
+static QRegExp regExpFractial(R"((-)?(\d+)(\s)?(\d+)?(\s)?(\/)?(\s)?(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
 {
     static ValueFromTextHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         double value;
-        if(regExpFractial.indexIn(text) != -1) {
-            auto fractial = regExpFractial.cap(5).toDouble();
-            value = regExpFractial.cap(1).toDouble() + (fuzzyIsNull(fractial) ? 0.0 : (regExpFractial.cap(3).toDouble() / fractial));
+        if(regExpFractial.indexIn(text) != -1 && !regExpFractial.cap(8).isEmpty()) {
+            auto fractial = regExpFractial.cap(8);
+            auto meaning = regExpFractial.cap(4);
+            auto main = regExpFractial.cap(2);
+            if(meaning.isEmpty()) {
+                auto fractialValue = fractial.toDouble();
+                value = main.toDouble() / (fuzzyIsNull(fractialValue) ? 1.0 : fractialValue);
+            } else {
+                auto fractialValue = fractial.toDouble();
+                value = main.toDouble() + (fuzzyIsNull(fractialValue) ? 0.0 : (meaning.toDouble() / fractialValue));
+            }
+            if(!regExpFractial.cap(1).isEmpty()) {
+                value = -value;
+            }
         } else {
             value = text.toDouble();
         }
@@ -131,7 +142,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
     auto updateDisplay = [this]{
         setDecimals(decimals());
     };
-    auto result = valid->OnChange.Connect(this, updateDisplay);
+    auto result = valid->OnChanged.Connect(this, updateDisplay);
     updateDisplay();
     return result;
 }
@@ -181,7 +192,7 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
     }
 
     if(regExpFractial.indexIn(input) != -1) {
-        return regExpFractial.cap(5).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
+        return regExpFractial.cap(8).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
     }
 
     return QValidator::Invalid;

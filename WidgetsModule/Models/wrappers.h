@@ -425,6 +425,29 @@ public:
     typename Super::const_iterator end() const { return Super::end(); }
 };
 
+template<class Container>
+class TStatedModelsTableWrapper : public TModelsTableWrapper<Container>
+{
+    using Super = TModelsTableWrapper<Container>;
+public:
+    TStatedModelsTableWrapper()
+        : IsValid(true)
+    {}
+
+    void Swap(const SharedPointer<TStatedModelsTableWrapper>& data) {
+        Super::Swap(*data);
+    }
+
+    SharedPointer<TStatedModelsTableWrapper> Clone() const
+    {
+        auto result = ::make_shared<TStatedModelsTableWrapper>();
+        result->EditSilent() = *this;
+        return result;
+    }
+
+    StateProperty IsValid;
+};
+
 using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
 using ModelsTreeWrapperPtr = SharedPointer<ModelsTreeWrapper>;
 

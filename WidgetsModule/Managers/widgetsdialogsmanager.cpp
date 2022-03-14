@@ -223,11 +223,11 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget)
         });
     };
 
-    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.OnChange.Connect(nullptr, [shadow, qtBugFix]{
+    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.OnChanged.Connect(nullptr, [shadow, qtBugFix]{
         shadow->setBlurRadius(WidgetsDialogsManager::GetInstance().ShadowBlurRadius);
         qtBugFix();
     }).MakeSafe(connections);
-    WidgetsDialogsManager::GetInstance().ShadowColor.OnChange.Connect(nullptr, [shadow, qtBugFix]{
+    WidgetsDialogsManager::GetInstance().ShadowColor.OnChanged.Connect(nullptr, [shadow, qtBugFix]{
         shadow->setColor(WidgetsDialogsManager::GetInstance().ShadowColor);
         qtBugFix();
     }).MakeSafe(connections);

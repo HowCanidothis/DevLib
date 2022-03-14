@@ -342,12 +342,12 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
 
         auto* pConsoleData = consoleData.get();
         auto* pError = error.Error.get();
-        error.Error->OnChange.Connect(this, [this, pError, pConsoleData]{
+        error.Error->OnChanged.Connect(this, [this, pError, pConsoleData]{
             pConsoleData->Data->Body = pError->Native();
             m_updateErrors();
         }).MakeSafe(pConsoleData->ErrorHandler->Connections);
         if(pConsoleData->Data->Visible != nullptr){
-            pConsoleData->Data->Visible->OnChange.Connect(this, []{
+            pConsoleData->Data->Visible->OnChanged.Connect(this, []{
                 //update check role;
 //                Edit
             }).MakeSafe(pConsoleData->ErrorHandler->Connections);

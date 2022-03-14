@@ -7,67 +7,17 @@ class StatePropertyBoolCommutator : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;
 public:
-    StatePropertyBoolCommutator(bool defaultState = false)
-        : Super(defaultState)
-        , m_defaultState(defaultState)
-    {
-        m_commutator += { this, [this]{
-            if(value()) {
-                m_setTrue.Call([this]{
-                    SetValue(value());
-                });
-            } else {
-                SetValue(false);
-            }
-        }};
-    }
+    StatePropertyBoolCommutator(bool defaultState = false);
 
-    void ClearProperties()
-    {
-        m_properties.clear();
-    }
+    void ClearProperties();
+    void Update();
 
-    void Update()
-    {
-        SetValue(false);
-        m_commutator.Invoke();
-    }
+    DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties);
 
-    DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
-    {
-        DispatcherConnections result;
-        for(auto* property : properties) {
-            if(*property == !m_defaultState) {
-                SetValue(false);
-            }
-            result += m_commutator.ConnectFrom(property->OnChange);
-        }
-        m_properties += properties;
-        return result;
-    }
-
-    QString ToString() const
-    {
-        QString result;
-        for(auto* property : m_properties) {
-            result += *property ? "true " : "false ";
-        }
-        return result;
-    }
+    QString ToString() const;
 
 private:
-    bool value() const
-    {
-        bool result = m_defaultState;
-        bool oppositeState = !result;
-        for(auto* property : m_properties) {
-            if(*property == oppositeState) {
-                result = oppositeState;
-                break;
-            }
-        }
-        return result;
-    }
+    bool value() const;
 
 private:
     DelayedCallObject m_setTrue;
@@ -83,30 +33,79 @@ class StateProperty : public LocalPropertyBool
 public:
     using Super::Super;
 
-    void SetState(bool state)
+    void SetState(bool state);
+
+    DispatcherConnections ConnectFromStateProperty(const StateProperty& property);
+    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+};
+
+class StateParameters
+{
+public:
+    StateParameters();
+
+    void Lock();
+    void Unlock();
+
+    LocalPropertyBool IsLocked;
+
+private:
+    std::atomic_int m_counter;
+};
+
+template<class T>
+class StateParameterBase
+{
+public:
+    template<typename ... Args>
+    StateParameterBase(StateParameters* params, const FAction& locker, const FAction& unlocker, Args ... args)
+        : InputValue(args...)
+        , m_parameters(params)
     {
-        Super::SetValue(state);
+        params->IsLocked.OnChanged.ConnectAndCall(this, [locker, unlocker, params]{
+            if(!params->IsLocked) {
+                unlocker();
+            } else {
+                locker();
+            }
+        });
     }
 
-    DispatcherConnections ConnectFromStateProperty(const StateProperty& property)
+    StateParameters* GetParameters() const { return m_parameters; }
+
+    T InputValue;
+
+protected:
+    StateParameters* m_parameters;
+};
+
+template<class T>
+class StateParameter : public StateParameterBase<T>
+{
+    using Super = StateParameterBase<T>;
+public:
+    using value_type = typename T::value_type;
+    template<typename ... Args>
+    StateParameter(StateParameters* params, Args ... args)
+        : Super(params,
+                [this]{ m_connection = m_immutableValue.ConnectFrom(Super::InputValue).MakeSafe(); },
+                [this]{ m_connection = DispatcherConnectionSafePtr(); },
+                args...)
     {
-        return Super::ConnectFrom(property, [this](bool valid) { return valid ? Super::m_value : valid; });
+
     }
 
-    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
+    StateParameter& operator=(const value_type& value)
     {
-        auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
-        DispatcherConnections result;
-        for(auto* dispatcher : dispatchers) {
-            result.append(dispatcher->Connect(this, [this, delayedCall]{
-                SetState(false);
-                delayedCall->Call([this]{
-                    SetState(true);
-                });
-            }));
-        }
-        return result;
+        Super::InputValue = value;
+        return *this;
     }
+
+    const value_type& GetImmutable() const { return m_immutableValue; }
+
+private:
+    T m_immutableValue;
+    DispatcherConnectionSafePtr m_connection;
 };
 
 template<class T>
@@ -120,12 +119,12 @@ public:
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
     {
-        m_onChanged.Subscribe({ &m_dependenciesAreUpToDate.OnChange });
+        m_onChanged.Subscribe({ &m_dependenciesAreUpToDate.OnChanged });
         Valid.ConnectFrom(m_dependenciesAreUpToDate, [this](bool valid){
             return !valid ? false : Valid.Native();
         });
 
-        Enabled.OnChange += {this, [this, recalculateOnEnabled]{
+        Enabled.OnChanged += {this, [this, recalculateOnEnabled]{
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onChanged += { this, [this, recalculateOnEnabled]{
@@ -161,6 +160,7 @@ public:
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.ClearProperties();
+        m_stateParameters.clear();
     }
 
     void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
@@ -169,6 +169,21 @@ public:
         m_preparator = preparator;
         m_calculator = calculator;
         m_releaser = releaser;
+    }
+
+    void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
+    {
+        m_preparator = [this]{
+            for(auto* parameters : m_stateParameters) {
+                parameters->Lock();
+            }
+        };
+        m_releaser = [this]{
+            for(auto* parameters : m_stateParameters) {
+                parameters->Unlock();
+            }
+        };
+        m_calculator = calculator;
     }
 
     template<class T2>
@@ -181,11 +196,14 @@ public:
     }
 
     template<class T2>
+    const StateCalculator& Connect(const StateParameterBase<T2>& stateParameter) const;
+
+    template<class T2>
     const StateCalculator& Connect(const LocalProperty<T2>& property) const
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
-        m_onChanged.Subscribe({ &nonConstProperty.OnChange }).MakeSafe(m_connections);
+        m_onChanged.Subscribe({ &nonConstProperty.OnChanged }).MakeSafe(m_connections);
         return *this;
     }
 
@@ -234,7 +252,27 @@ private:
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;
+    mutable QSet<StateParameters*> m_stateParameters;
 };
+
+template<class T>
+struct StateCalculatorConnectionHelper
+{
+    template<class T2>
+    static void ConnectStateParameter(const StateCalculator<T2>& calculator, StateParameterBase<T>& parameter)
+    {
+        calculator.Connect(parameter.InputValue.OnChanged);
+    }
+};
+
+template<class T> template<class T2>
+const StateCalculator<T>& StateCalculator<T>::Connect(const StateParameterBase<T2>& stateParameter) const
+{
+    THREAD_ASSERT_IS_MAIN();
+    StateCalculatorConnectionHelper<T2>::ConnectStateParameter<T>(*this, const_cast<StateParameterBase<T2>&>(stateParameter));
+    m_stateParameters.insert(stateParameter.GetParameters());
+    return *this;
+}
 
 template<class T>
 class StateImmutableData {
@@ -391,7 +429,7 @@ public:
         , m_data(source)
         , Enabled(m_immutableData->Enabled)
     {
-        Enabled.OnChange += { this, [this, source]{
+        Enabled.OnChanged += { this, [this, source]{
             if(Enabled) {
                 m_immutableData->AttachSwap(source);
             } else {
@@ -420,7 +458,7 @@ public:
         AsyncResult updatedResult;
         auto* nonConst = const_cast<StateProperty*>(valid);
         if(*valid) {
-            nonConst->OnChange.OnFirstInvoke([updatedResult, valid, onDeleted]{
+            nonConst->OnChanged.OnFirstInvoke([updatedResult, valid, onDeleted]{
                 generateUpdateResult(valid, onDeleted, updatedResult);
             });
         } else {
@@ -434,7 +472,7 @@ private:
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
         auto* nonConst = const_cast<StateProperty*>(valid);
-        nonConst->OnChange.OnFirstInvoke([updatedResult, connections]{
+        nonConst->OnChanged.OnFirstInvoke([updatedResult, connections]{
             connections->clear();
             updatedResult.Resolve(true);
         });

@@ -44,11 +44,11 @@ struct ViewModelsTextFilterData
 
     bool HasFilter() const { return !FilterString.Native().isEmpty(); }
 
-    Dispatcher OnChange;
+    Dispatcher OnChanged;
 
     ViewModelsTextFilterData()
     {
-        OnChange.ConnectFrom(FilterString.OnChange);
+        OnChanged.ConnectFrom(FilterString.OnChanged);
     }
 };
 
@@ -69,7 +69,7 @@ public:
             return filterAcceptsRow(sourceRow, sourceParent);
         };
 
-        FilterData.OnChange += { this, [this, proxy]{
+        FilterData.OnChanged += { this, [this, proxy]{
             proxy->InvalidateFilter();
         }};
 
@@ -159,7 +159,7 @@ public:
             return m_filterHandler(FilterData, sourceRow);
         };
 
-        FilterData.OnChange += { this, [this, proxy]{
+        FilterData.OnChanged += { this, [this, proxy]{
             proxy->InvalidateFilter();
         }};
 

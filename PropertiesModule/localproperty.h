@@ -98,7 +98,7 @@ public:
             if(m_subscribes != nullptr) {
                 m_subscribes();
             }
-            OnChange.Invoke();
+            OnChanged.Invoke();
         });
     }
 
@@ -163,7 +163,7 @@ public:
         for(auto* dispatcher : dispatchers) {
             result += dispatcher->Connect(this, onChange);
         }
-        result += nonConst.OnChange.Connect(this, onChange);
+        result += nonConst.OnChanged.Connect(this, onChange);
         return result;
     }
 
@@ -171,7 +171,7 @@ public:
     {
         *this = another.Native();
         auto& nonConst = const_cast<LocalProperty&>(another);
-        return nonConst.OnChange.Connect(this, [this, &another]{
+        return nonConst.OnChanged.Connect(this, [this, &another]{
             *this = another.Native();
         });
     }
@@ -179,7 +179,7 @@ public:
     DispatcherConnection ConnectTo(LocalProperty& another)
     {
         another = Native();
-        return OnChange.Connect(this, [this, &another]{
+        return OnChanged.Connect(this, [this, &another]{
             another = Native();
         });
     }
@@ -190,14 +190,14 @@ public:
         DispatcherConnections result;
         another = anotherEvaluator(Native());
         auto sync = ::make_shared<std::atomic_bool>(false);
-        result += another.OnChange.Connect(this, [this, thisEvaluator, &another, sync]{
+        result += another.OnChanged.Connect(this, [this, thisEvaluator, &another, sync]{
             if(!*sync) {
                 *sync = true;
                 *this = thisEvaluator(another);
                 *sync = false;
             }
         });
-        result += OnChange.Connect(this, [this, anotherEvaluator, &another, sync]{
+        result += OnChanged.Connect(this, [this, anotherEvaluator, &another, sync]{
             if(!*sync) {
                 *sync = true;
                 another = anotherEvaluator(*this);
@@ -218,7 +218,7 @@ public:
 
     StorageType& EditSilent() { return m_value; }
     const StorageType& Native() const { return m_value; }
-    Dispatcher& GetDispatcher() const { return OnChange; }
+    Dispatcher& GetDispatcher() const { return OnChanged; }
 
     bool operator!() const { return m_value == false; }
     bool operator!=(const T& value) const { return m_value != value; }
@@ -226,7 +226,7 @@ public:
     LocalProperty& operator=(const T& value) { SetValue(value); return *this; }
     operator const T&() const { return m_value; }
 
-    mutable Dispatcher OnChange;
+    mutable Dispatcher OnChanged;
 
 protected:
     virtual void validate(T&) const {}
@@ -460,7 +460,7 @@ public:
     {
         QVector<CommonDispatcher<>*> dispatchers;
         for(auto* property : properties) {
-            dispatchers.append(&property->OnChange);
+            dispatchers.append(&property->OnChanged);
         }
         m_properties += properties;
         return m_commutator.Subscribe(dispatchers);
@@ -725,8 +725,8 @@ public:
             start->SetMinMax(start->GetMin(), *end);
         };
 
-        result += start->OnChange.Connect(end, updateMinMax);
-        result += end->OnChange.Connect(end, updateMinMax);
+        result += start->OnChanged.Connect(end, updateMinMax);
+        result += end->OnChanged.Connect(end, updateMinMax);
 
         updateMinMax();
 
@@ -912,7 +912,7 @@ struct PropertyFromLocalProperty
                 *sync = false;
             }
         };
-        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
+        DispatcherConnectionSafePtr connection = localProperty.OnChanged.Connect(nullptr, setProperty).MakeSafe();
         pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
             if(!*sync) {
                 *sync = true;
@@ -936,7 +936,7 @@ struct PropertyFromLocalProperty
                 *sync = false;
             }
         };
-        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
+        DispatcherConnectionSafePtr connection = localProperty.OnChanged.Connect(nullptr, setProperty).MakeSafe();
         pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
             if(!*sync) {
                 *sync = true;
@@ -960,7 +960,7 @@ private:
                 *sync = false;
             }
         };
-        DispatcherConnectionSafePtr connection = localProperty.OnChange.Connect(nullptr, setProperty).MakeSafe();
+        DispatcherConnectionSafePtr connection = localProperty.OnChanged.Connect(nullptr, setProperty).MakeSafe();
         pProperty->Subscribe([&localProperty, connection, pProperty, sync]{
             if(!*sync) {
                 *sync = true;
@@ -1063,13 +1063,13 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 template<class T, class T2>
 inline DispatcherConnection DelayedCallDispatchersCommutator::Subscribe(LocalProperty<T, T2>& property)
 {
-    return Subscribe(&property.OnChange);
+    return Subscribe(&property.OnChanged);
 }
 
 template<class T>
 inline DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(LocalPropertyOptional<T>& property)
 {
-    return Subscribe({ &property.Value.OnChange, &property.IsValid.OnChange });
+    return Subscribe({ &property.Value.OnChanged, &property.IsValid.OnChanged });
 }
 
 #endif // LOCALPROPERTY_H

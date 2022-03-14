@@ -87,7 +87,7 @@ private:
 SvgIconEngine::SvgIconEngine()
     : d(new SvgIconEngineData)
 {
-    d->FilePath.OnChange.Connect(this, [this]{
+    d->FilePath.OnChanged.Connect(this, [this]{
         generateSource();
     }).MakeSafe(m_connections);
 
@@ -98,16 +98,16 @@ SvgIconEngine::SvgIconEngine()
         }
     };
 
-    d->Palette.ActiveColor.OnChange.Connect(this, [resetCache]{
+    d->Palette.ActiveColor.OnChanged.Connect(this, [resetCache]{
         resetCache(QIcon::Active);
     }).MakeSafe(m_connections);
-    d->Palette.NormalColor.OnChange.Connect(this, [resetCache]{
+    d->Palette.NormalColor.OnChanged.Connect(this, [resetCache]{
         resetCache(QIcon::Normal);
     }).MakeSafe(m_connections);
-    d->Palette.SelectedColor.OnChange.Connect(this, [resetCache]{
+    d->Palette.SelectedColor.OnChanged.Connect(this, [resetCache]{
         resetCache(QIcon::Selected);
     }).MakeSafe(m_connections);
-    d->Palette.DisabledColor.OnChange.Connect(this, [resetCache]{
+    d->Palette.DisabledColor.OnChanged.Connect(this, [resetCache]{
         resetCache(QIcon::Disabled);
     }).MakeSafe(m_connections);
 }

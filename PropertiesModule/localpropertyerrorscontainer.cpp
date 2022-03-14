@@ -7,7 +7,7 @@ LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
     , HasErrorsOrWarnings(false)
     , OnErrorsLabelsChanged(500)
 {
-    OnChange += {this, [this]{
+    OnChanged += {this, [this]{
         HasErrorsOrWarnings = !IsEmpty();
         for(const auto& value : *this) {
             if(value.Type == QtMsgType::QtCriticalMsg || value.Type == QtMsgType::QtFatalMsg) {
@@ -34,7 +34,7 @@ void LocalPropertyErrorsContainer::AddError(const Name& errorName, const Transla
     if(Super::Native().contains(toInsert)) {
        return;
     }
-    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(errorString->OnChange).MakeSafe();
+    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(errorString->OnChanged).MakeSafe();
     if(Super::Insert(toInsert)) {
         OnErrorAdded(toInsert);
     }
@@ -69,7 +69,7 @@ DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& err
         }
     };
     update();
-    return pProperty->OnChange.Connect(this, update);
+    return pProperty->OnChanged.Connect(this, update);
 }
 
 DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)

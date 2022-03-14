@@ -7,10 +7,10 @@
 NetworkSettings::NetworkSettings()
 {
     QVector<CommonDispatcher<>*> dispatchers {
-        &ProxyHost.OnChange,
-        &ProxyPassword.OnChange,
-        &ProxyUserName.OnChange,
-        &ProxyPort.OnChange
+        &ProxyHost.OnChanged,
+        &ProxyPassword.OnChanged,
+        &ProxyUserName.OnChanged,
+        &ProxyPort.OnChanged
     };
     OnChanged.Subscribe(dispatchers);
 }
@@ -20,7 +20,7 @@ StyleSettings::StyleSettings()
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(ShadowColor);
 
-    StylesQSSFile.OnChange += { this, [this]{
+    StylesQSSFile.OnChanged += { this, [this]{
         InstallQSSReader(StylesQSSFile);
     }};
 }

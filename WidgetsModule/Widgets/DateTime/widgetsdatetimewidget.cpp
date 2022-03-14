@@ -55,7 +55,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         OnApplyActivate();
 	});
 
-    Locale.OnChange.ConnectAndCall(this, [this]{
+    Locale.OnChanged.ConnectAndCall(this, [this]{
         ui->calendarWidget->setLocale(Locale);
         ui->widget->Locale = Locale.Native();
     });

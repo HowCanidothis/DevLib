@@ -73,11 +73,11 @@ Measurement::Measurement(const QString& label)
         CurrentUnitLabel.ConnectFrom(m_currentUnit->Label).MakeSafe(m_currentConnections);
     });
     
-    OnChanged.Subscribe({&Label.OnChange,
-                           &CurrentUnitId.OnChange,
-                           &CurrentUnitLabel.OnChange,
-                           &CurrentPrecision.OnChange,
-                           &CurrentStep.OnChange});
+    OnChanged.Subscribe({&Label.OnChanged,
+                           &CurrentUnitId.OnChanged,
+                           &CurrentUnitLabel.OnChanged,
+                           &CurrentPrecision.OnChanged,
+                           &CurrentStep.OnChanged});
 }
 
 Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
@@ -401,9 +401,9 @@ MeasurementManager::MeasurementManager()
             measurement->CurrentUnitId = parameters->UnitId;
             measurement->CurrentPrecision = parameters->UnitPrecision;
             
-            measurement->CurrentStep.OnChange.Connect(this, [parameters, measurement]{parameters->UnitStep = measurement->CurrentStep; }).MakeSafe(m_connections);
-            measurement->CurrentUnitId.OnChange.Connect(this, [measurement, parameters]{parameters->UnitId = measurement->CurrentUnitId; }).MakeSafe(m_connections);
-            measurement->CurrentPrecision.OnChange.Connect(this, [parameters, measurement]{parameters->UnitPrecision = measurement->CurrentPrecision; }).MakeSafe(m_connections);
+            measurement->CurrentStep.OnChanged.Connect(this, [parameters, measurement]{parameters->UnitStep = measurement->CurrentStep; }).MakeSafe(m_connections);
+            measurement->CurrentUnitId.OnChanged.Connect(this, [measurement, parameters]{parameters->UnitId = measurement->CurrentUnitId; }).MakeSafe(m_connections);
+            measurement->CurrentPrecision.OnChanged.Connect(this, [parameters, measurement]{parameters->UnitPrecision = measurement->CurrentPrecision; }).MakeSafe(m_connections);
         }
     });
 }
@@ -523,7 +523,7 @@ void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& str
     for(const auto& metric : metrics) {
         auto foundIt = uniqueMetrics.find(metric);
         if(foundIt == uniqueMetrics.end()) {
-            string.Retranslate.ConnectFrom(MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentUnitLabel.OnChange).MakeSafe(connections);
+            string.Retranslate.ConnectFrom(MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentUnitLabel.OnChanged).MakeSafe(connections);
             uniqueMetrics.insert(metric);
         }
     }

@@ -34,7 +34,7 @@ NotifyButton::NotifyButton(QWidget* parent)
         return QPoint(size.width(), size.height());
     });
 
-    NotificationsCountString.OnChange += { this, [this]{
+    NotificationsCountString.OnChanged += { this, [this]{
         ThreadsBase::DoMain([this]{
             if(NotificationsCount == 0) {
                 m_label->setVisible(false);
