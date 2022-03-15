@@ -37,6 +37,8 @@ public:
 
     DispatcherConnections ConnectFromStateProperty(const StateProperty& property);
     DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
+    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
 };
 
 class StateParameters

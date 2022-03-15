@@ -25,6 +25,31 @@ DispatcherConnections StateProperty::ConnectFromDispatchers(const QVector<Dispat
     return result;
 }
 
+DispatcherConnections StateProperty::PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once)
+{
+    auto commutator = ::make_shared<LocalPropertyBoolCommutator>(true, delayMsecs);
+    auto connections = ::make_shared<DispatcherConnections>(commutator->AddProperties(stateProperties));
+    commutator->Update();
+    *connections += commutator->OnChanged.ConnectAndCall(nullptr, [connections, handler, commutator, once]{
+        if(*commutator) {
+            handler();
+            if(once) {
+                ThreadsBase::DoMain([connections]{
+                    for(auto& connection : *connections) {
+                        connection.Disconnect();
+                    }
+                });
+            }
+        }
+    });
+    return *connections;
+}
+
+DispatcherConnections StateProperty::OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler)
+{
+    return PerformWhenEveryIsValid(stateProperties, handler, 0, true);
+}
+
 StateParameters::StateParameters()
     : IsLocked(false)
     , m_counter(0)
