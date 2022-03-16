@@ -111,20 +111,28 @@ public:
         }
 
         displayRoleComponent.GetterHandler = [modelGetter, getterUi](const QModelIndex& index) -> std::optional<QVariant> {
-            if(index.row() >= modelGetter()->GetSize()) {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr) {
                 return "-";
             }
-            return getterUi(modelGetter()->At(index.row()));
+            if(index.row() >= viewModel->GetSize()) {
+                return "-";
+            }
+            return getterUi(viewModel->At(index.row()));
         };
         displayRoleComponent.GetHeaderHandler = [header]{ return header(); };
 
         m_viewModel->ColumnComponents.AddComponent(Qt::DisplayRole, column, displayRoleComponent);
 
         auto editRoleGetter = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
-            if(index.row() >= modelGetter()->GetSize()) {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr) {
+                return "-";
+            }
+            if(index.row() >= viewModel->GetSize()) {
                 return QVariant();
             }
-            return getter(modelGetter()->At(index.row()));
+            return getter(viewModel->At(index.row()));
         };
 
         ViewModelsTableColumnComponents::ColumnComponentData editRoleComponent;
@@ -132,10 +140,14 @@ public:
 
         if(setter != nullptr) {
             editRoleComponent.SetterHandler = [modelGetter, setter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
-                if(index.row() >= modelGetter()->GetSize()) {
+                const auto& viewModel = modelGetter();
+                if(viewModel == nullptr) {
                     return false;
                 }
-                return modelGetter()->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
+                if(index.row() >= viewModel->GetSize()) {
+                    return false;
+                }
+                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
             };
 
             m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable; } });
