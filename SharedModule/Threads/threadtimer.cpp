@@ -9,6 +9,24 @@ ThreadTimer::ThreadTimer(qint32 msecs)
 
 }
 
+void ThreadTimerManager::Terminate()
+{
+    getInstance().terminate();
+}
+
+void ThreadTimerManager::terminate()
+{
+    FutureResult result;
+    result += ThreadsBase::DoQThreadWorkerWithResult(m_threadWorker.get(), [this]{
+        m_timers.Clear();
+        m_threadWorker = nullptr;
+    });
+    result.Wait();
+    m_thread->quit();
+    m_thread->wait();
+    m_isTerminated = true;
+}
+
 QMetaObject::Connection ThreadTimer::OnTimeout(const FAction& action)
 {
     return ThreadTimerManager::addTimerConnection(m_handle, action);
@@ -24,6 +42,7 @@ ThreadTimer::~ThreadTimer()
 ThreadTimerManager::ThreadTimerManager()
     : m_thread(new QThread())
     , m_threadWorker(new QObject())
+    , m_isTerminated(false)
 {
     m_thread->start();
     m_threadWorker->moveToThread(m_thread.get());
@@ -31,14 +50,7 @@ ThreadTimerManager::ThreadTimerManager()
 
 ThreadTimerManager::~ThreadTimerManager()
 {
-    FutureResult result;
-    result += ThreadsBase::DoQThreadWorkerWithResult(m_threadWorker.get(), [this]{
-        m_timers.Clear();
-        m_threadWorker = nullptr;
-    });
-    result.Wait();
-    m_thread->quit();
-    m_thread->wait();
+    Q_ASSERT(m_isTerminated);
 }
 
 void ThreadTimerManager::SingleShotDoMain(qint32 msecs, const FAction& onTimeout)
