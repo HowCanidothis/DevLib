@@ -34,6 +34,9 @@ QMetaObject::Connection ThreadTimer::OnTimeout(const FAction& action)
 
 ThreadTimer::~ThreadTimer()
 {
+    if(ThreadTimerManager::getInstance().m_isTerminated) {
+        return;
+    }
     FutureResult result;
     result += ThreadTimerManager::deleteTimer(m_handle);
     result.Wait();
