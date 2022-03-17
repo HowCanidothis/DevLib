@@ -21,7 +21,7 @@ public:
         auto update = [this]{
             DisplayValue.SetMinMax(*this, *this);
         };
-        this->OnChange.Connect(this, update);
+        this->OnChanged.Connect(this, update);
         update();
     }
 
@@ -52,11 +52,11 @@ class WidgetsLocalPropertyVisibilityWrapper : public QObject
 {
 public:
     WidgetsLocalPropertyVisibilityWrapper(QWidget* widget);
+    WidgetsLocalPropertyVisibilityWrapper(QAction* action);
 
     LocalPropertyBool Visible;
 
 private:
-    QWidget* m_widget;
     DispatcherConnectionsSafe m_connections;
 };
 
@@ -64,6 +64,7 @@ class WidgetsLocalPropertyEnablityWrapper : public QObject
 {
 public:
     WidgetsLocalPropertyEnablityWrapper(QWidget* widget);
+    WidgetsLocalPropertyEnablityWrapper(QAction* action);
 
     LocalPropertyBool Enabled;
 

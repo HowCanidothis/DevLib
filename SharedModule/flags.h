@@ -90,6 +90,10 @@ public:
     {
         return _value & flag;
     }
+    bool TestFlag(qint32 flag) const
+    {
+        return _value & flag;
+    }
 
     Flags& ChangeFromBoolean(ValueType flags, bool flag)
     {

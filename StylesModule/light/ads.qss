@@ -109,12 +109,12 @@ ads--CDockWidgetTab QPushButton#tabCloseButton
     max-height: 10px;
     min-width: 10px;
     min-height: 10px;
-    border-image: url(:/menu_bar/close.svg);
+    border-image: url(:/MenuBar/close.svg);
 }
 
 ads--CDockWidgetTab QPushButton#tabCloseButton:hover
 {
-    border-image: url(:/menu_bar/close-hover.svg);
+    border-image: url(:/MenuBar/close-hover.svg);
 }
 
 QWidget #tabCloseButton:pressed

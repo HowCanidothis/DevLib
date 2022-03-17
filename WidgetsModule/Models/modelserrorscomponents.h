@@ -126,10 +126,10 @@ public:
         SharedPointer<LocalPropertyBool> visibleProperty = parameters.EnableFilter ? ::make_shared<LocalPropertyBool>(true) : nullptr;
         container->RegisterError(parameters.ErrorName, parameters.Label, [this, errorFlags]{
             return !(ErrorState.Native() & errorFlags);
-        }, { &ErrorState.OnChange }, parameters.MessageType, visibleProperty);
+        }, { &ErrorState.OnChanged }, parameters.MessageType, visibleProperty);
         if(visibleProperty != nullptr) {
             auto* pProperty = visibleProperty.get();
-            visibleProperty->OnChange.Connect(this, [this,pProperty, errorFlags]{
+            visibleProperty->OnChanged.Connect(this, [this,pProperty, errorFlags]{
                 auto errorFilter = ErrorFilter.Native();
                 if(*pProperty) {
                     errorFilter |= errorFlags;
@@ -270,7 +270,7 @@ private:
 
     void onInitialize(const WrapperPtr& wrapper)
     {
-        ErrorFilter.OnChange.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
+        ErrorFilter.OnChanged.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
 
         wrapper->OnRowsChanged.Connect(this, [this](int, int, const QSet<int>&){
             update();

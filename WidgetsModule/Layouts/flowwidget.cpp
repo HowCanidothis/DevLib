@@ -27,6 +27,18 @@ void FlowWidget::AddWidget(const Name& tag, QWidget* widget)
     AddWidget(widget);
 }
 
+void FlowWidget::Clear()
+{
+    QSet<QWidget*> widgets;
+    for(auto* widget : m_taggedWidgets) {
+        widgets.insert(widget);
+    }
+    m_layout->RemoveWidgets(widgets);
+    for(auto* widget : widgets) {
+        widget->deleteLater();
+    }
+}
+
 void FlowWidget::RemoveWidgets(const QSet<Name>& tags)
 {
     QSet<QWidget*> widgets;

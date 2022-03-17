@@ -5,7 +5,7 @@
 
 #include "SharedModule/smartpointersadapters.h"
 
-class Logger
+class Logger : public Singletone<Logger>
 {
     typedef void (Logger::*FPrintToConsole)(const QString& message);
 public:
@@ -21,7 +21,7 @@ public:
     ~Logger();
 
     static void EnableLogging(bool enabled);
-    static void SetSeverity(ESeverity severity) { getInstance()->m_severity = severity; }
+    static void SetSeverity(ESeverity severity) { GetInstance().m_severity = severity; }
     static void SetMaxDays(qint32 maxDays);
     static void SetConsoleEnabled(bool enabled);
 
@@ -30,7 +30,6 @@ public:
 
 private:
     static void messageHandler(QtMsgType type, const QMessageLogContext&, const QString& message);
-    static Logger*& getInstance();
 
     void print(const QString& message);
 
@@ -52,7 +51,6 @@ private:
     FPrintToConsole m_printHandler;
     FPrintToConsole m_printHandlerBefore;
     QtMessageHandler m_messageHandler;
-    DelayedCallObject m_mainCall;
 };
 
 #endif // LOGGER_H

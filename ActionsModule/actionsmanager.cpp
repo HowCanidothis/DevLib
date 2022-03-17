@@ -11,12 +11,6 @@ ActionsManager::ActionsManager()
 
 }
 
-ActionsManager& ActionsManager::GetInstance()
-{
-    static ActionsManager result;
-    return result;
-}
-
 void ActionsManager::CreateActionsFromRegisteredScopes()
 {
     for(const auto& it : m_actionsScopes) {

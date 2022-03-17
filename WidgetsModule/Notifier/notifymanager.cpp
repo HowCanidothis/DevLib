@@ -23,7 +23,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , m_exceedData(::make_shared<NotifyData>(Warning, ""))
     , m_exceedCounter(0)
 {
-    m_onLayoutChanged.Subscribe({ &BottomMargin.OnChange, &RightMargin.OnChange, &Spacing.OnChange, &Width.OnChange, &ReservedHeight.OnChange });
+    m_onLayoutChanged.Subscribe({ &BottomMargin.OnChanged, &RightMargin.OnChanged, &Spacing.OnChanged, &Width.OnChanged, &ReservedHeight.OnChanged });
     m_onLayoutChanged.Connect(this, [this]{
         rearrange();
     });

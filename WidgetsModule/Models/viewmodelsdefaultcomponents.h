@@ -10,55 +10,91 @@ class ViewModelsColumnComponentsBuilderBase
     using Super = QObject;
 public:
     ViewModelsColumnComponentsBuilderBase(ViewModelsTableBase* model)
-        : m_model(model)
+        : m_viewModel(model)
     {}
 
     ViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                    LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor);
 
 protected:
-    ViewModelsTableBase* m_model;
+    ViewModelsTableBase* m_viewModel;
 };
 
-template<class Wrapper>
+template<class T>
+struct LambdaValueWrapper
+{
+
+};
+
+template<class T>
+struct LambdaValueWrapper<T&>
+{
+    LambdaValueWrapper(T& value)
+        : m_value(value)
+    {}
+
+    operator T&() const { return m_value; }
+
+private:
+    T& m_value;
+};
+
+template<class T>
+struct LambdaValueWrapper<T*>
+{
+    LambdaValueWrapper(T* value)
+        : m_value(value)
+    {}
+
+    operator T*() const { return m_value; }
+
+private:
+    T* m_value;
+};
+
+template<class Wrapper, typename ValueType = typename Wrapper::value_type&, typename ConstValueType = const typename Wrapper::value_type&>
 class ViewModelsColumnComponentsBuilder : ViewModelsColumnComponentsBuilderBase
 {
     using Super = ViewModelsColumnComponentsBuilderBase;
+
 public:
-    using value_type = typename Wrapper::value_type;
-    using FModelGetter = std::function<QVariant (const typename Wrapper::value_type&)>;
-    using FModelSetter = std::function<FAction (const QVariant& data, typename Wrapper::value_type&)>;
+    using FModelGetter = std::function<QVariant (ConstValueType)>;
+    using FModelSetter = std::function<FAction (const QVariant& data, ValueType)>;
 
     ViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const std::function<Wrapper* ()>& modelGetter)
         : Super(viewModel)
         , m_modelGetter(modelGetter)
-        , m_viewModel(viewModel)
     {}
 
     ~ViewModelsColumnComponentsBuilder()
     {
+#ifdef UNITS_MODULE_LIB
         AttachDependencies();
+#endif
     }
 
-    ViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
-                                                              LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor)
+    ViewModelsColumnComponentsBuilder& AddDefaultColors()
     {
-        return reinterpret_cast<ViewModelsColumnComponentsBuilderBase&>(Super::AddDefaultColors(enabledCellColor, disabledCellColor, enabledTextColor, disabledTextColor));
+        auto& settings = SharedSettings::GetInstance();
+        Super::AddDefaultColors(&settings.StyleSettings.EnabledTableCellColor, &settings.StyleSettings.DisabledTableCellColor,
+                         &settings.StyleSettings.EnabledTableCellTextColor, &settings.StyleSettings.DisabledTableCellTextColor);
+        return *this;
     }
 
-    ViewModelsColumnComponentsBuilderBase& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns)
+    ViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns)
     {
         auto* viewModel = m_viewModel;
+        auto modelGetter = m_modelGetter;
         for(const auto& [column, errorsStack] : columns) {
             auto errorsStackCopy = errorsStack;
             viewModel->ColumnComponents.AddComponent(Qt::DecorationRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
-                                                   .SetGetter([viewModel, component, errorsStackCopy](const QModelIndex& index) {
-                                                        const auto& data = viewModel->GetData().Cast<Wrapper>()->At(index.row());
+                                                   .SetGetter([viewModel, component, errorsStackCopy, modelGetter](const QModelIndex& index) {
+                                                        ConstValueType data = modelGetter()->At(index.row());
                                                         return component->ErrorIcon(data, errorsStackCopy, viewModel->GetIconsContext());
                                                     }));
             viewModel->ColumnComponents.AddComponent(Qt::ToolTipRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
-                                                   .SetGetter([viewModel, component, errorsStackCopy](const QModelIndex& index) {
-                                                        const auto& data = viewModel->GetData().Cast<Wrapper>()->At(index.row());
+                                                   .SetGetter([component, errorsStackCopy, modelGetter](const QModelIndex& index) {
+                                                        ConstValueType data = modelGetter()->At(index.row());
                                                         return component->ErrorString(data, errorsStackCopy);
                                                     }));
         }
@@ -75,49 +111,66 @@ public:
         }
 
         displayRoleComponent.GetterHandler = [modelGetter, getterUi](const QModelIndex& index) -> std::optional<QVariant> {
-            if(index.row() >= modelGetter()->GetSize()) {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr) {
                 return "-";
             }
-            return getterUi(modelGetter()->At(index.row()));
+            if(index.row() >= viewModel->GetSize()) {
+                return "-";
+            }
+            return getterUi(viewModel->At(index.row()));
         };
         displayRoleComponent.GetHeaderHandler = [header]{ return header(); };
 
         m_viewModel->ColumnComponents.AddComponent(Qt::DisplayRole, column, displayRoleComponent);
-        if(setter != nullptr) {
-            ViewModelsTableColumnComponents::ColumnComponentData editRoleComponent;
 
-            editRoleComponent.GetterHandler = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
-                if(index.row() >= modelGetter()->GetSize()) {
-                    return QVariant();
-                }
-                return getter(modelGetter()->At(index.row()));
-            };
+        auto editRoleGetter = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr) {
+                return "-";
+            }
+            if(index.row() >= viewModel->GetSize()) {
+                return QVariant();
+            }
+            return getter(viewModel->At(index.row()));
+        };
+
+        ViewModelsTableColumnComponents::ColumnComponentData editRoleComponent;
+        editRoleComponent.GetterHandler = editRoleGetter;
+
+        if(setter != nullptr) {
             editRoleComponent.SetterHandler = [modelGetter, setter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
-                if(index.row() >= modelGetter()->GetSize()) {
+                const auto& viewModel = modelGetter();
+                if(viewModel == nullptr) {
                     return false;
                 }
-                return modelGetter()->EditWithCheck(index.row(), [&](auto& value){ return setter(data, value); });
+                if(index.row() >= viewModel->GetSize()) {
+                    return false;
+                }
+                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
             };
 
-            m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);
             m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable; } });
         } else {
             m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; } });
         }
 
+        m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);
+
         return *this;
     }
 
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (value_type&)>& getter)
+    ViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter)
     {
-        return AddColumn(column, header, [getter](const value_type& constData)-> QVariant {
-            auto& data = const_cast<value_type&>(constData);
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
             return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
-        }, [getter](const QVariant& value, value_type& data) -> FAction {
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
             auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
             if(TranslatorManager::IsValid<Enum>(enumIndex)){
-                return [enumIndex, &data, getter]{ getter(data) = static_cast<Enum>(enumIndex); };
+                LambdaValueWrapper<ValueType> wrapper(data);
+                return [enumIndex, wrapper, getter]{ getter(wrapper) = static_cast<Enum>(enumIndex); };
             }
             return nullptr;
         });
@@ -129,6 +182,23 @@ public:
             auto& data = const_cast<value_type&>(constData);
             return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
         }, nullptr);
+    }
+
+
+    template<class Enum>
+    ViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter)
+    {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data).Native())];
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
+            auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
+            if(TranslatorManager::IsValid<Enum>(enumIndex)){
+                LambdaValueWrapper<ValueType> wrapper(data);
+                return [enumIndex, wrapper, getter]{ getter(wrapper) = static_cast<Enum>(enumIndex); };
+            }
+            return nullptr;
+        });
     }
 
 #ifdef UNITS_MODULE_LIB
@@ -170,30 +240,56 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement.get();
-        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](const value_type& value) -> QVariant {
-            return QString::number(pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value))), 'f', pMeasurement->CurrentPrecision);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
-            return [&]{ getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble()); };
-        }, [getter, pMeasurement](const value_type& value) -> QVariant {
-            return pMeasurement->BaseValueToCurrentUnit(getter(const_cast<value_type&>(value)));
+        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+            auto concreteValue = getter(const_cast<ValueType>(value));
+            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
+                return "-";
+            }
+            return QString::number(pMeasurement->BaseValueToCurrentUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+        }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
+            return pMeasurement->BaseValueToCurrentUnit(getter(const_cast<ValueType>(value)));
         });
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (value_type&)>& getter, bool readOnly = false)
+    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement.get();
-        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](const value_type& constValue) -> QVariant {
-            auto& value = const_cast<value_type&>(constValue);
+        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+            auto concreteValue = getter(const_cast<ValueType>(value));
+            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
+                return "-";
+            }
+            return QString::number(pMeasurement->BaseValueToCurrentUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
+            return [&]{ getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble()); };
+        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+            return pMeasurement->BaseValueToCurrentUnit(getter(const_cast<ValueType>(value)));
+        });
+    }
+
+    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (ValueType)>& getter, bool readOnly = false)
+    {
+        Q_ASSERT(m_currentMeasurement != nullptr);
+        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
+        m_currentMeasurementColumns.InsertSortedUnique(column);
+
+        auto pMeasurement = m_currentMeasurement.get();
+        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType constValue) -> QVariant {
+            auto& value = const_cast<ValueType>(constValue);
             auto& dataValue = getter(value);
             if(!dataValue.has_value()) {
                 return "-";
             }
-            return QString::number(pMeasurement->BaseValueToCurrentUnit(dataValue.value()), 'f', pMeasurement->CurrentPrecision);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, value_type& value) -> FAction {
+            const auto& concreteValue = dataValue.value();
+            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
+                return "-";
+            }
+            return QString::number(pMeasurement->BaseValueToCurrentUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{
                 if(data.isValid()) {
                     getter(value) = pMeasurement->CurrentUnitToBaseValue(data.toDouble());
@@ -201,8 +297,8 @@ public:
                     getter(value) = std::nullopt;
                 }
             };
-        }, [getter, pMeasurement](const value_type& constValue) -> QVariant {
-            auto& value = const_cast<value_type&>(constValue);
+        }, [getter, pMeasurement](ConstValueType constValue) -> QVariant {
+            auto& value = const_cast<ValueType>(constValue);
             auto& dataValue = getter(value);
             if(!dataValue.has_value()) {
                 return 0.0;
@@ -213,12 +309,12 @@ public:
 #endif
 private:
     std::function<Wrapper* ()> m_modelGetter;
-    ViewModelsTableBase* m_viewModel;
 #ifdef UNITS_MODULE_LIB
     SharedPointer<class Measurement> m_currentMeasurement;
     Array<qint32> m_currentMeasurementColumns;
 #endif
 };
+
 
 #define ViewModelsBuilderColumnUiReadOnly(column, header, getter, getterUi) \
     builder.AddColumn(column, []{ return header; }, \

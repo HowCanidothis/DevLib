@@ -110,7 +110,7 @@ class CommonDispatcher
 {
 public:
     using Type = void (Args...);
-    using Observer = void*;
+    using Observer = const void*;
     using FCommonDispatcherAction = std::function<Type>;
     using FCommonDispatcherActionWithResult = std::function<bool (Args...)>;
 
@@ -165,14 +165,14 @@ public:
         Invoke(args...);
     }
 
-    DispatcherConnection ConnectFrom(CommonDispatcher& another)
+    DispatcherConnection ConnectFrom(CommonDispatcher& another) const
     {
         return another.Connect(this, [this](Args... args){
             Invoke(args...);
         });
     }
 
-    DispatcherConnections ConnectBoth(CommonDispatcher& another)
+    DispatcherConnections ConnectBoth(CommonDispatcher& another) const
     {
         DispatcherConnections result;
         auto sync = ::make_shared<std::atomic_bool>(false);
@@ -193,7 +193,7 @@ public:
         return result;
     }
 
-    DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler)
+    DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler) const
     {
         QMutexLocker lock(&m_mutex);
         auto foundIt = m_connectionSubscribes.find(key);
@@ -221,19 +221,19 @@ public:
         });
     }
 
-    DispatcherConnection ConnectAndCall(Observer key, const FCommonDispatcherAction& handler)
+    DispatcherConnection ConnectAndCall(Observer key, const FCommonDispatcherAction& handler) const
     {
         auto result = Connect(key, handler);
         handler();
         return result;
     }
 
-    void Disconnect(const DispatcherConnection& connection)
+    void Disconnect(const DispatcherConnection& connection) const
     {
         connection.Disconnect();
     }
 
-    CommonDispatcher& operator+=(const ActionHandler& subscribeHandler)
+    const CommonDispatcher& operator+=(const ActionHandler& subscribeHandler) const
     {
         QMutexLocker lock(&m_mutex);
         Q_ASSERT(!m_subscribes.contains(subscribeHandler.Key));
@@ -241,7 +241,7 @@ public:
         return *this;
     }
 
-    void operator-=(Observer observer)
+    void operator-=(Observer observer) const
     {
         FCommonDispatcherAction action;
         ConnectionSubscribe connection;
@@ -265,7 +265,7 @@ public:
         }
     }
 
-    void OnFirstInvoke(const FCommonDispatcherAction& action)
+    void OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
         Connect(this, [action, connections](Args... args){
@@ -276,9 +276,9 @@ public:
 
 private:
     friend class Connection;
-    QSet<DispatcherConnectionSafePtr> m_safeConnections;
-    QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
-    QHash<Observer, FCommonDispatcherAction> m_subscribes;
+    mutable QSet<DispatcherConnectionSafePtr> m_safeConnections;
+    mutable QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
+    mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable QMutex m_mutex;
 };
 

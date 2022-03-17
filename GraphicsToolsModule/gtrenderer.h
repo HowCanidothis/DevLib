@@ -50,7 +50,7 @@ public:
     GtShaderProgramPtr CreateShaderProgram(const Name& name);
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
     template<class T>
-    SharedPointer<Resource<T>> GetResource(const Name& name)
+    TResource<T> GetResource(const Name& name)
     {
         auto resource = m_resourceSystem.GetResource<T>(name, true);
         if(resource != nullptr) {
@@ -111,18 +111,18 @@ private:
 
     QVector<GtRendererControllerPtr> m_controllers;
     ScopedPointer<QImage> m_outputImage;
-    SharedPointer<Matrix4Resource> m_mvp;
-    SharedPointer<Matrix4Resource> m_view;
-    SharedPointer<Matrix4Resource> m_projection;
-    SharedPointer<Matrix4Resource> m_rotation;
-    SharedPointer<Matrix4Resource> m_invertedMv;
-    SharedPointer<Matrix4Resource> m_viewport;
-    SharedPointer<Resource<Vector3F>> m_eye;
-    SharedPointer<Resource<Vector3F>> m_forward;
-    SharedPointer<Resource<Vector3F>> m_side;
-    SharedPointer<Resource<Vector3F>> m_up;
-    SharedPointer<Resource<Vector2F>> m_screenSize;
-    SharedPointer<Resource<GtCamera*>> m_camera;
+    Matrix4Resource m_mvp;
+    Matrix4Resource m_view;
+    Matrix4Resource m_projection;
+    Matrix4Resource m_rotation;
+    Matrix4Resource m_invertedMv;
+    Matrix4Resource m_viewport;
+    TResource<Vector3F> m_eye;
+    TResource<Vector3F> m_forward;
+    TResource<Vector3F> m_side;
+    TResource<Vector3F> m_up;
+    TResource<Vector2F> m_screenSize;
+    TResource<GtCamera*> m_camera;
     ScopedPointer<GtStandardMeshs> m_standardMeshs;
 
     qint32 m_queueNumber;

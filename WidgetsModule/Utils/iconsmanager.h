@@ -12,6 +12,27 @@ struct IconsPalette
     LocalPropertyColor ActiveColor;
     LocalPropertyColor SelectedColor;
 
+    IconsPalette& SetColors(const QColor& color)
+    {
+        NormalColor = color;
+        DisabledColor = color;
+        ActiveColor = color;
+        SelectedColor = color;
+        return *this;
+    }
+
+    IconsPalette& SetSelectedColor(const QColor& color)
+    {
+        SelectedColor = color;
+        return *this;
+    }
+
+    IconsPalette& SetActiveColor(const QColor& color)
+    {
+        ActiveColor = color;
+        return *this;
+    }
+
     DispatcherConnections ConnectFrom(IconsPalette& another)
     {
         DispatcherConnections result;
@@ -63,6 +84,7 @@ public:
 
     IconsSvgIcon RegisterIcon(qint32 index, const QString& path);
     IconsSvgIcon RegisterIcon(const Name& id, const QString& path);
+    IconsSvgIcon RegisterIconWithDefaultColorScheme(const Name& id, const QString& path);
     const IconsSvgIcon& GetIcon(qint32 index) const;
     const IconsSvgIcon& GetIcon(const Name& id) const;
 

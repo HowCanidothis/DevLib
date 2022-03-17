@@ -9,6 +9,7 @@ MainWindow {
     qproperty-iconDailyReportColor: #CDDC39;
     qproperty-iconBHAColor: #8BC34A;
     qproperty-iconInventoryColor: #F9A825;
+    qproperty-iconShippingColor: #AD1456;
     qproperty-iconCalendarColor: #F3F3F3;
     qproperty-iconNetworkOnlineColor: #22b14c;
     qproperty-iconNetworkOfflineColor: #ff3b30;

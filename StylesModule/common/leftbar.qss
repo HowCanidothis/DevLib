@@ -168,7 +168,7 @@ QPushButton#BtnMaximize:hover {
 
 QPushButton#BtnClose:hover {
     background: #D61425;
-    image: url(":/menu_bar/close-hover.svg");
+    image: url(":/MenuBar/close-hover.svg");
 }
 
 MenuBarMovePane {
@@ -191,7 +191,7 @@ MenuBar QMenuBar::item:selected {
 
 QPushButton#BtnMinimize {
     qproperty-text: "";
-    image: url(":/menu_bar/minimize.svg");
+    image: url(":/MenuBar/minimize.svg");
     background: none;
     border-radius: none;
     border: none;
@@ -205,16 +205,16 @@ QPushButton#BtnMinimize:hover {
 
 QPushButton#BtnMaximize[windowMaximized="true"] {
     padding: 9 5 8 5;
-    image: url(":/menu_bar/doublesquare.svg");
+    image: url(":/MenuBar/doublesquare.svg");
 }
 
 QPushButton#BtnMaximize[windowMaximized="false"] {
-    image: url(":/menu_bar/square.svg");
+    image: url(":/MenuBar/square.svg");
 }
 
 QPushButton#BtnMaximize {
     qproperty-text: "";
-    image: url(":/menu_bar/square.svg");
+    image: url(":/MenuBar/square.svg");
     border-radius: none;
     background: none;
     padding: 7 5 6 5;
@@ -228,7 +228,7 @@ QPushButton#BtnMaximize:hover {
 
 QPushButton#BtnClose {
     qproperty-text: "";
-    image: url(":/menu_bar/close.svg");
+    image: url(":/MenuBar/close.svg");
     border-radius: none;
     background: none;
     padding: 7 5 6 5;

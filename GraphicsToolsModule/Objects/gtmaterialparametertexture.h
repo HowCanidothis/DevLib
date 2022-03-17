@@ -6,7 +6,7 @@
 class GtMaterialParameterTexture : public GtMaterialParameterTextureBase
 {
     typedef GtMaterialParameterTextureBase Super;
-    SharedPointer<GtTextureResource> m_texture;
+    GtTextureResource m_texture;
 public:
     GtMaterialParameterTexture(const QString& m_name, const Name& m_resource);
 

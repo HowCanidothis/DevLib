@@ -417,6 +417,52 @@ CommonGuard<Owner, BindFunc, ReleaseFunc> make(Owner* owner, BindFunc bind, Rele
 
 }
 
+template<class T>
+class Singletone
+{
+public:
+    Singletone()
+    {
+        Q_ASSERT(m_instance == nullptr);
+        m_instance = reinterpret_cast<T*>(this);
+    }
+    virtual ~Singletone()
+    {
+        m_instance = nullptr;
+    }
+
+    static T& GetInstance()
+    {
+        Q_ASSERT(m_instance != nullptr);
+        return *m_instance;
+    }
+
+private:
+    static T* m_instance;
+};
+
+template<class T>
+T* Singletone<T>::m_instance = nullptr;
+
+template<class T>
+class SingletoneGlobal
+{
+public:
+    static T& GetInstance()
+    {
+        return m_instance;
+    }
+
+private:
+    static T m_instance;
+};
+
+#define ENABLE_SINGLETONE_ACCESS(className) \
+    template<class T> friend class SingletoneGlobal
+
+template<class T>
+T SingletoneGlobal<T>::m_instance;
+
 struct CastablePtr{
 public:
     CastablePtr(const void* d) : m_data(d) {}

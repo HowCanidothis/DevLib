@@ -9,7 +9,7 @@ public:
     template<class T>
     static DispatcherConnection Watch(const QString& name, LocalProperty<T>& property)
     {
-        return property.OnChange.Connect(nullptr, [name, &property]{
+        return property.OnChanged.Connect(nullptr, [name, &property]{
             qDebug() << name << "Changed" << property.Native();
         });
     }

@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QAction>
 
 #include <optional>
 
@@ -23,7 +24,7 @@ WidgetsLocalPropertyColorWrapper::WidgetsLocalPropertyColorWrapper(QWidget* widg
     m_properties.Swap(const_cast<Stack<WidgetsLocalPropertyColorWrapperColorMap>&>(colorMap));
 
     for(auto& propertyMap : m_properties) {
-        propertyMap.Color->OnChange.Connect(this, [this]{
+        propertyMap.Color->OnChanged.Connect(this, [this]{
             m_updateLater.Call([this]{
                 polish();
             });
@@ -47,10 +48,24 @@ WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWi
     connect(widget, &QWidget::destroyed, [this]{
         delete this;
     });
-    Visible.OnChange.Connect(this, [this, widget]{
+    Visible.OnChanged.Connect(this, [this, widget]{
         widget->setVisible(Visible);
     }).MakeSafe(m_connections);
     widget->setVisible(Visible);
+    Visible.SetSetterHandler(ThreadHandlerMain);
+}
+
+WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QAction* widget)
+    : Visible(true)
+{
+    connect(widget, &QAction::destroyed, [this]{
+        delete this;
+    });
+    Visible.OnChanged.Connect(this, [this, widget]{
+        widget->setVisible(Visible);
+    }).MakeSafe(m_connections);
+    widget->setVisible(Visible);
+    Visible.SetSetterHandler(ThreadHandlerMain);
 }
 
 WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget* widget)
@@ -59,12 +74,25 @@ WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget
     connect(widget, &QWidget::destroyed, [this]{
         delete this;
     });
-    Enabled.OnChange.Connect(this, [this, widget]{
+    Enabled.OnChanged.Connect(this, [this, widget]{
         widget->setEnabled(Enabled);
     }).MakeSafe(m_connections);
     widget->setEnabled(Enabled);
+    Enabled.SetSetterHandler(ThreadHandlerMain);
 }
 
+WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QAction* widget)
+    : Enabled(true)
+{
+    connect(widget, &QObject::destroyed, [this]{
+        delete this;
+    });
+    Enabled.OnChanged.Connect(this, [this, widget]{
+        widget->setEnabled(Enabled);
+    }).MakeSafe(m_connections);
+    widget->setEnabled(Enabled);
+    Enabled.SetSetterHandler(ThreadHandlerMain);
+}
 
 void WidgetsLocalPropertyColorWrapper::polish()
 {

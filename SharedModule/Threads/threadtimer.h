@@ -15,6 +15,7 @@ class ThreadTimerManager
     ~ThreadTimerManager();
 public:
     static void Initialize() { getInstance(); }
+    static void Terminate();
 
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
@@ -27,11 +28,13 @@ private:
     static void removeTimerConnection(const QMetaObject::Connection& connection);
     static ThreadTimerManager& getInstance();
     static AsyncResult deleteTimer(QTimer* timerHandle);
+    void terminate();
 
 private:
     ArrayPointers<class QTimer> m_timers;
     ScopedPointer<QThread> m_thread;
     ScopedPointer<QObject> m_threadWorker;
+    bool m_isTerminated;
 };
 
 class ThreadTimer

@@ -6,9 +6,9 @@
 #include "modelstablebase.h"
 
 template<class T>
-class TViewModelsListBase : public ViewModelsTableBase
+class TViewModelsListBase : public TViewModelsTableBase<T>
 {
-    using Super = ViewModelsTableBase;
+    using Super = TViewModelsTableBase<T>;
     using ValueExtractor = std::function<QVariant (const SharedPointer<T>&, const QModelIndex&, int)>;
     using CountExtractor = std::function<qint32 (const SharedPointer<T>&)>;
 public:
@@ -22,9 +22,6 @@ public:
         , m_extractor([](const SharedPointer<T>&, const QModelIndex&, int){ return QVariant(); })
         , m_countExtractor([](const SharedPointer<T>&){ return 0; })
     {}
-
-    void SetData(const SharedPointer<T>& data) { Super::SetData(data); }
-    const SharedPointer<T>& GetData() const { return Super::GetData().template Cast<T>(); }
 
     // QAbstractItemModel interface
 public:

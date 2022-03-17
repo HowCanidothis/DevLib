@@ -15,6 +15,8 @@ class FlowWidget : public QScrollArea
 public:
     FlowWidget(QWidget* parent = nullptr);
 
+    void Clear();
+
     void AddWidget(const Name& tag, QWidget* widget);
     void RemoveWidgets(const QSet<Name>& tags);
 

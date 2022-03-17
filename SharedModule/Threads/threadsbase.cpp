@@ -7,6 +7,7 @@
 #include "SharedModule/External/qtinlineevent.h"
 #include "ThreadFunction/threadfunction.h"
 #include "ThreadFunction/threadpool.h"
+#include "threads_declarations.h"
 #include "SharedModule/ImportExport/importexport.h"
 
 ThreadsBase::ThreadsBase()
@@ -26,10 +27,16 @@ void ThreadsBase::DoMain(const FAction& task, Qt::EventPriority priority)
 
 void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
 {
-    THREAD_ASSERT_IS_NOT_MAIN()
-    FutureResult result;
-    result += QtInlineEventWithResult::Post(task, priority);
-    result.Wait();
+    if(QCoreApplication::instance() == nullptr) {
+        return;
+    }
+    if(QThread::currentThread() == QCoreApplication::instance()->thread()) {
+        task();
+    } else {
+        FutureResult result;
+        result += QtInlineEventWithResult::Post(task, priority);
+        result.Wait();
+    }
 }
 
 bool ThreadsBase::IsTerminated()

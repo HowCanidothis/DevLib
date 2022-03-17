@@ -43,3 +43,6 @@ build-IMX-Desktop_Qt_5_12_1_GCC_64bit-Debug
 /build-IMX-Qt_5_6_GCC_Arm-Debug
 /build-IMX-Qt_5_6_GCC_Arm-Release
 /PropertiesModule/wrappedvalue.h
+/WidgetsModule/Widgets/widgetsfloatingtoolbar.cpp
+/WidgetsModule/Widgets/widgetsfloatingtoolbar.h
+/WidgetsModule/Widgets/widgetsfloatingtoolbar.ui

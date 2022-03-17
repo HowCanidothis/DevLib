@@ -9,11 +9,11 @@
 
 class ActionsScopeBase;
 
-class ActionsManager
+class ActionsManager : public SingletoneGlobal<ActionsManager>
 {
+    template<class T> friend class SingletoneGlobal;
     ActionsManager();
 public:
-    static ActionsManager& GetInstance();
 
     void CreateActionsFromRegisteredScopes();
     ActionsScopeBase* FindScope(const Latin1Name& scopeName) const;

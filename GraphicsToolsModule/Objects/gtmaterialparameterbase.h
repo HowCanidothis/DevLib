@@ -3,22 +3,22 @@
 
 #include <QOpenGLShaderProgram>
 
+#include <ResourcesModule/internal.hpp>
 #include <SharedModule/internal.hpp>
 
 #include "gtobjectbase.h"
-#include "ResourcesModule/resourcessystem.h"
 
-template<class T> class Resource;
+template<class T> class TResource;
 class GtTexture;
 class GtShadowMapTechnique;
 class GtFrameTexture;
 
-typedef Resource<Vector2F> Vector2FResource;
-typedef Resource<Vector3F> Vector3FResource;
-typedef Resource<Matrix4> Matrix4Resource;
-typedef Resource<GtTexture> GtTextureResource;
-typedef Resource<GtFrameTexture> GtFrameTextureResource;
-typedef Resource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
+typedef TResource<Vector2F> Vector2FResource;
+typedef TResource<Vector3F> Vector3FResource;
+typedef TResource<Matrix4> Matrix4Resource;
+typedef TResource<GtTexture> GtTextureResource;
+typedef TResource<GtFrameTexture> GtFrameTextureResource;
+typedef TResource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
 
 #ifdef WORK
 #include <functional>

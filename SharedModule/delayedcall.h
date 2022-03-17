@@ -16,6 +16,9 @@ public:
     }
 
     AsyncResult Call(const FAction& action);
+    FAction Wrap(const FAction& action, const FAction& prepare = []{}) {
+        return [this, action, prepare]{ prepare(); Call(action); };
+    }
 
     Dispatcher OnDeleted;
 

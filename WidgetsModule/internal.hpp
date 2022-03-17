@@ -14,6 +14,8 @@
 #include "Models/modelsvacabulary.h"
 #include "Models/viewmodelsdefaultcomponents.h"
 
+#include "Bars/menubarmovepane.h"
+
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"
 #include "Notifier/notifyconsole.h"
@@ -44,6 +46,7 @@
 #include "Utils/iconsmanager.h"
 #include "Utils/styleutils.h"
 #include "Utils/widgethelpers.h"
+#include "Utils/widgetsstylesettings.h"
 
 #include "Delegates/delegates.h"
 

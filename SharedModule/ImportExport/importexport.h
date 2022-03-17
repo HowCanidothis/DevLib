@@ -16,15 +16,18 @@ struct DescImportExportSourceParams
     EMode Mode;
     QStringList Filters;
     QString DefaultSuffix;
+    qint32 ExpectedExtensionsCount;
 
     DescImportExportSourceParams(EMode mode)
         : Mode(mode)
+        , ExpectedExtensionsCount(2)
     {}
 
     DescImportExportSourceParams& SetLabel(const QString& label) { Label = label; return *this; }
     DescImportExportSourceParams& SetFileName(const QString& fileName) { FileName = fileName; return *this; }
     DescImportExportSourceParams& SetFilters(const QStringList& filters) { Filters = filters; return *this; }
     DescImportExportSourceParams& SetDefaultSuffix(const QString& defaultSuffix) { DefaultSuffix = defaultSuffix; return *this; }
+    DescImportExportSourceParams& SetExpectedExtensionsCount(qint32 count) { ExpectedExtensionsCount = count; return *this; }
 };
 
 struct ImportExportSourceStandardProperties
@@ -32,7 +35,7 @@ struct ImportExportSourceStandardProperties
     QVariant Error;
     bool IsMultithread = false;
     bool IsCompressed = false;
-    bool IsStrictVersion = true;
+    bool IsStrictVersion = false;
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
     bool IsMuted = false;
@@ -114,8 +117,8 @@ class ImportExportFileSource : public ImportExportSource
 {
 public:
     ImportExportFileSource(const QUrl& filePath)
-        : m_file(filePath.toLocalFile())
-        , m_sourceName(filePath.toLocalFile())
+        : m_sourceName(filePath.toLocalFile())
+        , m_file(m_sourceName)
     {
         QFileInfo fileInfo(m_sourceName);
         m_extension = Name(fileInfo.completeSuffix());
@@ -131,9 +134,9 @@ public:
     }
 
 private:
-    QFile m_file;
-    Name m_extension;
     QString m_sourceName;
+    QFile m_file;
+    Name m_extension;    
 };
 
 struct ImportExportVersion
@@ -489,22 +492,9 @@ public:
             QXmlStreamReader reader(source->GetDevice());
             SerializerXmlReadBuffer buffer(&reader);
             auto currentVersion = buffer.ReadVersion();
-            if(currentVersion.Target != version->Target) {
-                source->SetError(tr("Unexpected file contents"));
-                return false;
-            }
-            if(currentVersion.GetFormat() != version->GetFormat()) {
-                source->SetError(tr("Format error - expected %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
-                return false;
-            }
-            auto currentVersionValue = (quint32)currentVersion.GetVersion();
-            if(source->StandardProperties.IsStrictVersion) {
-                if(currentVersionValue != (quint32)version->GetVersion()) {
-                    source->SetError(tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
-                    return false;
-                }
-            } else if(currentVersionValue > (quint32)version->GetVersion()) {
-                source->SetError(tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(version->GetFormat()) , QString::number(currentVersion.GetFormat())));
+            auto result = version->CheckVersion(currentVersion, source->StandardProperties.IsStrictVersion);
+            source->SetError(result);
+            if(result.isValid()) {
                 return false;
             }
             return handler(source, buffer);

@@ -37,7 +37,7 @@ public:
     void SetExpanded(size_t key, bool flag);
 
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
-    void AddChild(const SharedPointer<ModelsTreeItemBase>& item);
+    const SharedPointer<ModelsTreeItemBase>& AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
     void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;
@@ -47,6 +47,7 @@ public:
     virtual QString GetLabel() const { return QString::number(GetRow()); }
     virtual QIcon GetIcon() const { return QIcon(); }
     virtual QFont GetFont() const { return QFont(); }
+    virtual qint32 GetType() const { return -1; }
 
     const SharedPointer<ModelsTreeItemBase>& AsPtr() { Q_ASSERT(GetParent() != nullptr); return GetParent()->GetChildPtr(this); }
     template<class T>
