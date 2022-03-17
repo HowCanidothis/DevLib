@@ -12,8 +12,8 @@ struct DescColumnsParams
 
         ColumnParam& SetVisible(bool visible) { Visible = visible; return *this; }
         ColumnParam& SetCanBeHidden(bool canBeHidden) { CanBeHidden = canBeHidden; return *this; }
-        ColumnParam& HideColumn() { Visible = false; CanBeHidden = true; }
-        ColumnParam& RemoveColumn() { Visible = false; CanBeHidden = false; }
+        ColumnParam& HideColumn() { Visible = false; CanBeHidden = true; return *this;  }
+        ColumnParam& RemoveColumn() { Visible = false; CanBeHidden = false; return *this;  }
     };
 
     DescColumnsParams(const QSet<qint32>& ignoreColumns);
