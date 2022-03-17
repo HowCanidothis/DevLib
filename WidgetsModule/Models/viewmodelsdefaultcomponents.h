@@ -123,7 +123,7 @@ public:
         });
     }
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumColumnReadOnly(qint32 column, const FTranslationHandler& header, const std::function<Enum& (value_type&)>& getter)
+    ViewModelsColumnComponentsBuilder& AddEnumColumnReadOnly(qint32 column, const FTranslationHandler& header, const std::function<Enum (const value_type&)>& getter)
     {
         return AddColumn(column, header, [getter](const value_type& constData)-> QVariant {
             auto& data = const_cast<value_type&>(constData);
