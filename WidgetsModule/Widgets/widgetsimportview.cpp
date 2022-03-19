@@ -71,7 +71,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
         ui->PreviewTable->setVisible(ShowPreview);
     });
 
-	Locale.ConnectBoth(ImportLocale, [](const QLocale& locale){
+    Locale.ConnectBoth(CONNECTION_DEBUG_LOCATION,ImportLocale, [](const QLocale& locale){
 		switch(locale.language()) {
 		case QLocale::Russian: return int(LocaleType::Russian);
 		default: return int(LocaleType::English);
@@ -183,7 +183,7 @@ QTableView* WidgetsImportView::GetPreviewTableView() const
 void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
 {
     m_matchingAttachment = new WidgetsMatchingAttachment(ui->SourceTable, targetModel, targetImportColumns);
-    OnMatchingChanged.ConnectFrom(m_matchingAttachment->OnMatchingChanged);
+    OnMatchingChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_matchingAttachment->OnMatchingChanged);
     m_matchingAttachment->IsEnabled = true;
     m_matchingAttachment->IsVisible = true;
 
@@ -195,8 +195,8 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
         }
     });
 
-    m_matchingAttachment->DateFormat.ConnectFrom(DateTimeFormat);
-    m_matchingAttachment->DecimalSeparator.ConnectFrom(DecimalSeparator, [](qint32 key){
+    m_matchingAttachment->DateFormat.ConnectFrom(CONNECTION_DEBUG_LOCATION, DateTimeFormat);
+    m_matchingAttachment->DecimalSeparator.ConnectFrom(CONNECTION_DEBUG_LOCATION, DecimalSeparator, [](qint32 key){
         return TranslatorManager::GetNames<DecimalKeyboardSeparator>().at(key);
     });
     ui->PreviewTable->setModel(targetModel);

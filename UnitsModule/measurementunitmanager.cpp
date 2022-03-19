@@ -70,10 +70,10 @@ Measurement::Measurement(const QString& label)
         m_currentConnections.clear();
         Q_ASSERT(m_metricUnits.contains(CurrentUnitId));
         m_currentUnit = m_metricUnits[CurrentUnitId];
-        CurrentUnitLabel.ConnectFrom(m_currentUnit->Label).MakeSafe(m_currentConnections);
+        CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
     });
     
-    OnChanged.Subscribe({&Label.OnChanged,
+    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {&Label.OnChanged,
                            &CurrentUnitId.OnChanged,
                            &CurrentUnitLabel.OnChanged,
                            &CurrentPrecision.OnChanged,
@@ -86,7 +86,7 @@ Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
     
     if(m_currentUnit == nullptr) {
         m_currentUnit = unit;
-        CurrentUnitLabel.ConnectFrom(unit->Label).MakeSafe(m_currentConnections);
+        CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, unit->Label).MakeSafe(m_currentConnections);
     }
     
     m_metricUnits.insert(unit->Id, unit);
@@ -484,7 +484,7 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
 {
     m_connections.clear();
     if(baseValueProperty != nullptr) {
-        baseValueProperty->ConnectBoth(Value, [this](double baseValue){
+        baseValueProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,Value, [this](double baseValue){
                                  return m_metricSystem->BaseValueToCurrentUnit(baseValue);
                              }, [this](double currentUnit){
                                  return m_metricSystem->CurrentUnitToBaseValue(currentUnit);
@@ -512,8 +512,8 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
                                                       Connect(m_currentValue);
                                                   }).MakeSafe(m_systemConnections);
 
-    Precision.ConnectFrom(m_metricSystem->CurrentPrecision).MakeSafe(m_systemConnections);
-    Step.ConnectFrom(m_metricSystem->CurrentStep).MakeSafe(m_systemConnections);
+    Precision.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_metricSystem->CurrentPrecision).MakeSafe(m_systemConnections);
+    Step.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_metricSystem->CurrentStep).MakeSafe(m_systemConnections);
 }
 
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics)
@@ -523,7 +523,7 @@ void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& str
     for(const auto& metric : metrics) {
         auto foundIt = uniqueMetrics.find(metric);
         if(foundIt == uniqueMetrics.end()) {
-            string.Retranslate.ConnectFrom(MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentUnitLabel.OnChanged).MakeSafe(connections);
+            string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentUnitLabel.OnChanged).MakeSafe(connections);
             uniqueMetrics.insert(metric);
         }
     }

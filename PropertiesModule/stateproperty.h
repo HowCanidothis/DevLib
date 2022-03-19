@@ -12,7 +12,7 @@ public:
     void ClearProperties();
     void Update();
 
-    DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnections AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
 
     QString ToString() const;
 
@@ -35,7 +35,7 @@ public:
 
     void SetState(bool state);
 
-    DispatcherConnections ConnectFromStateProperty(const StateProperty& property);
+    DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
     DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
     static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
     static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
@@ -90,7 +90,7 @@ public:
     template<typename ... Args>
     StateParameter(StateParameters* params, Args ... args)
         : Super(params,
-                [this]{ m_connection = m_immutableValue.ConnectFrom(Super::InputValue).MakeSafe(); },
+                [this]{ m_connection = m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(); },
                 [this]{ m_connection = DispatcherConnectionSafePtr(); },
                 args...)
     {
@@ -121,8 +121,8 @@ public:
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
     {
-        m_onChanged.Subscribe({ &m_dependenciesAreUpToDate.OnChanged });
-        Valid.ConnectFrom(m_dependenciesAreUpToDate, [this](bool valid){
+        m_onChanged.Subscribe(CONNECTION_DEBUG_LOCATION, { &m_dependenciesAreUpToDate.OnChanged });
+        Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate, [this](bool valid){
             return !valid ? false : Valid.Native();
         });
 
@@ -189,37 +189,37 @@ public:
     }
 
     template<class T2>
-    const StateCalculator& Connect(const StateCalculator<T2>& calculator) const
+    const StateCalculator& Connect(const char* connection, const StateCalculator<T2>& calculator) const
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstCalculator = const_cast<StateCalculator<T2>&>(calculator);
-        m_dependenciesAreUpToDate.AddProperties({ &nonConstCalculator.Valid }).MakeSafe(m_connections);
+        m_dependenciesAreUpToDate.AddProperties(connection, { &nonConstCalculator.Valid }).MakeSafe(m_connections);
         return *this;
     }
 
     template<class T2>
-    const StateCalculator& Connect(const StateParameterBase<T2>& stateParameter) const;
+    const StateCalculator& Connect(const char* connection, const StateParameterBase<T2>& stateParameter) const;
 
     template<class T2>
-    const StateCalculator& Connect(const LocalProperty<T2>& property) const
+    const StateCalculator& Connect(const char* connection, const LocalProperty<T2>& property) const
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
-        m_onChanged.Subscribe({ &nonConstProperty.OnChanged }).MakeSafe(m_connections);
+        m_onChanged.Subscribe(connection, { &nonConstProperty.OnChanged }).MakeSafe(m_connections);
         return *this;
     }
 
-    const StateCalculator& Connect(StateProperty& dispatcher) const
+    const StateCalculator& Connect(const char* connection, StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_dependenciesAreUpToDate.AddProperties({ &dispatcher }).MakeSafe(m_connections);
+        m_dependenciesAreUpToDate.AddProperties(connection, { &dispatcher }).MakeSafe(m_connections);
         return *this;
     }
 
-    const StateCalculator& Connect(Dispatcher& onChanged) const
+    const StateCalculator& Connect(const char* connection, Dispatcher& onChanged) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onChanged.Subscribe({&onChanged}).MakeSafe(m_connections);
+        m_onChanged.Subscribe(connection, {&onChanged}).MakeSafe(m_connections);
         return *this;
     }
 
@@ -261,17 +261,17 @@ template<class T>
 struct StateCalculatorConnectionHelper
 {
     template<class T2>
-    static void ConnectStateParameter(const StateCalculator<T2>& calculator, StateParameterBase<T>& parameter)
+    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<T>& parameter)
     {
-        calculator.Connect(parameter.InputValue.OnChanged);
+        calculator.Connect(connection, parameter.InputValue.OnChanged);
     }
 };
 
 template<class T> template<class T2>
-const StateCalculator<T>& StateCalculator<T>::Connect(const StateParameterBase<T2>& stateParameter) const
+const StateCalculator<T>& StateCalculator<T>::Connect(const char* connection, const StateParameterBase<T2>& stateParameter) const
 {
     THREAD_ASSERT_IS_MAIN();
-    StateCalculatorConnectionHelper<T2>::ConnectStateParameter<T>(*this, const_cast<StateParameterBase<T2>&>(stateParameter));
+    StateCalculatorConnectionHelper<T2>::ConnectStateParameter<T>(connection, *this, const_cast<StateParameterBase<T2>&>(stateParameter));
     m_stateParameters.insert(stateParameter.GetParameters());
     return *this;
 }
@@ -334,7 +334,7 @@ public:
             Q_ASSERT(m_internalEditing);
         }};
 #endif
-        m_data->IsValid.ConnectFromStateProperty(m_calculator.Valid);
+        m_data->IsValid.ConnectFromStateProperty(CONNECTION_DEBUG_LOCATION, m_calculator.Valid);
     }
 
     void Lock() const
@@ -384,7 +384,8 @@ public:
     void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
     {
         AttachCopy(externalData, [externalData](StateCalculator<bool>& calculator){
-            calculator.Connect(externalData->IsValid).Connect(externalData->OnChanged);
+            calculator.Connect(CONNECTION_DEBUG_LOCATION, externalData->IsValid)
+                    .Connect(CONNECTION_DEBUG_LOCATION, externalData->OnChanged);
         }, handler);
     }
 

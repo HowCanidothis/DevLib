@@ -64,7 +64,7 @@ SharedPointer<MeasurementValueWithUnitConnectorsContainer::TranslationData> Meas
 {
     auto data = ::make_shared<TranslationData>(measurement, translationHandler);
     for(auto* updater : labelUpdaters) {
-        data->Translation.Retranslate.ConnectFrom(*updater).MakeSafe(m_connections);
+        data->Translation.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, *updater).MakeSafe(m_connections);
     }
     m_properties.append(data);
     return data;

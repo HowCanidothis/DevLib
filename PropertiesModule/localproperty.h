@@ -31,17 +31,17 @@ struct LocalPropertyDescInitializationParams
 using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
 using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
-static DispatcherConnections LocalPropertiesConnectBoth(const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
+static DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
     DispatcherConnections result;
     auto sync = ::make_shared<std::atomic_bool>(false);
-    auto eval1 = [evaluator1, sync]{
+    auto eval1 = [debugLocation, evaluator1, sync]{
         if(!*sync) {
             *sync = true;
             evaluator1();
             *sync = false;
         }
     };
-    auto eval2 = [evaluator2, sync]{
+    auto eval2 = [debugLocation, evaluator2, sync]{
         if(!*sync) {
             *sync = true;
             evaluator2();
@@ -152,12 +152,12 @@ public:
     }
 
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectFrom(const LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
     {
         DispatcherConnections result;
         auto& nonConst = const_cast<LocalProperty<T2>&>(another);
         *this = thisEvaluator(nonConst.Native());
-        auto onChange = [this, thisEvaluator, &another]{
+        auto onChange = [this, thisEvaluator, &another, locationInfo]{
             *this = thisEvaluator(another.Native());
         };
         for(auto* dispatcher : dispatchers) {
@@ -167,37 +167,37 @@ public:
         return result;
     }
 
-    DispatcherConnection ConnectFrom(const LocalProperty& another)
+    DispatcherConnection ConnectFrom(const char* locationInfo, const LocalProperty& another)
     {
         *this = another.Native();
         auto& nonConst = const_cast<LocalProperty&>(another);
-        return nonConst.OnChanged.Connect(this, [this, &another]{
+        return nonConst.OnChanged.Connect(this, [this, &another, locationInfo]{
             *this = another.Native();
         });
     }
 
-    DispatcherConnection ConnectTo(LocalProperty& another)
+    DispatcherConnection ConnectTo(const char* locationInfo, LocalProperty& another)
     {
         another = Native();
-        return OnChanged.Connect(this, [this, &another]{
+        return OnChanged.Connect(this, [this, &another, locationInfo]{
             another = Native();
         });
     }
 
     template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectBoth(Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& dispatchers = {})
+    DispatcherConnections ConnectBoth(const char* locationInfo, Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& dispatchers = {})
     {
         DispatcherConnections result;
         another = anotherEvaluator(Native());
         auto sync = ::make_shared<std::atomic_bool>(false);
-        result += another.OnChanged.Connect(this, [this, thisEvaluator, &another, sync]{
+        result += another.OnChanged.Connect(this, [this, thisEvaluator, &another, sync, locationInfo]{
             if(!*sync) {
                 *sync = true;
                 *this = thisEvaluator(another);
                 *sync = false;
             }
         });
-        result += OnChanged.Connect(this, [this, anotherEvaluator, &another, sync]{
+        result += OnChanged.Connect(this, [this, anotherEvaluator, &another, sync, locationInfo]{
             if(!*sync) {
                 *sync = true;
                 another = anotherEvaluator(*this);
@@ -205,7 +205,7 @@ public:
             }
         });
         for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(this, [this, anotherEvaluator, &another, sync]{
+            result += dispatcher->Connect(this, [this, anotherEvaluator, &another, sync, locationInfo]{
                 if(!*sync) {
                     *sync = true;
                     another = anotherEvaluator(*this);
@@ -456,14 +456,14 @@ public:
         SetValue(result);
     }
 
-    DispatcherConnections AddProperties(const QVector<LocalProperty<bool>*>& properties)
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
     {
         QVector<CommonDispatcher<>*> dispatchers;
         for(auto* property : properties) {
             dispatchers.append(&property->OnChanged);
         }
         m_properties += properties;
-        return m_commutator.Subscribe(dispatchers);
+        return m_commutator.Subscribe(connectionInfo, dispatchers);
     }
 
 private:
@@ -1061,15 +1061,15 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<class T, class T2>
-inline DispatcherConnection DelayedCallDispatchersCommutator::Subscribe(LocalProperty<T, T2>& property)
+inline DispatcherConnection DelayedCallDispatchersCommutator::Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property)
 {
-    return Subscribe(&property.OnChanged);
+    return Subscribe(connectionInfo, &property.OnChanged);
 }
 
 template<class T>
-inline DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(LocalPropertyOptional<T>& property)
+inline DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property)
 {
-    return Subscribe({ &property.Value.OnChanged, &property.IsValid.OnChanged });
+    return Subscribe(connectionInfo, { &property.Value.OnChanged, &property.IsValid.OnChanged });
 }
 
 #endif // LOCALPROPERTY_H

@@ -33,33 +33,33 @@ struct IconsPalette
         return *this;
     }
 
-    DispatcherConnections ConnectFrom(IconsPalette& another)
+    DispatcherConnections ConnectFrom(const char* location, IconsPalette& another)
     {
         DispatcherConnections result;
-        result += NormalColor.ConnectFrom(another.NormalColor);
-        result += DisabledColor.ConnectFrom(another.DisabledColor);
-        result += ActiveColor.ConnectFrom(another.ActiveColor);
-        result += SelectedColor.ConnectFrom(another.SelectedColor);
+        result += NormalColor.ConnectFrom(location, another.NormalColor);
+        result += DisabledColor.ConnectFrom(location, another.DisabledColor);
+        result += ActiveColor.ConnectFrom(location, another.ActiveColor);
+        result += SelectedColor.ConnectFrom(location, another.SelectedColor);
         return result;
     }
 
-    DispatcherConnections ConnectFrom(const LocalPropertyColor& color)
+    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color)
     {
         DispatcherConnections result;
-        result += NormalColor.ConnectFrom(color);
-        result += DisabledColor.ConnectFrom(color);
-        result += ActiveColor.ConnectFrom(color);
-        result += SelectedColor.ConnectFrom(color);
+        result += NormalColor.ConnectFrom(location, color);
+        result += DisabledColor.ConnectFrom(location, color);
+        result += ActiveColor.ConnectFrom(location, color);
+        result += SelectedColor.ConnectFrom(location, color);
         return result;
     }
 
-    DispatcherConnections ConnectFrom(const LocalPropertyColor& color, const LocalPropertyColor& checked)
+    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked)
     {
         DispatcherConnections result;
-        result += NormalColor.ConnectFrom(color);
-        result += DisabledColor.ConnectFrom(color);
-        result += ActiveColor.ConnectFrom(color);
-        result += SelectedColor.ConnectFrom(checked);
+        result += NormalColor.ConnectFrom(location, color);
+        result += DisabledColor.ConnectFrom(location, color);
+        result += ActiveColor.ConnectFrom(location, color);
+        result += SelectedColor.ConnectFrom(location, checked);
         return result;
     }
 };

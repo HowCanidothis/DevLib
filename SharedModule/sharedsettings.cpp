@@ -2,8 +2,6 @@
 
 #include <QStandardPaths>
 
-#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
-
 NetworkSettings::NetworkSettings()
 {
     QVector<CommonDispatcher<>*> dispatchers {
@@ -12,18 +10,37 @@ NetworkSettings::NetworkSettings()
         &ProxyUserName.OnChanged,
         &ProxyPort.OnChanged
     };
-    OnChanged.Subscribe(dispatchers);
+    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, dispatchers);
 }
+
+#ifdef QT_GUI_LIB
+
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 StyleSettings::StyleSettings()
     : DisabledTableCellColor(QColor("#d4d4d4"))
 {
-    WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(ShadowColor);
+    WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
 
     StylesQSSFile.OnChanged += { this, [this]{
         InstallQSSReader(StylesQSSFile);
     }};
 }
+
+void StyleSettings::InstallQSSReader(const QString& path, bool dynamic)
+{
+    if(m_qssReader == nullptr) {
+        m_qssReader = new QtQSSReader();
+    }
+    m_qssReader->SetEnableObserver(dynamic);
+    m_qssReader->Install(path);
+}
+
+void StyleSettings::Release()
+{
+    m_qssReader = nullptr;
+}
+#endif
 
 void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)
 {
@@ -69,20 +86,6 @@ LanguageSettings::LanguageSettings()
 {
 }
 
-void StyleSettings::InstallQSSReader(const QString& path, bool dynamic)
-{
-    if(m_qssReader == nullptr) {
-        m_qssReader = new QtQSSReader();
-    }
-    m_qssReader->SetEnableObserver(dynamic);
-    m_qssReader->Install(path);
-}
-
-void StyleSettings::Release()
-{
-    m_qssReader = nullptr;
-}
-
 SaveLoadSettings::SaveLoadSettings()
     : AutoSaveInMinutes(2, 1, 120)
     , AutoSaveEnabled(true)
@@ -98,17 +101,21 @@ SharedSettings::SharedSettings()
         &NetworkSettings.OnChanged
     };
 
-    OnChanged.Subscribe(dispatchers);
+    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, dispatchers);
 }
 
 MetricsSettings::MetricsSettings()
 {
-    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.ConnectFrom(ShadowBlurRadius);
+#ifdef QT_GUI_LIB
+    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowBlurRadius);
+#endif
 }
 
 void SharedSettings::Release()
 {
+#ifdef QT_GUI_LIB
     StyleSettings.Release();
+#endif
 }
 
 void SharedSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)

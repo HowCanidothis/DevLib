@@ -47,7 +47,7 @@ public:
         , m_pointExtractor(pointExtractor)
     {
         CurrentIndex.SetMinMax(-1, -1);
-        m_previousIndex.ConnectFrom(CurrentIndex);
+        m_previousIndex.ConnectFrom(CONNECTION_DEBUG_LOCATION, CurrentIndex);
     }
 
     void Clear()

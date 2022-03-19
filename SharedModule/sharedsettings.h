@@ -28,6 +28,7 @@ struct NetworkSettings
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
 };
 
+#ifdef QT_GUI_LIB
 struct StyleSettings
 {
     StyleSettings();
@@ -51,6 +52,7 @@ struct StyleSettings
 private:
     ScopedPointer<class QtQSSReader> m_qssReader;
 };
+#endif
 
 struct PathSettings
 {
@@ -94,7 +96,9 @@ class SharedSettings : public Singletone<SharedSettings>
 public:
     SharedSettings();
 
+#ifdef QT_GUI_LIB
     StyleSettings StyleSettings;
+#endif
     PathSettings PathSettings;
     MetricsSettings MetricSettings;
     SaveLoadSettings SaveLoadSettings;

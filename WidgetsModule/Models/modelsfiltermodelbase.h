@@ -48,7 +48,7 @@ struct ViewModelsTextFilterData
 
     ViewModelsTextFilterData()
     {
-        OnChanged.ConnectFrom(FilterString.OnChanged);
+        OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, FilterString.OnChanged);
     }
 };
 

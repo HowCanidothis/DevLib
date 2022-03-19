@@ -13,7 +13,7 @@ public:
         , Hours(0, -1, 24)
         , Minutes(0, -1, 60)
     {
-        LocalPropertiesConnectBoth({&Time.OnChanged}, [this]{
+        LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION, {&Time.OnChanged}, [this]{
             if(Time.Native().isValid()) {
                 Hours = Time.Native().hour();
                 Minutes = Time.Native().minute();
@@ -63,7 +63,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Hours, ui->spHours);
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Minutes, ui->spMinutes);
 
-    ui->timePicker->HourType.ConnectFrom(Locale, [](const QLocale& locale){
+    ui->timePicker->HourType.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale, [](const QLocale& locale){
         return qint32(locale.language() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24);
     });
 
@@ -121,7 +121,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
                 m_hourTypeConnections.clear();
                 switch (ui->timePicker->HourType.Native()) {
                 case HourFormat::Hour12: {
-                    LocalPropertiesConnectBoth( {&m_timeConverter->Hours.OnChanged}, [this]{
+                    LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION,  {&m_timeConverter->Hours.OnChanged}, [this]{
                         const auto& time = m_timeConverter->Hours.Native();
                         if(time <= 12){
                             Type = DayType::AM;
@@ -136,16 +136,16 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
                     break;
                 }
                 case HourFormat::Hour24:
-                    m_timeConverter->Hours.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_hourTypeConnections);
+                    m_timeConverter->Hours.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->timePicker->CurrentTime).MakeSafe(m_hourTypeConnections);
                     break;
                 }
             }).MakeSafe(m_connections);
             break;
         case ClockType::Minutes:
-            m_timeConverter->Minutes.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_connections);
+            m_timeConverter->Minutes.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->timePicker->CurrentTime).MakeSafe(m_connections);
             break;
         case ClockType::Seconds: Q_ASSERT(false);
-//            m_timeConverter->Seconds.ConnectBoth(ui->timePicker->CurrentTime).MakeSafe(m_connections);
+//            m_timeConverter->Seconds.ConnectBoth(CONNECTION_DEBUG_LOCATION, ui->timePicker->CurrentTime).MakeSafe(m_connections);
             break;
         }
     });

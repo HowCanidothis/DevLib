@@ -28,16 +28,16 @@ struct GtTextDrawableSettings
         , Visible(true)
     {}
 
-    DispatcherConnections ConnectFrom(const GtTextDrawableSettings& another)
+    DispatcherConnections ConnectFrom(const char* location, const GtTextDrawableSettings& another)
     {
         DispatcherConnections result;
-        result += Scale.ConnectFrom(another.Scale);
-        result += Color.ConnectFrom(another.Color);
-        result += BorderColor.ConnectFrom(another.BorderColor);
-        result += BorderWidth.ConnectFrom(another.BorderWidth);
-        result += Contrast.ConnectFrom(another.Contrast);
-        result += UseDirectionCorrection.ConnectFrom(another.UseDirectionCorrection);
-        result += Visible.ConnectFrom(another.Visible);
+        result += Scale.ConnectFrom(location, another.Scale);
+        result += Color.ConnectFrom(location, another.Color);
+        result += BorderColor.ConnectFrom(location, another.BorderColor);
+        result += BorderWidth.ConnectFrom(location, another.BorderWidth);
+        result += Contrast.ConnectFrom(location, another.Contrast);
+        result += UseDirectionCorrection.ConnectFrom(location, another.UseDirectionCorrection);
+        result += Visible.ConnectFrom(location, another.Visible);
         return result;
     }
 };

@@ -87,14 +87,14 @@ public:
     DelayedCallDispatchersCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority);
 
     // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
-    DispatcherConnections Subscribe(const QVector<CommonDispatcher<>*>& dispatchers);
-    DispatcherConnection Subscribe(CommonDispatcher* dispatchers);
+    DispatcherConnections Subscribe(const char* connectionInfo, const QVector<CommonDispatcher<>*>& dispatchers);
+    DispatcherConnection Subscribe(const char* connectionInfo, CommonDispatcher* dispatchers);
 
 #ifdef PROPERTIES_LIB
     template<class T, class T2>
-    DispatcherConnection Subscribe(LocalProperty<T, T2>& property);
+    DispatcherConnection Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property);
     template<class T>
-    DispatcherConnections Subscribe(LocalPropertyOptional<T>& property);
+    DispatcherConnections Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property);
 #endif
 
     void operator()() = delete;

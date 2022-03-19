@@ -301,10 +301,10 @@ IconsSvgIcon IconsManager::RegisterIconWithDefaultColorScheme(const Name& id, co
 
     auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
 
-    icon.EditPalette().NormalColor.ConnectFrom(styleSettings.IconPrimaryColor);
-    icon.EditPalette().DisabledColor.ConnectFrom(styleSettings.IconPrimaryColor);
-    icon.EditPalette().ActiveColor.ConnectFrom(styleSettings.IconSelectionColor);
-    icon.EditPalette().SelectedColor.ConnectFrom(styleSettings.IconSelectionColor);
+    icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
+    icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
 
     return icon;
 }

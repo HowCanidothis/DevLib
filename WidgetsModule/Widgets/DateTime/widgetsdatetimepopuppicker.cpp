@@ -32,9 +32,9 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     m_editor->OnApplyActivate.Connect(this, [menu, this]{ OnDataCommit(); menu->close(); });
     
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
-    m_editor->Locale.ConnectFrom(Locale);
-    ui->dateTimeEdit->Locale.ConnectFrom(Locale);
-    ui->dateTimeEdit->DisplayFormat.ConnectFrom(DisplayFormat);
+    m_editor->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);
+    ui->dateTimeEdit->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);
+    ui->dateTimeEdit->DisplayFormat.ConnectFrom(CONNECTION_DEBUG_LOCATION, DisplayFormat);
 }
 
 WidgetsDatetimePopupPicker::~WidgetsDatetimePopupPicker()
