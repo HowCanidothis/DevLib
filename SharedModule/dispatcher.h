@@ -10,7 +10,11 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
+#ifdef QT_DEBUG
 #define CONNECTION_DEBUG_LOCATION __FILE__ QT_STRINGIFY(__LINE__)
+#else
+#define CONNECTION_DEBUG_LOCATION nullptr
+#endif
 
 class DispatcherConnection;
 class DispatcherConnectionSafePtr;
