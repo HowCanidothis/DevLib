@@ -26,22 +26,94 @@ public:
 using SerializerWriteBuffer = TSerializerWriteBuffer<QStreamBufferDataStream>;
 using SerializerReadBuffer = TSerializerReadBuffer<QStreamBufferDataStream>;
 
+struct DescSerializationWriteParams
+{
+    SerializationModes SerializationMode;
+    std::function<void (SerializerWriteBuffer& )> InitHandler;
+
+    DescSerializationWriteParams(SerializationModes mode = SerializationMode_Default)
+        : SerializationMode(mode)
+        , InitHandler([](SerializerWriteBuffer&){})
+    {}
+
+    DescSerializationWriteParams& SetInitHandler(const std::function<void (SerializerWriteBuffer& )>& handler)
+    {
+        InitHandler = handler;
+        return *this;
+    }
+};
+
+struct DescSerializationReadParams
+{
+    SerializationModes SerializationMode;
+    std::function<bool (SerializerReadBuffer& )> InitHandler;
+    bool IsStrictVersion;
+
+    DescSerializationReadParams(SerializationModes mode = SerializationMode_Default)
+        : SerializationMode(mode)
+        , InitHandler([](SerializerReadBuffer& ){ return true; })
+        , IsStrictVersion(false)
+    {}
+
+    DescSerializationReadParams& SetInitHandler(const std::function<bool (SerializerReadBuffer& )>& handler)
+    {
+        InitHandler = handler;
+        return *this;
+    }
+
+    DescSerializationReadParams& SetStrictVersion(bool strict)
+    {
+        IsStrictVersion = strict;
+        return *this;
+    }
+};
+
 template<class T>
-inline QByteArray SerializeToArray(const T& object, SerializationModes serializationMode = SerializationMode_Default)
+inline QByteArray SerializeToArray(const T& object, const DescSerializationWriteParams& params = DescSerializationWriteParams())
 {
     QByteArray array;
     SerializerWriteBuffer writer(&array, QIODevice::WriteOnly);
-    writer.SetSerializationMode(serializationMode);
+    Q_ASSERT(params.InitHandler != nullptr);
+    params.InitHandler(writer);
+    writer.SetSerializationMode(params.SerializationMode);
     writer << object;
     return array;
 }
 
 template<class T>
-void DeSerializeFromArray(const QByteArray& array, T& object, SerializationModes serializationMode = SerializationMode_Default)
+bool DeSerializeFromArray(const QByteArray& array, T& object, const DescSerializationReadParams& params = DescSerializationReadParams())
 {
     SerializerReadBuffer reader(array);
-    reader.SetSerializationMode(serializationMode);
+    Q_ASSERT(params.InitHandler != nullptr);
+    if(!params.InitHandler(reader)) {
+        return false;
+    }
+    reader.SetSerializationMode(params.SerializationMode);
     reader << object;
+    return true;
+}
+
+template<class T>
+inline QByteArray SerializeToArrayVersioned(const SerializerVersion& version, const T& object, DescSerializationWriteParams params = DescSerializationWriteParams())
+{
+    params.InitHandler = [&](SerializerWriteBuffer& buffer){
+        buffer.WriteVersion(version);
+    };
+    return SerializeToArray(object, params);
+}
+
+template<class T>
+bool DeSerializeFromArrayVersioned(const SerializerVersion& version, const QByteArray& array, T& object, DescSerializationReadParams params = DescSerializationReadParams())
+{
+    params.InitHandler = [&](SerializerReadBuffer& buffer){
+        auto currentVersion = buffer.ReadVersion();
+        auto result = version.CheckVersion(currentVersion, params.IsStrictVersion, buffer.GetDevice()->size());
+        if(result.isValid()) {
+            return false;
+        }
+        return true;
+    };
+    return DeSerializeFromArray(array, object, params);
 }
 
 template<>

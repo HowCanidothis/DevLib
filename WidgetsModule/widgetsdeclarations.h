@@ -20,8 +20,10 @@ struct DescColumnsParams
     DescColumnsParams() {}
 
     DescColumnsParams& SetColumnParam(qint32 column, const ColumnParam& param) { ColumnsParams.insert(column, param); return *this; }
+    DescColumnsParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
 
     QHash<qint32, ColumnParam> ColumnsParams;
+    Latin1Name StateTag;
 };
 
 inline DescColumnsParams::DescColumnsParams(const QSet<qint32>& ignoreColumns)

@@ -1,14 +1,18 @@
 #ifndef WIDGETSRESIZABLEHEADERATTACHMENT_H
 #define WIDGETSRESIZABLEHEADERATTACHMENT_H
 
-#include "widgetsdraganddropheader.h"
+#include <QHeaderView>
 
-class WidgetsResizableHeaderAttachment : public WidgetsDragAndDropHeader
+#include "WidgetsModule/widgetsdeclarations.h"
+
+class WidgetsResizableHeaderAttachment : public QHeaderView
 {
-    using Super = WidgetsDragAndDropHeader;
+    Q_OBJECT
+    using Super = QHeaderView;
 public:
-    WidgetsResizableHeaderAttachment(class QTableView* parent);
+    WidgetsResizableHeaderAttachment(Qt::Orientation orientation, class QTableView* parent);
 
+    class QMenu* CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& ignorColumns = DescColumnsParams());
     // QHeaderView interface
 protected:
     QSize sectionSizeFromContents(int logicalIndex) const override;

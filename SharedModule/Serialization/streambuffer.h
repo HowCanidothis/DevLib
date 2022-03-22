@@ -80,6 +80,8 @@ struct SerializerVersion
         , Version(version)
     {}
 
+    QVariant CheckVersion(const SerializerVersion& current, bool strictVersion, qint64 size) const;
+
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
