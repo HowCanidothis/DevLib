@@ -78,11 +78,15 @@ QSize WidgetsResizableHeaderAttachment::sectionSizeFromContents(int logicalIndex
         auto headerText = model()->headerData(logicalIndex, orientation(), Qt::DisplayRole).toString();
         auto options = viewOptions();
         auto metrics = QFontMetrics(options.font);
-        auto maxWidth = sectionSize(logicalIndex);
         int margin = style()->pixelMetric(QStyle::PM_HeaderMargin, &options, this);
         margin += style()->pixelMetric(QStyle::PM_HeaderGripMargin, &options, this);
-        auto rect = metrics.boundingRect(QRect(margin, margin, maxWidth - margin, 5000), defaultAlignment(),
-                                    headerText);
+        qint32 maxWidth;
+        if(orientation() == Qt::Horizontal) {
+            maxWidth = sectionSize(logicalIndex);
+        } else {
+            maxWidth = width();
+        }
+        auto rect = metrics.boundingRect(QRect(margin, margin, maxWidth - margin, 5000), defaultAlignment(), headerText);
         return rect.size() + QSize(margin * 2, margin * 2);
     }
 
