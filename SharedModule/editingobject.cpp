@@ -5,7 +5,7 @@ EditingObject::EditingObject()
     , m_isActive(false)
     , m_isDirty(false)
 {
-    m_isDirty.ConnectFrom(ForceDirty, [this](bool forceDirty) { return forceDirty ? true : m_isDirty.Native(); });
+    m_isDirty.ConnectFrom(CONNECTION_DEBUG_LOCATION, ForceDirty, [this](bool forceDirty) { return forceDirty ? true : m_isDirty.Native(); });
 }
 
 void EditingObject::SetParent(EditingObject* parent)

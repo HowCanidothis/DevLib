@@ -34,7 +34,7 @@ void LocalPropertyErrorsContainer::AddError(const Name& errorName, const Transla
     if(Super::Native().contains(toInsert)) {
        return;
     }
-    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(errorString->OnChanged).MakeSafe();
+    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, errorString->OnChanged).MakeSafe();
     if(Super::Insert(toInsert)) {
         OnErrorAdded(toInsert);
     }

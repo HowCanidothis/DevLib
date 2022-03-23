@@ -385,7 +385,7 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* pr
             [](){}
     )
 {
-    property->ConnectBoth(dateTime->CurrentDate, [](const QDate& dt){ return dt; }, [](const QDate& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDate, [](const QDate& dt){ return dt; }, [](const QDate& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
         dateTime->CurrentDate.SetMinMax(property->GetMin(), property->GetMax());
@@ -397,7 +397,7 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime
             [](){}
     )
 {
-    property->ConnectBoth(dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
@@ -409,7 +409,7 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
             [](){}
     )
 {
-    property->ConnectBoth(dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());

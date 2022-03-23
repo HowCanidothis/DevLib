@@ -150,8 +150,8 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                                          return comboBox;
                                      });
 
-            m_attachment->IsVisible.ConnectFrom(IsVisible).MakeSafe(m_attachment->Connections);
-            Match.ConnectFrom(m_attachment->OnAttachmentsAdjusted);
+            m_attachment->IsVisible.ConnectFrom(CONNECTION_DEBUG_LOCATION, IsVisible).MakeSafe(m_attachment->Connections);
+            Match.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_attachment->OnAttachmentsAdjusted);
             match();
         } else {
             m_attachment = nullptr;

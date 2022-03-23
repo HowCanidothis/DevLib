@@ -9,7 +9,7 @@ NotifyButton::NotifyButton(QWidget* parent)
     , NotificationsCount(0, 0, 99)
     , m_label(new QLabel(parent))
 {
-    NotificationsCountString.ConnectFrom(NotificationsCount, [](qint32 count){
+    NotificationsCountString.ConnectFrom(CONNECTION_DEBUG_LOCATION, NotificationsCount, [](qint32 count){
         if(count > 0) {
             if(count < 99) {
                 return QString::number(count);
@@ -30,7 +30,7 @@ NotifyButton::NotifyButton(QWidget* parent)
                                                                 .SetRelativeParent(this)
                                                                 .SetDelay(0));
 
-    attachment->GetComponentPlacer()->Offset.ConnectFrom(m_offset, [](const QSize& size){
+    attachment->GetComponentPlacer()->Offset.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_offset, [](const QSize& size){
         return QPoint(size.width(), size.height());
     });
 

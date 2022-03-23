@@ -23,7 +23,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , m_exceedData(::make_shared<NotifyData>(Warning, ""))
     , m_exceedCounter(0)
 {
-    m_onLayoutChanged.Subscribe({ &BottomMargin.OnChanged, &RightMargin.OnChanged, &Spacing.OnChanged, &Width.OnChanged, &ReservedHeight.OnChanged });
+    m_onLayoutChanged.Subscribe(CONNECTION_DEBUG_LOCATION, { &BottomMargin.OnChanged, &RightMargin.OnChanged, &Spacing.OnChanged, &Width.OnChanged, &ReservedHeight.OnChanged });
     m_onLayoutChanged.Connect(this, [this]{
         rearrange();
     });
@@ -129,7 +129,7 @@ void NotifyManager::showNext()
     }
 
     NotifyWidget* notify = new NotifyWidget(data);
-    OnLinkActivated.ConnectFrom(notify->OnLinkActivated);
+    OnLinkActivated.ConnectFrom(CONNECTION_DEBUG_LOCATION, notify->OnLinkActivated);
     notify->setFixedWidth(Width);
     //notify->setFixedHeight(Height);
 

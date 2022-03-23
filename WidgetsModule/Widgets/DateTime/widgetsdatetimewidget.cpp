@@ -42,7 +42,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         updateTimeRangeHandler();
 	});
 	
-    CurrentDateTime.ConnectBoth(ui->widget->CurrentTime, [](const QDateTime& dt){ return dt.time(); },
+    CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [](const QDateTime& dt){ return dt.time(); },
     [this](const QTime& time){
         return QDateTime(CurrentDateTime.IsRealTime() ? ui->calendarWidget->selectedDate() : CurrentDateTime.Native().date(), time);
     });
@@ -69,7 +69,7 @@ WidgetsDateTimeWidget::~WidgetsDateTimeWidget()
 void WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive)
 {
     if(reactive) {
-        modelProperty->ConnectBoth(CurrentDateTime,
+        modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
                                   [](const QDateTime& time){ return time; },
                                   [](const QDateTime& time){ return time; }).MakeSafe(m_connections);
     } else {

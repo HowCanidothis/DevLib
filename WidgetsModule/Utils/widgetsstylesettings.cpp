@@ -10,18 +10,18 @@ WidgetsStyleSettings::WidgetsStyleSettings()
     auto& settings = SharedSettings::GetInstance();
     auto& styleSettings = settings.StyleSettings;
 
-    styleSettings.DisabledTableCellColor.ConnectFrom(m_disabledTableColor);
-    styleSettings.EnabledTableCellColor.ConnectFrom(m_enabledTableColor);
-    styleSettings.DisabledTableCellTextColor.ConnectFrom(m_disabledTableTextColor);
-    styleSettings.EnabledTableCellTextColor.ConnectFrom(m_enabledTableTextColor);
+    styleSettings.DisabledTableCellColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_disabledTableColor);
+    styleSettings.EnabledTableCellColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_enabledTableColor);
+    styleSettings.DisabledTableCellTextColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_disabledTableTextColor);
+    styleSettings.EnabledTableCellTextColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_enabledTableTextColor);
 
-    styleSettings.IconPrimaryColor.ConnectFrom(m_normalColor);
-    styleSettings.IconSelectionColor.ConnectFrom(m_selectionColor);
-    styleSettings.ShadowColor.ConnectFrom(m_shadowColor);
+    styleSettings.IconPrimaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_normalColor);
+    styleSettings.IconSelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_selectionColor);
+    styleSettings.ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_shadowColor);
 
     auto& metricSettings = settings.MetricSettings;
 
-    metricSettings.ShadowBlurRadius.ConnectFrom(m_shadowBlurRadius, [](qint32 radius){
+    metricSettings.ShadowBlurRadius.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_shadowBlurRadius, [](qint32 radius){
         return radius;
     });
 }

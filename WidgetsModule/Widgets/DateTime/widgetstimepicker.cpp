@@ -22,7 +22,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         }
     });
 
-    m_timeChanged.Subscribe({&m_angle.OnChanged, &m_isOut.OnChanged});
+    m_timeChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {&m_angle.OnChanged, &m_isOut.OnChanged});
     m_timeChanged.ConnectAndCall(this, [this]{
         if(m_activeLabel.Native()) {
             m_activeLabel->setEnabled(false);
@@ -60,14 +60,14 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         m_connections.clear();
         static auto timeConverter ([](const int& time, const int& count){ return round<8>(2 * M_PI * time / count); });
         if(HourType.Native() == HourFormat::Hour24){
-            LocalPropertiesConnectBoth({&CurrentTime.OnChanged}, [this]{
+            LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION, {&CurrentTime.OnChanged}, [this]{
                 m_isOut = CurrentTime <= sectionsCount();
                 m_angle = timeConverter(CurrentTime.Native() - (m_isOut ? 0 : 12), sectionsCount());
             }, {&m_angle.OnChanged, &m_isOut.OnChanged}, [this]{
                 CurrentTime = round(m_angle * sectionsCount() / ( M_PI*2)) + (m_isOut ? 0 : 12);
             }).MakeSafe(m_connections);
         } else {
-            CurrentTime.ConnectBoth(m_angle, [this](int time){
+            CurrentTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,m_angle, [this](int time){
                 return timeConverter(time, sectionsCount());
             }, [this](double angle){
                 return round(angle * sectionsCount() / ( M_PI*2));
@@ -108,7 +108,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         }
     });
 
-    OnChanged.Subscribe({
+    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {
         &m_labelSize.OnChanged,
         &m_arrowWidth.OnChanged,
         &m_arrowColor.OnChanged,

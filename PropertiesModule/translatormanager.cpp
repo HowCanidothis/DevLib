@@ -33,7 +33,7 @@ TranslatedString::TranslatedString(const FTranslationHandler& translationHandler
     : TranslatedString(translationHandler)
 {
     for(auto* retranslator : retranslators) {
-        Retranslate.ConnectFrom(*retranslator).MakeSafe(m_connections);
+        Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, *retranslator).MakeSafe(m_connections);
     }
 }
 

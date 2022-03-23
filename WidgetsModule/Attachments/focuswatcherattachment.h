@@ -28,7 +28,7 @@ class FocusWatcherAttachment : public QObject
 {
     FocusWatcherAttachment(QWidget* target);
 public:
-    static void Attach(QWidget* widget, const QWidgetList& additionalWidgets);
+    static void Attach(QWidget* widget, const QList<QWidget*>& additionalWidgets);
 
     // QObject interface
 public:

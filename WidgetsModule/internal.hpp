@@ -52,7 +52,6 @@
 
 #include "TableViews/widgetsactivetableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
-#include "TableViews/Header/widgetsdraganddropheader.h"
 #include "TableViews/Header/widgetsresizableheaderattachment.h"
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"

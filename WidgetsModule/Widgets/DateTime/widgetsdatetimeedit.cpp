@@ -135,7 +135,7 @@ void WidgetsDateTimeEdit::connectLocale()
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
     : Super(QDate(2000,1,1), QVariant::Date, parent)
 {
-    CurrentDate.ConnectBoth(CurrentDateTime, [](const QDate& date){
+    CurrentDate.ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime, [](const QDate& date){
         if(!date.isValid()) {
             return QDateTime();
         }

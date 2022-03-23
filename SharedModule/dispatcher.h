@@ -10,6 +10,12 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
+#ifdef QT_DEBUG
+#define CONNECTION_DEBUG_LOCATION __FILE__ QT_STRINGIFY(__LINE__)
+#else
+#define CONNECTION_DEBUG_LOCATION nullptr
+#endif
+
 class DispatcherConnection;
 class DispatcherConnectionSafePtr;
 
@@ -165,25 +171,25 @@ public:
         Invoke(args...);
     }
 
-    DispatcherConnection ConnectFrom(CommonDispatcher& another) const
+    DispatcherConnection ConnectFrom(const char* connectionDescription, CommonDispatcher& another) const
     {
-        return another.Connect(this, [this](Args... args){
+        return another.Connect(this, [this, connectionDescription](Args... args){
             Invoke(args...);
         });
     }
 
-    DispatcherConnections ConnectBoth(CommonDispatcher& another) const
+    DispatcherConnections ConnectBoth(const char* connectionDescription, CommonDispatcher& another) const
     {
         DispatcherConnections result;
         auto sync = ::make_shared<std::atomic_bool>(false);
-        result += another.Connect(this, [this, sync](Args... args){
+        result += another.Connect(this, [this, sync, connectionDescription](Args... args){
             if(!*sync) {
                 *sync = true;
                 Invoke(args...);
                 *sync = false;
             }
         });
-        result += Connect(this, [this, &another, sync](Args... args){
+        result += Connect(this, [this, &another, sync, connectionDescription](Args... args){
             if(!*sync) {
                 *sync = true;
                 another.Invoke(args...);

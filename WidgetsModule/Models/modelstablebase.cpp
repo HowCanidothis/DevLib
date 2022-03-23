@@ -81,6 +81,11 @@ QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orienta
     } else {
         auto foundIt = m_roleVerticalHeaderDataHandlers.find(role);
         if(foundIt == m_roleVerticalHeaderDataHandlers.end()) {
+            if(role == Qt::DisplayRole) {
+                return QString::number(section + 1);
+            } else if(role == Qt::TextAlignmentRole) {
+                return Qt::AlignCenter;
+            }
             return QVariant();
         }
         return foundIt.value()(section);

@@ -124,7 +124,7 @@ bool WidgetsObserver::eventFilter(QObject *watched, QEvent *e)
 
 DispatcherConnection WidgetAppearance::ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child)
 {
-    return child->Visible.ConnectFrom(base->Visible);
+    return child->Visible.ConnectFrom(CONNECTION_DEBUG_LOCATION, base->Visible);
 }
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)

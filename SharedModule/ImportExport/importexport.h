@@ -506,21 +506,9 @@ public:
         return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8{
             SerializerReadBuffer buffer(source->GetDevice());
             auto currentVersion = buffer.ReadVersion();
-            if(currentVersion.HashSum != buffer.GetDevice()->size()) {
-                source->SetError(tr("File corrupted or cannot be loaded"));
-                return false;
-            }
-            if(currentVersion.Format != version->Format) {
-                source->SetError(tr("Format error - expected %1, but file version is %2").arg(QString::number(version->Format) , QString::number(currentVersion.Format)));
-                return false;
-            }
-            if(source->StandardProperties.IsStrictVersion) {
-                if((quint32)currentVersion.Version != (quint32)version->Version) {
-                    source->SetError(tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(version->Version) , QString::number(currentVersion.Version)));
-                    return false;
-                }
-            } else if((quint32)currentVersion.Version > (quint32)version->Version) {
-                source->SetError(tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(version->Version) , QString::number(currentVersion.Version)));
+            auto result = version->CheckVersion(currentVersion, source->StandardProperties.IsStrictVersion, buffer.GetDevice()->size());
+            source->SetError(result);
+            if(result.isValid()) {
                 return false;
             }
             return handler(source, buffer);
