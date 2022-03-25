@@ -76,7 +76,7 @@ LeftBar QPushButton#BtnJobSpace:checked{
     image: url(":/left_bar/studio-hover.svg");
 }
 
-LeftBar QPushButton#BtnDrillingEngineering{
+LeftBar QPushButton#BtnDrillEngineering{
     image: url(":/left_bar/calculator.svg");
     
     qproperty-text: "";
@@ -88,11 +88,11 @@ LeftBar QPushButton#BtnDrillingEngineering{
     border: none;
 }
 
-LeftBar QPushButton#BtnDrillingEngineering:hover{
+LeftBar QPushButton#BtnDrillEngineering:hover{
     image: url(":/left_bar/calculator-hover.svg");
 }
 
-LeftBar QPushButton#BtnDrillingEngineering:checked{
+LeftBar QPushButton#BtnDrillEngineering:checked{
     image: url(":/left_bar/calculator-hover.svg");
 }
 

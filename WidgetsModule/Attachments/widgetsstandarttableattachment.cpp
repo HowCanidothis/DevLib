@@ -24,7 +24,6 @@
 };*/
 
 WidgetsStandartTableHeaderManager::WidgetsStandartTableHeaderManager()
-    : m_updateStates(2000)
 {}
 
 QByteArray WidgetsStandartTableHeaderManager::saveState(QHeaderView* headerView)
@@ -60,6 +59,60 @@ void WidgetsStandartTableHeaderManager::restoreState(const QByteArray& array, QH
     headerView->restoreState(array);
 }
 
+void WidgetsStandartTableHeaderManager::updateState(const Latin1Name& stateName)
+{
+    auto foundIt = m_states.find(stateName);
+    if(foundIt != m_states.end()) {
+        const auto& data = foundIt.value().GetData();
+        data->Update();
+    }
+}
+
+void WidgetsStandartTableHeaderManager::State::Update()
+{
+    m_qtConnections.Clear();
+    for(auto* headerView : Headers) {
+        WidgetsStandartTableHeaderManager::GetInstance().restoreState(CurrentState, headerView);
+        headerView->parentWidget()->update();
+        Connect(headerView);
+    }
+}
+
+void WidgetsStandartTableHeaderManager::State::Initialize(const Latin1Name& stateName)
+{
+    Q_ASSERT(m_stateName.IsNull());
+    m_stateName = stateName;
+    CurrentState.OnChanged.Connect(this, [this, stateName]{
+        UpdateState.Call([stateName]{
+            WidgetsStandartTableHeaderManager::GetInstance().updateState(stateName);
+        });
+    });
+}
+
+WidgetsStandartTableHeaderManager::State::State()
+    : UpdateState(2000)
+{}
+
+void WidgetsStandartTableHeaderManager::State::Connect(QHeaderView* headerView)
+{
+    auto updateState = [this, headerView]{
+        if(headerView->isVisible()) {
+            CurrentState = WidgetsStandartTableHeaderManager::GetInstance().saveState(headerView);
+        }
+    };
+
+    m_qtConnections.connect(headerView, &QHeaderView::sectionMoved, updateState);
+}
+
+WidgetsStandartTableHeaderManager::StateObject::StateObject()
+    : m_data(::make_shared<WidgetsStandartTableHeaderManager::State>())
+{}
+
+void WidgetsStandartTableHeaderManager::StateObject::Initialize(const Latin1Name& stateName)
+{
+    m_data->Initialize(stateName);
+}
+
 void WidgetsStandartTableHeaderManager::Register(const Latin1Name& stateName, QHeaderView* headerView)
 {
     if(stateName.IsNull()) {
@@ -68,33 +121,21 @@ void WidgetsStandartTableHeaderManager::Register(const Latin1Name& stateName, QH
 
     auto foundIt = m_states.find(stateName);
     if(foundIt != m_states.end()) {
-        restoreState(*foundIt.value().CurrentState, headerView);
-        foundIt.value().Headers.insert(headerView);
+        restoreState(foundIt.value().GetData()->CurrentState, headerView);
+        foundIt.value().GetData()->Headers.insert(headerView);
     } else {
-        foundIt = m_states.insert(stateName, State());
-        *foundIt.value().CurrentState = saveState(headerView);
-        foundIt.value().Headers.insert(headerView);
+        foundIt = m_states.insert(stateName, StateObject());
+        foundIt.value().Initialize(stateName);
+        const auto& data = foundIt.value().GetData();
+        data->CurrentState = saveState(headerView);
+        data->Headers.insert(headerView);
     }
 
-    auto stateProperty = foundIt.value().CurrentState;
-
-    auto updateStates = m_updateStates.Wrap([stateName, this, stateProperty]{
-        for(auto* headerView : m_states[stateName].Headers) {
-            restoreState(*stateProperty, headerView);
-            headerView->parentWidget()->update();
-        }
+    QObject::connect(headerView, &QHeaderView::destroyed, [this, headerView, stateName]{
+        m_states[stateName].GetData()->Headers.remove(headerView);
     });
 
-    auto stateConnection = stateProperty->OnChanged.Connect(this, updateStates).MakeSafe();
-
-    QObject::connect(headerView, &QHeaderView::destroyed, [stateConnection, this, headerView, stateName]{
-        m_states[stateName].Headers.remove(headerView);
-    });
-    auto updateState = [this, headerView, stateName, stateProperty]{
-        *stateProperty = saveState(headerView);
-    };
-    QObject::connect(headerView, &QHeaderView::sectionMoved, updateState);
-    QObject::connect(headerView, &QHeaderView::sectionResized, updateState);
+    foundIt.value().GetData()->Connect(headerView);
 }
 
 QHeaderView* WidgetsStandartTableAttachment::AttachHorizontal(QTableView* tableView, const DescColumnsParams& params)

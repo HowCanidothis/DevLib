@@ -184,6 +184,7 @@ public:
             for(auto* parameters : m_stateParameters) {
                 parameters->Unlock();
             }
+
         };
         m_calculator = calculator;
     }
