@@ -13,7 +13,7 @@ MainWindow {
     qproperty-iconCalendarColor: #F3F3F3;
     qproperty-iconNetworkOnlineColor: #22b14c;
     qproperty-iconNetworkOfflineColor: #ff3b30;
-    qproperty-iconScenarioColor: #919191;
+    qproperty-iconScenarioColor: #9E9E9E;
 
     qproperty-normalColor: #9D9D9D;
     qproperty-notifySelectedColor: #F1D66E;

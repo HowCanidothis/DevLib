@@ -121,6 +121,29 @@ DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefi
     return result;
 }
 
+DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
+{
+    auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
+    auto addError = [this, errorId](const LocalPropertyErrorsContainerValue& value){
+        if(errorId == value.Id) {
+            AddError(errorId, value.Error);
+        }
+    };
+    auto removeError = [this, errorId](const LocalPropertyErrorsContainerValue& value) {
+        if(errorId == value.Id) {
+            RemoveError(errorId);
+        }
+    };
+    DispatcherConnections result;
+    result += pErrors->OnErrorAdded.Connect(this, addError);
+    result += pErrors->OnErrorRemoved.Connect(this, removeError);
+    auto foundIt = errors.Native().find(LocalPropertyErrorsContainerValue{ errorId });
+    if(foundIt != errors.end()) {
+        AddError(errorId, foundIt->Error);
+    }
+    return result;
+}
+
 QString LocalPropertyErrorsContainer::ToString() const
 {
     QString resultText;
