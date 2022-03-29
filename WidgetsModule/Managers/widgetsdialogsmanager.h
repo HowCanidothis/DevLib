@@ -61,7 +61,7 @@ public:
 
     void ResizeDialogToDefaults(QWidget* dialog);
     void MakeFrameless(QWidget* widget, bool attachMovePane = true);
-    static void AttachShadow(class QWidget* w);
+    static void AttachShadow(class QWidget* w, bool applyMargins = true);
 
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 

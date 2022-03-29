@@ -101,6 +101,7 @@ public:
             
             m_data->Calculating = true;
             m_data->PreparatorHandler();
+            onPreRecalculate();
             
             auto currentData = ::make_shared<CurrentData>(m_data);
             m_latestTask = ThreadsBase::Async([this, currentData]{
@@ -142,6 +143,7 @@ public:
 protected:
     virtual bool acceptResult() { return true; }
     virtual void onPostRecalculate() {}
+    virtual void onPreRecalculate() {}
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;

@@ -164,6 +164,10 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
 
 void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
 {
+    if(widget->layout() == nullptr) {
+        return;
+    }
+
     bool resizeable = true;
 
     if(widget->layout() != nullptr) { // TODO. It's a crutch
@@ -181,17 +185,23 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
         vboxla->addWidget(pane);
     }
     auto* layout = widget->layout();
+    widget->setWindowFlag(Qt::FramelessWindowHint);
+    AttachShadow(widget, false);
     QWidget* newWidget = new QWidget();
-    newWidget->setMinimumSize(widget->minimumSizeHint());
+    widget->show();
+    layout->invalidate();
+    widget->hide();
+
+    newWidget->setMinimumSize(layout->sizeHint() + QSize(20,20));
     if(!resizeable) {
         layout->setSizeConstraint(QLayout::SetNoConstraint);
     }
     newWidget->setLayout(layout);
+
     vboxla->addWidget(newWidget);
     widget->setLayout(vboxla);
-    widget->setWindowFlag(Qt::FramelessWindowHint);
 
-    AttachShadow(widget);
+    widget->window()->layout()->setMargin(10);
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
@@ -202,7 +212,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
     }
 }
 
-void WidgetsDialogsManager::AttachShadow(QWidget* widget)
+void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
 {
     auto* shadow = new QGraphicsDropShadowEffect();
 
@@ -211,7 +221,9 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget)
     shadow->setOffset(0);
     widget->setGraphicsEffect(shadow);
     widget->window()->setAttribute(Qt::WA_TranslucentBackground);
-    widget->window()->layout()->setMargin(10);
+    if(applyMargins) {
+        widget->window()->layout()->setMargin(10);
+    }
 
     DispatcherConnectionsSafe connections;
 

@@ -55,10 +55,10 @@ qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
     return m_valueFromTextHandler(this, text);
 }
 
+static QRegExp regExpFloating(R"(\s*(\d+)[\.]?(\d*)\s*)");
+
 QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
-    static QRegExp regExp(R"((\d+\.?\d*))");
-
     if(input.isEmpty() || (input.size() == 1 && input.startsWith("-"))) {
         return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
     }
@@ -67,12 +67,12 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
         return QValidator::Intermediate;
     }
 
-    QString inputCopy = input;
+    QString inputCopy = input.replace(',', '.');
     if(input.startsWith("-")) {
         inputCopy = input.mid(1);
     }
 
-    if(regExp.exactMatch(inputCopy)) {
+    if(regExpFloating.exactMatch(inputCopy)) {
         return QValidator::Acceptable;
     }
     return QValidator::Invalid;
@@ -86,15 +86,15 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     , m_emptyInputIsValid(true)
 {}
 
-static QRegExp regExpFractial(R"((-)?(\d+)(\s)?(\d+)?(\s)?(\/)?(\s)?(\d+)?)");
+static QRegExp regExpFractial(R"((-)?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
 {
     static ValueFromTextHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         double value;
-        if(regExpFractial.indexIn(text) != -1 && !regExpFractial.cap(8).isEmpty()) {
-            auto fractial = regExpFractial.cap(8);
-            auto meaning = regExpFractial.cap(4);
+        if(regExpFractial.indexIn(text) != -1 && !regExpFractial.cap(5).isEmpty()) {
+            auto fractial = regExpFractial.cap(5);
+            auto meaning = regExpFractial.cap(3);
             auto main = regExpFractial.cap(2);
             if(meaning.isEmpty()) {
                 auto fractialValue = fractial.toDouble();
@@ -106,6 +106,8 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
             if(!regExpFractial.cap(1).isEmpty()) {
                 value = -value;
             }
+        } else if(regExpFloating.indexIn(text) != -1){
+            value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
         } else {
             value = text.toDouble();
         }
@@ -172,8 +174,6 @@ double WidgetsDoubleSpinBoxWithCustomDisplay::valueFromText(const QString& text)
 
 QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
-    static QRegExp regExp(R"((\d+\.?\d*))");
-
     if(input.isEmpty()) {
         return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
     }
@@ -182,17 +182,17 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         return QValidator::Intermediate;
     }
 
-    QString inputCopy = input;
+    QString inputCopy = input.replace(',', '.');
     if(input.startsWith("-")) {
         inputCopy = input.mid(1);
     }
 
-    if(regExp.exactMatch(inputCopy)) {
+    if(regExpFloating.exactMatch(inputCopy)) {
         return QValidator::Acceptable;
     }
 
     if(regExpFractial.indexIn(input) != -1) {
-        return regExpFractial.cap(8).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
+        return regExpFractial.cap(5).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
     }
 
     return QValidator::Invalid;

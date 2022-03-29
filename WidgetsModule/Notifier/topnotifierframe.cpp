@@ -70,5 +70,5 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
         });
     };
     errors->OnChanged.Connect(this, setText).MakeSafe(m_connections);
-    errors->OnErrorsLabelsChanged.Connect(this, setText).MakeSafe(m_connections);
+    errors->OnErrorsLabelsChanged.ConnectAndCall(this, setText).MakeSafe(m_connections);
 }
