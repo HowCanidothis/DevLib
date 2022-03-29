@@ -871,6 +871,14 @@ struct LocalPropertyOptional
         });
     }
 
+    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
+    {
+        DispatcherConnections connections;
+        connections += Value.ConnectFrom(locationInfo, another.Value);
+        connections += IsValid.ConnectFrom(locationInfo, another.IsValid);
+        return connections;
+    }
+
     LocalPropertyOptional& operator=(const value_type& value) { Value = value; IsValid = true; return *this; }
     void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {

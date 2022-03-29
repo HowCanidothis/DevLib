@@ -64,7 +64,7 @@ public:
         : InputValue(args...)
         , m_parameters(params)
     {
-        params->IsLocked.OnChanged.ConnectAndCall(this, [locker, unlocker, params]{
+        params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
             if(!params->IsLocked) {
                 unlocker();
             } else {
@@ -90,8 +90,8 @@ public:
     template<typename ... Args>
     StateParameter(StateParameters* params, Args ... args)
         : Super(params,
-                [this]{ m_connection = m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(); },
-                [this]{ m_connection = DispatcherConnectionSafePtr(); },
+                [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
+                [this]{ m_connections.clear(); },
                 args...)
     {
 
@@ -103,11 +103,13 @@ public:
         return *this;
     }
 
+    operator T&() { return Super::InputValue; }
+    const T& GetImmutableProperty() const { return m_immutableValue; }
     const value_type& GetImmutable() const { return m_immutableValue; }
 
 private:
     T m_immutableValue;
-    DispatcherConnectionSafePtr m_connection;
+    DispatcherConnectionsSafe m_connections;
 };
 
 template<class T>
@@ -210,6 +212,14 @@ public:
         return *this;
     }
 
+    template<class T2>
+    const StateCalculator& ConnectParameters(const char* connection, T2* params) const
+    {
+        Connect(connection, params->OnChanged);
+        m_stateParameters.insert(params);
+        return *this;
+    }
+
     const StateCalculator& Connect(const char* connection, StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
@@ -232,6 +242,10 @@ public:
     QString ObjectName;
 
 protected:
+    void onPreRecalculate() override
+    {
+        OnCalculationRejected();
+    }
     void onPostRecalculate() override
     {
         Valid.SetState(true);
@@ -265,6 +279,17 @@ struct StateCalculatorConnectionHelper
     static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<T>& parameter)
     {
         calculator.Connect(connection, parameter.InputValue.OnChanged);
+    }
+};
+
+template<typename Property>
+struct StateCalculatorConnectionHelper<LocalPropertyOptional<Property>>
+{
+    template<class T2>
+    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<LocalPropertyOptional<Property>>& parameter)
+    {
+        calculator.Connect(connection, parameter.InputValue.Value.OnChanged);
+        calculator.Connect(connection, parameter.InputValue.IsValid.OnChanged);
     }
 };
 

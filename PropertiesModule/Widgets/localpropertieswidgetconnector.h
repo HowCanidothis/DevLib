@@ -9,6 +9,7 @@
 #include "PropertiesModule/localproperty.h"
 
 class LocalPropertiesWidgetConnectorBase;
+class WidgetsDoubleSpinBoxWithCustomDisplay;
 
 class _Export LocalPropertiesWidgetConnectorsContainer
 {
@@ -94,7 +95,11 @@ class _Export LocalPropertiesLabelConnector : public LocalPropertiesWidgetConnec
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label);
+    template<class T>
+    LocalPropertiesLabelConnector(StateParameter<T>* property, class QLabel* label)
+        : LocalPropertiesLabelConnector(&property->InputValue, label)
+    {}
+    LocalPropertiesLabelConnector(LocalPropertyString* property, QLabel* label);
     template<class T>
     LocalPropertiesLabelConnector(LocalPropertySequentialEnum<T>* property, QLabel* label)
         : Super([label, property]{
@@ -122,7 +127,15 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 public:
     LocalPropertiesComboBoxConnector(LocalPropertyInt* property, class QComboBox* comboBox);
     LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox);
+    template<class T>
+    LocalPropertiesComboBoxConnector(StateParameter<T>* property, QComboBox* comboBox)
+        : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox)
+    {}
 #ifdef WIDGETS_MODULE_LIB
+    template<class T>
+    LocalPropertiesComboBoxConnector(StateParameter<T>* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model)
+        : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, model)
+    {}
     LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model);
     LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* combobox, const SharedPointer<ModelsStandardListModel>& model);
 #endif
@@ -134,6 +147,11 @@ class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetCon
 public:
      LocalPropertiesLineEditConnector(LocalProperty<QString>* property, class QLineEdit* lineEdit, bool reactive = true);
 
+     template<class T>
+     LocalPropertiesLineEditConnector(StateParameter<T>* property, class QLineEdit* lineEdit, bool reactive = true)
+         : LocalPropertiesLineEditConnector(&property->InputValue, lineEdit, reactive)
+     {}
+
  private:
      DelayedCallObject m_textChanged;
 };
@@ -143,7 +161,16 @@ class _Export LocalPropertiesSpinBoxConnector : public LocalPropertiesWidgetConn
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, class QSpinBox* spinBox);
+    template<class T>
+    LocalPropertiesSpinBoxConnector(StateParameter<T>* property, QSpinBox* spin)
+        : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
+    {}
+
 #ifdef WIDGETS_MODULE_LIB
+    template<class T>
+    LocalPropertiesSpinBoxConnector(StateParameter<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
+        : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
+    {}
     LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, class WidgetsSpinBoxWithCustomDisplay* spinBox);
 #endif
 };
@@ -151,12 +178,20 @@ public:
 class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
-public:
+public:   
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
+    template<class T>
+    LocalPropertiesDoubleSpinBoxConnector(StateParameter<T>* property, QDoubleSpinBox* spin)
+        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
+    {}
 
 #ifdef WIDGETS_MODULE_LIB
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, class WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
+    template<class T>
+    LocalPropertiesDoubleSpinBoxConnector(StateParameter<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
+        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
+    {}
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
 #endif
 };
 
