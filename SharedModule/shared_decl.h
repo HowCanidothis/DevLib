@@ -426,6 +426,11 @@ public:
         Q_ASSERT(m_instance == nullptr);
         m_instance = reinterpret_cast<T*>(this);
     }
+    Singletone(T* instance)
+    {
+        Q_ASSERT(m_instance == nullptr);
+        m_instance = instance;
+    }
     virtual ~Singletone()
     {
         m_instance = nullptr;
