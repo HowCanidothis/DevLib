@@ -60,11 +60,16 @@ class StateParameterBase
 {
 public:
     template<typename ... Args>
-    StateParameterBase(StateParameters* params, const FAction& locker, const FAction& unlocker, Args ... args)
+    StateParameterBase(Args ... args)
         : InputValue(args...)
-        , m_parameters(params)
     {
-        params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
+
+    }
+
+    void Initialize(StateParameters* params, const FAction& locker, const FAction& unlocker)
+    {
+        m_parameters = params;
+        params->IsLocked.OnChanged.ConnectAndCall(this, [locker, unlocker, params]{
             if(!params->IsLocked) {
                 unlocker();
             } else {
@@ -89,12 +94,11 @@ public:
     using value_type = typename T::value_type;
     template<typename ... Args>
     StateParameter(StateParameters* params, Args ... args)
-        : Super(params,
-                [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
-                [this]{ m_connections.clear(); },
-                args...)
+        : Super(args...)
     {
-
+        Initialize(params,
+                   [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
+                   [this]{ m_connections.clear(); });
     }
 
     StateParameter& operator=(const value_type& value)
