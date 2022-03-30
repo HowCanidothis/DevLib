@@ -24,7 +24,3 @@ WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
     min-height: 18px;
     min-width: 18px;
 }
-
-QWidget#tt {
-    background: green;
-}
