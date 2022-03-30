@@ -167,6 +167,25 @@ struct Serializer<LocalPropertyVector<T>>
     }
 };
 
+template<class T>
+struct Serializer<StateParameter<T>>
+{
+    typedef StateParameter<T> target_type;
+    using value_type = typename T::value_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& constData)
+    {
+        auto& data = const_cast<target_type&>(constData);
+        buffer << data.InputValue;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer << data.InputValue;
+    }
+};
+
 #define SERIALIZER_XML_DECLARE_PROPERTY_TYPE(PropertyType) \
 template<class T> \
 struct SerializerXml<PropertyType<T>> \
