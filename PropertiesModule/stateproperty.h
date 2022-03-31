@@ -437,6 +437,16 @@ public:
 };
 
 template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
+#define REGISTER_STATE_IMMUTABLE_WRAPPER(Wrapper) \
+template<> \
+struct StateCalculatorConnectionHelper<SharedPointer<StateImmutableData<Wrapper>>> \
+{ \
+    template<class T2> \
+    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<SharedPointer<StateImmutableData<Wrapper>>>& parameter) \
+    { \
+        calculator.Connect(connection, parameter.InputValue->IsValid); \
+    } \
+} \
 
 template<class T>
 class IStateImmutableData
