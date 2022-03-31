@@ -1182,3 +1182,11 @@ QPushButton#ResetButton:hover
 WPSCQuickPlanView QLabel[tiny="true"] {
     font-size: 12px;
 }
+
+WPSCDrillCaseView QPushButton#btnChart {
+    image: url(":/qss_icons/rc/chart-line.svg");
+}
+
+WPSCDrillCaseView QPushButton#btnTable {
+    image: url(":/qss_icons/rc/table-large.svg");
+}
