@@ -49,6 +49,18 @@ MeasurementUnit::MeasurementUnit(const Name& id, const FTranslationHandler& full
 
 }
 
+double MeasurementUnit::FromUnitToBaseChange(double& unitValue) const
+{
+    unitValue = FromUnitToBase(unitValue);
+    return unitValue;
+}
+
+double MeasurementUnit::FromBaseToUnitChange(double& baseValue) const
+{
+    baseValue = FromBaseToUnit(baseValue);
+    return baseValue;
+}
+
 double MeasurementUnit::FromUnitToBase(double unitValue) const
 {
     return m_unitToBase(unitValue);
@@ -65,11 +77,20 @@ Measurement::Measurement(const QString& label)
     , CurrentStep(1.0)
     , m_wrapper(::make_shared<WPSCUnitTableWrapper>())
     , m_currentUnit(nullptr)
+    , m_idsDictionary(::make_scoped<FTSDictionary>())
+    , m_idsCache(::make_scoped<FTSObject>(m_idsDictionary.get()))
 {
     CurrentUnitId.Subscribe([this]{
         m_currentConnections.clear();
-        Q_ASSERT(m_metricUnits.contains(CurrentUnitId));
-        m_currentUnit = m_metricUnits[CurrentUnitId];
+        auto foundIt = m_metricUnits.find(CurrentUnitId);
+        if(foundIt != m_metricUnits.end()) {
+            m_currentUnit = m_metricUnits[CurrentUnitId];
+        } else {
+            auto match = m_idsDictionary->Match(CurrentUnitId.Native().AsString());
+            match.Sort();
+            m_currentUnit = *(m_metricUnits.begin() + match.first().Row.Id);
+            CurrentUnitId.EditSilent() = m_currentUnit->Id;
+        }
         CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
     });
     
@@ -90,6 +111,7 @@ Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
     }
     
     m_metricUnits.insert(unit->Id, unit);
+    m_idsCache->AddRow(unit->Id.AsString(), m_wrapper->GetSize());
     m_wrapper->Append(unit);
     return *this;
 }

@@ -141,7 +141,14 @@ const GtFontPtr& GtRenderer::GetFont(const Name& fontName) const
 
 void GtRenderer::AddController(const GtRendererControllerPtr& controller)
 {
-    m_controllers.append(controller);
+    if(OnInitialized.GetValue()) {
+        Asynch([this, controller]{
+            controller->onInitialize();
+            m_controllers.append(controller);
+        });
+    } else {
+        m_controllers.append(controller);
+    }
 }
 
 void GtRenderer::AddDrawable(GtDrawableBase* drawable, qint32 queueNumber)

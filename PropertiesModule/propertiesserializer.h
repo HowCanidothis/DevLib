@@ -192,23 +192,6 @@ struct SerializerXml<PropertyType<T>> \
 };
 
 template<class T>
-struct SerializerXml<StateParameter<T>>
-{
-    using Type = StateParameter<T>;
-    template<class Buffer>
-    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer << object.Mutate(object.Value.InputValue);
-    }
-
-    template<class Buffer>
-    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
-    {
-        buffer << object.Mutate(object.Value.InputValue);
-    }
-};
-
-template<class T>
 struct SerializerXml<LocalPropertySequentialEnum<T>>
 {
     using Type = LocalPropertySequentialEnum<T>;
@@ -250,6 +233,42 @@ struct SerializerXml<StateProperty>
         } else {
             buffer << data.Mutate(data.Value.m_value);
         }
+    }
+};
+
+template<class T>
+struct Serializer<StateParameter<T>>
+{
+    typedef StateParameter<T> target_type;
+    using value_type = typename T::value_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& constData)
+    {
+        auto& data = const_cast<target_type&>(constData);
+        buffer << data.InputValue;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        buffer << data.InputValue;
+    }
+};
+
+template<class T>
+struct SerializerXml<StateParameter<T>>
+{
+    using Type = StateParameter<T>;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        buffer << object.Mutate(object.Value.InputValue);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
+    {
+        buffer << object.Mutate(object.Value.InputValue);
     }
 };
 

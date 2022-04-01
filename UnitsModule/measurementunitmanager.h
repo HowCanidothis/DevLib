@@ -21,6 +21,8 @@ public:
     MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, double multiplierUnitToBase);
     MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, const FTransform& unitToBase, const FTransform& baseToUnit);
     
+    double FromUnitToBaseChange(double& unitValue) const;
+    double FromBaseToUnitChange(double& baseValue) const;
     double FromUnitToBase(double unitValue) const;
     double FromBaseToUnit(double baseValue) const;
     
@@ -70,6 +72,8 @@ private:
     
     const MeasurementUnit* m_currentUnit;
     DispatcherConnectionsSafe m_currentConnections;
+    ScopedPointer<class FTSDictionary> m_idsDictionary;
+    ScopedPointer<class FTSObject> m_idsCache;
 };
 using MeasurementPtr = SharedPointer<Measurement>;
 Q_DECLARE_METATYPE(SharedPointer<Measurement>);
