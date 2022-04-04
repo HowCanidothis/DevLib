@@ -265,9 +265,9 @@ public:
         }
     }
     
-    LocalPropertyLimitedDecimal& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
-    LocalPropertyLimitedDecimal& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
-    LocalPropertyLimitedDecimal& operator=(const T& value) { SetValue(value); return *this; }
+    LocalPropertyLimitedDecimal& operator-=(const T& value) { Super::SetValue(Super::Native() - value); return *this; }
+    LocalPropertyLimitedDecimal& operator+=(const T& value) { Super::SetValue(Super::Native() + value); return *this; }
+    LocalPropertyLimitedDecimal& operator=(const T& value) { Super::SetValue(value); return *this; }
     
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }

@@ -260,22 +260,28 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
                                  option.rect.width()/2 - checkbox_rect.width()/2);
 
     if(value.toBool()) {
-        checkboxstyle.state = QStyle::State_On|QStyle::State_Enabled;
+        checkboxstyle.state = QStyle::State_On;
     } else {
-        checkboxstyle.state = QStyle::State_Off|QStyle::State_Enabled;
+        checkboxstyle.state = QStyle::State_Off;
     }
-
-    QApplication::style()->drawControl(QStyle::CE_CheckBox,&checkboxstyle, painter, option.widget);
+    if(index.flags().testFlag(Qt::ItemIsEditable)){
+        checkboxstyle.state |= QStyle::State_Enabled | QStyle::State_MouseOver | QStyle::State_HasFocus;
+    } else {
+        checkboxstyle.state |= QStyle::State_ReadOnly;
+    }
+    QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkboxstyle, painter, option.widget);
 }
 
 bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    if(event->type() == QEvent::MouseButtonRelease){
-        model->setData(index, !model->data(index).toBool());
-        event->accept();
-    } else if(event->type() == QEvent::MouseButtonDblClick){
-        event->accept();
-        return true;
+    if(index.flags().testFlag(Qt::ItemIsEditable)){
+        if(event->type() == QEvent::MouseButtonRelease){
+            model->setData(index, !model->data(index).toBool());
+            event->accept();
+        } else if(event->type() == QEvent::MouseButtonDblClick){
+            event->accept();
+            return true;
+        }
     }
     return Super::editorEvent(event, model, option, index);
 }
