@@ -28,11 +28,10 @@ public:
     };
     DECL_FLAGS(Options, Option)
 
-    PropertiesDialogBase(const QString& name, const Name& scope, QWidget* view, QWidget* parent = nullptr);
+    PropertiesDialogBase(const Name& scope, QWidget* view, QWidget* parent = nullptr);
     ~PropertiesDialogBase();
 
     static void RejectAllDialogs();
-    static void CreateGeometryProperty(const QString& dialogName);
     void Initialize(const StdHandle& propertiesInitializeFunction = []{});
     const Options& GetOptions() const { return m_options; }
     Options& ChangeOptions() { return  m_options; }
@@ -56,7 +55,6 @@ protected:
     Options m_options;
     PropertiesScopeName m_scope;
     QWidget* m_view;
-    ByteArrayPropertyPtr m_savedGeometry;
     QMetaObject::Connection m_connection;
     QHash<Property*, QVariant> m_oldValues;
     DispatcherConnectionsSafe m_additonalPropertiesConnections;

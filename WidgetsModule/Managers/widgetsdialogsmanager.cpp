@@ -9,9 +9,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QDesktopWidget>
+#include <QSettings>
 
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
@@ -96,6 +98,17 @@ void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogPara
     } else {
         dialog->show();
     }
+}
+
+void WidgetsDialogsManager::ShowPropertiesDialog(const PropertiesScopeName& scope, const DescShowDialogParams& params)
+{
+    auto* dialog = GetOrCreateDialog<PropertiesDialog>(scope, [this, scope]{
+        auto* dialog = new PropertiesDialog(scope, GetParentWindow());
+        return dialog;
+    }, scope);
+    dialog->Initialize([]{});
+    dialog->GetView<PropertiesView>()->expandAll();
+    ShowDialog(dialog, params);
 }
 
 void WidgetsDialogsManager::ResizeDialogToDefaults(QWidget* dialog)

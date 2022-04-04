@@ -1,0 +1,24 @@
+MainWindow {
+    qproperty-iconPlanColor: #1976D2;
+    qproperty-iconPrototypeColor: #1976D2;
+    qproperty-iconSurveyColor: #ff3b30;
+    qproperty-iconWellboreColor: #BF360C;
+    
+    qproperty-iconJobInformationColor: #BF360C;
+    qproperty-iconRunSummaryColor: #90A4AE;
+    qproperty-iconDailyReportColor: #78909C;
+    qproperty-iconSlideSheetColor: #607D8B;
+    qproperty-iconBHAColor: #546E7A;
+    qproperty-iconInventoryColor: #455A64;
+    qproperty-iconShippingColor: #37474F;    
+
+    qproperty-iconCalendarColor: #F3F3F3;
+    qproperty-iconNetworkOnlineColor: #22b14c;
+    qproperty-iconNetworkOfflineColor: #ff3b30;
+
+    qproperty-iconScenarioColor: #BF360C;
+    qproperty-iconBHADEColor: #009688;
+    qproperty-iconSectionSummaryColor: #00897B;
+    qproperty-iconCaseColor: #00796B;
+    qproperty-iconBHADEColor: #00695C;
+}

@@ -40,7 +40,8 @@ void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sou
 void GtRenderer::construct()
 {
     m_queueNumber = 0;
-    m_standardMeshs = new GtStandardMeshs();
+    m_resourceSystem = ::make_shared<ResourcesSystem>();
+    m_standardMeshs = new GtStandardMeshs();    
 }
 
 void GtRenderer::enableDepthTest()
@@ -74,6 +75,8 @@ GtRenderer::~GtRenderer()
 {
     OnAboutToBeDestroyed();
     Quit();
+    auto resourceSystem = m_resourceSystem;
+    ThreadsBase::DoMain([resourceSystem]{});
 }
 
 GtRendererControllerPtr GtRenderer::CreateDefaultController()
@@ -141,13 +144,31 @@ const GtFontPtr& GtRenderer::GetFont(const Name& fontName) const
 
 void GtRenderer::AddController(const GtRendererControllerPtr& controller)
 {
-    if(OnInitialized.GetValue()) {
+    if(!IsStoped()) {
         Asynch([this, controller]{
             controller->onInitialize();
-            m_controllers.append(controller);
+            m_controllers.insert(controller.get(), controller);
         });
     } else {
-        m_controllers.append(controller);
+        m_controllers.insert(controller.get(), controller);
+    }
+}
+
+void GtRenderer::RemoveController(GtRendererController* controller)
+{
+    if(!IsStoped()) {
+        Asynch([this, controller]{
+            for(const auto& queue : controller->m_drawables) {
+                for(auto* drawable : queue) {
+                    drawable->Destroy();
+                }
+            }
+            controller->m_renderPath = nullptr;
+            m_controllers.remove(controller);
+        });
+        ProcessEvents();
+    } else {
+        m_controllers.remove(controller);
     }
 }
 
@@ -221,18 +242,18 @@ bool GtRenderer::onInitialize()
         }
     }
 
-    m_resourceSystem.RegisterResource<Matrix4>("mvp");
-    m_resourceSystem.RegisterResource<Vector2F>("screenSize");
-    m_resourceSystem.RegisterResource<Matrix4>("invertedMVP");
-    m_resourceSystem.RegisterResource<Vector3F>("eye");
-    m_resourceSystem.RegisterResource<Vector3F>("side");
-    m_resourceSystem.RegisterResource<Vector3F>("up");
-    m_resourceSystem.RegisterResource<Vector3F>("forward");
-    m_resourceSystem.RegisterResource<Matrix4>("view");
-    m_resourceSystem.RegisterResource<Matrix4>("projection");
-    m_resourceSystem.RegisterResource<Matrix4>("rotation");
-    m_resourceSystem.RegisterResource<Matrix4>("viewportProjection");
-    m_resourceSystem.RegisterResource<GtCamera*>("camera");
+    m_mvp = m_resourceSystem->RegisterResourceAndGet<Matrix4>("mvp");
+    m_screenSize = m_resourceSystem->RegisterResourceAndGet<Vector2F>("screenSize");
+    m_invertedMv = m_resourceSystem->RegisterResourceAndGet<Matrix4>("invertedMVP");
+    m_eye = m_resourceSystem->RegisterResourceAndGet<Vector3F>("eye");
+    m_side = m_resourceSystem->RegisterResourceAndGet<Vector3F>("side");
+    m_up = m_resourceSystem->RegisterResourceAndGet<Vector3F>("up");
+    m_forward = m_resourceSystem->RegisterResourceAndGet<Vector3F>("forward");
+    m_view = m_resourceSystem->RegisterResourceAndGet<Matrix4>("view");
+    m_projection = m_resourceSystem->RegisterResourceAndGet<Matrix4>("projection");
+    m_rotation = m_resourceSystem->RegisterResourceAndGet<Matrix4>("rotation");
+    m_viewport = m_resourceSystem->RegisterResourceAndGet<Matrix4>("viewportProjection");
+    m_camera = m_resourceSystem->RegisterResourceAndGet<GtCamera*>("camera");
 
     m_scene = new GtScene();
 
@@ -242,19 +263,6 @@ bool GtRenderer::onInitialize()
             logger->startLogging();
         }
     }*/
-
-    m_mvp = m_resourceSystem.GetResource<Matrix4>("mvp");
-    m_eye = m_resourceSystem.GetResource<Vector3F>("eye");
-    m_invertedMv = m_resourceSystem.GetResource<Matrix4>("invertedMVP");
-    m_forward = m_resourceSystem.GetResource<Vector3F>("forward");
-    m_up = m_resourceSystem.GetResource<Vector3F>("up");
-    m_screenSize = m_resourceSystem.GetResource<Vector2F>("screenSize");
-    m_view = m_resourceSystem.GetResource<Matrix4>("view");
-    m_projection = m_resourceSystem.GetResource<Matrix4>("projection");
-    m_rotation = m_resourceSystem.GetResource<Matrix4>("rotation");
-    m_viewport = m_resourceSystem.GetResource<Matrix4>("viewportProjection");
-    m_side = m_resourceSystem.GetResource<Vector3F>("side");
-    m_camera = m_resourceSystem.GetResource<GtCamera*>("camera");
 
     // TODO. Must have state machine feather
     glDisable(GL_CULL_FACE);

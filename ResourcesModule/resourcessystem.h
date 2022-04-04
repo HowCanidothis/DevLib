@@ -41,6 +41,13 @@ public:
     }
 
     template<class T>
+    TResource<T> RegisterResourceAndGet(const Name& name, bool threadSafe = false)
+    {
+        RegisterResource(name, DescRegisterResourceParams::Create<T>([]() -> T* { return new T(); }, threadSafe));
+        return GetResource<T>(name);
+    }
+
+    template<class T>
     void RegisterResource(const Name& name, const std::function<T*()>& initializer, bool threadSafe = false)
     {
         RegisterResource(name, DescRegisterResourceParams::Create<T>(initializer, threadSafe));

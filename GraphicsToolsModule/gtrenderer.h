@@ -43,6 +43,7 @@ public:
     void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
+    void RemoveController(GtRendererController* controller);
 
     SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
 
@@ -52,7 +53,7 @@ public:
     template<class T>
     TResource<T> GetResource(const Name& name)
     {
-        auto resource = m_resourceSystem.GetResource<T>(name, true);
+        auto resource = m_resourceSystem->GetResource<T>(name, true);
         if(resource != nullptr) {
             return resource;
         }
@@ -109,7 +110,7 @@ private:
     friend class GtDrawableBase;
     friend class GtRenderPath;
 
-    QVector<GtRendererControllerPtr> m_controllers;
+    QHash<GtRendererController*, GtRendererControllerPtr> m_controllers;
     ScopedPointer<QImage> m_outputImage;
     Matrix4Resource m_mvp;
     Matrix4Resource m_view;
@@ -130,7 +131,7 @@ private:
     ScopedPointer<class GtScene> m_scene;
 
     SharedPointer<GtRendererSharedData> m_sharedData;
-    ResourcesSystem m_resourceSystem;
+    SharedPointer<ResourcesSystem> m_resourceSystem;
     QVector<GtRendererPtr> m_childRenderers;
     GtRenderProperties m_renderProperties;
     QVector<FAction> m_delayedDraws;

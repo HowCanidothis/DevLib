@@ -82,6 +82,7 @@ private:
 private:
     SharedPointer<SvgIconEngineData> d;
     DispatcherConnectionsSafe m_connections;
+    DelayedCallObject m_clearCacheDelayed;
 };
 
 SvgIconEngine::SvgIconEngine()
@@ -92,10 +93,16 @@ SvgIconEngine::SvgIconEngine()
     }).MakeSafe(m_connections);
 
     auto resetCache = [this](QIcon::Mode mode) {
+        m_clearCacheDelayed.Call([this]{
+            d->Cache.clear();
+        });
+        // TODO. Not working
+        /*SvgIconEngineData::HashKey modeOn { mode, QIcon::On };
+        SvgIconEngineData::HashKey modeOff { mode, QIcon::Off };
         for(auto& modes : d->Cache) {
-            modes.remove({ mode, QIcon::On });
-            modes.remove({ mode, QIcon::Off });
-        }
+            modes.remove(modeOn);
+            modes.remove(modeOff);
+        }*/
     };
 
     d->Palette.ActiveColor.OnChanged.Connect(this, [resetCache]{
