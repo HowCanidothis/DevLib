@@ -24,10 +24,10 @@ QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another,
     auto currentVersionValue = (quint32)another.GetVersion();
     if(strictVersion) {
         if(currentVersionValue != (quint32)GetVersion()) {
-            return tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(GetFormat()) , QString::number(another.GetFormat()));
+            return tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
         }
     } else if(currentVersionValue > (quint32)GetVersion()) {
-        return tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(GetFormat()) , QString::number(another.GetFormat()));
+        return tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
     }
 
     return QVariant();

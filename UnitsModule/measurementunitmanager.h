@@ -72,6 +72,8 @@ private:
     
     const MeasurementUnit* m_currentUnit;
     DispatcherConnectionsSafe m_currentConnections;
+    ScopedPointer<class FTSDictionary> m_idsDictionary;
+    ScopedPointer<class FTSObject> m_idsCache;
 };
 using MeasurementPtr = SharedPointer<Measurement>;
 Q_DECLARE_METATYPE(SharedPointer<Measurement>);

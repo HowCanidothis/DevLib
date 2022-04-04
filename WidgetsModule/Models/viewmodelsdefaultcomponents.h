@@ -161,12 +161,12 @@ public:
     }
 
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter)
+    ViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter, bool readOnly = false)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
-        }, [getter](const QVariant& value, ValueType data) -> FAction {
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
             auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
             if(TranslatorManager::IsValid<Enum>(enumIndex)){
                 LambdaValueWrapper<ValueType> wrapper(data);
@@ -177,20 +177,12 @@ public:
     }
 
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumColumnReadOnly(qint32 column, const FTranslationHandler& header, const std::function<Enum (ConstValueType)>& getter)
-    {
-        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            return TranslatorManager::IsValid<Enum>(getter(constData)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(constData))] : QVariant();
-        }, nullptr);
-    }
-
-    template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter)
+    ViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter, bool readOnly = false)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data).Native())];
-        }, [getter](const QVariant& value, ValueType data) -> FAction {
+            return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
             auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
             if(TranslatorManager::IsValid<Enum>(enumIndex)){
                 LambdaValueWrapper<ValueType> wrapper(data);
@@ -216,7 +208,7 @@ public:
         }
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumnReadOnly(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter)
+    ViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
