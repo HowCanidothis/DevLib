@@ -220,6 +220,13 @@ public:
     const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
 
+    DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
+    {
+        DispatcherConnections connections;
+        connections += OnChanged.Connect(locationInfo, action);
+        return connections;
+    }
+
     bool operator!() const { return m_value == false; }
     bool operator!=(const T& value) const { return m_value != value; }
     bool operator==(const T& value) const { return m_value == value; }
@@ -869,6 +876,14 @@ struct LocalPropertyOptional
         Value.Subscribe([this]{
             IsValid = true;
         });
+    }
+
+    DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
+    {
+        DispatcherConnections connections;
+        connections += Value.OnChanged.Connect(locationInfo, action);
+        connections += IsValid.OnChanged.Connect(locationInfo, action);
+        return connections;
     }
 
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
