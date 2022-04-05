@@ -373,6 +373,16 @@ QFrame[ApplicationMode="3"] QWidget{
     color: white;
 }
 
+QFrame[ApplicationMode="4"]{
+    background: #004D40;
+}
+
+QFrame[ApplicationMode="4"] QWidget{
+    background: #004D40;
+    color: white;
+}
+
+
 WidgetsEditingObjectSaveCancelButtons {
     padding: 10px 20px 10px 20px;
 }

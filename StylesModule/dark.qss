@@ -1,4 +1,5 @@
 @import url("common/style.qss");
+@import url("common/icons.qss");
 @import url("common/mainprogressbar.qss");
 @import url("common/properties.qss");
 @import url("common/leftbar.qss");

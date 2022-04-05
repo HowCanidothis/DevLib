@@ -260,7 +260,7 @@ public:
         if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
-            SetValue(Super::m_value);
+            Super::SetValue(Super::m_value);
             OnMinMaxChanged();
         }
     }

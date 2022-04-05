@@ -8,18 +8,13 @@
 
 #include "propertiesscope.h"
 
-PropertiesDialogBase::PropertiesDialogBase(const QString& name, const Name& scope, QWidget* view, QWidget* parent)
+PropertiesDialogBase::PropertiesDialogBase(const Name& scope, QWidget* view, QWidget* parent)
     : QDialog(parent)
     , m_isInitialized(false)
     , m_options(Options_Default)
     , m_scope(scope)
     , m_view(view)
-    , m_savedGeometry(Name("PropertiesDialogGeometry/" + name), PropertiesSystem::Global)
 {
-    if(!m_savedGeometry.IsValid()) {
-        qCWarning(LC_SYSTEM) << name << "dialog doesn't have geometry property";
-    }
-
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     auto* layout = new QVBoxLayout(this);
     layout->addWidget(view);
@@ -43,13 +38,6 @@ void PropertiesDialogBase::RejectAllDialogs()
             dialog->reject();
         }
     }
-}
-
-void PropertiesDialogBase::CreateGeometryProperty(const QString& dialogName)
-{
-    // TODO. Memory leak, but this property is global and live until the application closes
-    auto property = new ByteArrayProperty(Name("PropertiesDialogGeometry/" + dialogName), QByteArray());
-    property->ChangeOptions().SetFlags(Property::Option_IsExportable);
 }
 
 void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& propertiesInitializeFunction)
@@ -95,9 +83,6 @@ void PropertiesDialogBase::SetOnDone(const PropertiesDialogBase::OnDoneHandle& o
 void PropertiesDialogBase::done(int result)
 {
     Q_ASSERT(m_isInitialized == true);
-    if(m_savedGeometry.IsValid()) {
-        m_savedGeometry = saveGeometry();
-    }
     Super::done(result);
     if(result == Rejected) {
         auto it = m_oldValues.begin();
@@ -117,11 +102,7 @@ void PropertiesDialogBase::done(int result)
 
 void PropertiesDialogBase::showEvent(QShowEvent* event)
 {
-    if(m_savedGeometry.IsValid() && !m_savedGeometry.Native().isEmpty()) {
-        restoreGeometry(m_savedGeometry);
-    } else {
-        Super::showEvent(event);
-    }
+    Super::showEvent(event);
 }
 
 void PropertiesDialogBase::changeProperties(const PropertiesDialogBase::StdHandle& changingProperties)

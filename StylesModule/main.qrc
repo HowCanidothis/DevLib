@@ -25,5 +25,6 @@
         <file>dark/toolbar.qss</file>
         <file>light/toolbar.qss</file>
         <file>common/toolbar.qss</file>
+        <file>common/icons.qss</file>
     </qresource>
 </RCC>

@@ -642,6 +642,18 @@ struct StatedVertex3F
     Point3F Position;
     quint8 State;
 
+    StatedVertex3F()
+    {}
+
+    StatedVertex3F(float x, float y, float z, quint8 state = 0)
+        : Position(x,y,z)
+        , State(state)
+    {}
+
+    StatedVertex3F(const Point3F& point, quint8 state = 0)
+        : StatedVertex3F(point.x(), point.y(), point.z(), state)
+    {}
+
     bool operator==(const StatedVertex3F& another) const { return another.State == State && another.Position == Position; }
 };
 

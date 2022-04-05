@@ -139,15 +139,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
 
     m_renderer->OnAboutToBeDestroyed.Connect(this, [this]{
-        m_renderPath = nullptr;
-        for(const auto& queue : m_drawables) {
-            for(auto* drawable : queue) {
-                drawable->Destroy();
-            }
-        }
-        m_drawables.clear();
-        m_renderer->ProcessEvents();
-        m_renderer = nullptr;
+        m_renderer->RemoveController(this);
     }).MakeSafe(m_connections);
 
     auto threadHandler = m_renderer->CreateThreadHandler();
@@ -176,18 +168,7 @@ void GtRendererController::UpdateFrame()
 GtRendererController::~GtRendererController()
 {
     OnAboutToBeDestroyed();
-    if(m_renderer != nullptr) {
-        FutureResult result;
-        result += m_renderer->Asynch([this]{
-            m_renderPath = nullptr;
-            for(const auto& queue : m_drawables) {
-                for(auto* drawable : queue) {
-                    drawable->Destroy();
-                }
-            }
-        });
-        result.Wait();
-    }
+    qDebug() << "Controller remvoed";
 }
 
 void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)

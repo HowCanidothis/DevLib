@@ -36,7 +36,7 @@ public:
     QDialog* GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
 
     template<class T>
-    T* GetOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator)
+    T* GetOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator, const Name& restoreGeometryName = Name())
     {
         auto foundIt = m_taggedDialog.find(tag);
         if(foundIt != m_taggedDialog.end()) {
@@ -44,6 +44,20 @@ public:
         }
         auto* result = dialogCreator();
         OnDialogCreated(result);
+        if(!restoreGeometryName.IsNull()) {
+            QSettings geometriesSettings;
+            auto geometry = geometriesSettings.value("Geometries/" + restoreGeometryName.AsString()).toByteArray();
+            if(!geometry.isEmpty()) {
+                result->restoreGeometry(geometry);
+            }
+            WidgetsAttachment::Attach(result, [result, restoreGeometryName](QObject*, QEvent* event){
+                if(event->type() == QEvent::Hide) {
+                    QSettings geometriesSettings;
+                    geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), result->saveGeometry());
+                }
+                return false;
+            });
+        }
         m_taggedDialog.insert(tag, result);
         return result;
     }
@@ -58,6 +72,7 @@ public:
     };
 
     void ShowDialog(QDialog* dialog, const DescShowDialogParams& params);
+    void ShowPropertiesDialog(const PropertiesScopeName& name, const DescShowDialogParams& params);
 
     void ResizeDialogToDefaults(QWidget* dialog);
     void MakeFrameless(QWidget* widget, bool attachMovePane = true);
