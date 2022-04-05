@@ -109,30 +109,6 @@ DDFooter QLabel{
     font-size: 12px;
 }
 
-QFrame[ApplicationMode="1"]{
-    background: #7B1FA2;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
-    background: #1976D2;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
-    background: #D32F2F;
-}
-
-QFrame[ApplicationMode="1"] QWidget{
-    background: #7B1FA2;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
-    background: #1976D2;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
-    background: #D32F2F;
-}
-
 QFrame#MainFooter QLabel#FooterProgressBarLabel{
     font-size: 8px;
     qproperty-alignment: 'AlignVCenter | AlignLeft';
