@@ -52,6 +52,9 @@ public:
     LocalPropertyBool IsLocked;
 
 private:
+    template<class T> friend class StateCalculator;
+    template<class T> friend class StateParameter;
+    StateProperty m_isValid;
     std::atomic_int m_counter;
 };
 
@@ -97,8 +100,13 @@ public:
         : Super(args...)
     {
         Initialize(params,
-                   [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
-                   [this]{ m_connections.clear(); });
+                   [this]{ m_connections.clear(); },
+                   [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); });
+        Super::InputValue.OnChangedImpl(CONNECTION_DEBUG_LOCATION, [params]{
+            if(params->IsLocked) {
+                params->m_isValid.SetState(false);
+            }
+        });
     }
 
     StateParameter& operator=(const value_type& value)
@@ -220,6 +228,7 @@ public:
     const StateCalculator& ConnectParameters(const char* connection, T2* params) const
     {
         Connect(connection, params->OnChanged);
+        Connect(connection, params->m_isValid);
         m_stateParameters.insert(params);
         return *this;
     }
@@ -301,8 +310,11 @@ template<class T> template<class T2>
 const StateCalculator<T>& StateCalculator<T>::Connect(const char* connection, const StateParameterBase<T2>& stateParameter) const
 {
     THREAD_ASSERT_IS_MAIN();
-    StateCalculatorConnectionHelper<T2>::ConnectStateParameter<T>(connection, *this, const_cast<StateParameterBase<T2>&>(stateParameter));
-    m_stateParameters.insert(stateParameter.GetParameters());
+    StateCalculatorConnectionHelper<T2>::template ConnectStateParameter<T>(connection, *this, const_cast<StateParameterBase<T2>&>(stateParameter));
+    if(!m_stateParameters.contains(stateParameter.GetParameters())) {
+        Connect(connection, stateParameter.GetParameters()->m_isValid);
+        m_stateParameters.insert(stateParameter.GetParameters());
+    }
     return *this;
 }
 

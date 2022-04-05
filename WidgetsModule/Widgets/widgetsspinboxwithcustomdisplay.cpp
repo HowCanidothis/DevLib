@@ -108,6 +108,9 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
             }
         } else if(regExpFloating.indexIn(text) != -1){
             value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
+            if(!regExpFractial.cap(1).isEmpty()) {
+                value = -value;
+            }
         } else {
             value = text.toDouble();
         }

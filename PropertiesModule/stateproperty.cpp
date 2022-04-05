@@ -52,6 +52,7 @@ DispatcherConnections StateProperty::OnFirstInvokePerformWhenEveryIsValid(const 
 
 StateParameters::StateParameters()
     : IsLocked(false)
+    , m_isValid(true)
     , m_counter(0)
 {}
 
@@ -65,6 +66,9 @@ void StateParameters::Unlock()
 {
     --m_counter;
     IsLocked = m_counter != 0;
+    if(!IsLocked) {
+        m_isValid.SetState(true);
+    }
     Q_ASSERT(m_counter >= 0);
 }
 
