@@ -139,7 +139,6 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
             *valid = false;
             return value();
         }
-        valid->EditSilent() = true;
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
