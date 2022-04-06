@@ -47,6 +47,8 @@ struct StyleSettings
     LocalPropertyColor DisabledTableCellTextColor;
     LocalPropertyColor EnabledTableCellTextColor;
 
+    LocalPropertyColor DefaultRedColor;
+
     void Release();
 
 private:

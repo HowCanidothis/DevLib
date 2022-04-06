@@ -152,6 +152,9 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+template<class T>
+QVector<T> toVector(const std::initializer_list<T>& list) { return QVector<T>(list); }
+
 template<typename It>
 class Range
 {

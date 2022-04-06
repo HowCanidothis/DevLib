@@ -118,10 +118,45 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(const QVector<QPushButton*>& buttons, LocalPropertyInt* property)
+    : Super([buttons, property]{
+                for(auto* button : buttons) {
+                    button->setChecked(false);
+                }
+                if(*property >= 0 && *property < buttons.size()) {
+                    buttons.at(*property)->setChecked(true);
+                }
+            }, [this, property]{
+                *property = m_currentIndex;
+            })
+    , m_currentIndex(*property)
+{
+
+    property->GetDispatcher().Connect(this, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    qint32 i(0);
+    for(auto* button : buttons) {
+        button->setCheckable(true);
+        m_connections.connect(button, &QPushButton::clicked, [i, this]{
+            m_currentIndex = i;
+            m_propertySetter();
+        });
+        ++i;
+    }
+
+    auto resetCheckState = [buttons]{
+        for(auto* button : buttons) {
+            button->setChecked(false);
+        }
+    };
+}
+
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
-        label->setText(*property);
-    }, []{})
+    label->setText(*property);
+}, []{})
 {
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
@@ -130,12 +165,12 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
 
 LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
     : Super([textEdit, property](){
-               if(textEdit->toPlainText() != *property){
-                   textEdit->setText(*property);
-               }
-            }, [textEdit, property]{
-               *property = textEdit->toPlainText();
-            }), m_textChanged(250)
+    if(textEdit->toPlainText() != *property){
+        textEdit->setText(*property);
+    }
+}, [textEdit, property]{
+    *property = textEdit->toPlainText();
+}), m_textChanged(250)
 {
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();

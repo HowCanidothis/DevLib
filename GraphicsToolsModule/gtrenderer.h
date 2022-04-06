@@ -31,7 +31,7 @@ class GtRenderer : public GtRendererBase, protected OpenGLFunctions
     using Super = GtRendererBase;
     GtRenderer(GtRenderer* baseRenderer);
 public:    
-    GtRenderer(const QSurfaceFormat& format);
+    GtRenderer(const QSurfaceFormat& format, const QString& defaultShadersPath = ":/");
     ~GtRenderer();
 
     GtRendererControllerPtr CreateDefaultController();

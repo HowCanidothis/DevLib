@@ -18,7 +18,8 @@ NetworkSettings::NetworkSettings()
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 StyleSettings::StyleSettings()
-    : DisabledTableCellColor(QColor("#d4d4d4"))
+    : DisabledTableCellColor("#d4d4d4")
+    , DefaultRedColor("#ff3b30")
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
 

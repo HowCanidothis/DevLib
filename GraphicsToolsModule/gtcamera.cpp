@@ -186,17 +186,17 @@ void GtCamera::Zoom(bool closer)
         }
         isometricScale *= closer ? 0.75f : 1.25f;
         auto distance = isometricScale.x() * m_isometricCoef.x();
-        auto trueDistance = distance * m_isometricExtraScale.x();
         auto far90 = m_far * 0.90f;
-        if(trueDistance > far90) {
-            distance = distance * far90 / trueDistance;
+        if(distance > far90) {
+            distance = far90;
             isometricScale = Point2F(distance, distance) / m_isometricCoef;
         }
         if(qFuzzyCompare(m_isometricScale,isometricScale)) {
             return;
         }
         m_isometricScale = isometricScale;
-        m_eye = m_focus->GetScenePoint() - ray.normalized() * distance;
+        auto focusPoint = m_focus->GetScenePoint();
+        m_eye = focusPoint - ray.normalized() * distance;
 
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
