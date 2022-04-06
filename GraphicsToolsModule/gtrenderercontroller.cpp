@@ -173,22 +173,28 @@ GtRendererController::~GtRendererController()
 
 void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)
 {
-    auto foundIt = m_drawables.find(queueNumber);
-    if(foundIt != m_drawables.end()) {
-        foundIt.value().removeOne(drawable);
-        drawable->Destroy();
-    }
+    auto remove = [this, queueNumber, drawable]{
+        auto foundIt = m_drawables.find(queueNumber);
+        if(foundIt != m_drawables.end()) {
+            foundIt.value().removeOne(drawable);
+            drawable->Destroy();
+        }
+    };
+    m_renderer->Asynch(remove);
 }
 
 void GtRendererController::ClearQueue(qint32 queueNumber)
 {
-    auto foundIt = m_drawables.find(queueNumber);
-    if(foundIt != m_drawables.end()) {
-        m_drawables.erase(foundIt);
-        for(auto* drawable : foundIt.value()) {
-            drawable->Destroy();
+    auto remove = [this, queueNumber]{
+        auto foundIt = m_drawables.find(queueNumber);
+        if(foundIt != m_drawables.end()) {
+            for(auto* drawable : foundIt.value()) {
+                drawable->Destroy();
+            }
+            m_drawables.erase(foundIt);
         }
-    }
+    };
+    m_renderer->Asynch(remove);
 }
 
 void GtRendererController::calculateVisibleSize()

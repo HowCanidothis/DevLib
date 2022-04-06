@@ -179,10 +179,10 @@ public:
     {
         auto result = new T(m_renderer, args...);
         result->m_rendererDrawable = true;
-        m_renderer->Asynch([this, result]{
+        m_renderer->Asynch([this, result, queueNumber]{
             result->initialize(m_renderer);
-        });
-        m_drawables[queueNumber].append(result);
+            m_drawables[queueNumber].append(result);
+        });        
         return result;
     }
 

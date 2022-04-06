@@ -216,6 +216,11 @@ public:
         return result;
     }
 
+    void SetFrom(const LocalProperty<T>& another)
+    {
+        SetValue(another);
+    }
+
     StorageType& EditSilent() { return m_value; }
     const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
@@ -876,6 +881,12 @@ struct LocalPropertyOptional
         Value.Subscribe([this]{
             IsValid = true;
         });
+    }
+
+    void SetFrom(const LocalPropertyOptional<Property>& another)
+    {
+        Value = another.Value.Native();
+        IsValid = another.IsValid.Native();
     }
 
     DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
