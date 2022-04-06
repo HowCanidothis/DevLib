@@ -225,6 +225,11 @@ public:
     const StorageType& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
 
+    void SetFromSilent(const LocalProperty<T>& another)
+    {
+        m_value = another.m_value;
+    }
+
     DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
     {
         DispatcherConnections connections;
@@ -883,10 +888,10 @@ struct LocalPropertyOptional
         });
     }
 
-    void SetFrom(const LocalPropertyOptional<Property>& another)
+    void SetFromSilent(const LocalPropertyOptional<Property>& another)
     {
-        Value = another.Value.Native();
-        IsValid = another.IsValid.Native();
+        Value.EditSilent() = another.Value.Native();
+        IsValid.EditSilent() = another.IsValid.Native();
     }
 
     DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)

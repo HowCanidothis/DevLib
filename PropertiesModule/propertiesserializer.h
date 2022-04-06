@@ -253,7 +253,7 @@ struct Serializer<StateParameter<T>>
     {
         buffer << data.InputValue;
         if(!buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
-            data.m_immutableValue.SetFrom(data.InputValue);
+            data.m_immutableValue.SetFromSilent(data.InputValue);
         }
     }
 };
@@ -272,8 +272,9 @@ struct SerializerXml<StateParameter<T>>
     static void Read(Buffer& buffer, SerializerXmlObject<Type>& object)
     {
         buffer << object.Mutate(object.Value.InputValue);
+        auto& data = object.Value;
         if(!buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
-            object.Value.m_immutableValue.SetFrom(object.Value.InputValue);
+            data.m_immutableValue.SetFromSilent(data.InputValue);
         }
     }
 };
