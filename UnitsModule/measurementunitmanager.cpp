@@ -139,14 +139,14 @@ MeasurementManager::MeasurementManager()
     : m_systemWrapper(::make_shared<WPSCUnitSystemTableWrapper>())
       , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
 {
-	AddMeasurement(MEASUREMENT_ANGLES)
-			.AddUnit(&AngleUnits::Degrees)
-			.AddUnit(&AngleUnits::Radians);
-	
-	AddMeasurement(MEASUREMENT_DISTANCES)
-			.AddUnit(&DistanceUnits::USFeets)
-			.AddUnit(&DistanceUnits::Feets)
-			.AddUnit(&DistanceUnits::Meters);
+    AddMeasurement(MEASUREMENT_ANGLES)
+            .AddUnit(&AngleUnits::Degrees)
+            .AddUnit(&AngleUnits::Radians);
+
+    AddMeasurement(MEASUREMENT_DISTANCES)
+            .AddUnit(&DistanceUnits::USFeets)
+            .AddUnit(&DistanceUnits::Feets)
+            .AddUnit(&DistanceUnits::Meters);
 
     AddMeasurement(MEASUREMENT_FUNNEL_VISCOSITY)
             .AddUnit(&FunnelViscosityUnits::SecondsForQuart);
@@ -154,37 +154,37 @@ MeasurementManager::MeasurementManager()
     AddMeasurement(MEASUREMENT_PERCENTS)
             .AddUnit(&PercentsUnits::Partial)
             .AddUnit(&PercentsUnits::Percents);
-			
-	AddMeasurement(MEASUREMENT_DIAMETER)
-			.AddUnit(&DistanceUnits::USFeets)
-			.AddUnit(&DistanceUnits::Feets)
-			.AddUnit(&DistanceUnits::Inches)
+
+    AddMeasurement(MEASUREMENT_DIAMETER)
+            .AddUnit(&DistanceUnits::USFeets)
+            .AddUnit(&DistanceUnits::Feets)
+            .AddUnit(&DistanceUnits::Inches)
             .AddUnit(&DistanceUnits::Miles)
             .AddUnit(&DistanceUnits::Meters)
             .AddUnit(&DistanceUnits::Milimeters)
             .AddUnit(&DistanceUnits::Centimeters)
             .AddUnit(&DistanceUnits::Kilometers);
-	
-	AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
+
+    AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
             .AddUnit(&FieldStrengthUnits::MicroTeslas)
             .AddUnit(&FieldStrengthUnits::Gauss)
-			.AddUnit(&FieldStrengthUnits::NanoTeslas);
-	
-	AddMeasurement(MEASUREMENT_DLS)
-			.AddUnit(&DLSUnits::DegreeUSFeet)
-			.AddUnit(&DLSUnits::DegreeFeet)
-			.AddUnit(&DLSUnits::DegreeMeter)
-			.AddUnit(&DLSUnits::RadMeter);
-    
-	AddMeasurement(MEASUREMENT_FLOW_SPEED)
-			.AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
-			.AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
-			.AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
-			.AddUnit(&FlowSpeedUnits::CubicMetersPerDay   )
-			.AddUnit(&FlowSpeedUnits::LitersPerSecond     )
-			.AddUnit(&FlowSpeedUnits::LitersPerMinute     )
-			.AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
-			.AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
+            .AddUnit(&FieldStrengthUnits::NanoTeslas);
+
+    AddMeasurement(MEASUREMENT_DLS)
+            .AddUnit(&DLSUnits::DegreeUSFeet)
+            .AddUnit(&DLSUnits::DegreeFeet)
+            .AddUnit(&DLSUnits::DegreeMeter)
+            .AddUnit(&DLSUnits::RadMeter);
+
+    AddMeasurement(MEASUREMENT_FLOW_SPEED)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerDay   )
+            .AddUnit(&FlowSpeedUnits::LitersPerSecond     )
+            .AddUnit(&FlowSpeedUnits::LitersPerMinute     )
+            .AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
+            .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
 
     AddMeasurement(MEASUREMENT_THERMAL_CONDUCTIVITY)
             .AddUnit(&ThermalConductivityUnits::WattMeterCelsius)
@@ -193,43 +193,46 @@ MeasurementManager::MeasurementManager()
     AddMeasurement(MEASUREMENT_SPECIFIC_HEAT_CAPACITY)
             .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramCelsius)
             .AddUnit(&SpecificHeatCapacityUnits::PoundFahrenheit);
-	
-	AddMeasurement(MEASUREMENT_MASS)
-			.AddUnit(&MassUnits::Kilograms )
-			.AddUnit(&MassUnits::Grams     )
-			.AddUnit(&MassUnits::Tonnes    )
-			.AddUnit(&MassUnits::Pounds    )
-			.AddUnit(&MassUnits::Kilopounds);
-	
-	AddMeasurement(MEASUREMENT_PRESSURE)
-			.AddUnit(&PressureUnits::Pascals                    )
-			.AddUnit(&PressureUnits::Kilopascals                )
-			.AddUnit(&PressureUnits::Bars                       )
-			.AddUnit(&PressureUnits::Megapascals                )
-			.AddUnit(&PressureUnits::Atmospheres                )
-			.AddUnit(&PressureUnits::KilogramPerSquareCentimeter)
-			.AddUnit(&PressureUnits::PoundsPerSquareInch        )
-			.AddUnit(&PressureUnits::KilopoundsPerSquareInch    )
-			.AddUnit(&PressureUnits::PoundsPerSquareFeet        );
-	
-	AddMeasurement(MEASUREMENT_SPEED)
-			.AddUnit(&SpeedUnits::MetersPerSecond  )
-			.AddUnit(&SpeedUnits::MetersPerMinute  )
-			.AddUnit(&SpeedUnits::MetersPerHour    )
-			.AddUnit(&SpeedUnits::KilometersPerHour)
-			.AddUnit(&SpeedUnits::FeetPerHour      )
-			.AddUnit(&SpeedUnits::USfeetPerHour    )
-			.AddUnit(&SpeedUnits::FeetPerMinute    )
-			.AddUnit(&SpeedUnits::USfeetPerMinute  )
-			.AddUnit(&SpeedUnits::FeetPerSecond    )
-			.AddUnit(&SpeedUnits::USfeetPerSecond  )
-			.AddUnit(&SpeedUnits::MilesPerHour     );
-	
-	AddMeasurement(MEASUREMENT_TORQUE)
-			.AddUnit(&TorqueUnits::NewtonMeters      )
-			.AddUnit(&TorqueUnits::KilonewtonMeters  )
-			.AddUnit(&TorqueUnits::PoundForceFeet    )
-			.AddUnit(&TorqueUnits::KilopoundForceFeet);
+
+    AddMeasurement(MEASUREMENT_MASS)
+            .AddUnit(&MassUnits::Kilograms )
+            .AddUnit(&MassUnits::Grams     )
+            .AddUnit(&MassUnits::Tonnes    )
+            .AddUnit(&MassUnits::Pounds    )
+            .AddUnit(&MassUnits::Kilopounds);
+
+    AddMeasurement(MEASUREMENT_PRESSURE)
+            .AddUnit(&PressureUnits::Pascals                    )
+            .AddUnit(&PressureUnits::Kilopascals                )
+            .AddUnit(&PressureUnits::Bars                       )
+            .AddUnit(&PressureUnits::Megapascals                )
+            .AddUnit(&PressureUnits::Atmospheres                )
+            .AddUnit(&PressureUnits::KilogramPerSquareCentimeter)
+            .AddUnit(&PressureUnits::KilogramPerSquareMeter     )
+            .AddUnit(&PressureUnits::PoundsPerSquareInch        )
+            .AddUnit(&PressureUnits::KilopoundsPerSquareInch    )
+            .AddUnit(&PressureUnits::PoundsPerSquareFeet        );
+
+    AddMeasurement(MEASUREMENT_SPEED)
+            .AddUnit(&SpeedUnits::MetersPerSecond  )
+            .AddUnit(&SpeedUnits::MetersPerMinute  )
+            .AddUnit(&SpeedUnits::MetersPerHour    )
+            .AddUnit(&SpeedUnits::KilometersPerHour)
+            .AddUnit(&SpeedUnits::FeetPerHour      )
+            .AddUnit(&SpeedUnits::USfeetPerHour    )
+            .AddUnit(&SpeedUnits::FeetPerMinute    )
+            .AddUnit(&SpeedUnits::USfeetPerMinute  )
+            .AddUnit(&SpeedUnits::FeetPerSecond    )
+            .AddUnit(&SpeedUnits::USfeetPerSecond  )
+            .AddUnit(&SpeedUnits::MilesPerHour     );
+
+    AddMeasurement(MEASUREMENT_TORQUE)
+            .AddUnit(&TorqueUnits::NewtonMeters      )
+            .AddUnit(&TorqueUnits::DecaNewtonMeters  )
+            .AddUnit(&TorqueUnits::KilonewtonMeters  )
+            .AddUnit(&TorqueUnits::PoundForceFeet    )
+            .AddUnit(&TorqueUnits::KilopoundForceFeet)
+            .AddUnit(&TorqueUnits::PoundFoot);
 
     AddMeasurement(MEASUREMENT_MUD_WEIGHT)
             .AddUnit(&MudWeightUnits::PoundPerGallon      )
@@ -270,7 +273,7 @@ MeasurementManager::MeasurementManager()
     AddMeasurement(MEASUREMENT_THERMAL_EXPANSION)
             .AddUnit(&ThermalExpansionUnits::PerDegreeFahrenheit)
             .AddUnit(&ThermalExpansionUnits::PerDegreeCelsius);
-	
+
     AddMeasurement(MEASUREMENT_JET_DIAMETER)
             .AddUnit(&DistanceUnits::Milimeters)
             .AddUnit(&DistanceUnits::Centimeters)
@@ -285,7 +288,9 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&AreaUnits::SqInches);
 
     AddMeasurement(MEASUREMENT_FORCE)
+            .AddUnit(&ForceUnits::Newton)
             .AddUnit(&ForceUnits::Kilonewton)
+            .AddUnit(&ForceUnits::KiloGrammForce)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
     AddMeasurement(MEASUREMENT_MOTOR_SPEED)

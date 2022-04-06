@@ -270,12 +270,14 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
 
 bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    if(event->type() == QEvent::MouseButtonRelease){
-        model->setData(index, !model->data(index).toBool());
-        event->accept();
-    } else if(event->type() == QEvent::MouseButtonDblClick){
-        event->accept();
-        return true;
+    if(index.flags().testFlag(Qt::ItemIsEditable)) {
+        if(event->type() == QEvent::MouseButtonRelease){
+            model->setData(index, !model->data(index).toBool());
+            event->accept();
+        } else if(event->type() == QEvent::MouseButtonDblClick){
+            event->accept();
+            return true;
+        }
     }
     return Super::editorEvent(event, model, option, index);
 }
