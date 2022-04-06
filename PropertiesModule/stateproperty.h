@@ -120,6 +120,8 @@ public:
     const value_type& GetImmutable() const { return m_immutableValue; }
 
 private:
+    template<class T2> friend struct Serializer;
+    template<class T2> friend struct SerializerXml;
     T m_immutableValue;
     DispatcherConnectionsSafe m_connections;
 };
