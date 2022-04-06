@@ -61,14 +61,14 @@ void GtRenderer::addDelayedDraw(const FAction& drawAction)
     m_delayedDraws.append(drawAction);
 }
 
-GtRenderer::GtRenderer(const QSurfaceFormat& format)
+GtRenderer::GtRenderer(const QSurfaceFormat& format, const QString& defaultShadersPath)
     : Super(format, nullptr)
     , m_sharedData(new GtRendererSharedData(this))
 {   
     construct();
-    CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(GT_SHADERS_PATH, "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath, "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
 }
 
 GtRenderer::~GtRenderer()

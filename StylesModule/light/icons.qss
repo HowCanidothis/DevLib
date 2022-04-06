@@ -5,3 +5,11 @@ MainWindow {
     qproperty-commonErrorColor: #F44336;
     qproperty-commonInfoColor: #42d552;
 }
+
+QPushButton#btnChart:hover {
+    background: #ECECEC;
+}
+
+QPushButton#btnTable:hover {
+    background: #ECECEC;
+}
