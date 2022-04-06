@@ -240,6 +240,20 @@ QPushButton#BtnClose:hover {
     border-radius: none;
 }
 
+QPushButton#BtnCloseMinor {
+    qproperty-text: "";
+    image: url(":/MenuBar/close.svg");
+    border-radius: none;
+    background: none;
+    padding: 7 5 6 5;
+    border: none;
+}
+
+QPushButton#BtnCloseMinor:hover {
+    border: none;
+    border-radius: none;
+}
+
 TreeBar QFrame#Header {
     border: none;
     border-radius: 0px;

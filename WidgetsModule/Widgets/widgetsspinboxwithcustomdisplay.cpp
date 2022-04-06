@@ -37,6 +37,10 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         if(text.isEmpty()) {
             *valid = false;
             return value();
+        } else {
+            ThreadsBase::DoMain([valid]{
+                *valid = true;
+            });
         }
         return GetDefaultValueFromTextHandler()(spin, text);
     });
@@ -138,6 +142,10 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
         if(text.isEmpty()) {
             *valid = false;
             return value();
+        } else {
+            ThreadsBase::DoMain([valid]{
+                *valid = true;
+            });
         }
         return GetDefaultValueFromTextHandler()(spin, text);
     });

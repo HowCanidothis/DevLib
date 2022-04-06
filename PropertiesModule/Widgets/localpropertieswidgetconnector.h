@@ -183,7 +183,7 @@ class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidg
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:   
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter = nullptr);
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
     template<class T>
     LocalPropertiesDoubleSpinBoxConnector(StateParameter<T>* property, QDoubleSpinBox* spin)

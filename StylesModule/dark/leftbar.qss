@@ -23,17 +23,25 @@ QPushButton#BtnClose {
     background: #3C3C3C;
 }
 
+QPushButton#BtnClose:hover {
+    background: #D61425;
+    image: url(":/MenuBar/close-hover.svg");
+}
+
+QPushButton#BtnCloseMinor {
+    background: #3C3C3C;
+}
+
+QPushButton#BtnCloseMinor:hover {
+    background: #505050;
+}
+
 QPushButton#BtnMinimize:hover {
     background: #505050;
 }
 
 QPushButton#BtnMaximize:hover {
     background: #505050;
-}
-
-QPushButton#BtnClose:hover {
-    background: #D61425;
-    image: url(":/MenuBar/close-hover.svg");
 }
 
 LeftBar QFrame {

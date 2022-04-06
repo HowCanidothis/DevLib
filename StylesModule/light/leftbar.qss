@@ -19,6 +19,19 @@ QPushButton#BtnClose {
     background: #F3F3F3;
 }
 
+QPushButton#BtnClose:hover {
+    background: #D61425;
+    image: url(":/MenuBar/close-hover.svg");
+}
+
+QPushButton#BtnCloseMinor {
+    background: #F3F3F3;
+}
+
+QPushButton#BtnCloseMinor:hover {
+    background: #ECECEC;
+}
+
 QPushButton#BtnMinimize:hover {
     background: #ececec;
 }
@@ -27,10 +40,7 @@ QPushButton#BtnMaximize:hover {
     background: #ececec;
 }
 
-QPushButton#BtnClose:hover {
-    background: #D61425;
-    image: url(":/MenuBar/close-hover.svg");
-}
+
 
 LeftBar QFrame {
     background: #F3F3F3;

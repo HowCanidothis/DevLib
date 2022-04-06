@@ -194,7 +194,9 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 #include <WidgetsModule/internal.hpp>
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
-    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, [property](double value){
+        *property = value;
+    })
 {
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
@@ -207,7 +209,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 
 #endif
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
                 auto precision = epsilon(spinBox->decimals());
                 if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), precision)) {
@@ -217,7 +219,11 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                     spinBox->setValue(*property);
                 }
             },
-            [spinBox, property](){
+            [spinBox, property, propertySetter](){
+                if(propertySetter != nullptr) {
+                    propertySetter(spinBox->value());
+                    return;
+                }
                 property->SetValue(spinBox->value());
             }
     )
