@@ -20,6 +20,7 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
+    CommonDispatcher<class QComboBox*, const QModelIndex&> OnAboutToSetModelData;
 protected:
     std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;

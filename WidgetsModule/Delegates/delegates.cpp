@@ -76,13 +76,14 @@ void DelegatesCombobox::setEditorData(QWidget* editor, const QModelIndex& index)
     QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
     Q_ASSERT(comboBox != nullptr);
     OnEditorAboutToBeShown(comboBox, index);
+
     comboBox->setCurrentText(data);
 }
 
 void DelegatesCombobox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
     QComboBox* combo = static_cast<QComboBox*>(editor);
     const QString& text = combo->currentText();
-
+    OnAboutToSetModelData(combo, index);
     model->setData(index, text, Qt::EditRole);
 }
 
