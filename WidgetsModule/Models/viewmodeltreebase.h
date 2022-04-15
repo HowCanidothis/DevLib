@@ -24,6 +24,10 @@ public:
     int columnCount(const QModelIndex&) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 
+    void ForeachModelIndexRecursive(const QModelIndex& parent, const std::function<void (const QModelIndex& child)>& handler) const;
+    void ForeachModelIndex(const QModelIndex& parent, const std::function<void (const QModelIndex& child)>& handler) const;
+
+    QSet<ModelsTreeItemBase*> AsItems(const QModelIndexList& indices) const;
     class ModelsTreeItemBase* AsItem(const QModelIndex& index) const;
     QModelIndex AsIndex(class ModelsTreeItemBase* item) const;
 

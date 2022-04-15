@@ -65,7 +65,7 @@ void WidgetsAdjustableTableView::updateSizeHintCache() const
             }
             m_contentsWidth += contentsMargins().left() + contentsMargins().right();
             auto headerHeight = horizontalHeader()->sizeHint().height();
-            if(horizontalHeader()->isVisible()) {
+            if(horizontalHeader()->isVisibleTo(this)) {
                 m_contentsHeight += rowCount ? headerHeight : (headerHeight * 2);
             } else if(rowCount == 0){
                 m_contentsHeight += headerHeight;

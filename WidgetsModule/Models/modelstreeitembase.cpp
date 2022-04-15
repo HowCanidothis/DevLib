@@ -48,6 +48,13 @@ const SharedPointer<ModelsTreeItemBase>& ModelsTreeItemBase::AddChild(const Shar
     return item;
 }
 
+const SharedPointer<ModelsTreeItemBase>& ModelsTreeItemBase::InsertChild(qint32 before, const SharedPointer<ModelsTreeItemBase>& item)
+{
+    item->m_parent = this;
+    m_childs.insert(before, item);
+    return item;
+}
+
 void ModelsTreeItemBase::RemoveChild(qint32 i)
 {
     m_childs.remove(i);

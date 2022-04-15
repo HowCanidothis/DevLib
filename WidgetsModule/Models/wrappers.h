@@ -209,6 +209,7 @@ public:
     using container_type = Container;
     using value_type = typename Super::value_type;
     using Super::Super;
+    using FDataInitializer = std::function<void (qint32 index, value_type& data)>;
 
     TModelsTableWrapper<Container>& BaseWrapper() { return *this; }
 
@@ -296,7 +297,7 @@ public:
         OnColumnsChanged({});
 	}
 
-    void Insert(int index, qint32 count, const std::function<void (qint32 index, value_type& data)>& dataInitializer)
+    void Insert(int index, qint32 count, const FDataInitializer& dataInitializer)
     {
         OnAboutToInsertRows(index, index + count - 1);
         Super::insert(index, count, value_type());
@@ -352,9 +353,21 @@ public:
         OnColumnsChanged(affectedColumns);
     }
 
+    void RemoveFromVector(const QVector<qint32>& vectorIndexes)
+    {
+        QSet<qint32> toRemove;
+        for(auto index : vectorIndexes) {
+            toRemove.insert(index);
+        }
+        Remove(toRemove);
+    }
 
     void Remove(const QSet<qint32>& indexes)
     {
+        if(indexes.isEmpty()) {
+            return;
+        }
+
         OnAboutToBeReseted();
         qint32 currentIndex = 0;
         QVector<value_type> toRemove;
@@ -434,8 +447,14 @@ public:
         : IsValid(true)
     {}
 
-    void Swap(const SharedPointer<TStatedModelsTableWrapper>& data) {
+    void Swap(const SharedPointer<TStatedModelsTableWrapper>& data)
+    {
         Super::Swap(*data);
+    }
+
+    void Swap(Container& data)
+    {
+        Super::Swap(data);
     }
 
     SharedPointer<TStatedModelsTableWrapper> Clone() const

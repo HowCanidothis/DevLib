@@ -20,14 +20,14 @@ ViewModelsTableBase::~ViewModelsTableBase()
 Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
 {
     if(!index.isValid()) {
-        return Qt::NoItemFlags;
+        return Qt::ItemIsDropEnabled;
     }
     auto componentsResult = ColumnComponents.GetFlags(index);
     if(componentsResult.has_value()) {
-        return componentsResult.value();
+        return componentsResult.value() | Qt::ItemIsDragEnabled;
     }
 
-    return Super::flags(index);
+    return Super::flags(index) | Qt::ItemIsDragEnabled;
 }
 
 QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const

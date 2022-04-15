@@ -33,6 +33,7 @@ struct LambdaValueWrapper<T&>
         : m_value(value)
     {}
 
+    T& GetValue() const { return m_value; }
     operator T&() const { return m_value; }
 
 private:
@@ -46,6 +47,7 @@ struct LambdaValueWrapper<T*>
         : m_value(value)
     {}
 
+    T* GetValue() const { return m_value; }
     operator T*() const { return m_value; }
 
 private:
@@ -165,14 +167,9 @@ public:
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
+            return TranslatorManager::ToVariant<Enum>(getter(data));
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
-            if(TranslatorManager::IsValid<Enum>(enumIndex)){
-                LambdaValueWrapper<ValueType> wrapper(data);
-                return [enumIndex, wrapper, getter]{ getter(wrapper) = static_cast<Enum>(enumIndex); };
-            }
-            return nullptr;
+            return TranslatorManager::SetterFromString(getter(data), value.toString());
         });
     }
 
@@ -181,14 +178,9 @@ public:
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TranslatorManager::IsValid<Enum>(getter(data)) ? TranslatorManager::GetNames<Enum>()[static_cast<int>(getter(data))] : QVariant();
+            return TranslatorManager::ToVariant<Enum>(getter(data));
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            auto enumIndex = TranslatorManager::GetNames<Enum>().indexOf(value.toString());
-            if(TranslatorManager::IsValid<Enum>(enumIndex)){
-                LambdaValueWrapper<ValueType> wrapper(data);
-                return [enumIndex, wrapper, getter]{ getter(wrapper) = static_cast<Enum>(enumIndex); };
-            }
-            return nullptr;
+            return getter(data).SetterFromString(value.toString());
         });
     }
 

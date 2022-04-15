@@ -24,3 +24,13 @@ WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
     min-height: 18px;
     min-width: 18px;
 }
+
+WPSCSectionSummaryView QTreeView::item:has-children
+{
+    border-left: 1px solid red;
+    border-bottom: 1px solid red;
+}
+
+WPSCSectionSummaryView QTreeView::branch {
+    border-bottom: 1px solid red; 
+}

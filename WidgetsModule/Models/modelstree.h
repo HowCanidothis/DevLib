@@ -17,12 +17,15 @@ public:
     void SetRoot(const SharedPointer<ModelsTreeItemBase>& root);
 
     void Clear();
+    const ModelsTreeItemBasePtr& Insert(qint32 before, const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
     const ModelsTreeItemBasePtr& Add(const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent);
     void Edit(ModelsTreeItemBase* item, const FAction& action, const QVector<qint32>& roles);
+    bool EditWithCheck(ModelsTreeItemBase* item, const std::function<FAction (ModelsTreeItemBase*)>& action, const QVector<qint32>& roles);
     void ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler);
     void Update(const std::function<void ()>& predicate);
     void Change(const std::function<void ()>& predicate);
     void Remove(ModelsTreeItemBase* item);
+    void Remove(const QSet<ModelsTreeItemBase*>& items);
     void Remove(const std::function<bool (ModelsTreeItemBase*)>& predicate) { remove(m_root.get(), predicate); }
     void RemoveChildren(ModelsTreeItemBase* item);
     void SetCheckedRecursive(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked, const ModelsTreeItemBase::FilterFunc& filter);

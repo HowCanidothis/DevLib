@@ -38,6 +38,7 @@ public:
 
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
     const SharedPointer<ModelsTreeItemBase>& AddChild(const SharedPointer<ModelsTreeItemBase>& item);
+    const SharedPointer<ModelsTreeItemBase>& InsertChild(qint32 before, const SharedPointer<ModelsTreeItemBase>& item);
     void RemoveChilds();
     void RemoveChild(qint32 i);
     void ForeachChild(const HandlerFunc& handler, const FilterFunc& filterFunc = [](ModelsTreeItemBase*){return true;}) const;

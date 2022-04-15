@@ -320,6 +320,23 @@ public:
         : Super((qint32)initial,(qint32)Enum::First,(qint32)Enum::Last)
     {}
 
+    FAction SetterFromString(const QString& value)
+    {
+        auto index = TranslatorManager::GetInstance().GetEnumNames<Enum>().indexOf(value);
+        if(TranslatorManager::GetInstance().IsValid<Enum>(index)) {
+            SetValue(index);
+            return [this, index]{ SetValue(index); };
+        }
+        return nullptr;
+    }
+    LocalPropertySequentialEnum& operator=(const QString& value)
+    {
+        auto setter = SetterFromString(value);
+        if(setter != nullptr) {
+            setter();
+        }
+        return this;
+    }
     LocalPropertySequentialEnum& operator=(qint32 value) { SetValue(value); return *this; }
     LocalPropertySequentialEnum& operator=(Enum value) { return operator=((qint32)value); }
     bool operator==(Enum value) const { return Super::m_value == (qint32)value; }

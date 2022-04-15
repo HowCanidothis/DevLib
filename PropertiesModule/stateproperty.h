@@ -81,6 +81,21 @@ public:
         });
     }
 
+    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
+    {
+        auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
+        DispatcherConnections result;
+        for(auto* dispatcher : dispatchers) {
+            result.append(dispatcher->Connect(this, [this, delayedCall]{
+                SetState(false);
+                delayedCall->Call([this]{
+                    SetState(true);
+                });
+            }));
+        }
+        return result;
+    }
+
     StateParameters* GetParameters() const { return m_parameters; }
 
     T InputValue;

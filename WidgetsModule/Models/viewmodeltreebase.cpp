@@ -101,6 +101,34 @@ QVariant ViewModelsTreeBase::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+void ViewModelsTreeBase::ForeachModelIndexRecursive(const QModelIndex& parent, const std::function<void (const QModelIndex&)>& handler) const
+{
+    auto count = rowCount(parent);
+    for(int r = 0; r < count; ++r) {
+        QModelIndex mi = index(r, 0, parent);
+        handler(mi);
+        ForeachModelIndexRecursive(mi, handler);
+    }
+}
+
+void ViewModelsTreeBase::ForeachModelIndex(const QModelIndex& parent, const std::function<void (const QModelIndex&)>& handler) const
+{
+    auto count = rowCount(parent);
+    for(int r = 0; r < count; ++r) {
+        QModelIndex mi = index(r, 0, parent);
+        handler(mi);
+    }
+}
+
+QSet<ModelsTreeItemBase*> ViewModelsTreeBase::AsItems(const QModelIndexList& indices) const
+{
+    QSet<ModelsTreeItemBase*> result;
+    for(const auto& index : indices) {
+        result.insert(AsItem(index));
+    }
+    return result;
+}
+
 ModelsTreeItemBase* ViewModelsTreeBase::AsItem(const QModelIndex& index) const
 {
     return (index.isValid() && index.internalId() != 0) ? reinterpret_cast<ModelsTreeItemBase*>(index.internalPointer()) : m_data->GetRoot();

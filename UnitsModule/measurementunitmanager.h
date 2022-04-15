@@ -231,7 +231,7 @@ protected:
     &MeasurementManager::GetInstance().GetMeasurement(system)->OnChanged
 	
 #define ATTACH_MEASUREMENT(system, delegate, min, max) \
-    delegate->OnEditorAboutToBeShown.Connect(this, [](QDoubleSpinBox* sp, const QModelIndex&){\
+    delegate->OnEditorAboutToBeShown.Connect(nullptr, [](QDoubleSpinBox* sp, const QModelIndex&){\
         MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
         wrapper.SetRange(min, max);\
     });

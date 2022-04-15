@@ -11,3 +11,10 @@ QPushButton#PropertiesToolBarButton:hover {
     background: #1976D2;
     color: white;
 }
+
+WPSCSectionSummaryView QTreeView::item
+{
+    background: #D4D4D4;
+    border-right: 1px solid white;
+    border-top: 1px solid white;
+}

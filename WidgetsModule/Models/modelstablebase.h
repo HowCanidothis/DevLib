@@ -2,6 +2,7 @@
 #define MODELSTABLEBASE_H
 
 #include <QAbstractTableModel>
+#include <QMimeData>
 
 #include "wrappers.h"
 #include "WidgetsModule/Utils/iconsmanager.h"
@@ -152,13 +153,62 @@ protected:
 };
 
 template<class T>
+struct TypeHelper
+{
+    T& ToReference(T& value) { return value; }
+    const T& ToReference(const T& value) { return value; }
+};
+
+template<class T>
+struct TypeHelper<SharedPointer<T>>
+{
+    T& ToReference(SharedPointer<T>& value) { return *value; }
+    const T& ToReference(const SharedPointer<T>& value) { return *value; }
+};
+
+template<class T>
+struct TypeHelper<T*>
+{
+    T& ToReference(T*& value) { return *value; }
+    const T& ToReference(const T*& value) { return *value; }
+};
+
+template<class T>
 class TViewModelsTableBase : public ViewModelsTableBase
 {
     using Super = ViewModelsTableBase;
 public:
+    using FInsertHandler = std::function<bool (int row, int count)>;
+
     TViewModelsTableBase(QObject* parent = nullptr)
         : Super(parent)
+        , m_mimeTypesHandler([this]{ return Super::mimeTypes(); })
+        , m_mimeDataHandler([this](const QModelIndexList& indexes){ return Super::mimeData(indexes); })
+        , m_dropMimeDataHandler([this](const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index){
+            return Super::dropMimeData(data, action, row, column, index);
+        })
+        , m_insertHandler([this](qint32 row, qint32 count){
+            const auto& data = GetData();
+            Q_ASSERT(data != nullptr);
+            data->Insert(row > data->GetSize() ? data->GetSize() : row, count);
+            return true;
+        })
     {}
+
+    void SetInsertionHandler(const FInsertHandler& insertHandler)
+    {
+        m_insertHandler = insertHandler;
+    }
+
+    void SetMimeDataHandlers(const std::function<QStringList ()>& mimeTypesHandler,
+                             const std::function<QMimeData* (const QModelIndexList&)>& mimeDataHandler,
+                             const std::function<bool (const QMimeData*, Qt::DropAction, qint32, qint32, const QModelIndex&)>& dropMimeDataHandler
+                             )
+    {
+        m_mimeTypesHandler = mimeTypesHandler;
+        m_mimeDataHandler = mimeDataHandler;
+        m_dropMimeDataHandler = dropMimeDataHandler;
+    }
 
     ~TViewModelsTableBase()
     {
@@ -173,9 +223,7 @@ public:
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
-        Q_ASSERT(GetData() != nullptr);
-        GetData()->Insert(row > GetData()->GetSize() ? GetData()->GetSize() : row, count);
-		return true;
+        return m_insertHandler(row, count);
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
@@ -187,6 +235,21 @@ public:
 		GetData()->Remove(indexs);
 		return true;
 	}
+
+    QStringList mimeTypes() const override
+    {
+        return m_mimeTypesHandler();
+    }
+
+    QMimeData* mimeData(const QModelIndexList& indices) const override
+    {
+        return m_mimeDataHandler(indices);
+    }
+
+    bool dropMimeData(const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index) override
+    {
+        return m_dropMimeDataHandler(data, action, row, column, index);
+    }
 	
     void SetData(const SharedPointer<T>& data)
     {
@@ -218,6 +281,246 @@ protected:
 
 private:
     SharedPointer<T> m_data;
+    std::function<QStringList ()> m_mimeTypesHandler;
+    std::function<QMimeData* (const QModelIndexList&)> m_mimeDataHandler;
+    std::function<bool (const QMimeData*, Qt::DropAction, qint32, qint32, const QModelIndex&)> m_dropMimeDataHandler;
+    FInsertHandler m_insertHandler;
+};
+
+template<typename T>
+class TViewModelsEditTable : public T
+{
+    using Super = T;
+public:
+    TViewModelsEditTable(QObject* parent)
+        : Super(parent)
+        , CreateDataHandler ([this](){ insertRows(rowCount()-1, 1); })
+        , IsEditColumn      ([](qint32 column){ return !column; })
+        , DataHandler       ([](qint32, int ){ return QVariant();})
+    {
+        setProperty("ExtraFieldsCount", 1);
+    }
+
+    std::function<void()> CreateDataHandler;
+    std::function<bool(qint32)> IsEditColumn;
+    std::function<QVariant(qint32, int)> DataHandler;
+
+public:
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override { return Super::rowCount(parent) + 1; }
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
+    {
+        if(!index.isValid()){
+            return QVariant();
+        }
+        if(isLastEditRow(index)){
+            return DataHandler(index.column(), role);
+        }
+        return Super::data(index, role);
+    }
+
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
+    {
+        if(!index.isValid()){
+            return false;
+        }
+        if(isLastEditRow(index)){
+            CreateDataHandler();
+        }
+        return Super::setData(index, value, role);
+    }
+
+    Qt::ItemFlags flags(const QModelIndex& index = QModelIndex()) const override
+    {
+        if(isLastEditRow(index)){
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled | (IsEditColumn(index.column()) ? Qt::ItemIsEditable : Qt::NoItemFlags);
+        }
+        return Super::flags(index);
+    }
+
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+    {
+        if(row + count >= rowCount()){
+            count = Super::rowCount() - row;
+        }
+        if(count <= 0){
+            return false;
+        }
+        return Super::removeRows(row, count, parent);
+    }
+
+    bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
+    {
+        return Super::insertRows(row, count, parent);
+    }
+};
+
+template<class T>
+class TViewModelsDataInitializerComponent : public QObject
+{
+    using Super = QObject;
+public:
+    using value_type = typename T::value_type;
+
+    TViewModelsDataInitializerComponent(TViewModelsTableBase<T>* model, const typename T::FDataInitializer& initializer)
+        : Super(model)
+    {
+        model->SetInsertionHandler([model, initializer](qint32 row, qint32 count){
+            const auto& data = model->GetData();
+            Q_ASSERT(data != nullptr);
+            data->Insert(row > data->GetSize() ? data->GetSize() : row, count, initializer);
+            return true;
+        });
+    }
+};
+
+template<class T>
+class TViewModelsDragAndDropComponent : public QObject
+{
+    using Super = QObject;
+public:
+    using value_type = typename T::value_type;
+
+    struct WrappedObject
+    {
+        value_type Value;
+        qint32 Row;
+
+        WrappedObject(const value_type& value, qint32 row)
+            : Value(value)
+            , Row(row)
+        {}
+
+        WrappedObject()
+            : Row(-1)
+        {}
+
+        template<class Buffer>
+        void Serialize(Buffer& buffer)
+        {
+            buffer.OpenSection("MimeDataObject");
+            buffer << buffer.Sect("Row", Row);
+            buffer << Value;
+            buffer.CloseSection();
+        }
+    };
+
+    TViewModelsDragAndDropComponent(TViewModelsTableBase<T>* model)
+        : Super(model)
+        , m_model(model)
+    {
+        model->SetMimeDataHandlers([this]{
+            return m_mimeTypes;
+        }, [this, model](const QModelIndexList& indexes){
+            auto* result = new QMimeData();
+
+            if(model->GetData() == nullptr || m_mimeDataGetterType.isEmpty()) {
+                return result;
+            }
+
+            Array<qint32> rows;
+            for(const auto& index : indexes) {
+                rows.InsertSortedUnique(index.row());
+            }
+
+            auto data = m_mimeDataGetter(rows);
+            result->setText(data);
+            result->setProperty("SourceModel", (size_t)model->GetData().get());
+
+            result->setData(m_mimeDataGetterType, data);
+            return result;
+        }, [this, model](const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index){
+            if(model->GetData() == nullptr || m_mimeTypes.isEmpty()) {
+                return false;
+            }
+
+            for(const QString& format : data->formats()) {
+                auto foundIt = m_mimeDataSetters.find(Name(format));
+                if(foundIt != m_mimeDataSetters.end()) {
+                    auto objects = foundIt.value()(data->data(foundIt.key().AsString()));
+
+                    auto* sourceModel = (T*)data->property("SourceModel").toLongLong();
+
+                    if(objects.isEmpty()) {
+                        return false;
+                    }
+
+                    QVector<qint32> toRemove;
+                    if(sourceModel == model->GetData().get()) {
+                        for(const auto& object : objects) {
+                            toRemove.append(object.Row);
+                        }
+                    }
+
+                    if(row < 0 || row >= model->GetData()->GetSize()) {
+                        model->GetData()->Change([this, &objects](auto& native){
+                            for(const auto& wrapped : objects) {
+                                native.append(wrapped.Value);
+                            }
+                        });
+                    } else {
+                        for(auto& removed : toRemove) {
+                            if(removed >= row) {
+                                removed += objects.size();
+                            }
+                        }
+
+                        auto it = objects.begin();
+                        model->GetData()->Insert(row, objects.size(), [&it](qint32, typename T::value_type& ptr){
+                            ptr = it->Value;
+                            it++;
+                        });
+                    }
+
+                    model->GetData()->RemoveFromVector(toRemove);
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+
+    void SetDefaultMimeDataXml(const SerializerXmlVersion& version, const Name& mimeType,
+                               const DescSerializationXMLWriteProperties& writeParams = DescSerializationXMLWriteProperties(),
+                               const DescSerializationXMLReadProperties& readParams = DescSerializationXMLReadProperties())
+    {
+        SetMimeDataGetter(mimeType.AsString(), [this, version, writeParams, mimeType](const Array<qint32>& rows) -> QByteArray {
+            QVector<WrappedObject> result;
+            for(const auto& row : rows) {
+                const auto& rowObject = m_model->GetData()->At(row);
+                result.append(WrappedObject(rowObject, row));
+            }
+            return SerializeToXMLVersioned(version, "Objects", result, writeParams);
+        });
+
+        AddMimeDataSetter(mimeType, [version, readParams, mimeType](const QByteArray& data) -> QVector<WrappedObject> {
+            QVector<WrappedObject> result;
+            if(!DeSerializeFromXMLVersioned(version, "Objects", data, result, readParams)) {
+                return QVector<WrappedObject>();
+            }
+            return result;
+        });
+    }
+
+    void SetMimeDataGetter(const QString& mimeType, const std::function<QByteArray (const Array<qint32>& rows)>& getter)
+    {
+        Q_ASSERT(!mimeType.isEmpty());
+        m_mimeDataGetterType = mimeType;
+        m_mimeDataGetter = getter;
+    }
+
+    void AddMimeDataSetter(const Name& mimeType, const std::function<QVector<WrappedObject> (const QByteArray& data)>& setter)
+    {
+        m_mimeTypes.append(mimeType.AsString());
+        m_mimeDataSetters.insert(mimeType, setter);
+    }
+
+private:
+    TViewModelsTableBase<T>* m_model;
+    QHash<Name, std::function<QVector<WrappedObject> (const QByteArray&)>> m_mimeDataSetters;
+    QStringList m_mimeTypes;
+    QString m_mimeDataGetterType;
+    std::function<QByteArray (const Array<qint32>&)> m_mimeDataGetter;
 };
 
 template<class Wrapper>

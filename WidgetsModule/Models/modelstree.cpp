@@ -64,6 +64,16 @@ void ModelsTree::Edit(ModelsTreeItemBase* item, const FAction& action, const QVe
     OnTreeValueChanged(0, item, roles);
 }
 
+bool ModelsTree::EditWithCheck(ModelsTreeItemBase* item, const std::function<FAction (ModelsTreeItemBase*)>& actionHandler, const QVector<qint32>& roles)
+{
+    auto action = actionHandler(item);
+    if(action != nullptr) {
+        Edit(item, action, roles);
+        return true;
+    }
+    return false;
+}
+
 void ModelsTree::ForeachChangeValue(const std::function<bool (ModelsTreeItemBase* item)>& handler)
 {
     m_root->ForeachChild([handler, this](ModelsTreeItemBase* item){
@@ -99,6 +109,14 @@ void ModelsTree::Clear()
     OnReseted();
 }
 
+const ModelsTreeItemBasePtr& ModelsTree::Insert(qint32 before, const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent)
+{
+    OnAboutToInsertRows(before, before, parent);
+    parent->InsertChild(before, item);
+    OnRowsInserted(before, 1);
+    return item;
+}
+
 const ModelsTreeItemBasePtr& ModelsTree::Add(const ModelsTreeItemBasePtr& item, ModelsTreeItemBase* parent)
 {
     OnAboutToInsertRows(parent->GetChilds().size(), parent->GetChilds().size(), parent);
@@ -121,6 +139,13 @@ void ModelsTree::Remove(ModelsTreeItemBase* item)
     }
 
     removeChilds(item->GetParent(), {item});
+}
+
+void ModelsTree::Remove(const QSet<ModelsTreeItemBase*>& items)
+{
+    Remove([&](ModelsTreeItemBase* item){
+        return items.contains(item);
+    });
 }
 
 void ModelsTree::RemoveChildren(ModelsTreeItemBase* item)

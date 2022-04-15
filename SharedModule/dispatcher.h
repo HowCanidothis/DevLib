@@ -199,6 +199,11 @@ public:
         return result;
     }
 
+    DispatcherConnection ConnectAction(Observer key, const FAction& handler) const
+    {
+        return Connect(key, [handler](Args...) { handler(); });
+    }
+
     DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler) const
     {
         QMutexLocker lock(&m_mutex);
@@ -271,13 +276,14 @@ public:
         }
     }
 
-    void OnFirstInvoke(const FCommonDispatcherAction& action) const
+    SharedPointer<DispatcherConnectionsSafe> OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
         Connect(this, [action, connections](Args... args){
             action(args...);
             connections->clear();
         }).MakeSafe(*connections);
+        return connections;
     }
 
 private:

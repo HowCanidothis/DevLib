@@ -6,3 +6,13 @@ BHAComponentViewBase QScrollArea {
 BHAComponentViewBase {
     max-width: 406px;
 }
+
+WPSCSectionSummaryView QTreeView:branch:!has-children:!has-siblings:adjoins-item
+{
+    border-image: none;
+}
+
+WPSCSectionSummaryView QTreeView::item
+{
+    min-height: 25px;
+}

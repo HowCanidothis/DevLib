@@ -15,6 +15,64 @@ public:
     template <typename Enum>
     static bool IsValid(Enum value) { return IsValid<Enum>( static_cast<int>(value)); }
 
+    template<typename Enum>
+    static bool SetValueFromString(qint32& valueToChange, const QString& value)
+    {
+        return SetValueFromString((Enum&)valueToChange, value);
+    }
+
+    template<typename Enum>
+    static bool SetValueFromString(Enum& valueToChange, const QString& value)
+    {
+        auto setter = SetterFromString(valueToChange, value);
+        if(setter != nullptr) {
+            setter();
+            return true;
+        }
+        return false;
+    }
+
+    template<typename Enum>
+    static QVariant ToVariant(qint32 value)
+    {
+        return IsValid<Enum>(value) ? QVariant(GetNames<Enum>().at(value)) : QVariant();
+    }
+
+    template<typename Enum>
+    static QVariant ToVariant(Enum value)
+    {
+        return ToString<Enum>(static_cast<int>(value));
+    }
+
+    template<typename Enum>
+    static QString ToString(qint32 value)
+    {
+        return IsValid<Enum>(value) ? GetNames<Enum>().at(value) : "";
+    }
+
+    template<typename Enum>
+    static QString ToString(Enum value)
+    {
+        return ToString<Enum>(static_cast<int>(value));
+    }
+
+    template<typename Enum>
+    static FAction SetterFromString(Enum& valueToChange, const QString& value)
+    {
+        int index = GetNames<Enum>().indexOf(value);
+        if(!IsValid<Enum>(index)){
+            return nullptr;
+        }
+        LambdaValueWrapper<Enum&> wrapper(valueToChange);
+        return [wrapper, index]{ wrapper.GetValue() = (Enum)index; };
+    }
+
+    template<typename Enum>
+    static FAction SetterFromString(qint32& valueToChange, const QString& value)
+    {
+        return SetterFromString((Enum&)valueToChange, value);
+    }
+
     template<class T>
     QStringList GetEnumNames()
     {
