@@ -27,6 +27,7 @@ WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
 
 WPSCSectionSummaryView QTreeView::item:has-children
 {
-    border-right: 1px solid #3C3C3C;
-    border-bottom: 1px solid #3C3C3C;
+    background: #1E1E1E;
+    border-right: 1px solid #252526;
+    border-bottom: 1px solid #252526;
 }
