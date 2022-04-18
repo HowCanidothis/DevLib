@@ -72,13 +72,16 @@ public:
     void Initialize(StateParameters* params, const FAction& locker, const FAction& unlocker)
     {
         m_parameters = params;
-        params->IsLocked.OnChanged.ConnectAndCall(this, [locker, unlocker, params]{
+        params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
             if(!params->IsLocked) {
                 unlocker();
             } else {
                 locker();
             }
         });
+        if(params->IsLocked) {
+            locker();
+        }
     }
 
     DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)

@@ -279,6 +279,9 @@ protected:
         return GetData()->GetSize() == index.row();
     }
 
+    static Qt::ItemFlags standardEditableFlags() { return standardNonEditableFlags() | Qt::ItemIsEditable; }
+    static Qt::ItemFlags standardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
+
 private:
     SharedPointer<T> m_data;
     std::function<QStringList ()> m_mimeTypesHandler;

@@ -40,7 +40,7 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QMenu* parent, con
                 }
             }
             auto title = model->headerData(i, orientation()).toString();
-            auto* action = createCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
+            auto action = createCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
                 setSectionHidden(i, !checked);
             }, result);
             action->setProperty("index", i);

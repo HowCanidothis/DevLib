@@ -128,6 +128,8 @@ protected:
     DelayedCallObject m_retranslate;
 };
 
+Q_DECLARE_METATYPE(SharedPointer<TranslatedString>)
+
 #define TRANSLATED_PTR(handler, translators) \
     ::make_shared<TranslatedString>([this]{ return handler; }, translators)
 

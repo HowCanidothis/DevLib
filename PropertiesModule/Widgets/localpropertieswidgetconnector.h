@@ -86,7 +86,7 @@ public:
     {
         qint32 value = (qint32)T::First;
         for(const auto& name : property->GetNames()) {
-            auto* action = createAction(name, [property, value]{
+            auto action = createAction(name, [property, value]{
                 *property = (T)value;
             }, menu);
             actionsRules(action, value);

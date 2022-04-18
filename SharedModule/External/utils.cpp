@@ -20,7 +20,55 @@ void notifyWidgetsManager(QDialog* dialog) { WidgetsDialogsManager::GetInstance(
 void notifyWidgetsManager(QDialog*) {}
 #endif
 
-QAction* createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu)
+ActionWrapper::ActionWrapper(QAction* action)
+    : m_action(action)
+{
+
+}
+
+ActionWrapper& ActionWrapper::Make(const std::function<void (ActionWrapper&)>& handler)
+{
+    handler(*this);
+    return *this;
+}
+
+ActionWrapper& ActionWrapper::SetShortcut(const QKeySequence& keySequence)
+{
+    m_action->setShortcut(keySequence);
+    return *this;
+}
+
+ActionWrapper& ActionWrapper::SetText(const QString& text)
+{
+    m_action->setText(text);
+    return *this;
+}
+
+#ifdef PROPERTIES_LIB
+LocalPropertyBool& ActionWrapper::ActionVisibility()
+{
+    return *getOrCreateProperty<LocalPropertyBool>("a_visible", [](QAction* action, const LocalPropertyBool& visible){
+        action->setVisible(visible);
+    }, true);
+}
+
+LocalPropertyBool& ActionWrapper::ActionEnablity()
+{
+    return *getOrCreateProperty<LocalPropertyBool>("a_enable", [](QAction* action, const LocalPropertyBool& visible){
+        action->setEnabled(visible);
+    }, true);
+}
+
+TranslatedStringPtr ActionWrapper::ActionText()
+{
+    return getOrCreateProperty<TranslatedString>("a_text", [](QAction* action, const TranslatedString& text){
+        action->setText(text);
+    }, []{ return QString(); });
+}
+
+#endif
+
+ActionWrapper createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu)
 {
     auto result = new QAction(title, menu);
     result->connect(result, &QAction::triggered, handle);
@@ -28,7 +76,7 @@ QAction* createAction(const QString& title, const std::function<void ()>& handle
     return result;
 }
 
-QAction* createAction(const QString& title, const std::function<void (QAction*)>& handle, QWidget* menu)
+ActionWrapper createAction(const QString& title, const std::function<void (QAction*)>& handle, QWidget* menu)
 {
     auto result = new QAction(title, menu);
     result->connect(result, &QAction::triggered, [handle, result]{
@@ -38,7 +86,7 @@ QAction* createAction(const QString& title, const std::function<void (QAction*)>
     return result;
 }
 
-QAction* createCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler, QWidget* menu)
+ActionWrapper createCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler, QWidget* menu)
 {
     auto result = new QAction(title, menu);
     result->setCheckable(true);
@@ -50,10 +98,10 @@ QAction* createCheckboxAction(const QString& title, bool checked, const std::fun
     return result;
 }
 
-QAction* createColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler, QWidget* menu)
+ActionWrapper createColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler, QWidget* menu)
 {
     static QPixmap pixmap(10,10);
-    auto* colorAction = createAction(title, [handler, color](QAction* action){
+    auto colorAction = createAction(title, [handler, color](QAction* action){
         QColorDialog dialog(qApp->activeWindow());
         dialog.setModal(true);
         notifyWidgetsManager(&dialog);
@@ -70,7 +118,7 @@ QAction* createColorAction(const QString& title, const QColor& color, const std:
     return colorAction;
 }
 
-QAction* createDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler, QWidget* menu)
+ActionWrapper createDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler, QWidget* menu)
 {
     auto* widget = new QWidget();
     auto* layout = new QHBoxLayout();
