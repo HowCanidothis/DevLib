@@ -499,14 +499,18 @@ class StateDoubleBufferData
 {
 public:
     using TPtr = SharedPointer<T>;
-    StateDoubleBufferData(const TPtr& source, const TPtr& immutable)
+    StateDoubleBufferData(const TPtr& source, const TPtr& immutable, bool copy = false)
         : m_immutableData(::make_shared<StateImmutableData<T>>(immutable))
         , m_data(source)
         , Enabled(m_immutableData->Enabled)
     {
-        Enabled.OnChanged += { this, [this, source]{
+        Enabled.OnChanged += { this, [this, source, copy]{
             if(Enabled) {
-                m_immutableData->AttachSwap(source);
+                if(copy) {
+                    m_immutableData->AttachCopy(source);
+                } else {
+                    m_immutableData->AttachSwap(source);
+                }
             } else {
                 m_immutableData->AttachCopy(nullptr);
             }

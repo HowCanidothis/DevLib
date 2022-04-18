@@ -276,7 +276,7 @@ protected:
     bool isLastEditRow(const QModelIndex& index) const
     {
         Q_ASSERT(GetData() != nullptr);
-        return GetData()->GetSize() == index.row();
+        return GetData() ? GetData()->GetSize() == index.row() : false;
     }
 
     static Qt::ItemFlags standardEditableFlags() { return standardNonEditableFlags() | Qt::ItemIsEditable; }
