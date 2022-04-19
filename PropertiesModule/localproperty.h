@@ -167,6 +167,19 @@ public:
         return result;
     }
 
+    DispatcherConnections ConnectFrom(const char* locationInfo, const std::function<T ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
+    {
+        DispatcherConnections result;
+        *this = thisEvaluator();
+        auto onChange = [this, thisEvaluator, locationInfo]{
+            *this = thisEvaluator();
+        };
+        for(auto* dispatcher : dispatchers) {
+            result += dispatcher->Connect(this, onChange);
+        }
+        return result;
+    }
+
     DispatcherConnection ConnectFrom(const char* locationInfo, const LocalProperty& another)
     {
         *this = another.Native();
