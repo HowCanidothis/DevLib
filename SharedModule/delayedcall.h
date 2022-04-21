@@ -81,14 +81,41 @@ private:
 template<class T, class T2> class LocalProperty;
 template<class T> struct LocalPropertyOptional;
 
-class DelayedCallDispatchersCommutator : public Dispatcher
+template<typename ... Args>
+class DelayedCallDispatchersCommutator : public CommonDispatcher<Args...>
 {
+    using Super = CommonDispatcher<Args...>;
 public:
-    DelayedCallDispatchersCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority);
+    DelayedCallDispatchersCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+        : m_delayedCallObject(msecs, threadHandler)
+    {
 
-    // NOTE. It's eternal connection, non permanent connections will be added further if it becomes needed
-    DispatcherConnections Subscribe(const char* connectionInfo, const QVector<CommonDispatcher<>*>& dispatchers);
-    DispatcherConnection Subscribe(const char* connectionInfo, CommonDispatcher* dispatchers);
+    }
+
+    void Invoke(Args... args) const override
+    {
+        m_delayedCallObject.Call([this, args...]{
+            Super::Invoke(args...);
+        });
+    }
+
+    DispatcherConnections Subscribe(const char* connectionInfo, const QVector<Dispatcher*>& dispatchers)
+    {
+        DispatcherConnections result;
+        for(auto* dispatcher : dispatchers) {
+            result += Subscribe(connectionInfo, dispatcher); // Note. eternal subscribe
+        }
+        return result;
+    }
+
+    DispatcherConnection Subscribe(const char* connectionInfo, Dispatcher* dispatcher)
+    {
+        auto callOnChanged = [this, connectionInfo]{
+            Invoke();
+        };
+
+        return dispatcher->Connect(this, callOnChanged);
+    }
 
 #ifdef PROPERTIES_LIB
     template<class T, class T2>
@@ -97,13 +124,13 @@ public:
     DispatcherConnections Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property);
 #endif
 
-    void operator()() = delete;
-
-    void InvokeDelayed();
-    void InvokeDirect();
+    void InvokeDirect() const
+    {
+        Super::Invoke();
+    }
 
 private:
-    DelayedCallObject m_delayedCallObject;
+    mutable DelayedCallObject m_delayedCallObject;
 };
 
 inline AsyncResult DelayedCallObject::Call(const FAction& action)
@@ -111,28 +138,6 @@ inline AsyncResult DelayedCallObject::Call(const FAction& action)
     return DelayedCallManager::CallDelayed(this, action);
 }
 
-using DispatchersCommutator = DelayedCallDispatchersCommutator;
-
-template<typename ... Args>
-class DelayedCallCommonDispatcher : public CommonDispatcher<Args...>
-{
-    using Super = CommonDispatcher<Args...>;
-public:
-    DelayedCallCommonDispatcher(qint32 delayMsecs = 0, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
-        : m_delayedInvoke(delayMsecs, handler)
-    {}
-
-    void Invoke(Args... args) const override
-    {
-        m_delayedInvoke.Call([this, args...]{
-            Super::Invoke(args...);
-        });
-    }
-
-private:
-    mutable DelayedCallObject m_delayedInvoke;
-};
-
-using DelayedCallDispatcher = DelayedCallCommonDispatcher<>;
+using DispatchersCommutator = DelayedCallDispatchersCommutator<>;
 
 #endif // DELAYEDCALL_H

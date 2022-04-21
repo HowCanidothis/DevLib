@@ -42,7 +42,6 @@ private:
 private:
     TextFromValueHandler m_textFromValueHandler;
     ValueFromTextHandler m_valueFromTextHandler;
-    bool m_emptyInputIsValid;
 };
 
 class WidgetsDoubleSpinBoxWithCustomDisplay : public QDoubleSpinBox
@@ -85,7 +84,6 @@ private:
 private:
     TextFromValueHandler m_textFromValueHandler;
     ValueFromTextHandler m_valueFromTextHandler;
-    bool m_emptyInputIsValid;
 };
 
 #endif // WIDGETSSPINBOXWITHCUSTOMDISPLAY_H

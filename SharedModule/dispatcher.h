@@ -294,7 +294,6 @@ private:
     mutable QMutex m_mutex;
 };
 
-class Dispatcher : public CommonDispatcher<>
-{};
+using Dispatcher = CommonDispatcher<>;
 
 #endif // NOTIFICATION_H

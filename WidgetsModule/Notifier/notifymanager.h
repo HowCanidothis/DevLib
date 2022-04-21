@@ -53,7 +53,7 @@ private:
     QQueue<NotifyDataPtr> m_dataQueue;
     QList<class NotifyWidget*> m_notifyList;
     qint32 m_freeHeight;
-    DelayedCallDispatchersCommutator m_onLayoutChanged;
+    DispatchersCommutator m_onLayoutChanged;
     NotifyDataPtr m_exceedData;
     qint32 m_exceedCounter;
     IconsSvgIcon m_icons[Error + 1];

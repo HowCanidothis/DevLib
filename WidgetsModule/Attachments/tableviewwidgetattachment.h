@@ -99,7 +99,7 @@ private:
     ScopedPointer<FTSObject> m_matchObject;
     QAbstractItemModel* m_targetModel;
     QtLambdaConnections m_lconnections;
-    DelayedCallDispatcher m_transite;
+    DispatchersCommutator m_transite;
 };
 
 #endif // TABLEVIEWWIDGETATTACHMENT_H

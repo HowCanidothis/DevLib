@@ -195,7 +195,7 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
     : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, [property](double value){
-        *property = value;
+        property->Value = value;
     })
 {
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
@@ -211,7 +211,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
-                auto precision = epsilon(spinBox->decimals());
+                auto precision = epsilon(spinBox->decimals() + 1);
                 if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), precision)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }

@@ -40,7 +40,7 @@ public:
 
     LocalProperty<bool> HasErrors;
     LocalProperty<bool> HasErrorsOrWarnings;
-    DelayedCallDispatcher OnErrorsLabelsChanged;
+    DispatchersCommutator OnErrorsLabelsChanged;
     CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorAdded;
     CommonDispatcher<const LocalPropertyErrorsContainerValue&> OnErrorRemoved;
 

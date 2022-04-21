@@ -4,7 +4,6 @@ WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
-    , m_emptyInputIsValid(false)
 {}
 
 const WidgetsSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
@@ -33,8 +32,10 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+    auto lockUpdateDisplay = ::make_shared<bool>(false);
+    SetValueFromTextHandler([this, valid, lockUpdateDisplay](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(text.isEmpty()) {
+            guards::BooleanGuard guard(lockUpdateDisplay.get());
             *valid = false;
             return value();
         } else {
@@ -45,9 +46,10 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
-    m_emptyInputIsValid = true;
-    auto updateDisplay = [this]{
-        setDisplayIntegerBase(displayIntegerBase());
+    auto updateDisplay = [this, valid, lockUpdateDisplay]{
+        if(!*valid && !*lockUpdateDisplay) {
+            setDisplayIntegerBase(displayIntegerBase());
+        }
     };
     auto result = valid->OnChanged.Connect(this, updateDisplay);
     updateDisplay();
@@ -63,11 +65,11 @@ static QRegExp regExpFloating(R"(\s*(\d+)[\.]?(\d*)\s*)");
 
 QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
-    if(input.isEmpty() || (input.size() == 1 && input.startsWith("-"))) {
-        return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
+    if(input.isEmpty()) {
+        return QValidator::Acceptable;
     }
 
-    if(input.size() == 1 && input.startsWith("-")) {
+    if((input.size() == 1 && input.startsWith("-"))) {
         return QValidator::Intermediate;
     }
 
@@ -87,7 +89,6 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
-    , m_emptyInputIsValid(true)
 {}
 
 static QRegExp regExpFractial(R"((-)?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
@@ -138,21 +139,23 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
-        if(text.isEmpty()) {
+    auto lockUpdateDisplay = ::make_shared<bool>(false);
+    SetValueFromTextHandler([this, valid, lockUpdateDisplay](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(text.isEmpty() || text == "-") {
+            guards::BooleanGuard guard(lockUpdateDisplay.get());
             *valid = false;
             return value();
-        } else {
-            ThreadsBase::DoMain([valid]{
-                *valid = true;
-            });
         }
+        ThreadsBase::DoMain([valid]{
+            *valid = true;
+        });
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
-    m_emptyInputIsValid = true;
-    auto updateDisplay = [this]{
-        setDecimals(decimals());
+    auto updateDisplay = [this,valid, lockUpdateDisplay]{
+        if(!*valid && !*lockUpdateDisplay) {
+            setDecimals(decimals());
+        }
     };
     auto result = valid->OnChanged.Connect(this, updateDisplay);
     updateDisplay();
@@ -185,10 +188,10 @@ double WidgetsDoubleSpinBoxWithCustomDisplay::valueFromText(const QString& text)
 QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
     if(input.isEmpty()) {
-        return m_emptyInputIsValid ? QValidator::Acceptable : QValidator::Intermediate;
+        return QValidator::Acceptable;
     }
 
-    if(input.isEmpty() || (input.size() == 1 && input.startsWith("-")) || input.startsWith(".") || input.startsWith(",")) {
+    if((input.size() == 1 && input.startsWith("-")) || input.startsWith(".") || input.startsWith(",")) {
         return QValidator::Intermediate;
     }
 

@@ -509,7 +509,7 @@ public:
     }
 
 private:
-    DelayedCallDispatchersCommutator m_commutator;
+    DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
     QVector<LocalProperty<bool>*> m_properties;
     bool m_defaultState;
@@ -954,6 +954,100 @@ using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
 using LocalPropertyIntOptional = LocalPropertyOptional<LocalPropertyInt>;
 using LocalPropertyStringOptional = LocalPropertyOptional<LocalPropertyString>;
 
+template<class Property>
+class LocalPropertyPreviousValue
+{
+public:
+    using value_type = typename Property::value_type;
+
+    struct LocalPropertyPreviousValueData
+    {
+        value_type m_value;
+        value_type m_currentValue;
+        Property* m_target;
+        DispatcherConnectionSafePtr m_connection;
+
+        LocalPropertyPreviousValueData(Property* target)
+            : m_target(target)
+        {
+            m_connection = target->OnChanged.Connect(this, [this]{
+                m_value = m_currentValue;
+                m_currentValue = *m_target;
+            }).MakeSafe();
+            m_currentValue = m_value = *m_target;
+        }
+
+        void Reset() { m_value = *m_target; }
+        const value_type& GetValue() const { return m_value; }
+    };
+
+    LocalPropertyPreviousValue(Property* target)
+        : m_data(::make_shared<LocalPropertyPreviousValueData>(target))
+    {}
+
+    LocalPropertyPreviousValueData& GetData() { return *m_data; }
+    const value_type& Native() const { return m_data->GetValue(); }
+    operator const value_type&() const { return m_data->GetValue(); }
+
+private:
+    SharedPointer<LocalPropertyPreviousValueData> m_data;
+};
+
+template<class Property>
+LocalPropertyPreviousValue<Property> LocalPropertyPreviousValueCreate(Property* property)
+{
+    return LocalPropertyPreviousValue<Property>(property);
+}
+
+template<class T>
+class LocalPropertySharedPtrDispatcher
+{
+public:
+    using FHandler = std::function<void (T& value, DispatchersCommutator* connector, DispatcherConnectionsSafe& connections)>;
+
+    struct LocalPropertySharedPtrDispatcherData
+    {
+    public:
+        LocalPropertySharedPtrDispatcherData(LocalPropertySharedPtr<T>* property, const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+            : OnChanged(msecs, threadHandler)
+        {
+            property->OnChanged.Connect(this, [this, property, handler]{
+                m_dispatchersConnections.clear();
+                if(*property != nullptr) {
+                    handler(*property->Native(), &OnChanged, m_dispatchersConnections);
+                    Q_ASSERT(!m_dispatchersConnections.isEmpty());
+                }
+            }).MakeSafe(m_connections);
+
+            OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, property->OnChanged).MakeSafe(m_connections);
+        }
+
+        DispatchersCommutator OnChanged;
+
+    private:
+        DispatcherConnectionsSafe m_connections;
+        DispatcherConnectionsSafe m_dispatchersConnections;
+    };
+
+    LocalPropertySharedPtrDispatcher(LocalPropertySharedPtr<T>* property, const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+        : m_data(::make_shared<LocalPropertySharedPtrDispatcherData>(property, handler, msecs, threadHandler))
+    {
+
+    }
+
+    LocalPropertySharedPtrDispatcherData& GetData() const { return *m_data; }
+
+private:
+    SharedPointer<LocalPropertySharedPtrDispatcherData> m_data;
+};
+
+template<class T>
+LocalPropertySharedPtrDispatcher<T> LocalPropertySharedPtrDispatcherCreate(LocalPropertySharedPtr<T>* property, const typename LocalPropertySharedPtrDispatcher<T>::FHandler& handler,
+                                                                           qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+{
+    return LocalPropertySharedPtrDispatcher<T>(property, handler, msecs, threadHandler);
+}
+
 struct PropertyFromLocalProperty
 {
     template<typename Enum>
@@ -983,6 +1077,19 @@ struct PropertyFromLocalProperty
                 localProperty = *pProperty;
                 *sync = false;
             }
+        });
+        return property;
+    }
+
+    template<class T>
+    inline static SharedPointer<Property> CreatePointer(const Name& name, LocalPropertySharedPtr<T>& localProperty)
+    {
+        auto property = ::make_shared<SharedPointerProperty<T>>(name, localProperty.Native());
+        auto* pProperty = property.get();
+        LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION, { &localProperty.GetDispatcher() }, [&localProperty, pProperty]{
+            *pProperty = localProperty;
+        }, { &property->GetDispatcher() }, [pProperty, &localProperty]{
+            localProperty = *pProperty;
         });
         return property;
     }
@@ -1124,14 +1231,14 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     return property;
 }
 
-template<class T, class T2>
-inline DispatcherConnection DelayedCallDispatchersCommutator::Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property)
+template<typename ... Args> template<class T, class T2>
+inline DispatcherConnection DelayedCallDispatchersCommutator<Args...>::Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property)
 {
     return Subscribe(connectionInfo, &property.OnChanged);
 }
 
-template<class T>
-inline DispatcherConnections DelayedCallDispatchersCommutator::Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property)
+template<typename ... Args> template<class T>
+inline DispatcherConnections DelayedCallDispatchersCommutator<Args...>::Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property)
 {
     return Subscribe(connectionInfo, { &property.Value.OnChanged, &property.IsValid.OnChanged });
 }

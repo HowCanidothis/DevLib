@@ -52,7 +52,7 @@ public:
     LocalPropertySequentialEnum<HourFormat> HourType;
     LocalPropertySequentialEnum<ClockType> TypeClock;
     
-    DelayedCallDispatchersCommutator OnChanged;
+    DispatchersCommutator OnChanged;
     
 protected:
     void drawTimeLine(QPainter* painter) const;

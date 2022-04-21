@@ -47,7 +47,7 @@ public:
     LocalPropertyBool IsShowWarnings;
     LocalPropertyBool IsShowInfos;
     LocalPropertyBool IsShowErrors;
-    DelayedCallCommonDispatcher<qint32> OnShownMessagesCountChanged;
+    DelayedCallDispatchersCommutator<qint32> OnShownMessagesCountChanged;
 
 private slots:
     void on_BtnCloseConsole_clicked();
@@ -64,7 +64,7 @@ private:
     QHash<LocalPropertyErrorsContainer*, QSet<Name>> m_permanentErrorsToErase;
     LocalPropertyColor m_showWarningsNormalColor;
     LocalPropertyColor m_showWarningsSelectedColor;
-    DelayedCallDispatcher m_updateErrors;
+    DispatchersCommutator m_updateErrors;
 };
 
 #endif // NOTIFYCONSOLE_H
