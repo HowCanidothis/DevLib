@@ -276,7 +276,7 @@ protected:
     bool isLastEditRow(const QModelIndex& index) const
     {
         Q_ASSERT(GetData() != nullptr);
-        return GetData() ? GetData()->GetSize() == index.row() : false;
+        return GetData()->GetSize() == index.row();
     }
 
     static Qt::ItemFlags standardEditableFlags() { return standardNonEditableFlags() | Qt::ItemIsEditable; }
@@ -309,9 +309,15 @@ public:
     std::function<QVariant(qint32, int)> DataHandler;
 
 public:
-    int rowCount(const QModelIndex& parent = QModelIndex()) const override { return Super::rowCount(parent) + 1; }
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
+        if(GetData() == nullptr) {
+            return 0;
+        }
+        return Super::rowCount(parent) + 1;
+    }
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
+    {        
         if(!index.isValid()){
             return QVariant();
         }
@@ -334,6 +340,9 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index = QModelIndex()) const override
     {
+        if(!index.isValid()) {
+            return Qt::ItemIsDropEnabled;
+        }
         if(isLastEditRow(index)){
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | (IsEditColumn(index.column()) ? Qt::ItemIsEditable : Qt::NoItemFlags);
         }
