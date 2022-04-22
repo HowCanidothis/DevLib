@@ -179,6 +179,7 @@ class TViewModelsTableBase : public ViewModelsTableBase
     using Super = ViewModelsTableBase;
 public:
     using FInsertHandler = std::function<bool (int row, int count)>;
+    using FCanDropMimeDataHandler = std::function<bool (const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)>;
 
     TViewModelsTableBase(QObject* parent = nullptr)
         : Super(parent)
@@ -187,6 +188,9 @@ public:
         , m_dropMimeDataHandler([this](const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index){
             return Super::dropMimeData(data, action, row, column, index);
         })
+        , m_canDropMimeDataHandler([this](const QMimeData* , Qt::DropAction , int , int , const QModelIndex& ){
+            return true;
+        })
         , m_insertHandler([this](qint32 row, qint32 count){
             const auto& data = GetData();
             Q_ASSERT(data != nullptr);
@@ -194,6 +198,11 @@ public:
             return true;
         })
     {}
+
+    void SetCanDropMimeDataHandler(const FCanDropMimeDataHandler& handler)
+    {
+        m_canDropMimeDataHandler = handler;
+    }
 
     void SetInsertionHandler(const FInsertHandler& insertHandler)
     {
@@ -246,6 +255,16 @@ public:
         return m_mimeDataHandler(indices);
     }
 
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action,
+                                             int row, int column,
+                                             const QModelIndex& parent) const
+    {
+        if(m_canDropMimeDataHandler(data, action, row, column, parent)) {
+            return Super::canDropMimeData(data, action, row, column, parent);
+        }
+        return false;
+    }
+
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index) override
     {
         return m_dropMimeDataHandler(data, action, row, column, index);
@@ -287,6 +306,7 @@ private:
     std::function<QStringList ()> m_mimeTypesHandler;
     std::function<QMimeData* (const QModelIndexList&)> m_mimeDataHandler;
     std::function<bool (const QMimeData*, Qt::DropAction, qint32, qint32, const QModelIndex&)> m_dropMimeDataHandler;
+    FCanDropMimeDataHandler m_canDropMimeDataHandler;
     FInsertHandler m_insertHandler;
 };
 
