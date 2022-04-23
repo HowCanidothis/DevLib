@@ -83,6 +83,17 @@ Name::Name(const QString& name)
 
 }
 
+Name& Name::Join(const Name& o) {
+    m_text += o.m_text;
+    m_value = qHash(m_text);
+    return *this;
+}
+Name Name::Join(const Name& o) const {
+    Name ret(*this);
+    ret.Join(o);
+    return ret;
+}
+
 void Name::SetName(const QString& str)
 {
     m_value = qHash(str);

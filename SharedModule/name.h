@@ -13,6 +13,8 @@ public:
     Name(const Name& other);
     explicit Name(const QString& name);
 
+    Name& Join(const Name& o);
+    Name Join(const Name& o) const;
     void SetName(const QString& str);
 
     operator qint32() const { return m_value; }

@@ -62,12 +62,12 @@ bool WidgetsObserver::eventFilter(QObject*, QEvent *e)
     return false;
 }
 
-void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
+void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible, int duration)
 {
     if(visible) {
-        WidgetAppearance::ShowAnimated(widget);
+        WidgetAppearance::ShowAnimated(widget, duration);
     } else {
-        WidgetAppearance::HideAnimated(widget);
+        WidgetAppearance::HideAnimated(widget, duration);
     }
 }
 
@@ -75,7 +75,7 @@ static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnim
 
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
 
-void WidgetAppearance::ShowAnimated(QWidget* widget)
+void WidgetAppearance::ShowAnimated(QWidget* widget, int duration)
 {
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
     if(prevAnimation != nullptr) {
@@ -86,7 +86,7 @@ void WidgetAppearance::ShowAnimated(QWidget* widget)
     widget->setGraphicsEffect(effect);
     SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
-    animation->setDuration(2000);
+    animation->setDuration(duration);
     animation->setStartValue(0.0);
     animation->setEndValue(0.8);
     animation->setEasingCurve(QEasingCurve::InBack);
@@ -94,7 +94,7 @@ void WidgetAppearance::ShowAnimated(QWidget* widget)
     widget->show();
 }
 
-void WidgetAppearance::HideAnimated(QWidget* widget)
+void WidgetAppearance::HideAnimated(QWidget* widget, int duration)
 {
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
     if(prevAnimation != nullptr) {
@@ -105,7 +105,7 @@ void WidgetAppearance::HideAnimated(QWidget* widget)
     widget->setGraphicsEffect(effect);
     SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
-    animation->setDuration(2000);
+    animation->setDuration(duration);
     animation->setStartValue(0.8);
     animation->setEndValue(0);
     animation->setEasingCurve(QEasingCurve::OutBack);

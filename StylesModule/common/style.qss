@@ -1182,3 +1182,10 @@ QPushButton#ResetButton:hover
 WPSCQuickPlanView QLabel[tiny="true"] {
     font-size: 12px;
 }
+
+QWidget[hasError="true"]
+{
+    border-width: 2px;
+    border-style: solid;
+    border-color: red;
+}
