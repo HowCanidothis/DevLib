@@ -233,7 +233,7 @@ public:
     void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
             [](T& data) -> qint64& {
                 return data.StateError;
-            })
+            }, bool updateOnWrapperChanged = true)
     {
         m_updateHandler = [this, wrapper, flagsGetter]{
             guards::LambdaGuard guard([this]{ ErrorsHandled(); });
@@ -257,7 +257,7 @@ public:
             ErrorState = errorState;
         };
 
-        onInitialize(wrapper);
+        onInitialize(wrapper, updateOnWrapperChanged);
     }
 
 private:
@@ -268,19 +268,21 @@ private:
         });
     }
 
-    void onInitialize(const WrapperPtr& wrapper)
+    void onInitialize(const WrapperPtr& wrapper, bool updateOnWrapperChanged = true)
     {
         ErrorFilter.OnChanged.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
 
-        wrapper->OnRowsChanged.Connect(this, [this](int, int, const QSet<int>&){
-            update();
-        }).MakeSafe(m_connection);
-        wrapper->OnRowsInserted.Connect(this, [this](int, int){
-            update();
-        }).MakeSafe(m_connection);
-        wrapper->OnReseted.Connect(this, [this]{
-            update();
-        }).MakeSafe(m_connection);
+        if(updateOnWrapperChanged) {
+            wrapper->OnRowsChanged.Connect(this, [this](int, int, const QSet<int>&){
+                update();
+            }).MakeSafe(m_connection);
+            wrapper->OnRowsInserted.Connect(this, [this](int, int){
+                update();
+            }).MakeSafe(m_connection);
+            wrapper->OnReseted.Connect(this, [this]{
+                update();
+            }).MakeSafe(m_connection);
+        }
         update();
     }
 
