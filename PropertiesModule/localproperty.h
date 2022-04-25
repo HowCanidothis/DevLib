@@ -1000,52 +1000,71 @@ LocalPropertyPreviousValue<Property> LocalPropertyPreviousValueCreate(Property* 
 }
 
 template<class T>
-class LocalPropertySharedPtrDispatcher
+class LocalPropertySharedPtrDispatchers
 {
 public:
     using FHandler = std::function<void (T& value, DispatchersCommutator* connector, DispatcherConnectionsSafe& connections)>;
 
-    struct LocalPropertySharedPtrDispatcherData
+    struct LocalPropertySharedPtrDispatchersData
     {
     public:
-        LocalPropertySharedPtrDispatcherData(LocalPropertySharedPtr<T>* property, const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-            : OnChanged(msecs, threadHandler)
+        LocalPropertySharedPtrDispatchersData(LocalPropertySharedPtr<T>* property)
+            : m_property(property)
         {
-            property->OnChanged.Connect(this, [this, property, handler]{
+            property->OnChanged.Connect(this, [this, property]{
+                for(const auto& pair : m_handlers) {
+                    pair.first->Invoke();
+                }
                 m_dispatchersConnections.clear();
                 if(*property != nullptr) {
-                    handler(*property->Native(), &OnChanged, m_dispatchersConnections);
+                    for(auto& handler : m_handlers) {
+                        connectHandler(handler.first, handler.second);
+                    }
                     Q_ASSERT(!m_dispatchersConnections.isEmpty());
                 }
             }).MakeSafe(m_connections);
-
-            OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, property->OnChanged).MakeSafe(m_connections);
         }
 
-        DispatchersCommutator OnChanged;
+        SharedPointer<DispatchersCommutator> AddDispatcher(const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+        {
+            auto result = ::make_shared<DispatchersCommutator>(msecs, threadHandler);
+            if(*m_property != nullptr) {
+                connectHandler(result, handler);
+                Q_ASSERT(!m_dispatchersConnections.isEmpty());
+            }
+            m_handlers.append(std::make_pair(result, handler));
+            return result;
+        }
+
+    private:
+        void connectHandler(SharedPointer<DispatchersCommutator>& dispatcher, const FHandler& handler)
+        {
+            handler(*m_property->Native(), dispatcher.get(), m_dispatchersConnections);
+        }
 
     private:
         DispatcherConnectionsSafe m_connections;
         DispatcherConnectionsSafe m_dispatchersConnections;
+        QVector<std::pair<SharedPointer<DispatchersCommutator>, FHandler>> m_handlers;
+        LocalPropertySharedPtr<T>* m_property;
     };
 
-    LocalPropertySharedPtrDispatcher(LocalPropertySharedPtr<T>* property, const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-        : m_data(::make_shared<LocalPropertySharedPtrDispatcherData>(property, handler, msecs, threadHandler))
+    LocalPropertySharedPtrDispatchers(LocalPropertySharedPtr<T>* property)
+        : m_data(::make_shared<LocalPropertySharedPtrDispatchersData>(property))
     {
 
     }
 
-    LocalPropertySharedPtrDispatcherData& GetData() const { return *m_data; }
+    LocalPropertySharedPtrDispatchersData& GetData() const { return *m_data; }
 
 private:
-    SharedPointer<LocalPropertySharedPtrDispatcherData> m_data;
+    SharedPointer<LocalPropertySharedPtrDispatchersData> m_data;
 };
 
 template<class T>
-LocalPropertySharedPtrDispatcher<T> LocalPropertySharedPtrDispatcherCreate(LocalPropertySharedPtr<T>* property, const typename LocalPropertySharedPtrDispatcher<T>::FHandler& handler,
-                                                                           qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+LocalPropertySharedPtrDispatchers<T> LocalPropertySharedPtrDispatchersCreate(LocalPropertySharedPtr<T>* property)
 {
-    return LocalPropertySharedPtrDispatcher<T>(property, handler, msecs, threadHandler);
+    return LocalPropertySharedPtrDispatchers<T>(property);
 }
 
 struct PropertyFromLocalProperty
