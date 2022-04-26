@@ -5,15 +5,15 @@
 
 template<class T> class ModelsErrorComponent;
 
-class ViewModelsColumnComponentsBuilderBase
+class TViewModelsColumnComponentsBuilderBase
 {
     using Super = QObject;
 public:
-    ViewModelsColumnComponentsBuilderBase(ViewModelsTableBase* model)
+    TViewModelsColumnComponentsBuilderBase(ViewModelsTableBase* model)
         : m_viewModel(model)
     {}
 
-    ViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
+    TViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                    LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor);
 
 protected:
@@ -54,28 +54,42 @@ private:
     T* m_value;
 };
 
-template<class Wrapper, typename ValueType = typename Wrapper::value_type&, typename ConstValueType = const typename Wrapper::value_type&>
-class ViewModelsColumnComponentsBuilder : ViewModelsColumnComponentsBuilderBase
+template<class T>
+struct ReferenceHelper
 {
-    using Super = ViewModelsColumnComponentsBuilderBase;
+    using reference = T&;
+    using const_reference = const T&;
+};
+
+template<class T>
+struct ReferenceHelper<T*>
+{
+    using reference = T*;
+    using const_reference = const T*;
+};
+
+template<class Wrapper, typename ValueType = typename ReferenceHelper<typename Wrapper::value_type>::reference, typename ConstValueType = typename ReferenceHelper<typename Wrapper::value_type>::const_reference>
+class TViewModelsColumnComponentsBuilder : TViewModelsColumnComponentsBuilderBase
+{
+    using Super = TViewModelsColumnComponentsBuilderBase;
 
 public:
     using FModelGetter = std::function<QVariant (ConstValueType)>;
     using FModelSetter = std::function<FAction (const QVariant& data, ValueType)>;
 
-    ViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const std::function<Wrapper* ()>& modelGetter)
+    TViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const std::function<Wrapper* ()>& modelGetter)
         : Super(viewModel)
         , m_modelGetter(modelGetter)
     {}
 
-    ~ViewModelsColumnComponentsBuilder()
+    ~TViewModelsColumnComponentsBuilder()
     {
 #ifdef UNITS_MODULE_LIB
         AttachDependencies();
 #endif
     }
 
-    ViewModelsColumnComponentsBuilder& AddDefaultColors()
+    TViewModelsColumnComponentsBuilder& AddDefaultColors()
     {
         auto& settings = SharedSettings::GetInstance();
         Super::AddDefaultColors(&settings.StyleSettings.EnabledTableCellColor, &settings.StyleSettings.DisabledTableCellColor,
@@ -83,7 +97,7 @@ public:
         return *this;
     }
 
-    ViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns)
+    TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns)
     {
         auto* viewModel = m_viewModel;
         auto modelGetter = m_modelGetter;
@@ -103,7 +117,7 @@ public:
         return *this;
     }
 
-    ViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const FModelGetter& getterUi, const FModelSetter& setter = nullptr, const FModelGetter& inGetter = nullptr)
+    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const FModelGetter& getterUi, const FModelSetter& setter = nullptr, const FModelGetter& inGetter = nullptr)
     {
         auto modelGetter = m_modelGetter;
         ViewModelsTableColumnComponents::ColumnComponentData displayRoleComponent;
@@ -163,7 +177,7 @@ public:
     }
 
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter, bool readOnly = false)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -174,7 +188,7 @@ public:
     }
 
     template<class Enum>
-    ViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter, bool readOnly = false)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -185,7 +199,7 @@ public:
     }
 
 #ifdef UNITS_MODULE_LIB
-    ViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Name& measurementName)
+    TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Name& measurementName)
     {
         AttachDependencies();
         m_currentMeasurement = MeasurementManager::GetInstance().GetMeasurement(measurementName);
@@ -200,7 +214,7 @@ public:
         }
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -218,7 +232,7 @@ public:
         });
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -238,7 +252,7 @@ public:
         });
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -258,7 +272,7 @@ public:
         });
     }
 
-    ViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());

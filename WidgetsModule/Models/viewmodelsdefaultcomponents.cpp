@@ -4,7 +4,7 @@
 #include <UnitsModule/internal.hpp>
 #endif
 
-ViewModelsColumnComponentsBuilderBase& ViewModelsColumnComponentsBuilderBase::AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
+TViewModelsColumnComponentsBuilderBase& TViewModelsColumnComponentsBuilderBase::AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor)
 {
     auto* model = m_viewModel;

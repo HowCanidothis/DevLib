@@ -143,6 +143,9 @@ public:
     LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model);
     LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* combobox, const SharedPointer<ModelsStandardListModel>& model);
 #endif
+
+private:
+    void connectComboBox(QComboBox* combobox);
 };
 
 class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase

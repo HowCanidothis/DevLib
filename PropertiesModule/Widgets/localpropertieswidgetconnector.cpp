@@ -315,8 +315,17 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
+    connectComboBox(comboBox);
+}
+
+void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
+{
     m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
         m_propertySetter();
+    });
+
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::modelReset, [this]{
+        m_widgetSetter();
     });
 }
 
@@ -341,10 +350,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
-        m_propertySetter();
-    });
-
+    connectComboBox(comboBox);
 }
 
 #ifdef WIDGETS_MODULE_LIB
@@ -373,9 +379,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
-        m_propertySetter();
-    });
+    connectComboBox(comboBox);
 }
 
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, const SharedPointer<ModelsStandardListModel>& model)

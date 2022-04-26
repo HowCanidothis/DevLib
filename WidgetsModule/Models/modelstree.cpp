@@ -64,6 +64,25 @@ void ModelsTree::Edit(ModelsTreeItemBase* item, const FAction& action, const QVe
     OnTreeValueChanged(0, item, roles);
 }
 
+bool ModelsTree::EditWithCheck(qint32 index, const std::function<FAction (ModelsTreeItemBase*)>& action, const QVector<qint32>& roles)
+{
+    const auto& child = m_root->GetChilds().at(index);
+    return EditWithCheck(child.get(), action, roles);
+}
+
+void ModelsTree::Remove(const QSet<qint32>& indexes)
+{
+    QSet<ModelsTreeItemBase*> toRemove;
+    auto index = 0;
+    for(const auto& child : m_root->GetChilds()) {
+        if(indexes.contains(index)) {
+            toRemove.insert(child.get());
+        }
+        ++index;
+    }
+    Remove(toRemove);
+}
+
 bool ModelsTree::EditWithCheck(ModelsTreeItemBase* item, const std::function<FAction (ModelsTreeItemBase*)>& actionHandler, const QVector<qint32>& roles)
 {
     auto action = actionHandler(item);
@@ -102,11 +121,23 @@ void ModelsTree::SetRoot(const ModelsTreeItemBasePtr& root)
     OnReseted();
 }
 
+ModelsTree::value_type ModelsTree::At(qint32 index) const
+{
+    return m_root->m_childs.at(index).get();
+}
+
 void ModelsTree::Clear()
 {
     OnAboutToBeReseted();
     m_root->m_childs.clear();
     OnReseted();
+}
+
+void ModelsTree::Insert(qint32 before, qint32 count, const std::function<SharedPointer<ModelsTreeItemBase> ()>& itemCreator)
+{
+    OnAboutToInsertRows(before, before + count, m_root.get());
+    m_root->InsertChilds(before, count, itemCreator);
+    OnRowsInserted(before, count);
 }
 
 const ModelsTreeItemBasePtr& ModelsTree::Insert(qint32 before, const SharedPointer<ModelsTreeItemBase>& item, ModelsTreeItemBase* parent)
