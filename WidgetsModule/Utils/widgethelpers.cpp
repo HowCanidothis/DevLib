@@ -378,6 +378,7 @@ void WidgetsAttachment::AttachBlockEnter(QObject* target)
 
 void WidgetContent::ComboboxDisconnectModel(QComboBox* combo)
 {
+    combo->setInsertPolicy(QComboBox::NoInsert);
     auto* viewModel = combo->model();
     QObject::disconnect(viewModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                        combo, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
