@@ -96,7 +96,7 @@ public:
     QVariant data(const QModelIndex& index, qint32 role) const override;
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
     QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
-    qint32 columnCount(const QModelIndex&) const override
+    qint32 columnCount(const QModelIndex& = QModelIndex()) const override
     {
         return ColumnComponents.GetColumnCount();
     }

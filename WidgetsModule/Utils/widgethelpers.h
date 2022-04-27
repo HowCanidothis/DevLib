@@ -108,8 +108,8 @@ private:
 
 struct WidgetAppearance
 {
-    static void SetVisibleAnimated(QWidget* widget, bool visible, int duration = 2000);
-    static void ShowAnimated(QWidget* widget, int duration = 2000);
+    static void SetVisibleAnimated(QWidget* widget, bool visible, int duration = 2000, double opacity = 0.8);
+    static void ShowAnimated(QWidget* widget, int duration = 2000, double opacity = 0.8);
     static void HideAnimated(QWidget* widget, int duration = 2000);
 };
 

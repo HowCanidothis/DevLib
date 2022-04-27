@@ -62,10 +62,10 @@ bool WidgetsObserver::eventFilter(QObject*, QEvent *e)
     return false;
 }
 
-void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible, int duration)
+void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible, int duration, double opacity)
 {
     if(visible) {
-        WidgetAppearance::ShowAnimated(widget, duration);
+        WidgetAppearance::ShowAnimated(widget, duration, opacity);
     } else {
         WidgetAppearance::HideAnimated(widget, duration);
     }
@@ -75,7 +75,7 @@ static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnim
 
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
 
-void WidgetAppearance::ShowAnimated(QWidget* widget, int duration)
+void WidgetAppearance::ShowAnimated(QWidget* widget, int duration, double opacity)
 {
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
     if(prevAnimation != nullptr) {
@@ -88,7 +88,7 @@ void WidgetAppearance::ShowAnimated(QWidget* widget, int duration)
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(duration);
     animation->setStartValue(0.0);
-    animation->setEndValue(0.8);
+    animation->setEndValue(opacity);
     animation->setEasingCurve(QEasingCurve::InBack);
     animation->start();
     widget->show();
@@ -106,7 +106,7 @@ void WidgetAppearance::HideAnimated(QWidget* widget, int duration)
     SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(duration);
-    animation->setStartValue(0.8);
+    animation->setStartValue(widget->windowOpacity());
     animation->setEndValue(0);
     animation->setEasingCurve(QEasingCurve::OutBack);
     animation->connect(animation.get(), &QPropertyAnimation::finished, [widget]{
