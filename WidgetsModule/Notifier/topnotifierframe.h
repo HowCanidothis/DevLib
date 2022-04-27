@@ -30,8 +30,9 @@ private:
     Ui::TopNotifierFrame *ui;
 };
 
-class TopNotifierFrameErrorsComponent
+class TopNotifierFrameErrorsComponent : public QObject
 {
+    using Super = QObject;
 public:
     TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame);
 

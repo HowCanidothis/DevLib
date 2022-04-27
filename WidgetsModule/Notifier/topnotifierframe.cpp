@@ -55,6 +55,7 @@ bool TopNotifierFrame::eventFilter(QObject*, QEvent* event)
 }
 
 TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame)
+    : Super(frame)
 {
     auto setText = [frame, errors]{
         ThreadsBase::DoMain([frame, errors]{
