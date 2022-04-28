@@ -13,94 +13,33 @@
 
 #include <optional>
 
-WidgetsLocalPropertyColorWrapper::WidgetsLocalPropertyColorWrapper(QWidget* widget, const Stack<WidgetsLocalPropertyColorWrapperColorMap>& colorMap)
-    : m_widget(widget)
+WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
+    : Super(parent)
+    , m_filter(filter)
 {
-    widget->installEventFilter(this);
-    connect(widget, &QWidget::destroyed, [this]{
-        delete this;
-    });
-
-    m_properties.Swap(const_cast<Stack<WidgetsLocalPropertyColorWrapperColorMap>&>(colorMap));
-
-    for(auto& propertyMap : m_properties) {
-        propertyMap.Color->OnChanged.Connect(this, [this]{
-            m_updateLater.Call([this]{
-                polish();
-            });
-        }).MakeSafe(m_connections);
-    }
+    parent->installEventFilter(this);
 }
 
-bool WidgetsLocalPropertyColorWrapper::eventFilter(QObject*, QEvent* e)
+void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
 {
-    if(e->type() == QEvent::StyleChange) {
-        m_updateLater.Call([this]{
-            polish();
-        });
-    }
-    return false;
+    new WidgetsAttachment(filter, target);
 }
 
-WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QWidget* widget)
-    : Visible(true)
-{
-    connect(widget, &QWidget::destroyed, [this]{
-        delete this;
-    });
-    Visible.OnChanged.Connect(this, [this, widget]{
-        widget->setVisible(Visible);
-    }).MakeSafe(m_connections);
-    widget->setVisible(Visible);
-    Visible.SetSetterHandler(ThreadHandlerMain);
+QLineEdit* WidgetsAttachment::AttachLineEditAdjuster(QLineEdit* edit) {
+    auto invalidate = [edit]{
+        QFontMetrics fm(edit->font());
+        int pixelsWide = fm.width(edit->text());
+        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 20;
+        edit->setMinimumWidth(pixelsWide);
+    };
+    QObject::connect(edit, &QLineEdit::textChanged, invalidate);
+    invalidate();
+    return edit;
 }
 
-WidgetsLocalPropertyVisibilityWrapper::WidgetsLocalPropertyVisibilityWrapper(QAction* widget)
-    : Visible(true)
+bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
 {
-    connect(widget, &QAction::destroyed, [this]{
-        delete this;
-    });
-    Visible.OnChanged.Connect(this, [this, widget]{
-        widget->setVisible(Visible);
-    }).MakeSafe(m_connections);
-    widget->setVisible(Visible);
-    Visible.SetSetterHandler(ThreadHandlerMain);
-}
-
-WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QWidget* widget)
-    : Enabled(true)
-{
-    connect(widget, &QWidget::destroyed, [this]{
-        delete this;
-    });
-    Enabled.OnChanged.Connect(this, [this, widget]{
-        widget->setEnabled(Enabled);
-    }).MakeSafe(m_connections);
-    widget->setEnabled(Enabled);
-    Enabled.SetSetterHandler(ThreadHandlerMain);
-}
-
-WidgetsLocalPropertyEnablityWrapper::WidgetsLocalPropertyEnablityWrapper(QAction* widget)
-    : Enabled(true)
-{
-    connect(widget, &QObject::destroyed, [this]{
-        delete this;
-    });
-    Enabled.OnChanged.Connect(this, [this, widget]{
-        widget->setEnabled(Enabled);
-    }).MakeSafe(m_connections);
-    widget->setEnabled(Enabled);
-    Enabled.SetSetterHandler(ThreadHandlerMain);
-}
-
-void WidgetsLocalPropertyColorWrapper::polish()
-{
-    auto pal = m_widget->palette();
-    for(const auto& propertyMap : m_properties) {
-        pal.setColor((QPalette::ColorRole)propertyMap.Role, *propertyMap.Color);
-    }
-    m_widget->setPalette(pal);
+    return m_filter(watched, e);
 }
 
 WidgetsObserver::WidgetsObserver()
@@ -114,17 +53,13 @@ WidgetsObserver& WidgetsObserver::GetInstance()
     return res;
 }
 
-bool WidgetsObserver::eventFilter(QObject *watched, QEvent *e)
+bool WidgetsObserver::eventFilter(QObject*, QEvent *e)
 {
     if(e->type() == QEvent::ChildAdded) {
-        OnAdded(watched);
+        auto* childEvent = reinterpret_cast<QChildEvent*>(e);
+        OnAdded(childEvent->child());
     }
     return false;
-}
-
-DispatcherConnection WidgetAppearance::ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child)
-{
-    return child->Visible.ConnectFrom(CONNECTION_DEBUG_LOCATION, base->Visible);
 }
 
 void WidgetAppearance::SetVisibleAnimated(QWidget* widget, bool visible)
@@ -333,49 +268,6 @@ void WidgetContent::CopySelectedTableContentsToClipboard(QTableView* tableView)
     clipboard->setText(text);
 }
 
-WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
-    : Super(parent)
-    , m_filter(filter)
-{
-    parent->installEventFilter(this);
-}
-
-void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
-{
-    new WidgetsAttachment(filter, target);
-}
-
-QLineEdit* WidgetsAttachment::AttachLineEditAdjuster(QLineEdit* edit) {
-    auto invalidate = [edit]{
-        QFontMetrics fm(edit->font());
-        int pixelsWide = fm.width(edit->text());
-        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 20;
-        edit->setMinimumWidth(pixelsWide);
-    };
-    QObject::connect(edit, &QLineEdit::textChanged, invalidate);
-    invalidate();
-    return edit;
-}
-
-bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
-{
-    return m_filter(watched, e);
-}
-
-void WidgetsAttachment::AttachBlockEnter(QObject* target)
-{
-    auto blockEnter = [](QObject*, QEvent* event) {
-        if(event->type() == QEvent::KeyRelease || event->type() == QEvent::KeyPress) {
-            auto* keyEvent = reinterpret_cast<QKeyEvent*>(event);
-            if(keyEvent->key() == Qt::Key_Return) {
-                return true;
-            }
-        }
-        return false;
-    };
-    WidgetsAttachment::Attach(target, blockEnter);
-}
-
 void WidgetContent::ComboboxDisconnectModel(QComboBox* combo)
 {
     combo->setInsertPolicy(QComboBox::NoInsert);
@@ -396,4 +288,85 @@ void WidgetContent::ComboboxDisconnectModel(QComboBox* combo)
                combo, SLOT(_q_updateIndexBeforeChange()));
     QObject::disconnect(viewModel, SIGNAL(modelReset()),
                combo, SLOT(_q_modelReset()));
+}
+
+WidgetWrapper::WidgetWrapper(QWidget* widget)
+    : m_widget(widget)
+{
+
+}
+
+DispatcherConnection WidgetWrapper::ConnectVisibility(const char* debugLocation, QWidget* another)
+{
+    return WidgetWrapper(another).WidgetVisibility().ConnectFrom(debugLocation, WidgetVisibility());
+}
+
+DispatcherConnection WidgetWrapper::ConnectEnablity(const char* debugLocation, QWidget* another)
+{
+    return WidgetWrapper(another).WidgetEnablity().ConnectFrom(debugLocation, WidgetEnablity());
+}
+
+WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*>& palette)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(!m_widget->property("a_palette").toBool());
+#endif
+    auto connections = DispatcherConnectionsSafeCreate();
+    auto updater = DelayedCallObjectCreate();
+    auto* pWidget = m_widget;
+    auto update = updater->Wrap([pWidget, palette]{
+        auto pal = pWidget->palette();
+        for(auto it(palette.cbegin()), e(palette.cend()); it != e; ++it) {
+            pal.setColor((QPalette::ColorRole)it.key(), *it.value());
+        }
+        pWidget->setPalette(pal);
+    });
+
+    AttachEventFilter([updater, update, connections](QObject*, QEvent* e){
+        if(e->type() == QEvent::StyleChange) {
+            update();
+        }
+        return false;
+    });
+
+    for(const auto* color : palette) {
+        color->OnChanged.Connect(this, [update]{
+            update();
+        }).MakeSafe(*connections);
+    }
+
+    m_widget->setProperty("a_palette", true);
+    return *this;
+}
+
+DispatcherConnections WidgetWrapper::createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler,
+                                                const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
+                                                const FConnector& connector)
+{
+    DispatcherConnections result;
+    result += property->ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers);
+    for(auto* widget : additionalWidgets) {
+        result += (this->*connector)(debugLocation, widget);
+    }
+    return result;
+}
+
+LocalPropertyBool& WidgetWrapper::WidgetVisibility()
+{
+    return *getOrCreateProperty<LocalPropertyBool>("a_visible", [](QWidget* action, const LocalPropertyBool& visible){
+        action->setVisible(visible);
+    }, true);
+}
+
+LocalPropertyBool& WidgetWrapper::WidgetEnablity()
+{
+    return *getOrCreateProperty<LocalPropertyBool>("a_enable", [](QWidget* action, const LocalPropertyBool& visible){
+        action->setEnabled(visible);
+    }, true);
+}
+
+WidgetWrapper& WidgetWrapper::AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter)
+{
+    WidgetsAttachment::Attach(m_widget, eventFilter);
+    return *this;
 }

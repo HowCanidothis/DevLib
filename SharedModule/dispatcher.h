@@ -39,6 +39,11 @@ inline uint qHash(const DispatcherConnectionSafePtr& connection, uint seed = 0)
 
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
+inline SharedPointer<DispatcherConnectionsSafe> DispatcherConnectionsSafeCreate()
+{
+    return ::make_shared<DispatcherConnectionsSafe>();
+}
+
 class DispatcherConnection
 {
     friend class DispatcherConnectionSafePtr;

@@ -140,4 +140,9 @@ inline AsyncResult DelayedCallObject::Call(const FAction& action)
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator<>;
 
+inline SharedPointer<DelayedCallObject> DelayedCallObjectCreate(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+{
+    return ::make_shared<DelayedCallObject>(msecs, threadHandler);
+}
+
 #endif // DELAYEDCALL_H

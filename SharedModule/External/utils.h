@@ -38,6 +38,7 @@ private:
             m_action->setProperty(propName, QVariant::fromValue(property));
             auto* pProperty = property.get();
             property->OnChanged.ConnectAndCall(this, [action, handler, pProperty]{ handler(action, *pProperty); });
+            property->SetSetterHandler(ThreadHandlerMain);
         }
         return property;
     }

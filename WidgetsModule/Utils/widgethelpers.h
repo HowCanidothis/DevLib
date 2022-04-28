@@ -3,12 +3,74 @@
 
 #include <PropertiesModule/internal.hpp>
 
-struct WidgetsLocalPropertyColorWrapperColorMap
+class WidgetsAttachment : public QObject
 {
-    qint32 Role;
-    LocalPropertyColor* Color;
+    using Super = QObject;
+public:
+    using FFilter = std::function<bool (QObject*, QEvent*)>;
+    WidgetsAttachment(const FFilter& filter, QObject* parent);
+
+    static void Attach(QObject* target, const FFilter& filter);
+    static QLineEdit* AttachLineEditAdjuster(QLineEdit* edit);
+
+private:
+    bool eventFilter(QObject* watched, QEvent* e) override;
+
+private:
+    FFilter m_filter;
 };
-Q_DECLARE_TYPEINFO(WidgetsLocalPropertyColorWrapperColorMap, Q_PRIMITIVE_TYPE);
+
+class WidgetWrapper
+{
+    using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*);
+public:
+    WidgetWrapper(QWidget* widget);
+
+    DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another);
+    DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another);
+    DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets)
+    {
+        return createRule(debugLocation, &WidgetVisibility(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectVisibility);
+    }
+    DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets)
+    {
+        return createRule(debugLocation, &WidgetEnablity(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectEnablity);
+    }
+
+    WidgetWrapper& Make(const std::function<void (ActionWrapper&)>& handler);
+    WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
+    WidgetWrapper& AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter);
+
+    LocalPropertyBool& WidgetVisibility();
+    LocalPropertyBool& WidgetEnablity();
+
+    QWidget* operator->() const { return m_widget; }
+    operator QWidget*() const { return m_widget; }
+
+private:
+    DispatcherConnections createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
+                                     const FConnector& connector);
+
+#ifdef PROPERTIES_LIB
+    template<class Property, typename ... Args>
+    SharedPointer<Property> getOrCreateProperty(const char* propName, const std::function<void (QWidget*, const Property&)>& handler, Args... args) const
+    {
+        SharedPointer<Property> property = m_widget->property(propName).value<SharedPointer<Property>>();
+        if(property == nullptr) {
+            auto* action = m_widget;
+            property = ::make_shared<Property>(args...);
+            m_widget->setProperty(propName, QVariant::fromValue(property));
+            auto* pProperty = property.get();
+            property->OnChanged.ConnectAndCall(this, [action, handler, pProperty]{ handler(action, *pProperty); });
+            property->SetSetterHandler(ThreadHandlerMain);
+        }
+        return property;
+    }
+#endif
+
+private:
+    QWidget* m_widget;
+};
 
 template<class T>
 class WidgetsLocalPropertyDecimalDisplay : public LocalPropertyLimitedDecimal<T>
@@ -32,47 +94,6 @@ public:
     LocalPropertyLimitedDecimal<T> DisplayValue;
 };
 
-class WidgetsLocalPropertyColorWrapper : public QObject
-{
-public:
-    WidgetsLocalPropertyColorWrapper(QWidget* widget, const Stack<WidgetsLocalPropertyColorWrapperColorMap>& colorMap);
-
-private:
-    void polish();
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-private:
-    Stack<WidgetsLocalPropertyColorWrapperColorMap> m_properties;
-    QWidget* m_widget;
-    DelayedCallObject m_updateLater;
-    DispatcherConnectionsSafe m_connections;
-};
-
-class WidgetsLocalPropertyVisibilityWrapper : public QObject
-{
-public:
-    WidgetsLocalPropertyVisibilityWrapper(QWidget* widget);
-    WidgetsLocalPropertyVisibilityWrapper(QAction* action);
-
-    LocalPropertyBool Visible;
-
-private:
-    DispatcherConnectionsSafe m_connections;
-};
-
-class WidgetsLocalPropertyEnablityWrapper : public QObject
-{
-public:
-    WidgetsLocalPropertyEnablityWrapper(QWidget* widget);
-    WidgetsLocalPropertyEnablityWrapper(QAction* action);
-
-    LocalPropertyBool Enabled;
-
-private:
-    QWidget* m_widget;
-    DispatcherConnectionsSafe m_connections;
-};
-
 class WidgetsObserver : public QObject
 {
     WidgetsObserver();
@@ -85,27 +106,8 @@ private:
     bool eventFilter(QObject* watched, QEvent* e) override;
 };
 
-class WidgetsAttachment : public QObject
-{
-    using Super = QObject;
-public:
-    using FFilter = std::function<bool (QObject*, QEvent*)>;
-    WidgetsAttachment(const FFilter& filter, QObject* parent);
-
-    static void Attach(QObject* target, const FFilter& filter);
-    static QLineEdit* AttachLineEditAdjuster(QLineEdit* edit);
-    static void AttachBlockEnter(QObject* target);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-private:
-    FFilter m_filter;
-};
-
 struct WidgetAppearance
 {
-    static DispatcherConnection ConnectWidgetsByVisibility(WidgetsLocalPropertyVisibilityWrapper* base, WidgetsLocalPropertyVisibilityWrapper* child);
     static void SetVisibleAnimated(QWidget* widget, bool visible);
     static void ShowAnimated(QWidget* widget);
     static void HideAnimated(QWidget* widget);
