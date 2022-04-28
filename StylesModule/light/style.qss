@@ -842,3 +842,13 @@ BHAComponentViewBase QLabel#lbComponent
 BHAComponentViewBase QWidget#widgetheader {
     background: #f3f3f3;
 }
+
+NotifierErrorsFrame QGroupBox
+{
+    background-color: white;
+}
+
+NotifierErrorsFrame QLabel
+{
+    background-color: white;
+}

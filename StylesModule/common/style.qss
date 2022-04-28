@@ -1195,7 +1195,6 @@ NotifierErrorsFrame QGroupBox
     border-color: red;
     border-width: 2px;
     border-style: solid;
-    background-color: white;
     margin-top: 26px;
     padding: 0 px;
 }
@@ -1207,7 +1206,3 @@ NotifierErrorsFrame QGroupBox::title
     color: red;
 }
 
-NotifierErrorsFrame QLabel
-{
-    background-color: white;
-}
