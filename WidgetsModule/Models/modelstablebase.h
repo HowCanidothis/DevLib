@@ -317,14 +317,14 @@ class TViewModelsEditTable : public T
 public:
     TViewModelsEditTable(QObject* parent)
         : Super(parent)
-        , CreateDataHandler ([this](){ insertRows(rowCount()-1, 1); })
+        , CreateDataHandler ([this](qint32, const QVariant&){ insertRows(rowCount()-1, 1); })
         , IsEditColumn      ([](qint32 column){ return !column; })
         , DataHandler       ([](qint32, int ){ return QVariant();})
     {
         setProperty("ExtraFieldsCount", 1);
     }
 
-    std::function<void()> CreateDataHandler;
+    std::function<void(qint32, const QVariant&)> CreateDataHandler;
     std::function<bool(qint32)> IsEditColumn;
     std::function<QVariant(qint32, int)> DataHandler;
 
@@ -353,7 +353,7 @@ public:
             return false;
         }
         if(isLastEditRow(index)){
-            CreateDataHandler();
+            CreateDataHandler(index.column(), value);
         }
         return Super::setData(index, value, role);
     }
