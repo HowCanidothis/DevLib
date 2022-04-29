@@ -19,6 +19,7 @@ NetworkSettings::NetworkSettings()
 
 StyleSettings::StyleSettings()
     : DisabledTableCellColor("#d4d4d4")
+    , EnabledTableCellColor(Qt::white)
     , DefaultRedColor("#ff3b30")
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);

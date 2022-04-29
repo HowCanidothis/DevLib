@@ -881,14 +881,14 @@ WidgetsDatetimePopupPicker QPushButton#CalendarButton
 }
 
 
-BHAComponentViewBase QLabel#lbComponent
+QLabel#lbComponent
 {
     font-size: 16px;
     font-weight: bold;
     background: none;
 }
 
-BHAComponentViewBase QWidget#widgetheader {
+QWidget#widgetheader {
     background: #252525;
 }
 

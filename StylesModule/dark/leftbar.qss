@@ -29,11 +29,11 @@ QPushButton#BtnClose:hover {
 }
 
 QPushButton#BtnCloseMinor {
-    background: #3C3C3C;
+    background: #252525;
 }
 
 QPushButton#BtnCloseMinor:hover {
-    background: #505050;
+    background: #3C3C3C;
 }
 
 QPushButton#BtnMinimize:hover {

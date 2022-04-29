@@ -3,6 +3,8 @@
 WidgetsStyleSettings* WidgetsStyleSettings::m_instance = nullptr;
 
 WidgetsStyleSettings::WidgetsStyleSettings()
+    : m_enabledTableColor(Qt::white)
+    , m_disabledTableColor("#d4d4d4")
 {
     Q_ASSERT(m_instance == nullptr);
     m_instance = this;

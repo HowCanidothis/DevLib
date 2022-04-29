@@ -7,7 +7,7 @@ QPushButton#PropertiesToolBarButton {
 }
 
 QPushButton#PropertiesToolBarButton:hover {
-    background: #505050;
+    background: #3C3C3C;
 }
 
 WidgetsFloatingToolBar {

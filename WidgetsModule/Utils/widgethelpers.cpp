@@ -53,11 +53,10 @@ WidgetsObserver& WidgetsObserver::GetInstance()
     return res;
 }
 
-bool WidgetsObserver::eventFilter(QObject*, QEvent *e)
+bool WidgetsObserver::eventFilter(QObject* o, QEvent *e)
 {
-    if(e->type() == QEvent::ChildAdded) {
-        auto* childEvent = reinterpret_cast<QChildEvent*>(e);
-        OnAdded(childEvent->child());
+    if(o->isWidgetType() && e->type() == QEvent::Create) {
+        OnAdded(o);
     }
     return false;
 }

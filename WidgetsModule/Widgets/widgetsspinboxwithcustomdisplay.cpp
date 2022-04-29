@@ -1,5 +1,7 @@
 #include "widgetsspinboxwithcustomdisplay.h"
 
+#include <QLineEdit>
+
 WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
@@ -27,15 +29,13 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
 {
     SetTextFromValueHandler([valid](const WidgetsSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
-            return "-";
+            return "";
         }
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    auto lockUpdateDisplay = ::make_shared<bool>(false);
-    SetValueFromTextHandler([this, valid, lockUpdateDisplay](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+    SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(text.isEmpty()) {
-            guards::BooleanGuard guard(lockUpdateDisplay.get());
             *valid = false;
             return value();
         } else {
@@ -46,13 +46,12 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
-    auto updateDisplay = [this, valid, lockUpdateDisplay]{
-        if(!*valid && !*lockUpdateDisplay) {
+    auto updateDisplay = [this]{
+        if(!hasFocus()) {
             setDisplayIntegerBase(displayIntegerBase());
         }
     };
-    auto result = valid->OnChanged.Connect(this, updateDisplay);
-    updateDisplay();
+    auto result = valid->OnChanged.ConnectAndCall(this, updateDisplay);
     return result;
 }
 
@@ -74,7 +73,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
     }
 
     QString inputCopy = input.replace(',', '.');
-    if(input.startsWith("-")) {
+    if(input.startsWith("")) {
         inputCopy = input.mid(1);
     }
 
@@ -134,15 +133,15 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 {
     SetTextFromValueHandler([valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
-            return "-";
+            return "";
         }
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    auto lockUpdateDisplay = ::make_shared<bool>(false);
-    SetValueFromTextHandler([this, valid, lockUpdateDisplay](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
-        if(text.isEmpty() || text == "-") {
-            guards::BooleanGuard guard(lockUpdateDisplay.get());
+    lineEdit()->setPlaceholderText("-");
+
+    SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(text.isEmpty()) {
             *valid = false;
             return value();
         }
@@ -152,13 +151,12 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
         return GetDefaultValueFromTextHandler()(spin, text);
     });
 
-    auto updateDisplay = [this,valid, lockUpdateDisplay]{
-        if(!*valid && !*lockUpdateDisplay) {
+    auto updateDisplay = [this]{
+        if(!hasFocus()) {
             setDecimals(decimals());
         }
     };
-    auto result = valid->OnChanged.Connect(this, updateDisplay);
-    updateDisplay();
+    auto result = valid->OnChanged.ConnectAndCall(this, updateDisplay);
     return result;
 }
 

@@ -832,14 +832,14 @@ WidgetsDatetimePopupPicker QPushButton#CalendarButton
     image: url(":/qss_icons/rc/calendar-month.svg");
 }
 
-BHAComponentViewBase QLabel#lbComponent
+QLabel#lbComponent
 {
     font-size: 16px;
     font-weight: bold;
     background: none;
 }
 
-BHAComponentViewBase QWidget#widgetheader {
+QWidget#widgetheader {
     background: #f3f3f3;
 }
 

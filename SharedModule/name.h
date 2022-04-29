@@ -13,10 +13,11 @@ public:
     Name(const Name& other);
     explicit Name(const QString& name);
 
-    Name& Join(const Name& o);
-    Name Join(const Name& o) const;
     void SetName(const QString& str);
 
+    Name Joined(const Name& name) const { return Joined(name.AsString()); }
+    Name Joined(const QString& string) const;
+    Name Joined(const char* string) const { return Joined(QString(string)); }
     operator qint32() const { return m_value; }
     const QString& AsString() const;
     bool IsNull() const { return AsString().isEmpty(); }

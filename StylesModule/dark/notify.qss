@@ -1,22 +1,22 @@
 
 NotifyButton:hover {
-    background-color: #505050;
+    background-color: #3C3C3C;
 }
 
 NotifyConsole QPushButton#BtnCloseConsole:hover{
-    background-color: #505050;
+    background-color: #3C3C3C;
 }
 
 NotifyConsole QPushButton#BtnShowInfo:hover {
-    background: #505050;
+    background: #3C3C3C;
 }
 
 NotifyConsole QPushButton#BtnShowErrors:hover {
-    background: #505050;
+    background: #3C3C3C;
 }
 
 NotifyConsole QPushButton#BtnShowWarnings:hover {
-    background: #505050;
+    background: #3C3C3C;
 }
 
 NotifyConsole QTableView{
