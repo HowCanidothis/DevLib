@@ -1185,7 +1185,7 @@ WPSCQuickPlanView QLabel[tiny="true"] {
 
 QWidget[hasError="true"]
 {
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
     border-color: red;
 }
@@ -1193,7 +1193,7 @@ QWidget[hasError="true"]
 NotifierErrorsFrame QGroupBox
 {
     border-color: red;
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
     margin-top: 26px;
     padding: 0 px;

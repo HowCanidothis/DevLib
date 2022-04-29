@@ -843,12 +843,17 @@ BHAComponentViewBase QWidget#widgetheader {
     background: #f3f3f3;
 }
 
+NotifierErrorsFrame
+{
+    qproperty-errorLinkColor: black;
+}
+
 NotifierErrorsFrame QGroupBox
 {
-    background-color: white;
+    background-color: #d4d4d4;
 }
 
 NotifierErrorsFrame QLabel
 {
-    background-color: white;
+    background-color: #d4d4d4;
 }
