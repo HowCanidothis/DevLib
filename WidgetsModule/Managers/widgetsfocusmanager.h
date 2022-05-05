@@ -1,12 +1,12 @@
-#ifndef FOCUSWATCHERATTACHMENT_H
-#define FOCUSWATCHERATTACHMENT_H
+#ifndef WIDGETSFOCUSMANAGER_H
+#define WIDGETSFOCUSMANAGER_H
 
 #include <SharedModule/internal.hpp>
 #include <PropertiesModule/internal.hpp>
 
 class FocusManager // TODO. Maybe not static
 {
-    friend class FocusWatcherAttachment;
+    friend class WidgetWrapper;
     FocusManager();
 
     void destroyed(QWidget* target);
@@ -24,18 +24,4 @@ private:
     LocalProperty<QWidget*> m_focusedWidget;
 };
 
-class FocusWatcherAttachment : public QObject
-{
-    FocusWatcherAttachment(QWidget* target);
-public:
-    static void Attach(QWidget* widget, const QList<QWidget*>& additionalWidgets);
-
-    // QObject interface
-public:
-    bool eventFilter(QObject* watched, QEvent* event) override;
-
-private:
-    QWidget* m_target;
-};
-
-#endif // FOCUSWATCHERATTACHMENT_H
+#endif // WIDGETSFOCUSMANAGER_H

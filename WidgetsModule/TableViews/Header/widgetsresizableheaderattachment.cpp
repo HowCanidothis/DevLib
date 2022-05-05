@@ -59,7 +59,7 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QMenu* parent, con
         }
     });
     if(!params.ColumnsParams.isEmpty()) {
-        WidgetsAttachment::Attach(this, [this,params](QObject*, QEvent* event){
+        WidgetWrapper(this).AddEventFilter([this,params](QObject*, QEvent* event){
             if(event->type() == QEvent::Show) {
                 for(auto it(params.ColumnsParams.cbegin()), e(params.ColumnsParams.cend()); it != e; it++){
                     setSectionHidden(it.key(), !it.value().Visible);

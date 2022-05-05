@@ -50,7 +50,7 @@ public:
             if(!geometry.isEmpty()) {
                 result->restoreGeometry(geometry);
             }
-            WidgetsAttachment::Attach(result, [result, restoreGeometryName](QObject*, QEvent* event){
+            WidgetWrapper(result).AddEventFilter([result, restoreGeometryName](QObject*, QEvent* event){
                 if(event->type() == QEvent::Hide) {
                     QSettings geometriesSettings;
                     geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), result->saveGeometry());

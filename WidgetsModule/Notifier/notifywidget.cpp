@@ -45,7 +45,7 @@ NotifyWidget::NotifyWidget(const NotifyDataPtr& data, QWidget *parent)
         }
     });
 
-    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
+    WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
         if(event->type() == QEvent::Show) {
             adjustSize();
         }

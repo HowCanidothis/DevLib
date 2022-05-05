@@ -29,14 +29,8 @@
 #include "ToolTip/tooltiparrowwidget.h"
 
 #include "Attachments/tableviewwidgetattachment.h"
-#include "Attachments/progressbarattachment.h"
-#include "Attachments/ignorewheelwithoutfocusattachment.h"
-#include "Attachments/windowresizeattachment.h"
-#include "Attachments/focuswatcherattachment.h"
-#include "Attachments/floatingwidgetlocationattachment.h"
-#include "Attachments/widgetsmenulocationattachment.h"
 #include "Attachments/widgetsactivetableattachment.h"
-#include "Attachments/widgetsstandarttableattachment.h"
+#include "Attachments/windowresizeattachment.h"
 
 #include "Components/componentplacer.h"
 
@@ -67,6 +61,8 @@
 #include "Dialogs/widgetsimporttabledialog.h"
 
 #include "Managers/widgetsdialogsmanager.h"
+#include "Managers/widgetsfocusmanager.h"
+#include "Managers/widgetsstandardtableheadermanager.h"
 
 #include "widgetsserializer.h"
 

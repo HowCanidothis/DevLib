@@ -94,7 +94,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
         QMenu contextMenu(this);
 		createAction(tr("Delete Row(s)"), [this]{
             auto* model = ui->SourceTable->model();
-            auto indexs = WidgetContent::SelectedRowsSorted(ui->SourceTable);
+            auto indexs = WidgetTableViewWrapper(ui->SourceTable).SelectedRowsSorted();
 			if(indexs.isEmpty()){
                 return ;
 			}

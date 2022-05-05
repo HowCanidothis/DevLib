@@ -37,6 +37,7 @@ public:
     TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame);
 
 private:
+    DelayedCallObject m_updateText;
     DispatcherConnectionsSafe m_connections;
 };
 

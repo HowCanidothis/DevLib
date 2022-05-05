@@ -1,14 +1,14 @@
-#ifndef WIDGETSSTANDARTTABLEATTACHMENT_H
-#define WIDGETSSTANDARTTABLEATTACHMENT_H
+#ifndef WIDGETSSTANDARDTABLEATTACHMENT_H
+#define WIDGETSSTANDARDTABLEATTACHMENT_H
 
 #include "WidgetsModule/widgetsdeclarations.h"
 
 class QHeaderView;
 
-class WidgetsStandartTableHeaderManager : public SingletoneGlobal<WidgetsStandartTableHeaderManager>
+class WidgetsStandardTableHeaderManager : public SingletoneGlobal<WidgetsStandardTableHeaderManager>
 {
     template<class T> friend class SingletoneGlobal;
-    WidgetsStandartTableHeaderManager();
+    WidgetsStandardTableHeaderManager();
 public:
 
     void Register(const Latin1Name& stateName, QHeaderView* headerView);
@@ -60,11 +60,11 @@ private:
 };
 
 template<>
-struct Serializer<QHash<Latin1Name, WidgetsStandartTableHeaderManager::StateObject>>
+struct Serializer<QHash<Latin1Name, WidgetsStandardTableHeaderManager::StateObject>>
 {
-    typedef QHash<Latin1Name, WidgetsStandartTableHeaderManager::StateObject> target_type;
+    typedef QHash<Latin1Name, WidgetsStandardTableHeaderManager::StateObject> target_type;
     using T = Latin1Name;
-    using T2 = WidgetsStandartTableHeaderManager::StateObject;
+    using T2 = WidgetsStandardTableHeaderManager::StateObject;
     template<class Buffer>
     static void Write(Buffer& buffer, const target_type& data)
     {
@@ -87,7 +87,7 @@ struct Serializer<QHash<Latin1Name, WidgetsStandartTableHeaderManager::StateObje
             buffer << buffer.Sect("value", value);
             auto foundIt = data.find(key);
             if(foundIt == data.end()) {
-                WidgetsStandartTableHeaderManager::StateObject object;
+                WidgetsStandardTableHeaderManager::StateObject object;
                 object.Initialize(key);
                 object.GetData()->CurrentState = value;
                 data.insert(key, object);
@@ -96,13 +96,6 @@ struct Serializer<QHash<Latin1Name, WidgetsStandartTableHeaderManager::StateObje
             }
         }
     }
-};
-
-class WidgetsStandartTableAttachment
-{
-public:
-    static QHeaderView* AttachHorizontal(class QTableView* tableView, const DescColumnsParams& params = DescColumnsParams());
-    static QHeaderView* AttachVertical(class QTableView* tableView, const DescColumnsParams& params = DescColumnsParams());
 };
 
 #endif // WIDGETSSTANDARTTABLEATTACHMENT_H

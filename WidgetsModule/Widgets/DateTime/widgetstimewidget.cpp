@@ -67,14 +67,14 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         return qint32(locale.language() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24);
     });
 
-    WidgetsAttachment::Attach(ui->spHours, [this](QObject*, QEvent* e){
+    WidgetWrapper(ui->spHours).AddEventFilter([this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {
             ui->timePicker->TypeClock = ClockType::Hour;
         }
         return false;
     });
 
-    WidgetsAttachment::Attach(ui->spMinutes, [this](QObject*, QEvent* e){
+    WidgetWrapper(ui->spMinutes).AddEventFilter([this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {
             ui->timePicker->TypeClock = ClockType::Minutes;
         }

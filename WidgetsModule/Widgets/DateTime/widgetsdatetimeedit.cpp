@@ -79,7 +79,7 @@ void WidgetsDateTimeEdit::init()
         CurrentDateTime = dateTime();
     });
 
-    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
+    WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
         switch(event->type()){
             case QEvent::Show: connectLocale(); break;
             case QEvent::KeyPress: {

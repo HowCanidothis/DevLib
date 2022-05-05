@@ -20,12 +20,7 @@ DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGe
 QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex&) const
 {
     QComboBox* comboBox = new QComboBox(parent);
-    WidgetsAttachment::Attach(comboBox, [](QObject*, QEvent* event){
-        if(event->type() == QEvent::Wheel) {
-            return true;
-        }
-        return false;
-    });
+    WidgetWrapper(comboBox).BlockWheel();
     auto* model = m_getter();
     comboBox->setModel(model);
     connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32){
@@ -49,12 +44,7 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
 {
     QComboBox* comboBox = new QComboBox(parent);
-    WidgetsAttachment::Attach(comboBox, [](QObject*, QEvent* event){
-        if(event->type() == QEvent::Wheel) {
-            return true;
-        }
-        return false;
-    });
+    WidgetWrapper(comboBox).BlockWheel();
     comboBox->addItems(m_valuesExtractor());
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);

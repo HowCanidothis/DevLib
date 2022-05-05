@@ -3,22 +3,22 @@
 
 #include <PropertiesModule/internal.hpp>
 
-class WidgetsAttachment : public QObject
+#include "WidgetsModule/widgetsdeclarations.h"
+
+struct WidgetWrapperInjectedCommutatorData
 {
-    using Super = QObject;
-public:
-    using FFilter = std::function<bool (QObject*, QEvent*)>;
-    WidgetsAttachment(const FFilter& filter, QObject* parent);
+    DispatchersCommutator Commutator;
+    DispatcherConnectionsSafe Connections;
 
-    static void Attach(QObject* target, const FFilter& filter);
-    static QLineEdit* AttachLineEditAdjuster(QLineEdit* edit);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-private:
-    FFilter m_filter;
+    WidgetWrapperInjectedCommutatorData()
+        : Commutator(1000)
+    {}
 };
+
+Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
+
+#define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType) \
+    WrapperType& Make(const std::function<void (WrapperType&)>& handler) { return make<WrapperType>(handler); }
 
 class WidgetWrapper
 {
@@ -37,12 +37,49 @@ public:
         return createRule(debugLocation, &WidgetEnablity(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectEnablity);
     }
 
-    WidgetWrapper& Make(const std::function<void (ActionWrapper&)>& handler);
+    template<class T>
+    SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
+    {
+        auto value = m_widget->property(propertyName).value<SharedPointer<T>>();
+        if(value == nullptr) {
+            value = creator();
+            m_widget->setProperty(propertyName, QVariant::fromValue(value));
+        }
+        return value;
+    }
+
+    SharedPointer<WidgetWrapperInjectedCommutatorData> InjectedCommutator(const char* propertyName, const std::function<void (QWidget* w)>& handler = nullptr) const
+    {
+        return Injected<WidgetWrapperInjectedCommutatorData>(propertyName, [&]() -> WidgetWrapperInjectedCommutatorData* {
+            auto* result = new WidgetWrapperInjectedCommutatorData();
+            auto* widget = m_widget;
+            result->Commutator.Connect(nullptr, [handler, widget]{
+                 handler(widget);
+            });
+            return result;
+        });
+    }
+
+    void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8);
+    void ShowAnimated(int duration = 2000, double opacity = 0.8);
+    void HideAnimated(int duration = 2000);
+
+    WidgetWrapper& AddModalProgressBar();
+    WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets);
+    WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter);
+
+    WidgetWrapper& BlockWheel();
+    WidgetWrapper& FixUp();
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetWrapper)
     WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
     WidgetWrapper& AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter);
 
-    LocalPropertyBool& WidgetVisibility();
+    LocalPropertyBool& WidgetVisibility(bool animated = false);
     LocalPropertyBool& WidgetEnablity();
+
+    bool HasParent(QWidget* parent);
+    void ForeachParentWidget(const std::function<bool(QWidget*)>& handler);
+    void ForeachChildWidget(const std::function<void (QWidget*)>& handler);
 
     QWidget* operator->() const { return m_widget; }
     operator QWidget*() const { return m_widget; }
@@ -55,21 +92,66 @@ private:
     template<class Property, typename ... Args>
     SharedPointer<Property> getOrCreateProperty(const char* propName, const std::function<void (QWidget*, const Property&)>& handler, Args... args) const
     {
-        SharedPointer<Property> property = m_widget->property(propName).value<SharedPointer<Property>>();
-        if(property == nullptr) {
-            auto* action = m_widget;
-            property = ::make_shared<Property>(args...);
-            m_widget->setProperty(propName, QVariant::fromValue(property));
-            auto* pProperty = property.get();
-            property->OnChanged.ConnectAndCall(this, [action, handler, pProperty]{ handler(action, *pProperty); });
+        return Injected<Property>(propName, [&]() -> Property* {
+            auto* property = new Property(args...);
+            auto* widget = m_widget;
+            property->OnChanged.ConnectAndCall(this, [widget, handler, property]{ handler(widget, *property); });
             property->SetSetterHandler(ThreadHandlerMain);
-        }
-        return property;
+            return property;
+        });
     }
 #endif
 
-private:
+protected:
+    template<class T>
+    T& make(const std::function<void (T&)>& handler)
+    {
+        auto* tThis = reinterpret_cast<T*>(this);
+        handler(*tThis);
+        return *tThis;
+    }
+
+protected:
     QWidget* m_widget;
+};
+
+class WidgetLineEditWrapper : public WidgetWrapper
+{
+public:
+    WidgetLineEditWrapper(class QLineEdit* lineEdit);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper)
+    WidgetLineEditWrapper& SetDynamicSizeAdjusting();
+
+private:
+    QLineEdit* lineEdit() const { return reinterpret_cast<QLineEdit*>(m_widget); }
+};
+
+class WidgetComboboxWrapper : public WidgetWrapper
+{
+public:
+    WidgetComboboxWrapper(class QComboBox* combobox);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper)
+    WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices);
+    WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices);
+    WidgetComboboxWrapper& DisconnectModel();
+
+private:
+    QComboBox* combobox() const { return reinterpret_cast<QComboBox*>(m_widget); }
+};
+
+class WidgetGroupboxWrapper : public WidgetWrapper
+{
+public:
+    WidgetGroupboxWrapper(class QGroupBox* groupBox);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper)
+    WidgetGroupboxWrapper& AddCollapsing();
+    WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater);
+
+private:
+    QGroupBox* groupBox() const { return reinterpret_cast<QGroupBox*>(m_widget); }
 };
 
 template<class T>
@@ -94,38 +176,39 @@ public:
     LocalPropertyLimitedDecimal<T> DisplayValue;
 };
 
+class WidgetTableViewWrapper : public WidgetWrapper
+{
+public:
+    WidgetTableViewWrapper(QTableView* tableView);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper)
+    bool CopySelectedTableContentsToClipboard();
+    QList<int> SelectedRowsSorted();
+    QList<int> SelectedColumnsSorted();
+    QSet<int> SelectedRowsSet();
+    QSet<int> SelectedColumnsSet();
+    void SelectRowsAndScrollToFirst(const QSet<qint32>& rows);
+    void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns);
+    class QHeaderView* InitializeHorizontal(const DescColumnsParams& params = DescColumnsParams());
+    QHeaderView* InitializeVertical(const DescColumnsParams& params = DescColumnsParams());
+    class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
+
+private:
+    QTableView* tableView() const { return reinterpret_cast<QTableView*>(m_widget); }
+};
+
 class WidgetsObserver : public QObject
 {
     WidgetsObserver();
 public:
     static WidgetsObserver& GetInstance();
 
-    CommonDispatcher<QObject*> OnAdded;
+    void EnableAutoCollapsibleGroupboxes();
+
+    CommonDispatcher<QWidget*> OnAdded;
 
 private:
     bool eventFilter(QObject* watched, QEvent* e) override;
-};
-
-struct WidgetAppearance
-{
-    static void SetVisibleAnimated(QWidget* widget, bool visible, int duration = 2000, double opacity = 0.8);
-    static void ShowAnimated(QWidget* widget, int duration = 2000, double opacity = 0.8);
-    static void HideAnimated(QWidget* widget, int duration = 2000);
-};
-
-struct WidgetContent
-{
-    static bool HasParent(QWidget* child, QWidget* parent);
-    static void ForeachParentWidget(QWidget* target, const std::function<bool(QWidget*)>& handler);
-    static void ForeachChildWidget(QWidget* target, const std::function<void (QWidget*)>& handler);
-    static void CopySelectedTableContentsToClipboard(class QTableView* tableView);
-    static QList<int> SelectedRowsSorted(QTableView* tableView);
-	static QList<int> SelectedColumnsSorted(QTableView* tableView);
-	static QSet<int> SelectedRowsSet(QTableView* tableView);
-	static QSet<int> SelectedColumnsSet(QTableView* tableView);
-    static void SelectRowsAndScrollToFirst(QTableView* table, const QSet<qint32>& rows);
-    static void SelectColumnsAndScrollToFirst(QTableView* table, const QSet<qint32>& columns);
-    static void ComboboxDisconnectModel(class QComboBox* combobox);
 };
 
 #endif // WIDGETHELPERS_H

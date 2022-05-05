@@ -16,7 +16,7 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    WidgetsAttachment::Attach(this, [this](QObject*, QEvent* event){
+    WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
         if(event->type() == QEvent::Show || event->type() == QEvent::StyleChange) {
             m_isDirty = true;
             updateGeometry();
