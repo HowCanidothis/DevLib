@@ -9,7 +9,7 @@ class GtRendererBase : public ThreadComputingBase
 {
     using Super = ThreadComputingBase;
 public:
-    GtRendererBase(const QSurfaceFormat& format, GtRendererBase* sharedRenderer);
+    GtRendererBase(GtRendererBase* sharedRenderer);
     ~GtRendererBase();
 
 private:

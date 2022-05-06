@@ -3,8 +3,8 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-GtRendererBase::GtRendererBase(const QSurfaceFormat& format, GtRendererBase* sharedRenderer)
-    : m_surfaceFormat(format)
+GtRendererBase::GtRendererBase(GtRendererBase* sharedRenderer)
+    : m_surfaceFormat(QSurfaceFormat::defaultFormat())
     , m_context(new QOpenGLContext)
     , m_surface(new QOffscreenSurface)
     , m_isInitialized(false)

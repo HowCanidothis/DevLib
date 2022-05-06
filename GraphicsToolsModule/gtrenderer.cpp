@@ -16,7 +16,7 @@ GtRendererSharedData::GtRendererSharedData(GtRenderer* base)
 }
 
 GtRenderer::GtRenderer(GtRenderer* baseRenderer)
-    : Super(baseRenderer->m_surfaceFormat, baseRenderer)
+    : Super(baseRenderer)
     , m_sharedData(baseRenderer->m_sharedData)
     , m_updateRequested(true)
     , m_updateDelayed(0, CreateThreadHandler())
@@ -61,8 +61,8 @@ void GtRenderer::addDelayedDraw(const FAction& drawAction)
     m_delayedDraws.append(drawAction);
 }
 
-GtRenderer::GtRenderer(const QSurfaceFormat& format, const QString& defaultShadersPath)
-    : Super(format, nullptr)
+GtRenderer::GtRenderer(const QString& defaultShadersPath)
+    : Super(nullptr)
     , m_sharedData(new GtRendererSharedData(this))
 {   
     construct();
@@ -93,18 +93,7 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
     Q_ASSERT(!m_sharedData->Fonts.contains(fontName));
     GtFontPtr font(new GtFont(fontName, fntFilePath));
     m_sharedData->Fonts.insert(fontName, font);
-    m_sharedData->SharedResourcesSystem.RegisterResource<GtTexture2D>(fontName, [this, fntFilePath, texturePath]{
-        auto* result = new GtTexture2D(this);
-        GtTextureFormat format;
-        format.MagFilter = GL_LINEAR;
-        format.MinFilter = GL_LINEAR;
-        format.WrapS = GL_CLAMP_TO_EDGE;
-        format.WrapT = GL_CLAMP_TO_EDGE;
-        format.MipMapLevels = 0;
-        result->SetFormat(format);
-        result->LoadImg(texturePath);
-        return result;
-    });
+    CreateTexture(fontName, texturePath);
 }
 
 void GtRenderer::CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions*)>& textureLoader)
@@ -122,6 +111,18 @@ void GtRenderer::CreateTexture(const Name& textureName, const QString& fileName,
         result->LoadImg(fileName);
         return result;
     });
+}
+
+void GtRenderer::CreateTexture(const Name& textureName, const QString& fileName)
+{
+    GtTextureFormat format;
+    format.MagFilter = GL_LINEAR;
+    format.MinFilter = GL_LINEAR;
+    format.WrapS = GL_CLAMP_TO_EDGE;
+    format.WrapT = GL_CLAMP_TO_EDGE;
+    format.MipMapLevels = 0;
+
+    CreateTexture(textureName, fileName, format);
 }
 
 GtRenderer*& GtRenderer::currentRenderer()
@@ -269,6 +270,7 @@ bool GtRenderer::onInitialize()
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_FRONT);
     glClearStencil(0x00);
+    glEnable(GL_POINT_SPRITE);
 
     glDepthFunc(GL_LEQUAL);
     glLineWidth(1.f);

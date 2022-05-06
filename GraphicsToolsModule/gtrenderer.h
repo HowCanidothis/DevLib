@@ -31,7 +31,7 @@ class GtRenderer : public GtRendererBase, protected OpenGLFunctions
     using Super = GtRendererBase;
     GtRenderer(GtRenderer* baseRenderer);
 public:    
-    GtRenderer(const QSurfaceFormat& format, const QString& defaultShadersPath = ":/");
+    GtRenderer(const QString& defaultShadersPath = ":/");
     ~GtRenderer();
 
     GtRendererControllerPtr CreateDefaultController();
@@ -41,6 +41,7 @@ public:
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
     void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
     void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
+    void CreateTexture(const Name& textureName, const QString& fileName);
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
     void RemoveController(GtRendererController* controller);

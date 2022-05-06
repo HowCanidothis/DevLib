@@ -56,6 +56,7 @@ bool TopNotifierFrame::eventFilter(QObject*, QEvent* event)
 
 TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame)
     : Super(frame)
+    , m_updateText(1000)
 {
     auto setText = m_updateText.Wrap([frame, errors]{
         QString message;
