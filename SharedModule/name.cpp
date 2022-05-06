@@ -89,6 +89,15 @@ void Name::SetName(const QString& str)
     m_text = str;
 }
 
+Name Name::Joined(const std::initializer_list<Name>& names)
+{
+    QString result;
+    for(const auto& name : names) {
+        result += name.AsString();
+    }
+    return Name(result);
+}
+
 Name Name::Joined(const QString& string) const
 {
     return Name(AsString() + string);

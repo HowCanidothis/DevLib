@@ -15,6 +15,7 @@ public:
 
     void SetName(const QString& str);
 
+    static Name Joined(const std::initializer_list<Name>& names);
     Name Joined(const Name& name) const { return Joined(name.AsString()); }
     Name Joined(const QString& string) const;
     Name Joined(const char* string) const { return Joined(QString(string)); }

@@ -108,6 +108,7 @@ bool WidgetsObserver::eventFilter(QObject* o, QEvent *e)
 
         callDelayed->Call([this, o]{
             OnAdded(reinterpret_cast<QWidget*>(o));
+            o->setProperty("a_command", false);
         });
         o->setProperty("a_command", QVariant::fromValue(callDelayed));
     }
@@ -492,27 +493,20 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
     auto eventFilter = [target](QObject*, QEvent* event){
         switch (event->type()) {
         case QEvent::FocusIn: FocusManager::GetInstance().SetFocusWidget(target); break;
-        case QEvent::Destroy: FocusManager::GetInstance().destroyed(target);
-            break;
         default: break;
         }
         return false;
     };
 
-    auto childEventFilter = [target](QObject* , QEvent* event){
-        switch (event->type()) {
-        case QEvent::FocusIn: FocusManager::GetInstance().SetFocusWidget(target); break;
-        default: break;
-        }
-        return false;
-    };
-
+    QObject::connect(m_widget, &QWidget::destroyed, [target]{
+        FocusManager::GetInstance().destroyed(target);
+    });
     AddEventFilter(eventFilter);
-    ForeachChildWidget([childEventFilter](QWidget* widget){
-        WidgetWrapper(widget).AddEventFilter(childEventFilter);
+    ForeachChildWidget([eventFilter](QWidget* widget){
+        WidgetWrapper(widget).AddEventFilter(eventFilter);
     });
     for(auto* child : additionalWidgets) {
-        WidgetWrapper(child).AddEventFilter(childEventFilter);
+        WidgetWrapper(child).AddEventFilter(eventFilter);
     }
 
     return *this;
