@@ -973,9 +973,12 @@ public:
             m_connection = target->OnChanged.Connect(this, [this]{
                 m_value = m_currentValue;
                 m_currentValue = *m_target;
+                OnChanged(m_currentValue, m_value);
             }).MakeSafe();
             m_currentValue = m_value = *m_target;
         }
+
+        CommonDispatcher<const value_type& /*current*/, const value_type& /*previous*/> OnChanged;
 
         void Reset() { m_value = *m_target; }
         const value_type& GetValue() const { return m_value; }
