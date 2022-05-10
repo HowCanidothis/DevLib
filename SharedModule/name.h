@@ -19,7 +19,7 @@ public:
     Name Joined(const Name& name) const { return Joined(name.AsString()); }
     Name Joined(const QString& string) const;
     Name Joined(const char* string) const { return Joined(QString(string)); }
-    operator qint32() const { return m_value; }
+    operator qint64() const { return m_value; }
     const QString& AsString() const;
     bool IsNull() const { return AsString().isEmpty(); }
 
@@ -30,11 +30,11 @@ public:
 
     bool operator==(const Name& another) const { return another.m_value == m_value && (m_text.isEmpty() || another.m_text.isEmpty() || m_text == another.m_text); }
 
-    static Name FromValue(qint32 value) { Name result; result.m_value = value; return result; }
+    static Name FromValue(qint64 value) { Name result; result.m_value = value; return result; }
 
 private:
     QString m_text;
-    qint32 m_value;
+    qint64 m_value;
 };
 
 class _Export Latin1Name
@@ -45,7 +45,7 @@ public:
     explicit Latin1Name(const std::string& name);
     explicit Latin1Name(std::string&& name);
 
-    operator qint32() const { return m_value; }
+    operator qint64() const { return m_value; }
     const std::string& AsLatin1String() const { return *m_text; }
     QString ToWideString() const { return QString::fromStdString(*m_text); }
     bool IsNull() const { return AsLatin1String().empty(); }
@@ -65,7 +65,7 @@ public:
 
 private:
     SharedPointer<std::string> m_text;
-    qint32 m_value;
+    qint64 m_value;
 };
 
 struct UniName
@@ -91,14 +91,14 @@ public:
     bool operator==(const Latin1Name& another) const { return another == m_name; }
     bool operator==(const Name& another) const { return another == m_latinName; }
 
-    operator qint32() const { return m_name; }
+    operator qint64() const { return m_name; }
 
     friend QDebug operator<<(QDebug debug, const UniName& name) {
         debug.nospace();
         for(const auto& ch : name.m_latinName.AsLatin1String()) {
             debug << ch;
         }
-        debug.space() << name.m_latinName << name.m_name.AsString() << " " << (qint32)name.m_name;
+        debug.space() << name.m_latinName << name.m_name.AsString() << " " << (qint64)name.m_name;
         return debug.maybeSpace();
     }
 };
@@ -109,15 +109,15 @@ class StringsMapper
 public:
     StringsMapper& Register(const Name& name, Enum value)
     {
-        m_strToEnum.insert(name, (qint32)value);
-        m_enumToStr.insert((qint32)value, name);
+        m_strToEnum.insert(name, (qint64)value);
+        m_enumToStr.insert((qint64)value, name);
         return *this;
     }
 
     const Name& GetStringOf(Enum value) const
     {
         static Name defaultResult;
-        auto foundIt = m_enumToStr.find((qint32)value);
+        auto foundIt = m_enumToStr.find((qint64)value);
         if(foundIt != m_enumToStr.end()) {
             return foundIt.value();
         }
@@ -142,8 +142,8 @@ public:
     StringsMapper<T>& Converted() { return reinterpret_cast<StringsMapper<T>&>(*this); }
 
 private:
-    QHash<Name, qint32> m_strToEnum;
-    QHash<qint32, Name> m_enumToStr;
+    QHash<Name, qint64> m_strToEnum;
+    QHash<qint64, Name> m_enumToStr;
 };
 
 Q_DECLARE_METATYPE(Name)

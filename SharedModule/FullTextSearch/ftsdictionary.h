@@ -5,12 +5,14 @@
 
 class FTSDictionary;
 
+using FTSObjectId = Name;
+
 class FTSObject
 {
 public:
     FTSObject(FTSDictionary* dictionary);
 
-    void AddRow(const QString& string, size_t rowId);
+    void AddRow(const QString& string, const FTSObjectId& rowId);
 
 private:
     FTSDictionary* m_dictionary;
@@ -19,7 +21,7 @@ private:
 struct FTSObjectRow
 {
     FTSObject* Object;
-    size_t Id;
+    FTSObjectId Id;
     double weight;
 
     bool operator==(const FTSObjectRow& another) const { return Object == another.Object && Id == another.Id; }
@@ -54,7 +56,7 @@ public:
     QMap<qint32, FTSMatchedObject> Map(const QStringList& strings) const;
 
 private:
-    void addRow(FTSObject* object, const QString& string, size_t rowId);
+    void addRow(FTSObject* object, const QString& string, const FTSObjectId& rowId);
     bool parseString(const QString& string, const std::function<void (const Name&, double)>& onStringPartSplited) const;
 
 private:

@@ -42,7 +42,7 @@ public:
     {
         auto value = m_widget->property(propertyName).value<SharedPointer<T>>();
         if(value == nullptr) {
-            value = creator();
+            value = creator != nullptr ? creator() : new T();
             m_widget->setProperty(propertyName, QVariant::fromValue(value));
         }
         return value;
@@ -74,6 +74,7 @@ public:
     WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
     WidgetWrapper& AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter);
 
+    DispatcherConnectionsSafe& WidgetConnections();
     LocalPropertyBool& WidgetVisibility(bool animated = false);
     LocalPropertyBool& WidgetEnablity();
 

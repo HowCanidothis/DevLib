@@ -274,7 +274,7 @@ void WidgetsMatchingAttachment::match()
         Errors.RemoveError(WarningAutoMatchDisabled);
         qint32 counter = 0;
         for(const auto& requestedColumn : m_requestedColumns) {
-            m_matchObject->AddRow(requestedColumn, counter);
+            m_matchObject->AddRow(requestedColumn, Name::FromValue(counter));
             counter++;
         }
 

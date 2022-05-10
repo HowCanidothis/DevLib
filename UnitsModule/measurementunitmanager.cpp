@@ -87,8 +87,12 @@ Measurement::Measurement(const QString& label)
             m_currentUnit = m_metricUnits[CurrentUnitId];
         } else {
             auto match = m_idsDictionary->Match(CurrentUnitId.Native().AsString());
-            match.Sort();
-            m_currentUnit = *(m_metricUnits.begin() + match.first().Row.Id);
+            qint32 offset = 0;
+            if(!match.isEmpty()) {
+                match.Sort();
+                offset = match.first().Row.Id;
+            }
+            m_currentUnit = *(m_metricUnits.begin() + offset);
             CurrentUnitId.EditSilent() = m_currentUnit->Id;
         }
         CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
@@ -111,7 +115,7 @@ Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
     }
     
     m_metricUnits.insert(unit->Id, unit);
-    m_idsCache->AddRow(unit->Id.AsString(), m_wrapper->GetSize());
+    m_idsCache->AddRow(unit->Id.AsString(), Name::FromValue(m_wrapper->GetSize()));
     m_wrapper->Append(unit);
     return *this;
 }

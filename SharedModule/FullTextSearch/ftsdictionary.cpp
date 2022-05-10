@@ -11,9 +11,9 @@ FTSDictionary::FTSDictionary()
 {
 }
 
-void FTSDictionary::addRow(FTSObject* object, const QString& string, size_t rowId)
+void FTSDictionary::addRow(FTSObject* object, const QString& string, const FTSObjectId& rowId)
 {
-    parseString(string, [this, object, rowId](const Name& stringPart, double weight){
+    parseString(string, [&](const Name& stringPart, double weight){
         m_dictionary[stringPart].insert({object,rowId,weight});
     });
 }
@@ -154,7 +154,7 @@ FTSObject::FTSObject(FTSDictionary* dictionary)
 }
 
 
-void FTSObject::AddRow(const QString& string, size_t rowId)
+void FTSObject::AddRow(const QString& string, const FTSObjectId& rowId)
 {
     m_dictionary->addRow(this, string, rowId);
 }

@@ -30,6 +30,7 @@
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
 
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
+Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
 
 class WidgetsAttachment : public QObject
 {
@@ -598,6 +599,11 @@ DispatcherConnections WidgetWrapper::createRule(const char* debugLocation, Local
         result += (this->*connector)(debugLocation, widget);
     }
     return result;
+}
+
+DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections()
+{
+    return *Injected<DispatcherConnectionsSafe>("a_connections");
 }
 
 LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated)
