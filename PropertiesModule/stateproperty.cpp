@@ -50,28 +50,6 @@ DispatcherConnections StateProperty::OnFirstInvokePerformWhenEveryIsValid(const 
     return PerformWhenEveryIsValid(stateProperties, handler, 0, true);
 }
 
-StateParameters::StateParameters()
-    : IsLocked(false)
-    , m_isValid(true)
-    , m_counter(0)
-{}
-
-void StateParameters::Lock()
-{
-    ++m_counter;
-    IsLocked = m_counter != 0;
-}
-
-void StateParameters::Unlock()
-{
-    --m_counter;
-    IsLocked = m_counter != 0;
-    if(!IsLocked) {
-        m_isValid.SetState(true);
-    }
-    Q_ASSERT(m_counter >= 0);
-}
-
 StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
     : Super(defaultState)
     , m_defaultState(defaultState)
@@ -131,4 +109,32 @@ bool StatePropertyBoolCommutator::value() const
         }
     }
     return result;
+}
+
+StateParameters::StateParameters()
+    : IsValid(true)
+    , m_counter(0)
+    , m_isValid(true)
+{
+}
+
+void StateParameters::Lock()
+{
+    ++m_counter;
+    IsLocked = m_counter != 0;
+}
+
+void StateParameters::Unlock()
+{
+    --m_counter;
+    IsLocked = m_counter != 0;
+    if(!IsLocked) {
+        m_isValid = true;
+    }
+    Q_ASSERT(m_counter >= 0);
+}
+
+void StateParameters::Reset()
+{
+    m_isValid = false;
 }

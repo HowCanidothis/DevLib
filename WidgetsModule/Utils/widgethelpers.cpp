@@ -344,10 +344,10 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qin
 WidgetWrapper& WidgetWrapper::AddModalProgressBar()
 {
     Q_ASSERT(m_widget->isWindow());
-    new MainProgressBar(m_widget, Qt::Window | Qt::FramelessWindowHint);
+    auto* progressBar = new MainProgressBar(m_widget, Qt::Window | Qt::FramelessWindowHint);
     auto* widget = m_widget;
-    AddEventFilter([widget](QObject*, QEvent* event){
-        if(event->type() == QEvent::Close) {
+    AddEventFilter([progressBar, widget](QObject*, QEvent* event){
+        if(event->type() == QEvent::Close && progressBar->isVisible()) {
             event->ignore();
             widget->close();
             return true;

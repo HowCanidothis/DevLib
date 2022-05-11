@@ -3,9 +3,23 @@
 
 #include "localproperty.h"
 
-class StatePropertyBoolCommutator : public LocalProperty<bool>
+class StateProperty : public LocalPropertyBool
 {
-    using Super = LocalProperty<bool>;
+    using Super = LocalPropertyBool;
+public:
+    using Super::Super;
+
+    void SetState(bool state);
+
+    DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
+    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
+    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
+};
+
+class StatePropertyBoolCommutator : public StateProperty
+{
+    using Super = StateProperty;
 public:
     StatePropertyBoolCommutator(bool defaultState = false);
 
@@ -27,19 +41,114 @@ private:
     QVector<LocalProperty<bool>*> m_properties;
 };
 
-class StateProperty : public LocalPropertyBool
-{
-    using Super = LocalPropertyBool;
-public:
-    using Super::Super;
+//class StateParameters
+//{
+//public:
+//    StateParameters();
 
-    void SetState(bool state);
+//    void Lock();
+//    void Unlock();
 
-    DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
-    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
-    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
-    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
-};
+//    LocalPropertyBool IsValid;
+//    DispatchersCommutator OnChanged;
+//    LocalPropertyBool IsLocked;
+
+//protected:
+//    StateProperty m_isValid;
+
+//private:
+//    template<class T> friend class StateCalculator;
+//    template<class T> friend class StateParameter;
+//    std::atomic_int m_counter;
+//};
+
+//template<class T>
+//class StateParameterBase
+//{
+//public:
+//    template<typename ... Args>
+//    StateParameterBase(Args ... args)
+//        : InputValue(args...)
+//    {
+
+//    }
+
+//    void Initialize(StateParameters* params, const FAction& locker, const FAction& unlocker)
+//    {
+//        m_parameters = params;
+//        params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
+//            if(!params->IsLocked) {
+//                unlocker();
+//            } else {
+//                locker();
+//            }
+//        });
+//        if(params->IsLocked) {
+//            locker();
+//        }
+//    }
+
+//    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
+//    {
+//        auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
+//        DispatcherConnections result;
+//        for(auto* dispatcher : dispatchers) {
+//            result.append(dispatcher->Connect(this, [this, delayedCall]{
+//                SetState(false);
+//                delayedCall->Call([this]{
+//                    SetState(true);
+//                });
+//            }));
+//        }
+//        return result;
+//    }
+
+//    StateParameters* GetParameters() const { return m_parameters; }
+
+//    T InputValue;
+
+//protected:
+//    StateParameters* m_parameters;
+//};
+
+//template<class T>
+//class StateParameter : public StateParameterBase<T>
+//{
+//    using Super = StateParameterBase<T>;
+//public:
+//    using value_type = typename T::value_type;
+//    template<typename ... Args>
+//    StateParameter(StateParameters* params, Args ... args)
+//        : Super(args...)
+//    {
+//        Initialize(params,
+//                   [this]{ m_connections.clear(); },
+//                   [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); });
+//        Super::InputValue.OnChangedImpl(CONNECTION_DEBUG_LOCATION, [params]{
+//            if(params->IsLocked) {
+//                params->m_isValid.SetState(false);
+//            } else {
+//                params->OnChanged.Invoke();
+//            }
+//        });
+//    }
+
+//    StateParameter& operator=(const value_type& value)
+//    {
+//        Super::InputValue = value;
+//        return *this;
+//    }
+
+//    operator T&() { return Super::InputValue; }
+//    const T& GetImmutableProperty() const { return m_immutableValue; }
+//    const value_type& GetImmutable() const { return m_immutableValue; }
+
+//private:
+//    template<class T2> friend struct Serializer;
+//    template<class T2> friend struct SerializerXml;
+//    T m_immutableValue;
+//    DispatcherConnectionsSafe m_connections;
+//};
 
 class StateParameters
 {
@@ -48,14 +157,16 @@ public:
 
     void Lock();
     void Unlock();
+    void Reset();
 
+    DispatchersCommutator OnChanged;
+    StatePropertyBoolCommutator IsValid;
     LocalPropertyBool IsLocked;
 
 private:
     template<class T> friend class StateCalculator;
-    template<class T> friend class StateParameter;
-    StateProperty m_isValid;
     std::atomic_int m_counter;
+    LocalPropertyBool m_isValid;
 };
 
 template<class T>
@@ -63,15 +174,10 @@ class StateParameterBase
 {
 public:
     template<typename ... Args>
-    StateParameterBase(Args ... args)
+    StateParameterBase(StateParameters* params, const FAction& locker, const FAction& unlocker, Args ... args)
         : InputValue(args...)
+        , m_parameters(params)
     {
-
-    }
-
-    void Initialize(StateParameters* params, const FAction& locker, const FAction& unlocker)
-    {
-        m_parameters = params;
         params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
             if(!params->IsLocked) {
                 unlocker();
@@ -79,24 +185,6 @@ public:
                 locker();
             }
         });
-        if(params->IsLocked) {
-            locker();
-        }
-    }
-
-    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
-    {
-        auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
-        DispatcherConnections result;
-        for(auto* dispatcher : dispatchers) {
-            result.append(dispatcher->Connect(this, [this, delayedCall]{
-                SetState(false);
-                delayedCall->Call([this]{
-                    SetState(true);
-                });
-            }));
-        }
-        return result;
     }
 
     StateParameters* GetParameters() const { return m_parameters; }
@@ -108,26 +196,29 @@ protected:
 };
 
 template<class T>
-class StateParameter : public StateParameterBase<T>
+class StateParameterProperty : public StateParameterBase<T>
 {
     using Super = StateParameterBase<T>;
 public:
     using value_type = typename T::value_type;
     template<typename ... Args>
-    StateParameter(StateParameters* params, Args ... args)
-        : Super(args...)
+    StateParameterProperty(StateParameters* params, Args ... args)
+        : Super(params,
+                [this]{ m_connections.clear(); },
+                [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
+                args...)
     {
-        Initialize(params,
-                   [this]{ m_connections.clear(); },
-                   [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); });
+        m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections);
         Super::InputValue.OnChangedImpl(CONNECTION_DEBUG_LOCATION, [params]{
             if(params->IsLocked) {
-                params->m_isValid.SetState(false);
+                params->Reset();
+            } else {
+                params->OnChanged.Invoke();
             }
         });
     }
 
-    StateParameter& operator=(const value_type& value)
+    StateParameterProperty& operator=(const value_type& value)
     {
         Super::InputValue = value;
         return *this;
@@ -143,6 +234,56 @@ private:
     T m_immutableValue;
     DispatcherConnectionsSafe m_connections;
 };
+
+template<class T>
+class StateParameterImmutableData : public StateParameterBase<LocalPropertySharedPtr<T>>
+{
+    using Super = StateParameterBase<LocalPropertySharedPtr<T>>;
+public:
+    StateParameterImmutableData(StateParameters* params)
+        : Super(params, [this]{
+            if(Super::InputValue != nullptr) {
+                m_lockedModel = Super::InputValue;
+                m_lockedModel->Lock();
+            }
+        }, [this]{
+            if(m_lockedModel != nullptr) {
+                m_lockedModel->Unlock();
+            }
+        })
+        , m_modelIsValid(false)
+    {
+        Super::InputValue.OnChanged.Connect(this, [this, params]{
+            m_modelConnections.clear();
+            if(Super::InputValue != nullptr) {
+                m_modelIsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue->IsValid).MakeSafe(m_modelConnections);
+            } else {
+                m_modelIsValid = false;
+            }
+            params->OnChanged.Invoke();
+        });
+
+        params->IsValid.AddProperties(CONNECTION_DEBUG_LOCATION, { &m_modelIsValid });
+    }
+
+private:
+    SharedPointer<T> m_lockedModel;
+    LocalPropertyBool m_modelIsValid;
+    DispatcherConnectionsSafe m_modelConnections;
+};
+
+template<class T>
+class StateParametersContainer : public StateParameters
+{
+public:
+    StateParametersContainer()
+        : Parameter(this)
+    {}
+
+    StateParameterImmutableData<T> Parameter;
+};
+
+inline uint qHash(const SharedPointer<StateParameters>& key, uint seed = 0) { return qHash(key.get(), seed); }
 
 template<class T>
 class StateCalculator : public ThreadCalculator<T>
@@ -207,15 +348,24 @@ public:
         m_releaser = releaser;
     }
 
+    template<typename ... Args, typename Function>
+    void SetCalculatorWithParams(const char* connectionInfo, const Function& handler, Args... args)
+    {
+        SetCalculatorBasedOnStateParameters([=]{
+            return handler(args...);
+        });
+        ConnectParameters(connectionInfo, args...);
+    }
+
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
     {
         m_preparator = [this]{
-            for(auto* parameters : m_stateParameters) {
+            for(const auto& parameters : m_stateParameters) {
                 parameters->Lock();
             }
         };
         m_releaser = [this]{
-            for(auto* parameters : m_stateParameters) {
+            for(const auto& parameters : m_stateParameters) {
                 parameters->Unlock();
             }
 
@@ -233,9 +383,6 @@ public:
     }
 
     template<class T2>
-    const StateCalculator& Connect(const char* connection, const StateParameterBase<T2>& stateParameter) const;
-
-    template<class T2>
     const StateCalculator& Connect(const char* connection, const LocalProperty<T2>& property) const
     {
         THREAD_ASSERT_IS_MAIN();
@@ -244,11 +391,18 @@ public:
         return *this;
     }
 
-    template<class T2>
-    const StateCalculator& ConnectParameters(const char* connection, T2* params) const
+    template<typename ... Args>
+    const StateCalculator& ConnectParameters(const char* connection, Args... args) const
+    {
+        (Connect(connection, args), ...);
+        return *this;
+    }
+
+    const StateCalculator& Connect(const char* connection, const SharedPointer<StateParameters>& params) const
     {
         Connect(connection, params->OnChanged);
         Connect(connection, params->m_isValid);
+        Connect(connection, params->IsValid);
         m_stateParameters.insert(params);
         return *this;
     }
@@ -302,41 +456,8 @@ private:
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;
-    mutable QSet<StateParameters*> m_stateParameters;
+    mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
 };
-
-template<class T>
-struct StateCalculatorConnectionHelper
-{
-    template<class T2>
-    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<T>& parameter)
-    {
-        calculator.Connect(connection, parameter.InputValue.OnChanged);
-    }
-};
-
-template<typename Property>
-struct StateCalculatorConnectionHelper<LocalPropertyOptional<Property>>
-{
-    template<class T2>
-    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<LocalPropertyOptional<Property>>& parameter)
-    {
-        calculator.Connect(connection, parameter.InputValue.Value.OnChanged);
-        calculator.Connect(connection, parameter.InputValue.IsValid.OnChanged);
-    }
-};
-
-template<class T> template<class T2>
-const StateCalculator<T>& StateCalculator<T>::Connect(const char* connection, const StateParameterBase<T2>& stateParameter) const
-{
-    THREAD_ASSERT_IS_MAIN();
-    StateCalculatorConnectionHelper<T2>::template ConnectStateParameter<T>(connection, *this, const_cast<StateParameterBase<T2>&>(stateParameter));
-    if(!m_stateParameters.contains(stateParameter.GetParameters())) {
-        Connect(connection, stateParameter.GetParameters()->m_isValid);
-        m_stateParameters.insert(stateParameter.GetParameters());
-    }
-    return *this;
-}
 
 template<class T>
 class StateImmutableData {
@@ -468,17 +589,8 @@ public:
     StateProperty& IsValid;
 };
 
+template<class T> using StateParametersImmutableData = StateParametersContainer<StateImmutableData<T>>;
 template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
-#define REGISTER_STATE_IMMUTABLE_WRAPPER(Wrapper) \
-template<> \
-struct StateCalculatorConnectionHelper<SharedPointer<StateImmutableData<Wrapper>>> \
-{ \
-    template<class T2> \
-    static void ConnectStateParameter(const char* connection, const StateCalculator<T2>& calculator, StateParameterBase<SharedPointer<StateImmutableData<Wrapper>>>& parameter) \
-    { \
-        calculator.Connect(connection, parameter.InputValue->IsValid); \
-    } \
-} \
 
 template<class T>
 class IStateImmutableData

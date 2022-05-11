@@ -60,4 +60,14 @@ using type##UPtr = scopedPointer<type>
 #define FIRST_DECLARE_POINTERS(type) \
 FIRST_DECLARE_POINTERS_BASE(type, SharedPointer, ScopedPointer)
 
+template<class T>
+class SharedPointerInitialized : public SharedPointer<T>
+{
+    using Super = SharedPointer<T>;
+public:
+    SharedPointerInitialized()
+        : Super(::make_shared<T>())
+    {}
+};
+
 #endif // SMARTPOINTERSADAPTERS_H

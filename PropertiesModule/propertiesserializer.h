@@ -237,9 +237,9 @@ struct SerializerXml<StateProperty>
 };
 
 template<class T>
-struct Serializer<StateParameter<T>>
+struct Serializer<StateParameterProperty<T>>
 {
-    typedef StateParameter<T> target_type;
+    typedef StateParameterProperty<T> target_type;
     using value_type = typename T::value_type;
     template<class Buffer>
     static void Write(Buffer& buffer, const target_type& constData)
@@ -259,9 +259,9 @@ struct Serializer<StateParameter<T>>
 };
 
 template<class T>
-struct SerializerXml<StateParameter<T>>
+struct SerializerXml<StateParameterProperty<T>>
 {
-    using Type = StateParameter<T>;
+    using Type = StateParameterProperty<T>;
     template<class Buffer>
     static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
