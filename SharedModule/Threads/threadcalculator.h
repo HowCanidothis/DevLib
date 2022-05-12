@@ -14,6 +14,7 @@ struct ThreadCalculatorData
     std::atomic_bool Destroyed = false;
     bool NeedRecalculate = false;
     bool Calculating = false;
+    bool Canceled = false;
     ThreadHandler Handler;
     Calculator CalculatorHandler = []{ return T(); };
     Preparator PreparatorHandler = []{};
@@ -81,6 +82,13 @@ public:
         SafeQuit();
     }
 
+    void Cancel()
+    {
+        m_data->Handler([this]{
+            m_data->Canceled = true;
+        });
+    }
+
     void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
                    const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
@@ -99,6 +107,7 @@ public:
                 m_data->NeedRecalculate = false;
             }
             
+            m_data->Canceled = false;
             m_data->Calculating = true;
             m_data->PreparatorHandler();
             onPreRecalculate();
@@ -116,7 +125,7 @@ public:
                     if(data->NeedRecalculate) {
                         data->NeedRecalculate = false;
                         Calculate(data->CalculatorHandler, data->PreparatorHandler, data->ReleaserHandler);
-                    } else {
+                    } else if(!data->Canceled){
                         if(acceptResult()) {
                             OnCalculated(result);
                             onPostRecalculate();

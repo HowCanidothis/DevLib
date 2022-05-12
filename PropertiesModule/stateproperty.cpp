@@ -72,7 +72,7 @@ void StatePropertyBoolCommutator::ClearProperties()
 
 void StatePropertyBoolCommutator::Update()
 {
-    SetValue(false);
+    SetValue(!m_defaultState);
     m_commutator.Invoke();
 }
 
@@ -106,7 +106,7 @@ DispatcherConnections StatePropertyBoolCommutator::AddHandler(const char* locati
         result += m_commutator.ConnectFrom(location, *dispatcher);
     }
     m_properties += handler;
-    Update();
+    m_commutator.Invoke();
     return result;
 }
 

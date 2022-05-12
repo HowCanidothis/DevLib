@@ -308,6 +308,9 @@ public:
         Enabled.OnChanged += {this, [this, recalculateOnEnabled]{
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
+                m_onDirectOnChanged += { this, [this]{
+                    Cancel();
+                }};
                 m_onChanged += { this, [this, recalculateOnEnabled]{
                     Valid.SetState(false);
 #ifdef QT_DEBUG
@@ -326,6 +329,7 @@ public:
                 }
             } else {
                 m_onChanged -= this;
+                m_onDirectOnChanged -= this;
             }
         }};
     }
@@ -382,6 +386,7 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstCalculator = const_cast<StateCalculator<T2>&>(calculator);
+        m_onDirectOnChanged.ConnectFrom(connection, nonConstCalculator.Valid.OnChanged).MakeSafe(m_connections);
         m_dependenciesAreUpToDate.AddProperties(connection, { &nonConstCalculator.Valid }).MakeSafe(m_connections);
         return *this;
     }
@@ -391,6 +396,7 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
+        m_onDirectOnChanged.ConnectFrom(connection, nonConstProperty.OnChanged).MakeSafe(m_connections);
         m_onChanged.Subscribe(connection, { &nonConstProperty.OnChanged }).MakeSafe(m_connections);
         return *this;
     }
@@ -414,6 +420,7 @@ public:
     const StateCalculator& Connect(const char* connection, StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
+        m_onDirectOnChanged.ConnectFrom(connection, dispatcher.OnChanged).MakeSafe(m_connections);
         m_dependenciesAreUpToDate.AddProperties(connection, { &dispatcher }).MakeSafe(m_connections);
         return *this;
     }
@@ -421,6 +428,7 @@ public:
     const StateCalculator& Connect(const char* connection, Dispatcher& onChanged) const
     {
         THREAD_ASSERT_IS_MAIN();
+        m_onDirectOnChanged.ConnectFrom(connection, onChanged).MakeSafe(m_connections);
         m_onChanged.Subscribe(connection, {&onChanged}).MakeSafe(m_connections);
         return *this;
     }
@@ -460,6 +468,7 @@ private:
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;
+    mutable Dispatcher m_onDirectOnChanged;
     mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
 };
 
