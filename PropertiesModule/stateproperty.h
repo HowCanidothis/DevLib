@@ -21,12 +21,16 @@ class StatePropertyBoolCommutator : public StateProperty
 {
     using Super = StateProperty;
 public:
+    using FHandler = std::function<bool ()>;
+
     StatePropertyBoolCommutator(bool defaultState = false);
 
     void ClearProperties();
     void Update();
 
     DispatcherConnections AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnections AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
+    DispatcherConnections AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
 
     QString ToString() const;
 
@@ -38,7 +42,7 @@ private:
     bool m_defaultState;
     Dispatcher m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<LocalProperty<bool>*> m_properties;
+    QVector<FHandler> m_properties;
 };
 
 //class StateParameters

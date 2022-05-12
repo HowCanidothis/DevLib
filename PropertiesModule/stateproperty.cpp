@@ -78,22 +78,43 @@ void StatePropertyBoolCommutator::Update()
 
 DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties)
 {
-    DispatcherConnections result;
-    for(auto* property : properties) {
-        if(*property == !m_defaultState) {
-            SetValue(false);
+    auto handler = [properties, this] {
+        for(auto* property : properties) {
+            if(*property == !m_defaultState) {
+                return !m_defaultState;
+            }
         }
-        result += m_commutator.ConnectFrom(location, property->OnChanged);
+        return m_defaultState;
+    };
+    QVector<Dispatcher*> dispatchers;
+    for(auto* property : properties) {
+        dispatchers.append(&property->OnChanged);
     }
-    m_properties += properties;
+
+    return AddHandler(location, handler, dispatchers);
+}
+
+DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalProperty<bool>* property, bool inverted)
+{
+    return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, { &property->OnChanged });
+}
+
+DispatcherConnections StatePropertyBoolCommutator::AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
+{
+    DispatcherConnections result;
+    for(auto* dispatcher : dispatchers) {
+        result += m_commutator.ConnectFrom(location, *dispatcher);
+    }
+    m_properties += handler;
+    Update();
     return result;
 }
 
 QString StatePropertyBoolCommutator::ToString() const
 {
     QString result;
-    for(auto* property : m_properties) {
-        result += *property ? "true " : "false ";
+    for(const auto& handler : m_properties) {
+        result += handler() ? "true " : "false ";
     }
     return result;
 }
@@ -102,8 +123,8 @@ bool StatePropertyBoolCommutator::value() const
 {
     bool result = m_defaultState;
     bool oppositeState = !result;
-    for(auto* property : m_properties) {
-        if(*property == oppositeState) {
+    for(const auto& handler : m_properties) {
+        if(handler() == oppositeState) {
             result = oppositeState;
             break;
         }
