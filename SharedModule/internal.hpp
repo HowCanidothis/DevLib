@@ -47,7 +47,7 @@
 #include "timer.h"
 #include "shared_decl.h"
 #include "nativetranslates.h"
-#include "name.h"
+#include "idgenerator.h"
 #include "Logger/logger.h"
 #include "dispatcher.h"
 #include "events.h"

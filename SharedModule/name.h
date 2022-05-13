@@ -21,6 +21,7 @@ public:
     Name Joined(const char* string) const { return Joined(QString(string)); }
     operator qint64() const { return m_value; }
     const QString& AsString() const;
+    qint32 GetSize() const { return AsString().size(); }
     bool IsNull() const { return AsString().isEmpty(); }
 
     friend QDebug operator<<(QDebug debug, const Name& name) {
