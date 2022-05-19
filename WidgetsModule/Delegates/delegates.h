@@ -112,4 +112,21 @@ public:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 };
+
+class DelegatesDateTimePicker : public DelegatesDateTime
+{
+    using Super = DelegatesDateTime;
+public:
+    DelegatesDateTimePicker(QObject* parent = nullptr);
+
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override {}
+    void setModelData(QWidget* , QAbstractItemModel* model, const QModelIndex& index) const override;
+};
+
+struct DateTimeRangeAttachment {
+    static void Attach(DelegatesDateTimePicker* delegate, const QPair<int, int>& columns, LocalPropertyDateTime* start = nullptr, LocalPropertyDateTime* stop = nullptr);
+};
+
 #endif // DELEGATES_H

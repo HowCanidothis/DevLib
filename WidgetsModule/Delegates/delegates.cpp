@@ -11,6 +11,8 @@
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsdatetimepopuppicker.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsdatetimewidget.h"
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
@@ -271,4 +273,60 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
         }
     }
     return Super::editorEvent(event, model, option, index);
+}
+
+DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
+    : Super(parent)
+{
+
+}
+
+QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto widget = new WidgetsDatetimePopupPicker(parent);
+    widget->Locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
+    widget->GetDateTimeWidget()->CurrentDateTime = index.model()->data(index, Qt::EditRole).toDateTime();
+    OnEditorAboutToBeShown(widget, index);
+    widget->OnDataCommit.Connect(widget, [this, widget]{
+        auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
+        nonConst->emit commitData(widget);
+    });
+
+    widget->OnCloseEditor.Connect(widget, [this, widget]{
+        auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
+        nonConst->emit closeEditor(widget);
+    });
+    return widget;
+}
+
+void DelegatesDateTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
+{
+    editor->setGeometry(option.rect);
+}
+
+void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    auto* widget = dynamic_cast<WidgetsDatetimePopupPicker*>(editor);
+    Q_ASSERT(widget != nullptr);
+    model->setData(index, widget->GetDateTimeWidget()->CurrentDateTime.Native(), Qt::EditRole);
+}
+
+void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QPair<int,int>& columns, LocalPropertyDateTime* start, LocalPropertyDateTime* stop)
+{
+    delegate->OnEditorAboutToBeShown.Connect(delegate, [columns, start, stop](QWidget* w, const QModelIndex& index){
+        auto* picker = reinterpret_cast<WidgetsDatetimePopupPicker*>(w);
+        auto& currentDateTime = picker->GetDateTimeWidget()->CurrentDateTime;
+        currentDateTime = index.data(Qt::EditRole).toDateTime();
+
+        if(currentDateTime.IsRealTime()) {
+            if(index.column() == columns.second) {
+                auto startDateTime = index.model()->index(index.row(), columns.first).data(Qt::EditRole).toDateTime();
+                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTime();
+            } else {
+                auto startDateTime = index.model()->index(index.row() - 1, columns.second).data(Qt::EditRole).toDateTime();
+                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTime();
+            }
+        }
+        currentDateTime.SetMinMax(*start, *stop);
+    });
 }
