@@ -106,6 +106,33 @@ struct Serializer<LocalPropertySequentialEnum<T>>
     }
 };
 
+template<class T>
+struct Serializer<LocalPropertySet<T>>
+{
+    using TypeName = LocalPropertySet<T>;
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& object)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            QSet<T> data;
+            buffer << buffer.Sect("Data", data);
+            object.EditSilent() = data;
+            object.Invoke();
+            return;
+        }
+        buffer << buffer.Sect("Data", object.EditSilent());
+    }
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& object)
+    {
+        buffer << buffer.Sect("Data", const_cast<TypeName&>(object).EditSilent());
+    }
+};
+
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(LocalPropertySet)
+
 template<typename T>
 struct Serializer<LocalPropertyLimitedDecimal<T>>
 {

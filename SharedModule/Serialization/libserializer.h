@@ -1,7 +1,7 @@
 #ifndef LIBSERIALIZER_H
 #define LIBSERIALIZER_H
 
-#include "SharedModule/name.h"
+#include "SharedModule/idgenerator.h"
 
 #include "streambuffer.h"
 
@@ -21,6 +21,25 @@ struct Serializer<Name>
         QString value;
         buffer << value;
         data.SetName(value);
+    }
+};
+
+template<>
+struct Serializer<Id::Id>
+{
+    using target_type = Id::Id;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.AsString();
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        QString value;
+        buffer << value;
+        data = Name(value);
     }
 };
 

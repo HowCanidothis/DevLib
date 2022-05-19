@@ -204,6 +204,24 @@ DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(std::optional)
 
 template<>
+struct SerializerXml<Id::Id>
+{
+    using Type = Id::Id;
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        SerializerXml<Name>::Read(buffer, object.Mutate(static_cast<Name&>(object.Value)));
+    }
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
+    {
+        SerializerXml<Name>::Write(buffer, object.Mutate(static_cast<Name&>(object.Value)));
+    }
+};
+
+template<>
 struct SerializerXml<QImage>
 {
     using Type = QImage;
@@ -460,23 +478,29 @@ private:
     QXmlStreamReader* m_reader;
 };
 
-struct DescSerializationXMLWriteProperties
+struct DescSerializationXMLWriteParams
 {
     using FInitHandler = std::function<void (SerializerXmlWriteBuffer&)>;
 
     bool AutoFormating = false;
-    SerializationModes Mode = SerializationMode_Default;
+    SerializationModes Mode;
     TextConverterContext Context;
     FInitHandler InitHandler;
 
-    DescSerializationXMLWriteProperties& SetAutoFormating(bool autoFormating) { AutoFormating = autoFormating; return *this; }
-    DescSerializationXMLWriteProperties& SetTextConverterContext(const TextConverterContext& context) { Context = context; return *this; }
-    DescSerializationXMLWriteProperties& SetSerializationMode(SerializationModes serializationMode) { Mode = serializationMode; return *this; }
-    DescSerializationXMLWriteProperties& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
+    DescSerializationXMLWriteParams(qint32 mode)
+        : Mode((SerializationMode)mode)
+    {}
+    DescSerializationXMLWriteParams(SerializationModes mode = SerializationMode_Default)
+        : Mode(mode)
+    {}
+
+    DescSerializationXMLWriteParams& SetAutoFormating(bool autoFormating) { AutoFormating = autoFormating; return *this; }
+    DescSerializationXMLWriteParams& SetTextConverterContext(const TextConverterContext& context) { Context = context; return *this; }
+    DescSerializationXMLWriteParams& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
 };
 
 template<class T>
-inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWriteProperties& properties)
+inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWriteParams& properties)
 {
     QByteArray array;
     QXmlStreamWriter writer(&array);
@@ -492,7 +516,7 @@ inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWrit
 }
 
 template<class T>
-inline QByteArray SerializeToXML(const QString& startSection, const T& object, const DescSerializationXMLWriteProperties& properties)
+inline QByteArray SerializeToXML(const QString& startSection, const T& object, const DescSerializationXMLWriteParams& properties)
 {
     QByteArray array;
     QXmlStreamWriter writer(&array);
@@ -508,7 +532,7 @@ inline QByteArray SerializeToXML(const QString& startSection, const T& object, c
 }
 
 template<class T>
-inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, const T& object, DescSerializationXMLWriteProperties properties)
+inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, const T& object, DescSerializationXMLWriteParams properties)
 {
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&version](SerializerXmlWriteBuffer& buffer){
@@ -518,7 +542,7 @@ inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, c
 }
 
 template<class T>
-inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, const QString& startSection, const T& object, DescSerializationXMLWriteProperties properties)
+inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, const QString& startSection, const T& object, DescSerializationXMLWriteParams properties)
 {
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&version](SerializerXmlWriteBuffer& buffer){
@@ -527,20 +551,26 @@ inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, c
     return SerializeToXML(startSection, object, properties);
 }
 
-struct DescSerializationXMLReadProperties
+struct DescSerializationXMLReadParams
 {
     using FInitHandler = std::function<bool (SerializerXmlReadBuffer&)>;
-    SerializationModes Mode = SerializationMode_Default;
+    SerializationModes Mode;
     FInitHandler InitHandler;
     bool IsStrictVersion = false;
 
-    DescSerializationXMLReadProperties& SetSerializationMode(SerializationModes serializationMode) { Mode = serializationMode; return *this; }
-    DescSerializationXMLReadProperties& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
-    DescSerializationXMLReadProperties& SetStrictVersion(bool strictVersion) { IsStrictVersion = strictVersion; return *this; }
+    DescSerializationXMLReadParams(qint32 mode)
+        : Mode((SerializationMode)mode)
+    {}
+    DescSerializationXMLReadParams(SerializationModes mode = SerializationMode_Default)
+        : Mode(mode)
+    {}
+
+    DescSerializationXMLReadParams& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
+    DescSerializationXMLReadParams& SetStrictVersion(bool strictVersion) { IsStrictVersion = strictVersion; return *this; }
 };
 
 template<class T>
-bool DeSerializeFromXML(const QByteArray& array, T& object, const DescSerializationXMLReadProperties& properties)
+bool DeSerializeFromXML(const QByteArray& array, T& object, const DescSerializationXMLReadParams& properties)
 {
     QXmlStreamReader reader(array);
     SerializerXmlReadBuffer buffer(&reader);
@@ -555,7 +585,7 @@ bool DeSerializeFromXML(const QByteArray& array, T& object, const DescSerializat
 }
 
 template<class T>
-bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object, const DescSerializationXMLReadProperties& properties)
+bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object, const DescSerializationXMLReadParams& properties)
 {
     QXmlStreamReader reader(array);
     SerializerXmlReadBuffer buffer(&reader);
@@ -570,7 +600,7 @@ bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object,
 }
 
 template<class T>
-bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QByteArray& array, T& object, DescSerializationXMLReadProperties properties)
+bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QByteArray& array, T& object, DescSerializationXMLReadParams properties)
 {
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&](SerializerXmlReadBuffer& buffer){
@@ -585,7 +615,7 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
 }
 
 template<class T>
-bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QString& name, const QByteArray& array, T& object, DescSerializationXMLReadProperties properties)
+bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QString& name, const QByteArray& array, T& object, DescSerializationXMLReadParams properties)
 {
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&](SerializerXmlReadBuffer& buffer){

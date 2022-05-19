@@ -572,7 +572,7 @@ WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*
         pWidget->setPalette(pal);
     });
 
-    AttachEventFilter([updater, update, connections](QObject*, QEvent* e){
+    AddEventFilter([updater, update, connections](QObject*, QEvent* e){
         if(e->type() == QEvent::StyleChange) {
             update();
         }
@@ -654,10 +654,4 @@ void WidgetWrapper::ForeachChildWidget(const std::function<void (QWidget*)>& han
     for(auto* childWidget : childWidgets) {
         handler(childWidget);
     }
-}
-
-WidgetWrapper& WidgetWrapper::AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter)
-{
-    WidgetsAttachment::Attach(m_widget, eventFilter);
-    return *this;
 }

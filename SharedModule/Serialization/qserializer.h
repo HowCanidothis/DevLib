@@ -31,9 +31,12 @@ struct DescSerializationWriteParams
     SerializationModes SerializationMode;
     std::function<void (SerializerWriteBuffer& )> InitHandler;
 
-    DescSerializationWriteParams(SerializationModes mode = SerializationMode_Default)
-        : SerializationMode(mode)
+    DescSerializationWriteParams(qint32 mode)
+        : SerializationMode((SerializationModes)mode)
         , InitHandler([](SerializerWriteBuffer&){})
+    {}
+    DescSerializationWriteParams(SerializationModes mode = SerializationMode_Default)
+        : DescSerializationWriteParams((qint32)mode)
     {}
 
     DescSerializationWriteParams& SetInitHandler(const std::function<void (SerializerWriteBuffer& )>& handler)
@@ -49,10 +52,14 @@ struct DescSerializationReadParams
     std::function<bool (SerializerReadBuffer& )> InitHandler;
     bool IsStrictVersion;
 
-    DescSerializationReadParams(SerializationModes mode = SerializationMode_Default)
-        : SerializationMode(mode)
+    DescSerializationReadParams(qint32 mode)
+        : SerializationMode((SerializationModes)mode)
         , InitHandler([](SerializerReadBuffer& ){ return true; })
         , IsStrictVersion(false)
+    {}
+
+    DescSerializationReadParams(SerializationModes mode = SerializationMode_Default)
+        : DescSerializationReadParams((qint32)mode)
     {}
 
     DescSerializationReadParams& SetInitHandler(const std::function<bool (SerializerReadBuffer& )>& handler)
@@ -92,6 +99,14 @@ bool DeSerializeFromArray(const QByteArray& array, T& object, const DescSerializ
     reader << object;
     return true;
 }
+
+template<class T>
+inline void SerializeCopyObject(const T& source, T& target, SerializationMode mode)
+{
+    auto array = SerializeToArray(source, mode);
+    DeSerializeFromArray(array, target, mode);
+}
+
 
 template<class T>
 inline QByteArray SerializeToArrayVersioned(const SerializerVersion& version, const T& object, DescSerializationWriteParams params = DescSerializationWriteParams())

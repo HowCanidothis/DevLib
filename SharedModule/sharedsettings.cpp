@@ -84,8 +84,22 @@ void PathSettings::Initialize(const QString& productName)
     }
 }
 
+static const QString DefaultDateTimeFormat = "MM/dd/yyyy hh:mm AP";
+
 LanguageSettings::LanguageSettings()
+    : DateTimeToStringHandler([](const QLocale& locale, const QDateTime& dt){
+        if(locale.language() == QLocale::English){
+            return locale.toString(dt, DefaultDateTimeFormat);
+        }
+        return locale.toString(dt, QLocale::FormatType::ShortFormat);
+    })
 {
+}
+
+QString LanguageSettings::DateTimeToString(const QDateTime& dt)
+{
+    const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+    return settings.DateTimeToStringHandler.Native()(settings.ApplicationLocale, dt);
 }
 
 SaveLoadSettings::SaveLoadSettings()

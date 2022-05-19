@@ -30,6 +30,7 @@ public:
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
     Dispatcher OnInvalidated;
+    Dispatcher Invalidate;
 
 protected:
     bool lessThan(const QModelIndex& f, const QModelIndex& s) const override;

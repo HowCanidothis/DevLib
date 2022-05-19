@@ -99,8 +99,8 @@ public:
 
     QByteArray Serialize(const void* o) const override
     {
-        static DescSerializationXMLWriteProperties writeProperties =
-                DescSerializationXMLWriteProperties()
+        static DescSerializationXMLWriteParams writeProperties =
+                DescSerializationXMLWriteParams()
                 .SetSerializationMode(SerializationMode)
                 .SetAutoFormating(true);
 
@@ -115,7 +115,7 @@ public:
 
     void Deserialize(const QByteArray& array, void* o) const override
     {
-        DeSerializeFromXML(array, *(T*)o, DescSerializationXMLReadProperties().SetSerializationMode(SerializationMode));
+        DeSerializeFromXML(array, *(T*)o, DescSerializationXMLReadParams().SetSerializationMode(SerializationMode));
     }
 
     void Deserialize(SerializerXmlReadBuffer& buffer, void* o) const override

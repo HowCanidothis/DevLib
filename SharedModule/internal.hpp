@@ -60,6 +60,7 @@
 #include "sharedsettings.h"
 #include "editingobject.h"
 #include "tokenizer.h"
+#include "wrappers.h"
 
 #endif
 

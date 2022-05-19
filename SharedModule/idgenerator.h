@@ -3,58 +3,97 @@
 
 #include "name.h"
 
-class IdGenerator
+namespace Id {
+
+class Generator;
+
+class Id : public Name
 {
+    using Super = Name;
 public:
-    class AssociatedName : public Name
-    {
-        using Super = Name;
-    public:
-        AssociatedName();
-        AssociatedName(void* context, const Name& name = Name());
+    Id(const Name& name = Name());
+    ~Id();
 
-        template<class T> T* As() const { return static_cast<T*>(m_context); }
+    template<class T>
+    void Attach(Generator* generator, const SharedPointer<T>& data);
+    void Attach(Generator* generator);
+    void Detach();
 
-    private:
-        void* m_context;
-    };
+    template<class T> SharedPointer<T> As() const;
 
-    class Id
-    {
-    public:
-        Id(IdGenerator* generator, const AssociatedName& id);
-        Id(IdGenerator* generator, void* context);
-
-        template<class T> T* As() const { return static_cast<T*>(getContext()); }
-        bool IsNull() const;
-        const QString& AsString() const;
-        qint32 GetSize() const { return AsString().size(); }
-
-        operator const AssociatedName&() const;
-
-    private:
-        void* getContext() const;
-
-    private:
-        SharedPointer<struct IdData> m_data;
-    };
-
-    IdGenerator(qint32 idSize = 10);
-
-    void AddId(const AssociatedName& id);
-    AssociatedName RegisterId(void* context, const AssociatedName& baseId = AssociatedName());
-    void ReleaseId(const AssociatedName& id);
-
-    Id RegisterIdObject(void* context, const AssociatedName& baseId = AssociatedName());
-
-    static AssociatedName GenerateComplexId(void* context, const AssociatedName& baseId, const QSet<AssociatedName>& ids);
-
-    bool IsComplexId() const { return m_idSize > 10; }
+    Id& operator=(const Name& another);
 
 private:
-    QSet<AssociatedName> m_registeredIds;
-    qint32 m_idSize;
-    std::function<AssociatedName (void* context, const AssociatedName& baseId)> m_generator;
+    friend class Generator;
+    void* getContext() const;
+
+private:
+    SharedPointer<struct IdData> m_data;
 };
+
+class Generator
+{
+public:
+    Generator(qint32 idSize = 10);
+    Name BaseId;
+
+    template<class T>
+    Id CreateId(const SharedPointer<T>& data)
+    {
+        auto weakPtr = new std::weak_ptr<T>(data);
+        return createId(weakPtr, [weakPtr] { delete weakPtr; });
+    }
+
+    Id GetId(const Name& id) const;
+
+    bool IsComplexId() const { return m_idSize != 10; }
+
+private:
+    friend class Id;
+    friend struct IdDataAttached;
+
+    template<class T>
+    void attachId(Id* id, const SharedPointer<T>& data)
+    {
+        auto weakPtr = new std::weak_ptr<T>(data);
+        attach(id, weakPtr, [weakPtr] { delete weakPtr; });
+    }
+
+    Id createId(void* context, const FAction& deleter);
+    void attach(Id* id, void* context = nullptr, const FAction& deleter = nullptr);
+    void releaseId(const Name& id);
+    Name generateComplexId();
+    static Id createId(const Name& id, const SharedPointer<IdData>& iterator);
+
+private:
+    QHash<Name, std::weak_ptr<IdData>> m_registeredIds;
+    qint32 m_idSize;
+    std::function<std::pair<Name, SharedPointer<IdData>> (void* context, const FAction& deleter)> m_generator;
+};
+
+template<class T>
+inline void Id::Attach(Generator* generator, const SharedPointer<T>& data)
+{
+    generator->attachId(this, data);
+}
+
+template<class T>
+inline SharedPointer<T> Id::As() const
+{
+    static SharedPointer<T> defaultValue;
+    auto* context = getContext();
+    if(context == nullptr) {
+        return defaultValue;
+    }
+    auto weakPtr = static_cast<std::weak_ptr<T>*>(context);
+    if(weakPtr->expired()) {
+        return defaultValue;
+    }
+    return static_cast<SharedPointer<T>>(std::shared_ptr(*weakPtr));
+}
+
+}
+
+
 
 #endif // IDGENERATOR_H

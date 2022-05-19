@@ -513,8 +513,8 @@ public:
     }
 
     void SetDefaultMimeDataXml(const SerializerXmlVersion& version, const Name& mimeType,
-                               const DescSerializationXMLWriteProperties& writeParams = DescSerializationXMLWriteProperties(),
-                               const DescSerializationXMLReadProperties& readParams = DescSerializationXMLReadProperties())
+                               const DescSerializationXMLWriteParams& writeParams = DescSerializationXMLWriteParams(),
+                               const DescSerializationXMLReadParams& readParams = DescSerializationXMLReadParams())
     {
         SetMimeDataGetter(mimeType.AsString(), [this, version, writeParams, mimeType](const Array<qint32>& rows) -> QByteArray {
             QVector<WrappedObject> result;

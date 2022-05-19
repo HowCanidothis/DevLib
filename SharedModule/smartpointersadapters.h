@@ -40,6 +40,7 @@ public:
     using Super::Super;
 
     SharedPointer& operator=(T* ptr) { this->reset(ptr); return *this; }
+    SharedPointer& operator=(const std::shared_ptr<T>& ptr) { Super::operator=(ptr); return *this; }
 
     template<typename T2>
     const SharedPointer<T2>& Cast() const { return *reinterpret_cast<const SharedPointer<T2>*>(this); }

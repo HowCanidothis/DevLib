@@ -91,6 +91,9 @@ struct LanguageSettings
     LanguageSettings();
 
     LocalPropertyLocale ApplicationLocale;
+    LocalProperty<std::function<QString (const QLocale&, const QDateTime& dt)>> DateTimeToStringHandler;
+
+    static QString DateTimeToString(const QDateTime& dt);
 };
 
 class SharedSettings : public Singletone<SharedSettings>

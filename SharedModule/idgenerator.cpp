@@ -1,26 +1,24 @@
 #include "idgenerator.h"
 
+namespace Id {
+
 struct IdData
 {
-    IdData(IdGenerator* generator, const IdGenerator::AssociatedName& id);
-    ~IdData();
+    IdData(class Generator* generator, void* context, const FAction& deleter)
+        : Generator(generator)
+        , Context(context)
+        , Deleter(deleter)
+    {}
 
-    IdGenerator::AssociatedName Id;
-    IdGenerator* Generator;
-};
-
-IdData::IdData(IdGenerator* generator, const IdGenerator::AssociatedName& id)
-    : Id(id)
-    , Generator(generator)
-{
-}
-
-IdData::~IdData()
-{
-    if(!Id.IsNull()) {
-        Generator->ReleaseId(Id);
+    ~IdData()
+    {
+        Deleter();
     }
-}
+
+    Generator* Generator;
+    void* Context;
+    FAction Deleter;
+};
 
 static char IdsTable[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                         'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h',
@@ -71,106 +69,131 @@ static Name GenerateShortId()
     return Name(id);
 }
 
-IdGenerator::AssociatedName::AssociatedName()
-    : m_context(nullptr)
-{}
-
-IdGenerator::AssociatedName::AssociatedName(void* context, const Name& name)
-    : Super(name)
-    , m_context(context)
-{}
-
-IdGenerator::Id::Id(IdGenerator* generator, const AssociatedName& id)
-    : m_data(new IdData(generator, id))
+Id::Id(const Name& id)
+    : Super(id)
 {
-
 }
 
-IdGenerator::Id::Id(IdGenerator* generator, void* context)
-    : m_data(new IdData(generator, AssociatedName(context)))
+Id::~Id()
 {
-
 }
 
-bool IdGenerator::Id::IsNull() const { return m_data == nullptr ? true : m_data->Id.IsNull(); }
-
-const QString& IdGenerator::Id::AsString() const
+void Id::Attach(Generator* generator)
 {
-    static QString defaultResult;
-    if(m_data != nullptr) {
-        return m_data->Id.AsString();
-    }
-    return defaultResult;
+    generator->attach(this);
 }
 
-IdGenerator::Id::operator const IdGenerator::AssociatedName&() const
+void Id::Detach()
 {
-    static AssociatedName defaultResult;
-    if(m_data != nullptr) {
-        return m_data->Id;
-    }
-    return defaultResult;
+    Q_ASSERT(m_data != nullptr);
+    m_data->Generator->releaseId(*this);
 }
 
-void* IdGenerator::Id::getContext() const
+void* Id::getContext() const
 {
-    return  m_data == nullptr ? nullptr : m_data->Id.As<void>();
+    return m_data == nullptr ? nullptr : m_data->Context;
 }
 
-IdGenerator::IdGenerator(qint32 idSize)
+Generator::Generator(qint32 idSize)
     : m_idSize(idSize)
 {
-    if(idSize > 10) {
-        m_generator = [this](void* context, const AssociatedName& baseId) {
-            auto result = GenerateComplexId(context, baseId, m_registeredIds);
-            m_registeredIds.insert(result);
+    if(idSize != 10) {
+        m_generator = [this](void* context, const FAction& deleter) {
+            auto result = generateComplexId();
             Q_ASSERT(result.AsString().size() == m_idSize);
-            return result;
+            auto data = ::make_shared<IdData>(this, context, deleter);
+            auto it = m_registeredIds.insert(result, data);
+            return std::make_pair(it.key(), data);
         };
     } else {
-        m_generator = [this](void* context, const AssociatedName&) {
+        m_generator = [this](void* context, const FAction& deleter) {
             Q_ASSERT(!IsComplexId());
             while(true) {
-                auto id = AssociatedName(context, ::GenerateId());
+                Name id(GenerateId());
                 if(m_registeredIds.contains(id)) {
                     continue;
                 }
                 Q_ASSERT(id.AsString().size() == m_idSize);
-                m_registeredIds.insert(id);
-                return id;
+                auto data = ::make_shared<IdData>(this, context, deleter);
+                auto it = m_registeredIds.insert(id, data);
+                return std::make_pair(it.key(), data);
             }
         };
     }
 }
 
-void IdGenerator::AddId(const AssociatedName& id)
+Id& Id::operator=(const Name& another)
 {
-    Q_ASSERT(!m_registeredIds.contains(id) && id.GetSize() == m_idSize);
-    m_registeredIds.insert(id);
+    if(m_data != nullptr) {
+        return *this;
+    }
+    Super::operator=(another);
+    return *this;
 }
 
-IdGenerator::AssociatedName IdGenerator::RegisterId(void* context, const AssociatedName& baseId)
+Id Generator::GetId(const Name& id) const
 {
-    return m_generator(context, baseId);
+    static Id defaultNull(nullptr);
+    if(id.IsNull()) {
+        return defaultNull;
+    }
+
+    auto foundIt = m_registeredIds.find(id);
+    if(foundIt == m_registeredIds.end()) {
+        return defaultNull;
+    }
+    auto locked = foundIt.value().lock();
+    if(locked == nullptr) {
+        return defaultNull;
+    }
+    return createId(id, static_cast<SharedPointer<IdData>&>(locked));
 }
 
-void IdGenerator::ReleaseId(const AssociatedName& id)
+Id Generator::createId(const Name& id, const SharedPointer<IdData>& data)
 {
-    m_registeredIds.remove(id);
+    Id result(id);
+    result.m_data = data;
+    return result;
 }
 
-IdGenerator::Id IdGenerator::RegisterIdObject(void* context, const AssociatedName& baseId)
+Id Generator::createId(void* context, const FAction& deleter)
 {
-    return Id(this,RegisterId(context, baseId));
+    auto generated = m_generator(context, deleter);
+    return createId(generated.first, generated.second);
 }
 
-IdGenerator::AssociatedName IdGenerator::GenerateComplexId(void* context, const AssociatedName& baseId, const QSet<AssociatedName>& ids)
+void Generator::releaseId(const Name& id)
+{
+    auto foundIt = m_registeredIds.find(id);
+    if(foundIt != m_registeredIds.end()) {
+        m_registeredIds.erase(foundIt);
+    }
+}
+
+void Generator::attach(Id* id, void* context, const FAction& deleter)
+{
+    Q_ASSERT(id->m_data == nullptr && !id->IsNull());
+    auto foundIt = m_registeredIds.find(*id);
+    SharedPointer<IdData> data;
+    if(foundIt == m_registeredIds.end()) {
+        Q_ASSERT(context != nullptr);
+        Name idName(*id);
+        data = ::make_shared<IdData>(this, context, [this, deleter, idName]{
+            releaseId(idName); deleter();
+        });
+        foundIt = m_registeredIds.insert(*id, std::weak_ptr<IdData>(data));
+    }
+    id->m_data = std::shared_ptr<IdData>(foundIt.value());
+}
+
+Name Generator::generateComplexId()
 {
     bool unique = false;
-    AssociatedName result;
+    Name result;
+    const auto& ids = m_registeredIds;
     while(!unique) {
-        auto id = ::GenerateShortId();
-        AssociatedName fullId(context, Name(baseId.AsString() + id.AsString()));
+        auto id = GenerateShortId();
+        Name fullId(BaseId.AsString() + id.AsString());
         if(ids.contains(fullId)) {
             continue;
         }
@@ -179,4 +202,6 @@ IdGenerator::AssociatedName IdGenerator::GenerateComplexId(void* context, const 
     }
 
     return result;
+}
+
 }

@@ -6,7 +6,11 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
     , m_invalidateFilter(500)
-{}
+{
+    Invalidate.Connect(this, [this]{
+        InvalidateFilter();
+    });
+}
 
 void ViewModelsFilterModelBase::InvalidateFilter()
 {

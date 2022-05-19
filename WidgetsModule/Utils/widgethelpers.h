@@ -72,7 +72,6 @@ public:
     WidgetWrapper& FixUp();
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetWrapper)
     WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
-    WidgetWrapper& AttachEventFilter(const std::function<bool (QObject*, QEvent*)>& eventFilter);
 
     DispatcherConnectionsSafe& WidgetConnections();
     LocalPropertyBool& WidgetVisibility(bool animated = false);

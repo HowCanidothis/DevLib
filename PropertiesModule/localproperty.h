@@ -348,7 +348,7 @@ public:
         if(setter != nullptr) {
             setter();
         }
-        return this;
+        return *this;
     }
     LocalPropertySequentialEnum& operator=(qint32 value) { SetValue(value); return *this; }
     LocalPropertySequentialEnum& operator=(Enum value) { return operator=((qint32)value); }
@@ -431,6 +431,17 @@ public:
     bool IsEmpty() const { return this->m_value.isEmpty(); }
     qint32 Size() const { return this->m_value.size(); }
     bool IsContains(const T& value) const { return this->m_value.contains(value); }
+
+    LocalPropertySet& operator=(const QSet<T>& another)
+    {
+        if(IsEmpty() && another.isEmpty()) {
+            return *this;
+        }
+
+        this->m_value = another;
+        this->Invoke();
+        return *this;
+    }
 
     void Clear()
     {
