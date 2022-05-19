@@ -28,6 +28,16 @@ QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation o
     return Super::headerData(section, orientation, role);
 }
 
+void ViewModelsFilterModelBase::SetColumnFilter(const std::function<bool (qint32, const QModelIndex&)>& handler){
+    FilterColumnHandler = handler;
+    InvalidateFilter();
+}
+
+void ViewModelsFilterModelBase::SetRowFilter(const std::function<bool (qint32, const QModelIndex&)>& handler){
+    FilterHandler = handler;
+    InvalidateFilter();
+}
+
 bool ViewModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
     return FilterColumnHandler(sourceColumn, sourceParent);
