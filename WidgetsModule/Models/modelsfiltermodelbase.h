@@ -26,9 +26,6 @@ public:
 
     QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
 
-    void SetRowFilter(const std::function<bool (qint32,const QModelIndex&)>& handler);
-    void SetColumnFilter(const std::function<bool (qint32, const QModelIndex&)>& handler);
-
     std::function<bool (qint32, const QModelIndex&)> FilterColumnHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;

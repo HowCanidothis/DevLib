@@ -254,14 +254,6 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TemperatureUnits::Celsius   )
             .AddUnit(&TemperatureUnits::Fahrenheit);
 
-    AddMeasurement(MEASUREMENT_TEMPERATURE_PER_DISTANCE)
-            .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerMeter)
-            .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerFeet)
-            .AddUnit(&TemperaturePerDistanceUnits::CelsiusPer100Feet)
-            .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerMeter)
-            .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerFeet)
-            .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPer100Feet);
-
     AddMeasurement(MEASUREMENT_DENSITY)
             .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
             .AddUnit(&DensityUnits::KilogramsPerLiter)
@@ -356,7 +348,6 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API)
@@ -390,7 +381,6 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     
@@ -425,7 +415,6 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 
 		
