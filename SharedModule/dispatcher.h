@@ -237,9 +237,9 @@ public:
         });
     }
 
-    DispatcherConnection ConnectAndCall(Observer key, const FCommonDispatcherAction& handler) const
+    DispatcherConnection ConnectAndCall(Observer key, const FAction& handler) const
     {
-        auto result = Connect(key, handler);
+        auto result = ConnectAction(key, handler);
         handler();
         return result;
     }

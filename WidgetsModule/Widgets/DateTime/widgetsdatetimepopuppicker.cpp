@@ -17,7 +17,7 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     setFocusProxy(ui->dateTimeEdit);
 //    ui->CalendarButton->setIcon(IconsManager::GetInstance().GetIcon("CalendarIcon"));
     
-    auto* menu = createPreventedFromClosingMenu(tr("DateTime"));
+    auto* menu = MenuWrapper(ui->CalendarButton).AddPreventedFromClosingMenu(tr("DateTime"));
     auto* ac = new QWidgetAction(parent);
     m_editor = new WidgetsDateTimeWidget(parent);
     

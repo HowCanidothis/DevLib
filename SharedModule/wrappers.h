@@ -45,6 +45,18 @@ public:
         return *this;
     }
 
+    void Remove(const QSet<qint32>& indexes)
+    {
+        qint32 currentIndex = 0;
+        auto endIt = std::remove_if(m_container->begin(), m_container->end(), [&currentIndex, &indexes](const value_type&){
+            if(indexes.contains(currentIndex++)) {
+                return true;
+            }
+            return false;
+        });
+        m_container->resize(std::distance(m_container->begin(), endIt));
+    }
+
     const value_type& FindValue(const ComparisonTarget& id) const
     {
         static value_type defaultValue;
@@ -70,6 +82,10 @@ public:
             return m_idGetter(f) < s;
         });
     }
+
+    const_iterator begin() const { return m_container->begin(); }
+    const_iterator end() const { return m_container->end(); }
+
 private:
     iterator find(const ComparisonTarget& id)
     {

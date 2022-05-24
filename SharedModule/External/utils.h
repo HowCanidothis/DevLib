@@ -48,18 +48,32 @@ private:
     QAction* m_action;
 };
 
-#define ActionWrapperMake(capture, action) \
-    Make([capture](ActionWrapper& wrapper) { action })
+class MenuWrapper
+{
+public:
+    MenuWrapper(QWidget* widget)
+        : m_widget(widget)
+    {}
+
+    const MenuWrapper& Make(const std::function<void (const MenuWrapper&)>& handler) const { handler(*this); return *this; }
+    ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
+    ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
+    ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
+    ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
+    ActionWrapper AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const;
+    ActionWrapper AddSeparator() const;
+    class QMenu* AddPreventedFromClosingMenu(const QString& title) const;
+    static QMenu* CreatePreventedFromClosingMenu(const QString& title);
+    QMenu* AddMenu(const QString& label) const;
+
+    QMenu* GetMenu() const { return reinterpret_cast<QMenu*>(m_widget); }
+
+private:
+    QWidget* m_widget;
+};
 
 _Export void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex& index)>& function);
-_Export class ActionWrapper createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu);
-_Export class ActionWrapper createAction(const QString &title, const std::function<void (QAction*)> &handle, QWidget* menu);
-_Export class ActionWrapper createCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler, QWidget* menu);
-_Export class ActionWrapper createColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler, QWidget* menu);
-_Export class ActionWrapper createDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler, QWidget* menu);
-_Export class QMenu* createPreventedFromClosingMenu(const QString& title, QMenu* menu = nullptr);
-using QtEventFilterHandler = std::function<bool (QObject *watched, QEvent *event)>;
-_Export void installEventFilter(QObject* target, const QtEventFilterHandler& eventFilter);
+
 
 #endif
 

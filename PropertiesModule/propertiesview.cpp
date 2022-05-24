@@ -45,7 +45,7 @@ PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent
 
     header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-    m_actionOpenWithTextEditor = createAction(tr("Open with text editor"), [this](){
+    m_actionOpenWithTextEditor = MenuWrapper(this).AddAction(tr("Open with text editor"), [this](){
         QString openFile = m_indexUnderCursor.data().toString();
 
         QStringList arguments { openFile };
@@ -55,8 +55,7 @@ PropertiesView::PropertiesView(const PropertiesScopeName& scope, QWidget* parent
         process->start(m_defaultTextEditor, arguments);
 
         qCWarning(LC_SYSTEM) << "Opening" << m_defaultTextEditor << arguments;
-    }, this);
-    addAction(m_actionOpenWithTextEditor);
+    });
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 }

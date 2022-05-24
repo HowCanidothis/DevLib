@@ -12,7 +12,7 @@ class WidgetsResizableHeaderAttachment : public QHeaderView
 public:
     WidgetsResizableHeaderAttachment(Qt::Orientation orientation, class QTableView* parent);
 
-    class QMenu* CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& ignorColumns = DescColumnsParams());
+    class QMenu* CreateShowColumsMenu(const DescColumnsParams& ignorColumns = DescColumnsParams());
     // QHeaderView interface
 protected:
     QSize sectionSizeFromContents(int logicalIndex) const override;

@@ -74,6 +74,11 @@ Id::Id(const Name& id)
 {
 }
 
+Generator* Id::GetGenerator() const
+{
+    return m_data == nullptr ? nullptr : m_data->Generator;
+}
+
 Id::~Id()
 {
 }

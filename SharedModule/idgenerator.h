@@ -18,6 +18,7 @@ public:
     void Attach(Generator* generator, const SharedPointer<T>& data);
     void Attach(Generator* generator);
     void Detach();
+    Generator* GetGenerator() const;
 
     template<class T> SharedPointer<T> As() const;
 

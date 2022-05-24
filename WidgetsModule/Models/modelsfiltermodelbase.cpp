@@ -2,6 +2,9 @@
 
 ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     : Super(parent)
+    , SetDataHandler([this](const QModelIndex& index, const QVariant& data, qint32 role) -> bool { return Super::setData(index, data, role); })
+    , GetFlagsHandler([this](const QModelIndex& index) { return Super::flags(index); })
+    , GetDataHandler([this](const QModelIndex& index, qint32 role){ return Super::data(index, role); })
     , FilterColumnHandler([](qint32, const QModelIndex&){ return true; })
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
@@ -20,12 +23,29 @@ void ViewModelsFilterModelBase::InvalidateFilter()
     });
 }
 
+QVariant ViewModelsFilterModelBase::data(const QModelIndex& index, qint32 role) const
+{
+    if(!index.isValid()) {
+        return QVariant();
+    }
+    return GetDataHandler(index, role);
+}
+
 QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
     if(role == Qt::DisplayRole && orientation == Qt::Vertical) {
         return section + 1;
     }
     return Super::headerData(section, orientation, role);
+}
+
+Qt::ItemFlags ViewModelsFilterModelBase::flags(const QModelIndex& index) const
+{
+    if(!index.isValid()) {
+        return Qt::NoItemFlags;
+    }
+
+    return GetFlagsHandler(index);
 }
 
 void ViewModelsFilterModelBase::SetColumnFilter(const std::function<bool (qint32, const QModelIndex&)>& handler){
@@ -41,6 +61,11 @@ void ViewModelsFilterModelBase::SetRowFilter(const std::function<bool (qint32, c
 bool ViewModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
     return FilterColumnHandler(sourceColumn, sourceParent);
+}
+
+bool ViewModelsFilterModelBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)
+{
+    return SetDataHandler(index, data, role);
 }
 
 bool ViewModelsFilterModelBase::filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const

@@ -67,6 +67,7 @@ public:
     WidgetWrapper& AddModalProgressBar();
     WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets);
     WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter);
+    WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler);
 
     WidgetWrapper& BlockWheel();
     WidgetWrapper& FixUp();
@@ -75,7 +76,7 @@ public:
 
     DispatcherConnectionsSafe& WidgetConnections();
     LocalPropertyBool& WidgetVisibility(bool animated = false);
-    LocalPropertyBool& WidgetEnablity();
+    LocalPropertyBool& WidgetEnablity();    
 
     bool HasParent(QWidget* parent);
     void ForeachParentWidget(const std::function<bool(QWidget*)>& handler);

@@ -3,8 +3,11 @@
 
 #include <QTextCharFormat>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
 	: Super(parent)
+    , NowEnabled(true)
     , ui(new Ui::WidgetsDateTimeWidget)
 {
 	ui->setupUi(this);
@@ -59,6 +62,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         ui->calendarWidget->setLocale(Locale);
         ui->widget->Locale = Locale.Native();
     });
+
+    WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 }
 
 WidgetsDateTimeWidget::~WidgetsDateTimeWidget()

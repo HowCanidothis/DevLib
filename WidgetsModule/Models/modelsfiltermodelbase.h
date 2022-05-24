@@ -24,11 +24,17 @@ public:
     bool filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const override;
     bool filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const override;
 
+    bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    QVariant data(const QModelIndex& index, qint32 role) const override;
     QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
 
     void SetRowFilter(const std::function<bool (qint32,const QModelIndex&)>& handler);
     void SetColumnFilter(const std::function<bool (qint32, const QModelIndex&)>& handler);
 
+    std::function<bool (const QModelIndex&, const QVariant&, qint32 role)> SetDataHandler;
+    std::function<Qt::ItemFlags (const QModelIndex&)> GetFlagsHandler;
+    std::function<QVariant (const QModelIndex&, qint32)> GetDataHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterColumnHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
@@ -180,5 +186,115 @@ private:
     DispatcherConnectionsSafe m_connections;
 };
 
+template<typename Selection>
+class ViewModelsSelectionFilterModel : public ViewModelsFilterModelBase
+{
+    using Super = ViewModelsFilterModelBase;
+    using FExtractor = std::function<Selection (const QModelIndex& index)>;
+public:
+    ViewModelsSelectionFilterModel(QObject* parent, const FExtractor& extractor)
+        : Super(parent)
+        , m_extractor(extractor)
+    {}
+
+    LocalPropertySet<Selection> Selected;
+
+    void ClearSelection()
+    {
+        Selected.Clear();
+    }
+
+    void Deselect(const QModelIndexList& indices)
+    {
+        bool changed = false;
+        auto& silent = Selected.EditSilent();
+        for(const auto& index : indices) {
+            if(index.column() == 0) {
+                silent.remove(m_extractor(mapToSource(index)));
+                changed = true;
+            }
+        }
+        if(changed) {
+            Selected.Invoke();
+        }
+    }
+
+    void Select(const QModelIndexList& indices)
+    {
+        bool changed = false;
+        auto& silent = Selected.EditSilent();
+        for(const auto& index : indices) {
+            if(index.column() == 0) {
+                silent.insert(m_extractor(mapToSource(index)));
+                changed = true;
+            }
+        }
+        if(changed) {
+            Selected.Invoke();
+        }
+    }
+
+    bool lessThan(const QModelIndex& f, const QModelIndex& s) const override
+    {
+        bool fContains = Selected.IsContains(m_extractor(f));
+        bool sContains = Selected.IsContains(m_extractor(s));
+        if(fContains != sContains) {
+            return fContains;
+        }
+        return Super::lessThan(f, s);
+    }
+
+    bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override
+    {
+        if(index.column() == 0 && role == Qt::CheckStateRole) {
+            Selection component = m_extractor(mapToSource(index));
+            if(data.value<Qt::CheckState>() == Qt::Checked) {
+                Selected.Insert(component);
+            } else {
+                Selected.Remove(component);
+            }
+            return true;
+        }
+        return Super::setData(index, data, role);
+    };
+
+    QVariant data(const QModelIndex& index, qint32 role) const override {
+        if(index.column() == 0 && role == Qt::CheckStateRole) {
+            auto selection = m_extractor(mapToSource(index));
+            if(selection != 0) {
+                return Selected.IsContains(selection) ? Qt::Checked : Qt::Unchecked;
+            }
+            return QVariant();
+        }
+        return Super::data(index, role);
+    };
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override
+    {
+        auto defaultFlags = Super::flags(index);
+        if(index.column() == 0) {
+            return defaultFlags |= Qt::ItemIsUserCheckable;
+        }
+        return defaultFlags;
+    };
+
+    void CreateDefaultActions(QTableView* table)
+    {
+        MenuWrapper menuWrapper(table);
+        menuWrapper.AddAction(tr("Check Selected"), [this, table](QAction*){
+            emit layoutAboutToBeChanged();
+            Select(table->selectionModel()->selectedIndexes());
+            emit layoutChanged();
+        })->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Insert));
+        menuWrapper.AddAction(tr("Uncheck selected"), [this, table](QAction*){
+            emit layoutAboutToBeChanged();
+            Deselect(table->selectionModel()->selectedIndexes());
+            emit layoutChanged();
+        })->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Delete));
+    }
+
+private:
+    FExtractor m_extractor;
+};
 
 #endif // MODELSFILTERMODELBASE_H

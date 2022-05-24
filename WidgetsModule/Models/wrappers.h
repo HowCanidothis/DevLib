@@ -370,10 +370,8 @@ public:
 
         OnAboutToBeReseted();
         qint32 currentIndex = 0;
-        QVector<value_type> toRemove;
-        auto endIt = std::remove_if(Super::begin(), Super::end(), [&currentIndex, &indexes, &toRemove](const value_type& a){
+        auto endIt = std::remove_if(Super::begin(), Super::end(), [&currentIndex, &indexes](const value_type&){
             if(indexes.contains(currentIndex++)) {
-                toRemove.append(a);
                 return true;
             }
             return false;

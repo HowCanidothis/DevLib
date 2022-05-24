@@ -18,6 +18,7 @@ public:
 	
     void ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive = true);
 
+    LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;
     LocalPropertyLocale Locale;
 

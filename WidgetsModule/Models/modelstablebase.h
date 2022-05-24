@@ -291,15 +291,15 @@ public:
     }
     const SharedPointer<T>& GetData() const { return m_data; }
 
+    static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
+    static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
+
 protected:
     bool isLastEditRow(const QModelIndex& index) const
     {
         Q_ASSERT(GetData() != nullptr);
         return GetData()->GetSize() == index.row();
     }
-
-    static Qt::ItemFlags standardEditableFlags() { return standardNonEditableFlags() | Qt::ItemIsEditable; }
-    static Qt::ItemFlags standardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
 
 private:
     SharedPointer<T> m_data;

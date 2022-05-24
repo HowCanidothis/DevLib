@@ -21,13 +21,14 @@ WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientati
     setSortIndicatorShown(true);
 }
 
-QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QMenu* parent, const DescColumnsParams& params)
+QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescColumnsParams& params)
 {
-    auto* result = createPreventedFromClosingMenu(orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"), parent);
-    connect(result, &QMenu::aboutToShow, [result, params, this]{
+    QTableView* table = qobject_cast<QTableView*> (parentWidget());
+    Q_ASSERT(table != nullptr);
+    auto* result = MenuWrapper(table).AddPreventedFromClosingMenu(orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"));
+    connect(result, &QMenu::aboutToShow, [table, result, params, this]{
         result->clear();
-        QTableView* table = qobject_cast<QTableView*> (parentWidget());
-        Q_ASSERT(table != nullptr);
+        MenuWrapper wrapper(result);
 
         auto* model = table->model();
         auto count = orientation() == Qt::Horizontal ? model->columnCount() : model->rowCount();
@@ -40,17 +41,17 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QMenu* parent, con
                 }
             }
             auto title = model->headerData(i, orientation()).toString();
-            auto action = createCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
+            auto action = wrapper.AddCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
                 setSectionHidden(i, !checked);
-            }, result);
+            });
             action->setProperty("index", i);
         }
         auto oldActions = result->actions();
-        createAction(tr("Switch"), [oldActions]{
+        wrapper.AddAction(tr("Switch"), [oldActions]{
             for(auto* action : oldActions) {
                 action->trigger();
             }
-        }, result);
+        });
         for(auto* action : result->actions()){
             auto index = action->property("index").toInt();
             if(0 <= index && index < count){

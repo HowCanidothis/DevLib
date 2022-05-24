@@ -90,53 +90,32 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
 	
     ui->SourceTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->SourceTable, &QWidget::customContextMenuRequested, [this](const QPoint& pos){
-        QMenu contextMenu(this);
-		createAction(tr("Delete Row(s)"), [this]{
+
+    MenuWrapper(ui->SourceTable).Make([this](const MenuWrapper& wrapper){
+        wrapper.AddAction(tr("Delete Row(s)"), [this]{
             auto* model = ui->SourceTable->model();
             auto indexs = WidgetTableViewWrapper(ui->SourceTable).SelectedRowsSorted();
-			if(indexs.isEmpty()){
+            if(indexs.isEmpty()){
                 return ;
-			}
-			int startSeries = indexs.last();
-			int counter = 1;
-			for(const auto& index : adapters::reverse(adapters::range(indexs.begin(), indexs.end()-1))){
-				if(startSeries - counter != index){
-					model->removeRows(startSeries - (counter - 1), counter);
-					startSeries = index;
-					counter = 1;
-				} else {
-					++counter;
-				}
-			}
-			model->removeRows(startSeries - (counter - 1), counter);
+            }
+            int startSeries = indexs.last();
+            int counter = 1;
+            for(const auto& index : adapters::reverse(adapters::range(indexs.begin(), indexs.end()-1))){
+                if(startSeries - counter != index){
+                    model->removeRows(startSeries - (counter - 1), counter);
+                    startSeries = index;
+                    counter = 1;
+                } else {
+                    ++counter;
+                }
+            }
+            model->removeRows(startSeries - (counter - 1), counter);
             if(indexs.first() == 0) {
                 m_matchingAttachment->Match();
             } else {
                 m_matchingAttachment->Transite();
             }
-		}, &contextMenu);
-		
-		///TODO: hide columns
-//		createAction(tr("Delete Column(s)"), [this]{
-//			auto* model = ui->SourceTable->model();
-//			auto indexs = WidgetContent::SelectedColumnsSorted(ui->SourceTable);
-			
-//			int startSeries = indexs.last();
-//			int counter = 1;
-//			for(const auto& index : adapters::reverse(adapters::range(indexs.begin(), indexs.end()-1))){
-//				if(startSeries - counter != index){
-//					model->removeColumns(startSeries - (counter - 1), counter);
-//					startSeries = index;
-//					counter = 1;
-//				} else {
-//					++counter;
-//				}
-//			}
-//			model->removeColumns(startSeries - (counter - 1), counter);
-//		}, &contextMenu);
-		
-        contextMenu.exec(ui->SourceTable->viewport()->mapToGlobal(pos));
+        }).SetShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Delete));
     });
 }
 

@@ -68,40 +68,48 @@ TranslatedStringPtr ActionWrapper::ActionText()
 
 #endif
 
-ActionWrapper createAction(const QString& title, const std::function<void ()>& handle, QWidget* menu)
+ActionWrapper MenuWrapper::AddSeparator() const
 {
-    auto result = new QAction(title, menu);
+    QAction *action = new QAction(m_widget);
+    action->setSeparator(true);
+    m_widget->addAction(action);
+    return action;
+}
+
+ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<void ()>& handle) const
+{
+    auto result = new QAction(title, m_widget);
     result->connect(result, &QAction::triggered, handle);
-    menu->addAction(result);
+    m_widget->addAction(result);
     return result;
 }
 
-ActionWrapper createAction(const QString& title, const std::function<void (QAction*)>& handle, QWidget* menu)
+ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<void (QAction*)>& handle) const
 {
-    auto result = new QAction(title, menu);
+    auto result = new QAction(title, m_widget);
     result->connect(result, &QAction::triggered, [handle, result]{
         handle(result);
     });
-    menu->addAction(result);
+    m_widget->addAction(result);
     return result;
 }
 
-ActionWrapper createCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler, QWidget* menu)
+ActionWrapper MenuWrapper::AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const
 {
-    auto result = new QAction(title, menu);
+    auto result = new QAction(title, m_widget);
     result->setCheckable(true);
     result->setChecked(checked);
     result->connect(result, &QAction::triggered, [handler, result]{
         handler(result->isChecked());
     });
-    menu->addAction(result);
+    m_widget->addAction(result);
     return result;
 }
 
-ActionWrapper createColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler, QWidget* menu)
+ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const
 {
     static QPixmap pixmap(10,10);
-    auto colorAction = createAction(title, [handler, color](QAction* action){
+    auto colorAction = AddAction(title, [handler, color](QAction* action){
         QColorDialog dialog(qApp->activeWindow());
         dialog.setModal(true);
         notifyWidgetsManager(&dialog);
@@ -112,13 +120,13 @@ ActionWrapper createColorAction(const QString& title, const QColor& color, const
             action->setIcon(pixmap);
             handler(result);
         }
-    }, menu);
+    });
     pixmap.fill(color);
     colorAction->setIcon(pixmap);
     return colorAction;
 }
 
-ActionWrapper createDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler, QWidget* menu)
+ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const
 {
     auto* widget = new QWidget();
     auto* layout = new QHBoxLayout();
@@ -133,9 +141,9 @@ ActionWrapper createDoubleAction(const QString& title, double value, const std::
     QObject::connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [handler](double value) {
         handler(value);
     });
-    auto* action = new QWidgetAction(menu);
+    auto* action = new QWidgetAction(m_widget);
     action->setDefaultWidget(widget);
-    menu->addAction(action);
+    m_widget->addAction(action);
     return action;
 }
 
@@ -156,12 +164,22 @@ public:
     }
 };
 
-QMenu* createPreventedFromClosingMenu(const QString& title, QMenu* menu)
+QMenu* MenuWrapper::CreatePreventedFromClosingMenu(const QString& title)
 {
-    auto* result = new PreventedFromClosingMenu(title, menu);
-    if(menu != nullptr) {
-        menu->addMenu(result);
-    }
+    return new PreventedFromClosingMenu(title);
+}
+
+QMenu* MenuWrapper::AddPreventedFromClosingMenu(const QString& title) const
+{
+    auto* result = new PreventedFromClosingMenu(title, m_widget);
+    m_widget->addAction(result->menuAction());
+    return result;
+}
+
+QMenu* MenuWrapper::AddMenu(const QString& label) const
+{
+    auto* result = new QMenu(label, m_widget);
+    m_widget->addAction(result->menuAction());
     return result;
 }
 
@@ -180,26 +198,5 @@ void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, cons
     }
 }
 
-class LambdaEventFilterObject : public QObject
-{
-public:
-    LambdaEventFilterObject(QObject* parent, const QtEventFilterHandler& handler)
-        : QObject(parent)
-        , m_handler(handler)
-    {
-        parent->installEventFilter(this);
-    }
-
-    bool eventFilter(QObject *watched, QEvent *event) override { return m_handler(watched, event); }
-private:
-    QtEventFilterHandler m_handler;
-};
-
-void installEventFilter(QObject* target, const QtEventFilterHandler& eventFilter)
-{
-    new LambdaEventFilterObject(target, eventFilter);
-}
-
 #endif
-
 

@@ -119,10 +119,25 @@ bool WidgetsObserver::eventFilter(QObject* o, QEvent *e)
 static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnimation";
 
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
+Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
 
 WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
 {
     return new WidgetsMatchingAttachment(tableView(), targetModel, targetImportColumns);
+}
+
+WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler)
+{
+    auto* w = m_widget;
+    w->setContextMenuPolicy(Qt::CustomContextMenu);
+    auto connections = ::make_shared<QtLambdaConnections>();
+    w->setProperty("a_customContextMenu", QVariant::fromValue(connections));
+    connections->connect(m_widget, &QWidget::customContextMenuRequested, [creatorHandler, w](const QPoint& pos) {
+        QMenu menu;
+        creatorHandler(&menu);
+        menu.exec(w->mapToGlobal(pos));
+    });
+    return *this;
 }
 
 QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescColumnsParams& params)
@@ -136,7 +151,8 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescColumnsParam
         auto actions = editScope->GetActionsQList();
         tableView->addActions(actions);
     }
-    tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, params)->menuAction());
+    auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
+    tableView->setProperty("ColumnsAction", (size_t)columnsAction);
 
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();
@@ -157,7 +173,8 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescColumnsParams&
         auto actions = editScope->GetActionsQList();
         tableView->addActions(actions);
     }
-    tableView->addAction(dragDropHeader->CreateShowColumsMenu(nullptr, params)->menuAction());
+    auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
+    tableView->setProperty("ColumnsAction", (size_t)columnsAction);
 
     tableView->setWordWrap(true);
     tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
