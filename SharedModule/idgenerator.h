@@ -35,6 +35,7 @@ class Generator
 {
 public:
     Generator(qint32 idSize = 10);
+    ~Generator();
     Name BaseId;
 
     template<class T>

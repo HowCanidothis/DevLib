@@ -131,6 +131,16 @@ Id& Id::operator=(const Name& another)
     return *this;
 }
 
+Generator::~Generator()
+{
+    for(const auto& id : m_registeredIds) {
+        auto ptr = id.lock();
+        if(ptr != nullptr) {
+            ptr->Deleter = []{};
+        }
+    }
+}
+
 Id Generator::GetId(const Name& id) const
 {
     static Id defaultNull(nullptr);
