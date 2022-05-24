@@ -142,3 +142,12 @@ WidgetsStyleSettings {
     qproperty-disabledTableColor: rgba(255, 255, 255, 16);
     qproperty-disabledTableTextColor: rgb(153, 162, 173);
 }
+
+QPushButton[DrawerControl="true"] {
+    min-height: 20px;
+    min-width: 20px;
+    max-height: 20px;
+    max-width: 20px;
+    background: none;
+    border:none;
+}

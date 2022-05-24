@@ -530,6 +530,31 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
     return *this;
 }
 
+LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal)
+{
+    return *getOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal](QWidget* action, const LocalPropertyBool& visible){
+        if(horizontal) {
+            auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
+                auto* result = new QPropertyAnimation(action, "maximumSize");
+                result->connect(result, &QPropertyAnimation::finished, [action]{
+                    action->setVisible(*WidgetWrapper(action).Injected<LocalPropertyBool>("a_collapsed"));
+                });
+                return result;
+            });
+            action->setVisible(true);
+            animation->stop();
+            auto fullSize = QSize(action->maximumWidth(), action->maximumHeight());
+            auto minSize = QSize(0, action->maximumHeight());
+            animation->setDuration(200);
+            animation->setStartValue(!visible ? fullSize : minSize);
+            animation->setEndValue(visible ? fullSize : minSize);
+            animation->start();
+        } else {
+            action->setVisible(visible);
+        }
+    }, true);
+}
+
 void WidgetWrapper::ShowAnimated(int duration, double opacity)
 {
     auto* widget = m_widget;
