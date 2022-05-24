@@ -4,10 +4,7 @@
 #include "UnitsModule/measurementunitmanager.h"
 static const Name MEASUREMENT_YIELD_POINT = "Yield Point";
 
-namespace YieldPointUnits
-{
-    // Using Pressure
-};
+#define YieldPointUnits PressureUnits
 
 #define MEASUREMENT_YIELD_POINT_UNIT_TO_BASE(x) \
     MeasurementManager::GetInstance().GetCurrentUnit(MEASUREMENT_YIELD_POINT)->FromUnitToBase(x)

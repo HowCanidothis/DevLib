@@ -10,7 +10,7 @@ class WidgetsAdjustableTableView : public QTableView
     using Super = QTableView;
 public:
     WidgetsAdjustableTableView(QWidget* parent = nullptr);
-
+    bool KeepStrictWidth;
     // QWidget interface
 public:
     QSize minimumSizeHint() const override;

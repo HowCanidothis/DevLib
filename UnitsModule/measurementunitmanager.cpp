@@ -247,8 +247,10 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&ViscosityUnits::MilliPascalSecond);
 
     AddMeasurement(MEASUREMENT_YIELD_POINT)
+            .AddUnit(&PressureUnits::Pascals)
             .AddUnit(&PressureUnits::PoundsPerSquareFeet)
-            .AddUnit(&PressureUnits::Pascals);
+            .AddUnit(&PressureUnits::PoundsPerSquareInch)
+            .AddUnit(&PressureUnits::KilopoundsPerSquareInch);
 
     AddMeasurement(MEASUREMENT_TEMPERATURE)
             .AddUnit(&TemperatureUnits::Celsius   )

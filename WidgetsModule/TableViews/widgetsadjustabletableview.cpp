@@ -9,6 +9,7 @@
 
 WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     : Super(parent)
+    , KeepStrictWidth(true)
     , m_isDirty(true)
     , m_contentsWidth(0)
     , m_contentsHeight(0)
@@ -28,7 +29,7 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
 QSize WidgetsAdjustableTableView::minimumSizeHint() const
 {
     updateSizeHintCache();
-    return QSize(m_contentsWidth, m_contentsHeight);
+    return QSize(KeepStrictWidth ? m_contentsWidth : Super::minimumSizeHint().width(), m_contentsHeight);
 }
 
 QSize WidgetsAdjustableTableView::sizeHint() const
