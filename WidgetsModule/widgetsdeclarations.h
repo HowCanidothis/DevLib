@@ -3,7 +3,7 @@
 
 #include <QHash>
 
-struct DescColumnsParams
+struct DescTableViewParams
 {
     struct ColumnParam
     {
@@ -16,10 +16,16 @@ struct DescColumnsParams
         ColumnParam& RemoveColumn() { Visible = false; CanBeHidden = false; return *this;  }
     };
 
-    DescColumnsParams(const QSet<qint32>& ignoreColumns);
-    DescColumnsParams() {}
+    DescTableViewParams(const QSet<qint32>& ignoreColumns);
+    DescTableViewParams() : UseStandardActions(true) {}
 
-    DescColumnsParams& ShowColumns(const QVector<qint32>& columns)
+    DescTableViewParams& SetUseStandardActions(bool use)
+    {
+        UseStandardActions = use;
+        return *this;
+    }
+
+    DescTableViewParams& ShowColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
             SetColumnParam(column, ColumnParam().SetVisible(true));
@@ -27,7 +33,7 @@ struct DescColumnsParams
         return *this;
     }
 
-    DescColumnsParams& HideColumns(const QVector<qint32>& columns)
+    DescTableViewParams& HideColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
             SetColumnParam(column, ColumnParam().HideColumn());
@@ -35,7 +41,7 @@ struct DescColumnsParams
         return *this;
     }
 
-    DescColumnsParams& AddColumns(const QVector<qint32>& columns)
+    DescTableViewParams& AddColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
             SetColumnParam(column, ColumnParam().SetVisible(true).SetCanBeHidden(true));
@@ -43,7 +49,7 @@ struct DescColumnsParams
         return *this;
     }
 
-    DescColumnsParams& RemoveColumns(const QVector<qint32>& columns)
+    DescTableViewParams& RemoveColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
             SetColumnParam(column, ColumnParam().RemoveColumn());
@@ -51,7 +57,7 @@ struct DescColumnsParams
         return *this;
     }
 
-    DescColumnsParams& RemoveTill(qint32 count)
+    DescTableViewParams& RemoveTill(qint32 count)
     {
         while(--count != -1) {
             SetColumnParam(count, ColumnParam().RemoveColumn());
@@ -60,14 +66,16 @@ struct DescColumnsParams
     }
 
 
-    DescColumnsParams& SetColumnParam(qint32 column, const ColumnParam& param) { ColumnsParams.insert(column, param); return *this; }
-    DescColumnsParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
+    DescTableViewParams& SetColumnParam(qint32 column, const ColumnParam& param) { ColumnsParams.insert(column, param); return *this; }
+    DescTableViewParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
 
     QHash<qint32, ColumnParam> ColumnsParams;
     Latin1Name StateTag;
+    bool UseStandardActions;
 };
 
-inline DescColumnsParams::DescColumnsParams(const QSet<qint32>& ignoreColumns)
+inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumns)
+    : DescTableViewParams()
 {
     for(const auto& column : ignoreColumns) {
         ColumnsParams.insert(column, ColumnParam());

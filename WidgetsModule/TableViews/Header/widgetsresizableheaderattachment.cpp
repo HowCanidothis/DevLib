@@ -21,7 +21,7 @@ WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientati
     setSortIndicatorShown(true);
 }
 
-QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescColumnsParams& params)
+QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescTableViewParams& params)
 {
     QTableView* table = qobject_cast<QTableView*> (parentWidget());
     Q_ASSERT(table != nullptr);

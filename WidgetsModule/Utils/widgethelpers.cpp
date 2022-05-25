@@ -140,16 +140,18 @@ WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (
     return *this;
 }
 
-QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescColumnsParams& params)
+QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params)
 {
     auto* tableView = this->tableView();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
-    if(editScope != nullptr){
-        auto actions = editScope->GetActionsQList();
-        tableView->addActions(actions);
+    if(params.UseStandardActions) {
+        auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
+        if(editScope != nullptr){
+            auto actions = editScope->GetActionsQList();
+            tableView->addActions(actions);
+        }
     }
     auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
@@ -162,16 +164,18 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescColumnsParam
     return dragDropHeader;
 }
 
-QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescColumnsParams& params)
+QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params)
 {
     auto* tableView = this->tableView();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Vertical, tableView);
     tableView->setVerticalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
-    if(editScope != nullptr){
-        auto actions = editScope->GetActionsQList();
-        tableView->addActions(actions);
+    if(params.UseStandardActions) {
+        auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
+        if(editScope != nullptr){
+            auto actions = editScope->GetActionsQList();
+            tableView->addActions(actions);
+        }
     }
     auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
@@ -532,20 +536,27 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
 
 LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal)
 {
+    // TODO. NOT WORKING
     return *getOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal](QWidget* action, const LocalPropertyBool& visible){
         if(horizontal) {
+            auto startMaximumWidth = action->maximumWidth();
             auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
                 auto* result = new QPropertyAnimation(action, "maximumSize");
-                result->connect(result, &QPropertyAnimation::finished, [action]{
-                    action->setVisible(*WidgetWrapper(action).Injected<LocalPropertyBool>("a_collapsed"));
+                result->connect(result, &QPropertyAnimation::finished, [action, startMaximumWidth]{
+                    bool visible = *WidgetWrapper(action).Injected<LocalPropertyBool>("a_collapsed");
+                    if(visible) {
+                        action->setMinimumWidth(startMaximumWidth);
+                    }
+                    //action->setVisible();
                 });
                 return result;
             });
             action->setVisible(true);
             animation->stop();
-            auto fullSize = QSize(action->maximumWidth(), action->maximumHeight());
+            auto fullSize = QSize(action->width(), action->maximumHeight());
             auto minSize = QSize(0, action->maximumHeight());
-            animation->setDuration(200);
+            animation->setDuration(500);
+            animation->setEasingCurve(QEasingCurve::OutExpo);
             animation->setStartValue(!visible ? fullSize : minSize);
             animation->setEndValue(visible ? fullSize : minSize);
             animation->start();

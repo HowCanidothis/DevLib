@@ -191,8 +191,8 @@ public:
     QSet<int> SelectedColumnsSet();
     void SelectRowsAndScrollToFirst(const QSet<qint32>& rows);
     void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns);
-    class QHeaderView* InitializeHorizontal(const DescColumnsParams& params = DescColumnsParams());
-    QHeaderView* InitializeVertical(const DescColumnsParams& params = DescColumnsParams());
+    class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams());
+    QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams());
     class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
 
 private:
