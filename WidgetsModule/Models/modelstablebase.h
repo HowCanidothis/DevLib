@@ -318,7 +318,7 @@ public:
     TViewModelsEditTable(QObject* parent)
         : Super(parent)
         , CreateDataHandler ([this](qint32, const QVariant&){ insertRows(rowCount()-1, 1); })
-        , IsEditColumn      ([](qint32 column){ return !column; })
+        , IsEditColumn      ([](qint32 column){ return true; })
         , DataHandler       ([](qint32, int ){ return QVariant();})
     {
         setProperty("ExtraFieldsCount", 1);
