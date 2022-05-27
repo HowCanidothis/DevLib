@@ -17,7 +17,7 @@ namespace PressureUnits
     static const MeasurementUnit PoundsPerSquareInch         ("Pounds Per Square Inch"        , []{return QObject::tr("pounds-force/sq.inch");         }, []{ return QObject::tr("psi");       }, 6894.757);
     static const MeasurementUnit KilopoundsPerSquareInch     ("Kilopounds Per Square Inch"    , []{return QObject::tr("kilopounds-force/sq.inch");     }, []{ return QObject::tr("ksi");       }, 6894757);
     static const MeasurementUnit PoundsPerSquareFeet         ("Pounds Per Square Feet"        , []{return QObject::tr("pounds-force/sq.feet");         }, []{ return QObject::tr("lbf/ft2");   }, 47.880172);
-    static const MeasurementUnit PoundsPer100SquareFeet         ("Pounds Per 100 Square Feet"    , []{return QObject::tr("pounds-force/100 sq.feet");     }, []{ return QObject::tr("lbf/100ft2");}, 0.47880172);
+    static const MeasurementUnit PoundsPer100SquareFeet      ("Pounds Per 100 Square Feet"    , []{return QObject::tr("pounds-force/100 sq.feet");     }, []{ return QObject::tr("lbf/100ft2");}, 0.47880172);
 }
 
 #define MEASUREMENT_PRESSURE_STRING              MEASUREMENT_STRING(MEASUREMENT_PRESSURE)

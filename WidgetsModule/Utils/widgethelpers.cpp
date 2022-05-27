@@ -377,6 +377,14 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel()
     return *this;
 }
 
+WidgetComboboxWrapper& WidgetComboboxWrapper::MakeVocabulary(QAbstractItemModel* model){
+    auto cb = combobox();
+    cb->setModel(model);
+    cb->setEditable(true);
+    DisconnectModel();
+    return *this;
+}
+
 WidgetGroupboxWrapper::WidgetGroupboxWrapper(QGroupBox* groupBox)
     : WidgetWrapper(groupBox)
 {}

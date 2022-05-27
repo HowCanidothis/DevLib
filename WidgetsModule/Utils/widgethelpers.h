@@ -148,6 +148,8 @@ public:
     WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisconnectModel();
+    WidgetComboboxWrapper& MakeVocabulary(QAbstractItemModel* model);
+
 
 private:
     QComboBox* combobox() const { return reinterpret_cast<QComboBox*>(m_widget); }
