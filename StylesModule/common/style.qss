@@ -1206,3 +1206,25 @@ NotifierErrorsFrame QGroupBox::title
     color: red;
 }
 
+QPushButton#btnDrawer
+{
+    background: #004d40;
+    image: url(":/qss_icons/rc/chevron-left.svg");
+    qproperty-text: "";
+    min-width: 18px;
+    min-height: 40px;
+    max-width: 18px;
+    max-height: 40px;
+    border-color: #3e3e3e;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 8px;
+    color: white;
+}
+
+QPushButton#btnDrawer:hover{
+    background: #3e3e3e;
+    image: url(":/qss_icons/rc/chevron-left-hover.svg");
+    color: #004d40;
+    border-color: white;
+}
