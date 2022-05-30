@@ -1,4 +1,4 @@
-#include "floatingwidgetlocationattachment.h"
+#include "WidgetsLocationAttachment.h"
 
 #include <QWidget>
 #include <QResizeEvent>
@@ -6,7 +6,7 @@
 #include "WidgetsModule/Components/componentplacer.h"
 #include "WidgetsModule/Utils/styleutils.h"
 
-FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(const DescFloatingWidgetLocationAttachmentParams& params)
+WidgetsLocationAttachment::WidgetsLocationAttachment(const DescWidgetsLocationAttachmentParams& params)
     : Super(params.Target)
     , m_componentPlacer(::make_scoped<ComponentPlacer>(params.Delay))
     , m_target(params.Target)
@@ -40,15 +40,22 @@ FloatingWidgetLocationAttachment::FloatingWidgetLocationAttachment(const DescFlo
     StyleUtils::InstallSizeAdjuster(m_target);
 }
 
-bool FloatingWidgetLocationAttachment::eventFilter(QObject* watched, QEvent* event)
+bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
 {
     switch (event->type()) {
+    case QEvent::Move: {
+        if(watched == m_parent){
+            m_componentPlacer->ResultPosition.Invoke();
+        }
+        break;
+    }
     case QEvent::Resize: {
         auto* resizeEvent = reinterpret_cast<QResizeEvent*>(event);
         if(watched == m_target) {
             m_componentPlacer->TargetSize = resizeEvent->size();
         } else if(watched == m_parent){
             m_componentPlacer->ParentSize = resizeEvent->size();
+            m_componentPlacer->ResultPosition.Invoke();
         } else {
             m_componentPlacer->ResultPosition.Invoke();
         }

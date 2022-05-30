@@ -14,7 +14,8 @@ public:
     template<typename ... Args>
     void connect(Args... args);
     void Clear();
-    
+    bool IsEmpty() const { return m_connections.isEmpty(); }
+
 private:
     QVector<QMetaObject::Connection> m_connections;
 };

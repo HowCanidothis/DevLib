@@ -101,7 +101,7 @@ public:
     DispatcherConnectionsSafe& WidgetConnections();
     LocalPropertyBool& WidgetVisibility(bool animated = false);
     LocalPropertyBool& WidgetEnablity();
-    LocalPropertyBool& WidgetCollapsing(bool horizontal);
+    LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth);
 
     bool HasParent(QWidget* parent);
     void ForeachParentWidget(const std::function<bool(QWidget*)>& handler);

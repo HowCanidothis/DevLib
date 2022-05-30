@@ -1,5 +1,6 @@
 #include "widgethelpers.h"
 
+#include <QSortFilterProxyModel>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QTableView>
@@ -232,6 +233,15 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet()
     for(const auto& index : selectedIndexes){
         set.insert(index.row());
     }
+
+    QAbstractItemModel* model = tableView()->model();
+    while(qobject_cast<QSortFilterProxyModel*>(model)) {
+        model = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
+    }
+    if(model->property("ExtraFieldsCount") == 1) {
+        set.remove(model->rowCount() - 1);
+    }
+
     return set;
 }
 
@@ -580,29 +590,20 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
     return *this;
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal)
+LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initialWidth)
 {
     // TODO. NOT WORKING
-    return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal](QObject* object, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal, initialWidth](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
         if(horizontal) {
-            auto startMaximumWidth = action->maximumWidth();
             auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
-                auto* result = new QPropertyAnimation(action, "maximumSize");
-                result->connect(result, &QPropertyAnimation::finished, [action, startMaximumWidth]{
-                    bool visible = *WidgetWrapper(action).Injected<LocalPropertyBool>("a_collapsed");
-                    if(visible) {
-                        action->setMinimumWidth(startMaximumWidth);
-                    }
-                    //action->setVisible();
-                });
-                return result;
+                return new QPropertyAnimation(action, "maximumSize");
             });
             action->setVisible(true);
             animation->stop();
-            auto fullSize = QSize(action->width(), action->maximumHeight());
+            auto fullSize = QSize(initialWidth, action->maximumHeight());
             auto minSize = QSize(0, action->maximumHeight());
-            animation->setDuration(500);
+            animation->setDuration(250);
             animation->setEasingCurve(QEasingCurve::OutExpo);
             animation->setStartValue(!visible ? fullSize : minSize);
             animation->setEndValue(visible ? fullSize : minSize);

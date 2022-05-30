@@ -1,7 +1,7 @@
 #include "notifybutton.h"
 
 #include <QLabel>
-#include "WidgetsModule/Attachments/floatingwidgetlocationattachment.h"
+#include "WidgetsModule/Attachments/widgetslocationattachment.h"
 #include "WidgetsModule/Components/componentplacer.h"
 
 NotifyButton::NotifyButton(QWidget* parent)
@@ -25,7 +25,7 @@ NotifyButton::NotifyButton(QWidget* parent)
 
     m_connectors.AddConnector<LocalPropertiesLabelConnector>(&NotificationsCountString, m_label);
 
-    auto* attachment = FloatingWidgetLocationAttachment::Attach(DescFloatingWidgetLocationAttachmentParams(m_label, QuadTreeF::Location_TopRight)
+    auto* attachment = WidgetsLocationAttachment::Attach(DescWidgetsLocationAttachmentParams(m_label, QuadTreeF::Location_TopRight)
                                                                 .SetOffset({m_offset.Native().width(), m_offset.Native().height()})
                                                                 .SetRelativeParent(this)
                                                                 .SetDelay(0));

@@ -18,6 +18,7 @@
 #include "Models/viewmodelsdefaultfieldmodel.h"
 
 #include "Bars/menubarmovepane.h"
+#include "Bars/widgetstoolbar.h"
 
 #include "Notifier/notifymanager.h"
 #include "Notifier/topnotifierframe.h"
@@ -34,6 +35,7 @@
 #include "Attachments/tableviewwidgetattachment.h"
 #include "Attachments/widgetsactivetableattachment.h"
 #include "Attachments/windowresizeattachment.h"
+#include "Attachments/widgetslocationattachment.h"
 
 #include "Components/componentplacer.h"
 

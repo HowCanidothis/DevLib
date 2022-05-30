@@ -15,7 +15,7 @@ ComponentPlacer::ComponentPlacer(qint32 delayMsecs, const ThreadHandlerNoThreadC
 void ComponentPlacer::Initialize()
 {
     auto fupdateLocation = [this]{
-        updateLocation();
+        updateLocation();        
     };
 
     ParentSize.Subscribe(fupdateLocation);
