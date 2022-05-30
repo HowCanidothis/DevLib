@@ -599,7 +599,6 @@ LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initi
             auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
                 return new QPropertyAnimation(action, "maximumSize");
             });
-            action->setVisible(true);
             animation->stop();
             auto fullSize = QSize(initialWidth, action->maximumHeight());
             auto minSize = QSize(0, action->maximumHeight());
