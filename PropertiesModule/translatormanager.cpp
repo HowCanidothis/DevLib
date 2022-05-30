@@ -13,11 +13,6 @@ TranslatorManager& TranslatorManager::GetInstance()
     return result;
 }
 
-TranslatedString::TranslatedString()
-{
-
-}
-
 TranslatedString::TranslatedString(const FTranslationHandler& translationHandler)
     : Super(translationHandler())
     , m_translationHandler(translationHandler)

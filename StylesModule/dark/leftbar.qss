@@ -151,3 +151,7 @@ QPushButton[DrawerControl="true"] {
     background: none;
     border:none;
 }
+
+BHACatalogWidget QListView::item {
+    height: 30px;
+}

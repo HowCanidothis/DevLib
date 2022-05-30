@@ -13,12 +13,19 @@
 #include <QGroupBox>
 #include <QStandardItemModel>
 #include <QSpinBox>
+#include <QColorDialog>
+#include <QWidgetAction>
+#include <QLabel>
 #include <QMenu>
+#include <QHBoxLayout>
+#include <ActionsModule/internal.hpp>
 
 #include <optional>
 
 #include <ActionsModule/internal.hpp>
 
+#include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 #include "WidgetsModule/Managers/widgetsfocusmanager.h"
 #include "WidgetsModule/Managers/widgetsstandardtableheadermanager.h"
 
@@ -146,15 +153,24 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    if(params.UseStandardActions) {
-        auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
-        if(editScope != nullptr){
-            auto actions = editScope->GetActionsQList();
-            tableView->addActions(actions);
-        }
-    }
+
     auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
+
+    if(params.UseStandardActions) {
+        auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
+        if(editScope != nullptr){
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+            MenuWrapper(tableView).AddSeparator();
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
+            MenuWrapper(tableView).AddSeparator();
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
+            tableView->addAction(columnsAction->menuAction());
+        }
+    }
+
 
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();
@@ -170,15 +186,22 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Vertical, tableView);
     tableView->setVerticalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
-    if(params.UseStandardActions) {
-        auto* editScope = ActionsManager::GetInstance().FindScope("Edit");
-        if(editScope != nullptr){
-            auto actions = editScope->GetActionsQList();
-            tableView->addActions(actions);
-        }
-    }
+
     auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
+    if(params.UseStandardActions) {
+        auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
+        if(editScope != nullptr){
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+            MenuWrapper(tableView).AddSeparator();
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
+            MenuWrapper(tableView).AddSeparator();
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
+            tableView->addAction(columnsAction->menuAction());
+        }
+    }
 
     tableView->setWordWrap(true);
     tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
@@ -275,7 +298,7 @@ WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
     : WidgetWrapper(tableView)
 {}
 
-bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard()
+bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders)
 {
     auto* tableView = this->tableView();
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
@@ -293,6 +316,20 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard()
     });
 
     QString text;
+    if(includeHeaders) {
+        auto rowIndex = selectedIndexes.first().row();
+        for(const auto& index : selectedIndexes) {
+            if(header->isSectionHidden(index.column())) {
+                continue;
+            }
+            if(rowIndex != index.row()) {
+                text += "\n";
+                break;
+            }
+            text += tableView->model()->headerData(index.column(), Qt::Horizontal).toString() + "\t";
+        }
+    }
+
     auto rowIndex = selectedIndexes.first().row();
     for(const auto& index : selectedIndexes) {
         if(header->isSectionHidden(index.column())) {
@@ -449,7 +486,7 @@ WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing()
 
 WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater)
 {
-    auto collapsingData = InjectedCommutator("a_collapsing", [](QWidget* w) {
+    auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
                                  auto* widget = reinterpret_cast<QGroupBox*>(w);
                                  if(widget->isChecked()) {
                                      ThreadsBase::DoMain([widget]{
@@ -462,7 +499,8 @@ WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher
 }
 
 WidgetWrapper::WidgetWrapper(QWidget* widget)
-    : m_widget(widget)
+    : Super(widget)
+    , m_widget(widget)
 {
 
 }
@@ -537,7 +575,8 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
 LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal)
 {
     // TODO. NOT WORKING
-    return *getOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal](QWidget* action, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QWidget*>(object);
         if(horizontal) {
             auto startMaximumWidth = action->maximumWidth();
             auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
@@ -661,7 +700,8 @@ DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections()
 
 LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated)
 {
-    return *getOrCreateProperty<LocalPropertyBool>("a_visible", [animated](QWidget* action, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [animated](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QWidget*>(object);
         if(animated) {
             WidgetWrapper(action).SetVisibleAnimated(visible);
         } else {
@@ -672,7 +712,8 @@ LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated)
 
 LocalPropertyBool& WidgetWrapper::WidgetEnablity()
 {
-    return *getOrCreateProperty<LocalPropertyBool>("a_enable", [](QWidget* action, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QWidget*>(object);
         action->setEnabled(visible);
     }, true);
 }
@@ -706,5 +747,215 @@ void WidgetWrapper::ForeachChildWidget(const std::function<void (QWidget*)>& han
     auto childWidgets = m_widget->findChildren<QWidget*>();
     for(auto* childWidget : childWidgets) {
         handler(childWidget);
+    }
+}
+
+ActionWrapper::ActionWrapper(QAction* action)
+    : Super(action)
+    , m_action(action)
+{
+
+}
+
+ActionWrapper& ActionWrapper::Make(const std::function<void (ActionWrapper&)>& handler)
+{
+    handler(*this);
+    return *this;
+}
+
+ActionWrapper& ActionWrapper::SetShortcut(const QKeySequence& keySequence)
+{
+    m_action->setShortcut(keySequence);
+    return *this;
+}
+
+ActionWrapper& ActionWrapper::SetText(const QString& text)
+{
+    m_action->setText(text);
+    return *this;
+}
+
+LocalPropertyBool& ActionWrapper::ActionVisibility()
+{
+    return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QAction*>(object);
+        action->setVisible(visible);
+    }, true);
+}
+
+LocalPropertyBool& ActionWrapper::ActionEnablity()
+{
+    return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QAction*>(object);
+        action->setEnabled(visible);
+    }, true);
+}
+
+TranslatedStringPtr ActionWrapper::ActionText()
+{
+    return GetOrCreateProperty<TranslatedString>("a_text", [](QObject* object, const TranslatedString& text){
+        auto* action = reinterpret_cast<QAction*>(object);
+        action->setText(text);
+    }, []{ return QString(); });
+}
+
+ActionWrapper MenuWrapper::AddSeparator() const
+{
+    QAction *action = new QAction(m_widget);
+    action->setSeparator(true);
+    m_widget->addAction(action);
+    return action;
+}
+
+ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<void ()>& handle) const
+{
+    auto result = new QAction(title, m_widget);
+    result->connect(result, &QAction::triggered, handle);
+    m_widget->addAction(result);
+    return result;
+}
+
+ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<void (QAction*)>& handle) const
+{
+    auto result = new QAction(title, m_widget);
+    result->connect(result, &QAction::triggered, [handle, result]{
+        handle(result);
+    });
+    m_widget->addAction(result);
+    return result;
+}
+
+ActionWrapper MenuWrapper::AddTableColumnsAction()
+{
+    auto* tableView = qobject_cast<QTableView*>(m_widget);
+    Q_ASSERT(tableView != nullptr);
+    auto* action = ((QMenu*)tableView->property("ColumnsAction").toLongLong())->menuAction();
+    Q_ASSERT(action != nullptr);
+    tableView->addAction(action);
+    return action;
+}
+
+MenuWrapper& MenuWrapper::AddGlobalAction(const QString& path)
+{
+    auto* action = ActionsManager::GetInstance().FindAction(path);
+    Q_ASSERT(action != nullptr);
+    m_widget->addAction(action);
+    return *this;
+}
+
+MenuWrapper& MenuWrapper::AddGlobalTableAction(const Latin1Name& id)
+{
+    auto* action = WidgetsGlobalTableActionsScope::GetInstance().FindAction(id);
+    Q_ASSERT(action != nullptr);
+    m_widget->addAction(action);
+    if(m_globalActionsHandlers != nullptr) {
+        auto foundIt = m_globalActionsHandlers->Handlers.find(action);
+        Q_ASSERT(foundIt != m_globalActionsHandlers->Handlers.end());
+        foundIt.value().SetVisible(true);
+    }
+    return *this;
+}
+
+ActionWrapper MenuWrapper::AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const
+{
+    auto result = new QAction(title, m_widget);
+    result->setCheckable(true);
+    result->setChecked(checked);
+    result->connect(result, &QAction::triggered, [handler, result]{
+        handler(result->isChecked());
+    });
+    m_widget->addAction(result);
+    return result;
+}
+
+ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const
+{
+    static QPixmap pixmap(10,10);
+    auto colorAction = AddAction(title, [handler, color](QAction* action){
+        QColorDialog dialog(qApp->activeWindow());
+        dialog.setModal(true);
+        WidgetsDialogsManager::GetInstance().OnDialogCreated(&dialog);
+        dialog.setCurrentColor(color);
+        if(dialog.exec() == QDialog::Accepted) {
+            auto result = dialog.currentColor();
+            pixmap.fill(result);
+            action->setIcon(pixmap);
+            handler(result);
+        }
+    });
+    pixmap.fill(color);
+    colorAction->setIcon(pixmap);
+    return colorAction;
+}
+
+ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const
+{
+    auto* widget = new QWidget();
+    auto* layout = new QHBoxLayout();
+    layout->setContentsMargins(6,3,6,3);
+    widget->setLayout(layout);
+    auto* label = new QLabel(title);
+    auto* spinBox = new QDoubleSpinBox;
+    layout->addWidget(label);
+    layout->addItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    layout->addWidget(spinBox);
+    spinBox->setValue(value);
+    QObject::connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [handler](double value) {
+        handler(value);
+    });
+    auto* action = new QWidgetAction(m_widget);
+    action->setDefaultWidget(widget);
+    m_widget->addAction(action);
+    return action;
+}
+
+class PreventedFromClosingMenu : public QMenu
+{
+    using Super = QMenu;
+public:
+    using Super::Super;
+
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        QAction *action = activeAction();
+        if (action && action->isEnabled()) {
+            action->trigger();
+        }
+        else
+            QMenu::mouseReleaseEvent(e);
+    }
+};
+
+QMenu* MenuWrapper::CreatePreventedFromClosingMenu(const QString& title)
+{
+    return new PreventedFromClosingMenu(title);
+}
+
+QMenu* MenuWrapper::AddPreventedFromClosingMenu(const QString& title) const
+{
+    auto* result = new PreventedFromClosingMenu(title, m_widget);
+    m_widget->addAction(result->menuAction());
+    return result;
+}
+
+QMenu* MenuWrapper::AddMenu(const QString& label) const
+{
+    auto* result = new QMenu(label, m_widget);
+    m_widget->addAction(result->menuAction());
+    return result;
+}
+
+void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex&)>& function)
+{
+    auto rowCount = model->rowCount(parent);
+    for(int r = 0; r < rowCount; ++r) {
+        QModelIndex index = model->index(r, 0, parent);
+        if(function(index)) {
+            return;
+        }
+        // here is your applicable code
+        if( model->hasChildren(index) ) {
+            forEachModelIndex(model, index, function);
+        }
     }
 }

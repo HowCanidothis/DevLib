@@ -8,7 +8,6 @@
 #include "qtlambdaconnections.h"
 #include "qtqssreader.h"
 #include "ticksplitter.h"
-#include "utils.h"
 
 #endif
 

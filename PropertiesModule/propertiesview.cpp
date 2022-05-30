@@ -8,13 +8,12 @@
 #include <QAction>
 #include <QMouseEvent>
 
-#include <SharedModule/External/utils.h>
-
 #include "PropertiesModule/propertiessystem.h"
 #include "propertiesmodel.h"
 #include "SharedGuiModule/decl.h"
 #include "Widgets/propertiesdelegate.h"
 #include "propertiesscope.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 
 PropertiesView::PropertiesView(QWidget* parent, Qt::WindowFlags flags)

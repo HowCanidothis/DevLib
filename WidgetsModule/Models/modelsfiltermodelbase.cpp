@@ -42,7 +42,7 @@ QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation o
 Qt::ItemFlags ViewModelsFilterModelBase::flags(const QModelIndex& index) const
 {
     if(!index.isValid()) {
-        return Qt::NoItemFlags;
+        return Qt::NoItemFlags | Qt::ItemIsDropEnabled;
     }
 
     return GetFlagsHandler(index);

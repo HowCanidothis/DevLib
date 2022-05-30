@@ -146,3 +146,7 @@ WidgetsStyleSettings {
     qproperty-disabledTableColor: #d4d4d4;
     qproperty-disabledTableTextColor: black;
 }
+
+BHACatalogWidget QListView::item {
+    height: 30px;
+}

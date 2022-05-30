@@ -3,8 +3,13 @@
 #include <QHeaderView>
 #include <QAbstractButton>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
 {
+    HasSelection.ConnectFrom(CONNECTION_DEBUG_LOCATION, SelectedRowsCount, [](qint32 count){
+        return count != 0;
+    });
 }
 
 void WidgetsActiveTableViewAttachment::updateActiveTableView(QTableView* tableView)
@@ -12,9 +17,9 @@ void WidgetsActiveTableViewAttachment::updateActiveTableView(QTableView* tableVi
     ActiveTable = tableView;
     auto* selectionModel = ActiveTable->selectionModel();
     if(selectionModel != nullptr) {
-        HasSelection = !selectionModel->selectedIndexes().isEmpty();
+        SelectedRowsCount = WidgetTableViewWrapper(tableView).SelectedRowsSet().size();
     } else {
-        HasSelection = false;
+        SelectedRowsCount = 0;
     }
 }
 

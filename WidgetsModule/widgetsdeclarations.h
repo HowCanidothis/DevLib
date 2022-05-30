@@ -82,4 +82,6 @@ inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumn
     }
 }
 
+using WidgetsGlobalTableActionsScopeHandlersPtr = SharedPointer<struct WidgetsGlobalTableActionsScopeHandlers>;
+
 #endif // WIDGETSDECLARATIONS_H

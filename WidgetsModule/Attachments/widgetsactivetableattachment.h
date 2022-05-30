@@ -7,6 +7,7 @@ class WidgetsActiveTableViewAttachment : public QObject
 {
     WidgetsActiveTableViewAttachment();
 public:
+    LocalPropertyInt SelectedRowsCount;
     LocalPropertyBool HasSelection;
     LocalPropertyPtr<QTableView> ActiveTable;
 

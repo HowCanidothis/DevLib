@@ -58,6 +58,8 @@ class ModelsStandardListModel : public TModelsTableWrapper<QVector<QHash<qint32,
 {
     using Super = TModelsTableWrapper<QVector<QHash<qint32, QVariant>>>;
 public:
+    using container_type = QVector<QHash<qint32, QVariant>>;
+
     template<class ... Args>
     DispatcherConnection AddTrigger(CommonDispatcher<Args...>* dispatcher, const std::function<void (container_type&)>& handler, const std::function<bool ()>& apply = []{ return true; })
     {
@@ -72,15 +74,16 @@ public:
     }
 
     template<class Enum>
-    void SetEnum()
+    void SetEnum(const std::function<void (qint32 i, container_type::value_type&)>& handler = [](container_type&){})
     {
-        Change([](container_type& native){
+        AddTrigger(&TranslatorManager::GetInstance().OnLanguageChanged, [handler](container_type& native){
             native.clear();
             auto names = TranslatorManager::GetNames<Enum>();
             for(qint32 i((qint32)Enum::First), e((qint32)Enum::Last); i <= e; i++) {
                 ModelsStandardListModel::value_type data;
                 data.insert(Qt::DisplayRole, names.at(i));
                 data.insert(Qt::EditRole, i);
+                handler(i, data);
                 native.append(data);
             }
         });
@@ -88,7 +91,7 @@ public:
 };
 using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
 
-class ModelsStandardListViewModel : public TViewModelsTableBase<ModelsStandardListModel>
+class ViewModelsStandardListModel : public TViewModelsTableBase<ModelsStandardListModel>
 {
     using Super = TViewModelsTableBase<ModelsStandardListModel>;
 public:
@@ -120,6 +123,16 @@ public:
             return 0;
         }
         return 1;
+    }
+
+    template<class Enum>
+    static ViewModelsStandardListModel* CreateEnumModel(QObject* parent, const std::function<void (qint32, ModelsStandardListModel::value_type&)>& extraFieldsHandler = [](ModelsStandardListModel::container_type&){})
+    {
+        auto* result = new ViewModelsStandardListModel(parent);
+        auto model = ::make_shared<ModelsStandardListModel>();
+        model->SetEnum<Enum>(extraFieldsHandler);
+        result->SetData(model);
+        return result;
     }
 };
 

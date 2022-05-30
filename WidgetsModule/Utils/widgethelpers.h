@@ -20,8 +20,55 @@ Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 #define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType) \
     WrapperType& Make(const std::function<void (WrapperType&)>& handler) { return make<WrapperType>(handler); }
 
-class WidgetWrapper
+class ObjectWrapper
 {
+public:
+    ObjectWrapper(QObject* object)
+        : m_object(object)
+    {}
+
+    template<class T>
+    SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
+    {
+        auto value = m_object->property(propertyName).value<SharedPointer<T>>();
+        if(value == nullptr) {
+            value = creator != nullptr ? creator() : new T();
+            m_object->setProperty(propertyName, QVariant::fromValue(value));
+        }
+        return value;
+    }
+
+    SharedPointer<WidgetWrapperInjectedCommutatorData> InjectedCommutator(const char* propertyName, const std::function<void (QObject* w)>& handler = nullptr) const
+    {
+        return Injected<WidgetWrapperInjectedCommutatorData>(propertyName, [&]() -> WidgetWrapperInjectedCommutatorData* {
+            auto* result = new WidgetWrapperInjectedCommutatorData();
+            auto* widget = m_object;
+            result->Commutator.Connect(nullptr, [handler, widget]{
+                 handler(widget);
+            });
+            return result;
+        });
+    }
+
+    template<class Property, typename ... Args>
+    SharedPointer<Property> GetOrCreateProperty(const char* propName, const std::function<void (QObject*, const Property&)>& handler, Args... args) const
+    {
+        return Injected<Property>(propName, [&]() -> Property* {
+            auto* property = new Property(args...);
+            auto* widget = m_object;
+            property->OnChanged.ConnectAndCall(this, [widget, handler, property]{ handler(widget, *property); });
+            property->SetSetterHandler(ThreadHandlerMain);
+            return property;
+        });
+    }
+
+private:
+    QObject* m_object;
+};
+
+class WidgetWrapper : public ObjectWrapper
+{
+    using Super = ObjectWrapper;
     using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*);
 public:
     WidgetWrapper(QWidget* widget);
@@ -35,29 +82,6 @@ public:
     DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets)
     {
         return createRule(debugLocation, &WidgetEnablity(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectEnablity);
-    }
-
-    template<class T>
-    SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
-    {
-        auto value = m_widget->property(propertyName).value<SharedPointer<T>>();
-        if(value == nullptr) {
-            value = creator != nullptr ? creator() : new T();
-            m_widget->setProperty(propertyName, QVariant::fromValue(value));
-        }
-        return value;
-    }
-
-    SharedPointer<WidgetWrapperInjectedCommutatorData> InjectedCommutator(const char* propertyName, const std::function<void (QWidget* w)>& handler = nullptr) const
-    {
-        return Injected<WidgetWrapperInjectedCommutatorData>(propertyName, [&]() -> WidgetWrapperInjectedCommutatorData* {
-            auto* result = new WidgetWrapperInjectedCommutatorData();
-            auto* widget = m_widget;
-            result->Commutator.Connect(nullptr, [handler, widget]{
-                 handler(widget);
-            });
-            return result;
-        });
     }
 
     void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8);
@@ -89,20 +113,6 @@ public:
 private:
     DispatcherConnections createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
                                      const FConnector& connector);
-
-#ifdef PROPERTIES_LIB
-    template<class Property, typename ... Args>
-    SharedPointer<Property> getOrCreateProperty(const char* propName, const std::function<void (QWidget*, const Property&)>& handler, Args... args) const
-    {
-        return Injected<Property>(propName, [&]() -> Property* {
-            auto* property = new Property(args...);
-            auto* widget = m_widget;
-            property->OnChanged.ConnectAndCall(this, [widget, handler, property]{ handler(widget, *property); });
-            property->SetSetterHandler(ThreadHandlerMain);
-            return property;
-        });
-    }
-#endif
 
 protected:
     template<class T>
@@ -184,7 +194,7 @@ public:
     WidgetTableViewWrapper(QTableView* tableView);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper)
-    bool CopySelectedTableContentsToClipboard();
+    bool CopySelectedTableContentsToClipboard(bool includeHeaders = false);
     QList<int> SelectedRowsSorted();
     QList<int> SelectedColumnsSorted();
     QSet<int> SelectedRowsSet();
@@ -198,6 +208,60 @@ public:
 private:
     QTableView* tableView() const { return reinterpret_cast<QTableView*>(m_widget); }
 };
+
+class ActionWrapper : public ObjectWrapper
+{
+    using Super = ObjectWrapper;
+public:
+    ActionWrapper(QAction* action);
+
+    ActionWrapper& Make(const std::function<void (ActionWrapper&)>& handler);
+    ActionWrapper& SetShortcut(const QKeySequence& keySequence);
+    ActionWrapper& SetText(const QString& text);
+
+    QAction* GetAction() const { return m_action; }
+
+    LocalPropertyBool& ActionVisibility();
+    LocalPropertyBool& ActionEnablity();
+    SharedPointer<class TranslatedString> ActionText();
+
+    QAction* operator->() const { return m_action; }
+    operator QAction*() const { return m_action; }
+
+private:
+    QAction* m_action;
+};
+
+class MenuWrapper
+{
+public:
+    MenuWrapper(QWidget* widget, const WidgetsGlobalTableActionsScopeHandlersPtr& handlers = nullptr)
+        : m_widget(widget)
+        , m_globalActionsHandlers(handlers)
+    {}
+
+    const MenuWrapper& Make(const std::function<void (const MenuWrapper&)>& handler) const { handler(*this); return *this; }
+    MenuWrapper& AddGlobalAction(const QString& path);
+    MenuWrapper& AddGlobalTableAction(const Latin1Name& id);
+    ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
+    ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
+    ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
+    ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
+    ActionWrapper AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const;
+    ActionWrapper AddTableColumnsAction();
+    ActionWrapper AddSeparator() const;
+    class QMenu* AddPreventedFromClosingMenu(const QString& title) const;
+    static QMenu* CreatePreventedFromClosingMenu(const QString& title);
+    QMenu* AddMenu(const QString& label) const;
+
+    QMenu* GetMenu() const { return reinterpret_cast<QMenu*>(m_widget); }
+
+private:
+    QWidget* m_widget;
+    WidgetsGlobalTableActionsScopeHandlersPtr m_globalActionsHandlers;
+};
+
+_Export void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex& index)>& function);
 
 class WidgetsObserver : public QObject
 {

@@ -143,7 +143,7 @@ public:
         auto editRoleGetter = [modelGetter, getter](const QModelIndex& index) -> std::optional<QVariant> {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr) {
-                return "-";
+                return QVariant();
             }
             if(index.row() >= viewModel->GetSize()) {
                 return QVariant();

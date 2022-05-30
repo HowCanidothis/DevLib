@@ -10,7 +10,7 @@ ActionsScopeBase::ActionsScopeBase(const Latin1Name& scopeName)
     ActionsManager::GetInstance().registerActionsScope(this);
 }
 
-Action* ActionsScopeBase::FindAction(const Latin1Name& actionName)
+QAction* ActionsScopeBase::FindAction(const Latin1Name& actionName) const
 {
     auto found = m_actionsMap.find(actionName);
     if(found != m_actionsMap.end()) {
@@ -28,7 +28,7 @@ QList<QAction*> ActionsScopeBase::GetActionsQList() const
     return result;
 }
 
-Action* ActionsScopeBase::createAction(const Latin1Name& actionName, const FAction& action)
+QAction* ActionsScopeBase::createAction(const Latin1Name& actionName, const FAction& action)
 {
     auto* result = ActionsManager::GetInstance().createAction(Latin1Name(GenerateFullActionName(actionName)), action);
     m_actions.Append(result);

@@ -109,7 +109,6 @@ inline QStringList LocalPropertySequentialEnum<Enum>::GetNames() const
 class TranslatedString : public LocalPropertyString
 {
     using Super = LocalPropertyString;
-    TranslatedString();
 public:
     TranslatedString(const FTranslationHandler& translationHandler = []{ return QString(); });
     TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);

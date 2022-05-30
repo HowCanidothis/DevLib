@@ -149,14 +149,15 @@ template<class T>
 class TViewModelsTableBase;
 
 template<class FilterClassData, class Wrapper>
-class ViewModelsTableFilterComponent
+class ViewModelsTableFilterComponent : public QObject
 {
 public:
     using value_type = typename Wrapper::value_type;
     using FFilterHandler = std::function<bool (const FilterClassData& filterData, qint32 index)>;
 
     ViewModelsTableFilterComponent(ViewModelsFilterModelBase* proxy, const FFilterHandler& handler)
-        : m_sourceModel(reinterpret_cast<TViewModelsTableBase<Wrapper>*>(proxy->sourceModel()))
+        : QObject(proxy)
+        , m_sourceModel(reinterpret_cast<TViewModelsTableBase<Wrapper>*>(proxy->sourceModel()))
         , m_filterHandler(handler)
         , m_proxyModel(proxy)
     {

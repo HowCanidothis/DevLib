@@ -3,6 +3,8 @@
 
 #if defined __cplusplus
 
+#include "Actions/widgetsglobaltableactionsscope.h"
+
 #include "Models/viewmodeltreebase.h"
 #include "Models/modelstreeitembase.h"
 #include "Models/modelstree.h"
@@ -13,6 +15,7 @@
 #include "Models/modelsfiltermodelbase.h"
 #include "Models/modelsvacabulary.h"
 #include "Models/viewmodelsdefaultcomponents.h"
+#include "Models/viewmodelsdefaultfieldmodel.h"
 
 #include "Bars/menubarmovepane.h"
 

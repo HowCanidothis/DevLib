@@ -53,7 +53,7 @@ bool ActionsManager::AddTo(const Latin1Name& scopeName, QWidget* widget)
     return false;
 }
 
-Action* ActionsManager::FindAction(const QString& path) const
+QAction* ActionsManager::FindAction(const QString& path) const
 {
     auto splittedPath = path.split(".");
     Q_ASSERT(splittedPath.size() == 2);
@@ -71,9 +71,11 @@ void ActionsManager::registerActionsScope(ActionsScopeBase* actionsScope)
     m_actionsScopes.insert(std::make_pair(actionsScope->GetName(), actionsScope));
 }
 
-Action* ActionsManager::createAction(const Latin1Name& actionName, const FAction& action)
+QAction* ActionsManager::createAction(const Latin1Name& actionName, const FAction& action)
 {
-    const auto& it = m_actions.emplace(actionName, new Action(actionName, action)).first;
+    auto* newAction = new QAction();
+    newAction->connect(newAction, &QAction::triggered, action);
+    const auto& it = m_actions.emplace(actionName, newAction).first;
     return it->second;
 }
 

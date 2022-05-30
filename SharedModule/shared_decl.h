@@ -439,6 +439,8 @@ public:
         m_instance = nullptr;
     }
 
+    static bool IsInitialized() { return m_instance != nullptr; }
+
     static T& GetInstance()
     {
         Q_ASSERT(m_instance != nullptr);

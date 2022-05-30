@@ -362,6 +362,19 @@ public:
         Remove(toRemove);
     }
 
+    void Clone(const QVector<value_type>& toClone, const std::function<void (container_type& container, value_type& cloned)>& handler)
+    {
+        QVector<value_type> cloned;
+
+        SerializeCopyObject(toClone, cloned, SerializationMode_Default);
+
+        Change([&](container_type& native){
+            for(auto& value : cloned) {
+                handler(native, value);
+            }
+        });
+    }
+
     void Remove(const QSet<qint32>& indexes)
     {
         if(indexes.isEmpty()) {
