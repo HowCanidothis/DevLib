@@ -34,6 +34,7 @@
 #include "MeasurementTypes/frequencydeclarations.h"
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
+#include "MeasurementTypes/powerdeclarations.h"
 
 #endif
 

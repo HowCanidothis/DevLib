@@ -28,6 +28,7 @@
 #include "MeasurementTypes/frequencydeclarations.h"
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
+#include "MeasurementTypes/powerdeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -306,6 +307,7 @@ MeasurementManager::MeasurementManager()
     AddMeasurement(MEASUREMENT_FORCE)
             .AddUnit(&ForceUnits::Newton)
             .AddUnit(&ForceUnits::Kilonewton)
+            .AddUnit(&ForceUnits::PoundsForce)
             .AddUnit(&ForceUnits::KiloGrammForce)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
@@ -328,6 +330,12 @@ MeasurementManager::MeasurementManager()
 
     AddMeasurement(MEASUREMENT_CUTTER_DIAMETER)
             .AddUnit(&DistanceUnits::Milimeters);
+
+    AddMeasurement(MEASUREMENT_POWER)
+            .AddUnit(&PowerUnits::Watt)
+            .AddUnit(&PowerUnits::JoulePerSecond)
+            .AddUnit(&PowerUnits::KiloWatt)
+            .AddUnit(&PowerUnits::HoursePower);
 
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MEASUREMENT_ANGLES,            {AngleUnits::Degrees.Id,                       2})
@@ -356,9 +364,10 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,           1})
             .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
             .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPer100SquareFeet.Id,        2})
+            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPer100SquareFeet.Id,     2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::HoursePower.Id,                   3})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
@@ -393,6 +402,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPer100SquareFeet.Id,        2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::HoursePower.Id,                   3})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
@@ -428,6 +438,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::Pascals.Id,                    2})
             .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2})
+            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::Watt.Id,                          3})
             .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
             .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
             .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
