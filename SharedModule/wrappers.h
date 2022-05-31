@@ -76,8 +76,24 @@ public:
         }
     }
 
+    bool IsSorted() const
+    {
+        if(m_container->isEmpty()) {
+            return true;
+        }
+        auto it = begin();
+        for(const auto& value : adapters::range(begin() + 1, end())) {
+            if(!(m_idGetter(*it) < m_idGetter(value))) {
+                return false;
+            }
+            ++it;
+        }
+        return true;
+    }
+
     const_iterator Find(const ComparisonTarget& id) const
     {
+        Q_ASSERT(IsSorted());
         return std::lower_bound(m_container->begin(), m_container->end(), id, [this](const value_type& f, const ComparisonTarget& s){
             return m_idGetter(f) < s;
         });
@@ -89,6 +105,7 @@ public:
 private:
     iterator find(const ComparisonTarget& id)
     {
+        Q_ASSERT(IsSorted());
         return std::lower_bound(m_container->begin(), m_container->end(), id, [this](const value_type& f, const ComparisonTarget& s){
             return m_idGetter(f) < s;
         });

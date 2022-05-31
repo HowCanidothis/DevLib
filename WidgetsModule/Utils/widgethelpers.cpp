@@ -6,6 +6,7 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QClipboard>
+#include <QCompleter>
 #include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
@@ -363,6 +364,34 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
     return true;
 }
 
+// NOTE. Model must be case insensitively sorted! Otherwise there'll be undefined completion behavior
+QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column)
+{
+    combobox()->setModel(model);
+    combobox()->setEditable(true);
+    auto* completer = new QCompleter(combobox());
+    completer->setCompletionRole(Qt::DisplayRole);
+    completer->setCompletionColumn(column);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setModel(model);
+    if(onActivated != nullptr) {
+        completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [onActivated](const QModelIndex& index){
+            onActivated(index);
+        });
+        auto* combo = combobox();
+        combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
+            onActivated(combo->model()->index(row, 0));
+        });
+    }
+    combobox()->setModelColumn(column);
+    combobox()->setCompleter(completer);
+    DisconnectModel();
+    return completer;
+}
+
+
 WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel()
 {
     auto* combo = this->combobox();
@@ -384,14 +413,6 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel()
                combo, SLOT(_q_updateIndexBeforeChange()));
     QObject::disconnect(viewModel, SIGNAL(modelReset()),
                combo, SLOT(_q_modelReset()));
-    return *this;
-}
-
-WidgetComboboxWrapper& WidgetComboboxWrapper::MakeVocabulary(QAbstractItemModel* model){
-    auto cb = combobox();
-    cb->setModel(model);
-    cb->setEditable(true);
-    DisconnectModel();
     return *this;
 }
 

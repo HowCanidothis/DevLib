@@ -22,18 +22,18 @@ DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGe
 QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex&) const
 {
     QComboBox* comboBox = new QComboBox(parent);
-    WidgetWrapper(comboBox).BlockWheel();
     auto* model = m_getter();
-    comboBox->setModel(model);
-    connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32){
-        if(comboBox->lineEdit() != nullptr) {
-            return;
-        }
-        auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
-        emit nonConstThis->commitData(comboBox);
-        emit nonConstThis->closeEditor(comboBox);
+    WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](WidgetComboboxWrapper& wrapper){
+        wrapper.CreateCompleter(model, [this, comboBox](const QModelIndex&){
+            if(comboBox->lineEdit() != nullptr) {
+                return;
+            }
+            auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
+            emit nonConstThis->commitData(comboBox);
+            emit nonConstThis->closeEditor(comboBox);
+        });
+        wrapper.BlockWheel();
     });
-
     return comboBox;
 }
 

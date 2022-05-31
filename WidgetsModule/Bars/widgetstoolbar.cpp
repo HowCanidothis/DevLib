@@ -16,6 +16,7 @@ WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
 
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0, 0, 0, 0);
+    raise();
 }
 
 void WidgetsToolBar::SetTarget(QWidget* target, QuadTreeF::BoundingRect_Location location)

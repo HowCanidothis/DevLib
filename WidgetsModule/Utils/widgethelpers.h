@@ -148,8 +148,7 @@ public:
     WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisconnectModel();
-    WidgetComboboxWrapper& MakeVocabulary(QAbstractItemModel* model);
-
+    class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0);
 
 private:
     QComboBox* combobox() const { return reinterpret_cast<QComboBox*>(m_widget); }

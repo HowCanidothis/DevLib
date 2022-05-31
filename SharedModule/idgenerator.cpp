@@ -190,7 +190,7 @@ void Generator::attach(Id* id, void* context, const FAction& deleter)
     Q_ASSERT(id->m_data == nullptr && !id->IsNull());
     auto foundIt = m_registeredIds.find(*id);
     SharedPointer<IdData> data;
-    if(foundIt == m_registeredIds.end()) {
+    if(foundIt == m_registeredIds.end() || foundIt.value().expired()) {
         Q_ASSERT(context != nullptr);
         Name idName(*id);
         data = ::make_shared<IdData>(this, context, [this, deleter, idName]{

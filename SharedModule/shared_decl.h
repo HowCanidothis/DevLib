@@ -152,6 +152,17 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+template<class IteratorType, class Struct>
+inline void ForeachFieldOfStruct(const Struct& data, const std::function<void (const IteratorType&)>& handler) {
+    auto size = sizeof(data);
+    qint32 count = size / sizeof(IteratorType);
+    IteratorType* it = (IteratorType*)&data;
+    while(count--) {
+        handler(*it);
+        it++;
+    }
+}
+
 template<class T>
 QVector<T> toVector(const std::initializer_list<T>& list) { return QVector<T>(list); }
 
