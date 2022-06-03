@@ -6,3 +6,11 @@ MainWindow {
     qproperty-visualizationAxisColor: #858585;
     qproperty-placeHolderColor: #4d4d4d;
 }
+
+VisualizationLegendWidget {
+    background: red;
+}
+
+VisualizationLegendItemWidget {
+    background: red;
+}

@@ -17,7 +17,7 @@
 #include "propertiesscope.h"
 #include "propertieswindow.h"
 #include "propertyanimation.h"
-#include "localpropertywatcher.h"
+#include "localpropertypalette.h"
 #include "stateproperty.h"
 #include "propertiesfilenamesgenerator.h"
 #include "localproperty.h"

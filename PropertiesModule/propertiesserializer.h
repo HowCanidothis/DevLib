@@ -133,6 +133,71 @@ struct Serializer<LocalPropertySet<T>>
 
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(LocalPropertySet)
 
+template<>
+struct Serializer<LocalPropertyPalette>
+{
+    using TypeName = LocalPropertyPalette;
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& object)
+    {
+        buffer.OpenSection("PropertiesPalette");
+        qint32 count = 0;
+        buffer << buffer.Sect("Count", count);
+
+        auto& data = object.m_data;
+        while(count--) {
+            Name name; qint32 count2 = 0;
+            buffer << buffer.Sect("Name", name);
+            buffer << buffer.Sect("Count", count2);
+            auto foundIt = data.find(name);
+            std::function<void (const Name&, const QString&)> handler;
+            if(foundIt != data.end()) {
+                handler = [&foundIt](const Name& name, const QString& value){
+                    auto foundIt2 = foundIt.value().find(name);
+                    if(foundIt2 != foundIt.value().end()) {
+                        foundIt2.value().GetData()->FromString(value);
+                    }
+                };
+            } else {
+                handler = [](const Name&, const QString&){};
+            }
+
+            while(count2--) {
+                QString value;
+                buffer << buffer.Sect("Name", name);
+                buffer << buffer.Sect("Value", value);
+                handler(name, value);
+            }
+        }
+        buffer.CloseSection();
+    }
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& object)
+    {
+        buffer.OpenSection("PropertiesPalette");
+        auto& data = object.m_data;
+        qint32 count = data.size();
+        buffer << buffer.Sect("Count", count);
+        for(auto it(data.begin()), e(data.end()); it != e; ++it) {
+            buffer.OpenSection("Object");
+            buffer << buffer.Sect("Name", const_cast<Name&>(it.key()));
+            count = it.value().size();
+            buffer << buffer.Sect("Count", count);
+            for(auto objectIt(it.value().begin()), objectE(it.value().end()); objectIt != objectE; ++objectIt) {
+                buffer << buffer.Sect("Name", const_cast<Name&>(objectIt.key()));
+                QString toString = objectIt->GetData()->ToString();
+                buffer << buffer.Sect("Value", toString);
+            }
+            buffer.CloseSection();
+        }
+        buffer.CloseSection();
+    }
+};
+
+DECLARE_SERIALIZER_XML_TO_SERIALIZER(LocalPropertyPalette)
+
 template<typename T>
 struct Serializer<LocalPropertyLimitedDecimal<T>>
 {

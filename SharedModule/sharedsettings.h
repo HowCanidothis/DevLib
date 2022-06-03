@@ -67,6 +67,14 @@ struct PathSettings
 
     void Initialize(const QString& productName);
 
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("PathSettings");
+        buffer << buffer.Sect("TextComparatorApplicationPath", TextComparatorApplicationPath);
+        buffer.CloseSection();
+    }
+
     Q_DECLARE_TR_FUNCTIONS(PathSettings)
 };
 
@@ -84,6 +92,16 @@ struct SaveLoadSettings
     LocalPropertyInt AutoSaveInMinutes;
     LocalPropertyBool AutoSaveEnabled;
     LocalPropertyBool ApplicationRestoreStateAfterRerun;
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("LanguageSettings");
+        buffer << buffer.Sect("AutoSaveEveryMinutes", AutoSaveInMinutes);
+        buffer << buffer.Sect("AutoSaveEnabled", AutoSaveEnabled);
+        buffer << buffer.Sect("ApplicationRestoreStateAfterRerun", ApplicationRestoreStateAfterRerun);
+        buffer.CloseSection();
+    }
 };
 
 struct LanguageSettings
@@ -92,6 +110,14 @@ struct LanguageSettings
 
     LocalPropertyLocale ApplicationLocale;
     LocalProperty<std::function<QString (const QLocale&, const QDateTime& dt)>> DateTimeToStringHandler;
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("LanguageSettings");
+        buffer << buffer.Sect("Locale", ApplicationLocale);
+        buffer.CloseSection();
+    }
 
     static QString DateTimeToString(const QDateTime& dt);
 };
@@ -117,6 +143,9 @@ public:
     {
         buffer.OpenSection("Settings");
         buffer << NetworkSettings;
+        buffer << PathSettings;
+        buffer << SaveLoadSettings;
+        buffer << LanguageSettings;
         buffer.CloseSection();
     }
 

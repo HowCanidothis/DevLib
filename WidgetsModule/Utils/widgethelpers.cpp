@@ -70,7 +70,7 @@ void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObjec
 }
 
 WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() {
-    auto* edit = lineEdit();
+    auto* edit = GetWidget();
     auto invalidate = [edit]{
         QFontMetrics fm(edit->font());
         int pixelsWide = fm.width(edit->text());
@@ -132,26 +132,12 @@ Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
 
 WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
 {
-    return new WidgetsMatchingAttachment(tableView(), targetModel, targetImportColumns);
-}
-
-WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler)
-{
-    auto* w = m_widget;
-    w->setContextMenuPolicy(Qt::CustomContextMenu);
-    auto connections = ::make_shared<QtLambdaConnections>();
-    w->setProperty("a_customContextMenu", QVariant::fromValue(connections));
-    connections->connect(m_widget, &QWidget::customContextMenuRequested, [creatorHandler, w](const QPoint& pos) {
-        QMenu menu;
-        creatorHandler(&menu);
-        menu.exec(w->mapToGlobal(pos));
-    });
-    return *this;
+    return new WidgetsMatchingAttachment(GetWidget(), targetModel, targetImportColumns);
 }
 
 QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params)
 {
-    auto* tableView = this->tableView();
+    auto* tableView = GetWidget();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -184,7 +170,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
 
 QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params)
 {
-    auto* tableView = this->tableView();
+    auto* tableView = GetWidget();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Vertical, tableView);
     tableView->setVerticalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -229,13 +215,13 @@ QList<int> WidgetTableViewWrapper::SelectedColumnsSorted()
 QSet<int> WidgetTableViewWrapper::SelectedRowsSet()
 {
 	QSet<int> set;
-    auto selectedIndexes = tableView()->selectionModel()->selectedIndexes();
+    auto selectedIndexes = GetWidget()->selectionModel()->selectedIndexes();
 
     for(const auto& index : selectedIndexes){
         set.insert(index.row());
     }
 
-    QAbstractItemModel* model = tableView()->model();
+    QAbstractItemModel* model = GetWidget()->model();
     while(qobject_cast<QSortFilterProxyModel*>(model)) {
         model = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
     }
@@ -249,7 +235,7 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet()
 QSet<int> WidgetTableViewWrapper::SelectedColumnsSet()
 {
     QSet<int> set;
-    auto selectedIndexes = tableView()->selectionModel()->selectedIndexes();
+    auto selectedIndexes = GetWidget()->selectionModel()->selectedIndexes();
 
     for(const auto& index : selectedIndexes){
         set.insert(index.column());
@@ -259,7 +245,7 @@ QSet<int> WidgetTableViewWrapper::SelectedColumnsSet()
 
 void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowIndices)
 {
-    auto* table = tableView();
+    auto* table = GetWidget();
     table->clearSelection();
     if(rowIndices.isEmpty()) {
         return;
@@ -283,7 +269,7 @@ void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowI
 
 void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& columnIndices)
 {
-    auto* table = tableView();
+    auto* table = GetWidget();
     table->clearSelection();
     if(columnIndices.isEmpty()) {
         return;
@@ -311,7 +297,7 @@ WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
 
 bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders)
 {
-    auto* tableView = this->tableView();
+    auto* tableView = GetWidget();
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
     if(selectedIndexes.isEmpty()) {
         return false;
@@ -367,9 +353,9 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 // NOTE. Model must be case insensitively sorted! Otherwise there'll be undefined completion behavior
 QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column)
 {
-    combobox()->setModel(model);
-    combobox()->setEditable(true);
-    auto* completer = new QCompleter(combobox());
+    GetWidget()->setModel(model);
+    GetWidget()->setEditable(true);
+    auto* completer = new QCompleter(GetWidget());
     completer->setCompletionRole(Qt::DisplayRole);
     completer->setCompletionColumn(column);
     completer->setCompletionMode(QCompleter::PopupCompletion);
@@ -380,13 +366,13 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
         completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [onActivated](const QModelIndex& index){
             onActivated(index);
         });
-        auto* combo = combobox();
+        auto* combo = GetWidget();
         combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
             onActivated(combo->model()->index(row, 0));
         });
     }
-    combobox()->setModelColumn(column);
-    combobox()->setCompleter(completer);
+    GetWidget()->setModelColumn(column);
+    GetWidget()->setCompleter(completer);
     DisconnectModel();
     return completer;
 }
@@ -394,7 +380,7 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
 
 WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel()
 {
-    auto* combo = this->combobox();
+    auto* combo = GetWidget();
     combo->setInsertPolicy(QComboBox::NoInsert);
     auto* viewModel = combo->model();
     QObject::disconnect(viewModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -426,7 +412,7 @@ WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)
 
 WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qint32>& indices)
 {
-    auto* itemModel = qobject_cast<QStandardItemModel*>(combobox()->model());
+    auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
     if(itemModel != nullptr){
         for(const auto& index : indices){
             auto* item = itemModel->item(index);
@@ -488,7 +474,7 @@ WidgetWrapper& WidgetWrapper::FixUp()
 
 WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qint32>& indices)
 {
-    auto* itemModel = qobject_cast<QStandardItemModel*>(combobox()->model());
+    auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
     if(itemModel != nullptr){
         for(const auto& index : indices){
             auto* item = itemModel->item(index);
@@ -502,7 +488,7 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qi
 
 WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing()
 {
-    auto* widget = this->groupBox();
+    auto* widget = GetWidget();
     auto update = [widget](bool visible){
         auto animation = WidgetWrapper(widget).Injected<QPropertyAnimation>("a_collapsing_animation", [&]{
             return new QPropertyAnimation(widget, "maximumSize");
@@ -987,4 +973,30 @@ void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, cons
             forEachModelIndex(model, index, function);
         }
     }
+}
+
+WidgetLabelWrapper::WidgetLabelWrapper(QLabel* label)
+    : WidgetWrapper(label)
+{}
+
+TranslatedStringPtr WidgetLabelWrapper::WidgetText()
+{
+    auto* label = GetWidget();
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
+        label->setText(text);
+    });
+}
+
+WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing)
+{
+    auto* w = m_widget;
+    w->setContextMenuPolicy(Qt::CustomContextMenu);
+    auto connections = ::make_shared<QtLambdaConnections>();
+    w->setProperty("a_customContextMenu", QVariant::fromValue(connections));
+    connections->connect(m_widget, &QWidget::customContextMenuRequested, [creatorHandler, w, preventFromClosing](const QPoint& pos) {
+        auto menu = preventFromClosing ? ::make_scoped<PreventedFromClosingMenu>() : ::make_scoped<QMenu>();
+        creatorHandler(menu.get());
+        menu->exec(w->mapToGlobal(pos));
+    });
+    return *this;
 }

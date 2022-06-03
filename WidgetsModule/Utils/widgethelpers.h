@@ -17,8 +17,9 @@ struct WidgetWrapperInjectedCommutatorData
 
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
-#define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType) \
-    WrapperType& Make(const std::function<void (WrapperType&)>& handler) { return make<WrapperType>(handler); }
+#define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType, type) \
+    WrapperType& Make(const std::function<void (WrapperType&)>& handler) { return make<WrapperType>(handler); } \
+    type* GetWidget() const { return reinterpret_cast<type*>(m_widget); }
 
 class ObjectWrapper
 {
@@ -91,11 +92,11 @@ public:
     WidgetWrapper& AddModalProgressBar();
     WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets);
     WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter);
-    WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler);
+    WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false);
 
     WidgetWrapper& BlockWheel();
     WidgetWrapper& FixUp();
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetWrapper, QWidget)
     WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
 
     DispatcherConnectionsSafe& WidgetConnections();
@@ -132,11 +133,10 @@ class WidgetLineEditWrapper : public WidgetWrapper
 public:
     WidgetLineEditWrapper(class QLineEdit* lineEdit);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     WidgetLineEditWrapper& SetDynamicSizeAdjusting();
 
 private:
-    QLineEdit* lineEdit() const { return reinterpret_cast<QLineEdit*>(m_widget); }
 };
 
 class WidgetComboboxWrapper : public WidgetWrapper
@@ -144,14 +144,11 @@ class WidgetComboboxWrapper : public WidgetWrapper
 public:
     WidgetComboboxWrapper(class QComboBox* combobox);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices);
     WidgetComboboxWrapper& DisconnectModel();
     class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0);
-
-private:
-    QComboBox* combobox() const { return reinterpret_cast<QComboBox*>(m_widget); }
 };
 
 class WidgetGroupboxWrapper : public WidgetWrapper
@@ -159,12 +156,9 @@ class WidgetGroupboxWrapper : public WidgetWrapper
 public:
     WidgetGroupboxWrapper(class QGroupBox* groupBox);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
     WidgetGroupboxWrapper& AddCollapsing();
     WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater);
-
-private:
-    QGroupBox* groupBox() const { return reinterpret_cast<QGroupBox*>(m_widget); }
 };
 
 template<class T>
@@ -189,12 +183,22 @@ public:
     LocalPropertyLimitedDecimal<T> DisplayValue;
 };
 
+class WidgetLabelWrapper : public WidgetWrapper
+{
+public:
+    WidgetLabelWrapper(QLabel* label);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLabelWrapper, QLabel)
+
+    TranslatedStringPtr WidgetText();
+};
+
 class WidgetTableViewWrapper : public WidgetWrapper
 {
 public:
     WidgetTableViewWrapper(QTableView* tableView);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper, QTableView)
     bool CopySelectedTableContentsToClipboard(bool includeHeaders = false);
     QList<int> SelectedRowsSorted();
     QList<int> SelectedColumnsSorted();
@@ -205,9 +209,6 @@ public:
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams());
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams());
     class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
-
-private:
-    QTableView* tableView() const { return reinterpret_cast<QTableView*>(m_widget); }
 };
 
 class ActionWrapper : public ObjectWrapper
@@ -224,7 +225,7 @@ public:
 
     LocalPropertyBool& ActionVisibility();
     LocalPropertyBool& ActionEnablity();
-    SharedPointer<class TranslatedString> ActionText();
+    TranslatedStringPtr ActionText();
 
     QAction* operator->() const { return m_action; }
     operator QAction*() const { return m_action; }
@@ -246,6 +247,29 @@ public:
     MenuWrapper& AddGlobalTableAction(const Latin1Name& id);
     ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
     ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
+
+    template<class Property>
+    ActionWrapper AddCheckboxAction(const QString& title, Property* value) const
+    {
+        return AddCheckboxAction(title, *value, [value](bool val){
+            *value = val;
+        });
+    }
+    template<class Property>
+    ActionWrapper AddColorAction(const QString& title, Property* color) const
+    {
+        return AddColorAction(title, *color, [color](const QColor& val){
+            *color = val;
+        });
+    }
+    template<class Property>
+    ActionWrapper AddDoubleAction(const QString& title, Property* value) const
+    {
+        return AddDoubleAction(title, *value, [value](double val){
+            *value = val;
+        });
+    }
+
     ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
     ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
     ActionWrapper AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const;
