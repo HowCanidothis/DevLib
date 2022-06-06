@@ -154,8 +154,8 @@ struct Serializer<LocalPropertyPalette>
             std::function<void (const Name&, const QString&)> handler;
             if(foundIt != data.end()) {
                 handler = [&foundIt](const Name& name, const QString& value){
-                    auto foundIt2 = foundIt.value().find(name);
-                    if(foundIt2 != foundIt.value().end()) {
+                    auto foundIt2 = foundIt.value().m_data->find(name);
+                    if(foundIt2 != foundIt.value().m_data->end()) {
                         foundIt2.value().GetData()->FromString(value);
                     }
                 };
@@ -183,9 +183,9 @@ struct Serializer<LocalPropertyPalette>
         for(auto it(data.begin()), e(data.end()); it != e; ++it) {
             buffer.OpenSection("Object");
             buffer << buffer.Sect("Name", const_cast<Name&>(it.key()));
-            count = it.value().size();
+            count = it.value().m_data->size();
             buffer << buffer.Sect("Count", count);
-            for(auto objectIt(it.value().begin()), objectE(it.value().end()); objectIt != objectE; ++objectIt) {
+            for(auto objectIt(it.value().m_data->begin()), objectE(it.value().m_data->end()); objectIt != objectE; ++objectIt) {
                 buffer << buffer.Sect("Name", const_cast<Name&>(objectIt.key()));
                 QString toString = objectIt->GetData()->ToString();
                 buffer << buffer.Sect("Value", toString);

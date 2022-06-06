@@ -189,7 +189,8 @@ public:
         });
     }
 
-    DispatcherConnection ConnectTo(const char* locationInfo, LocalProperty& another)
+    template<class Property>
+    DispatcherConnection ConnectTo(const char* locationInfo, Property& another)
     {
         another = Native();
         return OnChanged.Connect(this, [this, &another, locationInfo]{

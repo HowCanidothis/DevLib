@@ -1,9 +1,15 @@
 #ifndef LOCALPROPERTYPALETTE_H
 #define LOCALPROPERTYPALETTE_H
 
+#include "translatormanager.h"
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyColor>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyDouble>)
+
+DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_COLOR)
+DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_LINE_WIDTH)
+DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_POINT_SIZE)
+DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_VISIBILITY)
 
 struct LocalPropertyPaletteDataData
 {
@@ -67,27 +73,49 @@ private:
     SharedPointer<LocalPropertyPaletteDataData> m_data;
 };
 
-class LocalPropertyPaletteObject : protected QHash<Name, LocalPropertyPaletteData>
+class LocalPropertyPaletteObjectData : public QHash<Name, LocalPropertyPaletteData>
+{
+public:
+    LocalPropertyPaletteObjectData()
+    {}
+};
+
+class LocalPropertyPaletteObject
 {
 public:
     LocalPropertyPaletteObject();
     LocalPropertyPaletteObject(QHash<Name, std::pair<LocalPropertyPaletteDataData::SupportedType, QVariant>>* dataTypes);
 
-    bool IsEmpty() const { return isEmpty(); }
+    bool IsEmpty() const { return m_data == nullptr ? true : m_data->isEmpty(); }
 
     SharedPointer<LocalPropertyBool> AsBool(const Name& key) const;
     SharedPointer<LocalPropertyDouble> AsDouble(const Name& key) const;
     SharedPointer<LocalPropertyColor> AsColor(const Name& key) const;
 
+    SharedPointer<LocalPropertyBool> AsVisibility() const { return AsBool(LOCALPROPERTY_PALETTE_VISIBILITY); }
+    SharedPointer<LocalPropertyDouble> AsLineWidth() const { return AsDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH); }
+    SharedPointer<LocalPropertyColor> AsPaletteColor() const { return AsColor(LOCALPROPERTY_PALETTE_COLOR); }
+    SharedPointer<LocalPropertyDouble> AsPointSize() const { return AsDouble(LOCALPROPERTY_PALETTE_POINT_SIZE); }
+
+    operator size_t() const { return (size_t)m_data.get(); }
+    bool operator==(const LocalPropertyPaletteObject& another) const { return m_data.get() == another.m_data.get(); }
+
 private:
     friend class LocalPropertyPalette;
     template<class T> friend struct Serializer;
-    QHash<Name, std::pair<LocalPropertyPaletteDataData::SupportedType, QVariant>>* m_dataTypes;
+    SharedPointer<LocalPropertyPaletteObjectData> m_data;
 };
 
 struct LocalPropertyPaletteBuilder
 {
     LocalPropertyPaletteBuilder(){}
+    LocalPropertyPaletteBuilder(bool /*defaultPalette*/)
+    {
+        AddColor(LOCALPROPERTY_PALETTE_COLOR, QColor()).
+        AddBool(LOCALPROPERTY_PALETTE_VISIBILITY, true).
+        AddDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH, 2.5).
+        AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 2.5);
+    }
 
     LocalPropertyPaletteBuilder& AddDouble(const Name& key, double defaultValue);
     LocalPropertyPaletteBuilder& AddBool(const Name& key, bool defaultValue);

@@ -109,10 +109,12 @@ public:
         }
     }
 
-    void MakeSafeReset(DispatcherConnectionsSafe& safeConnections)
+    void MakeSafe(DispatcherConnectionsSafe& safeConnections, DispatcherConnectionsSafe& safeConnections2)
     {
-        safeConnections.clear();
-        MakeSafe(safeConnections);
+        for(auto& connection : *this) {
+            connection.MakeSafe(safeConnections);
+            connection.MakeSafe(safeConnections2);
+        }
     }
 };
 

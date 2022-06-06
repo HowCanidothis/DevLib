@@ -7,34 +7,6 @@ VisualizationToolTipWidget {
     qproperty-opacity: 0.8;
 }
 
-VisualizationToolTipWidget[type="0"]{
-    border: none;
-}
-
-VisualizationToolTipWidget[type="1"]{
-    border: 1px solid #ff3b30;
-}
-
-VisualizationToolTipWidget[type="2"]{
-    border: 1px solid #007aff;
-}
-
-VisualizationToolTipWidget[type="3"]{
-    border: 1px solid #42d552;
-}
-
-VisualizationToolTipWidget[type="4"]{
-    border: 1px solid #848894;
-}
-
-VisualizationToolTipWidget[type="5"]{
-    border: 1px solid #ff9500;
-}
-
-VisualizationToolTipWidget[type="6"]{
-    border: 1px solid #7B1FA2;
-}
-
 VisualizationToolTipWidget QWidget{
     font-size: 12px;
 }

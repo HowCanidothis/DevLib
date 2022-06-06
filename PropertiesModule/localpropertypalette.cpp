@@ -49,29 +49,28 @@ LocalPropertyPaletteData::LocalPropertyPaletteData(const QVariant& value, LocalP
 {}
 
 LocalPropertyPaletteObject::LocalPropertyPaletteObject()
-    : m_dataTypes(nullptr)
 {}
 LocalPropertyPaletteObject::LocalPropertyPaletteObject(QHash<Name, std::pair<LocalPropertyPaletteDataData::SupportedType, QVariant>>* dataTypes)
-    : m_dataTypes(dataTypes)
+    : m_data(::make_shared<LocalPropertyPaletteObjectData>())
 {
-    for(auto it(m_dataTypes->begin()), e(m_dataTypes->end()); it != e; ++it) {
-        insert(it.key(), LocalPropertyPaletteData(it.value().second, it.value().first));
+    for(auto it(dataTypes->begin()), e(dataTypes->end()); it != e; ++it) {
+        m_data->insert(it.key(), LocalPropertyPaletteData(it.value().second, it.value().first));
     }
 }
 
 SharedPointer<LocalPropertyBool> LocalPropertyPaletteObject::AsBool(const Name& key) const
 {
-    return value(key).GetData()->AsBool();
+    return m_data->value(key).GetData()->AsBool();
 }
 
 SharedPointer<LocalPropertyDouble> LocalPropertyPaletteObject::AsDouble(const Name& key) const
 {
-    return value(key).GetData()->AsDouble();
+    return m_data->value(key).GetData()->AsDouble();
 }
 
 SharedPointer<LocalPropertyColor> LocalPropertyPaletteObject::AsColor(const Name& key) const
 {
-    return value(key).GetData()->AsColor();
+    return m_data->value(key).GetData()->AsColor();
 }
 
 const LocalPropertyPaletteObject& LocalPropertyPalette::FindObject(const Name& objectId) const
@@ -99,3 +98,8 @@ LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddColor(const Name& k
     m_result.insert(key, { LocalPropertyPaletteDataData::Color, defaultValue });
     return *this;
 }
+
+IMPLEMENT_GLOBAL_NAME(LOCALPROPERTY_PALETTE_COLOR, "Color")
+IMPLEMENT_GLOBAL_NAME(LOCALPROPERTY_PALETTE_LINE_WIDTH, "LineWidth")
+IMPLEMENT_GLOBAL_NAME(LOCALPROPERTY_PALETTE_POINT_SIZE, "PointSize")
+IMPLEMENT_GLOBAL_NAME(LOCALPROPERTY_PALETTE_VISIBILITY, "Visibility")
