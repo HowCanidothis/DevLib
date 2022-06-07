@@ -213,6 +213,11 @@ public:
 
     TModelsTableWrapper<Container>& BaseWrapper() { return *this; }
 
+    void Set(const Super& another)
+    {
+        Change([&another](Super& data){ data = another; });
+    }
+
     void Swap(Super& another)
     {
         OnAboutToBeReseted();

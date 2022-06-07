@@ -9,6 +9,7 @@ namespace PressureUnits
 {
     static const MeasurementUnit Pascals                     ("Pascals"                       , []{return QObject::tr("pascals");                      }, []{ return QObject::tr("Pa");        }, 1.0);
     static const MeasurementUnit Kilopascals                 ("Kilopascals"                   , []{return QObject::tr("kilopascals");                  }, []{ return QObject::tr("kPa");       }, 1000.0);
+    static const MeasurementUnit NewtonPerSquareMeter        ("Newton Per Square Meter"       , []{return QObject::tr("newton/sq.meter");              }, []{ return QObject::tr("N/m2");      }, 1.0);
     static const MeasurementUnit Bars                        ("Bars"                          , []{return QObject::tr("bars");                         }, []{ return QObject::tr("bars");      }, 100000.0);
     static const MeasurementUnit Megapascals                 ("Megapascals"                   , []{return QObject::tr("megapascals");                  }, []{ return QObject::tr("MPa");       }, 1000000.0);
     static const MeasurementUnit Atmospheres                 ("Atmospheres"                   , []{return QObject::tr("atmospheres");                  }, []{ return QObject::tr("atm");       }, 101325.0);
