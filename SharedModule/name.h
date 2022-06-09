@@ -153,5 +153,7 @@ Q_DECLARE_METATYPE(Name)
     extern Name x;
 #define IMPLEMENT_GLOBAL_NAME(x, value) \
     Name x(QT_STRINGIFY(value));
+#define IMPLEMENT_GLOBAL_NAME_1(x) \
+    Name x(QT_STRINGIFY(x));
 
 #endif // NAME_H

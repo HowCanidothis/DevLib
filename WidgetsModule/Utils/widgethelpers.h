@@ -161,13 +161,13 @@ public:
     WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater);
 };
 
-template<class T>
-class WidgetsLocalPropertyDecimalDisplay : public LocalPropertyLimitedDecimal<T>
+class LocalPropertyDoubleDisplay : public LocalPropertyDouble
 {
-    using Super = LocalPropertyLimitedDecimal<T>;
+    using Super = LocalPropertyDouble;
 public:
-    WidgetsLocalPropertyDecimalDisplay(const T& value = 0, const T& min = (std::numeric_limits<T>::lowest)(), const T& max = (std::numeric_limits<T>::max)())
+    LocalPropertyDoubleDisplay(double value = 0, double min = (std::numeric_limits<double>::lowest)(), double max = (std::numeric_limits<double>::max)())
         : Super(value, min, max)
+        , Precision(2)
     {
         auto update = [this]{
             DisplayValue.SetMinMax(*this, *this);
@@ -176,11 +176,12 @@ public:
         update();
     }
 
-    WidgetsLocalPropertyDecimalDisplay& operator-=(const T& value) { SetValue(Super::Native() - value); return *this; }
-    WidgetsLocalPropertyDecimalDisplay& operator+=(const T& value) { SetValue(Super::Native() + value); return *this; }
-    WidgetsLocalPropertyDecimalDisplay& operator=(const T& value) { SetValue(value); return *this; }
+    LocalPropertyDoubleDisplay& operator-=(double value) { SetValue(Super::Native() - value); return *this; }
+    LocalPropertyDoubleDisplay& operator+=(double value) { SetValue(Super::Native() + value); return *this; }
+    LocalPropertyDoubleDisplay& operator=(double value) { SetValue(value); return *this; }
 
-    LocalPropertyLimitedDecimal<T> DisplayValue;
+    LocalPropertyDouble DisplayValue;
+    LocalPropertyInt Precision;
 };
 
 class WidgetLabelWrapper : public WidgetWrapper
@@ -232,6 +233,19 @@ public:
 
 private:
     QAction* m_action;
+};
+
+class DialogWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    DialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator);
+
+    template<class T>
+    T* GetCustomView() const { return WidgetsDialogsManager::GetInstance().CustomDialogView<T>(GetWidget()); }
+    void Show(const DescShowDialogParams& params);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(DialogWrapper, QDialog)
 };
 
 class MenuWrapper

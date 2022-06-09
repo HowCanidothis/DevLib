@@ -135,6 +135,17 @@ WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemM
     return new WidgetsMatchingAttachment(GetWidget(), targetModel, targetImportColumns);
 }
 
+DialogWrapper::DialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator)
+    : Super(WidgetsDialogsManager::GetInstance().GetOrCreateCustomDialog(id, paramsCreator))
+{
+
+}
+
+void DialogWrapper::Show(const DescShowDialogParams& params)
+{
+    WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
+}
+
 QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params)
 {
     auto* tableView = GetWidget();
@@ -158,7 +169,6 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             tableView->addAction(columnsAction->menuAction());
         }
     }
-
 
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();

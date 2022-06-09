@@ -137,7 +137,6 @@ private:
     GtRenderProperties m_renderProperties;
     QVector<FAction> m_delayedDraws;
     std::atomic_bool m_updateRequested;
-    DelayedCallObject m_updateDelayed;
 };
 
 #endif // GTRENDERER_H

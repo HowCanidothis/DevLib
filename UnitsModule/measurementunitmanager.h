@@ -41,6 +41,8 @@ Q_DECLARE_METATYPE(const MeasurementUnit*)
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
 using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 
+bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
+
 class Measurement
 {
 public:
@@ -123,16 +125,18 @@ class MeasurementManager
 public:
     static MeasurementManager& GetInstance();
     
-    Measurement& AddMeasurement(const Name& name);
-    MeasurementSystem& AddSystem(const Name& name);
+    Measurement& AddMeasurement(const Name& measurementName);
+    MeasurementSystem& AddSystem(const Name& systemName);
     void AddSystem(const MeasurementSystemPtr& system);
-    const MeasurementPtr& GetMeasurement(const Name& name) const;
-    const MeasurementSystemPtr& GetSystem(const Name& name) const;
+    const MeasurementPtr& GetMeasurement(const Name& measurementName) const;
+    const MeasurementSystemPtr& GetSystem(const Name& systemName) const;
     
-    const MeasurementUnit* GetCurrentUnit(const Name& systemName) const;
+    const MeasurementUnit* GetCurrentUnit(const Name& measurementName) const;
 
-    QString FromBaseToUnitUi(const Name& systemName, double value) const;
+    QString FromBaseToUnitUi(const Name& measurementName, double value) const;
     
+    DispatcherConnections AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
+
     static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }
 
@@ -178,6 +182,7 @@ class MeasurementTranslatedString
 {
 public:
     static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics, DispatcherConnectionsSafe& connections);
 
 private:
     static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections);

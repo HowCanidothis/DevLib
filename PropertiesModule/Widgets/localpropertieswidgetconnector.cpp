@@ -207,6 +207,14 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(&property->DisplayValue, spinBox,[](double){})
+{
+    property->Precision.OnChanged.Connect(this, [spinBox, property]{
+        spinBox->setDecimals(property->Precision);
+    }).MakeSafe(m_dispatcherConnections);
+}
+
 #endif
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)

@@ -369,6 +369,8 @@ public:
     float GetHeight() const { return m_right.Y() - m_left.Y(); }
     Point2F GetCenter() const { return (m_right + m_left) / 2.f; }
 
+    bool IsInf() const { return qIsInf(m_left.x()) || qIsInf(m_left.y()) || qIsInf(m_right.x()) || qIsInf(m_right.y()); }
+
     bool Intersects(const BoundingRect& other) const
     {
         return !(m_right.X() < other.m_left.X() || m_left.X() > other.m_right.X() ||

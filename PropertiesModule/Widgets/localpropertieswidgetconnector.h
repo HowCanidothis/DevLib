@@ -200,6 +200,7 @@ public:
         : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
     {}
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
 #endif
 };
 

@@ -1,9 +1,9 @@
 #ifndef WIDGETSDIALOGSMANAGER_H
 #define WIDGETSDIALOGSMANAGER_H
 
-#include <QDialogButtonBox>
-
 #include <PropertiesModule/internal.hpp>
+
+#include "WidgetsModule/widgetsdeclarations.h"
 
 class WidgetsDialogsManager : public SingletoneGlobal<WidgetsDialogsManager>
 {
@@ -15,23 +15,6 @@ public:
 
     bool ShowOkCancelDialog(const QString& label, const QString& text);
     void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
-
-    struct DescCustomDialogParams
-    {
-        QVector<std::tuple<QDialogButtonBox::ButtonRole, QString, FAction>> Buttons;
-        QWidget* View = nullptr;
-        qint32 DefaultButtonIndex = 0;
-        bool DefaultSpacing = true;
-
-        DescCustomDialogParams& FillWithText(const QString& text);
-        DescCustomDialogParams& SetDefaultSpacing(bool defaultSpacing) { DefaultSpacing = defaultSpacing; return *this; }
-        DescCustomDialogParams& AddButton(QDialogButtonBox::ButtonRole role, const QString& text, const FAction& action)
-        {
-            Buttons.append(std::make_tuple(role, text, action));
-            return *this;
-        }
-        DescCustomDialogParams& SetView(QWidget* view) { Q_ASSERT(View == nullptr); View = view; return *this; }
-    };
 
     QDialog* GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
 
@@ -62,15 +45,11 @@ public:
         return result;
     }
 
-    struct DescShowDialogParams
+    template<class T>
+    T* CustomDialogView(QDialog* dialog) const
     {
-        bool Modal = true;
-        bool ResizeToDefault = false;
-
-        DescShowDialogParams& SetModal(bool modal) { Modal = modal; return *this; }
-        DescShowDialogParams& SetResizeToDefault(bool resize) { ResizeToDefault = resize; return *this; }
-    };
-
+        return (T*)(dialog->property(CustomViewPropertyKey).toLongLong());
+    }
     void ShowDialog(QDialog* dialog, const DescShowDialogParams& params);
     void ShowPropertiesDialog(const PropertiesScopeName& name, const DescShowDialogParams& params);
 
@@ -84,6 +63,7 @@ public:
     LocalPropertyColor ShadowColor;
 
     CommonDispatcher<QWidget*> OnDialogCreated;
+    const char* CustomViewPropertyKey = "CustomView";
 
 private:
     QHash<Name, QWidget*> m_taggedDialog;

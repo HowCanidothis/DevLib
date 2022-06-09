@@ -86,7 +86,7 @@ WidgetsGlobalTableActionsScope::WidgetsGlobalTableActionsScope()
         m_currentHandlersConnections.clear();
 
         auto offAction = [](QAction* action) {
-            ActionWrapper(action).ActionVisibility() = true;
+            ActionWrapper(action).ActionVisibility() = false;
             ActionWrapper(action).ActionEnablity() = false;
         };
 

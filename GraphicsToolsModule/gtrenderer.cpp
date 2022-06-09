@@ -19,16 +19,13 @@ GtRenderer::GtRenderer(GtRenderer* baseRenderer)
     : Super(baseRenderer)
     , m_sharedData(baseRenderer->m_sharedData)
     , m_updateRequested(true)
-    , m_updateDelayed(0, CreateThreadHandler())
 {
     construct();
 }
 
 void GtRenderer::UpdateFrame()
 {
-    m_updateDelayed.Call([this]{
-        m_updateRequested = true;
-    });
+    m_updateRequested = true;
 }
 
 void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName)

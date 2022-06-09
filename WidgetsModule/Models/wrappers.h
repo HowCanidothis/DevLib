@@ -447,6 +447,15 @@ public:
     bool IsEmpty() const { return Super::isEmpty(); }
     qint32 GetSize() const { return Super::size(); }
 
+    bool AtSafe(qint32 index, const value_type*& value) const
+    {
+        if(index >= 0 && index < GetSize()) {
+            value = &At(index);
+            return true;
+        }
+        return false;
+    }
+
     const value_type& At(qint32 index) const { return Super::at(index); }
     const value_type& operator[](qint32 index) const { return Super::operator[](index); }
 

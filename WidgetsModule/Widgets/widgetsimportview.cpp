@@ -89,7 +89,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	});
 	DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
 	
-    ui->SourceTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->SourceTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     MenuWrapper(ui->SourceTable).Make([this](const MenuWrapper& wrapper){
         wrapper.AddAction(tr("Delete Row(s)"), [this]{

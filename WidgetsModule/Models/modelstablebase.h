@@ -181,7 +181,7 @@ public:
     using FInsertHandler = std::function<bool (int row, int count)>;
     using FCanDropMimeDataHandler = std::function<bool (const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)>;
 
-    TViewModelsTableBase(QObject* parent = nullptr)
+    TViewModelsTableBase(QObject* parent)
         : Super(parent)
         , m_mimeTypesHandler([this]{ return Super::mimeTypes(); })
         , m_mimeDataHandler([this](const QModelIndexList& indexes){ return Super::mimeData(indexes); })

@@ -48,12 +48,13 @@ void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& tit
 
 QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator)
 {
-    return GetOrCreateDialog<QDialog>(tag, [paramsCreator]{
+    return GetOrCreateDialog<QDialog>(tag, [this, paramsCreator]{
         auto params = paramsCreator();
         auto* dialog = new QDialog();
         auto* vlayout = new QVBoxLayout();
         dialog->setLayout(vlayout);
         vlayout->addWidget(params.View);
+        dialog->setProperty(CustomViewPropertyKey, (size_t)params.View);
         if(!params.DefaultSpacing) {
             vlayout->setContentsMargins(0,0,0,0);
             vlayout->setSpacing(0);
@@ -65,6 +66,11 @@ QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const s
 
         auto* buttons = new QDialogButtonBox();
         vlayout->addWidget(buttons);
+
+        QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+        QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+        QObject::connect(dialog, &QDialog::rejected, params.OnRejected);
+        QObject::connect(dialog, &QDialog::accepted, params.OnAccepted);
 
         qint32 index = 0;
         for(const auto& buttonParams : params.Buttons) {
@@ -258,11 +264,4 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
     }).MakeSafe(connections);
 
     QObject::connect(widget, &QWidget::destroyed, [connections]{});
-}
-
-WidgetsDialogsManager::DescCustomDialogParams& WidgetsDialogsManager::DescCustomDialogParams::FillWithText(const QString& text)
-{
-    Q_ASSERT(View == nullptr);
-    View = new QLabel(text);
-    return *this;
 }

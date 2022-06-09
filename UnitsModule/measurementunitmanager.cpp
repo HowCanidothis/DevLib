@@ -475,6 +475,19 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
     return defaultResult;
 }
 
+DispatcherConnections MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
+{
+    auto* measurement = GetMeasurement(measurementName).get();
+    DispatcherConnections result;
+    result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
+        return [measurement](double value) { return measurement->BaseValueToCurrentUnit(value); };
+    }, { &measurement->OnChanged });
+    if(precision != nullptr) {
+        result += precision->ConnectFrom(CONNECTION_DEBUG_LOCATION, measurement->CurrentPrecision);
+    }
+    return result;
+}
+
 const MeasurementSystemPtr& MeasurementManager::GetSystem(const Name& name) const
 {
     static MeasurementSystemPtr defaultResult;
@@ -520,10 +533,10 @@ MeasurementManager& MeasurementManager::GetInstance()
     return result;
 }
 
-const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& systemName) const
+const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& measurementName) const
 {
-    Q_ASSERT(m_metricMeasurements.contains(systemName));
-    return m_metricMeasurements[systemName]->GetCurrentUnit();
+    Q_ASSERT(m_metricMeasurements.contains(measurementName));
+    return m_metricMeasurements[measurementName]->GetCurrentUnit();
 }
 
 QString MeasurementManager::FromBaseToUnitUi(const Name& systemName, double value) const
@@ -561,6 +574,11 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
     m_currentValue = baseValueProperty;
 }
 
+bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
+{
+    return true;
+}
+
 MeasurementProperty::MeasurementProperty(const Name& systemName)
     : m_currentValue(nullptr)
 {
@@ -576,6 +594,11 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics)
 {
     DispatcherConnectionsSafe connections;
+    AttachToTranslatedString(string, translationHandler, metrics, connections);
+}
+
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics, DispatcherConnectionsSafe& connections)
+{
     QSet<Name> uniqueMetrics;
     for(const auto& metric : metrics) {
         auto foundIt = uniqueMetrics.find(metric);
