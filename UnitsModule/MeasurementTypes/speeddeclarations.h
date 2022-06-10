@@ -4,7 +4,9 @@
 #include "UnitsModule/measurementunitmanager.h"
 
 static const Name MEASUREMENT_SPEED = "Speed";
+static const Name MEASUREMENT_ANNULAR_VELOCITY = "Annular Velocity";
 
+#define AnnularVelocityUnits SpeedUnits
 namespace SpeedUnits
 {
     static const MeasurementUnit MetersPerSecond   ("MetersPerSecond",   []{return QObject::tr("Meters Per Second");},   []{ return QObject::tr("m/s");      }, 1.0);
