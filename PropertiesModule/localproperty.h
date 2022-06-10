@@ -151,6 +151,16 @@ public:
         }
     }
 
+    DispatcherConnections ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalProperty<bool>& condition)
+    {
+        return ConnectFrom(connectionInfo, condition, [this, expectedValue, resetTo](bool ok){
+            if(Native() == expectedValue && !ok) {
+                return resetTo;
+            }
+            return Native();
+        });
+    }
+
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
     {
@@ -290,11 +300,11 @@ public:
             OnMinMaxChanged();
         }
     }
-    
+
     LocalPropertyLimitedDecimal& operator-=(const T& value) { Super::SetValue(Super::Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { Super::SetValue(Super::Native() + value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { Super::SetValue(value); return *this; }
-    
+
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
 
@@ -599,7 +609,7 @@ public:
         , m_min(min)
         , m_max(max)
     {}
-    
+
     void SetMinMax(const QDate& min, const QDate& max)
     {
         if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
@@ -609,11 +619,11 @@ public:
             OnMinMaxChanged();
         }
     }
-    
+
     LocalPropertyDate& operator-=(const QDate& value) { SetValue(QDate::fromJulianDay(Super::Native().toJulianDay() - value.toJulianDay())); return *this; }
     LocalPropertyDate& operator+=(const QDate& value) { SetValue(QDate::fromJulianDay(Super::Native().toJulianDay() - value.toJulianDay())); return *this; }
     LocalPropertyDate& operator=(const QDate& value) { SetValue(value); return *this; }
-    
+
     const QDate& GetMin() const { return m_min; }
     const QDate& GetMax() const { return m_max; }
 
@@ -633,7 +643,7 @@ private:
         }
         return QDate::fromJulianDay(::clamp(cur.toJulianDay(), validatedMin(min).toJulianDay(), validatedMax(max).toJulianDay()));
     }
-    
+
     QDate applyMinMax(const QDate& value) const
     {
         return applyRange(value, m_min, m_max);
@@ -658,7 +668,7 @@ public:
         , m_max(max)
     {
     }
-    
+
     void SetMinMax(const QTime& min, const QTime& max)
     {
         if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
@@ -668,11 +678,11 @@ public:
             OnMinMaxChanged();
         }
     }
-    
+
     LocalPropertyTime& operator-=(const QTime& value) { SetValue(Super::Native().addMSecs(-value.msecsSinceStartOfDay())); return *this; }
     LocalPropertyTime& operator+=(const QTime& value) { SetValue(Super::Native().addMSecs(value.msecsSinceStartOfDay())); return *this; }
     LocalPropertyTime& operator=(const QTime& value) { SetValue(value); return *this; }
-    
+
     const QTime& GetMin() const { return m_min; }
     const QTime& GetMax() const { return m_max; }
 
@@ -711,7 +721,7 @@ private:
 class LocalPropertyDateTime : public LocalProperty<QDateTime>
 {
     using Super = LocalProperty<QDateTime>;
-public:        
+public:
     LocalPropertyDateTime(const QDateTime& value = QDateTime(), const QDateTime& min = QDateTime(), const QDateTime& max = QDateTime())
         : Super(applyRange(value, min, max))
         , m_min(min)
@@ -728,12 +738,12 @@ public:
             OnMinMaxChanged();
         }
     }
-    
+
     LocalPropertyDateTime& operator-=(const QDateTime& value) { SetValue(Super::Native().addMSecs(-value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator+=(const QDateTime& value) { SetValue(Super::Native().addMSecs(value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator=(const QDateTime& value) { SetValue(value); return *this; }
     operator const QDateTime& () const { return Super::m_value; }
-    bool IsRealTime() const { return !m_value.isValid(); }    
+    bool IsRealTime() const { return !m_value.isValid(); }
 
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
@@ -754,7 +764,7 @@ private:
         }
         return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()));
     }
-    
+
     void validate(QDateTime& value) const override
     {
         value = applyRange(value, m_min, m_max);
@@ -772,7 +782,7 @@ class LocalPropertyDateTimeRange
 public:
     template<class DateOrTimeProperty>
     static DispatcherConnections Bind(DateOrTimeProperty* start, DateOrTimeProperty* end)
-    {       
+    {
         DispatcherConnections result;
         auto updateMinMax = [start, end]{
             end->SetMinMax(*start, end->GetMax());
@@ -903,7 +913,7 @@ struct LocalPropertyOptional
 {
     using value_type = typename Property::value_type;
     using InitParams = LocalPropertyDescInitializationParams<value_type>;
-    using FValidator = typename Property::FValidator;    
+    using FValidator = typename Property::FValidator;
 
     Property Value;
     LocalPropertyBool IsValid;

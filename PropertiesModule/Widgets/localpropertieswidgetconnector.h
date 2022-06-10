@@ -62,7 +62,7 @@ class _Export LocalPropertiesPushButtonConnector : public LocalPropertiesWidgetC
 public:
     LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QPushButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button);
-    LocalPropertiesPushButtonConnector(const QVector<QPushButton*>& buttons, LocalPropertyInt* property);
+    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons);
 
 private:
     qint32 m_currentIndex;

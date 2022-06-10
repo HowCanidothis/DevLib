@@ -18,8 +18,10 @@ struct WidgetWrapperInjectedCommutatorData
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
 #define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType, type) \
-    WrapperType& Make(const std::function<void (WrapperType&)>& handler) { return make<WrapperType>(handler); } \
-    type* GetWidget() const { return reinterpret_cast<type*>(m_widget); }
+    const WrapperType& Make(const std::function<void (const WrapperType&)>& handler) const { return make<WrapperType>(handler); } \
+    type* GetWidget() const { return reinterpret_cast<type*>(m_widget); } \
+    type* operator->() const { return reinterpret_cast<type*>(m_widget); } \
+    operator type*() const { return reinterpret_cast<type*>(m_widget); }
 
 class ObjectWrapper
 {
@@ -70,62 +72,75 @@ private:
 class WidgetWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
-    using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*);
+    using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*) const;
 public:
     WidgetWrapper(QWidget* widget);
 
-    DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another);
-    DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another);
-    DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets)
+    DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
+    DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another) const;
+    DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
     {
         return createRule(debugLocation, &WidgetVisibility(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectVisibility);
     }
-    DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets)
+    DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
     {
         return createRule(debugLocation, &WidgetEnablity(), handler, dispatchers, additionalWidgets, &WidgetWrapper::ConnectEnablity);
     }
 
-    void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8);
-    void ShowAnimated(int duration = 2000, double opacity = 0.8);
-    void HideAnimated(int duration = 2000);
+    void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8) const;
+    void ShowAnimated(int duration = 2000, double opacity = 0.8) const;
+    void HideAnimated(int duration = 2000) const;
 
-    WidgetWrapper& AddModalProgressBar();
-    WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets);
-    WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter);
-    WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false);
+    const WidgetWrapper& AddModalProgressBar() const;
+    const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
+    const WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
+    const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
 
-    WidgetWrapper& BlockWheel();
-    WidgetWrapper& FixUp();
+    const WidgetWrapper& BlockWheel() const;
+    const WidgetWrapper& FixUp() const;
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetWrapper, QWidget)
-    WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette);
+    const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
-    DispatcherConnectionsSafe& WidgetConnections();
-    LocalPropertyBool& WidgetVisibility(bool animated = false);
-    LocalPropertyBool& WidgetEnablity();
-    LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth);
+    DispatcherConnectionsSafe& WidgetConnections() const;
+    LocalPropertyBool& WidgetVisibility(bool animated = false) const;
+    LocalPropertyBool& WidgetEnablity() const;
+    LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth) const;
+    TranslatedStringPtr WidgetToolTip() const;
 
-    bool HasParent(QWidget* parent);
-    void ForeachParentWidget(const std::function<bool(QWidget*)>& handler);
-    void ForeachChildWidget(const std::function<void (QWidget*)>& handler);
-
-    QWidget* operator->() const { return m_widget; }
-    operator QWidget*() const { return m_widget; }
+    bool HasParent(QWidget* parent) const;
+    void ForeachParentWidget(const std::function<bool(QWidget*)>& handler) const;
+    void ForeachChildWidget(const std::function<void (QWidget*)>& handler) const;    
 
 private:
     DispatcherConnections createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
-                                     const FConnector& connector);
+                                     const FConnector& connector) const;
 
 protected:
     template<class T>
-    T& make(const std::function<void (T&)>& handler)
+    const T& make(const std::function<void (const T&)>& handler) const
     {
-        auto* tThis = reinterpret_cast<T*>(this);
+        auto* tThis = reinterpret_cast<const T*>(this);
         handler(*tThis);
         return *tThis;
     }
 
 protected:
     QWidget* m_widget;
+};
+
+class WidgetPushButtonWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetPushButtonWrapper(class QPushButton* pushButton);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
+
+    LocalPropertyBool& WidgetChecked() const;
+    const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
+    const WidgetPushButtonWrapper& OnClicked(const FAction& action) const;
+    const WidgetPushButtonWrapper& OnClicked(const FAction& action, QtLambdaConnections& connections) const;
+    TranslatedStringPtr WidgetText() const;
 };
 
 class WidgetLineEditWrapper : public WidgetWrapper
@@ -145,10 +160,10 @@ public:
     WidgetComboboxWrapper(class QComboBox* combobox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
-    WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices);
-    WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices);
-    WidgetComboboxWrapper& DisconnectModel();
-    class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0);
+    const WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices) const;
+    const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
+    const WidgetComboboxWrapper& DisconnectModel() const;
+    class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0) const;
 };
 
 class WidgetGroupboxWrapper : public WidgetWrapper
@@ -157,8 +172,8 @@ public:
     WidgetGroupboxWrapper(class QGroupBox* groupBox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
-    WidgetGroupboxWrapper& AddCollapsing();
-    WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater);
+    const WidgetGroupboxWrapper& AddCollapsing() const;
+    const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater) const;
 };
 
 class LocalPropertyDoubleDisplay : public LocalPropertyDouble
@@ -191,7 +206,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLabelWrapper, QLabel)
 
-    TranslatedStringPtr WidgetText();
+    TranslatedStringPtr WidgetText() const;
 };
 
 class WidgetTableViewWrapper : public WidgetWrapper
@@ -200,16 +215,16 @@ public:
     WidgetTableViewWrapper(QTableView* tableView);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper, QTableView)
-    bool CopySelectedTableContentsToClipboard(bool includeHeaders = false);
-    QList<int> SelectedRowsSorted();
-    QList<int> SelectedColumnsSorted();
-    QSet<int> SelectedRowsSet();
-    QSet<int> SelectedColumnsSet();
-    void SelectRowsAndScrollToFirst(const QSet<qint32>& rows);
-    void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns);
-    class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams());
-    QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams());
-    class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
+    bool CopySelectedTableContentsToClipboard(bool includeHeaders = false) const;
+    QList<int> SelectedRowsSorted() const;
+    QList<int> SelectedColumnsSorted() const;
+    QSet<int> SelectedRowsSet() const;
+    QSet<int> SelectedColumnsSet() const;
+    void SelectRowsAndScrollToFirst(const QSet<qint32>& rows) const;
+    void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns) const;
+    class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
+    QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;
+    class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const;
 };
 
 class ActionWrapper : public ObjectWrapper
@@ -218,15 +233,15 @@ class ActionWrapper : public ObjectWrapper
 public:
     ActionWrapper(QAction* action);
 
-    ActionWrapper& Make(const std::function<void (ActionWrapper&)>& handler);
-    ActionWrapper& SetShortcut(const QKeySequence& keySequence);
-    ActionWrapper& SetText(const QString& text);
+    const ActionWrapper& Make(const std::function<void (const ActionWrapper&)>& handler) const;
+    const ActionWrapper& SetShortcut(const QKeySequence& keySequence) const;
+    const ActionWrapper& SetText(const QString& text) const;
 
     QAction* GetAction() const { return m_action; }
 
-    LocalPropertyBool& ActionVisibility();
-    LocalPropertyBool& ActionEnablity();
-    TranslatedStringPtr ActionText();
+    LocalPropertyBool& ActionVisibility() const;
+    LocalPropertyBool& ActionEnablity() const;
+    TranslatedStringPtr ActionText() const;
 
     QAction* operator->() const { return m_action; }
     operator QAction*() const { return m_action; }
@@ -243,7 +258,7 @@ public:
 
     template<class T>
     T* GetCustomView() const { return WidgetsDialogsManager::GetInstance().CustomDialogView<T>(GetWidget()); }
-    void Show(const DescShowDialogParams& params);
+    void Show(const DescShowDialogParams& params) const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(DialogWrapper, QDialog)
 };
@@ -257,8 +272,8 @@ public:
     {}
 
     const MenuWrapper& Make(const std::function<void (const MenuWrapper&)>& handler) const { handler(*this); return *this; }
-    MenuWrapper& AddGlobalAction(const QString& path);
-    MenuWrapper& AddGlobalTableAction(const Latin1Name& id);
+    const MenuWrapper& AddGlobalAction(const QString& path) const;
+    const MenuWrapper& AddGlobalTableAction(const Latin1Name& id) const;
     ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
     ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
 
@@ -287,7 +302,7 @@ public:
     ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
     ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
     ActionWrapper AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const;
-    ActionWrapper AddTableColumnsAction();
+    ActionWrapper AddTableColumnsAction() const;
     ActionWrapper AddSeparator() const;
     class QMenu* AddPreventedFromClosingMenu(const QString& title) const;
     static QMenu* CreatePreventedFromClosingMenu(const QString& title);

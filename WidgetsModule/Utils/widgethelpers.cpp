@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 #include <QAction>
 #include <QGroupBox>
+#include <QPushButton>
 #include <QStandardItemModel>
 #include <QSpinBox>
 #include <QColorDialog>
@@ -37,6 +38,8 @@
 
 #include "WidgetsModule/Attachments/widgetsactivetableattachment.h"
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
+
+#include "WidgetsModule/Utils/iconsmanager.h"
 
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
@@ -130,7 +133,7 @@ static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnim
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
 Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
 
-WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
+WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const
 {
     return new WidgetsMatchingAttachment(GetWidget(), targetModel, targetImportColumns);
 }
@@ -141,12 +144,12 @@ DialogWrapper::DialogWrapper(const Name& id, const std::function<DescCustomDialo
 
 }
 
-void DialogWrapper::Show(const DescShowDialogParams& params)
+void DialogWrapper::Show(const DescShowDialogParams& params) const
 {
     WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
 }
 
-QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params)
+QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params) const
 {
     auto* tableView = GetWidget();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView);
@@ -178,7 +181,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     return dragDropHeader;
 }
 
-QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params)
+QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params) const
 {
     auto* tableView = GetWidget();
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Vertical, tableView);
@@ -208,21 +211,61 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     return dragDropHeader;
 }
 
-QList<int> WidgetTableViewWrapper::SelectedRowsSorted()
+WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* pushButton)
+    : Super(pushButton)
+{
+
+}
+
+LocalPropertyBool& WidgetPushButtonWrapper::WidgetChecked() const
+{
+    return *GetOrCreateProperty<LocalPropertyBool>("a_checked", [](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QPushButton*>(object);
+        action->setChecked(visible);
+    }, false);
+}
+
+const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetIcon(const Name& iconId) const
+{
+    GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconId));
+    return *this;
+}
+
+const WidgetPushButtonWrapper& WidgetPushButtonWrapper::OnClicked(const FAction& action) const
+{
+    m_widget->connect(GetWidget(), &QPushButton::clicked, action);
+    return *this;
+}
+
+const WidgetPushButtonWrapper& WidgetPushButtonWrapper::OnClicked(const FAction& action, QtLambdaConnections& connections) const
+{
+    connections.connect(GetWidget(), &QPushButton::clicked, action);
+    return *this;
+}
+
+TranslatedStringPtr WidgetPushButtonWrapper::WidgetText() const
+{
+    auto* label = GetWidget();
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
+        label->setText(text);
+    });
+}
+
+QList<int> WidgetTableViewWrapper::SelectedRowsSorted() const
 {
     auto ret = SelectedRowsSet().toList();
     std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
     return ret;
 }
 
-QList<int> WidgetTableViewWrapper::SelectedColumnsSorted()
+QList<int> WidgetTableViewWrapper::SelectedColumnsSorted() const
 {
     auto ret = SelectedColumnsSet().toList();
 	std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
     return ret;
 }
 
-QSet<int> WidgetTableViewWrapper::SelectedRowsSet()
+QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
 {
 	QSet<int> set;
     auto selectedIndexes = GetWidget()->selectionModel()->selectedIndexes();
@@ -242,7 +285,7 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet()
     return set;
 }
 
-QSet<int> WidgetTableViewWrapper::SelectedColumnsSet()
+QSet<int> WidgetTableViewWrapper::SelectedColumnsSet() const
 {
     QSet<int> set;
     auto selectedIndexes = GetWidget()->selectionModel()->selectedIndexes();
@@ -253,7 +296,7 @@ QSet<int> WidgetTableViewWrapper::SelectedColumnsSet()
     return set;
 }
 
-void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowIndices)
+void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowIndices) const
 {
     auto* table = GetWidget();
     table->clearSelection();
@@ -277,7 +320,7 @@ void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowI
     }
 }
 
-void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& columnIndices)
+void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& columnIndices) const
 {
     auto* table = GetWidget();
     table->clearSelection();
@@ -305,7 +348,7 @@ WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
     : WidgetWrapper(tableView)
 {}
 
-bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders)
+bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders) const
 {
     auto* tableView = GetWidget();
     auto selectedIndexes = tableView->selectionModel()->selectedIndexes();
@@ -361,7 +404,7 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 }
 
 // NOTE. Model must be case insensitively sorted! Otherwise there'll be undefined completion behavior
-QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column)
+QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column) const
 {
     GetWidget()->setModel(model);
     GetWidget()->setEditable(true);
@@ -388,7 +431,7 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
 }
 
 
-WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel()
+const WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel() const
 {
     auto* combo = GetWidget();
     combo->setInsertPolicy(QComboBox::NoInsert);
@@ -420,7 +463,7 @@ WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)
     : WidgetWrapper(combobox)
 {}
 
-WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qint32>& indices)
+const WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qint32>& indices) const
 {
     auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
     if(itemModel != nullptr){
@@ -434,7 +477,7 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qin
     return *this;
 }
 
-WidgetWrapper& WidgetWrapper::AddModalProgressBar()
+const WidgetWrapper& WidgetWrapper::AddModalProgressBar() const
 {
     Q_ASSERT(m_widget->isWindow());
     auto* progressBar = new MainProgressBar(m_widget, Qt::Window | Qt::FramelessWindowHint);
@@ -454,7 +497,7 @@ WidgetWrapper& WidgetWrapper::AddModalProgressBar()
     return *this;
 }
 
-WidgetWrapper& WidgetWrapper::FixUp()
+const WidgetWrapper& WidgetWrapper::FixUp() const
 {
     ForeachChildWidget([](QWidget* w){
         auto* combobox = qobject_cast<QComboBox*>(w);
@@ -482,7 +525,7 @@ WidgetWrapper& WidgetWrapper::FixUp()
     return *this;
 }
 
-WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qint32>& indices)
+const WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qint32>& indices) const
 {
     auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
     if(itemModel != nullptr){
@@ -496,7 +539,7 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qi
     return *this;
 }
 
-WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing()
+const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
 {
     auto* widget = GetWidget();
     auto update = [widget](bool visible){
@@ -519,7 +562,7 @@ WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing()
     return *this;
 }
 
-WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater)
+const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater) const
 {
     auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
                                  auto* widget = reinterpret_cast<QGroupBox*>(w);
@@ -540,17 +583,25 @@ WidgetWrapper::WidgetWrapper(QWidget* widget)
 
 }
 
-DispatcherConnection WidgetWrapper::ConnectVisibility(const char* debugLocation, QWidget* another)
+TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
+{
+    auto* widget = GetWidget();
+    return GetOrCreateProperty<TranslatedString>("a_tooltip", [widget](QObject*, const TranslatedString& text){
+        widget->setToolTip(text);
+    });
+}
+
+DispatcherConnection WidgetWrapper::ConnectVisibility(const char* debugLocation, QWidget* another) const
 {
     return WidgetWrapper(another).WidgetVisibility().ConnectFrom(debugLocation, WidgetVisibility());
 }
 
-DispatcherConnection WidgetWrapper::ConnectEnablity(const char* debugLocation, QWidget* another)
+DispatcherConnection WidgetWrapper::ConnectEnablity(const char* debugLocation, QWidget* another) const
 {
     return WidgetWrapper(another).WidgetEnablity().ConnectFrom(debugLocation, WidgetEnablity());
 }
 
-void WidgetWrapper::SetVisibleAnimated(bool visible, int duration, double opacity)
+void WidgetWrapper::SetVisibleAnimated(bool visible, int duration, double opacity) const
 {
     if(visible) {
         ShowAnimated(duration, opacity);
@@ -559,7 +610,7 @@ void WidgetWrapper::SetVisibleAnimated(bool visible, int duration, double opacit
     }
 }
 
-WidgetWrapper& WidgetWrapper::BlockWheel()
+const WidgetWrapper& WidgetWrapper::BlockWheel() const
 {
     AddEventFilter([](QObject*, QEvent* event){
         if(event->type() == QEvent::Wheel) {
@@ -576,13 +627,13 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class QLineEdit* lineEdit)
 
 }
 
-WidgetWrapper& WidgetWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter)
+const WidgetWrapper& WidgetWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
     WidgetsAttachment::Attach(m_widget, filter);
     return *this;
 }
 
-WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additionalWidgets)
+const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const
 {
     auto* target = m_widget;
     auto eventFilter = [target](QObject*, QEvent* event){
@@ -607,7 +658,7 @@ WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additio
     return *this;
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initialWidth)
+LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initialWidth) const
 {
     // TODO. NOT WORKING
     return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal, initialWidth](QObject* object, const LocalPropertyBool& visible){
@@ -630,7 +681,7 @@ LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initi
     }, true);
 }
 
-void WidgetWrapper::ShowAnimated(int duration, double opacity)
+void WidgetWrapper::ShowAnimated(int duration, double opacity) const
 {
     auto* widget = m_widget;
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
@@ -650,7 +701,7 @@ void WidgetWrapper::ShowAnimated(int duration, double opacity)
     widget->show();
 }
 
-void WidgetWrapper::HideAnimated(int duration)
+void WidgetWrapper::HideAnimated(int duration) const
 {
     auto* widget = m_widget;
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
@@ -673,7 +724,7 @@ void WidgetWrapper::HideAnimated(int duration)
     widget->show();
 }
 
-WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*>& palette)
+const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_widget->property("a_palette").toBool());
@@ -708,7 +759,7 @@ WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*
 
 DispatcherConnections WidgetWrapper::createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler,
                                                 const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
-                                                const FConnector& connector)
+                                                const FConnector& connector) const
 {
     DispatcherConnections result;
     result += property->ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers);
@@ -718,12 +769,12 @@ DispatcherConnections WidgetWrapper::createRule(const char* debugLocation, Local
     return result;
 }
 
-DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections()
+DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const
 {
     return *Injected<DispatcherConnectionsSafe>("a_connections");
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated)
+LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated) const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [animated](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
@@ -735,7 +786,7 @@ LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated)
     }, true);
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetEnablity()
+LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
@@ -743,7 +794,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity()
     }, true);
 }
 
-bool WidgetWrapper::HasParent(QWidget* parent)
+bool WidgetWrapper::HasParent(QWidget* parent) const
 {
     bool result = false;
     ForeachParentWidget([&result, parent](QWidget* gypoParent){
@@ -756,7 +807,7 @@ bool WidgetWrapper::HasParent(QWidget* parent)
     return result;
 }
 
-void WidgetWrapper::ForeachParentWidget(const std::function<bool(QWidget*)>& handler)
+void WidgetWrapper::ForeachParentWidget(const std::function<bool(QWidget*)>& handler) const
 {
     auto* parent = m_widget->parentWidget();
     while(parent != nullptr) {
@@ -767,7 +818,7 @@ void WidgetWrapper::ForeachParentWidget(const std::function<bool(QWidget*)>& han
     }
 }
 
-void WidgetWrapper::ForeachChildWidget(const std::function<void (QWidget*)>& handler)
+void WidgetWrapper::ForeachChildWidget(const std::function<void (QWidget*)>& handler) const
 {
     auto childWidgets = m_widget->findChildren<QWidget*>();
     for(auto* childWidget : childWidgets) {
@@ -782,25 +833,25 @@ ActionWrapper::ActionWrapper(QAction* action)
 
 }
 
-ActionWrapper& ActionWrapper::Make(const std::function<void (ActionWrapper&)>& handler)
+const ActionWrapper& ActionWrapper::Make(const std::function<void (const ActionWrapper&)>& handler) const
 {
     handler(*this);
     return *this;
 }
 
-ActionWrapper& ActionWrapper::SetShortcut(const QKeySequence& keySequence)
+const ActionWrapper& ActionWrapper::SetShortcut(const QKeySequence& keySequence) const
 {
     m_action->setShortcut(keySequence);
     return *this;
 }
 
-ActionWrapper& ActionWrapper::SetText(const QString& text)
+const ActionWrapper& ActionWrapper::SetText(const QString& text) const
 {
     m_action->setText(text);
     return *this;
 }
 
-LocalPropertyBool& ActionWrapper::ActionVisibility()
+LocalPropertyBool& ActionWrapper::ActionVisibility() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QAction*>(object);
@@ -808,7 +859,7 @@ LocalPropertyBool& ActionWrapper::ActionVisibility()
     }, true);
 }
 
-LocalPropertyBool& ActionWrapper::ActionEnablity()
+LocalPropertyBool& ActionWrapper::ActionEnablity() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QAction*>(object);
@@ -816,7 +867,7 @@ LocalPropertyBool& ActionWrapper::ActionEnablity()
     }, true);
 }
 
-TranslatedStringPtr ActionWrapper::ActionText()
+TranslatedStringPtr ActionWrapper::ActionText() const
 {
     return GetOrCreateProperty<TranslatedString>("a_text", [](QObject* object, const TranslatedString& text){
         auto* action = reinterpret_cast<QAction*>(object);
@@ -850,7 +901,7 @@ ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<v
     return result;
 }
 
-ActionWrapper MenuWrapper::AddTableColumnsAction()
+ActionWrapper MenuWrapper::AddTableColumnsAction() const
 {
     auto* tableView = qobject_cast<QTableView*>(m_widget);
     Q_ASSERT(tableView != nullptr);
@@ -860,7 +911,7 @@ ActionWrapper MenuWrapper::AddTableColumnsAction()
     return action;
 }
 
-MenuWrapper& MenuWrapper::AddGlobalAction(const QString& path)
+const MenuWrapper& MenuWrapper::AddGlobalAction(const QString& path) const
 {
     auto* action = ActionsManager::GetInstance().FindAction(path);
     Q_ASSERT(action != nullptr);
@@ -868,7 +919,7 @@ MenuWrapper& MenuWrapper::AddGlobalAction(const QString& path)
     return *this;
 }
 
-MenuWrapper& MenuWrapper::AddGlobalTableAction(const Latin1Name& id)
+const MenuWrapper& MenuWrapper::AddGlobalTableAction(const Latin1Name& id) const
 {
     auto* action = WidgetsGlobalTableActionsScope::GetInstance().FindAction(id);
     Q_ASSERT(action != nullptr);
@@ -989,7 +1040,7 @@ WidgetLabelWrapper::WidgetLabelWrapper(QLabel* label)
     : WidgetWrapper(label)
 {}
 
-TranslatedStringPtr WidgetLabelWrapper::WidgetText()
+TranslatedStringPtr WidgetLabelWrapper::WidgetText() const
 {
     auto* label = GetWidget();
     return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
@@ -997,7 +1048,7 @@ TranslatedStringPtr WidgetLabelWrapper::WidgetText()
     });
 }
 
-WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing)
+const const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing) const
 {
     auto* w = m_widget;
     w->setContextMenuPolicy(Qt::CustomContextMenu);

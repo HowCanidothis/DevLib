@@ -118,41 +118,6 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
-LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(const QVector<QPushButton*>& buttons, LocalPropertyInt* property)
-    : Super([buttons, property]{
-                for(auto* button : buttons) {
-                    button->setChecked(false);
-                }
-                if(*property >= 0 && *property < buttons.size()) {
-                    buttons.at(*property)->setChecked(true);
-                }
-            }, [this, property]{
-                *property = m_currentIndex;
-            })
-    , m_currentIndex(*property)
-{
-
-    property->GetDispatcher().Connect(this, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    qint32 i(0);
-    for(auto* button : buttons) {
-        button->setCheckable(true);
-        m_connections.connect(button, &QPushButton::clicked, [i, this]{
-            m_currentIndex = i;
-            m_propertySetter();
-        });
-        ++i;
-    }
-
-    auto resetCheckState = [buttons]{
-        for(auto* button : buttons) {
-            button->setChecked(false);
-        }
-    };
-}
-
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
     label->setText(*property);
@@ -192,6 +157,40 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 #ifdef WIDGETS_MODULE_LIB
 
 #include <WidgetsModule/internal.hpp>
+
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
+    : Super([buttons, property]{
+                for(auto* button : buttons) {
+                    auto& checked = WidgetPushButtonWrapper(button).WidgetChecked();
+                    checked = false;
+                    if(WidgetPushButtonWrapper(button).GetWidget()->isChecked() != checked) { // Qt internally changed value
+                        checked.Invoke();
+                    }
+                }
+                if(*property >= 0 && *property < buttons.size()) {
+                    WidgetPushButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
+                }
+            }, [this, property]{
+                *property = m_currentIndex;
+            })
+    , m_currentIndex(*property)
+{
+
+    property->GetDispatcher().Connect(this, m_widgetSetter).MakeSafe(m_dispatcherConnections);
+
+    qint32 i(0);
+    for(auto* button : buttons) {
+        button->setCheckable(true);
+        WidgetPushButtonWrapper(button).OnClicked([i, this]{
+            ThreadsBase::DoMain([i, this]{
+                m_currentIndex = i;
+                m_propertySetter();
+                m_widgetSetter();
+            });
+        }, m_connections);
+        ++i;
+    }
+}
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
     : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, [property](double value){

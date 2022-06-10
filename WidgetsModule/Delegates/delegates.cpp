@@ -23,7 +23,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
 {
     QComboBox* comboBox = new QComboBox(parent);
     auto* model = m_getter();
-    WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](WidgetComboboxWrapper& wrapper){
+    WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](const WidgetComboboxWrapper& wrapper){
         wrapper.CreateCompleter(model, [this, comboBox](const QModelIndex&){
             if(comboBox->lineEdit() != nullptr) {
                 return;
