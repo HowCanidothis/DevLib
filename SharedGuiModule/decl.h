@@ -601,6 +601,8 @@ typedef quint32 gRenderbufferID;
 
 typedef Point3F Color3F;
 
+inline Color3F Color3FCreate(const QColor& color) { return Color3F(color.redF(), color.greenF(), color.blueF()); }
+
 #pragma pack(1)
 struct TexturedVertex2F
 {
@@ -631,6 +633,13 @@ struct ColoredVertex2F
 {
     Point2F Position;
     Color3F Color;
+
+    ColoredVertex2F()
+    {}
+    ColoredVertex2F(const Point2F& pos, const Color3F& color)
+        : Position(pos)
+        , Color(color)
+    {}
 };
 
 struct ColoredVertex3F

@@ -4,7 +4,7 @@
 
 #include "gtmeshquad2D.h"
 
-void GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized)
+GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized)
 {
     qint32 attributeIndex = m_currentIndex;
     qint32 currentStride = m_currentStride;
@@ -16,6 +16,7 @@ void GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeS
     m_currentStride += size;
     m_size += size;
     m_currentIndex++;
+    return *this;
 }
 
 GtMeshBuffer::GtMeshBuffer(GtMeshBuffer::VertexType vertexType, QOpenGLBuffer::UsagePattern pattern)

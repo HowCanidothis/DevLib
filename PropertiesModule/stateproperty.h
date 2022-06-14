@@ -367,15 +367,6 @@ template<class T>
 class StateImmutableData {
     using TPtr = SharedPointer<T>;
 public:
-    class UnLocker : public guards::LambdaGuard
-    {
-        using Super = guards::LambdaGuard;
-    public:
-        UnLocker(const StateImmutableData* table) noexcept
-            : Super([table]{ table->Unlock(); }, []{} )
-        {}
-    };
-
     StateImmutableData(const TPtr& data)
         : m_lockCounter(0)
         , m_isDirty(false)
@@ -422,6 +413,16 @@ public:
         }};
 #endif
         m_data->IsValid.ConnectFromStateProperty(CONNECTION_DEBUG_LOCATION, m_calculator.Valid);
+    }
+
+    guards::LambdaGuardPtr CreateLocker()
+    {
+        THREAD_ASSERT_IS_NOT_MAIN()
+        return ::make_shared<guards::LambdaGuard>([this]{
+            ThreadsBase::DoMainAwait([this]{ Unlock(); });
+        }, [this]{
+            ThreadsBase::DoMainAwait([this]{ Lock(); });
+        });
     }
 
     void Lock() const

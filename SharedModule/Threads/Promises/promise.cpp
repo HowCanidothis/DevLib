@@ -76,8 +76,25 @@ DispatcherConnection Promise::Then(const typename PromiseData::FCallback& handle
     });
 }
 
+SafeCall::SafeCall()
+    : m_data(::make_shared<SafeCallData>())
+{}
+SafeCall::~SafeCall()
+{
+    m_data->ObjectIsDead = true;
+}
 
-Promise Promise::ThenMain(const std::function<qint8 (qint8)>& handler)
+FAction SafeCall::Wrap(const FAction& handler) const
+{
+    auto data = m_data;
+    return [handler, data]{
+        if(!data->ObjectIsDead) {
+            handler();
+        }
+    };
+}
+
+Promise Promise::MoveToMain(const std::function<qint8 (qint8)>& handler)
 {
     Promise promise;
     Then([promise, handler](qint8 res){

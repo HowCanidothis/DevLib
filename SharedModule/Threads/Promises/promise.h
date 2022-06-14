@@ -34,6 +34,23 @@ private:
     std::mutex m_mutex;
 };
 
+struct SafeCallData
+{
+    bool ObjectIsDead = false;
+};
+
+class SafeCall
+{
+public:
+    SafeCall();
+    ~SafeCall();
+
+    FAction Wrap(const FAction& handler) const;
+
+private:
+    SharedPointer<SafeCallData> m_data;
+};
+
 class Promise
 {
     SharedPointer<PromiseData> m_data;
@@ -64,7 +81,7 @@ public:
         return result;
     }
 
-    Promise ThenMain(const std::function<qint8 (qint8)>& handler);
+    Promise MoveToMain(const std::function<qint8 (qint8)>& handler);
 };
 
 using AsyncResult = Promise;

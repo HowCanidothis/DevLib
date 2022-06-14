@@ -11,9 +11,9 @@ class QOpenGLVertexArrayObject;
 class GtMeshBufferBuilder
 {
 public:
-    void AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized);
+    GtMeshBufferBuilder& AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized);
     template<class T>
-    void AddComponent(qint32 count, bool normalized = false);
+    GtMeshBufferBuilder& AddComponent(qint32 count, bool normalized = false);
 
     const QVector<std::function<void(OpenGLFunctions*)>>& GetResult() const { return m_result; }
 private:
@@ -24,15 +24,17 @@ private:
 };
 
 template<>
-inline void GtMeshBufferBuilder::AddComponent<float>(qint32 count, bool normalized)
+inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<float>(qint32 count, bool normalized)
 {
     AddComponent(count, GL_FLOAT, sizeof(float), normalized);
+    return *this;
 }
 
 template<>
-inline void GtMeshBufferBuilder::AddComponent<qint32>(qint32 count, bool normalized)
+inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<qint32>(qint32 count, bool normalized)
 {
     AddComponent(count, GL_INT, sizeof(qint32), normalized);
+    return *this;
 }
 
 class GtMeshBuffer

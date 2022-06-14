@@ -60,6 +60,7 @@ struct GtTextScreenBasedGlyph : GtTextGlyphBase
     float Align;
     float TotalWidth;
     Vector2F Direction;
+    Color3F Color;
 };
 
 struct GtTextGlyph : GtTextGlyphBase
@@ -197,17 +198,25 @@ public:
         Vector2F Position;
         Vector2F Direction;
 
-        TextInfo() = default;
+        TextInfo()
+            : m_colorHandler([](const Color3F& color){ return color; })
+        {}
         TextInfo(const QString& text, const Vector2F& position, const Vector2F& direction)
             : Text(text)
             , Position(position)
             , Direction(direction)
             , Align(GtTextAlign_Center)
+            , m_colorHandler([](const Color3F& color){ return color; })
         {}
 
         GtTextAligns Align;
 
         TextInfo& SetAlign(GtTextAligns align) { Align = align; return *this; }
+        TextInfo& UseSpecificColor(const Color3F& color) { m_colorHandler = [color](const Color3F&){ return color; }; return *this; }
+
+    private:
+        friend class GtTextScreenDrawable;
+        std::function<Color3F (const Color3F&)> m_colorHandler;
     };
 
     GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);

@@ -397,6 +397,8 @@ public:
     }
 };
 
+using LambdaGuardPtr = SharedPointer<LambdaGuard>;
+
 class BooleanGuard : public LambdaGuard
 {
     using Super = LambdaGuard;

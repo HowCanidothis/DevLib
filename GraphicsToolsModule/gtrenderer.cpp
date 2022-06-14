@@ -65,7 +65,7 @@ GtRenderer::GtRenderer(const QString& defaultShadersPath)
     construct();
     CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext.geom", "sdftext.frag");
     CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath, "sdfscreentext.vert", "sdfscreentext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath, "sdfscreentext.vert", "sdfscreentext.geom", "sdfscreentext.frag");
 }
 
 GtRenderer::~GtRenderer()

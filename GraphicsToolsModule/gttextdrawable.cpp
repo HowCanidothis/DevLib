@@ -94,12 +94,12 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_HEIGHT", &font->GetMap().GetHeight()));
     m_material.AddParameter(::make_shared<GtMaterialParameterTexture>("TEXTURE", font->GetName()));
 
-    m_builder.AddComponent<float>(3);
-    m_builder.AddComponent<float>(4);
-    m_builder.AddComponent<float>(2);
-    m_builder.AddComponent<float>(4);
-    m_builder.AddComponent<float>(3);
-    m_builder.AddComponent<float>(4);
+    m_builder.AddComponent<float>(3).
+              AddComponent<float>(4).
+              AddComponent<float>(2).
+              AddComponent<float>(4).
+              AddComponent<float>(3).
+              AddComponent<float>(4);
 
     Settings.Visible.Subscribe([this]{
         Update([this]{
@@ -192,11 +192,12 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_HEIGHT", &font->GetMap().GetHeight()));
     m_material.AddParameter(::make_shared<GtMaterialParameterTexture>("TEXTURE", font->GetName()));
 
-    m_builder.AddComponent<float>(2);
-    m_builder.AddComponent<float>(4);
-    m_builder.AddComponent<float>(2);
-    m_builder.AddComponent<float>(4);
-    m_builder.AddComponent<float>(2);
+    m_builder.AddComponent<float>(2).
+              AddComponent<float>(4).
+              AddComponent<float>(2).
+              AddComponent<float>(4).
+              AddComponent<float>(2).
+              AddComponent<float>(3);
 
     Settings.Visible.Subscribe([this]{
         Update([this]{
@@ -214,9 +215,11 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr
 void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
 {
     Update([texts,this](OpenGLFunctions* f){
+        Color3F settingsColor = Color3FCreate(Settings.Color);
         QVector<TextMeshStruct> mesh;
         for(const auto& textInfo : texts) {
             TextMeshStruct currentMeshVertex;
+            currentMeshVertex.Glyph.Color = textInfo.m_colorHandler(settingsColor);
             currentMeshVertex.Glyph.XAdvance = 0.f;
             currentMeshVertex.Point = textInfo.Position;
             currentMeshVertex.Glyph.Direction = textInfo.Direction;
