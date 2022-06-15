@@ -21,7 +21,8 @@ Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
     const WrapperType& Make(const std::function<void (const WrapperType&)>& handler) const { return make<WrapperType>(handler); } \
     type* GetWidget() const { return reinterpret_cast<type*>(m_widget); } \
     type* operator->() const { return reinterpret_cast<type*>(m_widget); } \
-    operator type*() const { return reinterpret_cast<type*>(m_widget); }
+    operator type*() const { return reinterpret_cast<type*>(m_widget); } \
+    using expected_type = type;
 
 class ObjectWrapper
 {
@@ -75,6 +76,8 @@ class WidgetWrapper : public ObjectWrapper
     using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*) const;
 public:
     WidgetWrapper(QWidget* widget);
+
+    template<class T> T& Cast() { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_widget)); return *((T*)this); }
 
     DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
     DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another) const;
