@@ -142,7 +142,7 @@ const GtFontPtr& GtRenderer::GetFont(const Name& fontName) const
 
 void GtRenderer::AddController(const GtRendererControllerPtr& controller)
 {
-    if(!IsStoped()) {
+    if(IsRunning()) {
         Asynch([this, controller]{
             controller->onInitialize();
             m_controllers.insert(controller.get(), controller);
@@ -154,7 +154,7 @@ void GtRenderer::AddController(const GtRendererControllerPtr& controller)
 
 void GtRenderer::RemoveController(GtRendererController* controller)
 {
-    if(!IsStoped()) {
+    if(IsRunning()) {
         Asynch([this, controller]{
             for(const auto& queue : controller->m_drawables) {
                 for(auto* drawable : queue) {

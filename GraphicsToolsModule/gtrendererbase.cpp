@@ -56,12 +56,7 @@ void GtRendererBase::run()
 
     m_isInitialized = true;
 
-    while (!IsStoped()) {
-        callEvents();
-
-        auto guard = guards::make(this, &GtRendererBase::fpsBind, &GtRendererBase::fpsRelease);
-        compute();
-    }
+    loop();
 
     onDestroy();
 }

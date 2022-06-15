@@ -12,6 +12,7 @@ class GtCameraAnimationEngine
     template<class ValueType> friend class GtCameraPointsPathEngineBase;
 public:
     GtCameraAnimationEngine(class GtRenderer* renderer, class GtCamera* camera);
+    virtual ~GtCameraAnimationEngine() = default;
 
     void SetRotationCurve(const QEasingCurve& curve) { m_rotationCurve = curve; }
     void SetMovementCurve(const QEasingCurve& curve) { m_movementCurve = curve; }
@@ -49,6 +50,7 @@ public:
         CurrentIndex.SetMinMax(-1, -1);
         m_previousIndex.ConnectFrom(CONNECTION_DEBUG_LOCATION, CurrentIndex);
     }
+    virtual ~GtCameraPointsPathEngineBase() = default;
 
     void Clear()
     {

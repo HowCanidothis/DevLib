@@ -17,8 +17,7 @@ public:
 
     void Start();
     void Quit(unsigned long time = ULONG_MAX);
-
-    bool IsStoped() const { return m_stoped; }
+    bool IsRunning() const { return isRunning(); }
 
     double GetComputeTime();
 
@@ -26,11 +25,16 @@ public:
 protected:
     virtual void run() Q_DECL_OVERRIDE;
 
+    void loop();
+
     void start() { Super::start(); }
     void quit() { Super::quit(); }
 
     void fpsBind();
     void fpsRelease();
+
+private:
+    bool isStoped() const { return m_stoped; }
 
 protected:
     virtual void compute();  

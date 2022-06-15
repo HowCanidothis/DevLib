@@ -23,6 +23,17 @@ void ThreadComputingBase::Start()
     start();
 }
 
+void ThreadComputingBase::loop()
+{
+    while (!m_stoped) {
+        auto guard = guards::make(this, &ThreadComputingBase::fpsBind, &ThreadComputingBase::fpsRelease);
+
+        callEvents();
+
+        compute();
+    }
+}
+
 void ThreadComputingBase::Quit(unsigned long time)
 {
     clearEvents();
@@ -41,13 +52,7 @@ double ThreadComputingBase::GetComputeTime()
 
 void ThreadComputingBase::run()
 {
-    while (!m_stoped) {
-        auto guard = guards::make(this, &ThreadComputingBase::fpsBind, &ThreadComputingBase::fpsRelease);
-
-        callEvents();
-
-        compute();
-    }
+    loop();
 }
 
 void ThreadComputingBase::compute()
