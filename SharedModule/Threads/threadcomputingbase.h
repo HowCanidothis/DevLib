@@ -17,7 +17,7 @@ public:
 
     void Start();
     void Quit(unsigned long time = ULONG_MAX);
-    bool IsRunning() const { return isRunning(); }
+    bool IsRunning() const { return isRunning() && !m_stoped; }
 
     double GetComputeTime();
 
