@@ -23,6 +23,13 @@ void ThreadComputingBase::Start()
     start();
 }
 
+void ThreadComputingBase::ProcessEvents()
+{
+    if(IsRunning()) {
+        ThreadEventsContainer::ProcessEvents();
+    }
+}
+
 void ThreadComputingBase::loop()
 {
     while (!m_stoped) {

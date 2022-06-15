@@ -218,7 +218,7 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     Q_ASSERT(result->Handlers.isEmpty());
 
     auto action = GetInstance().FindAction(GlobalActionCopyWithHeadersId);
-    result->AddHandler([]{ return tr("Copy with headers"); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), action, [table]{
+    result->AddHandler([]{ return tr("Copy With Headers"); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), action, [table]{
         WidgetTableViewWrapper(table).CopySelectedTableContentsToClipboard(true);
     });
 

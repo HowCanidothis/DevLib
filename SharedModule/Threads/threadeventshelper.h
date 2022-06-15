@@ -52,7 +52,7 @@ public:
 
     AsyncResult Asynch(const Name& tag, const FAction& handler);
     AsyncResult Asynch(const FAction& handler);
-    void ProcessEvents();
+    virtual void ProcessEvents();
 
     ThreadHandler CreateThreadHandler();
 

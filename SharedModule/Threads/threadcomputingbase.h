@@ -19,6 +19,8 @@ public:
     void Quit(unsigned long time = ULONG_MAX);
     bool IsRunning() const { return isRunning() && !m_stoped; }
 
+    void ProcessEvents() override;
+
     double GetComputeTime();
 
     // QThread interface
