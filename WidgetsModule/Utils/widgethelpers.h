@@ -253,6 +253,39 @@ private:
     QAction* m_action;
 };
 
+class WidgetSplitterWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetSplitterWrapper(class QSplitter* widget);
+
+    void SetWidgetSize(QWidget* widget, qint32 size);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSplitterWrapper, QSplitter);
+};
+
+class WidgetDoubleSpinBoxWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetDoubleSpinBoxWrapper(class QDoubleSpinBox* widget);
+
+    LocalPropertyDouble& WidgetValue() const;
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDoubleSpinBoxWrapper, QDoubleSpinBox);
+};
+
+class WidgetSpinBoxWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetSpinBoxWrapper(class QSpinBox* widget);
+
+    LocalPropertyInt& WidgetValue() const;
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSpinBoxWrapper, QSpinBox);
+};
+
 class DialogWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;

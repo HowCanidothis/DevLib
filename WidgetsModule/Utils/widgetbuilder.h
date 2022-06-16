@@ -11,7 +11,7 @@ public:
     WidgetBuilder(QWidget* parent, Qt::Orientation layoutOrientation, qint32 margins = 9);
     ~WidgetBuilder();
 
-    WidgetBuilder& StartSplitter(const std::function<void (WidgetBuilder&)>& handler);
+    WidgetBuilder& StartSplitter(const std::function<void (WidgetBuilder&, QSplitter*)>& handler);
     WidgetBuilder& StartLayout(Qt::Orientation orientation, const std::function<void (WidgetBuilder&)>& handler);
     WidgetBuilder& Make(const std::function<void (WidgetBuilder&)>& handler);
 

@@ -7,6 +7,7 @@
 #include <QHeaderView>
 #include <QClipboard>
 #include <QCompleter>
+#include <QSplitter>
 #include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
@@ -41,6 +42,7 @@
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
 
@@ -1060,4 +1062,54 @@ const const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::fun
         menu->exec(w->mapToGlobal(pos));
     });
     return *this;
+}
+
+WidgetSpinBoxWrapper::WidgetSpinBoxWrapper(QSpinBox* widget)
+    : Super(widget)
+{}
+
+LocalPropertyInt& WidgetSpinBoxWrapper::WidgetValue() const
+{
+    return *Injected<LocalPropertyInt>("a_value", [&]() -> LocalPropertyInt* {
+       auto* property = new LocalPropertyInt();
+       auto* widget = GetWidget();
+       property->OnChanged.ConnectAndCall(this, [widget, property]{ widget->setValue(*property); });
+       widget->connect(widget, QOverload<qint32>::of(&QSpinBox::valueChanged), [property](qint32 value){
+           *property = value;
+       });
+       property->SetSetterHandler(ThreadHandlerMain);
+       return property;
+   });
+}
+
+WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(QDoubleSpinBox* widget)
+    : Super(widget)
+{}
+
+LocalPropertyDouble& WidgetDoubleSpinBoxWrapper::WidgetValue() const
+{
+    return *Injected<LocalPropertyDouble>("a_value", [&]() -> LocalPropertyDouble* {
+       auto* property = new LocalPropertyDouble();
+       auto* widget = GetWidget();
+       property->OnChanged.ConnectAndCall(this, [widget, property]{ widget->setValue(*property); });
+       widget->connect(widget, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [property](double value){
+           *property = value;
+       });
+       property->SetSetterHandler(ThreadHandlerMain);
+       return property;
+   });
+}
+
+WidgetSplitterWrapper::WidgetSplitterWrapper(QSplitter* splitter)
+    : Super(splitter)
+{}
+
+void WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size)
+{
+    auto index = GetWidget()->indexOf(widget);
+    if(index != -1) {
+        auto sizes = GetWidget()->sizes();
+        sizes[index] = size;
+        GetWidget()->setSizes(sizes);
+    }
 }

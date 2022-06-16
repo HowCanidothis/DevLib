@@ -22,12 +22,12 @@ WidgetBuilder::~WidgetBuilder()
 {
 }
 
-WidgetBuilder& WidgetBuilder::StartSplitter(const std::function<void (WidgetBuilder&)>& handler)
+WidgetBuilder& WidgetBuilder::StartSplitter(const std::function<void (WidgetBuilder&, QSplitter*)>& handler)
 {
     auto* splitter = new QSplitter();
     m_addWidgetFunctors.last()(splitter);
     m_addWidgetFunctors.append([splitter](QWidget* w){ splitter->insertWidget(splitter->count(), w); });
-    handler(*this);
+    handler(*this, splitter);
     m_addWidgetFunctors.pop();
     return *this;
 }
