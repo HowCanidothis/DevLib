@@ -163,6 +163,17 @@ public:
     WidgetComboboxWrapper(class QComboBox* combobox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
+    template<class Enum>
+    const WidgetComboboxWrapper& SetEnum()
+    {
+        auto& connections = *Injected<DispatcherConnectionsSafe>("a_items_connections");
+        connections.clear();
+        auto *widget = GetWidget();
+        TranslatorManager::GetInstance().OnLanguageChanged.ConnectAndCall(this, [widget]{
+            widget->addItems(TranslatorManager::GetInstance().GetEnumNames<Enum>());
+        }).MakeSafe(connections);
+        return *this;
+    }
     const WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisconnectModel() const;
@@ -187,11 +198,9 @@ public:
         : Super(value, min, max)
         , Precision(2)
     {
-        auto update = [this]{
+        OnChanged.ConnectAndCall(this, [this]{
             DisplayValue.SetMinMax(*this, *this);
-        };
-        this->OnChanged.Connect(this, update);
-        update();
+        });
     }
 
     LocalPropertyDoubleDisplay& operator-=(double value) { SetValue(Super::Native() - value); return *this; }

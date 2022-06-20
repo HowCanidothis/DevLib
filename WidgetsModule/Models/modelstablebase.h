@@ -96,43 +96,16 @@ public:
     QVariant data(const QModelIndex& index, qint32 role) const override;
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
     QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
-    qint32 columnCount(const QModelIndex& = QModelIndex()) const override
-    {
-        return ColumnComponents.GetColumnCount();
-    }
+    qint32 columnCount(const QModelIndex& = QModelIndex()) const override;
 
-    void RequestUpdateUi(qint32 left, qint32 right)
-    {
-        if(m_mostLeftColumnToUpdate == -1) {
-            m_mostLeftColumnToUpdate = left;
-        } else {
-            m_mostLeftColumnToUpdate = std::min(m_mostLeftColumnToUpdate, left);
-        }
+    void RequestUpdateUi(qint32 left, qint32 right);
 
-        if(m_mostRightColumnToUpdate == -1) {
-            m_mostRightColumnToUpdate = right;
-        } else {
-            m_mostRightColumnToUpdate = std::max(m_mostRightColumnToUpdate, right);
-        }
-        m_update.Call([this]{
-            emit dataChanged(createIndex(0, m_mostLeftColumnToUpdate), createIndex(rowCount()-1, m_mostRightColumnToUpdate));
-            emit headerDataChanged(Qt::Horizontal, m_mostLeftColumnToUpdate, m_mostRightColumnToUpdate);
-            m_mostLeftColumnToUpdate = -1;
-            m_mostRightColumnToUpdate = -1;
-        });
-    }
-
-    DispatcherConnection AttachTempDependence(Dispatcher* dispatcher, int first, int last)
-    {
-        return dispatcher->Connect(this, [first, last, this]{
-            RequestUpdateUi(first, last);
-        });
-    }
-
-    void AttachDependence(Dispatcher* dispatcher, int first, int last)
-    {
-        AttachTempDependence(dispatcher, first, last).MakeSafe(m_connections);
-    }
+#ifdef UNITS_MODULE_LIB // TODO. Do not use it. Deprecated
+    DispatcherConnection AttachTempDependence(const Name& unitName, int first, int last);
+    void AttachDependence(const Name& unitName, int first, int last);
+#endif
+    DispatcherConnection AttachTempDependence(Dispatcher* dispatcher, int first, int last);
+    void AttachDependence(Dispatcher* dispatcher, int first, int last);
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 

@@ -207,7 +207,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 }
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
-    : LocalPropertiesDoubleSpinBoxConnector(&property->DisplayValue, spinBox,[](double){})
+    : LocalPropertiesDoubleSpinBoxConnector(property, spinBox,[](double){})
 {
     property->Precision.OnChanged.Connect(this, [spinBox, property]{
         spinBox->setDecimals(property->Precision);
@@ -238,7 +238,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
@@ -266,7 +266,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
@@ -293,7 +293,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
     property->GetDispatcher().Connect(this, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.Connect(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);

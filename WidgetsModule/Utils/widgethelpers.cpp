@@ -44,7 +44,6 @@
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
-Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
 
 class WidgetsAttachment : public QObject
 {

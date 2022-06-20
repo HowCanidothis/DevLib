@@ -303,4 +303,6 @@ private:
 
 using Dispatcher = CommonDispatcher<>;
 
+Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
+
 #endif // NOTIFICATION_H

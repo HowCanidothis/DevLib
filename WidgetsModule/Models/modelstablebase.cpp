@@ -17,6 +17,56 @@ ViewModelsTableBase::~ViewModelsTableBase()
 
 }
 
+qint32 ViewModelsTableBase::columnCount(const QModelIndex&) const
+{
+    return ColumnComponents.GetColumnCount();
+}
+
+void ViewModelsTableBase::RequestUpdateUi(qint32 left, qint32 right)
+{
+    if(m_mostLeftColumnToUpdate == -1) {
+        m_mostLeftColumnToUpdate = left;
+    } else {
+        m_mostLeftColumnToUpdate = std::min(m_mostLeftColumnToUpdate, left);
+    }
+
+    if(m_mostRightColumnToUpdate == -1) {
+        m_mostRightColumnToUpdate = right;
+    } else {
+        m_mostRightColumnToUpdate = std::max(m_mostRightColumnToUpdate, right);
+    }
+    m_update.Call([this]{
+        emit dataChanged(createIndex(0, m_mostLeftColumnToUpdate), createIndex(rowCount()-1, m_mostRightColumnToUpdate));
+        emit headerDataChanged(Qt::Horizontal, m_mostLeftColumnToUpdate, m_mostRightColumnToUpdate);
+        m_mostLeftColumnToUpdate = -1;
+        m_mostRightColumnToUpdate = -1;
+    });
+}
+
+#ifdef UNITS_MODULE_LIB
+DispatcherConnection ViewModelsTableBase::AttachTempDependence(const Name& unitName, int first, int last)
+{
+    return AttachTempDependence(&MeasurementManager::GetInstance().GetMeasurement(unitName)->OnChanged, first, last);
+}
+
+void ViewModelsTableBase::AttachDependence(const Name& unitName, int first, int last)
+{
+    AttachDependence(&MeasurementManager::GetInstance().GetMeasurement(unitName)->OnChanged, first, last);
+}
+#endif
+
+DispatcherConnection ViewModelsTableBase::AttachTempDependence(Dispatcher* dispatcher, int first, int last)
+{
+    return dispatcher->Connect(this, [first, last, this]{
+        RequestUpdateUi(first, last);
+    });
+}
+
+void ViewModelsTableBase::AttachDependence(Dispatcher* dispatcher, int first, int last)
+{
+    AttachTempDependence(dispatcher, first, last).MakeSafe(m_connections);
+}
+
 Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
 {
     if(!index.isValid()) {

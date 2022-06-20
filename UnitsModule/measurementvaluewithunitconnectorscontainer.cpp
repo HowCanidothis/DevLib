@@ -3,6 +3,21 @@
 #ifdef WIDGETS_MODULE_LIB
 #include <WidgetsModule/internal.hpp>
 
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox)
+{
+    AddConnector(measurement, &property->DisplayValue, spinBox);
+}
+
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, &property->DisplayValue, spinBox, label, translationHandler, labelUpdaters);
+}
+
+void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, &property->DisplayValue, spinBox, label, translationHandler, labelUpdaters);
+}
+
 void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
 {
     AddConnector(measurement, &property->Value, spinBox);

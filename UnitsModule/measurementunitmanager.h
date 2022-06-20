@@ -5,50 +5,14 @@
 #include <WidgetsModule/internal.hpp>
 #include <qmath.h>
 
-static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;
-static constexpr double USFEETS_TO_FEETS_MULTIPLIER = 1.000002;
-static constexpr double SQ_USFEETS_TO_FEETS_MULTIPLIER = USFEETS_TO_FEETS_MULTIPLIER*USFEETS_TO_FEETS_MULTIPLIER;
-static constexpr double SQ_METERS_TO_FEETS_MULTIPLIER = METERS_TO_FEETS_MULTIPLIER*METERS_TO_FEETS_MULTIPLIER;
-static constexpr double CU_USFEETS_TO_FEETS_MULTIPLIER = USFEETS_TO_FEETS_MULTIPLIER*USFEETS_TO_FEETS_MULTIPLIER*USFEETS_TO_FEETS_MULTIPLIER;
-static constexpr double CU_METERS_TO_FEETS_MULTIPLIER = METERS_TO_FEETS_MULTIPLIER*METERS_TO_FEETS_MULTIPLIER*METERS_TO_FEETS_MULTIPLIER;
-static constexpr double DEGREES_TO_RADIANS = M_PI / 180.0;
-
-class MeasurementUnit
-{
-public:
-    using FTransform = std::function<double (double)>;
-    using FTranslationHandler = std::function<QString ()>;
-    MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, double multiplierUnitToBase);
-    MeasurementUnit(const Name& id, const FTranslationHandler& fullLabelTrHandler, const FTranslationHandler& translationHandler, const FTransform& unitToBase, const FTransform& baseToUnit);
-    
-    double FromUnitToBaseChange(double& unitValue) const;
-    double FromBaseToUnitChange(double& baseValue) const;
-    double FromUnitToBase(double unitValue) const;
-    double FromBaseToUnit(double baseValue) const;
-    
-    FTransform GetUnitToBaseConverter() const { return m_unitToBase; }
-    FTransform GetBaseToUnitConverter() const { return m_baseToUnit; }
-    
-    const Name Id;
-    mutable TranslatedString LabelFull;
-    mutable TranslatedString Label;
-    
-private:
-    FTransform m_unitToBase;
-    FTransform m_baseToUnit;
-};
-Q_DECLARE_METATYPE(const MeasurementUnit*)
-using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
-using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
-
-bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
+#include "measurementdeclarations.h"
 
 class Measurement
 {
 public:
     Measurement(const QString& label);
     
-    Measurement& AddUnit(const MeasurementUnit* unit);
+    Measurement& AddUnit(const class MeasurementUnit* unit);
     const MeasurementUnit* FindUnit(const Name& metric) const;
     
     double CurrentUnitToBaseValue(double currentUnit) const;
