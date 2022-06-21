@@ -99,12 +99,9 @@ public:
 
     QByteArray Serialize(const void* o) const override
     {
-        static DescSerializationXMLWriteParams writeProperties =
-                DescSerializationXMLWriteParams()
-                .SetSerializationMode(SerializationMode)
-                .SetAutoFormating(true);
-
-        return SerializeToXML(*(T*)o, writeProperties);
+        return SerializeToXML(*(T*)o, DescSerializationXMLWriteParams()
+                              .SetSerializationMode(SerializationMode)
+                              .SetAutoFormating(true));
     }
 
 

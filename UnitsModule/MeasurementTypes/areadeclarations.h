@@ -13,6 +13,6 @@ namespace AreaUnits
     DECLARE_MEASUREMENT_UNIT(SqInches)
 };
 
-DECLARE_MEASUREMENT(MeasurementArea)
+DECLARE_MEASUREMENT(Area)
 
 #endif // AREADECLARATIONS_H

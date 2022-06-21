@@ -10,7 +10,7 @@
 class Measurement
 {
 public:
-    Measurement(const QString& label);
+    Measurement(const FTranslationHandler& label);
     
     Measurement& AddUnit(const class MeasurementUnit* unit);
     const MeasurementUnit* FindUnit(const Name& metric) const;
@@ -21,7 +21,7 @@ public:
     const MeasurementUnit* GetCurrentUnit() const { return m_currentUnit; }
     const WPSCUnitTableWrapperPtr& GetTableWrapper() const { return m_wrapper; }
     
-    LocalPropertyString Label;
+    TranslatedString Label;
     LocalPropertyInt CurrentPrecision;
     LocalPropertyDouble CurrentStep;
     
@@ -89,7 +89,7 @@ class MeasurementManager
 public:
     static MeasurementManager& GetInstance();
     
-    Measurement& AddMeasurement(const Name& measurementName);
+    Measurement& AddMeasurement(const Name& measurementName, const FTranslationHandler& translationHandler);
     MeasurementSystem& AddSystem(const Name& systemName);
     void AddSystem(const MeasurementSystemPtr& system);
     const MeasurementPtr& GetMeasurement(const Name& measurementName) const;

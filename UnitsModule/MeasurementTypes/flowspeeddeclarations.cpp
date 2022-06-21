@@ -14,4 +14,4 @@ namespace FlowSpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(BarrelsPerMinute, []{return QObject::tr("barrels per minute");     }, []{ return QObject::tr("bbl/min");}, 0.00264979);
 }
 
-IMPLEMENT_MEASUREMENT(MeasurementFlowSpeed)
+IMPLEMENT_MEASUREMENT(FlowSpeed)

@@ -13,12 +13,9 @@
 #include "MeasurementTypes/percentsdeclarations.h"
 #include "MeasurementTypes/mudweightdeclaration.h"
 #include "MeasurementTypes/viscositydeclaration.h"
-#include "MeasurementTypes/yieldpointdeclarations.h"
 #include "MeasurementTypes/temperaturedeclarations.h"
 #include "MeasurementTypes/densitydeclarations.h"
 #include "MeasurementTypes/weightperlengthdeclarations.h"
-#include "MeasurementTypes/youngmodulusdeclarations.h"
-#include "MeasurementTypes/yieldstrenghtdeclarations.h"
 #include "MeasurementTypes/thermalexpansiondeclarations.h"
 #include "MeasurementTypes/areadeclarations.h"
 #include "MeasurementTypes/forcedeclarations.h"
@@ -34,7 +31,7 @@ static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
 static const Name UNIT_SYSTEM_SI          = "SI";
 
-Measurement::Measurement(const QString& label)
+Measurement::Measurement(const FTranslationHandler& label)
     : Label(label)
     , CurrentPrecision(2)
     , CurrentStep(1.0)
@@ -106,23 +103,23 @@ MeasurementManager::MeasurementManager()
     : m_systemWrapper(::make_shared<WPSCUnitSystemTableWrapper>())
       , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
 {
-    AddMeasurement(MeasurementAngle::NAME)
+    AddMeasurement(MeasurementAngle::NAME, []{ return tr("Angles"); })
             .AddUnit(&AngleUnits::Degrees)
             .AddUnit(&AngleUnits::Radians);
 
-    AddMeasurement(MeasurementDistance::NAME)
+    AddMeasurement(MeasurementDistance::NAME, []{ return tr("Distances"); })
             .AddUnit(&DistanceUnits::USFeets)
             .AddUnit(&DistanceUnits::Feets)
             .AddUnit(&DistanceUnits::Meters);
 
-    AddMeasurement(MEASUREMENT_FUNNEL_VISCOSITY)
+    AddMeasurement(MeasurementFunnelViscosity::NAME, []{ return tr("Funnel Viscosity"); })
             .AddUnit(&FunnelViscosityUnits::SecondsForQuart);
 
-    AddMeasurement(MEASUREMENT_PERCENTS)
+    AddMeasurement(MeasurementPercents::NAME, []{ return tr("Percents"); })
             .AddUnit(&PercentsUnits::Partial)
             .AddUnit(&PercentsUnits::Percents);
 
-    AddMeasurement(MeasurementDiameter::NAME)
+    AddMeasurement(MeasurementDiameter::NAME, []{ return tr("Diameter"); })
             .AddUnit(&DistanceUnits::USFeets)
             .AddUnit(&DistanceUnits::Feets)
             .AddUnit(&DistanceUnits::Inches)
@@ -132,18 +129,18 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&DistanceUnits::Centimeters)
             .AddUnit(&DistanceUnits::Kilometers);
 
-    AddMeasurement(MEASUREMENT_FIELD_STRENGTH)
+    AddMeasurement(MeasurementMagneticField::NAME, []{ return tr("Magnetic Field"); })
             .AddUnit(&FieldStrengthUnits::MicroTeslas)
             .AddUnit(&FieldStrengthUnits::Gauss)
             .AddUnit(&FieldStrengthUnits::NanoTeslas);
 
-    AddMeasurement(MeasurementDLS::NAME)
+    AddMeasurement(MeasurementDLS::NAME, []{ return tr("Dogleg Severity"); })
             .AddUnit(&DLSUnits::DegreeUSFeet)
             .AddUnit(&DLSUnits::DegreeFeet)
             .AddUnit(&DLSUnits::DegreeMeter)
             .AddUnit(&DLSUnits::RadMeter);
 
-    AddMeasurement(MeasurementFlowSpeed::NAME)
+    AddMeasurement(MeasurementFlowSpeed::NAME, []{ return tr("Flow Speed"); })
             .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
@@ -153,22 +150,22 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
             .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
 
-    AddMeasurement(MEASUREMENT_THERMAL_CONDUCTIVITY)
+    AddMeasurement(MeasurementThermalConductivity::NAME, []{ return tr("Thermal Conductivity"); })
             .AddUnit(&ThermalConductivityUnits::WattMeterCelsius)
             .AddUnit(&ThermalConductivityUnits::FootHourSquareFootFahrenheit);
 
-    AddMeasurement(MEASUREMENT_SPECIFIC_HEAT_CAPACITY)
+    AddMeasurement(MeasurementSpecificHeatCapacity::NAME, []{ return tr("Specific Heat Capacity"); })
             .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramCelsius)
             .AddUnit(&SpecificHeatCapacityUnits::PoundFahrenheit);
 
-    AddMeasurement(MEASUREMENT_MASS)
+    AddMeasurement(MeasurementMass::NAME, []{ return tr("Mass"); })
             .AddUnit(&MassUnits::Kilograms )
             .AddUnit(&MassUnits::Grams     )
             .AddUnit(&MassUnits::Tonnes    )
             .AddUnit(&MassUnits::Pounds    )
             .AddUnit(&MassUnits::Kilopounds);
 
-    AddMeasurement(MEASUREMENT_PRESSURE)
+    AddMeasurement(MeasurementPressure::NAME, []{ return tr("Pressure"); })
             .AddUnit(&PressureUnits::Pascals                    )
             .AddUnit(&PressureUnits::Kilopascals                )
             .AddUnit(&PressureUnits::Bars                       )
@@ -181,7 +178,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&PressureUnits::PoundsPerSquareFeet     )
             .AddUnit(&PressureUnits::PoundsPer100SquareFeet     );
 
-    AddMeasurement(MEASUREMENT_SPEED)
+    AddMeasurement(MeasurementSpeed::NAME, []{ return tr("Speed"); })
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
             .AddUnit(&SpeedUnits::MetersPerHour    )
@@ -194,7 +191,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
-    AddMeasurement(MEASUREMENT_TORQUE)
+    AddMeasurement(MeasurementTorque::NAME, []{ return tr("Torque"); })
             .AddUnit(&TorqueUnits::NewtonMeters      )
             .AddUnit(&TorqueUnits::DecaNewtonMeters  )
             .AddUnit(&TorqueUnits::KilonewtonMeters  )
@@ -202,26 +199,26 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TorqueUnits::KilopoundForceFeet)
             .AddUnit(&TorqueUnits::PoundFoot);
 
-    AddMeasurement(MEASUREMENT_MUD_WEIGHT)
+    AddMeasurement(MeasurementMudWeight::NAME, []{ return tr("Mud Weight"); })
             .AddUnit(&MudWeightUnits::PoundPerGallon      )
             .AddUnit(&MudWeightUnits::KilogramPerCubicMeter);
 
-    AddMeasurement(MEASUREMENT_VISCOSITY)
+    AddMeasurement(MeasurementViscosity::NAME, []{ return tr("Viscosity"); })
             .AddUnit(&ViscosityUnits::Centipoise       )
             .AddUnit(&ViscosityUnits::MilliPascalSecond);
 
-    AddMeasurement(MEASUREMENT_YIELD_POINT)
+    AddMeasurement(MeasurementYieldPoint::NAME, []{ return tr("Yield Point"); })
             .AddUnit(&PressureUnits::Pascals)
             .AddUnit(&PressureUnits::PoundsPerSquareFeet)
             .AddUnit(&PressureUnits::PoundsPer100SquareFeet)
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::KilopoundsPerSquareInch);
 
-    AddMeasurement(MEASUREMENT_TEMPERATURE)
+    AddMeasurement(MeasurementTemperature::NAME, []{ return tr("Temperature"); })
             .AddUnit(&TemperatureUnits::Celsius   )
             .AddUnit(&TemperatureUnits::Fahrenheit);
 
-    AddMeasurement(MEASUREMENT_TEMPERATURE_PER_DISTANCE)
+    AddMeasurement(MeasurementTemperaturePerDistance::NAME, []{ return tr("Temperature Per Distance"); })
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerMeter)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPer100Feet)
@@ -229,77 +226,77 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPer100Feet);
 
-    AddMeasurement(MeasurementDensity::NAME)
+    AddMeasurement(MeasurementDensity::NAME, []{ return tr("Density"); })
             .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
             .AddUnit(&DensityUnits::KilogramsPerLiter)
             .AddUnit(&DensityUnits::PoundsPerGallon)
             .AddUnit(&DensityUnits::PoundsPerCubicFeet);
 
-    AddMeasurement(MEASUREMENT_WEIGHT_PER_LENGTH)
+    AddMeasurement(MeasurementWeightPerLength::NAME, []{ return tr("Weight Per Length"); })
             .AddUnit(&WeightPerLengthUnits::KilogramPerMeter)
             .AddUnit(&WeightPerLengthUnits::KilogramPerCantimeter)
             .AddUnit(&WeightPerLengthUnits::PoundPerFoot)
             .AddUnit(&WeightPerLengthUnits::PoundPerInch);
 
-    AddMeasurement(MEASUREMENT_YOUNG_MODULUS)
+    AddMeasurement(MeasurementYoungModulus::NAME, []{ return tr("Young Modulus"); })
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::Kilopascals);
 
-    AddMeasurement(MEASUREMENT_YIELD_STRENGTH)
+    AddMeasurement(MeasurementYieldStrength::NAME, []{ return tr("Yield Strength"); })
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::Kilopascals);
 
-    AddMeasurement(MEASUREMENT_THERMAL_EXPANSION)
+    AddMeasurement(MeasurementThermalExpansion::NAME, []{ return tr("Thermal Expansion"); })
             .AddUnit(&ThermalExpansionUnits::PerDegreeFahrenheit)
             .AddUnit(&ThermalExpansionUnits::PerDegreeCelsius);
 
-    AddMeasurement(MeasurementJetDiameter::NAME)
+    AddMeasurement(MeasurementJetDiameter::NAME, []{ return tr("Jet Diameter"); })
             .AddUnit(&DistanceUnits::Milimeters)
             .AddUnit(&DistanceUnits::Centimeters)
             .AddUnit(&DistanceUnits::Inches)
             .AddUnit(&DistanceUnits::OnePerThirtyTwoInches);
 
-    AddMeasurement(MeasurementArea::NAME)
+    AddMeasurement(MeasurementArea::NAME, []{ return tr("Area"); })
             .AddUnit(&AreaUnits::SqMeters)
             .AddUnit(&AreaUnits::SqCentimeters)
             .AddUnit(&AreaUnits::SqMilimeters)
             .AddUnit(&AreaUnits::SqFeets)
             .AddUnit(&AreaUnits::SqInches);
 
-    AddMeasurement(MEASUREMENT_FORCE)
+    AddMeasurement(MeasurementForce::NAME, []{ return tr("Force"); })
             .AddUnit(&ForceUnits::Newton)
             .AddUnit(&ForceUnits::Kilonewton)
             .AddUnit(&ForceUnits::PoundsForce)
             .AddUnit(&ForceUnits::KiloGrammForce)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
-    AddMeasurement(MEASUREMENT_MOTOR_SPEED)
+    AddMeasurement(MeasurementMotorSpeed::NAME, []{ return tr("Motor Speed"); })
         .AddUnit(&MotorSpeedUnits::RevolutionPerGallon);
 
-    AddMeasurement(MEASUREMENT_TIME)
+    AddMeasurement(MeasurementTime::NAME, []{ return tr("Time"); })
             .AddUnit(&TimeUnits::MSeconds)
             .AddUnit(&TimeUnits::Seconds)
             .AddUnit(&TimeUnits::Minutes)
             .AddUnit(&TimeUnits::Hours);
 
-    AddMeasurement(MEASUREMENT_LINEAR_CAPACITY)
+    AddMeasurement(MeasurementLinearCapacity::NAME, []{ return tr("Linear Capacity"); })
             .AddUnit(&VolumePerLengthUnits::CubicMeterPerMeter)
             .AddUnit(&VolumePerLengthUnits::BarrelPerFoot)
             .AddUnit(&VolumePerLengthUnits::LiterPerMeter);
 
-    AddMeasurement(MEASUREMENT_FRENQUENCY)
+    AddMeasurement(MeasurementFrequency::NAME, []{ return tr("Frequency"); })
             .AddUnit(&FrequencyUnits::RevolutionPerMinute);
 
-    AddMeasurement(MeasurementCutterDiameter::NAME)
+    AddMeasurement(MeasurementCutterDiameter::NAME, []{ return tr("Cutter Diameter"); })
             .AddUnit(&DistanceUnits::Milimeters);
 
-    AddMeasurement(MEASUREMENT_POWER)
+    AddMeasurement(MeasurementPower::NAME, []{ return tr("Power"); })
             .AddUnit(&PowerUnits::Watt)
             .AddUnit(&PowerUnits::JoulePerSecond)
             .AddUnit(&PowerUnits::KiloWatt)
             .AddUnit(&PowerUnits::HoursePower);
 
-    AddMeasurement(MEASUREMENT_ANNULAR_VELOCITY)
+    AddMeasurement(MeasurementAnnularVelocity::NAME, []{ return tr("Annular Velocity"); })
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
             .AddUnit(&SpeedUnits::MetersPerHour    )
@@ -320,34 +317,34 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::USFeets.Id,                    2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::DegreeUSFeet.Id,                    2})
-            .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
+            .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
-            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
-            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
-            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
-            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
+            .AddParameter(MeasurementForce::NAME,             {ForceUnits::KiloPoundsForce.Id,               2})
+            .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
+            .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
+            .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
-            .AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,                     0})
-            .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
-            .AddParameter(MEASUREMENT_PERCENTS,          {PercentsUnits::Percents.Id,                   2})
-            .AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id,        0})
-            .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::USfeetPerHour.Id,                 2})
-            .AddParameter(MEASUREMENT_ANNULAR_VELOCITY,  {SpeedUnits::USfeetPerMinute.Id,               2})
-            .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
-            .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
-            .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,           1})
-            .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPer100SquareFeet.Id,     2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::HoursePower.Id,                   3})
-            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
-            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
+            .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
+            .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
+            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::PoundPerGallon.Id,            2})
+            .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
+            .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        0})
+            .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::USfeetPerHour.Id,                 2})
+            .AddParameter(MeasurementAnnularVelocity::NAME,  {SpeedUnits::USfeetPerMinute.Id,               2})
+            .AddParameter(MeasurementTemperature::NAME,       {TemperatureUnits::Fahrenheit.Id,              1})
+            .AddParameter(MeasurementThermalExpansion::NAME, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
+            .AddParameter(MeasurementTime::NAME,              {TimeUnits::Hours.Id,                          2})
+            .AddParameter(MeasurementTorque::NAME,            {TorqueUnits::KilopoundForceFeet.Id,           1})
+            .AddParameter(MeasurementViscosity::NAME,         {ViscosityUnits::Centipoise.Id,                2})
+            .AddParameter(MeasurementWeightPerLength::NAME, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
+            .AddParameter(MeasurementYieldPoint::NAME,       {PressureUnits::PoundsPer100SquareFeet.Id,     2})
+            .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
+            .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
+            .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API)
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
@@ -356,34 +353,34 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     2, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Feets.Id,                      2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::DegreeFeet.Id,                      2})
-            .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
+            .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
-            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::KiloPoundsForce.Id,               2})
-            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
-            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     2})
-            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
+            .AddParameter(MeasurementForce::NAME,             {ForceUnits::KiloPoundsForce.Id,               2})
+            .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
+            .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     2})
+            .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
-            .AddParameter(MEASUREMENT_MASS,              {MassUnits::Kilopounds.Id,                     0})
-            .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::PoundPerGallon.Id,            2})
-            .AddParameter(MEASUREMENT_PERCENTS,          {PercentsUnits::Percents.Id,                   2})
-            .AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::PoundsPerSquareInch.Id,        0})
-            .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::FeetPerHour.Id,                   2})
-            .AddParameter(MEASUREMENT_ANNULAR_VELOCITY,  {SpeedUnits::USfeetPerMinute.Id,               2})
-            .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Fahrenheit.Id,              1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
-            .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
-            .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilopoundForceFeet.Id,           1})
-            .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::Centipoise.Id,                2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::PoundsPer100SquareFeet.Id,        2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::PoundsPerSquareInch.Id,        2})
-            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::HoursePower.Id,                   3})
-            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
-            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
+            .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
+            .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
+            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::PoundPerGallon.Id,            2})
+            .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
+            .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        0})
+            .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::FeetPerHour.Id,                   2})
+            .AddParameter(MeasurementAnnularVelocity::NAME,  {SpeedUnits::USfeetPerMinute.Id,               2})
+            .AddParameter(MeasurementTemperature::NAME,       {TemperatureUnits::Fahrenheit.Id,              1})
+            .AddParameter(MeasurementThermalExpansion::NAME, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
+            .AddParameter(MeasurementTime::NAME,              {TimeUnits::Hours.Id,                          2})
+            .AddParameter(MeasurementTorque::NAME,            {TorqueUnits::KilopoundForceFeet.Id,           1})
+            .AddParameter(MeasurementViscosity::NAME,         {ViscosityUnits::Centipoise.Id,                2})
+            .AddParameter(MeasurementWeightPerLength::NAME, {WeightPerLengthUnits::PoundPerFoot.Id,        2})
+            .AddParameter(MeasurementYieldPoint::NAME,       {PressureUnits::PoundsPer100SquareFeet.Id,        2})
+            .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
+            .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
+            .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
+            .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     
     AddSystem(UNIT_SYSTEM_SI)
@@ -393,34 +390,34 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Milimeters.Id,                 2, 1.0 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Meters.Id,                     2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::DegreeMeter.Id,                     2})
-            .AddParameter(MEASUREMENT_FIELD_STRENGTH,    {FieldStrengthUnits::NanoTeslas.Id,            1})
+            .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::LitersPerSecond.Id,           0})
-            .AddParameter(MEASUREMENT_FORCE,             {ForceUnits::Kilonewton.Id,                    2})
-            .AddParameter(MEASUREMENT_FRENQUENCY,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
-            .AddParameter(MEASUREMENT_FUNNEL_VISCOSITY,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
-            .AddParameter(MEASUREMENT_LINEAR_CAPACITY,   {VolumePerLengthUnits::CubicMeterPerMeter.Id,  2})
+            .AddParameter(MeasurementForce::NAME,             {ForceUnits::Kilonewton.Id,                    2})
+            .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
+            .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
+            .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::CubicMeterPerMeter.Id,  2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::Milimeters.Id,                 0})
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
-            .AddParameter(MEASUREMENT_MASS,              {MassUnits::Tonnes.Id,                         0})
-            .AddParameter(MEASUREMENT_MOTOR_SPEED,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MEASUREMENT_MUD_WEIGHT,        {MudWeightUnits::KilogramPerCubicMeter.Id,     2})
-            .AddParameter(MEASUREMENT_PERCENTS,          {PercentsUnits::Percents.Id,                   2})
-            .AddParameter(MEASUREMENT_PRESSURE,          {PressureUnits::Bars.Id,                       0})
-            .AddParameter(MEASUREMENT_SPEED,             {SpeedUnits::MetersPerHour.Id,                 2})
-            .AddParameter(MEASUREMENT_ANNULAR_VELOCITY,  {SpeedUnits::MetersPerSecond.Id,               2})
-            .AddParameter(MEASUREMENT_TEMPERATURE,       {TemperatureUnits::Celsius.Id,                 1})
-            .AddParameter(MEASUREMENT_THERMAL_EXPANSION, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2})
-            .AddParameter(MEASUREMENT_TIME,              {TimeUnits::Hours.Id,                          2})
-            .AddParameter(MEASUREMENT_TORQUE,            {TorqueUnits::KilonewtonMeters.Id,             1})
-            .AddParameter(MEASUREMENT_VISCOSITY,         {ViscosityUnits::MilliPascalSecond.Id,         2})
-            .AddParameter(MEASUREMENT_WEIGHT_PER_LENGTH, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
-            .AddParameter(MEASUREMENT_YIELD_POINT,       {PressureUnits::Pascals.Id,                    2})
-            .AddParameter(MEASUREMENT_YIELD_STRENGTH,    {PressureUnits::Kilopascals.Id,                2})
-            .AddParameter(MEASUREMENT_YOUNG_MODULUS,     {PressureUnits::Kilopascals.Id,                2})
-            .AddParameter(MEASUREMENT_POWER,             {PowerUnits::Watt.Id,                          3})
-            .AddParameter(MEASUREMENT_SPECIFIC_HEAT_CAPACITY, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
-            .AddParameter(MEASUREMENT_TEMPERATURE_PER_DISTANCE, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
-            .AddParameter(MEASUREMENT_THERMAL_CONDUCTIVITY, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
+            .AddParameter(MeasurementMass::NAME,              {MassUnits::Tonnes.Id,                         0})
+            .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
+            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::KilogramPerCubicMeter.Id,     2})
+            .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
+            .AddParameter(MeasurementPressure::NAME,          {PressureUnits::Bars.Id,                       0})
+            .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::MetersPerHour.Id,                 2})
+            .AddParameter(MeasurementAnnularVelocity::NAME,  {SpeedUnits::MetersPerSecond.Id,               2})
+            .AddParameter(MeasurementTemperature::NAME,       {TemperatureUnits::Celsius.Id,                 1})
+            .AddParameter(MeasurementThermalExpansion::NAME, {ThermalExpansionUnits::PerDegreeCelsius.Id,   2})
+            .AddParameter(MeasurementTime::NAME,              {TimeUnits::Hours.Id,                          2})
+            .AddParameter(MeasurementTorque::NAME,            {TorqueUnits::KilonewtonMeters.Id,             1})
+            .AddParameter(MeasurementViscosity::NAME,         {ViscosityUnits::MilliPascalSecond.Id,         2})
+            .AddParameter(MeasurementWeightPerLength::NAME, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
+            .AddParameter(MeasurementYieldPoint::NAME,       {PressureUnits::Pascals.Id,                    2})
+            .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::Kilopascals.Id,                2})
+            .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::Kilopascals.Id,                2})
+            .AddParameter(MeasurementPower::NAME,             {PowerUnits::Watt.Id,                          3})
+            .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
+            .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
+            .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 
 		
     
@@ -477,10 +474,10 @@ const MeasurementSystemPtr& MeasurementManager::GetSystem(const Name& name) cons
     return defaultResult;
 }
 
-Measurement& MeasurementManager::AddMeasurement(const Name &name)
+Measurement& MeasurementManager::AddMeasurement(const Name &name, const FTranslationHandler& translationHandler)
 {
     Q_ASSERT(!m_metricMeasurements.contains(name));
-    auto result = ::make_shared<Measurement>(name.AsString());
+    auto result = ::make_shared<Measurement>(translationHandler);
     m_metricMeasurements.insert(name, result);
     int index = m_measurmentWrapper->GetSize();
     m_measurmentWrapper->Append(result);

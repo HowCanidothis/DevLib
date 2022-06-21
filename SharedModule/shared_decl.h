@@ -541,4 +541,10 @@ _Export Q_DECLARE_LOGGING_CATEGORY(LC_SYSTEM)
 
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;
 
+#define DECLARE_GLOBAL(Type, name) \
+extern const Type name;
+
+#define IMPLEMENT_GLOBAL(Type, name, ...) \
+const Type name(__VA_ARGS__);
+
 #endif // SHARED_DECL_H

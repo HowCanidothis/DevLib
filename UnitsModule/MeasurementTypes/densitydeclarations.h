@@ -12,6 +12,6 @@ namespace DensityUnits
     DECLARE_MEASUREMENT_UNIT(MilligrammPerLiter)
 };
 
-DECLARE_MEASUREMENT(MeasurementDensity)
+DECLARE_MEASUREMENT(Density)
 
 #endif // DENSITYDECLARATIONS_H

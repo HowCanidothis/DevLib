@@ -7,4 +7,4 @@ IMPLEMENT_MEASUREMENT_UNIT(Radians, []{return QObject::tr("radians");}, []{ retu
 IMPLEMENT_MEASUREMENT_UNIT(Degrees, []{return QObject::tr("degrees");}, []{ return "°"; }, DEGREES_TO_RADIANS)
 }
 
-IMPLEMENT_MEASUREMENT(MeasurementAngle)
+IMPLEMENT_MEASUREMENT(Angle)

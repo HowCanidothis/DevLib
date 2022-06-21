@@ -15,7 +15,7 @@ namespace FlowSpeedUnits
     DECLARE_MEASUREMENT_UNIT(BarrelsPerMinute)
 }
 
-DECLARE_MEASUREMENT(MeasurementFlowSpeed)
+DECLARE_MEASUREMENT(FlowSpeed)
 
 
 #endif // FLOWSPEEDDECLARATIONS_H

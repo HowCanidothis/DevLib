@@ -16,9 +16,9 @@ namespace DistanceUnits
     DECLARE_MEASUREMENT_UNIT(OnePerThirtyTwoInches)
 };
 
-DECLARE_MEASUREMENT(MeasurementDistance)
-DECLARE_MEASUREMENT(MeasurementDiameter)
-DECLARE_MEASUREMENT(MeasurementJetDiameter)
-DECLARE_MEASUREMENT(MeasurementCutterDiameter)
+DECLARE_MEASUREMENT(Distance)
+DECLARE_MEASUREMENT(Diameter)
+DECLARE_MEASUREMENT(JetDiameter)
+DECLARE_MEASUREMENT(CutterDiameter)
 
 #endif // DISTANCEDECLARATIONS_H

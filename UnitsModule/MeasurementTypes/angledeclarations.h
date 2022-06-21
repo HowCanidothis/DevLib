@@ -9,6 +9,6 @@ namespace AngleUnits
     DECLARE_MEASUREMENT_UNIT(Degrees)
 };
 
-DECLARE_MEASUREMENT(MeasurementAngle)
+DECLARE_MEASUREMENT(Angle)
 
 #endif // ANGLEDECLARATIONS_H

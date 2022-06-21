@@ -7,7 +7,7 @@
 #define IMPLEMENT_MEASUREMENT_UNIT(x, ...) const MeasurementUnit x(Name(QT_STRINGIFY(x)), __VA_ARGS__);
 
 #define DECLARE_MEASUREMENT(name) \
-namespace name { \
+namespace Measurement##name { \
 extern const Name NAME; \
 double CurrentUnitToBase(double x); \
 double BaseToCurrentUnit(double x); \
@@ -17,7 +17,7 @@ const QString& CurrentUnitString(); \
 }
 
 #define IMPLEMENT_MEASUREMENT(name) \
-namespace name { \
+namespace Measurement##name { \
 const Name NAME(QT_STRINGIFY(name)); \
 double CurrentUnitToBase(double x) { return MeasurementManager::GetInstance().GetCurrentUnit(NAME)->FromUnitToBase(x); } \
 double BaseToCurrentUnit(double x) { return MeasurementManager::GetInstance().GetCurrentUnit(NAME)->FromBaseToUnit(x); } \

@@ -150,10 +150,10 @@ private:
 Q_DECLARE_METATYPE(Name)
 
 #define DECLARE_GLOBAL_NAME(x) \
-    extern const Name x;
+    DECLARE_GLOBAL(Name,x)
 #define IMPLEMENT_GLOBAL_NAME(x, value) \
-    const Name x(QT_STRINGIFY(value));
+    IMPLEMENT_GLOBAL(Name, x, QT_STRINGIFY(value));
 #define IMPLEMENT_GLOBAL_NAME_1(x) \
-    const Name x(QT_STRINGIFY(x));
+    IMPLEMENT_GLOBAL(Name, x, QT_STRINGIFY(x));
 
 #endif // NAME_H

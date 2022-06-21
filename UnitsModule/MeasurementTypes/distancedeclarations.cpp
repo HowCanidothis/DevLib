@@ -15,7 +15,7 @@ namespace DistanceUnits
     IMPLEMENT_MEASUREMENT_UNIT(OnePerThirtyTwoInches, []{return QObject::tr("1/32 inches");},[]{ return QObject::tr("1/32 in"); }, 1.0/384 / METERS_TO_FEETS_MULTIPLIER);
 };
 
-IMPLEMENT_MEASUREMENT(MeasurementDistance)
-IMPLEMENT_MEASUREMENT(MeasurementDiameter)
-IMPLEMENT_MEASUREMENT(MeasurementJetDiameter)
-IMPLEMENT_MEASUREMENT(MeasurementCutterDiameter)
+IMPLEMENT_MEASUREMENT(Distance)
+IMPLEMENT_MEASUREMENT(Diameter)
+IMPLEMENT_MEASUREMENT(JetDiameter)
+IMPLEMENT_MEASUREMENT(CutterDiameter)

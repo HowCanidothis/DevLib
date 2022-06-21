@@ -65,7 +65,7 @@ public:
     void Print(QTextStream* stream) const;
 #endif
     void GetObjectsAt(const BoundingRect& rect, OutObjectsContainer& c) const { root->getObjectsAt(rect,c); }
-    OutObjectsContainer GetObjectsAt(const BoundingRect& rect) const{ OutObjectsContainer res; this->getObjectsAt(rect,res); return res; }
+    OutObjectsContainer GetObjectsAt(const BoundingRect& rect) const{ OutObjectsContainer res; root->getObjectsAt(rect,res); return res; }
     OutObjectsContainer GetObjectsAtClosestTo(const BoundingRect& rect) const;
     OutObjectsContainer GetObjectsAll() const { OutObjectsContainer res; getObjects(root,res); return res; }
 

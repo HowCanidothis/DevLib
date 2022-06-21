@@ -31,7 +31,7 @@ public:
 
     void Print(QTextStream& stream) const;
     void GetObjectsAt(const BoundingBox& box, OutObjectsContainer& result) const { m_root->GetObjectsAt(box, result); }
-    OutObjectsContainer GetObjectsAt(const BoundingBox& box) const{ OutObjectsContainer res; this->GetObjectsAt(box,res); return res; }
+    OutObjectsContainer GetObjectsAt(const BoundingBox& box) const{ OutObjectsContainer res; m_root->GetObjectsAt(box,res); return res; }
     OutObjectsContainer GetObjectsAtClosestToCenter(const BoundingBox& box) const;
     OutObjectsContainer GetObjectsAll() const { OutObjectsContainer res; m_root->GetObjects(res); return res; }
     OutBranchesContainer GetBranchesAll() const { OutBranchesContainer res; m_root->GetBranches(res); return res; }
