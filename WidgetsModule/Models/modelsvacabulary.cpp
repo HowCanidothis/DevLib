@@ -14,7 +14,7 @@ ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
 {
 #ifdef UNITS_MODULE_LIB
     QSet<Name> measurements;
-    for(const auto& value : m_header) {
+    for(const auto& value : ::make_const(m_header)) {
         if(!value.Measurement.IsNull()) {
             MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { value.Measurement });
             measurements.insert(value.Measurement);

@@ -511,7 +511,7 @@ public:
     {
         bool result = m_defaultState;
         bool oppositeState = !result;
-        for(auto* property : m_properties) {
+        for(auto* property : ::make_const(m_properties)) {
             if(*property == oppositeState) {
                 result = oppositeState;
                 break;

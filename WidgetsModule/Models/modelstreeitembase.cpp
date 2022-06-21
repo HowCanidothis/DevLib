@@ -7,7 +7,7 @@ ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
 
 ModelsTreeItemBase::~ModelsTreeItemBase()
 {
-    for(const auto& child : m_childs) {
+    for(const auto& child : ::make_const(m_childs)) {
         if(child->m_parent == this) {
             child->m_parent = nullptr;
         }
