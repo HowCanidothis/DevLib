@@ -194,7 +194,6 @@ Range<It> range(It begin, It end) {
     return Range<It>(begin, end);
 }
 
-
 }
 
 template <class T>

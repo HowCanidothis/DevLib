@@ -5,6 +5,7 @@
 #include <QDialogButtonBox>
 
 template<class T> class TViewModelsTableBase;
+template<class T> class TViewModelsEditTable;
 
 struct DescCustomDialogParams
 {
