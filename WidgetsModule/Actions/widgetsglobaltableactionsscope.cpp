@@ -309,20 +309,22 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     return result;
 }
 
-void WidgetsGlobalTableActionsScopeHandlers::ShowAll()
+WidgetsGlobalTableActionsScopeHandlers& WidgetsGlobalTableActionsScopeHandlers::ShowAll()
 {
     for(const auto& handler : Handlers) {
         handler.Visibility() = true;
         handler.Enablity() = true;
     }
+    return *this;
 }
 
-void WidgetsGlobalTableActionsScopeHandlers::SetActionsVisible(const QVector<Latin1Name>& ids, bool visible)
+WidgetsGlobalTableActionsScopeHandlers& WidgetsGlobalTableActionsScopeHandlers::SetActionsVisible(const QVector<Latin1Name>& ids, bool visible)
 {
     for(const auto& id : ids) {
         auto handler = FindHandler(id);
         handler.SetVisible(visible);
     }
+    return *this;
 }
 
 WidgetsGlobalTableActionsScopeHandler WidgetsGlobalTableActionsScopeHandlers::AddHandler(const FTranslationHandler& handler, const QKeySequence& sequence, QAction* action, const FAction& actionHandler)

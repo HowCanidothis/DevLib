@@ -34,8 +34,8 @@ struct WidgetsGlobalTableActionsScopeHandlers
         : IsReadOnly(true)
     {}
 
-    void ShowAll();
-    void SetActionsVisible(const QVector<Latin1Name>& ids, bool visible);
+    WidgetsGlobalTableActionsScopeHandlers& ShowAll();
+    WidgetsGlobalTableActionsScopeHandlers& SetActionsVisible(const QVector<Latin1Name>& ids, bool visible);
 
     WidgetsGlobalTableActionsScopeHandler AddHandler(const FTranslationHandler& handler, const QKeySequence& sequence, QAction* action, const FAction& actionHandler);
     WidgetsGlobalTableActionsScopeHandler AddHandler(const FTranslationHandler& handler, const QKeySequence& sequence, const class WidgetsGlobalTableActionId& actionId, const FAction& actionHandler);
