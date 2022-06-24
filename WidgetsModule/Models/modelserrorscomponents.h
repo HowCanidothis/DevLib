@@ -273,13 +273,7 @@ private:
         ErrorFilter.OnChanged.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
 
         if(updateOnWrapperChanged) {
-            wrapper->OnRowsChanged.Connect(this, [this](int, int, const QSet<int>&){
-                update();
-            }).MakeSafe(m_connection);
-            wrapper->OnRowsInserted.Connect(this, [this](int, int){
-                update();
-            }).MakeSafe(m_connection);
-            wrapper->OnReseted.Connect(this, [this]{
+            wrapper->OnChanged.Connect(this, [this]{
                 update();
             }).MakeSafe(m_connection);
         }

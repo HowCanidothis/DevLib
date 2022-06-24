@@ -256,6 +256,7 @@ public:
         return connections;
     }
 
+    bool operator<(const T& value) const { return m_value < value; }
     bool operator!() const { return m_value == false; }
     bool operator!=(const T& value) const { return m_value != value; }
     bool operator==(const T& value) const { return m_value == value; }

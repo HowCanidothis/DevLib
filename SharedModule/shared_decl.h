@@ -194,6 +194,11 @@ Range<It> range(It begin, It end) {
     return Range<It>(begin, end);
 }
 
+template<typename ORange, typename It = decltype(std::begin(std::declval<ORange>()))>
+Range<It> withoutFirst(ORange&& originalRange) {
+    return Range<It>(std::begin(originalRange) + 1, std::end(originalRange));
+}
+
 }
 
 template <class T>
