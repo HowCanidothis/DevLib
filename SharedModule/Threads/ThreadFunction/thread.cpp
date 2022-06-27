@@ -20,11 +20,15 @@ Thread::~Thread()
     while(isRunning()) {
         QMutexLocker locker(&m_taskMutex);
         m_taskCondition.wakeAll();
+        qApp->processEvents();
     }
 }
 
 void Thread::RunTask(ThreadTaskDesc* task)
 {
+    if(m_aboutToBeDestroyed) {
+        return;
+    }
     QMutexLocker locker(&m_taskMutex);
     m_task = task;
     m_taskCondition.wakeAll();

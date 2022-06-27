@@ -20,6 +20,7 @@
 #include <QColorDialog>
 #include <QWidgetAction>
 #include <QLabel>
+#include <QScrollArea>
 #include <QMenu>
 #include <QHBoxLayout>
 #include <ActionsModule/internal.hpp>
@@ -563,13 +564,23 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
     return *this;
 }
 
-const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater) const
+const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater, QScrollArea* area) const
 {
-    auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
+    std::function<qint32 (QGroupBox*)> handler;
+    if(area != nullptr) {
+        handler = [area](QGroupBox* w) -> qint32 {
+            auto wMargins = w->contentsMargins();
+            auto lMargins = w->layout()->contentsMargins();
+            return wMargins.top() + wMargins.bottom() + lMargins.top() + lMargins.bottom() + area->widget()->sizeHint().height();
+        };
+    } else {
+        handler = [](QGroupBox* w) -> qint32 { return w->sizeHint().height(); };
+    }
+    auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
                                  auto* widget = reinterpret_cast<QGroupBox*>(w);
                                  if(widget->isChecked()) {
-                                     ThreadsBase::DoMain([widget]{
-                                         widget->setMaximumSize(QSize(widget->maximumWidth(), widget->sizeHint().height()));
+                                     ThreadsBase::DoMain([widget, handler]{
+                                         widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
                                      });
                                  }
                              });

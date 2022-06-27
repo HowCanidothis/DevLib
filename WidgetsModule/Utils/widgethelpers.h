@@ -187,7 +187,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
     const WidgetGroupboxWrapper& AddCollapsing() const;
-    const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater) const;
+    const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater, class QScrollArea* area = nullptr) const;
 };
 
 class LocalPropertyDoubleDisplay : public LocalPropertyDouble
