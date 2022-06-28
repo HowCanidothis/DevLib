@@ -170,7 +170,12 @@ public:
         connections.clear();
         auto *widget = GetWidget();
         TranslatorManager::GetInstance().OnLanguageChanged.ConnectAndCall(this, [widget]{
-            widget->addItems(TranslatorManager::GetInstance().GetEnumNames<Enum>());
+            const auto& names = TranslatorManager::GetInstance().GetEnumNames<Enum>();
+            QStringList list;
+            for(const auto& value : adapters::range(names.begin() + (qint32)Enum::First, names.begin() + (qint32)Enum::Last + 1)) {
+                list.append(value);
+            }
+            widget->addItems(list);
         }).MakeSafe(connections);
         return *this;
     }
