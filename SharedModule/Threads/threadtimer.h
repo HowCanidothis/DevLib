@@ -3,7 +3,7 @@
 
 #include <QTimer>
 
-#include "SharedModule/shared_decl.h"
+#include "SharedModule/declarations.h"
 #include "SharedModule/array.h"
 #include "SharedModule/smartpointersadapters.h"
 #include "Promises/promise.h"

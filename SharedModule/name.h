@@ -2,7 +2,7 @@
 #define NAME_H
 
 #include <QString>
-#include "shared_decl.h"
+#include "declarations.h"
 #include "smartpointersadapters.h"
 
 class _Export Name

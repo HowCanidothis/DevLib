@@ -1,8 +1,8 @@
 #ifndef LOCALPROPERTYDECLARATIONS_H
 #define LOCALPROPERTYDECLARATIONS_H
 
-using TranslatedStringPtr = SharedPointer<class TranslatedString>;
+#include <SharedModule/declarations.h>
 
-using FTranslationHandler = std::function<QString ()>;
+using TranslatedStringPtr = SharedPointer<class TranslatedString>;
 
 #endif // LOCALPROPERTYDECLARATIONS_H

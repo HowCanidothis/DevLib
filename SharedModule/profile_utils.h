@@ -3,7 +3,7 @@
 
 #include "stack.h"
 #include "smartpointersadapters.h"
-#include "shared_decl.h"
+#include "declarations.h"
 
 #ifndef CLOCKS_COUNT
 #define CLOCKS_COUNT 30

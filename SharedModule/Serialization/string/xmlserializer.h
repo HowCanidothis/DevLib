@@ -5,7 +5,7 @@
 #include <QXmlStreamReader>
 #include <QBuffer>
 
-#include "SharedModule/shared_decl.h"
+#include "SharedModule/declarations.h"
 #include "SharedModule/Serialization/qserializer.h"
 
 enum class SerializerValueType

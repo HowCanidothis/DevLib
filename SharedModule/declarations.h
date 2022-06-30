@@ -48,7 +48,9 @@ private:
 #endif
 
 typedef qint32 count_t;
-typedef std::function<void ()> FAction;
+
+using FAction = std::function<void ()>;
+using FTranslationHandler = std::function<QString ()>;
 
 class QTextStream;
 

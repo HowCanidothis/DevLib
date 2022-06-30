@@ -35,7 +35,7 @@ MainProgressBar::MainProgressBar(QWidget *parent, Qt::WindowFlags windowFlags)
             progressBar->setMaximum(processState.StepsCount);
             progressBar->setValue(processState.CurrentStep);
             if(processState.IsTitleChanged) {
-                progressBar->setText(QString::fromStdWString(processState.Title));
+                progressBar->setText(processState.Title);
             }
         });
     });
@@ -58,7 +58,7 @@ MainProgressBar::MainProgressBar(QWidget *parent, Qt::WindowFlags windowFlags)
             }
             progressBar->setMaximum(0);
             if(processState.IsTitleChanged) {
-                progressBar->setText(QString::fromStdWString(processState.Title));
+                progressBar->setText(processState.Title);
             }
         });
     });

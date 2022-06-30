@@ -39,7 +39,7 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
                 progressBar->CancelButton->setVisible(processState.IsCancelable);
                 progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? (size_t)value : 0);
                 if(processState.IsTitleChanged) {
-                    progressBar->Label->setText(QString::fromStdWString(processState.Title)); // TODO. copying
+                    progressBar->Label->setText(processState.Title);
                 }
 
                 if(progressBar->isVisible() != visible) {
@@ -75,7 +75,7 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
                 progressBar->CancelButton->setVisible(processState.IsCancelable);
                 progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? (size_t)value : 0);
                 if(processState.IsTitleChanged) {
-                    progressBar->Label->setText(QString::fromStdWString(processState.Title)); // TODO. copying
+                    progressBar->Label->setText(processState.Title);
                 }
                 if(progressBar->isVisible() != visible) {
                     progressBar->setVisible(visible);

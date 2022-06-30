@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "shared_decl.h"
+#include "declarations.h"
 
 class Timer{
     typedef qint64 nsecs;

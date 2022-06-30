@@ -32,7 +32,7 @@ void ProcessValue::Cancel()
     m_interruptor->Interrupt();
 }
 
-void ProcessValue::setTitle(const std::wstring& title)
+void ProcessValue::setTitle(const QString& title)
 {
     m_title = title;
     m_isTitleChanged = true;
@@ -52,7 +52,7 @@ void ProcessValue::incrementStep(int)
 {
 }
 
-void ProcessValue::init(Interruptor* interruptor, const std::wstring& title)
+void ProcessValue::init(Interruptor* interruptor, const QString& title)
 {
     m_title = title;
     m_isTitleChanged = true;
@@ -78,7 +78,7 @@ void ProcessDeterminateValue::incrementStep(int divider)
     }
 }
 
-void ProcessDeterminateValue::init(Interruptor* interruptor, const std::wstring& title, int stepsCount)
+void ProcessDeterminateValue::init(Interruptor* interruptor, const QString& title, int stepsCount)
 {
     m_currentStep = 0;
     m_stepsCount = stepsCount;

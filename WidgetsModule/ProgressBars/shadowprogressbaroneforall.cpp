@@ -46,14 +46,14 @@ ShadowProgressBarOneForAll::ShadowProgressBarOneForAll(QWidget *parent)
         bool visible = value->GetState().IsShouldStayVisible();
         qint32 steps = value->AsDeterminate()->GetCurrentStep();
         qint32 stepsCount = value->AsDeterminate()->GetStepsCount();
-        accumulateProcesses(value, visible, steps, stepsCount, value->IsTitleChanged() ? QString::fromStdWString(value->GetTitle()) : "");
+        accumulateProcesses(value, visible, steps, stepsCount, value->IsTitleChanged() ? value->GetTitle() : QString());
     });
 
     ProcessFactory::Instance().SetShadowIndeterminateCallback([accumulateProcesses](ProcessValue* value){
         bool visible = value->GetState().IsShouldStayVisible();
         qint32 steps = 0;
         qint32 stepsCount = 0;
-        accumulateProcesses(value, visible, steps, stepsCount, value->IsTitleChanged() ? QString::fromStdWString(value->GetTitle()) : "");
+        accumulateProcesses(value, visible, steps, stepsCount, value->IsTitleChanged() ? value->GetTitle() : QString());
     });
 
     m_value.Subscribe([this]{

@@ -4,7 +4,7 @@
 #include <QHash>
 #include <functional>
 #include "smartpointersadapters.h"
-#include "shared_decl.h"
+#include "declarations.h"
 
 template<class DelegateObject>
 class DefaultFactoryBase

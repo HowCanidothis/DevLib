@@ -5,7 +5,7 @@
 #include <type_traits>
 
 #include "namingconvention.h"
-#include "SharedModule/shared_decl.h"
+#include "SharedModule/declarations.h"
 
 template<class T>
 class StackData

@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "SharedModule/shared_decl.h"
+#include "SharedModule/declarations.h"
 #include "SharedModule/Threads/Promises/promise.h"
 
 

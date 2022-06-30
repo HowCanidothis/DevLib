@@ -1,4 +1,4 @@
-#include "shared_decl.h"
+#include "declarations.h"
 #include <QDebug>
 #include <QDir>
 

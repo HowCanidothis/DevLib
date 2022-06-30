@@ -29,7 +29,6 @@
 #include "array.h"
 #include "stack.h"
 #include "FileSystem/filesguard.h"
-#include "Process/qprocessbase.h"
 #include "Process/processbase.h"
 #include "Process/processfactory.h"
 #include "Threads/threadcomputingbase.h"
@@ -45,7 +44,6 @@
 #include "flags.h"
 #include "profile_utils.h"
 #include "timer.h"
-#include "shared_decl.h"
 #include "nativetranslates.h"
 #include "idgenerator.h"
 #include "Logger/logger.h"
@@ -61,6 +59,7 @@
 #include "editingobject.h"
 #include "tokenizer.h"
 #include "wrappers.h"
+#include "exception.h"
 
 #endif
 

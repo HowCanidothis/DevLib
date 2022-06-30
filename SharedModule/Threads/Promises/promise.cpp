@@ -2,7 +2,6 @@
 
 #include "SharedModule/MemoryManager/memorymanager.h"
 #include "SharedModule/smartpointersadapters.h"
-#include "SharedModule/shared_decl.h"
 #include "SharedModule/Threads/threadsbase.h"
 
 PromiseData::PromiseData()

@@ -86,15 +86,19 @@ WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Locatio
     case QuadTreeF::Location_MiddleTop:
         m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
             StartLayout(Qt::Vertical, [translation, widget](WidgetBuilder& builder){
-                builder.defaultAddDelegate()(translation, new QLabel(translation()));
+                auto* newLabel = new QLabel(translation());
+                newLabel->setAlignment(Qt::AlignCenter);
+                builder.defaultAddDelegate()(translation, newLabel);
                 builder.defaultAddDelegate()(translation, widget);
             });
         }; break;
     case QuadTreeF::Location_MiddleBottom:
         m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
             StartLayout(Qt::Vertical, [translation, widget](WidgetBuilder& builder){
+                auto* newLabel = new QLabel(translation());
+                newLabel->setAlignment(Qt::AlignCenter);
                 builder.defaultAddDelegate()(translation, widget);
-                builder.defaultAddDelegate()(translation, new QLabel(translation()));
+                builder.defaultAddDelegate()(translation, newLabel);
             });
         }; break;
     default: Q_ASSERT(false); return *this;

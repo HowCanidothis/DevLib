@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QCoreApplication>
 
-#include "SharedModule/shared_decl.h"
+#include "SharedModule/declarations.h"
 #include "SharedModule/Threads/Promises/promise.h"
 
 class _Export ThreadsBase
