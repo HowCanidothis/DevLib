@@ -63,7 +63,7 @@ public:
     }
     void BeginShadowProcess(const QString& title, int stepsCount, int wantedCount = 100)
     {
-        ProcessBaseDeterminateParams(title).SetLimits(stepsCount, wantedCount).SetShadow();
+        BeginProcess(ProcessBaseDeterminateParams(title).SetLimits(stepsCount, wantedCount).SetShadow());
     }
 
 private:
