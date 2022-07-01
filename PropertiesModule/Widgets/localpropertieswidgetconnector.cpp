@@ -309,12 +309,12 @@ void LocalPropertiesWidgetConnectorsContainer::Clear()
     onClear();
 }
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox)
-    : Super([property, comboBox]{
-                comboBox->setCurrentIndex(*property - property->GetMin());
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, qint32 offset)
+    : Super([property, comboBox, offset]{
+                comboBox->setCurrentIndex(*property - offset);
             },
-            [property, comboBox]{
-                *property = comboBox->currentIndex() + property->GetMin();
+            [property, comboBox, offset]{
+                *property = comboBox->currentIndex() + offset;
             }
     )
 {

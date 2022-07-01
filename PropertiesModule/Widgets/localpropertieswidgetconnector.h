@@ -130,7 +130,11 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, class QComboBox* comboBox);
+    template<class Enum>
+    LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, class QComboBox* comboBox)
+        : LocalPropertiesComboBoxConnector(property, comboBox, (qint32)Enum::First)
+    {}
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, qint32 offset = 0);
     LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox);
     template<class T>
     LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox)
