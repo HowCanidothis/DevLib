@@ -4,6 +4,8 @@
 #include "UnitsModule/measurementdeclarations.h"
 
 #define AnnularVelocityUnits SpeedUnits
+#define RateOfPenetrationUnits SpeedUnits
+
 namespace SpeedUnits
 {
     DECLARE_MEASUREMENT_UNIT(MetersPerSecond)
@@ -21,5 +23,6 @@ namespace SpeedUnits
 
 DECLARE_MEASUREMENT(Speed)
 DECLARE_MEASUREMENT(AnnularVelocity)
+DECLARE_MEASUREMENT(ROP)
 
 #endif // SPEEDDECLARATIONS_H

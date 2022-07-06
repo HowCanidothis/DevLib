@@ -309,6 +309,18 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
+    AddMeasurement(MeasurementROP::NAME, []{ return tr("Rate Of Penetration"); })
+            .AddUnit(&SpeedUnits::MetersPerSecond  )
+            .AddUnit(&SpeedUnits::MetersPerMinute  )
+            .AddUnit(&SpeedUnits::MetersPerHour    )
+            .AddUnit(&SpeedUnits::KilometersPerHour)
+            .AddUnit(&SpeedUnits::FeetPerHour      )
+            .AddUnit(&SpeedUnits::USfeetPerHour    )
+            .AddUnit(&SpeedUnits::FeetPerMinute    )
+            .AddUnit(&SpeedUnits::USfeetPerMinute  )
+            .AddUnit(&SpeedUnits::FeetPerSecond    )
+            .AddUnit(&SpeedUnits::USfeetPerSecond  )
+            .AddUnit(&SpeedUnits::MilesPerHour     );
 
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
