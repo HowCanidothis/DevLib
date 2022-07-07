@@ -40,7 +40,7 @@ void TranslatedString::SetTranslationHandler(const FTranslationHandler& handler)
 
 void TranslatedString::retranslate()
 {
-    m_retranslate.Call([this]{
+    m_retranslate.Call(CONNECTION_DEBUG_LOCATION, [this]{
         SetValue(m_translationHandler());
     });
 }

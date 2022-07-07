@@ -15,9 +15,9 @@ public:
         OnDeleted();
     }
 
-    AsyncResult Call(const FAction& action);
-    FAction Wrap(const FAction& action, const FAction& prepare = []{}) {
-        return [this, action, prepare]{ prepare(); Call(action); };
+    AsyncResult Call(const char* connectionInfo, const FAction& action);
+    FAction Wrap(const char* connectionInfo, const FAction& action, const FAction& prepare = []{}) {
+        return [this, action, prepare, connectionInfo]{ prepare(); Call(connectionInfo, action); };
     }
 
     Dispatcher OnDeleted;
@@ -71,7 +71,7 @@ using DelayedCallPtr = SharedPointer<DelayedCall>;
 class DelayedCallManager
 {
 public:
-    static AsyncResult CallDelayed(DelayedCallObject* object, const FAction& action);
+    static AsyncResult CallDelayed(const char* connectionInfo, DelayedCallObject* object, const FAction& action);
 
 private:
     static QMutex* mutex();
@@ -94,7 +94,7 @@ public:
 
     void Invoke(Args... args) const override
     {
-        m_delayedCallObject.Call([this, args...]{
+        m_delayedCallObject.Call(CONNECTION_DEBUG_LOCATION, [this, args...]{
             Super::Invoke(args...);
         });
     }
@@ -132,11 +132,6 @@ public:
 private:
     mutable DelayedCallObject m_delayedCallObject;
 };
-
-inline AsyncResult DelayedCallObject::Call(const FAction& action)
-{
-    return DelayedCallManager::CallDelayed(this, action);
-}
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator<>;
 

@@ -157,6 +157,16 @@ public:
 private:
 };
 
+class WidgetCheckBoxWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetCheckBoxWrapper(QCheckBox* target);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetCheckBoxWrapper, QCheckBox)
+    LocalPropertyBool& WidgetChecked() const;
+};
+
 class WidgetComboboxWrapper : public WidgetWrapper
 {
 public:

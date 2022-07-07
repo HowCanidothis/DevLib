@@ -162,7 +162,7 @@ public:
         , SeverityFilter(NotifyManager::Error | NotifyManager::Warning)
     {
         auto invalidate = [this]{
-            m_invalidate.Call([this]{
+            m_invalidate.Call(CONNECTION_DEBUG_LOCATION, [this]{
                 invalidateFilter();
             });
         };
@@ -370,7 +370,7 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
 
 void NotifyConsole::erasePermanentErrors()
 {
-    m_erasePermanentErrors.Call([this]{
+    m_erasePermanentErrors.Call(CONNECTION_DEBUG_LOCATION,  [this]{
         if(m_permanentErrorsToErase.isEmpty()) {
             return;
         }

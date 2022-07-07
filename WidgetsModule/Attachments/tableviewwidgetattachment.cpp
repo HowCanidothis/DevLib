@@ -74,7 +74,7 @@ void TableViewColumnsWidgetAttachment::adjustAttachments(qint32 oldCount, qint32
 
 void TableViewColumnsWidgetAttachment::adjustGeometry()
 {
-    m_adjustGeometry.Call([this]{
+    m_adjustGeometry.Call(CONNECTION_DEBUG_LOCATION, [this]{
         auto* tableView = m_targetTableView;
         if(tableView != nullptr) {
             qint32 columnsCount = tableView->model()->columnCount();

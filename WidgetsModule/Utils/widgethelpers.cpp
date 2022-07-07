@@ -7,6 +7,7 @@
 #include <QHeaderView>
 #include <QClipboard>
 #include <QCompleter>
+#include <QCheckBox>
 #include <QSplitter>
 #include <QApplication>
 #include <QLineEdit>
@@ -121,7 +122,7 @@ bool WidgetsObserver::eventFilter(QObject* o, QEvent *e)
 #endif
         auto callDelayed = DelayedCallObjectCreate();
 
-        callDelayed->Call([this, o]{
+        callDelayed->Call(CONNECTION_DEBUG_LOCATION, [this, o]{
             OnAdded(reinterpret_cast<QWidget*>(o));
             o->setProperty("a_command", false);
         });
@@ -744,7 +745,7 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
     auto connections = DispatcherConnectionsSafeCreate();
     auto updater = DelayedCallObjectCreate();
     auto* pWidget = m_widget;
-    auto update = updater->Wrap([pWidget, palette]{
+    auto update = updater->Wrap(CONNECTION_DEBUG_LOCATION, [pWidget, palette]{
         auto pal = pWidget->palette();
         for(auto it(palette.cbegin()), e(palette.cend()); it != e; ++it) {
             pal.setColor((QPalette::ColorRole)it.key(), *it.value());
@@ -1122,4 +1123,16 @@ void WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size)
         sizes[index] = size;
         GetWidget()->setSizes(sizes);
     }
+}
+
+WidgetCheckBoxWrapper::WidgetCheckBoxWrapper(QCheckBox* target)
+    : Super(target)
+{}
+
+LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
+{
+    auto* widget = GetWidget();
+    return *GetOrCreateProperty<LocalPropertyBool>("a_checked",[widget](QObject*, const LocalPropertyBool& value){
+        widget->setChecked(value);
+    }, false);
 }

@@ -65,5 +65,5 @@ void ComponentPlacer::updateLocator()
 
 void ComponentPlacer::updateLocation()
 {
-    m_locate.Call(m_locator);
+    m_locate.Call(CONNECTION_DEBUG_LOCATION, m_locator);
 }

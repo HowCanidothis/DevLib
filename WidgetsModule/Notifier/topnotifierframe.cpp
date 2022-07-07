@@ -58,7 +58,7 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
     : Super(frame)
     , m_updateText(1000)
 {
-    auto setText = m_updateText.Wrap([frame, errors]{
+    auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [frame, errors]{
         QString message;
         for(const auto& error : *errors) {
             message += error.Error->Native() + "\n";

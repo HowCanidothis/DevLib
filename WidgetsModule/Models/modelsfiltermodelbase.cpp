@@ -17,7 +17,7 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
 
 void ViewModelsFilterModelBase::InvalidateFilter()
 {
-    m_invalidateFilter.Call([this]{
+    m_invalidateFilter.Call(CONNECTION_DEBUG_LOCATION, [this]{
         invalidateFilter();
         OnInvalidated();
     });

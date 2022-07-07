@@ -30,7 +30,7 @@ QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
 
 void WidgetsDateTimeEdit::Resize()
 {
-    m_call.Call([this]{
+    m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
         QFontMetrics fm(font());
         auto t = text();
         qDebug() << t << this;

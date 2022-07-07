@@ -93,7 +93,7 @@ SvgIconEngine::SvgIconEngine()
     }).MakeSafe(m_connections);
 
     auto resetCache = [this](QIcon::Mode mode) {
-        m_clearCacheDelayed.Call([this]{
+        m_clearCacheDelayed.Call(CONNECTION_DEBUG_LOCATION, [this]{
             d->Cache.clear();
         });
         // TODO. Not working

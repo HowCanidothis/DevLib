@@ -311,7 +311,7 @@ void GtCamera::SetIsometricScale(const Point2F& scale) {
 void GtCamera::SetIsometric(bool flag)
 {
     m_state.AddFlag(State_NeedUpdate);
-    m_state.ChangeFromBoolean(State_Isometric | State_AutoIsometricScaling, flag);
+    m_state.ChangeFromBoolean(flag, State_Isometric | State_AutoIsometricScaling);
 }
 
 void GtCamera::Resize(qint32 width, qint32 height)
@@ -517,7 +517,7 @@ SizeF GtCamera::predicateVisibleSizeOnZ(const SizeF& viewport, float z, bool ort
     m_up = Vector3F(0.f,1.f,0.f);
 
     m_state.AddFlag(State_NeedUpdate);
-    m_state.ChangeFromBoolean(State_Isometric, ortho);
+    m_state.ChangeFromBoolean(ortho, State_Isometric);
     return visibleSize();
 }
 

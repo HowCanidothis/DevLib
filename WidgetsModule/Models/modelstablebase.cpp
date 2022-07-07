@@ -35,7 +35,7 @@ void ViewModelsTableBase::RequestUpdateUi(qint32 left, qint32 right)
     } else {
         m_mostRightColumnToUpdate = std::max(m_mostRightColumnToUpdate, right);
     }
-    m_update.Call([this]{
+    m_update.Call(CONNECTION_DEBUG_LOCATION, [this]{
         emit dataChanged(createIndex(0, m_mostLeftColumnToUpdate), createIndex(rowCount()-1, m_mostRightColumnToUpdate));
         emit headerDataChanged(Qt::Horizontal, m_mostLeftColumnToUpdate, m_mostRightColumnToUpdate);
         m_mostLeftColumnToUpdate = -1;

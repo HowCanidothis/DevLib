@@ -9,9 +9,9 @@
 
 
 template<class T>
-static bool LocalPropertyNotEqual(const T& v1, const T& v2) { return v1 != v2; }
-static bool LocalPropertyNotEqual(const double& v1, const double& v2) { return !qFuzzyCompare(v1, v2); }
-static bool LocalPropertyNotEqual(const float& v1, const float& v2) { return !qFuzzyCompare(v1, v2); }
+inline bool LocalPropertyNotEqual(const T& v1, const T& v2) { return v1 != v2; }
+inline bool LocalPropertyNotEqual(const double& v1, const double& v2) { return !qFuzzyCompare(v1, v2); }
+inline bool LocalPropertyNotEqual(const float& v1, const float& v2) { return !qFuzzyCompare(v1, v2); }
 
 template<class value_type>
 struct LocalPropertyDescInitializationParams
@@ -31,32 +31,7 @@ struct LocalPropertyDescInitializationParams
 using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
 using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
-static DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
-    DispatcherConnections result;
-    auto sync = ::make_shared<std::atomic_bool>(false);
-    auto eval1 = [debugLocation, evaluator1, sync]{
-        if(!*sync) {
-            *sync = true;
-            evaluator1();
-            *sync = false;
-        }
-    };
-    auto eval2 = [debugLocation, evaluator2, sync]{
-        if(!*sync) {
-            *sync = true;
-            evaluator2();
-            *sync = false;
-        }
-    };
-    for(auto* dispatcher : dispatchers1) {
-        result += dispatcher->Connect(nullptr, eval1);
-    }
-    for(auto* dispatcher : dispatchers2) {
-        result += dispatcher->Connect(nullptr, eval2);
-    }
-    eval1();
-    return result;
-}
+DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2);
 
 template<class T, class StorageType = T>
 class LocalProperty
@@ -124,6 +99,19 @@ public:
         }
     }
 
+    void Subscribe(const std::function<void (const T&)>& handler) const
+    {
+        Subscribe([this, handler]{
+            handler(*this);
+        });
+    }
+
+    void SetAndSubscribe(const std::function<void (const T&)>& handler) const
+    {
+        Subscribe(handler);
+        handler(*this);
+    }
+
     void SetValidator(const FValidator& validator)
     {
         m_validator = validator;
@@ -149,6 +137,26 @@ public:
                 Invoke();
             });
         }
+    }
+
+    void SetValueForceInvoke(const T& value)
+    {
+        auto validatedValue = m_validator(value);
+        validate(validatedValue);
+        m_setterHandler([validatedValue, this]{
+            m_value = validatedValue;
+            Invoke();
+        });
+    }
+
+    DispatcherConnection Connect(const std::function<void (const T&)>& handler)
+    {
+        return OnChanged.Connect(this, [handler, this]{ handler(*this); });
+    }
+
+    DispatcherConnection ConnectAndCall(const std::function<void (const T&)>& handler)
+    {
+        return OnChanged.ConnectAndCall(this, [handler, this]{ handler(*this); });
     }
 
     DispatcherConnections ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalProperty<bool>& condition)
@@ -300,6 +308,27 @@ public:
             Super::SetValue(Super::m_value);
             OnMinMaxChanged();
         }
+    }
+
+    LocalPropertyLimitedDecimal& FlagRemove(const T& flags)
+    {
+        T result = Native();
+        *this = FlagsHelpers<T>::Add(result, flags);
+        return *this;
+    }
+
+    LocalPropertyLimitedDecimal& FlagAdd(const T& flags)
+    {
+        T result = Native();
+        *this = FlagsHelpers<T>::Remove(result, flags);
+        return *this;
+    }
+
+    LocalPropertyLimitedDecimal& FlagChange(bool add, const T& flags)
+    {
+        T result = Native();
+        *this = FlagsHelpers<T>::ChangeFromBoolean(add, result, flags);
+        return *this;
     }
 
     LocalPropertyLimitedDecimal& operator-=(const T& value) { Super::SetValue(Super::Native() - value); return *this; }
@@ -493,43 +522,11 @@ class LocalPropertyBoolCommutator : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;
 public:
-    LocalPropertyBoolCommutator(bool defaultState = false, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-        : Super(defaultState)
-        , m_commutator(msecs, threadHandler)
-        , m_defaultState(defaultState)
-    {
-        m_commutator += { this, [this]{
-            Update();
-        }};
-    }
+    LocalPropertyBoolCommutator(bool defaultState = false, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority);
 
-    void ClearProperties()
-    {
-        m_properties.clear();
-    }
-
-    void Update()
-    {
-        bool result = m_defaultState;
-        bool oppositeState = !result;
-        for(auto* property : ::make_const(m_properties)) {
-            if(*property == oppositeState) {
-                result = oppositeState;
-                break;
-            }
-        }
-        SetValue(result);
-    }
-
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
-    {
-        QVector<CommonDispatcher<>*> dispatchers;
-        for(auto* property : properties) {
-            dispatchers.append(&property->OnChanged);
-        }
-        m_properties += properties;
-        return m_commutator.Subscribe(connectionInfo, dispatchers);
-    }
+    void ClearProperties();
+    void Update();
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
@@ -605,21 +602,9 @@ class LocalPropertyDate : public LocalProperty<QDate>
 {
     using Super = LocalProperty<QDate>;
 public:
-    LocalPropertyDate(const QDate& value = QDate(), const QDate& min = QDate(), const QDate& max = QDate())
-        : Super(applyRange(value, min, max))
-        , m_min(min)
-        , m_max(max)
-    {}
+    LocalPropertyDate(const QDate& value = QDate(), const QDate& min = QDate(), const QDate& max = QDate());
 
-    void SetMinMax(const QDate& min, const QDate& max)
-    {
-        if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
-            m_min = min;
-            m_max = max;
-            SetValue(Super::m_value);
-            OnMinMaxChanged();
-        }
-    }
+    void SetMinMax(const QDate& min, const QDate& max);
 
     LocalPropertyDate& operator-=(const QDate& value) { SetValue(QDate::fromJulianDay(Super::Native().toJulianDay() - value.toJulianDay())); return *this; }
     LocalPropertyDate& operator+=(const QDate& value) { SetValue(QDate::fromJulianDay(Super::Native().toJulianDay() - value.toJulianDay())); return *this; }
@@ -637,22 +622,10 @@ private:
     static QDate validatedMin(const QDate& min) { return !min.isValid() ? QDate::currentDate().addYears(-1000) : min; }
     static QDate validatedMax(const QDate& max) { return !max.isValid() ? QDate::currentDate().addYears(1000) : max; }
 
-    inline static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max)
-    {
-        if(!cur.isValid()) {
-            return cur;
-        }
-        return QDate::fromJulianDay(::clamp(cur.toJulianDay(), validatedMin(min).toJulianDay(), validatedMax(max).toJulianDay()));
-    }
+    static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max);
 
-    QDate applyMinMax(const QDate& value) const
-    {
-        return applyRange(value, m_min, m_max);
-    }
-    void validate(QDate& value) const override
-    {
-        value = applyMinMax(value);
-    }
+    QDate applyMinMax(const QDate& value) const;
+    void validate(QDate& value) const override;
 
 private:
     template<class T2> friend struct Serializer;
@@ -663,22 +636,9 @@ class LocalPropertyTime : public LocalProperty<QTime>
 {
     using Super = LocalProperty<QTime>;
 public:
-    LocalPropertyTime(const QTime& value = QTime(), const QTime& min = QTime(), const QTime& max = QTime())
-        : Super(applyRange(value, min, max))
-        , m_min(min)
-        , m_max(max)
-    {
-    }
+    LocalPropertyTime(const QTime& value = QTime(), const QTime& min = QTime(), const QTime& max = QTime());
 
-    void SetMinMax(const QTime& min, const QTime& max)
-    {
-        if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
-            m_min = min;
-            m_max = max;
-            SetValue(Super::m_value);
-            OnMinMaxChanged();
-        }
-    }
+    void SetMinMax(const QTime& min, const QTime& max);
 
     LocalPropertyTime& operator-=(const QTime& value) { SetValue(Super::Native().addMSecs(-value.msecsSinceStartOfDay())); return *this; }
     LocalPropertyTime& operator+=(const QTime& value) { SetValue(Super::Native().addMSecs(value.msecsSinceStartOfDay())); return *this; }
@@ -696,22 +656,10 @@ private:
     static QTime validatedMin(const QTime& min) { return !min.isValid() ? QTime(0,0) : min; }
     static QTime validatedMax(const QTime& max) { return !max.isValid() ? QTime(23,59,59,999) : max; }
 
-    inline static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max)
-    {
-        if(!cur.isValid()) {
-            return cur;
-        }
-        return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), validatedMin(min).msecsSinceStartOfDay(), validatedMax(max).msecsSinceStartOfDay()));
-    }
+    static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max);
 
-    QTime applyMinMax(const QTime& value) const
-    {
-        return applyRange(value, m_min, m_max);
-    }
-    void validate(QTime& value) const override
-    {
-        value = applyMinMax(value);
-    }
+    QTime applyMinMax(const QTime& value) const;
+    void validate(QTime& value) const override;
 
 private:
     template<class T2> friend struct Serializer;
@@ -723,22 +671,9 @@ class LocalPropertyDateTime : public LocalProperty<QDateTime>
 {
     using Super = LocalProperty<QDateTime>;
 public:
-    LocalPropertyDateTime(const QDateTime& value = QDateTime(), const QDateTime& min = QDateTime(), const QDateTime& max = QDateTime())
-        : Super(applyRange(value, min, max))
-        , m_min(min)
-        , m_max(max)
-    {
-    }
+    LocalPropertyDateTime(const QDateTime& value = QDateTime(), const QDateTime& min = QDateTime(), const QDateTime& max = QDateTime());
 
-    void SetMinMax(const QDateTime& min, const QDateTime& max)
-    {
-        if(LocalPropertyNotEqual(m_max, max) || LocalPropertyNotEqual(m_min, min)) {
-            m_min = min;
-            m_max = max;
-            SetValue(Super::m_value);
-            OnMinMaxChanged();
-        }
-    }
+    void SetMinMax(const QDateTime& min, const QDateTime& max);
 
     LocalPropertyDateTime& operator-=(const QDateTime& value) { SetValue(Super::Native().addMSecs(-value.toMSecsSinceEpoch())); return *this; }
     LocalPropertyDateTime& operator+=(const QDateTime& value) { SetValue(Super::Native().addMSecs(value.toMSecsSinceEpoch())); return *this; }
@@ -758,18 +693,9 @@ private:
     static QDateTime validatedMin(const QDateTime& min) { return !min.isValid() ? QDateTime::currentDateTime().addYears(-1000) : min; }
     static QDateTime validatedMax(const QDateTime& max) { return !max.isValid() ? QDateTime::currentDateTime().addYears(1000) : max; }
 
-    static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max)
-    {
-        if(!cur.isValid()) {
-            return cur;
-        }
-        return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()));
-    }
+    static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max);
 
-    void validate(QDateTime& value) const override
-    {
-        value = applyRange(value, m_min, m_max);
-    }
+    void validate(QDateTime& value) const override;
 
 private:
     template<class T2> friend struct Serializer;

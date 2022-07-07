@@ -246,7 +246,7 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
         auto* pData = data.get();
         sortModel->setDynamicSortFilter(false);
         listModel->GetData()->OnChanged += { this, [sortModel, pData]{
-            pData->Sorter.Call([sortModel]{
+            pData->Sorter.Call(CONNECTION_DEBUG_LOCATION, [sortModel]{
                 sortModel->sort(0, sortModel->sortOrder());
             });
         }};

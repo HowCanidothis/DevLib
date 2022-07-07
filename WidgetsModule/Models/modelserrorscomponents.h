@@ -263,7 +263,7 @@ public:
 private:
     void update()
     {
-        m_updater.Call([this]{
+        m_updater.Call(CONNECTION_DEBUG_LOCATION, [this]{
             m_updateHandler();
         });
     }

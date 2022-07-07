@@ -167,6 +167,16 @@ inline void ForeachFieldOfStruct(const Struct& data, const std::function<void (c
 
 template<class T>
 QVector<T> toVector(const std::initializer_list<T>& list) { return QVector<T>(list); }
+template<class ValueType>
+QVector<ValueType> toVector(ValueType* begin, ValueType* end)
+{
+    QVector<ValueType> result;
+    while(begin != end) {
+        result.append(*begin);
+        ++begin;
+    }
+    return result;
+}
 
 template<typename It>
 class Range
@@ -199,6 +209,16 @@ Range<It> range(It begin, It end) {
 template<typename ORange, typename It = decltype(std::begin(std::declval<ORange>()))>
 Range<It> withoutFirst(ORange&& originalRange) {
     return Range<It>(std::begin(originalRange) + 1, std::end(originalRange));
+}
+
+template<typename Container, typename It = typename Container::const_iterator>
+Range<It> range(const Container& container, qint32 startIndex, qint32 count) {
+    return Range<It>(container.begin() + startIndex, container.begin() + startIndex + count);
+}
+
+template<typename Container, typename It = typename Container::const_iterator>
+Range<It> range(Container& container, qint32 startIndex, qint32 count) {
+    return Range<It>(container.begin() + startIndex, container.begin() + startIndex + count);
 }
 
 }

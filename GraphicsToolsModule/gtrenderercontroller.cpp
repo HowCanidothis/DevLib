@@ -336,7 +336,7 @@ void GtRendererController::onDestroy()
 
 void GtRendererController::Resize(qint32 w, qint32 h)
 {
-    m_resize.Call([this, w, h]{
+    m_resize.Call(CONNECTION_DEBUG_LOCATION, [this, w, h]{
         m_renderPath->Resize(w, h, m_renderer->m_surfaceFormat.samples());
         GtFramebufferFormat depthFboFormat;
         depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);

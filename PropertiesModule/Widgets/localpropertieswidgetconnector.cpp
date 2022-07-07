@@ -82,7 +82,7 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     if(reactive){
         m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
             if(!m_ignoreWidgetChange) {
-                m_textChanged.Call([this]{ m_propertySetter(); });
+                m_textChanged.Call(CONNECTION_DEBUG_LOCATION, [this]{ m_propertySetter(); });
             }
         });
     } else {
@@ -145,7 +145,7 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     case SubmitType_OnEveryChange:
         m_connections.connect(textEdit, &QTextEdit::textChanged, [this](){
             if(!m_ignoreWidgetChange){
-                m_textChanged.Call([this]{ m_propertySetter();});
+                m_textChanged.Call(CONNECTION_DEBUG_LOCATION, [this]{ m_propertySetter();});
             }
         });
         break;

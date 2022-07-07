@@ -23,7 +23,7 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
 
 
     auto recomputePoints = [this]{
-        m_recompute.Call([this]{
+        m_recompute.Call(CONNECTION_DEBUG_LOCATION, [this]{
             QVector<Point3F> points;
             float rw = Radius.Native().width();
             float rh = Radius.Native().height();

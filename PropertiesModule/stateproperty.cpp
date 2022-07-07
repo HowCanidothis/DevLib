@@ -17,7 +17,7 @@ DispatcherConnections StateProperty::ConnectFromDispatchers(const QVector<Dispat
     for(auto* dispatcher : dispatchers) {
         result.append(dispatcher->Connect(this, [this, delayedCall]{
             SetState(false);
-            delayedCall->Call([this]{
+            delayedCall->Call(CONNECTION_DEBUG_LOCATION, [this]{
                 SetState(true);
             });
         }));
@@ -56,7 +56,7 @@ StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
 {
     m_commutator += { this, [this]{
         if(value()) {
-            m_setTrue.Call([this]{
+            m_setTrue.Call(CONNECTION_DEBUG_LOCATION, [this]{
                 SetValue(value());
             });
         } else {
@@ -134,6 +134,7 @@ bool StatePropertyBoolCommutator::value() const
 
 StateParameters::StateParameters()
     : IsValid(true)
+    , IsLocked(false)
     , m_counter(0)
     , m_isValid(true)
 {

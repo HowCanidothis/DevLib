@@ -94,7 +94,7 @@ QHash<qint32, DelayedCallPtr>& DelayedCallManager::cachedCalls()
     return result;
 }
 
-AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAction& action)
+AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, DelayedCallObject* object, const FAction& action)
 {
     static thread_local bool locked = false;
     if(locked) {
@@ -107,7 +107,7 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
         auto delayedCall = object->m_delay != 0 ? ::make_shared<DelayedCallDelayOnCall>(action, mutex(), object) :
                                                                                    ::make_shared<DelayedCall>(action, mutex(), object);
         foundIt = cachedCalls().insert(object->GetId(), delayedCall);
-        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
+        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall, connectionInfo]{
             delayedCall->Call();
         }, object->m_delay);
         qint32 id = object->GetId();
@@ -122,11 +122,16 @@ AsyncResult DelayedCallManager::CallDelayed(DelayedCallObject* object, const FAc
         return delayedCall->GetResult();
     } else if(object->m_delay != 0) {
         auto delayedCall = foundIt.value();
-        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall]{
+        auto result = delayedCall->Invoke(object->m_threadHandler, [delayedCall, connectionInfo]{
             delayedCall->Call();
         }, object->m_delay);
         delayedCall->SetResult(result);
     }
     foundIt.value()->SetAction(action);
     return foundIt.value()->GetResult();
+}
+
+AsyncResult DelayedCallObject::Call(const char* connectionInfo, const FAction& action)
+{
+    return DelayedCallManager::CallDelayed(connectionInfo, this, action);
 }

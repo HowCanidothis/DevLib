@@ -95,9 +95,9 @@ public:
         return _value & flag;
     }
 
-    Flags& ChangeFromBoolean(ValueType flags, bool flag)
+    Flags& ChangeFromBoolean(bool flag, ValueType flags)
     {
-        flag ? AddFlags(flags) : RemoveFlags(flags);
+        FlagsHelpers<ValueType>::ChangeFromBoolean(flag, _value, flags);
         return *this;
     }
 
