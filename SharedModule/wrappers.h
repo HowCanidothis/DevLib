@@ -59,12 +59,11 @@ public:
 
     const value_type& FindValue(const ComparisonTarget& id) const
     {
-        static value_type defaultValue;
         auto foundIt = Find(id);
         if(foundIt != m_container->end() && m_idGetter(*foundIt) == id) {
             return *foundIt;
         }
-        return defaultValue;
+        return Default<value_type>::Value;
     }
 
     void Foreach(const ComparisonTarget& id, const std::function<void (value_type&)>& handler)

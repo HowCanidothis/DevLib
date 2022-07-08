@@ -15,12 +15,11 @@ public:
     }
     const QVariant& GetProperty(const Name& propertyName) const
     {
-        static QVariant defaultValue;
         auto foundIt = m_properties.find(propertyName);
         if(foundIt != m_properties.end()) {
             return foundIt.value();
         }
-        return defaultValue;
+        return Default<QVariant>::Value;
     }
 };
 

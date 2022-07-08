@@ -82,7 +82,7 @@ inline void Id::Attach(Generator* generator, const SharedPointer<T>& data)
 template<class T>
 inline SharedPointer<T> Id::As() const
 {
-    static SharedPointer<T> defaultValue;
+    const SharedPointer<T>& defaultValue = Default<SharedPointer<T>>::Value;
     auto* context = getContext();
     if(context == nullptr) {
         return defaultValue;

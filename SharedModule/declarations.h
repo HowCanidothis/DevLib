@@ -347,6 +347,14 @@ QString Join(const QString& separator, const Container& container)
     return result;
 }
 
+template<class Container>
+Container Create(const std::function<void (Container& container)>& selector)
+{
+    Container result;
+    selector(result);
+    return result;
+}
+
 template<class T, class Container>
 QList<T> Select(const Container& container, const std::function<T (const typename Container::value_type& value)>& selector)
 {
@@ -572,5 +580,20 @@ extern const Type name;
 
 #define IMPLEMENT_GLOBAL(Type, name, ...) \
 const Type name(__VA_ARGS__);
+
+template<class T>
+struct Default
+{
+    static const T Value;
+};
+
+#define IMPLEMENT_DEFAULT_PTR(type) \
+template<> const SharedPointer<type> Default<SharedPointer<type>>::Value;
+
+#define IMPLEMENT_DEFAULT(type) \
+template<> const type Default<type>::Value;
+
+#define IMPLEMENT_DEFAULT_WITH_PARAMS(type, ...) \
+template<> const type Default<type>::Value(__VA_ARGS__);
 
 #endif // SHARED_DECL_H
