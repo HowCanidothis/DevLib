@@ -114,6 +114,35 @@ WidgetsGlobalTableActionsScope::WidgetsGlobalTableActionsScope()
 
 QVector<std::pair<Latin1Name, WidgetsGlobalTableActionsScope::EnableIfMode>> WidgetsGlobalTableActionId::m_delayedRegistration;
 
+FAction WidgetsGlobalTableActionsScope::CreateDefaultDeleteHandler(QTableView* table)
+{
+    return [table]{
+        auto* model = table->model();
+        auto indexs = WidgetTableViewWrapper(table).SelectedRowsSorted();
+        if(indexs.isEmpty()){
+            return ;
+        }
+        int startSeries = indexs.first();
+        int counter = startSeries + 1;
+
+        QVector<std::pair<qint32,qint32>> toRemove; // first - from, second - count
+        for(const auto& index : adapters::range(indexs.begin() + 1, indexs.end())){
+            if(counter != index){
+                toRemove.append({startSeries, counter - startSeries});
+                startSeries = index;
+                counter = startSeries + 1;
+            } else {
+                ++counter;
+            }
+        }
+        toRemove.append({startSeries, counter - startSeries});
+        while(!toRemove.isEmpty()){
+            const auto& info = toRemove.takeLast();
+            model->removeRows(info.first, info.second);
+        }
+    };
+}
+
 QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, EnableIfMode mode)
 {
     Q_ASSERT(FindAction(id) == nullptr);
@@ -259,31 +288,7 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
 
 
     action = GetInstance().FindAction(GlobalActionDeleteId);
-    auto deleteHandler = [table]{
-        auto* model = table->model();
-        auto indexs = WidgetTableViewWrapper(table).SelectedRowsSorted();
-        if(indexs.isEmpty()){
-            return ;
-        }
-        int startSeries = indexs.first();
-        int counter = startSeries + 1;
-
-        QVector<std::pair<qint32,qint32>> toRemove; // first - from, second - count
-        for(const auto& index : adapters::range(indexs.begin() + 1, indexs.end())){
-            if(counter != index){
-                toRemove.append({startSeries, counter - startSeries});
-                startSeries = index;
-                counter = startSeries + 1;
-            } else {
-                ++counter;
-            }
-        }
-        toRemove.append({startSeries, counter - startSeries});
-        while(!toRemove.isEmpty()){
-            const auto& info = toRemove.takeLast();
-            model->removeRows(info.first, info.second);
-        }
-    };
+    auto deleteHandler = CreateDefaultDeleteHandler(table);
 
     result->AddHandler([]{ return tr("Delete Row(s)"); }, QKeySequence(Qt::SHIFT + Qt::Key_Delete), action, deleteHandler);
 

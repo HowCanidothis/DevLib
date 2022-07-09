@@ -67,6 +67,8 @@ public:
     static WidgetsGlobalTableActionsScopeHandlersPtr EditHandlers(QTableView* table);
     static WidgetsGlobalTableActionsScopeHandlersPtr AddDefaultHandlers(QTableView* table);
 
+    static FAction CreateDefaultDeleteHandler(QTableView* table);
+
 private:
     friend class WidgetsGlobalTableActionId;
     QAction* registerAction(const Latin1Name& id, EnableIfMode mode = EIM_Default);

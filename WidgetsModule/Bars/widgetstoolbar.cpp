@@ -32,10 +32,10 @@ ComponentPlacer* WidgetsToolBar::GetComponentPlacer() const
     return m_locationAttachment->GetComponentPlacer();
 }
 
-QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer)
+QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSize)
 {
     auto* result = CreateButton("btnDrawer");
-    auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(true, 450);
+    auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(true, drawerSize);
     connect(result, &QPushButton::clicked, [collapsed](bool checked){
         *collapsed = checked;
     });
