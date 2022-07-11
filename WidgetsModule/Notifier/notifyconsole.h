@@ -49,6 +49,17 @@ public:
     LocalPropertyBool IsShowErrors;
     DelayedCallDispatchersCommutator<qint32> OnShownMessagesCountChanged;
 
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer.OpenSection("NotifyConsoleState");
+        buffer << buffer.Sect("IsOpened", IsOpened);
+        buffer << buffer.Sect("IsShowWarnings", IsShowWarnings);
+        buffer << buffer.Sect("IsShowInfos", IsShowInfos);
+        buffer << buffer.Sect("IsShowErrors", IsShowErrors);
+        buffer.CloseSection();
+    }
+
 private slots:
     void on_BtnCloseConsole_clicked();
     void on_BtnClear_clicked();
