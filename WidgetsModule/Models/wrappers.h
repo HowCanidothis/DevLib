@@ -461,6 +461,13 @@ public:
 
     typename Super::const_iterator begin() const { return Super::begin(); }
     typename Super::const_iterator end() const { return Super::end(); }
+
+    DispatcherConnection Connect(const std::function<void(const Container&)>& handler){
+        return OnChanged.Connect(this, [this, handler]{ handler(*this); });
+    }
+    DispatcherConnection ConnectAndCall(const std::function<void(const Container&)>& handler){
+        return OnChanged.ConnectAndCall(this, [this, handler]{ handler(*this); });
+    }
 };
 
 template<class Container>
