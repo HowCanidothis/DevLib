@@ -4,7 +4,7 @@
 
 GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
     : m_renderer(renderer)
-    , m_destroyed(false)
+    , m_destroyed(::make_shared<std::atomic_bool>(false))
     , m_rendererDrawable(false)
 {
 }
@@ -15,8 +15,9 @@ GtDrawableBase::~GtDrawableBase()
 
 ThreadHandler GtDrawableBase::CreateThreadHandler()
 {
-    return [this](const FAction& action) -> AsyncResult {
-        if(m_destroyed) {
+    auto destroyed = m_destroyed;
+    return [this, destroyed](const FAction& action) -> AsyncResult {
+        if(*destroyed) {
             return AsyncError();
         }
         if(QThread::currentThread() == m_renderer) {
@@ -37,8 +38,9 @@ void GtDrawableBase::delayedDraw(const FAction& draw)
 
 ThreadHandlerNoThreadCheck GtDrawableBase::CreateThreadNoCheckHandler()
 {
-    return [this](const FAction& action) -> AsyncResult {
-        if(m_destroyed) {
+    auto destroyed = m_destroyed;
+    return [destroyed, this](const FAction& action) -> AsyncResult {
+        if(*destroyed) {
             return AsyncError();
         }
         return m_renderer->Asynch([action]{
@@ -62,7 +64,7 @@ AsyncResult GtDrawableBase::Destroy()
     auto result = Update([this](OpenGLFunctions* f){
         onDestroy(f);
     });
-    m_destroyed = true;
+    *m_destroyed = true;
     if(!m_rendererDrawable) {
         m_renderer->RemoveDrawable(this);
     } else {
@@ -75,7 +77,7 @@ AsyncResult GtDrawableBase::Destroy()
 
 AsyncResult GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>& f)
 {
-    if(m_destroyed) {
+    if(*m_destroyed) {
         return AsyncError();
     }
     if(QThread::currentThread() == m_renderer) {
@@ -89,7 +91,7 @@ AsyncResult GtDrawableBase::Update(const std::function<void (OpenGLFunctions*)>&
 
 AsyncResult GtDrawableBase::Update(const FAction& f)
 {
-    if(m_destroyed) {
+    if(*m_destroyed) {
         return AsyncError();
     }
     if(QThread::currentThread() == m_renderer) {

@@ -48,7 +48,7 @@ protected:
 
 protected:
     GtRenderer* m_renderer;
-    std::atomic_bool m_destroyed;
+    SharedPointer<std::atomic_bool> m_destroyed;
     bool m_rendererDrawable;
 };
 
