@@ -2,6 +2,7 @@
 #define SIMPLIFIEDPROTOCHOLQUERYBASE_H
 
 #include <QDebug>
+#include "networkpackage.h"
 
 enum SimplifiedProtocholQueryType
 {
