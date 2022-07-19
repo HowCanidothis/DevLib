@@ -12,6 +12,7 @@ namespace FlowSpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(LitersPerMinute, []{return QObject::tr("liters per minute");      }, []{ return QObject::tr("l/min");  }, 0.00001667);
     IMPLEMENT_MEASUREMENT_UNIT(GallonsPerMinute, []{return QObject::tr("gallons per minute");     }, []{ return QObject::tr("gpm");}, 0.0000630902);
     IMPLEMENT_MEASUREMENT_UNIT(BarrelsPerMinute, []{return QObject::tr("barrels per minute");     }, []{ return QObject::tr("bbl/min");}, 0.00264979);
+    IMPLEMENT_MEASUREMENT_UNIT(CubicFeetPerSecond, []{return QObject::tr("Cubic feet per second");     }, []{ return QObject::tr("ft³/s");}, 0.0283168466);
 }
 
 IMPLEMENT_MEASUREMENT(FlowSpeed)

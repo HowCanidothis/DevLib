@@ -148,7 +148,8 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&FlowSpeedUnits::LitersPerSecond     )
             .AddUnit(&FlowSpeedUnits::LitersPerMinute     )
             .AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
-            .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    );
+            .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    )
+            .AddUnit(&FlowSpeedUnits::CubicFeetPerSecond  );
 
     AddMeasurement(MeasurementThermalConductivity::NAME, []{ return tr("Thermal Conductivity"); })
             .AddUnit(&ThermalConductivityUnits::WattMeterCelsius)
