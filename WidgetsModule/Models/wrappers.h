@@ -462,16 +462,16 @@ public:
     typename Super::const_iterator begin() const { return Super::begin(); }
     typename Super::const_iterator end() const { return Super::end(); }
 
-    DispatcherConnectionsSafe Connect(const std::function<void(const Container&)>& handler, const QVector<Dispatcher*>& dispatchers = QVector<Dispatcher*>()){
-        DispatcherConnectionsSafe ret;
-        OnChanged.Connect(this, [this, handler]{ handler(*this); }).MakeSafe(ret);
-        for(auto* dispatcher : dispatchers) {
-            dispatcher->Connect(this, [this, handler]{ handler(*this); }).MakeSafe(ret);
-        }
+    template<typename ... Dispatchers>
+    DispatcherConnection Connect(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+        DispatcherConnection ret;
+        ret += OnChanged.ConnectCombined([this, handler]{ handler(*this); }, dispatchers...);
         return ret;
     }
-    DispatcherConnectionsSafe ConnectAndCall(const std::function<void(const Container&)>& handler, const QVector<Dispatcher*>& dispatchers = QVector<Dispatcher*>()){
-        auto ret = Connect(handler, dispatchers);
+
+    template<typename ... Dispatchers>
+    DispatcherConnection ConnectAndCall(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+        auto ret = Connect(handler, dispatchers...);
         handler(*this);
         return ret;
     }

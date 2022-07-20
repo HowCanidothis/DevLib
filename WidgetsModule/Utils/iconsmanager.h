@@ -33,9 +33,9 @@ struct IconsPalette
         return *this;
     }
 
-    DispatcherConnections ConnectFrom(const char* location, IconsPalette& another)
+    DispatcherConnection ConnectFrom(const char* location, IconsPalette& another)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         result += NormalColor.ConnectFrom(location, another.NormalColor);
         result += DisabledColor.ConnectFrom(location, another.DisabledColor);
         result += ActiveColor.ConnectFrom(location, another.ActiveColor);
@@ -43,9 +43,9 @@ struct IconsPalette
         return result;
     }
 
-    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color)
+    DispatcherConnection ConnectFrom(const char* location, const LocalPropertyColor& color)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         result += NormalColor.ConnectFrom(location, color);
         result += DisabledColor.ConnectFrom(location, color);
         result += ActiveColor.ConnectFrom(location, color);
@@ -53,9 +53,9 @@ struct IconsPalette
         return result;
     }
 
-    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked)
+    DispatcherConnection ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         result += NormalColor.ConnectFrom(location, color);
         result += DisabledColor.ConnectFrom(location, color);
         result += ActiveColor.ConnectFrom(location, color);

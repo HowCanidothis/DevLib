@@ -17,25 +17,23 @@
 #endif
 
 class DispatcherConnection;
-class DispatcherConnectionSafePtr;
+using DispatcherConnectionSafePtr = SharedPointer<class DispatcherConnectionSafe>;
 
-using FDispatcherRegistrator = std::function<void (const DispatcherConnectionSafePtr&)>;
-
-class DispatcherConnectionSafePtr : public SharedPointer<DispatcherConnection>
+class DispatcherConnectionSafe
 {
-    using Super = SharedPointer<DispatcherConnection>;
+    using Super = FAction;
 public:
-    DispatcherConnectionSafePtr() {}
-    DispatcherConnectionSafePtr(const FAction& disconnector, const FDispatcherRegistrator& registrator);
-    ~DispatcherConnectionSafePtr();
+    DispatcherConnectionSafe();
+    DispatcherConnectionSafe(const FAction& disconnector);
+    ~DispatcherConnectionSafe();
 
-    DispatcherConnectionSafePtr& operator=(const DispatcherConnectionSafePtr& another);
+private:
+    template<typename... Args> friend class CommonDispatcher;
+    void disable();
+
+private:
+    FAction m_disconnector;
 };
-
-inline uint qHash(const DispatcherConnectionSafePtr& connection, uint seed = 0)
-{
-    return qHash(connection.get(), seed);
-}
 
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
@@ -46,77 +44,35 @@ inline SharedPointer<DispatcherConnectionsSafe> DispatcherConnectionsSafeCreate(
 
 class DispatcherConnection
 {
-    friend class DispatcherConnectionSafePtr;
+    using FDispatcherRegistrator = std::function<void (const DispatcherConnectionSafePtr&)>;
+
+    friend class DispatcherConnectionSafe;
     template<typename ... Args> friend class CommonDispatcher;
     FAction m_disconnector;
     FDispatcherRegistrator m_registrator;
 
-    DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator)
-        : m_disconnector(disconnector)
-        , m_registrator(registrator)
-    {}
+    DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator);
 
 public:
-    DispatcherConnection()
-        : m_disconnector([]{})
-        , m_registrator([](const DispatcherConnectionSafePtr&){})
-    {}
+    DispatcherConnection();
 
-    void Disconnect() const
-    {
-        m_disconnector();
-    }
+    void Disconnect() const;
+    DispatcherConnection& operator+=(const DispatcherConnection& another);
 
-    DispatcherConnectionSafePtr MakeSafe() { return DispatcherConnectionSafePtr(m_disconnector, m_registrator); }
-    void MakeSafe(DispatcherConnectionsSafe& connections)
+    DispatcherConnectionSafePtr MakeSafe();
+
+    template<typename ... SafeConnections>
+    void MakeSafe(SafeConnections&... connections)
     {
         auto connection = MakeSafe();
-        connections.append(connection);
+        adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
+            connections.append(connection);
+        }, connections...);
     }
 };
 
-inline DispatcherConnectionSafePtr::DispatcherConnectionSafePtr(const FAction& disconnector, const FDispatcherRegistrator& registrator)
-    : Super(new DispatcherConnection(disconnector, registrator))
-{
-    registrator(*this);
-}
-
-inline DispatcherConnectionSafePtr& DispatcherConnectionSafePtr::operator=(const DispatcherConnectionSafePtr& another)
-{
-    if(get() != nullptr && use_count() == 2) {
-        get()->Disconnect();
-    }
-    return reinterpret_cast<DispatcherConnectionSafePtr&>(Super::operator=(another));
-}
-
-inline DispatcherConnectionSafePtr::~DispatcherConnectionSafePtr()
-{
-    if(get() != nullptr && use_count() == 2) {
-        get()->Disconnect();
-    }
-}
-
-class DispatcherConnections : public QVector<DispatcherConnection>
-{
-    using Super = QVector<DispatcherConnection>;
-public:
-    using Super::Super;
-
-    void MakeSafe(DispatcherConnectionsSafe& safeConnections)
-    {
-        for(auto& connection : *this) {
-            connection.MakeSafe(safeConnections);
-        }
-    }
-
-    void MakeSafe(DispatcherConnectionsSafe& safeConnections, DispatcherConnectionsSafe& safeConnections2)
-    {
-        for(auto& connection : *this) {
-            connection.MakeSafe(safeConnections);
-            connection.MakeSafe(safeConnections2);
-        }
-    }
-};
+template<class T, class T2> class LocalProperty;
+template<class T> struct LocalPropertyOptional;
 
 template<typename ... Args>
 class CommonDispatcher
@@ -139,9 +95,13 @@ public:
         FCommonDispatcherAction Handler;
     };
 
-    ~CommonDispatcher()
+    virtual ~CommonDispatcher()
     {
-        m_safeConnections.clear();
+        for(const auto& connection : m_safeConnections) {
+            if(!connection.expired()) {
+                connection.lock()->disable();
+            }
+        }
     }
 
     bool IsEmpty() const
@@ -178,18 +138,17 @@ public:
         Invoke(args...);
     }
 
-    DispatcherConnection ConnectFrom(const char* connectionDescription, CommonDispatcher& another) const
+    DispatcherConnection ConnectFromWithParameters(const char* connectionInfo, CommonDispatcher& another) const
     {
-        return another.Connect(this, [this, connectionDescription](Args... args){
+        return another.Connect(this, [this, connectionInfo](Args... args){
             Invoke(args...);
         });
     }
 
-    DispatcherConnections ConnectBoth(const char* connectionDescription, CommonDispatcher& another) const
+    DispatcherConnection ConnectBoth(const char* connectionDescription, CommonDispatcher& another) const
     {
-        DispatcherConnections result;
         auto sync = ::make_shared<std::atomic_bool>(false);
-        result += another.Connect(this, [this, sync, connectionDescription](Args... args){
+        auto result = another.Connect(this, [this, sync, connectionDescription](Args... args){
             if(!*sync) {
                 *sync = true;
                 Invoke(args...);
@@ -206,9 +165,37 @@ public:
         return result;
     }
 
-    DispatcherConnection ConnectAction(Observer key, const FAction& handler) const
+    DispatcherConnection ConnectAction(const char* connectionInfo, const FAction& handler) const
     {
-        return Connect(key, [handler](Args...) { handler(); });
+        return Connect(this, [handler, connectionInfo](Args...) { handler(); });
+    }
+
+    template<typename ... Dispatchers>
+    DispatcherConnection ConnectCombined(const FAction& handler, Dispatchers&... args) const
+    {
+        DispatcherConnection result;
+        adapters::Combine([this, &result, handler](const auto& target){
+            result += target.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
+        }, *this, args...);
+        return result;
+    }
+
+    template<typename Disp, typename ... Dispatchers>
+    DispatcherConnection ConnectFrom(const char* locationInfo, const Disp& another, Dispatchers&... args) const
+    {
+        DispatcherConnection result;
+        adapters::Combine([this, &result, locationInfo](const auto& target){
+            result += target.ConnectAction(locationInfo, [this, locationInfo]{ Invoke(); });
+        }, another, args...);
+        return result;
+    }
+
+    template<typename ... Dispatchers>
+    DispatcherConnection ConnectAndCallCombined(const FAction& handler, Dispatchers&... args) const
+    {
+        auto ret = ConnectCombined(handler, args...);
+        handler();
+        return ret;
     }
 
     DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler) const
@@ -233,15 +220,16 @@ public:
                     subscribes.remove(id);
                 }
             }
-        }, [this](const DispatcherConnectionSafePtr& connection){
+            m_safeConnections.remove(id);
+        }, [this, id](const DispatcherConnectionSafePtr& connection){
             QMutexLocker lock(&m_mutex);
-            m_safeConnections.insert(connection);
+            m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
         });
     }
 
-    DispatcherConnection ConnectAndCall(Observer key, const FAction& handler) const
+    DispatcherConnection ConnectAndCall(Observer, const FAction& handler) const
     {
-        auto result = ConnectAction(key, handler);
+        auto result = ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
         handler();
         return result;
     }
@@ -295,7 +283,7 @@ public:
 
 private:
     friend class Connection;
-    mutable QSet<DispatcherConnectionSafePtr> m_safeConnections;
+    mutable QHash<qint32, std::weak_ptr<DispatcherConnectionSafe>> m_safeConnections;
     mutable QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable QMutex m_mutex;

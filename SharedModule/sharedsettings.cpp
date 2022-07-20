@@ -4,13 +4,10 @@
 
 NetworkSettings::NetworkSettings()
 {
-    QVector<CommonDispatcher<>*> dispatchers {
-        &ProxyHost.OnChanged,
-        &ProxyPassword.OnChanged,
-        &ProxyUserName.OnChanged,
-        &ProxyPort.OnChanged
-    };
-    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, dispatchers);
+    OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, ProxyHost,
+                        ProxyPassword,
+                        ProxyUserName,
+                        ProxyPort);
 }
 
 #ifdef QT_GUI_LIB
@@ -113,11 +110,7 @@ SaveLoadSettings::SaveLoadSettings()
 SharedSettings::SharedSettings()
     : OnChanged(500)
 {
-    QVector<CommonDispatcher<>*> dispatchers {
-        &NetworkSettings.OnChanged
-    };
-
-    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, dispatchers);
+    OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, NetworkSettings.OnChanged);
 }
 
 MetricsSettings::MetricsSettings()

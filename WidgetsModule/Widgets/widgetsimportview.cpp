@@ -162,7 +162,7 @@ QTableView* WidgetsImportView::GetPreviewTableView() const
 void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns)
 {
     m_matchingAttachment = new WidgetsMatchingAttachment(ui->SourceTable, targetModel, targetImportColumns);
-    OnMatchingChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_matchingAttachment->OnMatchingChanged);
+    OnMatchingChanged.ConnectFromWithParameters(CONNECTION_DEBUG_LOCATION, m_matchingAttachment->OnMatchingChanged);
     m_matchingAttachment->IsEnabled = true;
     m_matchingAttachment->IsVisible = true;
 

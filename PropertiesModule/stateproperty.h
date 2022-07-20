@@ -11,10 +11,10 @@ public:
 
     void SetState(bool state);
 
-    DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
-    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
-    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
-    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
+    DispatcherConnection ConnectFromStateProperty(const char* location, const StateProperty& property);
+    DispatcherConnection ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+    static DispatcherConnection PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
+    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
 };
 
 class StatePropertyBoolCommutator : public StateProperty
@@ -28,9 +28,9 @@ public:
     void ClearProperties();
     void Update();
 
-    DispatcherConnections AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
-    DispatcherConnections AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
-    DispatcherConnections AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
+    DispatcherConnection AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnection AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
+    DispatcherConnection AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
 
     QString ToString() const;
 
@@ -104,7 +104,7 @@ public:
                 args...)
     {
         m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections);
-        Super::InputValue.OnChangedImpl(CONNECTION_DEBUG_LOCATION, [params]{
+        Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, [params]{
             if(params->IsLocked) {
                 params->Reset();
             } else {
@@ -192,7 +192,7 @@ public:
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
     {
-        m_onChanged.Subscribe(CONNECTION_DEBUG_LOCATION, { &m_dependenciesAreUpToDate.OnChanged });
+        m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
         Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate, [this](bool valid){
             return !valid ? false : Valid.Native();
         });
@@ -289,7 +289,7 @@ public:
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
         m_onDirectOnChanged.ConnectFrom(connection, nonConstProperty.OnChanged).MakeSafe(m_connections);
-        m_onChanged.Subscribe(connection, { &nonConstProperty.OnChanged }).MakeSafe(m_connections);
+        m_onChanged.ConnectFrom(connection, nonConstProperty.OnChanged).MakeSafe(m_connections);
         return *this;
     }
 
@@ -309,19 +309,19 @@ public:
         return *this;
     }
 
-    const StateCalculator& Connect(const char* connection, StateProperty& dispatcher) const
+    const StateCalculator& Connect(const char* connection, const StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
         m_onDirectOnChanged.ConnectFrom(connection, dispatcher.OnChanged).MakeSafe(m_connections);
-        m_dependenciesAreUpToDate.AddProperties(connection, { &dispatcher }).MakeSafe(m_connections);
+        m_dependenciesAreUpToDate.AddProperties(connection, { const_cast<StateProperty*>(&dispatcher) }).MakeSafe(m_connections);
         return *this;
     }
 
-    const StateCalculator& Connect(const char* connection, Dispatcher& onChanged) const
+    const StateCalculator& Connect(const char* connection, const Dispatcher& onChanged) const
     {
         THREAD_ASSERT_IS_MAIN();
         m_onDirectOnChanged.ConnectFrom(connection, onChanged).MakeSafe(m_connections);
-        m_onChanged.Subscribe(connection, {&onChanged}).MakeSafe(m_connections);
+        m_onChanged.ConnectFrom(connection, onChanged).MakeSafe(m_connections);
         return *this;
     }
 

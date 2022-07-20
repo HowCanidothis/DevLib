@@ -154,6 +154,15 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+template <typename FHandler, typename T, typename ... Args>
+void Combine(const FHandler& handler, T& first, Args&... rest) {
+    handler(first);
+
+    if constexpr (sizeof...(rest) > 0) {
+        Combine(handler, rest...);
+    }
+}
+
 template<class IteratorType, class Struct>
 inline void ForeachFieldOfStruct(const Struct& data, const std::function<void (const IteratorType&)>& handler) {
     auto size = sizeof(data);

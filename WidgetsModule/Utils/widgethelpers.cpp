@@ -585,7 +585,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Disp
                                      });
                                  }
                              });
-    collapsingData->Commutator.Subscribe(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
+    collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, *updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
 
@@ -768,18 +768,6 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
 
     m_widget->setProperty("a_palette", true);
     return *this;
-}
-
-DispatcherConnections WidgetWrapper::createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler,
-                                                const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets,
-                                                const FConnector& connector) const
-{
-    DispatcherConnections result;
-    result += property->ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers);
-    for(auto* widget : additionalWidgets) {
-        result += (this->*connector)(debugLocation, widget);
-    }
-    return result;
 }
 
 DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const

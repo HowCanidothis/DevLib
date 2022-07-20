@@ -28,9 +28,9 @@ struct GtTextDrawableSettings
         , Visible(true)
     {}
 
-    DispatcherConnections ConnectFrom(const char* location, const GtTextDrawableSettings& another)
+    DispatcherConnection ConnectFrom(const char* location, const GtTextDrawableSettings& another)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         result += Scale.ConnectFrom(location, another.Scale);
         result += Color.ConnectFrom(location, another.Color);
         result += BorderColor.ConnectFrom(location, another.BorderColor);

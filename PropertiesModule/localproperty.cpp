@@ -1,7 +1,7 @@
 #include "localproperty.h"
 
-DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
-    DispatcherConnections result;
+DispatcherConnection LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
+    DispatcherConnection result;
     auto sync = ::make_shared<std::atomic_bool>(false);
     auto eval1 = [debugLocation, evaluator1, sync]{
         if(!*sync) {
@@ -55,14 +55,14 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
+DispatcherConnection LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
 {
-    QVector<CommonDispatcher<>*> dispatchers;
+    DispatcherConnection result;
     for(auto* property : properties) {
-        dispatchers.append(&property->OnChanged);
+        result += m_commutator.ConnectFrom(connectionInfo, property->OnChanged);
     }
     m_properties += properties;
-    return m_commutator.Subscribe(connectionInfo, dispatchers);
+    return result;
 }
 
 LocalPropertyDate::LocalPropertyDate(const QDate& value, const QDate& min, const QDate& max)

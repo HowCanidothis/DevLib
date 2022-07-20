@@ -22,7 +22,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         }
     });
 
-    m_timeChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {&m_angle.OnChanged, &m_isOut.OnChanged});
+    m_timeChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_angle.OnChanged, m_isOut.OnChanged);
     m_timeChanged.ConnectAndCall(this, [this]{
         if(m_activeLabel.Native()) {
             m_activeLabel->setEnabled(false);
@@ -108,14 +108,14 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         }
     });
 
-    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {
-        &m_labelSize.OnChanged,
-        &m_arrowWidth.OnChanged,
-        &m_arrowColor.OnChanged,
-        &m_clockColor.OnChanged,
-        &CurrentTime.OnChanged,
-        &TypeClock.OnChanged,
-    });
+    OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION,
+        m_labelSize.OnChanged,
+        m_arrowWidth.OnChanged,
+        m_arrowColor.OnChanged,
+        m_clockColor.OnChanged,
+        CurrentTime.OnChanged,
+        TypeClock.OnChanged
+    );
     OnChanged.Connect(this, [this]{update();});
 }
 

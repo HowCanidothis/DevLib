@@ -99,7 +99,7 @@ public:
 
     QString FromBaseToUnitUi(const Name& measurementName, double value) const;
     
-    DispatcherConnections AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
+    DispatcherConnection AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
 
     static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }

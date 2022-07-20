@@ -162,13 +162,10 @@ public:
         m_errorTypes.insert(error, type);
     }
 
-    void AddDependencies(const QVector<Dispatcher*>& dispatchers)
+    template<typename... Dispatchers>
+    void AddDependencies(const Dispatcher& first, Dispatchers&... dispatchers)
     {
-        for(auto depend : dispatchers){
-            depend->Connect(this, [this]{
-                update();
-            }).MakeSafe(m_connection);
-        }
+        first.ConnectCombined([this]{ update(); }, dispatchers...);
     }
 
     void Initialize(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =

@@ -72,13 +72,13 @@ DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& err
     return pProperty->OnChanged.Connect(this, update);
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    DispatcherConnections result;
+    DispatcherConnection result;
     auto update = [this, validator, errorId, errorString, severity, visible]{
         if(!validator()) {
             AddError(errorId, errorString, severity, visible);
@@ -103,7 +103,7 @@ void LocalPropertyErrorsContainer::Clear()
     Super::Clear();
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
+DispatcherConnection LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
 {
     auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
     auto addError = [this, prefix](const LocalPropertyErrorsContainerValue& value){
@@ -112,7 +112,7 @@ DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefi
     auto removeError = [this, prefix](const LocalPropertyErrorsContainerValue& value) {
         RemoveError(Name(prefix + value.Id.AsString()));
     };
-    DispatcherConnections result;
+    DispatcherConnection result;
     result += pErrors->OnErrorAdded.Connect(this, addError);
     result += pErrors->OnErrorRemoved.Connect(this, removeError);
     for(const auto& error : errors) {
@@ -121,7 +121,7 @@ DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefi
     return result;
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
+DispatcherConnection LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
 {
     auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
     auto addError = [this, errorId](const LocalPropertyErrorsContainerValue& value){
@@ -134,7 +134,7 @@ DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name&
             RemoveError(errorId);
         }
     };
-    DispatcherConnections result;
+    DispatcherConnection result;
     result += pErrors->OnErrorAdded.Connect(this, addError);
     result += pErrors->OnErrorRemoved.Connect(this, removeError);
     auto foundIt = errors.Native().find(LocalPropertyErrorsContainerValue{ errorId });

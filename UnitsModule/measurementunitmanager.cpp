@@ -58,11 +58,11 @@ Measurement::Measurement(const FTranslationHandler& label)
         CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
     });
     
-    OnChanged.Subscribe(CONNECTION_DEBUG_LOCATION, {&Label.OnChanged,
-                           &CurrentUnitId.OnChanged,
-                           &CurrentUnitLabel.OnChanged,
-                           &CurrentPrecision.OnChanged,
-                           &CurrentStep.OnChanged});
+    OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, Label.OnChanged,
+                           CurrentUnitId.OnChanged,
+                           CurrentUnitLabel.OnChanged,
+                           CurrentPrecision.OnChanged,
+                           CurrentStep.OnChanged);
 }
 
 Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
@@ -464,13 +464,13 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
     return defaultResult;
 }
 
-DispatcherConnections MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
+DispatcherConnection MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
 {
     auto* measurement = GetMeasurement(measurementName).get();
-    DispatcherConnections result;
+    DispatcherConnection result;
     result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
         return [measurement](double value) { return measurement->BaseValueToCurrentUnit(value); };
-    }, { &measurement->OnChanged });
+    }, measurement->OnChanged);
     if(precision != nullptr) {
         result += precision->ConnectFrom(CONNECTION_DEBUG_LOCATION, measurement->CurrentPrecision);
     }

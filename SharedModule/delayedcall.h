@@ -78,9 +78,6 @@ private:
     static QHash<qint32, DelayedCallPtr>& cachedCalls();
 };
 
-template<class T, class T2> class LocalProperty;
-template<class T> struct LocalPropertyOptional;
-
 template<typename ... Args>
 class DelayedCallDispatchersCommutator : public CommonDispatcher<Args...>
 {
@@ -98,31 +95,6 @@ public:
             Super::Invoke(args...);
         });
     }
-
-    DispatcherConnections Subscribe(const char* connectionInfo, const QVector<Dispatcher*>& dispatchers)
-    {
-        DispatcherConnections result;
-        for(auto* dispatcher : dispatchers) {
-            result += Subscribe(connectionInfo, dispatcher); // Note. eternal subscribe
-        }
-        return result;
-    }
-
-    DispatcherConnection Subscribe(const char* connectionInfo, Dispatcher* dispatcher)
-    {
-        auto callOnChanged = [this, connectionInfo]{
-            Invoke();
-        };
-
-        return dispatcher->Connect(this, callOnChanged);
-    }
-
-#ifdef PROPERTIES_LIB
-    template<class T, class T2>
-    DispatcherConnection Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property);
-    template<class T>
-    DispatcherConnections Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property);
-#endif
 
     void InvokeDirect() const
     {

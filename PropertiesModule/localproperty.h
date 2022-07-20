@@ -31,7 +31,7 @@ struct LocalPropertyDescInitializationParams
 using LocalPropertyDoubleParams = LocalPropertyDescInitializationParams<double>;
 using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
-DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2);
+DispatcherConnection LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2);
 
 template<class T, class StorageType = T>
 class LocalProperty
@@ -149,17 +149,19 @@ public:
         });
     }
 
-    DispatcherConnection Connect(const std::function<void (const T&)>& handler)
+    template<typename ... Dispatchers>
+    DispatcherConnection Connect(const std::function<void (const T&)>& handler, Dispatchers&... dispatchers)
     {
-        return OnChanged.Connect(this, [handler, this]{ handler(*this); });
+        return OnChanged.ConnectCombined([handler, this]{ handler(*this); }, dispatchers...);
     }
 
-    DispatcherConnection ConnectAndCall(const std::function<void (const T&)>& handler)
+    template<typename ... Dispatchers>
+    DispatcherConnection ConnectAndCall(const std::function<void (const T&)>& handler, Dispatchers&... dispatchers)
     {
-        return OnChanged.ConnectAndCall(this, [handler, this]{ handler(*this); });
+        return OnChanged.ConnectAndCallCombined([handler, this]{ handler(*this); }, dispatchers...);
     }
 
-    DispatcherConnections ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalProperty<bool>& condition)
+    DispatcherConnection ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalProperty<bool>& condition)
     {
         return ConnectFrom(connectionInfo, condition, [this, expectedValue, resetTo](bool ok){
             if(Native() == expectedValue && !ok) {
@@ -169,32 +171,28 @@ public:
         });
     }
 
-    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& thisEvaluator, const QVector<Dispatcher*>& dispatchers = {})
+    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
+    DispatcherConnection ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& thisEvaluator, Dispatchers&... dispatchers)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         auto& nonConst = const_cast<LocalProperty<T2>&>(another);
         *this = thisEvaluator(nonConst.Native());
         auto onChange = [this, thisEvaluator, &another, locationInfo]{
             *this = thisEvaluator(another.Native());
         };
-        for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(this, onChange);
-        }
-        result += nonConst.OnChanged.Connect(this, onChange);
+        result += nonConst.OnChanged.ConnectCombined(onChange, dispatchers...);
         return result;
     }
 
-    DispatcherConnections ConnectFrom(const char* locationInfo, const std::function<T ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
+    template<typename... Args, typename... Dispatchers>
+    DispatcherConnection ConnectFrom(const char* locationInfo, const std::function<T ()>& thisEvaluator, const CommonDispatcher<Args...>& first, Dispatchers&... dispatchers)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         *this = thisEvaluator();
         auto onChange = [this, thisEvaluator, locationInfo]{
             *this = thisEvaluator();
         };
-        for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(this, onChange);
-        }
+        first.ConnectCombined(onChange, dispatchers...);
         return result;
     }
 
@@ -216,10 +214,10 @@ public:
         });
     }
 
-    template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>>
-    DispatcherConnections ConnectBoth(const char* locationInfo, Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, const QVector<Dispatcher*>& dispatchers = {})
+    template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
+    DispatcherConnection ConnectBoth(const char* locationInfo, Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, Dispatchers&... dispatchers)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         another = anotherEvaluator(Native());
         auto sync = ::make_shared<std::atomic_bool>(false);
         result += another.OnChanged.Connect(this, [this, thisEvaluator, &another, sync, locationInfo]{
@@ -229,22 +227,13 @@ public:
                 *sync = false;
             }
         });
-        result += OnChanged.Connect(this, [this, anotherEvaluator, &another, sync, locationInfo]{
+        result += OnChanged.ConnectCombined([this, anotherEvaluator, &another, sync, locationInfo]{
             if(!*sync) {
                 *sync = true;
                 another = anotherEvaluator(*this);
                 *sync = false;
             }
-        });
-        for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(this, [this, anotherEvaluator, &another, sync, locationInfo]{
-                if(!*sync) {
-                    *sync = true;
-                    another = anotherEvaluator(*this);
-                    *sync = false;
-                }
-            });
-        }
+        }, dispatchers...);
         return result;
     }
 
@@ -257,9 +246,9 @@ public:
         m_value = another.m_value;
     }
 
-    DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
+    DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
     {
-        DispatcherConnections connections;
+        DispatcherConnection connections;
         connections += OnChanged.Connect(locationInfo, action);
         return connections;
     }
@@ -526,7 +515,7 @@ public:
 
     void ClearProperties();
     void Update();
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnection AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
@@ -708,9 +697,9 @@ class LocalPropertyDateTimeRange
 {
 public:
     template<class DateOrTimeProperty>
-    static DispatcherConnections Bind(DateOrTimeProperty* start, DateOrTimeProperty* end)
+    static DispatcherConnection Bind(DateOrTimeProperty* start, DateOrTimeProperty* end)
     {
-        DispatcherConnections result;
+        DispatcherConnection result;
         auto updateMinMax = [start, end]{
             end->SetMinMax(*start, end->GetMax());
             start->SetMinMax(start->GetMin(), *end);
@@ -868,17 +857,17 @@ struct LocalPropertyOptional
         IsValid.EditSilent() = another.IsValid.Native();
     }
 
-    DispatcherConnections OnChangedImpl(const char* locationInfo, const FAction& action)
+    DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
     {
-        DispatcherConnections connections;
+        DispatcherConnection connections;
         connections += Value.OnChanged.Connect(locationInfo, action);
         connections += IsValid.OnChanged.Connect(locationInfo, action);
         return connections;
     }
 
-    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
+    DispatcherConnection ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
     {
-        DispatcherConnections connections;
+        DispatcherConnection connections;
         connections += Value.ConnectFrom(locationInfo, another.Value);
         connections += IsValid.ConnectFrom(locationInfo, another.IsValid);
         return connections;
@@ -1200,18 +1189,6 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     auto* pProperty = property.get();
     connectProperty(pProperty, localProperty);
     return property;
-}
-
-template<typename ... Args> template<class T, class T2>
-inline DispatcherConnection DelayedCallDispatchersCommutator<Args...>::Subscribe(const char* connectionInfo, LocalProperty<T, T2>& property)
-{
-    return Subscribe(connectionInfo, &property.OnChanged);
-}
-
-template<typename ... Args> template<class T>
-inline DispatcherConnections DelayedCallDispatchersCommutator<Args...>::Subscribe(const char* connectionInfo, LocalPropertyOptional<T>& property)
-{
-    return Subscribe(connectionInfo, { &property.Value.OnChanged, &property.IsValid.OnChanged });
 }
 
 #endif // LOCALPROPERTY_H
