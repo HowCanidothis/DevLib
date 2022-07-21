@@ -226,8 +226,13 @@ public:
         return DispatcherConnection([this, id, locationInfo]{
             FCommonDispatcherAction subscribe;
             QMutexLocker locker(&m_mutex);
-            m_connectionSubscribes.remove(id);
-            m_safeConnections.remove(id);
+
+            auto foundIt = m_connectionSubscribes.find(id);
+            if(foundIt != m_connectionSubscribes.end()) {
+                subscribe = foundIt.value();
+                m_safeConnections.remove(id);
+                m_connectionSubscribes.remove(id);
+            }
         }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
             QMutexLocker lock(&m_mutex);
             m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));

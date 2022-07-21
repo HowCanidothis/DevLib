@@ -34,7 +34,9 @@ DispatcherConnection::DispatcherConnection()
 
 void DispatcherConnection::Disconnect() const
 {
-    m_disconnector();
+    if(m_disconnector != nullptr) {
+        m_disconnector();
+    }
 }
 
 void DispatcherConnections::Disconnect()
