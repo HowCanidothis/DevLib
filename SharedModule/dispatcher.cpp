@@ -37,20 +37,36 @@ void DispatcherConnection::Disconnect() const
     m_disconnector();
 }
 
-DispatcherConnection& DispatcherConnection::operator+=(const DispatcherConnection& another)
+void DispatcherConnections::Disconnect()
 {
-    auto disconnector = m_disconnector;
-    auto anotherDisconnector = another.m_disconnector;
-    m_disconnector = [disconnector, anotherDisconnector]{
-        disconnector();
-        anotherDisconnector();
-    };
-    return *this;
+    for(const auto& connection : *this)
+    {
+        connection.Disconnect();
+    }
+    clear();
 }
 
 DispatcherConnectionSafePtr DispatcherConnection::MakeSafe()
 {
+    Q_ASSERT(m_registrator != nullptr);
     auto result = ::make_shared<DispatcherConnectionSafe>(m_disconnector);
     m_registrator(result);
+    m_registrator = nullptr;
+    return result;
+}
+
+void DispatcherConnections::MakeSafe(DispatcherConnectionsSafe& safeConnections)
+{
+    for(auto& connection : *this) {
+        connection.MakeSafe(safeConnections);
+    }
+}
+
+DispatcherConnectionsSafe DispatcherConnections::MakeSafe()
+{
+    DispatcherConnectionsSafe result;
+    for(auto& connection : *this) {
+        connection.MakeSafe(result);
+    }
     return result;
 }

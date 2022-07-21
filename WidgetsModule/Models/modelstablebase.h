@@ -722,7 +722,7 @@ public:
             }
         };
 
-        m_wrapper->OnColumnsChanged.Connect(const_cast<ModelsTableSearchComponent*>(this), invalidate).MakeSafe(m_connections);
+        m_wrapper->OnColumnsChanged.Connect(CONNECTION_DEBUG_LOCATION, invalidate).MakeSafe(m_connections);
     }
 
     QList<const value_type&> Select(const std::function<bool(const value_type&)>& where)
@@ -767,7 +767,7 @@ public:
     template<qint32 Column>
     DispatcherConnection Bind(const FAction& action) const
     {
-        return m_sortedColumns[Column].ColumnListener.Connect(const_cast<ModelsTableSearchComponent*>(this), action);
+        return m_sortedColumns[Column].ColumnListener.Connect(CONNECTION_DEBUG_LOCATION, action);
     }
 
     template<class T, qint32 Column>

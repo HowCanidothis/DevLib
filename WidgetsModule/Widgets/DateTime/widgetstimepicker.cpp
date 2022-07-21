@@ -23,7 +23,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
     });
 
     m_timeChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_angle.OnChanged, m_isOut.OnChanged);
-    m_timeChanged.ConnectAndCall(this, [this]{
+    m_timeChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_activeLabel.Native()) {
             m_activeLabel->setEnabled(false);
         }
@@ -116,7 +116,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         CurrentTime.OnChanged,
         TypeClock.OnChanged
     );
-    OnChanged.Connect(this, [this]{update();});
+    OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{update();});
 }
 
 void WidgetsTimePicker::drawTimeLine(QPainter* painter) const

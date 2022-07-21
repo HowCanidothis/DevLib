@@ -63,7 +63,7 @@ void WidgetsDateTimeEdit::init()
 
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
-    CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
+    CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_recursionBlock) {
             return;
         }
@@ -122,7 +122,7 @@ void WidgetsDateTimeEdit::init()
 void WidgetsDateTimeEdit::connectLocale()
 {
     m_connections.clear();
-    Locale.OnChanged.ConnectAndCall(this, [this]{
+    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
         const auto& locale = Locale.Native();
         if(locale.language() == QLocale::English){
             DisplayFormat = "MM/dd/yy hh:mm AP";
@@ -147,11 +147,11 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
         return dateTime.date();
     });
 
-    CurrentDateTime.OnMinMaxChanged.Connect(this, [this]{
+    CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         CurrentDate.SetMinMax(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
     });
 
-    CurrentDate.OnMinMaxChanged.Connect(this, [this]{
+    CurrentDate.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         CurrentDateTime.SetMinMax(CurrentDate.GetMin().isValid() ? QDateTime(CurrentDate.GetMin(), QTime(0,0)) : QDateTime(),
                                   CurrentDate.GetMax().isValid() ? QDateTime(CurrentDate.GetMax(), QTime(0,0)) : QDateTime());
     });
@@ -159,7 +159,7 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
 
 void WidgetsDateEdit::connectLocale()
 {
-    Locale.OnChanged.ConnectAndCall(this, [this]{
+    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
         const auto& locale = Locale.Native();
         if(locale.language() == QLocale::English){
             DisplayFormat = "MM/dd/yyyy";

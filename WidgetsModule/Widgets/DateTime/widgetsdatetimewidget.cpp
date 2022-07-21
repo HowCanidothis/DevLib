@@ -41,7 +41,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     };
 
     CurrentDateTime.SetAndSubscribe(updateTimeRangeHandler);
-    CurrentDateTime.OnMinMaxChanged.Connect(this, [updateTimeRangeHandler]{
+    CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [updateTimeRangeHandler]{
         updateTimeRangeHandler();
 	});
 	
@@ -58,7 +58,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         OnApplyActivate();
 	});
 
-    Locale.OnChanged.ConnectAndCall(this, [this]{
+    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
         ui->calendarWidget->setLocale(Locale);
         ui->widget->Locale = Locale.Native();
     });
@@ -79,11 +79,11 @@ void WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, b
                                   [](const QDateTime& time){ return time; }).MakeSafe(m_connections);
     } else {
         CurrentDateTime = modelProperty->Native();
-        OnApplyActivate.Connect(this, [modelProperty, this]{
+        OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
             *modelProperty = CurrentDateTime.Native();
         });
     }
-    modelProperty->OnMinMaxChanged.Connect(this, [this, modelProperty]{
+    modelProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     }).MakeSafe(m_connections);
     CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());

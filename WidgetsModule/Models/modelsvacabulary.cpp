@@ -22,7 +22,7 @@ ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
     }
     for(const auto& measurementName : measurements) {
         const auto& measurement = MeasurementManager::GetInstance().GetMeasurement(measurementName);
-        measurement->OnChanged.Connect(this, [this]{ UpdateUi([]{}); }).MakeSafe(m_connections);
+        measurement->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{ UpdateUi([]{}); }).MakeSafe(m_connections);
     }
 
 #endif

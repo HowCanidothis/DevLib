@@ -145,7 +145,7 @@ void WidgetsImportView::Initialize(const QList<QString>& data, QAbstractItemMode
 {
 	auto* model = GetModel();
     model->SetData(data, SEPARATORS[GroupSeparator]);
-    GroupSeparator.OnChanged.Connect(this, [this, model, data]{ model->SetData(data, SEPARATORS[GroupSeparator]); }).MakeSafe(m_connections);
+    GroupSeparator.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, model, data]{ model->SetData(data, SEPARATORS[GroupSeparator]); }).MakeSafe(m_connections);
     initializeMatching(targetModel, targetImportColumns);
 }
 
@@ -166,7 +166,7 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
     m_matchingAttachment->IsEnabled = true;
     m_matchingAttachment->IsVisible = true;
 
-    m_matchingAttachment->TransitionState.OnChanged.Connect(this, [this]{
+    m_matchingAttachment->TransitionState.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_matchingAttachment->TransitionState) {
             OnTransitionStarted();
         } else {

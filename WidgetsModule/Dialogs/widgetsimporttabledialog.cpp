@@ -8,11 +8,11 @@ WidgetsImportTableDialog::WidgetsImportTableDialog(QWidget *parent)
     , ui(new Ui::WidgetsImportTableDialog)
 {
     ui->setupUi(this);
-    ui->ImportView->OnTransitionStarted.Connect(this, [this]{
+    ui->ImportView->OnTransitionStarted.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         ui->BtnInsert->setEnabled(false);
         ui->BtnReplace->setEnabled(false);
     });
-    ui->ImportView->OnTransited.Connect(this, [this]{
+    ui->ImportView->OnTransited.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         ui->BtnInsert->setEnabled(true);
         ui->BtnReplace->setEnabled(true);
     });

@@ -99,7 +99,7 @@ public:
 
     QString FromBaseToUnitUi(const Name& measurementName, double value) const;
     
-    DispatcherConnection AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
+    DispatcherConnections AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
 
     static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }
@@ -200,7 +200,7 @@ protected:
     &MeasurementManager::GetInstance().GetMeasurement(system)->OnChanged
 	
 #define ATTACH_MEASUREMENT(system, delegate, min, max) \
-    delegate->OnEditorAboutToBeShown.Connect(nullptr, [](QDoubleSpinBox* sp, const QModelIndex&){\
+    delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](QDoubleSpinBox* sp, const QModelIndex&){\
         MeasurementDoubleSpinBoxWrapper wrapper(system, sp);\
         wrapper.SetRange(min, max);\
     });

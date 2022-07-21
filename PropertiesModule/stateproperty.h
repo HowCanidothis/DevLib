@@ -11,10 +11,10 @@ public:
 
     void SetState(bool state);
 
-    DispatcherConnection ConnectFromStateProperty(const char* location, const StateProperty& property);
-    DispatcherConnection ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
-    static DispatcherConnection PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
-    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
+    DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
+    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
+    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
 };
 
 class StatePropertyBoolCommutator : public StateProperty
@@ -28,9 +28,9 @@ public:
     void ClearProperties();
     void Update();
 
-    DispatcherConnection AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
-    DispatcherConnection AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
-    DispatcherConnection AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
+    DispatcherConnections AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnections AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
+    DispatcherConnections AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
 
     QString ToString() const;
 
@@ -73,7 +73,7 @@ public:
         : InputValue(args...)
         , m_parameters(params)
     {
-        params->IsLocked.OnChanged.Connect(this, [locker, unlocker, params]{
+        params->IsLocked.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [locker, unlocker, params]{
             if(!params->IsLocked) {
                 unlocker();
             } else {
@@ -148,7 +148,7 @@ public:
         })
         , m_modelIsValid(false)
     {
-        Super::InputValue.OnChanged.Connect(this, [this, params]{
+        Super::InputValue.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, params]{
             m_modelConnections.clear();
             if(Super::InputValue != nullptr) {
                 m_modelIsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue->IsValid).MakeSafe(m_modelConnections);
@@ -573,7 +573,7 @@ private:
             connections->clear();
             updatedResult.Resolve(true);
         });
-        onDeleted->Connect(nullptr, [connections, updatedResult]{
+        onDeleted->Connect(CONNECTION_DEBUG_LOCATION, [connections, updatedResult]{
             connections->clear();
             updatedResult.Resolve(false);
         }).MakeSafe(*connections);

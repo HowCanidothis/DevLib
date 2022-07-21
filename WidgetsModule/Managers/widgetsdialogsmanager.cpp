@@ -254,11 +254,11 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
         });
     };
 
-    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.OnChanged.Connect(nullptr, [shadow, qtBugFix]{
+    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [shadow, qtBugFix]{
         shadow->setBlurRadius(WidgetsDialogsManager::GetInstance().ShadowBlurRadius);
         qtBugFix();
     }).MakeSafe(connections);
-    WidgetsDialogsManager::GetInstance().ShadowColor.OnChanged.Connect(nullptr, [shadow, qtBugFix]{
+    WidgetsDialogsManager::GetInstance().ShadowColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [shadow, qtBugFix]{
         shadow->setColor(WidgetsDialogsManager::GetInstance().ShadowColor);
         qtBugFix();
     }).MakeSafe(connections);

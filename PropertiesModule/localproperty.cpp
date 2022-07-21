@@ -1,7 +1,7 @@
 #include "localproperty.h"
 
-DispatcherConnection LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
-    DispatcherConnection result;
+DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2){
+    DispatcherConnections result;
     auto sync = ::make_shared<std::atomic_bool>(false);
     auto eval1 = [debugLocation, evaluator1, sync]{
         if(!*sync) {
@@ -18,10 +18,10 @@ DispatcherConnection LocalPropertiesConnectBoth(const char* debugLocation, const
         }
     };
     for(auto* dispatcher : dispatchers1) {
-        result += dispatcher->Connect(nullptr, eval1);
+        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, eval1);
     }
     for(auto* dispatcher : dispatchers2) {
-        result += dispatcher->Connect(nullptr, eval2);
+        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, eval2);
     }
     eval1();
     return result;
@@ -55,9 +55,9 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnection LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
+DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
 {
-    DispatcherConnection result;
+    DispatcherConnections result;
     for(auto* property : properties) {
         result += m_commutator.ConnectFrom(connectionInfo, property->OnChanged);
     }

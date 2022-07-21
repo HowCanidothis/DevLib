@@ -50,7 +50,7 @@ public:
     template<class Property>
     DispatcherConnection CreatePropertyConnection(LocalPropertyOptional<Property>* property, const Name& name, ModelsVocabularyRequest* indexDispatcher)
     {
-        return indexDispatcher->Connect(this, [this, name, property](qint32 index){
+        return indexDispatcher->Connect(CONNECTION_DEBUG_LOCATION, [this, name, property](qint32 index){
             if(!IsValidRow(index)) {
                 return;
             }
@@ -61,7 +61,7 @@ public:
     template<class Property>
     DispatcherConnection CreatePropertyConnection(Property* property, const Name& name, ModelsVocabularyRequest* indexDispatcher)
     {
-        return indexDispatcher->Connect(this, [this, name, property](qint32 index){
+        return indexDispatcher->Connect(CONNECTION_DEBUG_LOCATION, [this, name, property](qint32 index){
             if(!IsValidRow(index)) {
                 return;
             }

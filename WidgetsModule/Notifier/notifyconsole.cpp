@@ -261,7 +261,7 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         }
     });
 
-    m_updateErrors.Connect(this, [this]{
+    m_updateErrors.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Data->UpdateUi([]{});
     });
 
@@ -342,12 +342,12 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
 
         auto* pConsoleData = consoleData.get();
         auto* pError = error.Error.get();
-        error.Error->OnChanged.Connect(this, [this, pError, pConsoleData]{
+        error.Error->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, pError, pConsoleData]{
             pConsoleData->Data->Body = pError->Native();
             m_updateErrors();
         }).MakeSafe(pConsoleData->ErrorHandler->Connections);
         if(pConsoleData->Data->Visible != nullptr){
-            pConsoleData->Data->Visible->OnChanged.Connect(this, []{
+            pConsoleData->Data->Visible->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, []{
                 //update check role;
 //                Edit
             }).MakeSafe(pConsoleData->ErrorHandler->Connections);
@@ -364,8 +364,8 @@ void NotifyConsole::AttachErrorsContainer(LocalPropertyErrorsContainer* containe
         addError(error);
     }
 
-    container->OnErrorAdded.Connect(this, addError).MakeSafe(m_permanentErrors[container]);
-    container->OnErrorRemoved.Connect(this, removeError).MakeSafe(m_permanentErrors[container]);
+    container->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError).MakeSafe(m_permanentErrors[container]);
+    container->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError).MakeSafe(m_permanentErrors[container]);
 }
 
 void NotifyConsole::erasePermanentErrors()

@@ -5,17 +5,17 @@ void StateProperty::SetState(bool state)
     Super::SetValue(state);
 }
 
-DispatcherConnection StateProperty::ConnectFromStateProperty(const char* location, const StateProperty& property)
+DispatcherConnections StateProperty::ConnectFromStateProperty(const char* location, const StateProperty& property)
 {
     return Super::ConnectFrom(location, property, [this](bool valid) { return valid ? Super::m_value : valid; });
 }
 
-DispatcherConnection StateProperty::ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
+DispatcherConnections StateProperty::ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
 {
     auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
-    DispatcherConnection result;
+    DispatcherConnections result;
     for(auto* dispatcher : dispatchers) {
-        result += dispatcher->Connect(this, [this, delayedCall]{
+        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, [this, delayedCall]{
             SetState(false);
             delayedCall->Call(CONNECTION_DEBUG_LOCATION, [this]{
                 SetState(true);
@@ -25,12 +25,12 @@ DispatcherConnection StateProperty::ConnectFromDispatchers(const QVector<Dispatc
     return result;
 }
 
-DispatcherConnection StateProperty::PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once)
+DispatcherConnections StateProperty::PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once)
 {
     auto commutator = ::make_shared<LocalPropertyBoolCommutator>(true, delayMsecs);
-    auto connections = ::make_shared<DispatcherConnection>(commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties));
+    auto connections = ::make_shared<DispatcherConnections>(commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties));
     commutator->Update();
-    *connections += commutator->OnChanged.ConnectAndCall(nullptr, [connections, handler, commutator, once]{
+    *connections += commutator->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [connections, handler, commutator, once]{
         if(*commutator) {
             handler();
             if(once) {
@@ -43,7 +43,7 @@ DispatcherConnection StateProperty::PerformWhenEveryIsValid(const QVector<LocalP
     return *connections;
 }
 
-DispatcherConnection StateProperty::OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler)
+DispatcherConnections StateProperty::OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler)
 {
     return PerformWhenEveryIsValid(stateProperties, handler, 0, true);
 }
@@ -74,7 +74,7 @@ void StatePropertyBoolCommutator::Update()
     m_commutator.Invoke();
 }
 
-DispatcherConnection StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties)
+DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties)
 {
     auto handler = [properties, this] {
         for(auto* property : properties) {
@@ -92,14 +92,14 @@ DispatcherConnection StatePropertyBoolCommutator::AddProperties(const char* loca
     return AddHandler(location, handler, dispatchers);
 }
 
-DispatcherConnection StatePropertyBoolCommutator::AddProperty(const char* location, LocalProperty<bool>* property, bool inverted)
+DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalProperty<bool>* property, bool inverted)
 {
     return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, { &property->OnChanged });
 }
 
-DispatcherConnection StatePropertyBoolCommutator::AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
+DispatcherConnections StatePropertyBoolCommutator::AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
 {
-    DispatcherConnection result;
+    DispatcherConnections result;
     for(auto* dispatcher : dispatchers) {
         result += m_commutator.ConnectFrom(location, *dispatcher);
     }

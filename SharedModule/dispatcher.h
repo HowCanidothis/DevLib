@@ -57,7 +57,6 @@ public:
     DispatcherConnection();
 
     void Disconnect() const;
-    DispatcherConnection& operator+=(const DispatcherConnection& another);
 
     DispatcherConnectionSafePtr MakeSafe();
 
@@ -71,6 +70,28 @@ public:
     }
 };
 
+class DispatcherConnections : public QVector<DispatcherConnection>
+{
+    using Super = QVector<DispatcherConnection>;
+public:
+    using Super::Super;
+
+    void Disconnect();
+
+    void MakeSafe(DispatcherConnectionsSafe& safeConnections);
+
+    template<typename ... SafeConnections>
+    void MakeSafe(SafeConnections&... connections)
+    {
+        DispatcherConnectionsSafe safeConnections = MakeSafe();
+        adapters::Combine([&](DispatcherConnectionsSafe& connections){
+            connections += safeConnections;
+        }, connections...);
+    }
+
+    DispatcherConnectionsSafe MakeSafe();
+};
+
 template<class T, class T2> class LocalProperty;
 template<class T> struct LocalPropertyOptional;
 
@@ -82,18 +103,18 @@ public:
     using Observer = const void*;
     using FCommonDispatcherAction = std::function<Type>;
     using FCommonDispatcherActionWithResult = std::function<bool (Args...)>;
-
-    struct ConnectionSubscribe
-    {
-        QHash<qint32, FCommonDispatcherAction> Subscribes;
-        qint32 LastId = 0;
-    };
+    using ConnectionSubscribe = FCommonDispatcherAction;
 
     struct ActionHandler
     {
         Observer Key;
         FCommonDispatcherAction Handler;
     };
+
+    CommonDispatcher()
+        : m_lastId(0)
+    {
+    }
 
     virtual ~CommonDispatcher()
     {
@@ -120,16 +141,14 @@ public:
         {
             subscribe(args...);
         }
-        QHash<Observer, ConnectionSubscribe> connectionSubscribesCopy;
+        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
         {
             QMutexLocker locker(&m_mutex);
             connectionSubscribesCopy = m_connectionSubscribes;
         }
         for(const auto& connections : connectionSubscribesCopy)
         {
-            for(const auto& subscribe : connections.Subscribes) {
-                subscribe(args...);
-            }
+            connections(args...);
         }
     }
 
@@ -140,22 +159,23 @@ public:
 
     DispatcherConnection ConnectFromWithParameters(const char* connectionInfo, CommonDispatcher& another) const
     {
-        return another.Connect(this, [this, connectionInfo](Args... args){
+        return another.Connect(connectionInfo, [this, connectionInfo](Args... args){
             Invoke(args...);
         });
     }
 
-    DispatcherConnection ConnectBoth(const char* connectionDescription, CommonDispatcher& another) const
+    DispatcherConnections ConnectBoth(const char* connectionDescription, CommonDispatcher& another) const
     {
+        DispatcherConnections result;
         auto sync = ::make_shared<std::atomic_bool>(false);
-        auto result = another.Connect(this, [this, sync, connectionDescription](Args... args){
+        result += another.Connect(connectionDescription, [this, sync, connectionDescription](Args... args){
             if(!*sync) {
                 *sync = true;
                 Invoke(args...);
                 *sync = false;
             }
         });
-        result += Connect(this, [this, &another, sync, connectionDescription](Args... args){
+        result += Connect(connectionDescription, [this, &another, sync, connectionDescription](Args... args){
             if(!*sync) {
                 *sync = true;
                 another.Invoke(args...);
@@ -167,23 +187,23 @@ public:
 
     DispatcherConnection ConnectAction(const char* connectionInfo, const FAction& handler) const
     {
-        return Connect(this, [handler, connectionInfo](Args...) { handler(); });
+        return Connect(connectionInfo, [handler, connectionInfo](Args...) { handler(); });
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnection ConnectCombined(const FAction& handler, Dispatchers&... args) const
+    DispatcherConnections ConnectCombined(const char* connectionInfo, const FAction& handler, Dispatchers&... args) const
     {
-        DispatcherConnection result;
-        adapters::Combine([this, &result, handler](const auto& target){
-            result += target.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
+        DispatcherConnections result;
+        adapters::Combine([this, &result, handler, connectionInfo](const auto& target){
+            result += target.ConnectAction(connectionInfo, handler);
         }, *this, args...);
         return result;
     }
 
     template<typename Disp, typename ... Dispatchers>
-    DispatcherConnection ConnectFrom(const char* locationInfo, const Disp& another, Dispatchers&... args) const
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Disp& another, Dispatchers&... args) const
     {
-        DispatcherConnection result;
+        DispatcherConnections result;
         adapters::Combine([this, &result, locationInfo](const auto& target){
             result += target.ConnectAction(locationInfo, [this, locationInfo]{ Invoke(); });
         }, another, args...);
@@ -191,52 +211,34 @@ public:
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnection ConnectAndCallCombined(const FAction& handler, Dispatchers&... args) const
+    DispatcherConnections ConnectAndCallCombined(const char* connectionInfo, const FAction& handler, Dispatchers&... args) const
     {
-        auto ret = ConnectCombined(handler, args...);
+        auto ret = ConnectCombined(connectionInfo, handler, args...);
         handler();
         return ret;
     }
 
-    DispatcherConnection Connect(Observer key, const FCommonDispatcherAction& handler) const
+    DispatcherConnection Connect(const char* locationInfo, const FCommonDispatcherAction& handler) const
     {
         QMutexLocker lock(&m_mutex);
-        auto foundIt = m_connectionSubscribes.find(key);
-        if(foundIt == m_connectionSubscribes.end()) {
-            foundIt = m_connectionSubscribes.insert(key, ConnectionSubscribe());
-        }
-        ConnectionSubscribe& connectionSubscribe = foundIt.value();
-        connectionSubscribe.Subscribes.insert(connectionSubscribe.LastId++, handler);
-        qint32 id = connectionSubscribe.LastId - 1;
-        return DispatcherConnection([this, key, id]{
+        auto id = m_lastId++;
+        m_connectionSubscribes.insert(id, handler);
+        return DispatcherConnection([this, id, locationInfo]{
             FCommonDispatcherAction subscribe;
             QMutexLocker locker(&m_mutex);
-            auto foundIt = m_connectionSubscribes.find(key);
-            if(foundIt != m_connectionSubscribes.end()) {
-                auto& subscribes = foundIt.value().Subscribes;
-                auto subscribeIt = subscribes.find(id);
-                if(subscribeIt != subscribes.end()) {
-                    subscribe = *subscribeIt;
-                    subscribes.remove(id);
-                }
-            }
+            m_connectionSubscribes.remove(id);
             m_safeConnections.remove(id);
-        }, [this, id](const DispatcherConnectionSafePtr& connection){
+        }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
             QMutexLocker lock(&m_mutex);
             m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
         });
     }
 
-    DispatcherConnection ConnectAndCall(Observer, const FAction& handler) const
+    DispatcherConnection ConnectAndCall(const char* connectionInfo, const FAction& handler) const
     {
-        auto result = ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
+        auto result = ConnectAction(connectionInfo, handler);
         handler();
         return result;
-    }
-
-    void Disconnect(const DispatcherConnection& connection) const
-    {
-        connection.Disconnect();
     }
 
     const CommonDispatcher& operator+=(const ActionHandler& subscribeHandler) const
@@ -247,34 +249,26 @@ public:
         return *this;
     }
 
-    void operator-=(Observer observer) const
+    const CommonDispatcher& operator-=(Observer key) const
     {
         FCommonDispatcherAction action;
-        ConnectionSubscribe connection;
         {
             QMutexLocker lock(&m_mutex);
             {
-                auto foundIt = m_subscribes.find(observer);
+                auto foundIt = m_subscribes.find(key);
                 if(foundIt != m_subscribes.end()) {
                     action = foundIt.value();
                     m_subscribes.erase(foundIt);
                 }
             }
-            {
-                auto foundIt = m_connectionSubscribes.find(observer);
-                if(foundIt != m_connectionSubscribes.end()) {
-                    connection = foundIt.value();
-                    m_connectionSubscribes.erase(foundIt);
-                }
-            }
-            m_connectionSubscribes.remove(observer);
         }
+        return *this;
     }
 
     SharedPointer<DispatcherConnectionsSafe> OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
-        Connect(this, [action, connections](Args... args){
+        Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
             action(args...);
             connections->clear();
         }).MakeSafe(*connections);
@@ -284,9 +278,10 @@ public:
 private:
     friend class Connection;
     mutable QHash<qint32, std::weak_ptr<DispatcherConnectionSafe>> m_safeConnections;
-    mutable QHash<Observer, ConnectionSubscribe> m_connectionSubscribes;
+    mutable QMap<qint32, FCommonDispatcherAction> m_connectionSubscribes;
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable QMutex m_mutex;
+    mutable qint32 m_lastId;
 };
 
 using Dispatcher = CommonDispatcher<>;

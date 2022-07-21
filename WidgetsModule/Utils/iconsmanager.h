@@ -33,35 +33,9 @@ struct IconsPalette
         return *this;
     }
 
-    DispatcherConnection ConnectFrom(const char* location, IconsPalette& another)
-    {
-        DispatcherConnection result;
-        result += NormalColor.ConnectFrom(location, another.NormalColor);
-        result += DisabledColor.ConnectFrom(location, another.DisabledColor);
-        result += ActiveColor.ConnectFrom(location, another.ActiveColor);
-        result += SelectedColor.ConnectFrom(location, another.SelectedColor);
-        return result;
-    }
-
-    DispatcherConnection ConnectFrom(const char* location, const LocalPropertyColor& color)
-    {
-        DispatcherConnection result;
-        result += NormalColor.ConnectFrom(location, color);
-        result += DisabledColor.ConnectFrom(location, color);
-        result += ActiveColor.ConnectFrom(location, color);
-        result += SelectedColor.ConnectFrom(location, color);
-        return result;
-    }
-
-    DispatcherConnection ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked)
-    {
-        DispatcherConnection result;
-        result += NormalColor.ConnectFrom(location, color);
-        result += DisabledColor.ConnectFrom(location, color);
-        result += ActiveColor.ConnectFrom(location, color);
-        result += SelectedColor.ConnectFrom(location, checked);
-        return result;
-    }
+    DispatcherConnections ConnectFrom(const char* location, IconsPalette& another);
+    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color);
+    DispatcherConnections ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked);
 };
 
 class IconsSvgIcon : public QIcon

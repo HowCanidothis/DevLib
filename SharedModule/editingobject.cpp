@@ -12,19 +12,19 @@ void EditingObject::SetParent(EditingObject* parent)
 {
     m_parentConnections.clear();
 
-    parent->OnEnteredEditingMode.Connect(this, [this]{
+    parent->OnEnteredEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         OnEnteredEditingMode();
     }).MakeSafe(m_parentConnections);
 
-    parent->OnLeavedEditingMode.Connect(this, [this]{
+    parent->OnLeavedEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         OnLeavedEditingMode();
     }).MakeSafe(m_parentConnections);
 
-    parent->OnAboutToBeSaved.Connect(this, [this]{
+    parent->OnAboutToBeSaved.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Save();
     }).MakeSafe(m_parentConnections);
 
-    parent->OnAboutToBeDiscarded.Connect(this, [this]{
+    parent->OnAboutToBeDiscarded.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Discard();
     }).MakeSafe(m_parentConnections);
 }

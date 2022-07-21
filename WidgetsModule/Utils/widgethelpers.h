@@ -47,7 +47,7 @@ public:
         return Injected<WidgetWrapperInjectedCommutatorData>(propertyName, [&]() -> WidgetWrapperInjectedCommutatorData* {
             auto* result = new WidgetWrapperInjectedCommutatorData();
             auto* widget = m_object;
-            result->Commutator.Connect(nullptr, [handler, widget]{
+            result->Commutator.Connect(CONNECTION_DEBUG_LOCATION, [handler, widget]{
                  handler(widget);
             });
             return result;
@@ -60,7 +60,7 @@ public:
         return Injected<Property>(propName, [&]() -> Property* {
             auto* property = new Property(args...);
             auto* widget = m_object;
-            property->OnChanged.ConnectAndCall(this, [widget, handler, property]{ handler(widget, *property); });
+            property->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, handler, property]{ handler(widget, *property); });
             property->SetSetterHandler(ThreadHandlerMain);
             return property;
         });
@@ -81,29 +81,15 @@ public:
 
     DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
     DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another) const;
-    DispatcherConnection CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
-    {
-        auto result = createRule(debugLocation, &WidgetVisibility(), handler, additionalWidgets, &WidgetWrapper::ConnectVisibility, *dispatchers.first());
-        for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
-            result += WidgetVisibility().ConnectFrom(debugLocation, handler, *dispatcher);
-        }
-        return result;
-    }
-    DispatcherConnection CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
-    {
-        auto result = createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, *dispatchers.first());
-        for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
-            result += WidgetEnablity().ConnectFrom(debugLocation, handler, *dispatcher);
-        }
-        return result;
-    }
+    DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
+    DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     template<typename ... Dispatchers>
-    DispatcherConnection CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
+    DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
     {
         return createRule(debugLocation, &WidgetVisibility(), handler, additionalWidgets, &WidgetWrapper::ConnectVisibility, dispatchers...);
     }
     template<typename ... Dispatchers>
-    DispatcherConnection CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
+    DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
     {
         return createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, dispatchers...);
     }
@@ -134,10 +120,10 @@ public:
 
 private:
     template<typename ... Dispatchers>
-    DispatcherConnection createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets,
+    DispatcherConnections createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets,
                                      const FConnector& connector, Dispatchers&... dispatchers) const
     {
-        DispatcherConnection result;
+        DispatcherConnections result;
         result += property->ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers...);
         for(auto* widget : additionalWidgets) {
             result += (this->*connector)(debugLocation, widget);
@@ -206,7 +192,7 @@ public:
         auto& connections = *Injected<DispatcherConnectionsSafe>("a_items_connections");
         connections.clear();
         auto *widget = GetWidget();
-        TranslatorManager::GetInstance().OnLanguageChanged.ConnectAndCall(this, [widget]{
+        TranslatorManager::GetInstance().OnLanguageChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget]{
             const auto& names = TranslatorManager::GetInstance().GetEnumNames<Enum>();
             QStringList list;
             for(const auto& value : adapters::range(names.begin() + (qint32)Enum::First, names.begin() + (qint32)Enum::Last + 1)) {
@@ -240,7 +226,7 @@ public:
         : Super(value, min, max)
         , Precision(2)
     {
-        OnChanged.ConnectAndCall(this, [this]{
+        OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
             DisplayValue.SetMinMax(*this, *this);
         });
     }

@@ -69,6 +69,6 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
         frame->SetText(message);
         WidgetWrapper(frame).SetVisibleAnimated(!errors->IsEmpty());
     });
-    errors->OnChanged.Connect(this, setText).MakeSafe(m_connections);
-    errors->OnErrorsLabelsChanged.ConnectAndCall(this, setText).MakeSafe(m_connections);
+    errors->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);
+    errors->OnErrorsLabelsChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);
 }

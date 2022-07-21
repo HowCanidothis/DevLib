@@ -21,7 +21,7 @@ DelayedCall::DelayedCall(const FAction& action, QMutex* mutex, DelayedCallObject
     : m_action(action)
     , m_mutex(mutex)
 {
-    m_connection = object->OnDeleted.Connect(this, [this]{
+    m_connection = object->OnDeleted.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         QMutexLocker locker(m_mutex);
         m_action = []{};
     }).MakeSafe();

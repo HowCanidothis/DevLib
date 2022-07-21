@@ -158,7 +158,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         }
     });
 
-    m_transite.Connect(this, [this]{
+    m_transite.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_attachment == nullptr) {
             return;
         }

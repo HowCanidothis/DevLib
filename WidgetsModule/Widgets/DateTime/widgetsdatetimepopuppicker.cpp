@@ -28,8 +28,8 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
         menu->exec(ui->dateTimeEdit->mapToGlobal(ui->dateTimeEdit->geometry().bottomLeft()));
         OnCloseEditor();
     });
-    m_editor->OnNowActivate.Connect(this, [menu, this]{ OnDataCommit(); menu->close(); });
-    m_editor->OnApplyActivate.Connect(this, [menu, this]{ OnDataCommit(); menu->close(); });
+    m_editor->OnNowActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu, this]{ OnDataCommit(); menu->close(); });
+    m_editor->OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu, this]{ OnDataCommit(); menu->close(); });
     
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
     m_editor->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);

@@ -103,7 +103,7 @@ public:
                 item->SetExpanded((size_t)treeView, false);
             }
         });
-        m_proxyModel->OnInvalidated.Connect(this, [this, treeView]{
+        m_proxyModel->OnInvalidated.Connect(CONNECTION_DEBUG_LOCATION, [this, treeView]{
             forEachModelIndex(m_proxyModel, QModelIndex(), [this,treeView](const QModelIndex& index){
                 auto* item = m_sourceModel->AsItem(m_proxyModel->mapToSource(index));
                 if(item != nullptr && item->IsExpanded((size_t)treeView)) {

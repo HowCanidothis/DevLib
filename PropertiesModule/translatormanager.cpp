@@ -17,7 +17,7 @@ TranslatedString::TranslatedString(const FTranslationHandler& translationHandler
     : Super(translationHandler())
     , m_translationHandler(translationHandler)
 {
-    TranslatorManager::GetInstance().OnLanguageChanged.Connect(this, [this, translationHandler]{
+    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, translationHandler]{
         retranslate();
     }).MakeSafe(m_connections);
 

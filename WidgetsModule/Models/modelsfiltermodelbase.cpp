@@ -10,7 +10,7 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
     , m_invalidateFilter(500)
 {
-    Invalidate.Connect(this, [this]{
+    Invalidate.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         InvalidateFilter();
     });
 }

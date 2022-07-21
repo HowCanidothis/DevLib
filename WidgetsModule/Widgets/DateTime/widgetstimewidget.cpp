@@ -117,7 +117,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
 
         switch(ui->timePicker->TypeClock.Native()){
         case ClockType::Hour:
-            ui->timePicker->HourType.OnChanged.ConnectAndCall(this, [this]{
+            ui->timePicker->HourType.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
                 m_hourTypeConnections.clear();
                 switch (ui->timePicker->HourType.Native()) {
                 case HourFormat::Hour12: {

@@ -31,7 +31,7 @@ void PropertiesConnectorBase::SetScope(const PropertiesScopeName& scope)
 {
     m_dispatcherConnections.clear();
     m_propertyPtr.Assign(m_propertyName, scope);
-    m_propertyPtr.GetDispatcher().Connect(this, [this]{
+    m_propertyPtr.GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Q_ASSERT(m_propertyPtr.IsValid());
         Q_ASSERT(m_propertyPtr.GetProperty()->GetOptions().TestFlag(Property::Option_IsPresentable));
         if(!m_ignorePropertyChange) {

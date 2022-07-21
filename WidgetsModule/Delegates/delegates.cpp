@@ -287,12 +287,12 @@ QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOpti
     widget->Locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
     widget->GetDateTimeWidget()->CurrentDateTime = index.model()->data(index, Qt::EditRole).toDateTime();
     OnEditorAboutToBeShown(widget, index);
-    widget->OnDataCommit.Connect(widget, [this, widget]{
+    widget->OnDataCommit.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
         auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
         nonConst->emit commitData(widget);
     });
 
-    widget->OnCloseEditor.Connect(widget, [this, widget]{
+    widget->OnCloseEditor.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
         auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
         nonConst->emit closeEditor(widget);
     });
@@ -313,7 +313,7 @@ void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* 
 
 void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QPair<int,int>& columns, LocalPropertyDateTime* start, LocalPropertyDateTime* stop)
 {
-    delegate->OnEditorAboutToBeShown.Connect(delegate, [columns, start, stop](QWidget* w, const QModelIndex& index){
+    delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [columns, start, stop](QWidget* w, const QModelIndex& index){
         auto* picker = reinterpret_cast<WidgetsDatetimePopupPicker*>(w);
         auto& currentDateTime = picker->GetDateTimeWidget()->CurrentDateTime;
         currentDateTime = index.data(Qt::EditRole).toDateTime();

@@ -50,7 +50,7 @@ void MeasurementValueWithUnitConnectorsContainer::AddConnector(const Name& measu
         spinBox->setValue(measurementProperty->Value);
     };
 
-    data->Property.Precision.OnChanged.Connect(this, updatePrecision).MakeSafe(m_connections);
+    data->Property.Precision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updatePrecision).MakeSafe(m_connections);
     updatePrecision();
     AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox);
 }

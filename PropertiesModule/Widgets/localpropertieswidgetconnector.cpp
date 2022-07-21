@@ -40,7 +40,7 @@ LocalPropertiesMenuLabelConnector::LocalPropertiesMenuLabelConnector(LocalProper
         menu->setTitle(*property);
     }, []{})
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -54,7 +54,7 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -75,7 +75,7 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
             }
     ), m_textChanged(250)
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -109,7 +109,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
 {
     Q_ASSERT(button->isCheckable());
 
-    checkedProperty->GetDispatcher().Connect(this, [this]{
+    checkedProperty->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -123,7 +123,7 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
     label->setText(*property);
 }, []{})
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -137,7 +137,7 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     *property = textEdit->toPlainText();
 }), m_textChanged(250)
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -176,7 +176,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     , m_currentIndex(*property)
 {
 
-    property->GetDispatcher().Connect(this, m_widgetSetter).MakeSafe(m_dispatcherConnections);
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, m_widgetSetter).MakeSafe(m_dispatcherConnections);
 
     qint32 i(0);
     for(auto* button : buttons) {
@@ -209,7 +209,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
     : LocalPropertiesDoubleSpinBoxConnector(property, spinBox,[](double){})
 {
-    property->Precision.OnChanged.Connect(this, [spinBox, property]{
+    property->Precision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
         spinBox->setDecimals(property->Precision);
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -235,10 +235,10 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
@@ -263,10 +263,10 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
@@ -290,10 +290,10 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.ConnectAndCall(this, [spinBox, property]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
         QSignalBlocker blocker(spinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
@@ -318,7 +318,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -353,7 +353,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -378,11 +378,11 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
             }
     )
 {
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    model->OnChanged.Connect(this, [this]{
+    model->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -392,7 +392,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, const SharedPointer<ModelsStandardListModel>& model)
     : LocalPropertiesComboBoxConnector(property, comboBox)
 {
-    model->OnChanged.Connect(this, [this]{
+    model->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -417,7 +417,7 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
 {
     Q_ASSERT(!buttons.IsEmpty());
 
-    property->GetDispatcher().Connect(this, [this]{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -439,7 +439,7 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* pr
 {
     property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDate, [](const QDate& dt){ return dt; }, [](const QDate& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
-    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDate.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -451,7 +451,7 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime
 {
     property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
-    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
@@ -463,7 +463,7 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
 {
     property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
 
-    property->OnMinMaxChanged.ConnectAndCall(this, [property, dateTime]{
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }

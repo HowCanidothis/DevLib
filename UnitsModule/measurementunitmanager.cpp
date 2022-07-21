@@ -447,9 +447,9 @@ MeasurementManager::MeasurementManager()
             measurement->CurrentUnitId = parameters->UnitId;
             measurement->CurrentPrecision = parameters->UnitPrecision;
             
-            measurement->CurrentStep.OnChanged.Connect(this, [parameters, measurement]{parameters->UnitStep = measurement->CurrentStep; }).MakeSafe(m_connections);
-            measurement->CurrentUnitId.OnChanged.Connect(this, [measurement, parameters]{parameters->UnitId = measurement->CurrentUnitId; }).MakeSafe(m_connections);
-            measurement->CurrentPrecision.OnChanged.Connect(this, [parameters, measurement]{parameters->UnitPrecision = measurement->CurrentPrecision; }).MakeSafe(m_connections);
+            measurement->CurrentStep.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [parameters, measurement]{parameters->UnitStep = measurement->CurrentStep; }).MakeSafe(m_connections);
+            measurement->CurrentUnitId.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [measurement, parameters]{parameters->UnitId = measurement->CurrentUnitId; }).MakeSafe(m_connections);
+            measurement->CurrentPrecision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [parameters, measurement]{parameters->UnitPrecision = measurement->CurrentPrecision; }).MakeSafe(m_connections);
         }
     });
 }
@@ -464,10 +464,10 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
     return defaultResult;
 }
 
-DispatcherConnection MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
+DispatcherConnections MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
 {
     auto* measurement = GetMeasurement(measurementName).get();
-    DispatcherConnection result;
+    DispatcherConnections result;
     result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
         return [measurement](double value) { return measurement->BaseValueToCurrentUnit(value); };
     }, measurement->OnChanged);
@@ -494,7 +494,7 @@ Measurement& MeasurementManager::AddMeasurement(const Name &name, const FTransla
     m_metricMeasurements.insert(name, result);
     int index = m_measurmentWrapper->GetSize();
     m_measurmentWrapper->Append(result);
-    result->OnChanged.Connect(this, [this, index]{m_measurmentWrapper->Edit(index, [](const MeasurementPtr& ){ }); });
+    result->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, index]{m_measurmentWrapper->Edit(index, [](const MeasurementPtr& ){ }); });
     return *result;
 }
 
@@ -557,7 +557,7 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
             Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));
             Value = convertValue(baseValueProperty->Native());
         };
-        baseValueProperty->OnMinMaxChanged.Connect(this, updateMinMax).MakeSafe(m_connections);
+        baseValueProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, updateMinMax).MakeSafe(m_connections);
         updateMinMax();
     }
     m_currentValue = baseValueProperty;
@@ -567,7 +567,7 @@ MeasurementProperty::MeasurementProperty(const Name& systemName)
     : m_currentValue(nullptr)
 {
     m_metricSystem = MeasurementManager::GetInstance().GetMeasurement(systemName);
-    m_metricSystem->OnChanged.Connect(this, [this]{
+    m_metricSystem->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
                                                       Connect(m_currentValue);
                                                   }).MakeSafe(m_systemConnections);
 

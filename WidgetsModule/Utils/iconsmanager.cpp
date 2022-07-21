@@ -88,7 +88,7 @@ private:
 SvgIconEngine::SvgIconEngine()
     : d(new SvgIconEngineData)
 {
-    d->FilePath.OnChanged.Connect(this, [this]{
+    d->FilePath.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         generateSource();
     }).MakeSafe(m_connections);
 
@@ -105,16 +105,16 @@ SvgIconEngine::SvgIconEngine()
         }*/
     };
 
-    d->Palette.ActiveColor.OnChanged.Connect(this, [resetCache]{
+    d->Palette.ActiveColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Active);
     }).MakeSafe(m_connections);
-    d->Palette.NormalColor.OnChanged.Connect(this, [resetCache]{
+    d->Palette.NormalColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Normal);
     }).MakeSafe(m_connections);
-    d->Palette.SelectedColor.OnChanged.Connect(this, [resetCache]{
+    d->Palette.SelectedColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Selected);
     }).MakeSafe(m_connections);
-    d->Palette.DisabledColor.OnChanged.Connect(this, [resetCache]{
+    d->Palette.DisabledColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Disabled);
     }).MakeSafe(m_connections);
 }
@@ -334,4 +334,34 @@ const IconsSvgIcon& IconsManager::GetIcon(const Name& id) const
 IconsManager& IconsManager::GetInstance()
 {
     return *m_instance;
+}
+
+DispatcherConnections IconsPalette::ConnectFrom(const char* location, IconsPalette& another)
+{
+    DispatcherConnections result;
+    result += NormalColor.ConnectFrom(location, another.NormalColor);
+    result += DisabledColor.ConnectFrom(location, another.DisabledColor);
+    result += ActiveColor.ConnectFrom(location, another.ActiveColor);
+    result += SelectedColor.ConnectFrom(location, another.SelectedColor);
+    return result;
+}
+
+DispatcherConnections IconsPalette::ConnectFrom(const char* location, const LocalPropertyColor& color)
+{
+    DispatcherConnections result;
+    result += NormalColor.ConnectFrom(location, color);
+    result += DisabledColor.ConnectFrom(location, color);
+    result += ActiveColor.ConnectFrom(location, color);
+    result += SelectedColor.ConnectFrom(location, color);
+    return result;
+}
+
+DispatcherConnections IconsPalette::ConnectFrom(const char* location, const LocalPropertyColor& color, const LocalPropertyColor& checked)
+{
+    DispatcherConnections result;
+    result += NormalColor.ConnectFrom(location, color);
+    result += DisabledColor.ConnectFrom(location, color);
+    result += ActiveColor.ConnectFrom(location, color);
+    result += SelectedColor.ConnectFrom(location, checked);
+    return result;
 }

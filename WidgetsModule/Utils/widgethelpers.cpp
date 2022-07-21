@@ -614,6 +614,24 @@ DispatcherConnection WidgetWrapper::ConnectEnablity(const char* debugLocation, Q
     return WidgetWrapper(another).WidgetEnablity().ConnectFrom(debugLocation, WidgetEnablity());
 }
 
+DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
+{
+    auto result = createRule(debugLocation, &WidgetVisibility(), handler, additionalWidgets, &WidgetWrapper::ConnectVisibility, *dispatchers.first());
+    for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
+        result += WidgetVisibility().ConnectFrom(debugLocation, handler, *dispatcher);
+    }
+    return result;
+}
+
+DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
+{
+    auto result = createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, *dispatchers.first());
+    for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
+        result += WidgetEnablity().ConnectFrom(debugLocation, handler, *dispatcher);
+    }
+    return result;
+}
+
 void WidgetWrapper::SetVisibleAnimated(bool visible, int duration, double opacity) const
 {
     if(visible) {
@@ -761,7 +779,7 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
     });
 
     for(const auto* color : palette) {
-        color->OnChanged.Connect(this, [update]{
+        color->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [update]{
             update();
         }).MakeSafe(*connections);
     }
@@ -1072,7 +1090,7 @@ LocalPropertyInt& WidgetSpinBoxWrapper::WidgetValue() const
     return *Injected<LocalPropertyInt>("a_value", [&]() -> LocalPropertyInt* {
        auto* property = new LocalPropertyInt();
        auto* widget = GetWidget();
-       property->OnChanged.ConnectAndCall(this, [widget, property]{ widget->setValue(*property); });
+       property->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
        widget->connect(widget, QOverload<qint32>::of(&QSpinBox::valueChanged), [property](qint32 value){
            *property = value;
        });
@@ -1090,7 +1108,7 @@ LocalPropertyDouble& WidgetDoubleSpinBoxWrapper::WidgetValue() const
     return *Injected<LocalPropertyDouble>("a_value", [&]() -> LocalPropertyDouble* {
        auto* property = new LocalPropertyDouble();
        auto* widget = GetWidget();
-       property->OnChanged.ConnectAndCall(this, [widget, property]{ widget->setValue(*property); });
+       property->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
        widget->connect(widget, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [property](double value){
            *property = value;
        });

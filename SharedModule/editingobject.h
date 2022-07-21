@@ -72,11 +72,11 @@ public:
     {
         auto& editObject = object->EditObject;
 
-        editObject.DiffRequest.Connect(this, [this, object]{
+        editObject.DiffRequest.Connect(CONNECTION_DEBUG_LOCATION, [this, object]{
             auto currentData = Serialize(object);
             m_compareObject = new CompareXmlObject(m_storageData, currentData);
         });
-        editObject.OnEnteredEditingMode.Connect(this, [this, object]{
+        editObject.OnEnteredEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this, object]{
             m_storageData = Serialize(object);
 
             object->OnChanged += { this, [object, this]{
@@ -84,15 +84,15 @@ public:
                 object->EditObject.SetDirty(m_storageData != currentStorageData);
             }};
         });
-        editObject.OnAboutToBeSaved.Connect(this, [this, object]{
+        editObject.OnAboutToBeSaved.Connect(CONNECTION_DEBUG_LOCATION, [this, object]{
             m_storageData = Serialize(object);
         });
-        editObject.OnAboutToBeDiscarded.Connect(this, [this, object]{
+        editObject.OnAboutToBeDiscarded.Connect(CONNECTION_DEBUG_LOCATION, [this, object]{
             if(object->EditObject.IsDirty()){
                 Deserialize(m_storageData, object);
             }
         });
-        editObject.OnLeavedEditingMode.Connect(this, [this, object]{
+        editObject.OnLeavedEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this, object]{
             object->OnChanged -= this;
         });
     }

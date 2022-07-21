@@ -24,12 +24,12 @@ public:
     ModelsWrapperBase()
         : m_inScope(false)
     {
-        OnAboutToBeReseted.Connect(this, [this] { testInScope(); });
-        OnAboutToBeUpdated.Connect(this, [this] { testInScope(); });
-        OnReseted.Connect(this, [this] { testOutScope(); });
-        OnUpdated.Connect(this, [this] { testOutScope(); });
-        OnRowsRemoved.Connect(this, [this] { testOutScope(); });
-        OnRowsInserted.Connect(this, [this] (qint32, qint32) { testOutScope(); });
+        OnAboutToBeReseted.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
+        OnAboutToBeUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
+        OnReseted.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
+        OnUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
+        OnRowsRemoved.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
+        OnRowsInserted.Connect(CONNECTION_DEBUG_LOCATION, [this] (qint32, qint32) { testOutScope(); });
     }
 
     virtual ~ModelsWrapperBase()
@@ -116,8 +116,8 @@ class ModelsTreeWrapper : public ModelsWrapperBase
 public:
     ModelsTreeWrapper()
     {
-        OnAboutToInsertRows.Connect(this, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
-        OnAboutToRemoveRows.Connect(this, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
+        OnAboutToInsertRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
+        OnAboutToRemoveRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
     }
     void ConnectModel(QAbstractItemModel* model) override;
     void DisconnectModel(QAbstractItemModel* model) override;
@@ -169,8 +169,8 @@ class ModelsTableWrapper : public ModelsWrapperBase
 public:
     ModelsTableWrapper()
     {
-        OnAboutToInsertRows.Connect(this, [this](qint32,qint32){ testInScope(); });
-        OnAboutToRemoveRows.Connect(this, [this](qint32,qint32){ testInScope(); });
+        OnAboutToInsertRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32){ testInScope(); });
+        OnAboutToRemoveRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32){ testInScope(); });
     }
     void ConnectModel(QAbstractItemModel* model) override;
     void DisconnectModel(QAbstractItemModel* model) override;
@@ -463,14 +463,14 @@ public:
     typename Super::const_iterator end() const { return Super::end(); }
 
     template<typename ... Dispatchers>
-    DispatcherConnection Connect(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
-        DispatcherConnection ret;
-        ret += OnChanged.ConnectCombined([this, handler]{ handler(*this); }, dispatchers...);
+    DispatcherConnections Connect(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+        DispatcherConnections ret;
+        ret += OnChanged.ConnectCombined(CONNECTION_DEBUG_LOCATION, [this, handler]{ handler(*this); }, dispatchers...);
         return ret;
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnection ConnectAndCall(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+    DispatcherConnections ConnectAndCall(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
         auto ret = Connect(handler, dispatchers...);
         handler(*this);
         return ret;

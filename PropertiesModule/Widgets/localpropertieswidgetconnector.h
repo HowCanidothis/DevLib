@@ -111,7 +111,7 @@ public:
             label->setText(property->GetName());
         }, []{})
     {
-        property->GetDispatcher().Connect(this, [this]{
+        property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
             m_widgetSetter();
         }).MakeSafe(m_dispatcherConnections);
     }

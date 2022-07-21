@@ -51,7 +51,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
             setDisplayIntegerBase(displayIntegerBase());
         }
     };
-    auto result = valid->OnChanged.ConnectAndCall(this, updateDisplay);
+    auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
     return result;
 }
 
@@ -156,7 +156,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
             setDecimals(decimals());
         }
     };
-    auto result = valid->OnChanged.ConnectAndCall(this, updateDisplay);
+    auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
     return result;
 }
 

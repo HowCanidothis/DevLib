@@ -57,7 +57,7 @@ void ViewModelsTableBase::AttachDependence(const Name& unitName, int first, int 
 
 DispatcherConnection ViewModelsTableBase::AttachTempDependence(Dispatcher* dispatcher, int first, int last)
 {
-    return dispatcher->Connect(this, [first, last, this]{
+    return dispatcher->Connect(CONNECTION_DEBUG_LOCATION, [first, last, this]{
         RequestUpdateUi(first, last);
     });
 }

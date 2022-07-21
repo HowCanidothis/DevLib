@@ -68,7 +68,7 @@ public:
                 Change(handler);
             }
         };
-        auto result = dispatcher->Connect(this, applyHandler);
+        auto result = dispatcher->Connect(CONNECTION_DEBUG_LOCATION, applyHandler);
         applyHandler();
         return result;
     }

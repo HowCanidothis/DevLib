@@ -24,7 +24,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , m_exceedCounter(0)
 {
     m_onLayoutChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, BottomMargin.OnChanged, RightMargin.OnChanged, Spacing.OnChanged, Width.OnChanged, ReservedHeight.OnChanged);
-    m_onLayoutChanged.Connect(this, [this]{
+    m_onLayoutChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         rearrange();
     });
 
@@ -152,7 +152,7 @@ void NotifyManager::showNext()
     notify->move(pos);
     m_notifyList.append(notify);
 
-    notify->OnDisappeared.Connect(this, [notify, this](){
+    notify->OnDisappeared.Connect(CONNECTION_DEBUG_LOCATION, [notify, this](){
         m_notifyList.removeOne(notify);
         rearrange();
         showNext();

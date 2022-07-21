@@ -52,7 +52,7 @@ DispatcherConnection PromiseData::then(const FCallback& handler)
         handler(m_result);
         return DispatcherConnection();
     } else {
-        return onFinished.Connect(this, handler);
+        return onFinished.Connect(CONNECTION_DEBUG_LOCATION, handler);
     }
 }
 
@@ -159,7 +159,7 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
     if(isFinished()) {
         action(getResult());
     } else {
-        onFinished.Connect(this, [this, action]{
+        onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action]{
             action(m_result);
         });
     }

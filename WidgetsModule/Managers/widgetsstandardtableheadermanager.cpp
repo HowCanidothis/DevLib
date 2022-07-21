@@ -38,7 +38,7 @@ void WidgetsStandardTableHeaderManager::State::Initialize(const Latin1Name& stat
 {
     Q_ASSERT(m_stateName.IsNull());
     m_stateName = stateName;
-    CurrentState.OnChanged.Connect(this, [this, stateName]{
+    CurrentState.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, stateName]{
         UpdateState.Call(CONNECTION_DEBUG_LOCATION, [stateName]{
             WidgetsStandardTableHeaderManager::GetInstance().updateState(stateName);
         });

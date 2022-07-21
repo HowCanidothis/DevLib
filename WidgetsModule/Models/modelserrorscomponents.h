@@ -129,7 +129,7 @@ public:
         }, { &ErrorState.OnChanged }, parameters.MessageType, visibleProperty);
         if(visibleProperty != nullptr) {
             auto* pProperty = visibleProperty.get();
-            visibleProperty->OnChanged.Connect(this, [this,pProperty, errorFlags]{
+            visibleProperty->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this,pProperty, errorFlags]{
                 auto errorFilter = ErrorFilter.Native();
                 if(*pProperty) {
                     errorFilter |= errorFlags;
@@ -165,7 +165,7 @@ public:
     template<typename... Dispatchers>
     void AddDependencies(const Dispatcher& first, Dispatchers&... dispatchers)
     {
-        first.ConnectCombined([this]{ update(); }, dispatchers...);
+        first.ConnectCombined(CONNECTION_DEBUG_LOCATION, [this]{ update(); }, dispatchers...);
     }
 
     void Initialize(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
@@ -267,10 +267,10 @@ private:
 
     void onInitialize(const WrapperPtr& wrapper, bool updateOnWrapperChanged = true)
     {
-        ErrorFilter.OnChanged.Connect(this, [wrapper]{ wrapper->UpdateUi([]{}); });
+        ErrorFilter.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [wrapper]{ wrapper->UpdateUi([]{}); });
 
         if(updateOnWrapperChanged) {
-            wrapper->OnChanged.Connect(this, [this]{
+            wrapper->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
                 update();
             }).MakeSafe(m_connection);
         }

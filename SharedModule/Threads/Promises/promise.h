@@ -72,7 +72,7 @@ public:
     {
         Promise result;
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
-        dispatcher.Connect(nullptr, [result, connections, acceptHandler](Args... args){
+        dispatcher.Connect(CONNECTION_DEBUG_LOCATION, [result, connections, acceptHandler](Args... args){
             if(acceptHandler(args...)) {
                 connections->clear();
                 result.Resolve(true);

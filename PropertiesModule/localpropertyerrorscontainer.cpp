@@ -18,7 +18,7 @@ LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
         HasErrors = false;
     }};
 
-    TranslatorManager::GetInstance().OnLanguageChanged.Connect(this, [this]{
+    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         OnErrorsLabelsChanged();
     }).MakeSafe(m_connections);
 }
@@ -69,16 +69,16 @@ DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& err
         }
     };
     update();
-    return pProperty->OnChanged.Connect(this, update);
+    return pProperty->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, update);
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    DispatcherConnection result;
+    DispatcherConnections result;
     auto update = [this, validator, errorId, errorString, severity, visible]{
         if(!validator()) {
             AddError(errorId, errorString, severity, visible);
@@ -88,7 +88,7 @@ DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& err
     };
 
     for(auto* dispatcher : dispatchers) {
-        result += dispatcher->Connect(this, update);
+        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, update);
     }
 
     update();
@@ -103,7 +103,7 @@ void LocalPropertyErrorsContainer::Clear()
     Super::Clear();
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
+DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
 {
     auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
     auto addError = [this, prefix](const LocalPropertyErrorsContainerValue& value){
@@ -112,16 +112,16 @@ DispatcherConnection LocalPropertyErrorsContainer::Connect(const QString& prefix
     auto removeError = [this, prefix](const LocalPropertyErrorsContainerValue& value) {
         RemoveError(Name(prefix + value.Id.AsString()));
     };
-    DispatcherConnection result;
-    result += pErrors->OnErrorAdded.Connect(this, addError);
-    result += pErrors->OnErrorRemoved.Connect(this, removeError);
+    DispatcherConnections result;
+    result += pErrors->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError);
+    result += pErrors->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError);
     for(const auto& error : errors) {
         AddError(Name(prefix + error.Id.AsString()), error.Error);
     }
     return result;
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
+DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
 {
     auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
     auto addError = [this, errorId](const LocalPropertyErrorsContainerValue& value){
@@ -134,9 +134,9 @@ DispatcherConnection LocalPropertyErrorsContainer::ConnectFromError(const Name& 
             RemoveError(errorId);
         }
     };
-    DispatcherConnection result;
-    result += pErrors->OnErrorAdded.Connect(this, addError);
-    result += pErrors->OnErrorRemoved.Connect(this, removeError);
+    DispatcherConnections result;
+    result += pErrors->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError);
+    result += pErrors->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError);
     auto foundIt = errors.Native().find(LocalPropertyErrorsContainerValue{ errorId });
     if(foundIt != errors.end()) {
         AddError(errorId, foundIt->Error);

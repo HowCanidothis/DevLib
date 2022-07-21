@@ -59,7 +59,7 @@ void PropertiesDialogBase::Initialize(const PropertiesDialogBase::StdHandle& pro
         } else {
             PropertiesSystem::ForeachProperty([this](Property* property){
                 if(property->GetOptions().TestFlag(Property::Option_IsPresentable)) {
-                    property->GetDispatcher().Connect(this, [this, property]{
+                    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this, property]{
                         auto find = m_oldValues.find(property);
                         if(find == m_oldValues.end()) {
                             m_oldValues.insert(property, property->GetPreviousValue());
