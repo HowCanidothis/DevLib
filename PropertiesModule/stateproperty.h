@@ -585,7 +585,7 @@ template<typename... Dispatchers>
 SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
 {
     auto result = ::make_shared<WithDispatchersConnectionsSafe<StateProperty>>();
-    result->ConnectFrom(connection, handler, dispatchers...).MakeSafe(result->Connections);
+    result->ConnectFrom(connection, handler, dispatcher, dispatchers...).MakeSafe(result->Connections);
     return result;
 }
 

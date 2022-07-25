@@ -27,6 +27,8 @@ public:
     DispatcherConnectionSafe(const FAction& disconnector);
     ~DispatcherConnectionSafe();
 
+    void Disconnect();
+
 private:
     template<typename... Args> friend class CommonDispatcher;
     void disable();
@@ -43,6 +45,9 @@ class WithDispatchersConnectionsSafe : public T
     using Super = T;
 public:
     using Super::Super;
+
+    T& ToBase() { return *this; }
+    const T& ToBase() const { return *this; }
 
     DispatcherConnectionsSafe Connections;
 };
@@ -75,7 +80,9 @@ public:
     {
         auto connection = MakeSafe();
         adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
-            connections.append(connection);
+            connections.append(::make_shared<DispatcherConnectionSafe>([connection]{
+                connection->Disconnect();
+            }));
         }, connections...);
     }
 };
@@ -91,12 +98,11 @@ public:
     void MakeSafe(DispatcherConnectionsSafe& safeConnections);
 
     template<typename ... SafeConnections>
-    void MakeSafe(SafeConnections&... connections)
+    void MakeSafe(DispatcherConnectionsSafe& connections, SafeConnections&... additionalConnections)
     {
-        DispatcherConnectionsSafe safeConnections = MakeSafe();
-        adapters::Combine([&](DispatcherConnectionsSafe& connections){
-            connections += safeConnections;
-        }, connections...);
+        for(auto& connection : *this) {
+            connection.MakeSafe(connections, additionalConnections...);
+        }
     }
 
     DispatcherConnectionsSafe MakeSafe();

@@ -12,8 +12,14 @@ DispatcherConnectionSafe::DispatcherConnectionSafe(const FAction& disconnector)
 
 DispatcherConnectionSafe::~DispatcherConnectionSafe()
 {
+    Disconnect();
+}
+
+void DispatcherConnectionSafe::Disconnect()
+{
     if(m_disconnector != nullptr) {
         m_disconnector();
+        m_disconnector = nullptr;
     }
 }
 
