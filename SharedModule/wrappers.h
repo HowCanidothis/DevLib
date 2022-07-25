@@ -82,7 +82,7 @@ public:
         }
         auto it = begin();
         for(const auto& value : adapters::range(begin() + 1, end())) {
-            if(!(m_idGetter(*it) < m_idGetter(value))) {
+            if(!(m_idGetter(*it) <= m_idGetter(value))) {
                 return false;
             }
             ++it;

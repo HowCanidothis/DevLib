@@ -110,7 +110,7 @@ class TranslatedString : public LocalPropertyString
 {
     using Super = LocalPropertyString;
 public:
-    TranslatedString(const FTranslationHandler& translationHandler = []{ return QString(); });
+    TranslatedString(const FTranslationHandler& translationHandler = TR_NONE);
     TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);
 
     void SetTranslationHandler(const FTranslationHandler& handler);

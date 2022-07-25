@@ -184,7 +184,7 @@ QString& PropertiesSystem::currentPrefix()
 
 QVector<QString>& PropertiesSystem::prefixesDepth()
 {
-    static QVector<QString> result{ "" };
+    static QVector<QString> result{ QString() };
     return result;
 }
 

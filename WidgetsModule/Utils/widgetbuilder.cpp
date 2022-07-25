@@ -5,11 +5,14 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QCheckBox>
+#include <QLineEdit>
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
 WidgetBuilder::WidgetBuilder(QWidget* parent, Qt::Orientation layoutOrientation, qint32 margins)
     : m_addWidgetDelegate(defaultAddDelegate())
+    , m_usedDefaultDelegate(true)
 {
     QBoxLayout* layout;
     if(layoutOrientation == Qt::Vertical) {
@@ -67,6 +70,7 @@ WidgetBuilder& WidgetBuilder::Make(const std::function<void (WidgetBuilder&)>& h
 
 WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler)
 {
+    guards::BooleanGuard guard(&m_usedDefaultDelegate, guards::BooleanGuard::Inverted);
     switch(location)
     {
     case QuadTreeF::Location_MiddleLeft:
@@ -119,9 +123,36 @@ WidgetsSpinBoxWithCustomDisplay* WidgetBuilder::AddSpinBox(const FTranslationHan
     return (WidgetsSpinBoxWithCustomDisplay*)AddWidget<WidgetsSpinBoxWithCustomDisplay>(label).GetWidget();
 }
 
+WidgetLabelWrapper WidgetBuilder::AddLabel(const FTranslationHandler& label)
+{
+    auto btn = AddWidget<QLabel>(label).Cast<WidgetLabelWrapper>();
+    if(m_usedDefaultDelegate) {
+        btn.WidgetText()->SetTranslationHandler(label);
+    }
+    return btn;
+}
+
+WidgetLineEditWrapper WidgetBuilder::AddLineEdit(const FTranslationHandler& label)
+{
+    return AddWidget<QLineEdit>(label).Cast<WidgetLineEditWrapper>();
+}
+
 WidgetPushButtonWrapper WidgetBuilder::AddButton(const FTranslationHandler& label)
 {
-    return AddWidget<QPushButton>(label).Cast<WidgetPushButtonWrapper>();
+    auto btn = AddWidget<QPushButton>(label).Cast<WidgetPushButtonWrapper>();
+    if(m_usedDefaultDelegate) {
+        btn.WidgetText()->SetTranslationHandler(label);
+    }
+    return btn;
+}
+
+WidgetCheckBoxWrapper WidgetBuilder::AddCheckBox(const FTranslationHandler& label)
+{
+    auto btn = AddWidget<QCheckBox>(label).Cast<WidgetCheckBoxWrapper>();
+    if(m_usedDefaultDelegate) {
+        btn.WidgetText()->SetTranslationHandler(label);
+    }
+    return btn;
 }
 
 WidgetComboboxWrapper WidgetBuilder::AddCombobox(const FTranslationHandler& label)

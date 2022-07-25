@@ -37,6 +37,16 @@ private:
 
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
+template<class T>
+class WithDispatchersConnectionsSafe : public T
+{
+    using Super = T;
+public:
+    using Super::Super;
+
+    DispatcherConnectionsSafe Connections;
+};
+
 inline SharedPointer<DispatcherConnectionsSafe> DispatcherConnectionsSafeCreate()
 {
     return ::make_shared<DispatcherConnectionsSafe>();
@@ -287,6 +297,16 @@ private:
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable QMutex m_mutex;
     mutable qint32 m_lastId;
+};
+
+template<class T>
+class WithDispatchersConnections : public T
+{
+    using Super = T;
+public:
+    using Super::Super;
+
+    DispatcherConnections ConnectionsUnsafe;
 };
 
 using Dispatcher = CommonDispatcher<>;

@@ -94,6 +94,8 @@ public:
         return createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, dispatchers...);
     }
 
+    void Highlight(qint32 unhightlightIn = 0) const;
+    void Lowlight() const;
     void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8) const;
     void ShowAnimated(int duration = 2000, double opacity = 0.8) const;
     void HideAnimated(int duration = 2000) const;
@@ -109,6 +111,7 @@ public:
     const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
     DispatcherConnectionsSafe& WidgetConnections() const;
+    LocalPropertyBool& WidgetHighlighted() const;
     LocalPropertyBool& WidgetVisibility(bool animated = false) const;
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth) const;
@@ -178,6 +181,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetCheckBoxWrapper, QCheckBox)
     LocalPropertyBool& WidgetChecked() const;
+    TranslatedStringPtr WidgetText() const;
 };
 
 class WidgetComboboxWrapper : public WidgetWrapper

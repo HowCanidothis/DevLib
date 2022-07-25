@@ -115,11 +115,12 @@ public:
 
     StateParameterProperty& operator=(const value_type& value)
     {
+        THREAD_ASSERT_IS_MAIN();
         Super::InputValue = value;
         return *this;
     }
 
-    operator T&() { return Super::InputValue; }
+    operator T&() { THREAD_ASSERT_IS_MAIN(); return Super::InputValue; }
     const T& GetImmutableProperty() const { return m_immutableValue; }
     const value_type& GetImmutable() const { return m_immutableValue; }
 
@@ -207,7 +208,7 @@ public:
                     Valid.SetState(false);
 #ifdef QT_DEBUG
                     if(!ObjectName.isEmpty()) {
-                        qDebug() << "Is able to calculate" << ObjectName << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? "" : m_dependenciesAreUpToDate.ToString());
+                        qDebug() << "Is able to calculate" << ObjectName << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
                     }
 #endif
                     if(m_dependenciesAreUpToDate) {
@@ -579,5 +580,14 @@ private:
         }).MakeSafe(*connections);
     }
 };
+
+template<typename... Dispatchers>
+SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
+{
+    auto result = ::make_shared<WithDispatchersConnectionsSafe<StateProperty>>();
+    result->ConnectFrom(connection, handler, dispatchers...).MakeSafe(result->Connections);
+    return result;
+}
+
 
 #endif // STATEPROPERTY_H

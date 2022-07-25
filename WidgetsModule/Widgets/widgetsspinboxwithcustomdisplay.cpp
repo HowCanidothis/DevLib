@@ -29,7 +29,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
 {
     SetTextFromValueHandler([valid](const WidgetsSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
-            return "";
+            return QString();
         }
         return GetDefaultTextFromValueHandler()(spin, value);
     });
@@ -133,7 +133,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 {
     SetTextFromValueHandler([valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
-            return "";
+            return QString();
         }
         return GetDefaultTextFromValueHandler()(spin, value);
     });

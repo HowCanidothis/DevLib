@@ -405,6 +405,8 @@ public:
     T* operator->() { return Super::m_value; }
 };
 
+template<class T> class LocalPropertySharedPtrDispatcherHelper;
+
 template<class T>
 class LocalPropertySharedPtr : public LocalProperty<SharedPointer<T>>
 {
@@ -436,6 +438,135 @@ public:
     T* operator->() { return Super::m_value.get(); }
     T& operator*() { return *Super::m_value; }
     const T& operator*() const { return *Super::m_value; }
+
+    using FOnValidHandler = std::function<bool (const T&)>;
+    using FOnInvalidHandler = FAction;
+    using FCreateDispatcherHandler = std::function<void (const T&, Dispatcher*, DispatcherConnectionsSafe&)>;
+
+    struct CreateDispatcherParams
+    {
+        qint32 Delay;
+        ThreadHandler HandlerThread;
+        const char* ConnectionInfo;
+        FCreateDispatcherHandler Handler;
+
+        CreateDispatcherParams(const char* connectionInfo, LocalPropertySharedPtrDispatcherHelper<T>* helper)
+            : Delay(-1)
+            , HandlerThread(ThreadHandlerNoCheckMainLowPriority)
+            , ConnectionInfo(connectionInfo)
+            , Handler([](const T&, Dispatcher*, DispatcherConnectionsSafe&){})
+            , m_helper(helper)
+        {}
+
+        CreateDispatcherParams& SetCommutator(qint32 delay, const ThreadHandler& threadHandler)
+        {
+            Delay = delay;
+            HandlerThread = threadHandler;
+            return *this;
+        }
+
+        CreateDispatcherParams& SetHandler(const FCreateDispatcherHandler& handler)
+        {
+            Handler = handler;
+            return *this;
+        }
+
+        CreateDispatcherParams& SetOnChangedHandler()
+        {
+            Handler = [this](const T& value, Dispatcher* dispatcher, DispatcherConnectionsSafe& connections) {
+                dispatcher->ConnectFrom(CONNECTION_DEBUG_LOCATION, value.OnChanged).MakeSafe(connections);
+            };
+            return *this;
+        }
+
+        template<typename ... Dispatchers>
+        DispatcherConnections ConnectAndCall(const FOnValidHandler& handler, const FOnInvalidHandler& reset, Dispatchers&... dispatchers) const
+        {
+            return m_helper->ConnectAndCall(*this, handler, reset, dispatchers...);
+        }
+
+        SharedPointer<Dispatcher> CreateDispatcher() const
+        {
+            return m_helper->CreateDispatcher(*this);
+        }
+
+    private:
+        LocalPropertySharedPtrDispatcherHelper<T>* m_helper;
+    };
+
+    CreateDispatcherParams DispatcherParams(const char* connectionInfo)
+    {
+        if(m_dispatcher == nullptr) {
+            m_dispatcher = ::make_scoped<LocalPropertySharedPtrDispatcherHelper<T>>(this);
+        }
+
+        return CreateDispatcherParams(connectionInfo, m_dispatcher.get());
+    }
+
+    CreateDispatcherParams DispatcherParamsOnChanged(const char* connectionInfo)
+    {
+        return DispatcherParams(connectionInfo).SetOnChangedHandler();
+    }
+
+private:
+    ScopedPointer<LocalPropertySharedPtrDispatcherHelper<T>> m_dispatcher;
+};
+
+template<class T>
+class LocalPropertySharedPtrDispatcherHelper
+{
+public:
+    using FOnValidHandler = std::function<bool (const T&)>;
+    using FOnInvalidHandler = FAction;
+    using FCreateDispatcherHandler = std::function<void (const T&, Dispatcher*, DispatcherConnectionsSafe&)>;
+    using CreateDispatcherParams = typename LocalPropertySharedPtr<T>::CreateDispatcherParams;
+
+    LocalPropertySharedPtrDispatcherHelper(LocalPropertySharedPtr<T>* property)
+        : m_property(property)
+    {}
+
+    template<typename ... Dispatchers>
+    DispatcherConnections ConnectAndCall(const CreateDispatcherParams& params, const FOnValidHandler& handler, const FOnInvalidHandler& reset, Dispatchers&... dispatchers) const
+    {
+        auto dispatcher = CreateDispatcher(params);
+        return { dispatcher->ConnectAndCallCombined(params.ConnectionInfo, [this, dispatcher, handler, reset]{
+            if(*m_property == nullptr) {
+                reset();
+                return;
+            }
+            if(!handler(**m_property)) {
+                reset();
+            }
+        }, dispatchers...)};
+    }
+
+    SharedPointer<Dispatcher> CreateDispatcher(const CreateDispatcherParams& params) const
+    {
+        SharedPointer<Dispatcher> result;
+        DispatcherConnectionsSafe* resultConnections;
+        if(params.Delay == -1) {
+            auto cr = ::make_shared<WithDispatchersConnectionsSafe<Dispatcher>>();
+            result = cr;
+            resultConnections = &cr->Connections;
+        } else {
+            auto cr = ::make_shared<WithDispatchersConnectionsSafe<DispatchersCommutator>>(params.Delay, params.HandlerThread);
+            result = cr;
+            resultConnections = &cr->Connections;
+        }
+        auto* pResult = result.get();
+        auto connections = DispatcherConnectionsSafeCreate();
+        m_property->OnChanged.ConnectAndCallCombined(params.ConnectionInfo, [this, pResult, params, connections]{
+            connections->clear();
+            if(*m_property != nullptr) {
+                params.Handler(**m_property, pResult, *connections);
+            }
+            pResult->Invoke();
+        }).MakeSafe(*resultConnections);
+        return result;
+    }
+
+private:
+    LocalPropertySharedPtr<T>* m_property;
 };
 
 template<class T>
@@ -930,74 +1061,6 @@ template<class Property>
 LocalPropertyPreviousValue<Property> LocalPropertyPreviousValueCreate(Property* property)
 {
     return LocalPropertyPreviousValue<Property>(property);
-}
-
-template<class T>
-class LocalPropertySharedPtrDispatchers
-{
-public:
-    using FHandler = std::function<void (T& value, DispatchersCommutator* connector, DispatcherConnectionsSafe& connections)>;
-
-    struct LocalPropertySharedPtrDispatchersData
-    {
-    public:
-        LocalPropertySharedPtrDispatchersData(LocalPropertySharedPtr<T>* property)
-            : m_property(property)
-        {
-            property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, property]{
-                for(const auto& pair : m_handlers) {
-                    pair.first->Invoke();
-                }
-                m_dispatchersConnections.clear();
-                if(*property != nullptr) {
-                    for(auto& handler : m_handlers) {
-                        connectHandler(handler.first, handler.second);
-                    }
-                    Q_ASSERT(!m_dispatchersConnections.isEmpty());
-                }
-            }).MakeSafe(m_connections);
-        }
-
-        SharedPointer<DispatchersCommutator> AddDispatcher(const FHandler& handler, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-        {
-            auto result = ::make_shared<DispatchersCommutator>(msecs, threadHandler);
-            if(*m_property != nullptr) {
-                connectHandler(result, handler);
-                Q_ASSERT(!m_dispatchersConnections.isEmpty());
-            }
-            m_handlers.append(std::make_pair(result, handler));
-            return result;
-        }
-
-    private:
-        void connectHandler(SharedPointer<DispatchersCommutator>& dispatcher, const FHandler& handler)
-        {
-            handler(*m_property->Native(), dispatcher.get(), m_dispatchersConnections);
-        }
-
-    private:
-        DispatcherConnectionsSafe m_connections;
-        DispatcherConnectionsSafe m_dispatchersConnections;
-        QVector<std::pair<SharedPointer<DispatchersCommutator>, FHandler>> m_handlers;
-        LocalPropertySharedPtr<T>* m_property;
-    };
-
-    LocalPropertySharedPtrDispatchers(LocalPropertySharedPtr<T>* property)
-        : m_data(::make_shared<LocalPropertySharedPtrDispatchersData>(property))
-    {
-
-    }
-
-    LocalPropertySharedPtrDispatchersData& GetData() const { return *m_data; }
-
-private:
-    SharedPointer<LocalPropertySharedPtrDispatchersData> m_data;
-};
-
-template<class T>
-LocalPropertySharedPtrDispatchers<T> LocalPropertySharedPtrDispatchersCreate(LocalPropertySharedPtr<T>* property)
-{
-    return LocalPropertySharedPtrDispatchers<T>(property);
 }
 
 struct PropertyFromLocalProperty

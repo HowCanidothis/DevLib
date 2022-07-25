@@ -30,19 +30,22 @@ public:
     WidgetBuilder& Make(const std::function<void (WidgetBuilder&)>& handler);
     WidgetBuilder& StartLabeledLayout(QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler);
 
-    class WidgetsDoubleSpinBoxWithCustomDisplay* AddDoubleSpinBox(const FTranslationHandler& label = []{ return ""; });
-    class WidgetsSpinBoxWithCustomDisplay* AddSpinBox(const FTranslationHandler& label = []{ return ""; });
-    WidgetPushButtonWrapper AddButton(const FTranslationHandler& label = []{ return ""; });
-    WidgetComboboxWrapper AddCombobox(const FTranslationHandler& label = []{ return ""; });
+    class WidgetsDoubleSpinBoxWithCustomDisplay* AddDoubleSpinBox(const FTranslationHandler& label = TR_NONE);
+    class WidgetsSpinBoxWithCustomDisplay* AddSpinBox(const FTranslationHandler& label = TR_NONE);
+    WidgetPushButtonWrapper AddButton(const FTranslationHandler& label = TR_NONE);
+    WidgetComboboxWrapper AddCombobox(const FTranslationHandler& label = TR_NONE);
+    WidgetLineEditWrapper AddLineEdit(const FTranslationHandler& label = TR_NONE);
+    WidgetLabelWrapper AddLabel(const FTranslationHandler& label = TR_NONE);
+    WidgetCheckBoxWrapper AddCheckBox(const FTranslationHandler& label = TR_NONE);
 
-    WidgetBuilder& AddWidget(QWidget* widget, const FTranslationHandler& label = []{ return ""; })
+    WidgetBuilder& AddWidget(QWidget* widget, const FTranslationHandler& label = TR_NONE)
     {
         m_addWidgetDelegate(label, widget);
         return *this;
     }
 
     template<class T>
-    WidgetWrapper AddWidget(const FTranslationHandler& label = []{ return ""; })
+    WidgetWrapper AddWidget(const FTranslationHandler& label = TR_NONE)
     {
         auto* result = new T();
         m_addWidgetDelegate(label, result);
@@ -55,6 +58,7 @@ private:
 private:
     QStack<std::function<void (QWidget*)>> m_addWidgetFunctors;
     FAddDelegate m_addWidgetDelegate;
+    bool m_usedDefaultDelegate;
 };
 
 #endif // WIDGETBUILDER_H

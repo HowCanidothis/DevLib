@@ -16,7 +16,7 @@ Exception::Exception(qint32 type)
 void Exception::raise() const { throw *this; }
 QException* Exception::clone() const { return new Exception(TranslationHandler); }
 
-QString Exception::Message() const { return TranslationHandler == nullptr ? "" : TranslationHandler(); }
+QString Exception::Message() const { return TranslationHandler == nullptr ? QString() : TranslationHandler(); }
 
 bool Exception::Handle(const QString& module, const FAction& action)
 {

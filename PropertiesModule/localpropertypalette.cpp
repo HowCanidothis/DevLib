@@ -19,7 +19,7 @@ LocalPropertyPaletteDataData::LocalPropertyPaletteDataData(const QVariant& value
         break;
     default:
         m_fromStringHandler = [](const QString&){};
-        m_toStringHandler = []{ return QString(); };
+        m_toStringHandler = TR_NONE;
         break;
     }
 }

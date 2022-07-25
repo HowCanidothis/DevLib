@@ -40,7 +40,7 @@ const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name
 
 const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 column) const
 {
-    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>([]{ return QString(); }), Name()};
+    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>(TR_NONE), Name()};
     if(column < 0 || column >= m_header.size()) {
         return result;
     }
@@ -52,7 +52,7 @@ TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 
     return new TViewModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {
         if(role == Qt::DisplayRole || role == Qt::EditRole) {
             if(index.row() == 0) {
-                return "";
+                return QString();
             }
 
             const auto& header = ptr->GetHeader(column);

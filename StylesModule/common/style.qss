@@ -1183,7 +1183,7 @@ WPSCQuickPlanView QLabel[tiny="true"] {
     font-size: 12px;
 }
 
-QWidget[hasError="true"]
+QWidget[w_highlighted="true"]
 {
     border-width: 1px;
     border-style: solid;

@@ -44,6 +44,8 @@
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
+#include "WidgetsModule/Utils/styleutils.h"
+
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 
@@ -480,6 +482,23 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QS
     return *this;
 }
 
+void WidgetWrapper::Highlight(qint32 unhightlightIn) const
+{
+    StyleUtils::ApplyStyleProperty("w_highlighted", m_widget, true);
+
+    if(unhightlightIn > 0) {
+        auto wrapper = *this;
+        QTimer::singleShot(unhightlightIn, [wrapper]{
+            wrapper.Lowlight();
+        });
+    }
+}
+
+void WidgetWrapper::Lowlight() const
+{
+    StyleUtils::ApplyStyleProperty("w_highlighted", m_widget, false);
+}
+
 const WidgetWrapper& WidgetWrapper::AddModalProgressBar() const
 {
     Q_ASSERT(m_widget->isWindow());
@@ -793,6 +812,18 @@ DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const
     return *Injected<DispatcherConnectionsSafe>("a_connections");
 }
 
+LocalPropertyBool& WidgetWrapper::WidgetHighlighted() const
+{
+    auto wrapper = *this;
+    return *GetOrCreateProperty<LocalPropertyBool>("a_highlighted", [wrapper](QObject*, const LocalPropertyBool& highlighted){
+        if(highlighted) {
+            wrapper.Highlight();
+        } else {
+            wrapper.Lowlight();
+        }
+    }, false);
+}
+
 LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated) const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [animated](QObject* object, const LocalPropertyBool& visible){
@@ -891,7 +922,7 @@ TranslatedStringPtr ActionWrapper::ActionText() const
     return GetOrCreateProperty<TranslatedString>("a_text", [](QObject* object, const TranslatedString& text){
         auto* action = reinterpret_cast<QAction*>(object);
         action->setText(text);
-    }, []{ return QString(); });
+    }, TR_NONE);
 }
 
 ActionWrapper MenuWrapper::AddSeparator() const
@@ -1141,4 +1172,12 @@ LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
     return *GetOrCreateProperty<LocalPropertyBool>("a_checked",[widget](QObject*, const LocalPropertyBool& value){
         widget->setChecked(value);
     }, false);
+}
+
+TranslatedStringPtr WidgetCheckBoxWrapper::WidgetText() const
+{
+    auto* label = GetWidget();
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
+        label->setText(text);
+    });
 }

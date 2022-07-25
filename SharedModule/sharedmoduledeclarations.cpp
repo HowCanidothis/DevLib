@@ -14,3 +14,5 @@ QString Nanosecs::ToString(const QString& caption) const
 {
     return Timer::TimeToStringSecs(caption, _nsecs);
 }
+
+IMPLEMENT_GLOBAL(FTranslationHandler, TR_NONE, TR(QString()))

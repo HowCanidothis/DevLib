@@ -9,6 +9,8 @@
 
 #include "flags.h"
 
+#define toPointer(x) auto* p##x = x.get()
+
 enum SerializationMode {
     SerializationMode_Default = 0x0,
     SerializationMode_InvokeProperties = 0x1,
@@ -51,6 +53,7 @@ typedef qint32 count_t;
 
 using FAction = std::function<void ()>;
 using FTranslationHandler = std::function<QString ()>;
+#define TR(x) []{ return x; }
 
 class QTextStream;
 
@@ -604,5 +607,7 @@ template<> const type Default<type>::Value;
 
 #define IMPLEMENT_DEFAULT_WITH_PARAMS(type, ...) \
 template<> const type Default<type>::Value(__VA_ARGS__);
+
+DECLARE_GLOBAL(FTranslationHandler, TR_NONE);
 
 #endif // SHARED_DECL_H
