@@ -128,6 +128,21 @@ struct TextConverter<QString>
 };
 
 template <>
+struct TextConverter<QLocale>
+{
+    using value_type = QLocale;
+    static QString ToText(const value_type& value, const TextConverterContext& )
+    {
+        return value.name();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return QLocale(string);
+    }
+};
+
+template <>
 struct TextConverter<QVariant>
 {
     using value_type = QVariant;

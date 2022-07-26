@@ -49,6 +49,29 @@ struct Serializer<StateProperty>
     }
 };
 
+template<>
+struct Serializer<LocalPropertyFilePath>
+{
+    typedef LocalPropertyFilePath target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.m_value;
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            QString value;
+            buffer << value;
+            data = value;
+        } else {
+            buffer << data.m_value;
+        }
+    }
+};
+
 template<class T>
 struct Serializer<LocalPropertyOptional<T>>
 {
@@ -324,6 +347,30 @@ struct SerializerXml<StateProperty>
             data.Value.SetState(value);
         } else {
             buffer << data.Mutate(data.Value.m_value);
+        }
+    }
+};
+
+template<>
+struct SerializerXml<LocalPropertyFilePath>
+{
+    using Type = LocalPropertyFilePath;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& data)
+    {
+        buffer << data.Mutate(data.Value.m_value);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, SerializerXmlObject<Type>& data)
+    {
+        QString value;
+        buffer << data.Mutate(value);
+
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            data.Value = value;
+        } else {
+            data.Value.m_value = value;
         }
     }
 };
