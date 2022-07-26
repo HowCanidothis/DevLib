@@ -463,15 +463,15 @@ public:
     typename Super::const_iterator end() const { return Super::end(); }
 
     template<typename ... Dispatchers>
-    DispatcherConnections Connect(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+    DispatcherConnections Connect(const char* connectionInfo, const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
         DispatcherConnections ret;
-        ret += OnChanged.ConnectCombined(CONNECTION_DEBUG_LOCATION, [this, handler]{ handler(*this); }, dispatchers...);
+        ret += OnChanged.ConnectCombined(connectionInfo, [this, handler]{ handler(*this); }, dispatchers...);
         return ret;
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnections ConnectAndCall(const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
-        auto ret = Connect(handler, dispatchers...);
+    DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
+        auto ret = Connect(connectionInfo, handler, dispatchers...);
         handler(*this);
         return ret;
     }

@@ -238,6 +238,27 @@ Range<It> range(Container& container, qint32 startIndex, qint32 count) {
 template <class T>
 inline const T& make_const(T& container) { return container; }
 
+template <class T>
+inline T make_copy(const T& container)
+{
+    T result;
+    result.reserve(container.size());
+    for(const auto& val : container){
+        result.append(val);
+    }
+    return result;
+}
+
+template <class T>
+inline T make_copy_if_not_detached(const T& container)
+{
+    if(container.isDetached()) {
+        return container;
+    }
+    return make_copy(container);
+}
+
+
 template<typename Enum>
 struct EnumHelper
 {
