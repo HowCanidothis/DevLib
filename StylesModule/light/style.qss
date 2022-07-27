@@ -88,6 +88,10 @@ QRadioButton QWidget {
   color: #414141;
 }
 
+QMenu::separator {
+  background-color: #7a7a7a;
+}
+
 QMenu::item:selected {
   color: white;
 }

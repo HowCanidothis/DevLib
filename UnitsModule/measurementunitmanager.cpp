@@ -26,6 +26,7 @@
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
 #include "MeasurementTypes/powerdeclarations.h"
+#include "MeasurementTypes/consistencyfactordeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -323,6 +324,10 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
+    AddMeasurement(MeasurementFlowConsistencyFactor::NAME, []{ return tr("Flow Consistency Factor"); })
+            .AddUnit(&FlowConsistencyFactorUnits::FactorPascals  )
+            .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
+
     AddSystem(UNIT_SYSTEM_API_USFT)
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -355,6 +360,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
@@ -391,6 +397,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
@@ -428,6 +435,7 @@ MeasurementManager::MeasurementManager()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::Watt.Id,                          3})
+            .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPascals.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});

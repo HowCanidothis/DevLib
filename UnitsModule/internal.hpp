@@ -32,6 +32,7 @@
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/powerdeclarations.h"
+#include "MeasurementTypes/consistencyfactordeclarations.h"
 
 #endif
 
