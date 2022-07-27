@@ -1208,22 +1208,18 @@ NotifierErrorsFrame QGroupBox::title
 
 QPushButton#btnDrawer
 {
-    background: #004d40;
     qproperty-text: "";
     min-width: 20px;
     min-height: 20px;
     max-width: 20px;
     max-height: 20px;
-    border-color: #3e3e3e;
     border-width: 1px;
     border-style: solid;
     border-radius: 8px;
     color: white;
+    margin-right: -10px;
 }
 
-QPushButton#btnDrawer:hover{
-    border-color: white;
-}
 
 QPushButton#btnDrawer[isOpen=false]
 {

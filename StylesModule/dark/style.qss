@@ -906,3 +906,13 @@ NotifierErrorsFrame QLabel
 {
     background-color: #252526;
 }
+
+QPushButton#btnDrawer
+{
+    background: transparent;
+    border-color: #3e3e3e;
+}
+
+QPushButton#btnDrawer:hover{
+    border-color: white;
+}
