@@ -352,6 +352,10 @@ public:
 
     bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
     {
+        auto existsCount = rowCount();
+        if(row >= existsCount){
+            row = existsCount - 1;
+        }
         return Super::insertRows(row, count, parent);
     }
 };
