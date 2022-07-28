@@ -94,6 +94,7 @@ public:
         return createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, dispatchers...);
     }
 
+    void ActivateWindow(int mode, qint32 delay = 1000) const;
     void Highlight(qint32 unhightlightIn = 0) const;
     void Lowlight() const;
     void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8) const;

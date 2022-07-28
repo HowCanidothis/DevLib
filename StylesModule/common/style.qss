@@ -1220,7 +1220,6 @@ QPushButton#btnDrawer
     margin-right: -10px;
 }
 
-
 QPushButton#btnDrawer[isOpen=false]
 {
     image: url(":/qss_icons/rc/chevron-left.svg");
@@ -1231,3 +1230,26 @@ QPushButton#btnDrawer[isOpen=true]
     image: url(":/qss_icons/rc/chevron-right.svg");
 }
 
+ads--CDockWidget[w_showfocus="1"]{
+    border-width: 3px;
+    border-style: solid;
+    border-color: #7B1FA2;
+}
+
+ads--CDockWidget[w_showfocus="2"]{
+    border-width: 3px;
+    border-style: solid;
+    border-color: #1976D2;
+}
+
+ads--CDockWidget[w_showfocus="3"]{
+    border-width: 3px;
+    border-style: solid;
+    border-color: #455a64;
+}
+
+ads--CDockWidget[w_showfocus="4"]{
+    border-width: 3px;
+    border-style: solid;
+    border-color: #004d40;
+}

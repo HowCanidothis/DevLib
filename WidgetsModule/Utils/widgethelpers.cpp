@@ -651,6 +651,16 @@ DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocatio
     return result;
 }
 
+void WidgetWrapper::ActivateWindow(int mode, qint32 delay) const
+{
+    StyleUtils::ApplyStyleProperty("w_showfocus", m_widget, mode);
+    Q_ASSERT(delay > 0);
+    auto wrapper = *this;
+    QTimer::singleShot(delay, [wrapper]{
+        StyleUtils::ApplyStyleProperty("w_showfocus", wrapper.m_widget, 0);
+    });
+}
+
 void WidgetWrapper::SetVisibleAnimated(bool visible, int duration, double opacity) const
 {
     if(visible) {
