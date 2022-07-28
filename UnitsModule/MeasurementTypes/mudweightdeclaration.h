@@ -6,6 +6,7 @@
 namespace MudWeightUnits
 {
     DECLARE_MEASUREMENT_UNIT(PoundPerGallon)
+    DECLARE_MEASUREMENT_UNIT(PoundPerCubicFeet)
     DECLARE_MEASUREMENT_UNIT(KilogramPerCubicMeter)
 };
 

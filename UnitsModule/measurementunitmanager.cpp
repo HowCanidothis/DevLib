@@ -203,6 +203,7 @@ MeasurementManager::MeasurementManager()
 
     AddMeasurement(MeasurementMudWeight::NAME, []{ return tr("Mud Weight"); })
             .AddUnit(&MudWeightUnits::PoundPerGallon      )
+            .AddUnit(&MudWeightUnits::PoundPerCubicFeet   )
             .AddUnit(&MudWeightUnits::KilogramPerCubicMeter);
 
     AddMeasurement(MeasurementViscosity::NAME, []{ return tr("Viscosity"); })
