@@ -27,9 +27,13 @@ public:
 
     ModelsErrorComponent()
         : ErrorFilter(0xffffffff)
+        , SkipErrorRows(true)
         , m_updater(1000)
-    {}
+    {
+        SkipErrorRows.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){ update(); });
+    }
 
+    LocalPropertyBool SkipErrorRows;
     Dispatcher ErrorsHandled;
     LocalPropertyInt64 ErrorState;
     LocalPropertyInt64 ErrorFilter;
@@ -185,37 +189,58 @@ public:
             auto errorState = 0;
             wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter, hasCriticalErrorsHandler]{
                 auto& native = wrapper->EditSilent();
-                qint32 startCorrectIndex = 0;
-                qint32 index = 0;
-                bool foundStart = false;
-                for(auto& data : native) {
-                    auto& flags = flagsGetter(data);
-                    flags = 0;
+                if(SkipErrorRows){
+                    qint32 startCorrectIndex = 0;
+                    qint32 index = 0;
+                    bool foundStart = false;
+                    for(auto& data : native) {
+                        auto& flags = flagsGetter(data);
+                        flags = 0;
+                        for(const auto& [code, handler] : m_errorPerRowHandlers) {
+                            LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
+                        }
+                        if(!foundStart && !hasCriticalErrorsHandler(data)) {
+                            startCorrectIndex = index;
+                            foundStart = true;
+                        }
+                        ++index;
+                    }
+
+                    auto prev = native.begin() + startCorrectIndex;
+                    if(prev != native.end()) {
+                        errorState |= flagsGetter(*prev);
+                    }
+
+                    for(auto nextIt(native.begin() + startCorrectIndex + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
+                        auto& prevData = *prev;
+                        auto& nextData = *nextIt;
+                        auto& flags = flagsGetter(nextData);
+                        for(const auto& [code, handler] : m_errorHandlers) {
+                            LongFlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
+                        }
+                        errorState |= flags;
+                        if(!hasCriticalErrorsHandler(nextData)) {
+                            prev = nextIt;
+                        }
+                    }
+                } else {
+                    auto piter = (native.begin());
+                    auto& flags = flagsGetter(*piter); flags = 0;
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
-                        LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
-                    }
-                    if(!foundStart && !hasCriticalErrorsHandler(data)) {
-                        startCorrectIndex = index;
-                        foundStart = true;
-                    }
-                    ++index;
-                }
-
-                auto prev = native.begin() + startCorrectIndex;
-                if(prev != native.end()) {
-                    errorState |= flagsGetter(*prev);
-                }
-
-                for(auto nextIt(native.begin() + startCorrectIndex + 1), endIt(native.end()); nextIt != endIt; ++nextIt) {
-                    auto& prevData = *prev;
-                    auto& nextData = *nextIt;
-                    auto& flags = flagsGetter(nextData);
-                    for(const auto& [code, handler] : m_errorHandlers) {
-                        LongFlagsHelpers::ChangeFromBoolean(!handler(nextData, prevData), flags, code);
+                        LongFlagsHelpers::ChangeFromBoolean(!handler(*piter), flags, code);
                     }
                     errorState |= flags;
-                    if(!hasCriticalErrorsHandler(nextData)) {
-                        prev = nextIt;
+
+                    for(auto citer(native.begin() + 1), endIt(native.end()); citer != endIt; ++piter, ++ citer){
+                        auto& flags = flagsGetter(*citer);
+                        flags = 0;
+                        for(const auto& [code, handler] : m_errorPerRowHandlers) {
+                            LongFlagsHelpers::ChangeFromBoolean(!handler(*citer), flags, code);
+                        }
+                        for(const auto& [code, handler] : m_errorHandlers) {
+                            LongFlagsHelpers::ChangeFromBoolean(!handler(*citer, *piter), flags, code);
+                        }
+                        errorState |= flags;
                     }
                 }
             });
