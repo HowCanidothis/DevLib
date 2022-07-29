@@ -4,13 +4,13 @@ MainWindow {
     qproperty-iconSurveyColor: #ff3b30;
     qproperty-iconWellboreColor: #ff3b30;
     
-    qproperty-iconJobInformationColor: #90A4AE;
-    qproperty-iconRunSummaryColor: #90A4AE;
-    qproperty-iconDailyReportColor: #78909C;
-    qproperty-iconSlideSheetColor: #607D8B;
-    qproperty-iconBHAColor: #546E7A;
-    qproperty-iconInventoryColor: #455A64;
-    qproperty-iconShippingColor: #37474F;    
+    qproperty-iconJobInformationColor: #F2933A;
+    qproperty-iconRunSummaryColor: #F2933A;
+    qproperty-iconDailyReportColor: #B36C2B;
+    qproperty-iconSlideSheetColor: #A66428;
+    qproperty-iconBHAColor: #8C5522;
+    qproperty-iconInventoryColor: #A66428;
+    qproperty-iconShippingColor: #663E18;
 
     qproperty-iconCalendarColor: #F3F3F3;
     qproperty-iconNetworkOnlineColor: #22b14c;

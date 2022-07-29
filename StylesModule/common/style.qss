@@ -1245,7 +1245,7 @@ ads--CDockWidget[w_showfocus="2"]{
 ads--CDockWidget[w_showfocus="3"]{
     border-width: 3px;
     border-style: solid;
-    border-color: #455a64;
+    border-color: #A66428;
 }
 
 ads--CDockWidget[w_showfocus="4"]{

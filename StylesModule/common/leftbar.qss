@@ -364,7 +364,7 @@ QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
 }
 
 QFrame[ApplicationMode="3"]{
-    background: #455A64;
+    background: #A66428;
 }
 
 QFrame[ApplicationMode="1"] QWidget{
@@ -383,7 +383,7 @@ QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
 }
 
 QFrame[ApplicationMode="3"] QWidget{
-    background: #455A64;
+    background: #A66428;
     color: white;
 }
 
