@@ -170,6 +170,15 @@ public:
             data->Insert(row > data->GetSize() ? data->GetSize() : row, count);
             return true;
         })
+        , m_setWrapperHandler([this](const SharedPointer<T>& data){
+            if(m_data != nullptr) {
+                m_data->DisconnectModel(this);
+            }
+            m_data = data;
+            if(m_data != nullptr) {
+                m_data->ConnectModel(this);
+            }
+        })
     {}
 
     void SetCanDropMimeDataHandler(const FCanDropMimeDataHandler& handler)
@@ -248,19 +257,10 @@ public:
         if(m_data == data) {
             return;
         }
-
         beginResetModel();
-        if(m_data != nullptr) {
-            m_data->DisconnectModel(this);
-        }
-        m_data = data;
-        if(m_data != nullptr) {
-            m_data->ConnectModel(this);
-        }
+        m_setWrapperHandler(data);
         endResetModel();
-
         OnModelChanged();
-
     }
     const SharedPointer<T>& GetData() const { return m_data; }
 
@@ -273,6 +273,7 @@ protected:
         Q_ASSERT(GetData() != nullptr);
         return GetData()->GetSize() == index.row();
     }
+    std::function<void(const SharedPointer<T>&)> m_setWrapperHandler;
 
 private:
     SharedPointer<T> m_data;
