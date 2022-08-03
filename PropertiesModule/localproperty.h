@@ -42,8 +42,9 @@ class LocalProperty
 public:
     using FValidator = std::function<T (const T&)>;
     using value_type = T;
-
+#ifdef CALCUTION_DEBUG
     std::function<QString()> Description;
+#endif
 protected:
     StorageType m_value;
     FSetterHandler m_setterHandler;
@@ -1011,7 +1012,9 @@ struct LocalPropertyOptional
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler = [](value_type v){return QString::number(v); }) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
 
+#ifdef CALCUTION_DEBUG
     std::function<QString()> Description;
+#endif
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;

@@ -79,7 +79,9 @@ DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* loc
     auto handler = [properties, location, this] {
         for(auto* property : properties) {
             if(*property == !m_defaultState) {
-                qDebug() << (property->Description != nullptr ? property->Description() : "")<< *property;
+#ifdef CALCUTION_DEBUG
+                qDebug() << location << " " << (property->Description != nullptr ? property->Description() : "")<< *property;
+#endif
                 return !m_defaultState;
             }
         }
@@ -134,12 +136,14 @@ bool StatePropertyBoolCommutator::value() const
 StateParameters::StateParameters(const std::function<QString()>& description)
     : IsValid(true)
     , IsLocked(false)
-    , Description(description)
     , m_counter(0)
     , m_isValid(true)
 {
+#ifdef CALCUTION_DEBUG
+    Description = description;
     IsValid.Description = description;
     m_isValid.Description = description;
+#endif
 }
 
 void StateParameters::Lock()

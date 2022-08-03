@@ -48,7 +48,7 @@ private:
 class StateParameters
 {
 public:
-    StateParameters(const std::function<QString()>& description = []{ return "StateParameters";});
+    StateParameters(const std::function<QString()>& description = nullptr);
 
     void Lock();
     void Unlock();
@@ -57,7 +57,9 @@ public:
     DispatchersCommutator OnChanged;
     StatePropertyBoolCommutator IsValid;
     LocalPropertyBool IsLocked;
+#ifdef CALCUTION_DEBUG
     std::function<QString()> Description;
+#endif
 
 private:
     template<class T> friend class StateCalculator;
@@ -104,8 +106,10 @@ public:
                 [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
                 args...)
     {
+#ifdef CALCUTION_DEBUG
         m_immutableValue.Description = params->Description;
         Super::InputValue.Description = params->Description;
+#endif
         m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections);
         Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, [params]{
             if(params->IsLocked) {
