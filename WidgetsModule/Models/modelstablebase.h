@@ -101,11 +101,11 @@ public:
     void RequestUpdateUi(qint32 left, qint32 right);
 
 #ifdef UNITS_MODULE_LIB // TODO. Do not use it. Deprecated
-    DispatcherConnection AttachTempDependence(const Name& unitName, int first, int last);
-    void AttachDependence(const Name& unitName, int first, int last);
+    DispatcherConnection AttachTempDependence(const char* locationInfo, const Name& unitName, int first, int last);
+    void AttachDependence(const char* locationInfo, const Name& unitName, int first, int last);
 #endif
-    DispatcherConnection AttachTempDependence(Dispatcher* dispatcher, int first, int last);
-    void AttachDependence(Dispatcher* dispatcher, int first, int last);
+    DispatcherConnection AttachTempDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last);
+    void AttachDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last);
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
@@ -169,15 +169,6 @@ public:
             Q_ASSERT(data != nullptr);
             data->Insert(row > data->GetSize() ? data->GetSize() : row, count);
             return true;
-        })
-        , m_setWrapperHandler([this](const SharedPointer<T>& data){
-            if(m_data != nullptr) {
-                m_data->DisconnectModel(this);
-            }
-            m_data = data;
-            if(m_data != nullptr) {
-                m_data->ConnectModel(this);
-            }
         })
     {}
 
@@ -258,7 +249,13 @@ public:
             return;
         }
         beginResetModel();
-        m_setWrapperHandler(data);
+        if(m_data != nullptr) {
+            m_data->DisconnectModel(this);
+        }
+        m_data = data;
+        if(m_data != nullptr) {
+            m_data->ConnectModel(this);
+        }
         endResetModel();
         OnModelChanged();
     }
@@ -273,7 +270,6 @@ protected:
         Q_ASSERT(GetData() != nullptr);
         return GetData()->GetSize() == index.row();
     }
-    std::function<void(const SharedPointer<T>&)> m_setWrapperHandler;
 
 private:
     SharedPointer<T> m_data;

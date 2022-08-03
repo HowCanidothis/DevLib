@@ -209,7 +209,7 @@ public:
     void AttachDependencies()
     {
         if(!m_currentMeasurementColumns.isEmpty()) {
-            m_viewModel->AttachDependence(&m_currentMeasurement->OnChanged, m_currentMeasurementColumns.First(), m_currentMeasurementColumns.Last());
+            m_viewModel->AttachDependence(CONNECTION_DEBUG_LOCATION, &m_currentMeasurement->OnChanged, m_currentMeasurementColumns.First(), m_currentMeasurementColumns.Last());
             m_currentMeasurementColumns.clear();
         }
     }
