@@ -654,10 +654,21 @@ DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocatio
 void WidgetWrapper::ActivateWindow(int mode, qint32 delay) const
 {
     StyleUtils::ApplyStyleProperty("w_showfocus", m_widget, mode);
+    auto* layout = m_widget->layout();
+    FAction revertMargins = []{};
+    if(layout != nullptr) {
+        auto margins = layout->contentsMargins();
+        auto minFrame = SharedSettings::GetInstance().StyleSettings.ShowFocusMinFrame.Native();
+        layout->setContentsMargins(std::max(margins.left(), minFrame), std::max(margins.top(), minFrame), std::max(margins.right(), minFrame), std::max(margins.bottom(), minFrame));
+        revertMargins = [layout, margins]{
+            layout->setContentsMargins(margins);
+        };
+    }
     Q_ASSERT(delay > 0);
     auto wrapper = *this;
-    QTimer::singleShot(delay, [wrapper]{
+    QTimer::singleShot(delay, [wrapper, revertMargins]{
         StyleUtils::ApplyStyleProperty("w_showfocus", wrapper.m_widget, 0);
+        revertMargins();
     });
 }
 

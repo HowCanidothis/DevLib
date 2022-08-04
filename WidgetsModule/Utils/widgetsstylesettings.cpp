@@ -5,6 +5,7 @@ WidgetsStyleSettings* WidgetsStyleSettings::m_instance = nullptr;
 WidgetsStyleSettings::WidgetsStyleSettings()
     : m_enabledTableColor(Qt::white)
     , m_disabledTableColor("#d4d4d4")
+    , m_showFocusMinFrame(3)
 {
     Q_ASSERT(m_instance == nullptr);
     m_instance = this;
@@ -20,6 +21,8 @@ WidgetsStyleSettings::WidgetsStyleSettings()
     styleSettings.IconPrimaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_normalColor);
     styleSettings.IconSelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_selectionColor);
     styleSettings.ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_shadowColor);
+
+    styleSettings.ShowFocusMinFrame.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_showFocusMinFrame);
 
     auto& metricSettings = settings.MetricSettings;
 

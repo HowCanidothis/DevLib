@@ -357,7 +357,7 @@ public:
             row = existsCount - 1;
         }
         return Super::insertRows(row, count, parent);
-    }
+    } 
 };
 
 template<class T>

@@ -145,6 +145,7 @@ WidgetsStyleSettings {
     qproperty-enabledTableTextColor: black;
     qproperty-disabledTableColor: #d4d4d4;
     qproperty-disabledTableTextColor: black;
+    qproperty-showFocusMinFrame: 3;
 }
 
 BHACatalogWidget QListView::item {

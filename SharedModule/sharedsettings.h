@@ -49,6 +49,8 @@ struct StyleSettings
 
     LocalPropertyColor DefaultRedColor;
 
+    LocalPropertyInt ShowFocusMinFrame;
+
     void Release();
 
 private:

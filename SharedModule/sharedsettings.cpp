@@ -18,6 +18,7 @@ StyleSettings::StyleSettings()
     : DisabledTableCellColor("#d4d4d4")
     , EnabledTableCellColor(Qt::white)
     , DefaultRedColor("#ff3b30")
+    , ShowFocusMinFrame(3, 0, 9)
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
 

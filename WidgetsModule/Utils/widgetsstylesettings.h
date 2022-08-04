@@ -18,6 +18,8 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(QColor disabledTableColor MEMBER m_disabledTableColor)
     Q_PROPERTY(QColor disabledTableTextColor MEMBER m_disabledTableTextColor)
 
+    Q_PROPERTY(qint32 showFocusMinFrame MEMBER m_showFocusMinFrame)
+
 public:
     WidgetsStyleSettings();
 
@@ -31,6 +33,8 @@ private:
     LocalPropertyColor m_selectionColor;
     LocalPropertyColor m_shadowColor;
     LocalPropertyInt m_shadowBlurRadius;
+
+    LocalPropertyInt m_showFocusMinFrame;
 
 private:
     static WidgetsStyleSettings* m_instance;

@@ -141,6 +141,7 @@ WidgetsStyleSettings {
     qproperty-enabledTableTextColor: white;
     qproperty-disabledTableColor: rgba(255, 255, 255, 16);
     qproperty-disabledTableTextColor: rgb(153, 162, 173);
+    qproperty-showFocusMinFrame: 3;
 }
 
 QPushButton[DrawerControl="true"] {

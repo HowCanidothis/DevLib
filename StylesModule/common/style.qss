@@ -1230,25 +1230,25 @@ QPushButton#btnDrawer[isOpen=true]
     image: url(":/qss_icons/rc/chevron-right.svg");
 }
 
-ads--CDockWidget[w_showfocus="1"]{
+QWidget[w_showfocus="1"]{
     border-width: 3px;
     border-style: solid;
     border-color: #7B1FA2;
 }
 
-ads--CDockWidget[w_showfocus="2"]{
+QWidget[w_showfocus="2"]{
     border-width: 3px;
     border-style: solid;
     border-color: #1976D2;
 }
 
-ads--CDockWidget[w_showfocus="3"]{
+QWidget[w_showfocus="3"]{
     border-width: 3px;
     border-style: solid;
     border-color: #A66428;
 }
 
-ads--CDockWidget[w_showfocus="4"]{
+QWidget[w_showfocus="4"]{
     border-width: 3px;
     border-style: solid;
     border-color: #004d40;

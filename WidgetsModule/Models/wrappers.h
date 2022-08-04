@@ -371,7 +371,7 @@ public:
     {
         QVector<value_type> cloned;
 
-        SerializeCopyObject(toClone, cloned, SerializationMode_Default);
+        SerializeCopyObject(toClone, cloned, SerializationMode_Cloning);
 
         Change([&](container_type& native){
             for(auto& value : cloned) {
