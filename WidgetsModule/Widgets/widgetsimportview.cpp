@@ -58,9 +58,9 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	auto* model = new VariantListModel(this);
     ui->SourceTable->setModel(model);
 	
-    ui->cbLocale->addItems(TranslatorManager::GetNames<LocaleType>());
-    ui->cbGroup->addItems(TranslatorManager::GetNames<GroupKeyboardSeparator>());
-    ui->cbDecimal->addItems(TranslatorManager::GetNames<DecimalKeyboardSeparator>());
+    WidgetComboboxWrapper(ui->cbLocale).SetEnum<LocaleType>();
+    WidgetComboboxWrapper(ui->cbGroup).SetEnum<GroupKeyboardSeparator>();
+    WidgetComboboxWrapper(ui->cbDecimal).SetEnum<DecimalKeyboardSeparator>();
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&ImportLocale, ui->cbLocale);
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&GroupSeparator, ui->cbGroup);
 	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&DecimalSeparator, ui->cbDecimal);
