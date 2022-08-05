@@ -553,7 +553,9 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const Q
     if(itemModel != nullptr){
         for(const auto& index : indices){
             auto* item = itemModel->item(index);
-            item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, false));
+            if(item != nullptr) {
+                item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, false));
+            }
         }
     } else {
         Q_ASSERT(false);
