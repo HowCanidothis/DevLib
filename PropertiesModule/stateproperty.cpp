@@ -74,14 +74,12 @@ void StatePropertyBoolCommutator::Update()
     m_commutator.Invoke();
 }
 
-DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties)
+DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalPropertyBool*>& properties)
 {
     auto handler = [properties, location, this] {
         for(auto* property : properties) {
             if(*property == !m_defaultState) {
-#ifdef CALCUTION_DEBUG
-                qDebug() << location << " " << (property->Description != nullptr ? property->Description() : "")<< *property;
-#endif
+                DEBUG_PRINT_INFO(property);
                 return !m_defaultState;
             }
         }
@@ -95,7 +93,7 @@ DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* loc
     return AddHandler(location, handler, dispatchers);
 }
 
-DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalProperty<bool>* property, bool inverted)
+DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalPropertyBool* property, bool inverted)
 {
     return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, { &property->OnChanged });
 }
@@ -133,17 +131,33 @@ bool StatePropertyBoolCommutator::value() const
     return result;
 }
 
-StateParameters::StateParameters(const std::function<QString()>& description)
+void StateParameters::Initialize()
+{
+    if(m_initializer == nullptr) {
+        return;
+    }
+    m_initializer();
+    m_initializer = nullptr;
+}
+
+IStateParameterBase::IStateParameterBase(StateParameters* params)
+{
+    params->m_parameters.append(this);
+}
+
+StateParameters::StateParameters()
     : IsValid(true)
     , IsLocked(false)
     , m_counter(0)
     , m_isValid(true)
+    , m_initializer([this]{
+        THREAD_ASSERT_IS_MAIN();
+        for(auto* parameter : ::make_const(m_parameters)) {
+            parameter->initialize();
+        }
+    })
 {
-#ifdef CALCUTION_DEBUG
-    Description = description;
-    IsValid.Description = description;
-    m_isValid.Description = description;
-#endif
+    DEBUG_SYNC(this, { &IsValid, &m_isValid });
 }
 
 void StateParameters::Lock()

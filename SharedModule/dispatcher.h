@@ -10,11 +10,7 @@
 #include "smartpointersadapters.h"
 #include "stack.h"
 
-#ifdef QT_DEBUG
-#define CONNECTION_DEBUG_LOCATION __FILE__ QT_STRINGIFY(__LINE__)
-#else
-#define CONNECTION_DEBUG_LOCATION nullptr
-#endif
+#define CONNECTION_DEBUG_LOCATION DEBUG_LOCATION
 
 class DispatcherConnection;
 using DispatcherConnectionSafePtr = SharedPointer<class DispatcherConnectionSafe>;
@@ -108,7 +104,7 @@ public:
     DispatcherConnectionsSafe MakeSafe();
 };
 
-template<class T, class T2> class LocalProperty;
+template<class T> class LocalProperty;
 template<class T> struct LocalPropertyOptional;
 
 template<typename ... Args>

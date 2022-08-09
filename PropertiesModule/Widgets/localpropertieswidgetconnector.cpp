@@ -45,7 +45,7 @@ LocalPropertiesMenuLabelConnector::LocalPropertiesMenuLabelConnector(LocalProper
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, QCheckBox* checkBox)
+LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, QCheckBox* checkBox)
     : Super([checkBox, property]{
                 checkBox->setChecked(*property);
             },

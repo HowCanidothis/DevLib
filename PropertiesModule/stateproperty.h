@@ -28,8 +28,8 @@ public:
     void ClearProperties();
     void Update();
 
-    DispatcherConnections AddProperties(const char* location, const QVector<LocalProperty<bool>*>& properties);
-    DispatcherConnections AddProperty(const char* location, LocalProperty<bool>* property, bool inverted = false);
+    DispatcherConnections AddProperties(const char* location, const QVector<LocalPropertyBool*>& properties);
+    DispatcherConnections AddProperty(const char* location, LocalPropertyBool* property, bool inverted = false);
     DispatcherConnections AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
 
     QString ToString() const;
@@ -48,7 +48,10 @@ private:
 class StateParameters
 {
 public:
-    StateParameters(const std::function<QString()>& description = nullptr);
+    StateParameters();
+
+    void Initialize();
+    bool IsInitialized() { return m_initializer == nullptr; }
 
     void Lock();
     void Unlock();
@@ -57,23 +60,38 @@ public:
     DispatchersCommutator OnChanged;
     StatePropertyBoolCommutator IsValid;
     LocalPropertyBool IsLocked;
-#ifdef CALCUTION_DEBUG
-    std::function<QString()> Description;
-#endif
+    DispatcherConnectionsSafe Connections;
 
 private:
+    QVector<class IStateParameterBase*> m_parameters;
+
+private:
+    friend class IStateParameterBase;
     template<class T> friend class StateCalculator;
     std::atomic_int m_counter;
     LocalPropertyBool m_isValid;
+    FAction m_initializer;
+};
+
+class IStateParameterBase
+{
+public:
+    IStateParameterBase(StateParameters* params);
+
+protected:
+    friend class StateParameters;
+    virtual void initialize(){}
 };
 
 template<class T>
-class StateParameterBase
+class StateParameterBase : public IStateParameterBase
 {
+    using Super = IStateParameterBase;
 public:
     template<typename ... Args>
     StateParameterBase(StateParameters* params, const FAction& locker, const FAction& unlocker, Args ... args)
-        : InputValue(args...)
+        : Super(params)
+        , InputValue(args...)
         , m_parameters(params)
     {
         params->IsLocked.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [locker, unlocker, params]{
@@ -85,12 +103,22 @@ public:
         });
     }
 
+    bool IsInitialized() const { return m_initializer == nullptr; }
     StateParameters* GetParameters() const { return m_parameters; }
 
     T InputValue;
 
+private:
+    void initialize() override final
+    {
+        Q_ASSERT(m_initializer != nullptr);
+        m_initializer();
+        m_initializer = nullptr;
+    }
+
 protected:
     StateParameters* m_parameters;
+    FAction m_initializer;
 };
 
 template<class T>
@@ -105,25 +133,33 @@ public:
                 [this]{ m_connections.clear(); },
                 [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
                 args...)
+        , m_setter([this](const value_type& value){
+                    Q_ASSERT(!Super::m_parameters->IsLocked);
+                    Super::InputValue.SetFromSilent(value);
+                })
     {
-#ifdef CALCUTION_DEBUG
-        m_immutableValue.Description = params->Description;
-        Super::InputValue.Description = params->Description;
-#endif
-        m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections);
-        Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, [params]{
-            if(params->IsLocked) {
-                params->Reset();
-            } else {
-                params->OnChanged.Invoke();
-            }
-        });
+        Super::m_initializer = [this]{
+            m_setter = [this](const value_type& value){
+                THREAD_ASSERT_IS_MAIN();
+                Super::InputValue = value;
+            };
+
+            m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections);
+            auto handler = [this]{
+                if(Super::m_parameters->IsLocked) {
+                    Super::m_parameters->Reset();
+                } else {
+                    Super::m_parameters->OnChanged.Invoke();
+                }
+            };
+            Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
+            handler();
+        };
     }
 
     StateParameterProperty& operator=(const value_type& value)
     {
-        THREAD_ASSERT_IS_MAIN();
-        Super::InputValue = value;
+        m_setter(value);
         return *this;
     }
 
@@ -136,6 +172,7 @@ private:
     template<class T2> friend struct SerializerXml;
     T m_immutableValue;
     DispatcherConnectionsSafe m_connections;
+    std::function<void (const value_type&)> m_setter;
 };
 
 template<class T>
@@ -156,17 +193,20 @@ public:
         })
         , m_modelIsValid(false)
     {
-        Super::InputValue.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, params]{
-            m_modelConnections.clear();
-            if(Super::InputValue != nullptr) {
-                m_modelIsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue->IsValid).MakeSafe(m_modelConnections);
-            } else {
-                m_modelIsValid = false;
-            }
-            params->OnChanged.Invoke();
-        });
+        Super::m_initializer = [this]{
+            Super::InputValue.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+                m_modelConnections.clear();
+                if(Super::InputValue != nullptr) {
+                    m_modelIsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue->IsValid).MakeSafe(m_modelConnections);
+                } else {
+                    m_modelIsValid = false;
+                }
+                Super::m_parameters->OnChanged.Invoke();
+            });
 
-        params->IsValid.AddProperties(CONNECTION_DEBUG_LOCATION, { &m_modelIsValid });
+            Super::m_parameters->IsValid.AddProperties(CONNECTION_DEBUG_LOCATION, { &m_modelIsValid });
+        };
+
     }
 
 private:
@@ -213,11 +253,11 @@ public:
                 }};
                 m_onChanged += { this, [this, recalculateOnEnabled]{
                     Valid.SetState(false);
-#ifdef QT_DEBUG
-                    if(!ObjectName.isEmpty()) {
-                        qDebug() << "Is able to calculate" << ObjectName << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
-                    }
-#endif
+
+                    DEBUG_PRINT_INFO_ACTION(this,
+                        qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
+                    );
+
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator, m_releaser);
                     } else {
@@ -310,6 +350,9 @@ public:
 
     const StateCalculator& Connect(const char* connection, const SharedPointer<StateParameters>& params) const
     {
+        if(!params->IsInitialized()) {
+            params->Initialize();
+        }
         Connect(connection, params->OnChanged);
         Connect(connection, params->m_isValid);
         Connect(connection, params->IsValid);
@@ -338,7 +381,6 @@ public:
     mutable LocalPropertyBool Enabled;
     StateProperty Valid;
     Dispatcher OnCalculationRejected;
-    QString ObjectName;
 
 protected:
     void onPreRecalculate() override
@@ -460,12 +502,25 @@ public:
         });
     }
 
+    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    {
+        AttachSource(externalData, handler);
+    }
+
     void AttachCopy(const TPtr& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+    {
+        AttachSource(externalData, connectorHandler, externalData == nullptr ? nullptr :
+                                                                               handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler);
+    }
+
+    template<class ExternalData>
+    void AttachSource(const SharedPointer<ExternalData>& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
     {
         m_calculator.Disconnect();
 
         if(externalData != nullptr) {
-            m_handler = handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler;
+            Q_ASSERT(handler != nullptr);
+            m_handler = handler;
             connectorHandler(m_calculator);
         } else {
             m_handler = nullptr;
@@ -478,7 +533,8 @@ public:
         m_calculator.RequestRecalculate();
     }
 
-    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    template<class ExternalData>
+    void AttachSource(const SharedPointer<ExternalData>& externalData, const std::function<TPtr ()>& handler = nullptr)
     {
         AttachCopy(externalData, [externalData](StateCalculator<bool>& calculator){
             calculator.Connect(CONNECTION_DEBUG_LOCATION, externalData->IsValid)

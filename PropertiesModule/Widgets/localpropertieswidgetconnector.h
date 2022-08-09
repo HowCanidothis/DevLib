@@ -121,7 +121,7 @@ class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesCheckBoxConnector(LocalProperty<bool>* property, class QCheckBox* checkBox);
+    LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class QCheckBox* checkBox);
 
 protected:
 };

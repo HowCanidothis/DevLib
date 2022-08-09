@@ -2,6 +2,8 @@
 
 #include <QHeaderView>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsStandardTableHeaderManager::WidgetsStandardTableHeaderManager()
 {}
 
@@ -69,9 +71,22 @@ void WidgetsStandardTableHeaderManager::StateObject::Initialize(const Latin1Name
     m_data->Initialize(stateName);
 }
 
-void WidgetsStandardTableHeaderManager::Register(const Latin1Name& stateName, QHeaderView* headerView)
+void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& params, QHeaderView* headerView)
 {
+    const auto& stateName = params.StateTag;
+    HeaderViewWrapper header(headerView);
+    auto applyParams = [&]{
+        Q_ASSERT(params.ColumnsParams.isEmpty() || header->count() != 0);
+        for(auto it(params.ColumnsParams.begin()), e(params.ColumnsParams.end()); it != e; ++it) {
+             header.SectionVisibility(it.key()) = it.value().Visible;
+             if(it.value().ReplacePlaceTo != -1) {
+                header.MoveSection(it.key(), it.value().ReplacePlaceTo);
+             }
+        }
+    };
+
     if(stateName.IsNull()) {
+        applyParams();
         return;
     }
 
@@ -80,6 +95,7 @@ void WidgetsStandardTableHeaderManager::Register(const Latin1Name& stateName, QH
         restoreState(foundIt.value().GetData()->CurrentState, headerView);
         foundIt.value().GetData()->Headers.insert(headerView);
     } else {
+        applyParams();
         foundIt = m_states.insert(stateName, StateObject());
         foundIt.value().Initialize(stateName);
         const auto& data = foundIt.value().GetData();

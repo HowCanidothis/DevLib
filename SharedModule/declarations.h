@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "flags.h"
+#include "debugobjectinfo.h"
 
 #define toPointer(x) auto* p##x = x.get()
 

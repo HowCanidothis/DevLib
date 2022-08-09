@@ -1215,7 +1215,7 @@ QPushButton#btnDrawer
     max-height: 20px;
     border-width: 1px;
     border-style: solid;
-    border-radius: 8px;
+    border-radius: 4px;
     color: white;
     margin-right: -10px;
 }

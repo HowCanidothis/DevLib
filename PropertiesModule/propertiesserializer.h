@@ -528,6 +528,8 @@ struct SerializerXml<LocalPropertyDateTime>
 
 SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalProperty)
 SERIALIZER_XML_DECLARE_PROPERTY_TYPE(LocalPropertyLimitedDecimal)
+DECLARE_SERIALIZER_TYPE_ALIAS(LocalProperty<bool>, LocalPropertyBool)
+DECLARE_SERIALIZER_XML_TYPE_ALIAS(LocalProperty<bool>, LocalPropertyBool)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(LocalPropertyOptional)
 
 #endif // PROPERTIESSERIALIZER_H

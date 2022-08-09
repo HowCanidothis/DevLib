@@ -33,7 +33,9 @@ using LocalPropertyIntParams = LocalPropertyDescInitializationParams<qint32>;
 
 DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, const QVector<Dispatcher*>& dispatchers1, const FAction& evaluator1, const QVector<Dispatcher*>& dispatchers2, const FAction& evaluator2);
 
-template<class T, class StorageType = T>
+class LocalPropertyBool;
+
+template<class T>
 class LocalProperty
 {
     using FSetter = std::function<void ()>;
@@ -42,11 +44,9 @@ class LocalProperty
 public:
     using FValidator = std::function<T (const T&)>;
     using value_type = T;
-#ifdef CALCUTION_DEBUG
-    std::function<QString()> Description;
-#endif
+
 protected:
-    StorageType m_value;
+    T m_value;
     FSetterHandler m_setterHandler;
     FValidator m_validator;
 
@@ -79,7 +79,7 @@ public:
         });
     }
 
-    bool Change(const std::function<bool (StorageType& type)>& changeHandler)
+    bool Change(const std::function<bool (T& type)>& changeHandler)
     {
         if(changeHandler(m_value)) {
             Invoke();
@@ -163,7 +163,7 @@ public:
         return OnChanged.ConnectAndCallCombined(connectionInfo, [handler, this]{ handler(*this); }, dispatchers...);
     }
 
-    DispatcherConnection ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalProperty<bool>& condition)
+    DispatcherConnection ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalPropertyBool& condition)
     {
         return ConnectFrom(connectionInfo, condition, [this, expectedValue, resetTo](bool ok){
             if(Native() == expectedValue && !ok) {
@@ -233,8 +233,8 @@ public:
         return result;
     }
 
-    StorageType& EditSilent() { return m_value; }
-    const StorageType& Native() const { return m_value; }
+    T& EditSilent() { return m_value; }
+    const T& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
 
     void SetFromSilent(const LocalProperty<T>& another)
@@ -632,6 +632,14 @@ public:
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
 };
 
+class LocalPropertyBool : public LocalProperty<bool>
+{
+    using Super = LocalProperty<bool>;
+public:
+    LocalPropertyBool(bool state = false);
+    LocalPropertyBool& operator=(bool value) { Super::SetValue(value); return *this; }
+};
+
 class LocalPropertyBoolCommutator : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;
@@ -640,12 +648,12 @@ public:
 
     void ClearProperties();
     void Update();
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties);
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalPropertyBool*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<LocalProperty<bool>*> m_properties;
+    QVector<LocalPropertyBool*> m_properties;
     bool m_defaultState;
 };
 
@@ -704,7 +712,6 @@ public: \
 };
 
 DECLARE_LOCAL_PROPERTY_TYPE(LocalPropertyFilePath, LocalProperty<QString>)
-using LocalPropertyBool = LocalProperty<bool>;
 using LocalPropertyColor = LocalProperty<QColor>;
 using LocalPropertyString = LocalProperty<QString>;
 using LocalPropertyLocale = LocalProperty<QLocale>;
@@ -982,6 +989,12 @@ struct LocalPropertyOptional
         IsValid.EditSilent() = another.IsValid.Native();
     }
 
+    void SetFromSilent(const value_type& value)
+    {
+        Value.EditSilent() = value;
+        IsValid.EditSilent() = true;
+    }
+
     DispatcherConnections ConnectAction(const char* locationInfo, const FAction& action) const
     {
         DispatcherConnections connections;
@@ -1011,10 +1024,6 @@ struct LocalPropertyOptional
     QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler = [](value_type v){return QString::number(v); }) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
-
-#ifdef CALCUTION_DEBUG
-    std::function<QString()> Description;
-#endif
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
@@ -1191,7 +1200,7 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
-inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<bool>& localProperty)
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalPropertyBool& localProperty)
 {
     auto property = ::make_shared<BoolProperty>(name, localProperty.Native());
     auto* pProperty = property.get();

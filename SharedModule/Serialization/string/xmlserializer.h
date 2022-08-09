@@ -630,4 +630,22 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
     return DeSerializeFromXML(name, array, object, properties);
 }
 
+#define DECLARE_SERIALIZER_XML_TYPE_ALIAS(SourceType, TargetType) \
+template<> \
+struct SerializerXml<TargetType> \
+{ \
+    using Type = TargetType; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer << object.Mutate(reinterpret_cast<SourceType&>(object.Value)); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer << object.Mutate(reinterpret_cast<SourceType&>(object.Value)); \
+    } \
+};
+
+
 #endif // XMLSERIALIZER_H

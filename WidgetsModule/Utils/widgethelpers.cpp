@@ -61,7 +61,7 @@ public:
 private:
     bool eventFilter(QObject* watched, QEvent* e) override;
 
-private:
+protected:
     FFilter m_filter;
 };
 
@@ -77,6 +77,33 @@ void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObjec
     new WidgetsAttachment(filter, target);
 }
 
+bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
+{
+    return m_filter(watched, e);
+}
+
+class WidgetsDisconnectableAttachment : public WidgetsAttachment
+{
+    using Super = WidgetsAttachment;
+public:
+    using Super::Super;
+
+    static void Attach(QObject* target, const FFilter& filter);
+
+private:
+    bool eventFilter(QObject* watched, QEvent* e) override;
+};
+
+void WidgetsDisconnectableAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
+{
+    new WidgetsDisconnectableAttachment(filter, target);
+}
+
+bool WidgetsDisconnectableAttachment::eventFilter(QObject*, QEvent* e)
+{
+    return m_filter(this, e);
+}
+
 WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() {
     auto* edit = GetWidget();
     auto invalidate = [edit]{
@@ -88,11 +115,6 @@ WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() {
     QObject::connect(edit, &QLineEdit::textChanged, invalidate);
     invalidate();
     return *this;
-}
-
-bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
-{
-    return m_filter(watched, e);
 }
 
 void WidgetsObserver::EnableAutoCollapsibleGroupboxes()
@@ -182,8 +204,29 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     auto* verticalHeader = tableView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     WidgetsActiveTableViewAttachment::Attach(tableView);
-    WidgetsStandardTableHeaderManager::GetInstance().Register(params.StateTag, dragDropHeader);
+    WidgetsStandardTableHeaderManager::GetInstance().Register(params, dragDropHeader);
     return dragDropHeader;
+}
+
+HeaderViewWrapper::HeaderViewWrapper(QHeaderView* header)
+    : Super(header)
+{
+
+}
+
+LocalPropertyBool& HeaderViewWrapper::SectionVisibility(qint32 logicalIndex)
+{
+    return *GetOrCreateProperty<LocalPropertyBool>(QString("a_sectionVisibility_%1").arg(logicalIndex).toLatin1(), [logicalIndex](QObject* o, const LocalPropertyBool& value){
+        auto* header = reinterpret_cast<QHeaderView*>(o);
+        header->setSectionHidden(logicalIndex, !value);
+    });
+}
+
+HeaderViewWrapper& HeaderViewWrapper::MoveSection(qint32 logicalIndexFrom, qint32 logicalIndexTo)
+{
+    auto* header = GetWidget();
+    header->moveSection(header->visualIndex(logicalIndexFrom), header->visualIndex(logicalIndexTo));
+    return *this;
 }
 
 QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params) const
@@ -212,7 +255,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     tableView->setWordWrap(true);
     tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     WidgetsActiveTableViewAttachment::Attach(tableView);
-    WidgetsStandardTableHeaderManager::GetInstance().Register(params.StateTag, dragDropHeader);
+    WidgetsStandardTableHeaderManager::GetInstance().Register(params, dragDropHeader);
     return dragDropHeader;
 }
 
@@ -703,6 +746,12 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class QLineEdit* lineEdit)
 const WidgetWrapper& WidgetWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
     WidgetsAttachment::Attach(m_widget, filter);
+    return *this;
+}
+
+const WidgetWrapper& WidgetWrapper::AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
+{
+    WidgetsDisconnectableAttachment::Attach(m_widget, filter);
     return *this;
 }
 

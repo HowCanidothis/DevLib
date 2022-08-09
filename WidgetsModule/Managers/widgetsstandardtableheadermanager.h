@@ -11,7 +11,7 @@ class WidgetsStandardTableHeaderManager : public SingletoneGlobal<WidgetsStandar
     WidgetsStandardTableHeaderManager();
 public:
 
-    void Register(const Latin1Name& stateName, QHeaderView* headerView);
+    void Register(const DescTableViewParams& params, QHeaderView* headerView);
 
     template<class Buffer>
     void Serialize(Buffer& buffer)

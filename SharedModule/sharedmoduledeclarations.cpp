@@ -16,3 +16,5 @@ QString Nanosecs::ToString(const QString& caption) const
 }
 
 IMPLEMENT_GLOBAL(FTranslationHandler, TR_NONE, TR(QString()))
+
+IMPLEMENT_DEFAULT(QString);

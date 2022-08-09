@@ -104,6 +104,7 @@ public:
     const WidgetWrapper& AddModalProgressBar() const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
+    const WidgetWrapper& AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
 
     const WidgetWrapper& BlockWheel() const;
@@ -342,6 +343,18 @@ public:
     void Show(const DescShowDialogParams& params) const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(DialogWrapper, QDialog)
+};
+
+class HeaderViewWrapper : WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    HeaderViewWrapper(class QHeaderView* header);
+
+    LocalPropertyBool& SectionVisibility(qint32 logicalIndex);
+    HeaderViewWrapper& MoveSection(qint32 logicalIndexFrom, qint32 logicalIndexTo);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(HeaderViewWrapper, QHeaderView);
 };
 
 class MenuWrapper

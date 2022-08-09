@@ -31,20 +31,17 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescTableVie
         MenuWrapper wrapper(result);
 
         auto* model = table->model();
-        auto count = orientation() == Qt::Horizontal ? model->columnCount() : model->rowCount();
-        for(int i=0; i<count; ++i){
+        for(int i=0; i < count(); ++i){
             auto foundIt = params.ColumnsParams.find(i);
             if(foundIt != params.ColumnsParams.end()){
-                setSectionHidden(i, !foundIt->Visible);
                 if(!foundIt->CanBeHidden) {
                     continue;
                 }
             }
             auto title = model->headerData(i, orientation()).toString();
-            auto action = wrapper.AddCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
+            wrapper.AddCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
                 setSectionHidden(i, !checked);
             });
-            action->setProperty("index", i);
         }
         auto oldActions = result->actions();
         wrapper.AddAction(tr("Switch"), [oldActions]{
@@ -52,24 +49,7 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescTableVie
                 action->trigger();
             }
         });
-        for(auto* action : result->actions()){
-            auto index = action->property("index").toInt();
-            if(0 <= index && index < count){
-                action->setChecked(!isSectionHidden(index));
-            }
-        }
     });
-    if(!params.ColumnsParams.isEmpty()) {
-        WidgetWrapper(this).AddEventFilter([this,params](QObject*, QEvent* event){
-            if(event->type() == QEvent::Show) {
-                for(auto it(params.ColumnsParams.cbegin()), e(params.ColumnsParams.cend()); it != e; it++){
-                    setSectionHidden(it.key(), !it.value().Visible);
-                }
-            }
-            return false;
-        });
-    }
-
     return result;
 }
 

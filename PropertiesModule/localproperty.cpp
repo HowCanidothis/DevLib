@@ -55,7 +55,7 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalProperty<bool>*>& properties)
+DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalPropertyBool*>& properties)
 {
     DispatcherConnections result;
     for(auto* property : properties) {
@@ -162,4 +162,10 @@ QDateTime LocalPropertyDateTime::applyRange(const QDateTime& cur, const QDateTim
 void LocalPropertyDateTime::validate(QDateTime& value) const
 {
     value = applyRange(value, m_min, m_max);
+}
+
+LocalPropertyBool::LocalPropertyBool(bool state)
+    : Super(state)
+{
+
 }

@@ -43,12 +43,15 @@ struct DescTableViewParams
     struct ColumnParam
     {
         bool Visible = true;
-        bool CanBeHidden = false;
+        bool CanBeHidden = true;
+        qint32 ReplacePlaceTo = -1;
 
-        ColumnParam& SetVisible(bool visible) { Visible = visible; return *this; }
-        ColumnParam& SetCanBeHidden(bool canBeHidden) { CanBeHidden = canBeHidden; return *this; }
-        ColumnParam& HideColumn() { Visible = false; CanBeHidden = true; return *this;  }
-        ColumnParam& RemoveColumn() { Visible = false; CanBeHidden = false; return *this;  }
+        ColumnParam& MoveTo(qint32 logicalIndex) { ReplacePlaceTo = logicalIndex; return *this; }
+        ColumnParam& ShowAlways() { Visible = true; CanBeHidden = false; return *this; }
+        ColumnParam& Show() { Visible = true; return *this; }
+        ColumnParam& Add() { Visible = true; CanBeHidden = true; return *this;  }
+        ColumnParam& Hide() { Visible = false; return *this;  }
+        ColumnParam& Remove() { Visible = false; CanBeHidden = false; return *this;  }
     };
 
     DescTableViewParams(const QSet<qint32>& ignoreColumns);
@@ -63,7 +66,7 @@ struct DescTableViewParams
     DescTableViewParams& ShowColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
-            SetColumnParam(column, ColumnParam().SetVisible(true));
+            Column(column).Show();
         }
         return *this;
     }
@@ -71,7 +74,7 @@ struct DescTableViewParams
     DescTableViewParams& HideColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
-            SetColumnParam(column, ColumnParam().HideColumn());
+            Column(column).Hide();
         }
         return *this;
     }
@@ -79,7 +82,7 @@ struct DescTableViewParams
     DescTableViewParams& AddColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
-            SetColumnParam(column, ColumnParam().SetVisible(true).SetCanBeHidden(true));
+            Column(column).Add();
         }
         return *this;
     }
@@ -87,7 +90,7 @@ struct DescTableViewParams
     DescTableViewParams& RemoveColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
-            SetColumnParam(column, ColumnParam().RemoveColumn());
+            Column(column).Remove();
         }
         return *this;
     }
@@ -95,13 +98,25 @@ struct DescTableViewParams
     DescTableViewParams& RemoveTill(qint32 count)
     {
         while(--count != -1) {
-            SetColumnParam(count, ColumnParam().RemoveColumn());
+            Column(count).Remove();
         }
         return *this;
     }
 
+    DescTableViewParams& Make(const std::function<void (DescTableViewParams& params)>& handler)
+    {
+        handler(*this);
+        return *this;
+    }
 
-    DescTableViewParams& SetColumnParam(qint32 column, const ColumnParam& param) { ColumnsParams.insert(column, param); return *this; }
+    ColumnParam& Column(qint32 column)
+    {
+        auto foundIt = ColumnsParams.find(column);
+        if(foundIt == ColumnsParams.end()) {
+            return *ColumnsParams.insert(column, ColumnParam());
+        }
+        return foundIt.value();
+    }
     DescTableViewParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
 
     QHash<qint32, ColumnParam> ColumnsParams;
@@ -113,7 +128,7 @@ inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumn
     : DescTableViewParams()
 {
     for(const auto& column : ignoreColumns) {
-        ColumnsParams.insert(column, ColumnParam());
+        ColumnsParams.insert(column, ColumnParam().ShowAlways());
     }
 }
 

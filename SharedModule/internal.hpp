@@ -60,6 +60,7 @@
 #include "tokenizer.h"
 #include "wrappers.h"
 #include "exception.h"
+#include "debugobjectinfo.h"
 
 #endif
 
