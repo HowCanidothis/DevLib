@@ -31,7 +31,7 @@ void StyleUtils::UpdateStyle(class QWidget* target, bool recursive)
     style->unpolish(target);
     style->polish(target);
     if(recursive) {
-        WidgetWrapper(target).ForeachChildWidget([](QWidget* widget){
+        WidgetWrapper(target).ForeachChildWidget([](const WidgetWrapper& widget){
             auto* style = widget->style();
             style->unpolish(widget);
             style->polish(widget);

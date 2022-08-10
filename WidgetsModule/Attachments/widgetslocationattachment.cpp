@@ -52,10 +52,17 @@ bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
     case QEvent::Resize: {
         auto* resizeEvent = reinterpret_cast<QResizeEvent*>(event);
         if(watched == m_target) {
+            if(m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
+                QSize size(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() - m_componentPlacer->Offset.Native().y() * 2);
+                if(m_target->size() != size) {
+                    m_target->resize(size);
+                    return true;
+                }
+            }
             m_componentPlacer->TargetSize = resizeEvent->size();
         } else if(watched == m_parent){
             if(m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
-                m_target->resize(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() + m_componentPlacer->Offset.Native().y() * 2);
+                m_target->resize(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() - m_componentPlacer->Offset.Native().y() * 2);
             }
             m_componentPlacer->ParentSize = resizeEvent->size();
             m_componentPlacer->ResultPosition.Invoke();

@@ -588,8 +588,8 @@ const WidgetWrapper& WidgetWrapper::AddModalProgressBar() const
 
 const WidgetWrapper& WidgetWrapper::FixUp() const
 {
-    ForeachChildWidget([](QWidget* w){
-        auto* combobox = qobject_cast<QComboBox*>(w);
+    ForeachChildWidget([](const WidgetWrapper& w){
+        auto* combobox = qobject_cast<QComboBox*>(w.GetWidget());
         if(combobox != nullptr) {
             combobox->style()->polish(combobox);
         }
@@ -794,8 +794,8 @@ const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& a
         FocusManager::GetInstance().destroyed(target);
     });
     AddEventFilter(eventFilter);
-    ForeachChildWidget([eventFilter](QWidget* widget){
-        WidgetWrapper(widget).AddEventFilter(eventFilter);
+    ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
+        widget.AddEventFilter(eventFilter);
     });
     for(auto* child : additionalWidgets) {
         WidgetWrapper(child).AddEventFilter(eventFilter);
@@ -844,7 +844,7 @@ void WidgetWrapper::ShowAnimated(int duration, double opacity) const
     animation->setEndValue(opacity);
     animation->setEasingCurve(QEasingCurve::InBack);
     animation->start();
-    widget->show();
+    WidgetWrapper(widget).WidgetVisibility() = true;
 }
 
 void WidgetWrapper::HideAnimated(int duration) const
@@ -865,9 +865,9 @@ void WidgetWrapper::HideAnimated(int duration) const
     animation->setEasingCurve(QEasingCurve::OutBack);
     animation->start();
     animation->connect(animation.get(), &QPropertyAnimation::finished, [widget]{
-        widget->hide();
+        WidgetWrapper(widget).WidgetVisibility() = false;
     });
-    widget->show();
+    WidgetWrapper(widget).WidgetVisibility() = true;
 }
 
 const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const
@@ -943,8 +943,8 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 bool WidgetWrapper::HasParent(QWidget* parent) const
 {
     bool result = false;
-    ForeachParentWidget([&result, parent](QWidget* gypoParent){
-        if(gypoParent == parent) {
+    ForeachParentWidget([&result, parent](const WidgetWrapper& gypoParent){
+        if(gypoParent.GetWidget() == parent) {
             result = true;
             return true;
         }
@@ -953,7 +953,7 @@ bool WidgetWrapper::HasParent(QWidget* parent) const
     return result;
 }
 
-void WidgetWrapper::ForeachParentWidget(const std::function<bool(QWidget*)>& handler) const
+void WidgetWrapper::ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const
 {
     auto* parent = m_widget->parentWidget();
     while(parent != nullptr) {
@@ -964,7 +964,7 @@ void WidgetWrapper::ForeachParentWidget(const std::function<bool(QWidget*)>& han
     }
 }
 
-void WidgetWrapper::ForeachChildWidget(const std::function<void (QWidget*)>& handler) const
+void WidgetWrapper::ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const
 {
     auto childWidgets = m_widget->findChildren<QWidget*>();
     for(auto* childWidget : childWidgets) {

@@ -135,8 +135,8 @@ public:
     TranslatedStringPtr WidgetToolTip() const;
 
     bool HasParent(QWidget* parent) const;
-    void ForeachParentWidget(const std::function<bool(QWidget*)>& handler) const;
-    void ForeachChildWidget(const std::function<void (QWidget*)>& handler) const;    
+    void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
+    void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const;
 
 private:
     template<typename ... Dispatchers>

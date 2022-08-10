@@ -2,6 +2,7 @@
 #define WIDGETBUILDER_H
 
 #include <QStack>
+#include <QLayout>
 
 #include "widgethelpers.h"
 
@@ -9,20 +10,26 @@ struct WidgetBuilderLayoutParams
 {
     Qt::Orientation Orientation;
     bool AddSpacerToTheEnd;
+    qint32 Margin;
+    QLayout::SizeConstraint SizeConstraint;
 
     WidgetBuilderLayoutParams(Qt::Orientation orientation)
         : Orientation(orientation)
         , AddSpacerToTheEnd(false)
+        , Margin(0)
+        , SizeConstraint(QLayout::SetDefaultConstraint)
     {}
 
+    WidgetBuilderLayoutParams& SetMargin(qint32 margins) { Margin = margins; return *this; }
     WidgetBuilderLayoutParams& AddSpacer() { AddSpacerToTheEnd = true; return *this; }
+    WidgetBuilderLayoutParams& SetSizeConstraint(QLayout::SizeConstraint constraint) { SizeConstraint = constraint; return *this; }
 };
 
 class WidgetBuilder
 {
     using FAddDelegate = std::function<void (const FTranslationHandler&, QWidget*)>;
 public:
-    WidgetBuilder(QWidget* parent, Qt::Orientation layoutOrientation, qint32 margins = 9);
+    WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler, qint32 margin = 9);
     ~WidgetBuilder();
 
     WidgetBuilder& StartSplitter(const std::function<void (WidgetBuilder&, QSplitter*)>& handler);

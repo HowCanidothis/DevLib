@@ -895,6 +895,7 @@ QWidget#widgetheader {
 NotifierErrorsFrame
 {
     qproperty-errorLinkColor: white;
+    background: transparent;
 }
 
 NotifierErrorsFrame QWidget

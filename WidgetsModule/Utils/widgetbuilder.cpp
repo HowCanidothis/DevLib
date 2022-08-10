@@ -10,18 +10,24 @@
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
-WidgetBuilder::WidgetBuilder(QWidget* parent, Qt::Orientation layoutOrientation, qint32 margins)
+WidgetBuilder::WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler, qint32 margin)
     : m_addWidgetDelegate(defaultAddDelegate())
     , m_usedDefaultDelegate(true)
 {
-    QBoxLayout* layout;
-    if(layoutOrientation == Qt::Vertical) {
-        layout = new QVBoxLayout(parent);
-    } else {
-        layout = new QHBoxLayout(parent);
+    auto* oldLayout = parent->layout();
+    if(oldLayout != nullptr) {
+        while(auto* item = oldLayout->takeAt(0)){
+            if(item->widget() != nullptr) {
+                item->widget()->deleteLater();
+            }
+            delete item;
+        }
+        delete parent->layout();
     }
-    layout->setMargin(margins);
-    m_addWidgetFunctors.append([layout](QWidget* widget){ layout->addWidget(widget); });
+    auto* layout = new QVBoxLayout(parent);
+    layout->setMargin(margin);
+    m_addWidgetFunctors.append([layout](QWidget* w){ layout->addWidget(w); });
+    StartLayout(params, handler);
 }
 
 WidgetBuilder::~WidgetBuilder()
@@ -47,7 +53,8 @@ WidgetBuilder& WidgetBuilder::StartLayout(const WidgetBuilderLayoutParams& param
     } else {
         toAdd = new QHBoxLayout(dummyWidget);
     }
-    qDebug() << dummyWidget->sizePolicy();
+
+    toAdd->setSizeConstraint(params.SizeConstraint);
     m_addWidgetFunctors.last()(dummyWidget);
     m_addWidgetFunctors.append([toAdd](QWidget* w){ toAdd->addWidget(w); });
     handler(*this);
