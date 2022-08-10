@@ -22,7 +22,6 @@ public:
 
 private:
     class QBoxLayout* m_layout;
-    class WidgetsLocationAttachment* m_locationAttachment;
 };
 
 #endif // WidgetsToolBar_H

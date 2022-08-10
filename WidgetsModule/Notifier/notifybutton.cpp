@@ -3,6 +3,7 @@
 #include <QLabel>
 #include "WidgetsModule/Attachments/widgetslocationattachment.h"
 #include "WidgetsModule/Components/componentplacer.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 NotifyButton::NotifyButton(QWidget* parent)
     : Super(parent)
@@ -25,10 +26,10 @@ NotifyButton::NotifyButton(QWidget* parent)
 
     m_connectors.AddConnector<LocalPropertiesLabelConnector>(&NotificationsCountString, m_label);
 
-    auto* attachment = WidgetsLocationAttachment::Attach(DescWidgetsLocationAttachmentParams(m_label, QuadTreeF::Location_TopRight)
-                                                                .SetOffset({m_offset.Native().width(), m_offset.Native().height()})
-                                                                .SetRelativeParent(this)
-                                                                .SetDelay(0));
+    auto* attachment = WidgetWrapper(m_label).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_TopRight)
+                                          .SetOffset({m_offset.Native().width(), m_offset.Native().height()})
+                                          .SetRelativeParent(this)
+                                          .SetDelay(0));
 
     attachment->GetComponentPlacer()->Offset.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_offset, [](const QSize& size){
         return QPoint(size.width(), size.height());

@@ -7,6 +7,24 @@
 template<class T> class TViewModelsTableBase;
 template<class T> class TViewModelsEditTable;
 
+struct DescWidgetsLocationAttachmentParams
+{
+    DescWidgetsLocationAttachmentParams(QuadTreeF::BoundingRect_Location location = QuadTreeF::Location_Center)
+        : Location(location)
+        , Delay(500)
+        , RelativeParent(nullptr)
+    {}
+
+    QuadTreeF::BoundingRect_Location Location;
+    qint32 Delay;
+    QWidget* RelativeParent;
+    QPoint Offset;
+
+    DescWidgetsLocationAttachmentParams& SetOffset(const QPoint& offset) { Offset = offset; return *this; }
+    DescWidgetsLocationAttachmentParams& SetDelay(qint32 delay) { Delay = delay; return *this; }
+    DescWidgetsLocationAttachmentParams& SetRelativeParent(QWidget* parent) { RelativeParent = parent; return *this; }
+};
+
 struct DescCustomDialogParams
 {
     QVector<std::tuple<QDialogButtonBox::ButtonRole, QString, FAction>> Buttons;

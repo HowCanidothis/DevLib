@@ -7,7 +7,6 @@
 
 WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
     : Super(parent)
-    , m_locationAttachment(nullptr)
 {
     switch(orientation){
     case Qt::Vertical: m_layout = new QVBoxLayout(this); break;
@@ -21,15 +20,14 @@ WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
 
 void WidgetsToolBar::SetTarget(QWidget* target, QuadTreeF::BoundingRect_Location location)
 {
-    Q_ASSERT(m_locationAttachment == nullptr);
-    m_locationAttachment = WidgetsLocationAttachment::Attach(DescWidgetsLocationAttachmentParams(this, location)
-                                                             .SetRelativeParent(target)
-                                                             .SetDelay(0));
+    WidgetWrapper(this).LocateToParent(DescWidgetsLocationAttachmentParams(location)
+                                       .SetRelativeParent(target)
+                                       .SetDelay(0));
 }
 
 ComponentPlacer* WidgetsToolBar::GetComponentPlacer() const
 {
-    return m_locationAttachment->GetComponentPlacer();
+    return WidgetWrapper(const_cast<WidgetsToolBar*>(this)).Location()->GetComponentPlacer();
 }
 
 QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSize)

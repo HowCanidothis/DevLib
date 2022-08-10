@@ -897,12 +897,7 @@ NotifierErrorsFrame
     qproperty-errorLinkColor: white;
 }
 
-NotifierErrorsFrame QGroupBox
-{
-    background-color: #252526;
-}
-
-NotifierErrorsFrame QLabel
+NotifierErrorsFrame QWidget
 {
     background-color: #252526;
 }

@@ -1,4 +1,4 @@
-#include "WidgetsLocationAttachment.h"
+#include "widgetslocationattachment.h"
 
 #include <QWidget>
 #include <QResizeEvent>
@@ -6,10 +6,10 @@
 #include "WidgetsModule/Components/componentplacer.h"
 #include "WidgetsModule/Utils/styleutils.h"
 
-WidgetsLocationAttachment::WidgetsLocationAttachment(const DescWidgetsLocationAttachmentParams& params)
-    : Super(params.Target)
+WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const DescWidgetsLocationAttachmentParams& params)
+    : Super(target)
     , m_componentPlacer(::make_scoped<ComponentPlacer>(params.Delay))
-    , m_target(params.Target)
+    , m_target(target)
 {
     m_componentPlacer->Location = params.Location;
     m_componentPlacer->Offset = params.Offset;
@@ -54,6 +54,9 @@ bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
         if(watched == m_target) {
             m_componentPlacer->TargetSize = resizeEvent->size();
         } else if(watched == m_parent){
+            if(m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
+                m_target->resize(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() + m_componentPlacer->Offset.Native().y() * 2);
+            }
             m_componentPlacer->ParentSize = resizeEvent->size();
             m_componentPlacer->ResultPosition.Invoke();
         } else {

@@ -41,6 +41,7 @@
 
 #include "WidgetsModule/Attachments/widgetsactivetableattachment.h"
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
+#include "WidgetsModule/Attachments/widgetslocationattachment.h"
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
@@ -48,6 +49,8 @@
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
+Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
+Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 
 class WidgetsAttachment : public QObject
 {
@@ -276,18 +279,6 @@ LocalPropertyBool& WidgetPushButtonWrapper::WidgetChecked() const
 const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetIcon(const Name& iconId) const
 {
     GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconId));
-    return *this;
-}
-
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::OnClicked(const FAction& action) const
-{
-    m_widget->connect(GetWidget(), &QPushButton::clicked, action);
-    return *this;
-}
-
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::OnClicked(const FAction& action, QtLambdaConnections& connections) const
-{
-    connections.connect(GetWidget(), &QPushButton::clicked, action);
     return *this;
 }
 
@@ -535,6 +526,39 @@ void WidgetWrapper::Highlight(qint32 unhightlightIn) const
             wrapper.Lowlight();
         });
     }
+}
+
+Dispatcher& WidgetPushButtonWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QPushButton::clicked, [result]{ result->Invoke(); });
+        return result;
+    });
+}
+
+CommonDispatcher<const Name&>& WidgetLabelWrapper::OnLinkActivated() const
+{
+    auto* widget = GetWidget();
+    return *Injected<CommonDispatcher<const Name&>>("a_on_link_activated", [widget]{
+        auto* result = new CommonDispatcher<const Name&>();
+        widget->connect(widget, &QLabel::linkActivated, [result](const QString& link){
+            (*result)(Name(link));
+        });
+        return result;
+    });
+}
+
+class WidgetsLocationAttachment* WidgetWrapper::LocateToParent(const DescWidgetsLocationAttachmentParams& params) const
+{
+    Q_ASSERT(Location() == nullptr);
+    return InjectedWidget<WidgetsLocationAttachment>("a_location", [params](QWidget* parent){ return new WidgetsLocationAttachment(parent, params); });
+}
+
+WidgetsLocationAttachment* WidgetWrapper::Location() const
+{
+    return InjectedWidget<WidgetsLocationAttachment>("a_location", [](QWidget*){ return nullptr; });
 }
 
 void WidgetWrapper::Lowlight() const

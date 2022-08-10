@@ -55,6 +55,9 @@ void ComponentPlacer::updateLocator()
     case QuadTreeF::Location_MiddleBottom: m_locator = [this]{
             ResultPosition = QPoint(width() / 2 + offsetX() - targetWidth() / 2, height() - targetHeight() - offsetY());
         }; break;
+    case QuadTreeF::Location_Center: m_locator = [this]{
+            ResultPosition = QPoint((width() - targetWidth()) / 2, (height() - targetHeight()) / 2);
+        }; break;
     default: m_locator = [this]{
             ResultPosition = QPoint(width() / 2 + offsetX(), height() / 2 + offsetY());
         }; break;

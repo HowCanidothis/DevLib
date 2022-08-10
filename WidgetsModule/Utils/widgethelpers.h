@@ -77,6 +77,17 @@ class WidgetWrapper : public ObjectWrapper
 public:
     WidgetWrapper(QWidget* widget);
 
+    template<class T>
+    T* InjectedWidget(const char* propertyName, const std::function<T* (QWidget* parent)>& creator = nullptr) const
+    {
+        auto* value = (T*)m_widget->property(propertyName).value<size_t>();
+        if(value == nullptr) {
+            value = creator != nullptr ? creator(m_widget) : new T(m_widget);
+            m_widget->setProperty(propertyName, (size_t)value);
+        }
+        return value;
+    }
+
     template<class T> T& Cast() { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_widget)); return *((T*)this); }
 
     DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
@@ -100,6 +111,10 @@ public:
     void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8) const;
     void ShowAnimated(int duration = 2000, double opacity = 0.8) const;
     void HideAnimated(int duration = 2000) const;
+
+    class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
+    WidgetsLocationAttachment* Location() const;
+
 
     const WidgetWrapper& AddModalProgressBar() const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
@@ -159,8 +174,8 @@ public:
 
     LocalPropertyBool& WidgetChecked() const;
     const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
-    const WidgetPushButtonWrapper& OnClicked(const FAction& action) const;
-    const WidgetPushButtonWrapper& OnClicked(const FAction& action, QtLambdaConnections& connections) const;
+
+    Dispatcher& OnClicked() const;
     TranslatedStringPtr WidgetText() const;
 };
 
@@ -256,6 +271,8 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLabelWrapper, QLabel)
 
     TranslatedStringPtr WidgetText() const;
+
+    CommonDispatcher<const Name&>& OnLinkActivated() const;
 };
 
 class WidgetTableViewWrapper : public WidgetWrapper
