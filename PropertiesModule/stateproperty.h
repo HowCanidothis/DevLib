@@ -226,6 +226,7 @@ public:
     StateParameterImmutableData<T> Parameter;
 };
 template<class T> using StateParametersContainerPtr = SharedPointer<StateParametersContainer<T>>;
+template<class T> using StateParametersContainerPtrInitialized = SharedPointerInitialized<StateParametersContainer<T>>;
 
 inline uint qHash(const SharedPointer<StateParameters>& key, uint seed = 0) { return qHash(key.get(), seed); }
 
