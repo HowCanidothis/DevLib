@@ -210,6 +210,14 @@ public:
         });
     }
 
+    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
+    DispatcherConnections ConnectTo(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& anotherEvaluator, Dispatchers&... dispatchers)
+    {
+        return OnChanged.ConnectAndCallCombined(locationInfo, [this, anotherEvaluator, &another, locationInfo] {
+            another = anotherEvaluator(Native());
+        }, dispatchers...);
+    }
+
     template<class Property, typename T2 = typename Property::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
     DispatcherConnections ConnectBoth(const char* locationInfo, Property& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, Dispatchers&... dispatchers)
     {
