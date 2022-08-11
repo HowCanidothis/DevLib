@@ -67,6 +67,9 @@ public:
 
     QVector<ModelsTreeItemBase*> GetPath() const;
 
+    static const Name ExpandedKey;
+    static const Name CheckedKey;
+
 private:
     static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
     static void findChildRecursive(ModelsTreeItemBase* item, const FilterFunc& filterFunc, bool& found);

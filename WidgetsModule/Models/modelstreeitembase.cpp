@@ -1,5 +1,8 @@
 #include "modelstreeitembase.h"
 
+const Name ModelsTreeItemBase::ExpandedKey("Expanded");
+const Name ModelsTreeItemBase::CheckedKey("Checked");
+
 ModelsTreeItemBase::ModelsTreeItemBase(ModelsTreeItemBase* parent)
     : m_parent(parent)
 {
@@ -148,12 +151,12 @@ qint32 ModelsTreeItemBase::GetParentRow() const
 }
 
 Qt::CheckState ModelsTreeItemBase::IsChecked(size_t key) const {
-    auto variant = GetUserData(key, "Checked");
+    auto variant = GetUserData(key, CheckedKey);
     return variant.value<Qt::CheckState>();
 }
 
 void ModelsTreeItemBase::SetChecked(size_t key, Qt::CheckState value) {
-    SetUserData(key, "Checked", value);
+    SetUserData(key, CheckedKey, value);
 }
 
 void ModelsTreeItemBase::SetUserData(size_t key, const Name& propertyName, const QVariant& value)
@@ -176,12 +179,12 @@ QVariant ModelsTreeItemBase::GetUserData(size_t key, const Name& propertyName) c
 
 bool ModelsTreeItemBase::IsExpanded(size_t key) const
 {
-    return GetUserData(key, "Expanded").toBool();
+    return GetUserData(key, ExpandedKey).toBool();
 }
 
 void ModelsTreeItemBase::SetExpanded(size_t key, bool flag)
 {
-    SetUserData(key, "Expanded", flag);
+    SetUserData(key, ExpandedKey, flag);
 }
 
 void ModelsTreeItemBase::clone(ModelsTreeItemBase* toItem) const

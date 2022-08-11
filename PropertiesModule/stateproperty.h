@@ -3,6 +3,8 @@
 
 #include "localproperty.h"
 
+template<class T> class StateCalculator;
+
 class StateProperty : public LocalPropertyBool
 {
     using Super = LocalPropertyBool;
@@ -180,6 +182,7 @@ class StateParameterImmutableData : public StateParameterBase<LocalPropertyShare
 {
     using Super = StateParameterBase<LocalPropertySharedPtr<T>>;
 public:
+    using TPtr = T;
     StateParameterImmutableData(StateParameters* params)
         : Super(params, [this]{
             if(Super::InputValue != nullptr) {
@@ -206,7 +209,6 @@ public:
 
             Super::m_parameters->IsValid.AddProperties(CONNECTION_DEBUG_LOCATION, { &m_modelIsValid });
         };
-
     }
 
 private:
@@ -219,6 +221,7 @@ template<class T>
 class StateParametersContainer : public StateParameters
 {
 public:
+    using TPtr = SharedPointer<T>;
     StateParametersContainer()
         : Parameter(this)
     {}
@@ -562,6 +565,26 @@ public:
 
 template<class T> using StateParametersImmutableData = StateParametersContainer<StateImmutableData<T>>;
 template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
+
+template<class T, class T2, typename TPtr = SharedPointer<T>>
+SharedPointer<StateParametersImmutableData<T>> CreateStateParametersImmutableData(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+{
+    auto result = ::make_shared<StateParametersImmutableData<T>>();
+    result->InputValue = ::make_shared<T>();
+    result->InputValue->AttachSource(source, connectorHandler, handler);
+    result->InputValue = true;
+    return result;
+}
+
+template<class T, class T2, typename TPtr = SharedPointer<T>>
+SharedPointer<StateParametersImmutableData<T>> CreateStateParametersImmutableData(const SharedPointer<T2>& source, const std::function<TPtr ()>& handler = nullptr)
+{
+    auto result = ::make_shared<StateParametersImmutableData<T>>();
+    result->InputValue = ::make_shared<T>();
+    result->InputValue->AttachSource(source, handler);
+    result->InputValue = true;
+    return result;
+}
 
 template<class T>
 class IStateImmutableData

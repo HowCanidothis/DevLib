@@ -10,7 +10,7 @@ GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr&
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Point3F, QOpenGLBuffer::StaticDraw))
     , m_material(::make_scoped<GtMaterial>(GL_LINES, shaderProgram))
 {
-    m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", "mvp"));
+    m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Color.Native()));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));

@@ -10,7 +10,7 @@
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
-WidgetBuilder::WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler, qint32 margin)
+WidgetBuilder::WidgetBuilder(QWidget* parent, qint32 margin)
     : m_addWidgetDelegate(defaultAddDelegate())
     , m_usedDefaultDelegate(true)
 {
@@ -25,7 +25,6 @@ WidgetBuilder::WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& p
     auto* layout = new QVBoxLayout(parent);
     layout->setMargin(margin);
     m_addWidgetFunctors.append([layout](QWidget* w){ layout->addWidget(w); });
-    StartLayout(params, handler);
 }
 
 WidgetBuilder::~WidgetBuilder()

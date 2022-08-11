@@ -17,7 +17,7 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
     , m_recompute(0, CreateThreadNoCheckHandler())
 {
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", "mvp"));
+    m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Color.Native()));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
 

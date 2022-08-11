@@ -18,9 +18,15 @@ struct Serializer<Name>
     template<class Buffer>
     static void Read(Buffer& buffer, target_type& data)
     {
+        thread_local static QSet<Name> cache;
         QString value;
         buffer << value;
-        data.SetName(value);
+        Name name(value);
+        auto foundIt = cache.find(name);
+        if(foundIt == cache.end()) {
+            foundIt = cache.insert(name);
+        }
+        data = *foundIt;
     }
 };
 

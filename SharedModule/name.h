@@ -13,6 +13,8 @@ public:
     Name(const Name& other);
     explicit Name(const QString& name);
 
+    ~Name();
+
     void SetName(const QString& str);
 
     static Name Joined(const std::initializer_list<Name>& names);
@@ -29,6 +31,7 @@ public:
         return debug.maybeSpace();
     }
 
+    Name& operator=(const Name& another);
     bool operator==(const Name& another) const { return another.m_value == m_value && (m_text.isEmpty() || another.m_text.isEmpty() || m_text == another.m_text); }
 
     static Name FromValue(qint64 value) { Name result; result.m_value = value; return result; }
@@ -69,7 +72,7 @@ private:
     qint64 m_value;
 };
 
-struct UniName
+class UniName
 {
     Name m_name;
     Latin1Name m_latinName;
@@ -146,6 +149,22 @@ private:
     QHash<Name, qint64> m_strToEnum;
     QHash<qint64, Name> m_enumToStr;
 };
+
+#ifdef QT_DEBUG
+class DebugNameManager : public SingletoneGlobal<DebugNameManager>
+{
+public:
+    void PrintReport(qint32 maxSymbolUsage = 64);
+
+private:
+    friend class Name;
+    void addName(const QString& name);
+    void removeName(const QString& name);
+
+    QHash<QString, QHash<const QChar*, qint32>> m_counter;
+    QMutex m_mutex;
+};
+#endif
 
 Q_DECLARE_METATYPE(Name)
 

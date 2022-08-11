@@ -82,8 +82,8 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
     , m_font(font)
 {
     m_material.AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material.AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", "mvp"));
-    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", "screenSize"), false);
+    m_material.AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));
+    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", GtNames::screenSize), false);
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("ENABLE_DIR_CORRECTION", &Settings.UseDirectionCorrection.Native()), false);
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
@@ -183,7 +183,7 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
     , m_font(font)
 {
     m_material.AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", "screenSize"));
+    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", GtNames::screenSize));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("CONTRAST", &Settings.Contrast.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_SCALE", &Settings.Scale.Native()));

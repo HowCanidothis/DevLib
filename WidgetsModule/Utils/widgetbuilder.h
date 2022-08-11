@@ -29,7 +29,7 @@ class WidgetBuilder
 {
     using FAddDelegate = std::function<void (const FTranslationHandler&, QWidget*)>;
 public:
-    WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler, qint32 margin = 9);
+    WidgetBuilder(QWidget* parent, qint32 margin = 9);
     ~WidgetBuilder();
 
     WidgetBuilder& StartSplitter(const std::function<void (WidgetBuilder&, QSplitter*)>& handler);

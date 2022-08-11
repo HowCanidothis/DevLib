@@ -4,6 +4,21 @@
 #include <SharedModule/internal.hpp>
 #include <SharedGuiModule/internal.hpp>
 
+namespace GtNames {
+DECLARE_GLOBAL_NAME(mvp);
+DECLARE_GLOBAL_NAME(screenSize)
+DECLARE_GLOBAL_NAME(invertedMVP)
+DECLARE_GLOBAL_NAME(eye)
+DECLARE_GLOBAL_NAME(side)
+DECLARE_GLOBAL_NAME(up)
+DECLARE_GLOBAL_NAME(forward)
+DECLARE_GLOBAL_NAME(view)
+DECLARE_GLOBAL_NAME(projection)
+DECLARE_GLOBAL_NAME(rotation)
+DECLARE_GLOBAL_NAME(viewportProjection)
+DECLARE_GLOBAL_NAME(camera)
+}
+
 struct GtControllersContext
 {
     class GtCamera* Camera;

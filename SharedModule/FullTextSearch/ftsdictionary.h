@@ -7,6 +7,8 @@ class FTSDictionary;
 
 using FTSObjectId = Name;
 
+template<class T> class TFTSObject;
+
 class FTSObject
 {
 public:
@@ -14,8 +16,24 @@ public:
 
     void AddRow(const QString& string, const FTSObjectId& rowId);
 
+    template<class T>
+    T* Cast() { return reinterpret_cast<T*>(this); }
+
 private:
     FTSDictionary* m_dictionary;
+};
+
+template<class T>
+class TFTSObject : public FTSObject
+{
+    using Super = FTSObject;
+public:
+    TFTSObject(const T& value, FTSDictionary* dictionary)
+        : Super(dictionary)
+        , Value(value)
+    {}
+
+    T Value;
 };
 
 struct FTSObjectRow

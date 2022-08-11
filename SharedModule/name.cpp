@@ -1,11 +1,80 @@
 #include "name.h"
 #include <QHashFunctions>
 
+#ifdef QT_DEBUG
+#define ADD_NAME DebugNameManager::GetInstance().addName(AsString());
+#define REMOVE_NAME DebugNameManager::GetInstance().removeName(AsString());
+
+void DebugNameManager::PrintReport(qint32 maxSymbolUsage)
+{
+    QMutexLocker locker(&m_mutex);
+    auto totalLostSize = 0;
+    for(auto it(m_counter.cbegin()), e(m_counter.cend()); it != e; ++it) {
+        auto count = 0;
+        for(const auto& value : it.value()) {
+            if(value != 0) {
+                ++count;
+            }
+        }
+        auto tookBytes = it.key().size() * count;
+        if(tookBytes > maxSymbolUsage) {
+            qDebug().noquote() << QString("\"%1\":Possible extra memory usage, took %2 symbols with %3 copies").arg(it.key(), QString::number(tookBytes), QString::number(count));
+        }
+        if(count > 1) {
+            totalLostSize += it.key().size() * (count - 1);
+        }
+    }
+    qDebug() << QString("==========================================Total Lost Symbols: %1================================").arg(totalLostSize);
+}
+
+void DebugNameManager::addName(const QString& name)
+{
+    if(name == "MinYieldStrength") {
+        qDebug() << "here";
+    }
+    if(name.isEmpty()) {
+        return;
+    }
+    QMutexLocker locker(&m_mutex);
+    auto foundIt = m_counter.find(name);
+    if(foundIt == m_counter.end()) {
+        foundIt = m_counter.insert(name, QHash<const QChar*,qint32>());
+    }
+    auto foundIt2 = foundIt->find(name.data());
+    if(foundIt2 == foundIt->end()) {
+        foundIt2 = foundIt->insert(name.data(), 0);
+    }
+    auto& counter = foundIt2.value();
+    ++counter;
+}
+
+void DebugNameManager::removeName(const QString& name)
+{
+    if(name == "MinYieldStrength") {
+        qDebug() << "here";
+    }
+    if(name.isEmpty()) {
+        return;
+    }
+    QMutexLocker locker(&m_mutex);
+    auto foundIt = m_counter.find(name);
+    if(foundIt != m_counter.end()) {
+        auto foundIt2 = foundIt->find(name.data());
+        if(foundIt2 != foundIt->end()) {
+            auto& counter = foundIt2.value();
+            --counter;
+        }
+    }
+}
+#else
+#define ADD_NAME(x)
+#define REMOVE_NAME(x)
+#endif
+
 UniName::UniName(const char* name)
     : m_name(name)
     , m_latinName(name)
 {
-
 }
 
 UniName::UniName(const Latin1Name& name)
@@ -66,27 +135,43 @@ Name::Name(const char* name)
     , m_value(qHash(m_text))
 
 {
-
+    ADD_NAME
 }
 
 Name::Name(const Name& other)
     : m_text(other.m_text)
     , m_value(other.m_value)
 {
-
+    ADD_NAME
 }
 
 Name::Name(const QString& name)
     : m_text(name)
     , m_value(qHash(m_text))
 {
+    ADD_NAME
+}
 
+Name::~Name()
+{
+    REMOVE_NAME
+}
+
+Name& Name::operator=(const Name& another)
+{
+    REMOVE_NAME
+    m_value = another.m_value;
+    m_text = another.m_text;
+    ADD_NAME
+    return *this;
 }
 
 void Name::SetName(const QString& str)
 {
+    REMOVE_NAME
     m_value = qHash(str);
     m_text = str;
+    ADD_NAME
 }
 
 Name Name::Joined(const std::initializer_list<Name>& names)
