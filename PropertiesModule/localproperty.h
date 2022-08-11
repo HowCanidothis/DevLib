@@ -173,8 +173,8 @@ public:
         });
     }
 
-    template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& thisEvaluator, Dispatchers&... dispatchers)
+    template<class T2, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
+    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const ThisEvaluator& thisEvaluator, Dispatchers&... dispatchers)
     {
         *this = thisEvaluator(another.Native());
         auto onChange = [this, thisEvaluator, &another, locationInfo]{
@@ -211,7 +211,7 @@ public:
     }
 
     template<class T2, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
-    DispatcherConnections ConnectTo(const char* locationInfo, const LocalProperty<T2>& another, const Evaluator& anotherEvaluator, Dispatchers&... dispatchers)
+    DispatcherConnections ConnectTo(const char* locationInfo, LocalProperty<T2>& another, const Evaluator& anotherEvaluator, Dispatchers&... dispatchers)
     {
         return OnChanged.ConnectAndCallCombined(locationInfo, [this, anotherEvaluator, &another, locationInfo] {
             another = anotherEvaluator(Native());
