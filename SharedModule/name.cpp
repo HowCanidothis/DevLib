@@ -29,9 +29,6 @@ void DebugNameManager::PrintReport(qint32 maxSymbolUsage)
 
 void DebugNameManager::addName(const QString& name)
 {
-    if(name == "MinYieldStrength") {
-        qDebug() << "here";
-    }
     if(name.isEmpty()) {
         return;
     }
@@ -50,9 +47,6 @@ void DebugNameManager::addName(const QString& name)
 
 void DebugNameManager::removeName(const QString& name)
 {
-    if(name == "MinYieldStrength") {
-        qDebug() << "here";
-    }
     if(name.isEmpty()) {
         return;
     }
