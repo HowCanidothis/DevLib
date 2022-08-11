@@ -852,11 +852,6 @@ NotifierErrorsFrame
     qproperty-errorLinkColor: black;
 }
 
-NotifierErrorsFrame QWidget
-{
-    background-color: #d4d4d4;
-}
-
 QPushButton#btnDrawer
 {
     background: transparent;

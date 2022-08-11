@@ -17,9 +17,7 @@ WidgetBuilder::WidgetBuilder(QWidget* parent, const WidgetBuilderLayoutParams& p
     auto* oldLayout = parent->layout();
     if(oldLayout != nullptr) {
         while(auto* item = oldLayout->takeAt(0)){
-            if(item->widget() != nullptr) {
-                item->widget()->deleteLater();
-            }
+            delete item->widget();
             delete item;
         }
         delete parent->layout();
