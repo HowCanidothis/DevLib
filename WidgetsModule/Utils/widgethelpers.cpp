@@ -197,6 +197,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionImportId);
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
             tableView->addAction(columnsAction->menuAction());
@@ -249,6 +250,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionImportId);
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
             tableView->addAction(columnsAction->menuAction());
