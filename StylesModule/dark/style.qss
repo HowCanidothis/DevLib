@@ -895,7 +895,7 @@ QWidget#widgetheader {
 NotifierErrorsFrame
 {
     qproperty-errorLinkColor: white;
-    qproperty-errorLinkColor: #d17d06;
+    qproperty-warningLinkColor: #d17d06;
 }
 
 QPushButton#btnDrawer
