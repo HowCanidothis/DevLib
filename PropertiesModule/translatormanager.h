@@ -114,6 +114,7 @@ public:
     TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);
 
     void SetTranslationHandler(const FTranslationHandler& handler);
+    DispatcherConnections SetTranslationHandler(const char* connectionInfo, const FTranslationHandler& handler, const QVector<Dispatcher*>& retranslators);
     const FTranslationHandler& GetTranslationHandler() const { return m_translationHandler; }
 
     Dispatcher Retranslate;

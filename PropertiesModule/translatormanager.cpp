@@ -38,6 +38,17 @@ void TranslatedString::SetTranslationHandler(const FTranslationHandler& handler)
     retranslate();
 }
 
+DispatcherConnections TranslatedString::SetTranslationHandler(const char* connectionInfo, const FTranslationHandler& handler, const QVector<Dispatcher*>& retranslators)
+{
+    DispatcherConnections result;
+    m_translationHandler = handler;
+    for(auto* dispatcher : retranslators) {
+        result += Retranslate.ConnectFrom(connectionInfo, *dispatcher);
+    }
+    retranslate();
+    return result;
+}
+
 void TranslatedString::retranslate()
 {
     m_retranslate.Call(CONNECTION_DEBUG_LOCATION, [this]{
