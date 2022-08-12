@@ -61,8 +61,8 @@ void DebugNameManager::removeName(const QString& name)
     }
 }
 #else
-#define ADD_NAME(x)
-#define REMOVE_NAME(x)
+#define ADD_NAME
+#define REMOVE_NAME
 #endif
 
 UniName::UniName(const char* name)
