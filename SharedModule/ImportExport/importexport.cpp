@@ -1,5 +1,72 @@
 #include "importexport.h"
 
+ImportExportFilterExtensionsBuilder::ImportExportFilterExtensionsBuilder(bool addZip)
+    : m_addAllTypes([](QStringList&){})
+{
+    if(addZip) {
+        m_addZip = [this](const ExtensionValue& value){
+            m_extensions.append(std::make_pair(QString("Archive %1").arg(value.first.isEmpty() ? value.second.toUpper() : value.first), QString("%1.zip").arg(value.second)));
+        };
+    } else {
+        m_addZip = [](const ExtensionValue&){};
+    }
+}
+
+ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddAllTypes(bool enable)
+{
+    if(enable) {
+        m_addAllTypes = [this](QStringList& result){
+            result.append(QString("All Types (%1)").arg(lq::Join(' ', lq::Select<QString>(m_extensions, [](const ExtensionValue& value){
+                return QString("*.%1").arg(value.second);
+            }))));
+        };
+    } else {
+        m_addAllTypes = [](QStringList&){};
+    }
+    return *this;
+}
+
+ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddExtension(const QString& extension)
+{
+    AddExtension(QString(), extension);
+    return *this;
+}
+
+ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddExtensions(const QStringList& extensions)
+{
+    for(const auto& extension : extensions) {
+        AddExtension(extension);
+    }
+    return *this;
+}
+
+ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddExtensions(const QSet<Name>& extensions)
+{
+    for(const auto& extension : extensions) {
+        AddExtension(extension.AsString());
+    }
+    return *this;
+}
+
+ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddExtension(const QString& label, const QString& extension)
+{
+    m_extensions.append(std::make_pair(label, extension));
+    m_addZip(m_extensions.constLast());
+    return *this;
+}
+
+QStringList ImportExportFilterExtensionsBuilder::Result()
+{
+    QStringList result;
+    m_addAllTypes(result);
+    lq::Join(m_extensions, [&](const ExtensionValue& value){
+        const auto& label = value.first;
+        const auto& ext = value.second;
+        result.append(QString("%1 (*.%2)").arg(label.isEmpty() ? ext.toUpper() : label, ext));
+    });
+    return result;
+}
+
 ThreadPool& ImportExport::threadPool()
 {
     static ThreadPool result;

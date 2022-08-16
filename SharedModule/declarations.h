@@ -341,6 +341,12 @@ bool Join(const Container& container, const std::function<void (const typename C
 }
 
 template<class Container>
+bool Join(const Container& container, const std::function<void (const typename Container::value_type& value)>& selector)
+{
+    return Join(container, selector, selector);
+}
+
+template<class Container>
 bool JoinIt(const Container& container, const std::function<void (const typename Container::const_iterator& value)>& selector,
           const std::function<void (const typename Container::const_iterator& value)>& lastSelector)
 {

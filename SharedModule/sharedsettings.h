@@ -36,7 +36,6 @@ struct StyleSettings
     void InstallQSSReader(const QString& path, bool dynamic = true);
 
     LocalPropertyFilePath StylesQSSFile;
-
     LocalPropertyColor ShadowColor;
 
     LocalPropertyColor IconPrimaryColor;
@@ -50,6 +49,7 @@ struct StyleSettings
     LocalPropertyColor DefaultRedColor;
 
     LocalPropertyInt ShowFocusMinFrame;
+    LocalPropertyFilePath ShadersPath;
 
     void Release();
 
@@ -67,6 +67,7 @@ struct PathSettings
     QDir TempDir;
     QDir LoggingDir;
 
+
     void Initialize(const QString& productName);
 
     template<class Buffer>
@@ -74,6 +75,7 @@ struct PathSettings
     {
         buffer.OpenSection("PathSettings");
         buffer << buffer.Sect("TextComparatorApplicationPath", TextComparatorApplicationPath);
+        buffer << buffer.Sect("SharedsPath", ShadersPath);
         buffer.CloseSection();
     }
 

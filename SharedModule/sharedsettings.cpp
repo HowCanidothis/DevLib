@@ -19,6 +19,11 @@ StyleSettings::StyleSettings()
     , EnabledTableCellColor(Qt::white)
     , DefaultRedColor("#ff3b30")
     , ShowFocusMinFrame(3, 0, 9)
+    #ifdef QT_DEBUG
+    , ShadersPath("D:/Work/wps-client/libs/Content/Shaders/")
+    #else
+    , ShadersPath(QString())
+    #endif
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
 

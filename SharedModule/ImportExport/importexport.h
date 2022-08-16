@@ -189,6 +189,27 @@ public:
     }
 };
 
+class ImportExportFilterExtensionsBuilder
+{
+public:
+    ImportExportFilterExtensionsBuilder(bool addZip = false);
+
+    ImportExportFilterExtensionsBuilder& AddAllTypes(bool enable = true);
+
+    ImportExportFilterExtensionsBuilder& AddExtension(const QString& extension);
+    ImportExportFilterExtensionsBuilder& AddExtensions(const QStringList& extensions);
+    ImportExportFilterExtensionsBuilder& AddExtensions(const QSet<Name>& extensions);
+    ImportExportFilterExtensionsBuilder& AddExtension(const QString& label, const QString& extension);
+
+    QStringList Result();
+
+private:
+    using ExtensionValue = std::pair<QString, QString>;
+    QVector<ExtensionValue> m_extensions;
+    std::function<void (QStringList&)> m_addAllTypes;
+    std::function<void (const ExtensionValue&)> m_addZip;
+};
+
 template<class T>
 class ImportExportFactory : public QHash<Name, ImportExportDelegate<T>>
 {
@@ -212,26 +233,14 @@ public:
 
     const Name& GetDefaultExportSuffix() const { return m_defaultSuffix; }
 
-    static QList<QString> ImportExtensionsFilterList(const QList<QString>& extensionsList)
-    {
-        auto result = lq::Select<QString>(extensionsList, [](const QString& value){ return QString("%1 (*.%2)").arg(value.toUpper(), value); });
-        result.prepend(QString("All Types (%1)").arg(lq::Join(' ', lq::Select<QString>(extensionsList, [](const QString& value){ return QString("*.%1").arg(value); }))));
-        return result;
-    }
-
-    static QList<QString> ExportExtensionsFilterList(const QList<QString>& extensionsList)
-    {
-        return lq::Select<QString>(extensionsList, [](const QString& value){ return QString("%1 (*.%2)").arg(value.toUpper(), value); });
-    }
-
     QList<QString> ImportExtensionsFilterList() const
     {
-        return ImportExtensionsFilterList(lq::Select<QString>(m_importExtensions, [](const Name& value){ return value.AsString(); }));
+        return ImportExportFilterExtensionsBuilder().AddExtensions(m_importExtensions).AddAllTypes().Result();
     }
 
     QList<QString> ExportExtensionsFilterList() const
     {
-        return ExportExtensionsFilterList(lq::Select<QString>(m_importExtensions, [](const Name& value){ return value.AsString(); }));
+        return ImportExportFilterExtensionsBuilder().AddExtensions(m_exportExtensions).Result();
     }
 
     const QSet<Name>& GetImportExtensions() const { return m_importExtensions; }
