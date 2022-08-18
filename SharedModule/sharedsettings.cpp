@@ -22,7 +22,7 @@ StyleSettings::StyleSettings()
     #ifdef QT_DEBUG
     , ShadersPath("D:/Work/wps-client/libs/Content/Shaders/")
     #else
-    , ShadersPath(QString())
+    , ShadersPath(":/")
     #endif
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);

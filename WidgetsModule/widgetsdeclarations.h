@@ -121,6 +121,14 @@ struct DescTableViewParams
         return *this;
     }
 
+    DescTableViewParams& HideTill(qint32 count)
+    {
+        while(--count != -1) {
+            Column(count).Hide();
+        }
+        return *this;
+    }
+
     DescTableViewParams& Make(const std::function<void (DescTableViewParams& params)>& handler)
     {
         handler(*this);
