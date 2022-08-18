@@ -7,7 +7,7 @@
 class ComponentPlacer
 {
 public:
-    ComponentPlacer(qint32 delayMsecs, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority);
+    ComponentPlacer(const DelayedCallObjectParams& params = DelayedCallObjectParams());
 
     void Initialize();
 

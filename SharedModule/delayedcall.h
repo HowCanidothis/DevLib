@@ -5,10 +5,21 @@
 #include "SharedModule/dispatcher.h"
 #include "SharedModule/Threads/threadsbase.h"
 
+struct DelayedCallObjectParams
+{
+    DelayedCallObjectParams(qint32 delayMsecs = 0, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority)
+        : DelayMsecs(delayMsecs)
+        , Handler(handler)
+    {}
+
+    qint32 DelayMsecs;
+    ThreadHandlerNoThreadCheck Handler;
+};
+
 class DelayedCallObject
 {
 public:
-    DelayedCallObject(qint32 delayMsecs = 0, const ThreadHandlerNoThreadCheck& handler = ThreadHandlerNoCheckMainLowPriority);
+    DelayedCallObject(const DelayedCallObjectParams& params = DelayedCallObjectParams());
 
     ~DelayedCallObject()
     {
@@ -28,10 +39,11 @@ private:
     static qint32 generateId();
 
     friend class DelayedCallManager;
-    ThreadHandlerNoThreadCheck m_threadHandler;
-    qint32 m_delay;
+    DelayedCallObjectParams m_params;
     qint32 m_id;
 };
+
+using DelayedCallObjectPtr = SharedPointer<DelayedCallObject>;
 
 class DelayedCall
 {
@@ -72,10 +84,12 @@ class DelayedCallManager
 {
 public:
     static AsyncResult CallDelayed(const char* connectionInfo, DelayedCallObject* object, const FAction& action);
+    static AsyncResult CallDelayed(const char* connectionInfo, const Name& key, const FAction& action, const DelayedCallObjectParams& params = DelayedCallObjectParams());
 
 private:
     static QMutex* mutex();
     static QHash<qint32, DelayedCallPtr>& cachedCalls();
+    static QHash<Name, DelayedCallObjectPtr>& namedObjects();
 };
 
 template<typename ... Args>
@@ -83,8 +97,8 @@ class DelayedCallDispatchersCommutator : public CommonDispatcher<Args...>
 {
     using Super = CommonDispatcher<Args...>;
 public:
-    DelayedCallDispatchersCommutator(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
-        : m_delayedCallObject(msecs, threadHandler)
+    DelayedCallDispatchersCommutator(const DelayedCallObjectParams& params = DelayedCallObjectParams())
+        : m_delayedCallObject(params)
     {
 
     }
@@ -107,9 +121,9 @@ private:
 
 using DispatchersCommutator = DelayedCallDispatchersCommutator<>;
 
-inline SharedPointer<DelayedCallObject> DelayedCallObjectCreate(qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority)
+inline DelayedCallObjectPtr DelayedCallObjectCreate(const DelayedCallObjectParams& params = DelayedCallObjectParams())
 {
-    return ::make_shared<DelayedCallObject>(msecs, threadHandler);
+    return ::make_shared<DelayedCallObject>(params);
 }
 
 #endif // DELAYEDCALL_H

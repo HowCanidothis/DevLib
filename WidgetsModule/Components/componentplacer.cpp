@@ -6,9 +6,9 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Utils/styleutils.h"
 
-ComponentPlacer::ComponentPlacer(qint32 delayMsecs, const ThreadHandlerNoThreadCheck& handler)
+ComponentPlacer::ComponentPlacer(const DelayedCallObjectParams& params)
     : m_locator([]{ return QPoint(); })
-    , m_locate(delayMsecs, handler)
+    , m_locate(params)
 {
 }
 

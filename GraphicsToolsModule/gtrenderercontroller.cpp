@@ -127,7 +127,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_controllers(controllersContainer)
     , m_renderTime(0)    
     , m_cameraAnimationEngine(renderer, m_camera.get())
-    , m_resize(100, renderer->CreateThreadHandler())
+    , m_resize(DelayedCallObjectParams(100, renderer->CreateThreadHandler()))
     , m_dirty(true)
     , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
 {

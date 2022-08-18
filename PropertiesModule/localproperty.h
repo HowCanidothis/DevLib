@@ -468,23 +468,20 @@ public:
 
     struct CreateDispatcherParams
     {
-        qint32 Delay;
-        ThreadHandler HandlerThread;
+        DelayedCallObjectParams DelayedCallParams;
         const char* ConnectionInfo;
         FCreateDispatcherHandler Handler;
 
         CreateDispatcherParams(const char* connectionInfo, LocalPropertySharedPtrDispatcherHelper<T>* helper)
-            : Delay(-1)
-            , HandlerThread(ThreadHandlerNoCheckMainLowPriority)
+            : DelayedCallParams(-1, ThreadHandlerNoCheckMainLowPriority)
             , ConnectionInfo(connectionInfo)
             , Handler([](const T&, Dispatcher*, DispatcherConnectionsSafe&){})
             , m_helper(helper)
         {}
 
-        CreateDispatcherParams& SetCommutator(qint32 delay, const ThreadHandler& threadHandler)
+        CreateDispatcherParams& SetCommutator(const DelayedCallObjectParams& params)
         {
-            Delay = delay;
-            HandlerThread = threadHandler;
+            DelayedCallParams = params;
             return *this;
         }
 
@@ -567,12 +564,12 @@ public:
     {
         SharedPointer<Dispatcher> result;
         DispatcherConnectionsSafe* resultConnections;
-        if(params.Delay == -1) {
+        if(params.DelayedCallParams.DelayMsecs == -1) {
             auto cr = ::make_shared<WithDispatchersConnectionsSafe<Dispatcher>>();
             result = cr;
             resultConnections = &cr->Connections;
         } else {
-            auto cr = ::make_shared<WithDispatchersConnectionsSafe<DispatchersCommutator>>(params.Delay, params.HandlerThread);
+            auto cr = ::make_shared<WithDispatchersConnectionsSafe<DispatchersCommutator>>(params.DelayedCallParams);
             result = cr;
             resultConnections = &cr->Connections;
         }
@@ -665,7 +662,7 @@ class LocalPropertyBoolCommutator : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;
 public:
-    LocalPropertyBoolCommutator(bool defaultState = false, qint32 msecs = 0, const ThreadHandlerNoThreadCheck& threadHandler = ThreadHandlerNoCheckMainLowPriority);
+    LocalPropertyBoolCommutator(bool defaultState = false, const DelayedCallObjectParams& params = DelayedCallObjectParams());
 
     void ClearProperties();
     void Update();

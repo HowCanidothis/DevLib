@@ -41,9 +41,18 @@ bool Exception::Handle(const ExceptionHandleParams& params)
         params.Action();
         return true;
     } catch(const Exception& exception) {
-        params.Notifier(params.ProcessName, exception);
+        auto notifier = params.Notifier;
+        auto processName = params.ProcessName;
+        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(processName), [notifier, exception, processName]{
+            notifier(processName, exception);
+        }, DelayedCallObjectParams(1000));
+
     } catch(...) {
-        params.Notifier(params.ProcessName, Exception([params]{ return tr("Unhandled exception"); }));
+        auto notifier = params.Notifier;
+        auto processName = params.ProcessName;
+        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(processName), [notifier, processName]{
+            notifier(processName, Exception([]{ return tr("Unhandled exception"); }));
+        }, DelayedCallObjectParams(1000));
     }
     return false;
 }

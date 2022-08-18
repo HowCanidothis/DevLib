@@ -14,7 +14,7 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
     , Visible(true)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Point3F, QOpenGLBuffer::StaticDraw))
     , m_material(::make_scoped<GtMaterial>(GL_LINE_LOOP, shaderProgram))
-    , m_recompute(0, CreateThreadNoCheckHandler())
+    , m_recompute(DelayedCallObjectParams(0, CreateThreadNoCheckHandler()))
 {
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));
     m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));

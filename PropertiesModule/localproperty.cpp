@@ -27,9 +27,9 @@ DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, cons
     return result;
 }
 
-LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, qint32 msecs, const ThreadHandlerNoThreadCheck& threadHandler)
+LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, const DelayedCallObjectParams& params)
     : Super(defaultState)
-    , m_commutator(msecs, threadHandler)
+    , m_commutator(params)
     , m_defaultState(defaultState)
 {
     m_commutator += { this, [this]{
