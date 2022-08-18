@@ -18,6 +18,14 @@ QException* Exception::clone() const { return new Exception(TranslationHandler);
 
 QString Exception::Message() const { return TranslationHandler == nullptr ? QString() : TranslationHandler(); }
 
+ExceptionHandleParams& ExceptionHandleParams::SetNotificator(const ExceptionHandleParams::FNotifier& notifier)
+{
+    if(notifier != nullptr) {
+        Notifier = notifier;
+    }
+    return *this;
+}
+
 bool Exception::Handle(const QString& module, const FAction& action)
 {
     return Handle(ExceptionHandleParams(action).SetProcessName(module));

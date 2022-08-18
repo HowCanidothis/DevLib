@@ -243,6 +243,7 @@ public:
         , Enabled(false)
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
+        , m_stateParameters(::make_shared<QSet<SharedPointer<StateParameters>>>())
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
         Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate, [this](bool valid){
@@ -289,7 +290,7 @@ public:
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.ClearProperties();
-        m_stateParameters.clear();
+        m_stateParameters->clear();
     }
 
     void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
@@ -311,13 +312,14 @@ public:
 
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
     {
-        m_preparator = [this]{
-            for(const auto& parameters : m_stateParameters) {
+        auto params = m_stateParameters;
+        m_preparator = [params]{
+            for(const auto& parameters : *params) {
                 parameters->Lock();
             }
         };
-        m_releaser = [this]{
-            for(const auto& parameters : m_stateParameters) {
+        m_releaser = [params]{
+            for(const auto& parameters : *params) {
                 parameters->Unlock();
             }
 
@@ -360,7 +362,7 @@ public:
         Connect(connection, params->OnChanged);
         Connect(connection, params->m_isValid);
         Connect(connection, params->IsValid);
-        m_stateParameters.insert(params);
+        m_stateParameters->insert(params);
         return *this;
     }
 
@@ -415,7 +417,7 @@ private:
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutator m_onChanged;
     mutable Dispatcher m_onDirectOnChanged;
-    mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
+    mutable SharedPointer<QSet<SharedPointer<StateParameters>>> m_stateParameters;
 };
 
 template<class T>

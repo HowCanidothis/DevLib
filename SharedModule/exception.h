@@ -18,7 +18,7 @@ struct ExceptionHandleParams
 
     ExceptionHandleParams(const FAction& action);
 
-    ExceptionHandleParams& SetNotificator(const FNotifier& notifier) { Notifier = notifier; return *this; }
+    ExceptionHandleParams& SetNotificator(const FNotifier& notifier);
     ExceptionHandleParams& SetProcessName(const QString& processName) { ProcessName = processName; return *this; }
     ExceptionHandleParams& SetStartProcess(const QString& processName){ StartProcess = true; ProcessName = processName;  return *this; }
 };
