@@ -230,6 +230,8 @@ public:
     const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisconnectModel() const;
     class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0) const;
+
+    CommonDispatcher<qint32>& OnActivated() const;
 };
 
 class WidgetGroupboxWrapper : public WidgetWrapper

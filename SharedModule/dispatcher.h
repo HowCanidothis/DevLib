@@ -35,19 +35,6 @@ private:
 
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
-template<class T>
-class WithDispatchersConnectionsSafe : public T
-{
-    using Super = T;
-public:
-    using Super::Super;
-
-    T& ToBase() { return *this; }
-    const T& ToBase() const { return *this; }
-
-    DispatcherConnectionsSafe Connections;
-};
-
 inline SharedPointer<DispatcherConnectionsSafe> DispatcherConnectionsSafeCreate()
 {
     return ::make_shared<DispatcherConnectionsSafe>();
@@ -312,6 +299,9 @@ public:
 };
 
 using Dispatcher = CommonDispatcher<>;
+
+DECLARE_WITH_FIELD(DispatcherConnectionsSafe, Connections);
+DECLARE_WITH_FIELD(DispatcherConnections, ConnectionsUnsafe);
 
 Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
 

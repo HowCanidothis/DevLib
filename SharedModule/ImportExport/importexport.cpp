@@ -88,6 +88,25 @@ AsyncResult ImportExport::async(const FAction& function, const EPriority priorit
     return threadPool().PushTask(function, priority);
 }
 
+thread_local QRegExp ImportExportSource::m_parseExtension = QRegExp(R"([^\/\\]+)");
+thread_local QRegExp ImportExportSource::m_parseExtensionEx = QRegExp(R"(([^\.]*)\.(.*))");
+
+QString ImportExportSource::ParseExtension(const QString& path)
+{
+    QString extension;
+    QString fileName;
+    qint32 index(0);
+    while((index = m_parseExtension.indexIn(path, index)) != -1) {
+        fileName = m_parseExtension.cap();
+        index += m_parseExtension.matchedLength();
+    }
+    if(m_parseExtensionEx.indexIn(fileName, 0) != -1) {
+        extension = m_parseExtensionEx.cap(2);
+    }
+
+    return extension;
+}
+
 void ImportExportSource::SetError(const QVariant& error)
 {
     StandardProperties.Error = error;

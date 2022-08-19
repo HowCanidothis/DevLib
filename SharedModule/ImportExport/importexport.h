@@ -58,28 +58,16 @@ public:
     template<class T>
     static QList<SharedPointer<ImportExportSource>> CreateSources(const DescImportExportSourceParams& params);
 
-    static QString ParseExtension(const QString& path)
-    {
-        static thread_local QRegExp regExp(R"([^\/\\]+)");
-        static thread_local QRegExp exRegExp(R"(([^\.]*)\.(.*))");
-        QString extension;
-        QString fileName;
-        qint32 index(0);
-        while((index = regExp.indexIn(path, index)) != -1) {
-            fileName = regExp.cap();
-            index += regExp.matchedLength();
-        }
-        if(exRegExp.indexIn(fileName, 0) != -1) {
-            extension = exRegExp.cap(2);
-        }
-
-        return extension;
-    }
+    static QString ParseExtension(const QString& path);
 
     StandardVariantPropertiesContainer Properties;
     ImportExportSourceStandardProperties StandardProperties;
 
     void SetError(const QVariant& error);
+
+private:
+    static thread_local QRegExp m_parseExtension;
+    static thread_local QRegExp m_parseExtensionEx;
 };
 
 using ImportExportSourcePtr = SharedPointer<ImportExportSource>;

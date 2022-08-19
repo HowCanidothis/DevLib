@@ -51,6 +51,7 @@ Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
+Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
 
 class WidgetsAttachment : public QObject
 {
@@ -516,6 +517,18 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QS
         Q_ASSERT(false);
     }
     return *this;
+}
+
+CommonDispatcher<qint32>& WidgetComboboxWrapper::OnActivated() const
+{
+    auto* widget = GetWidget();
+    return *Injected<CommonDispatcher<qint32>>("a_on_activated", [widget]{
+        auto* result = new CommonDispatcher<qint32>();
+        widget->connect(widget, QOverload<qint32>::of(&QComboBox::activated), [result](int index){
+            result->Invoke(index);
+        });
+        return result;
+    });
 }
 
 void WidgetWrapper::Highlight(qint32 unhightlightIn) const

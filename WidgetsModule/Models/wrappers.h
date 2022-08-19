@@ -420,6 +420,19 @@ public:
         OnColumnsChanged(affectedColumns);
     }
 
+    void EditLast(const std::function<void (value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
+    {
+        if(IsEmpty()) {
+            return;
+        }
+        auto index = GetSize() - 1;
+        OnAboutToChangeRows(index, 1);
+        handler(Super::operator[](index));
+        OnRowsChanged(index, 1, affectedColumns);
+        OnChanged();
+        OnColumnsChanged(affectedColumns);
+    }
+
     bool EditWithCheck(qint32 index, const std::function<FAction (value_type& value)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
         auto updateFunction = handler(Super::operator[](index));

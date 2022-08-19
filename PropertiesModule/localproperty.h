@@ -152,13 +152,13 @@ public:
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnections Connect(const char* connectionInfo, const std::function<void (const T&)>& handler, Dispatchers&... dispatchers)
+    DispatcherConnections Connect(const char* connectionInfo, const std::function<void (const T&)>& handler, Dispatchers&... dispatchers) const
     {
         return OnChanged.ConnectCombined(connectionInfo, [handler, this]{ handler(*this); }, dispatchers...);
     }
 
     template<typename ... Dispatchers>
-    DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void (const T&)>& handler, Dispatchers&... dispatchers)
+    DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void (const T&)>& handler, Dispatchers&... dispatchers) const
     {
         return OnChanged.ConnectAndCallCombined(connectionInfo, [handler, this]{ handler(*this); }, dispatchers...);
     }
@@ -565,11 +565,11 @@ public:
         SharedPointer<Dispatcher> result;
         DispatcherConnectionsSafe* resultConnections;
         if(params.DelayedCallParams.DelayMsecs == -1) {
-            auto cr = ::make_shared<WithDispatchersConnectionsSafe<Dispatcher>>();
+            auto cr = ::make_shared<WithDispatcherConnectionsSafe<Dispatcher>>();
             result = cr;
             resultConnections = &cr->Connections;
         } else {
-            auto cr = ::make_shared<WithDispatchersConnectionsSafe<DispatchersCommutator>>(params.DelayedCallParams);
+            auto cr = ::make_shared<WithDispatcherConnectionsSafe<DispatchersCommutator>>(params.DelayedCallParams);
             result = cr;
             resultConnections = &cr->Connections;
         }

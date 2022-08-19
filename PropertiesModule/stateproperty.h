@@ -569,7 +569,7 @@ template<class T> using StateParametersImmutableData = StateParametersContainer<
 template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
 
 template<class T, class T2, typename TPtr = SharedPointer<T>>
-SharedPointer<StateParametersImmutableData<T>> CreateStateParametersImmutableData(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
 {
     auto result = ::make_shared<StateParametersImmutableData<T>>();
     result->InputValue = ::make_shared<T>();
@@ -579,7 +579,7 @@ SharedPointer<StateParametersImmutableData<T>> CreateStateParametersImmutableDat
 }
 
 template<class T, class T2, typename TPtr = SharedPointer<T>>
-SharedPointer<StateParametersImmutableData<T>> CreateStateParametersImmutableData(const SharedPointer<T2>& source, const std::function<TPtr ()>& handler = nullptr)
+SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<TPtr ()>& handler = nullptr)
 {
     auto result = ::make_shared<StateParametersImmutableData<T>>();
     result->InputValue = ::make_shared<T>();
@@ -673,7 +673,7 @@ private:
 template<typename... Dispatchers>
 SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
 {
-    auto result = ::make_shared<WithDispatchersConnectionsSafe<StateProperty>>();
+    auto result = ::make_shared<WithDispatcherConnectionsSafe<StateProperty>>();
     result->ConnectFrom(connection, handler, dispatcher, dispatchers...).MakeSafe(result->Connections);
     return result;
 }

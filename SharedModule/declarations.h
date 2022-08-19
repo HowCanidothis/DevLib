@@ -12,6 +12,22 @@
 
 #define toPointer(x) auto* p##x = x.get()
 
+#define DELCARE_WITH_FIELD_BASE(FieldType, FieldName, Label) \
+template<class T> \
+class With##Label : public T \
+{ \
+    using Super = T; \
+public: \
+    using Super::Super; \
+\
+    T& ToBase() { return *this; } \
+    const T& ToBase() const { return *this; } \
+\
+    FieldType FieldName; \
+}
+#define DECLARE_WITH_FIELD(FieldType, FieldName) DELCARE_WITH_FIELD_BASE(FieldType, FieldName, FieldType)
+
+
 enum SerializationMode {
     SerializationMode_Default = 0x0,
     SerializationMode_InvokeProperties = 0x1,
