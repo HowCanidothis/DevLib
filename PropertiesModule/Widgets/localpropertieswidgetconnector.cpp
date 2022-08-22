@@ -339,7 +339,7 @@ void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox)
     : Super([property, comboBox]{
                 qint32 result = 0;
-                forEachModelIndex(comboBox->model(), QModelIndex(), [&result, property](const QModelIndex& index){
+                ViewModelWrapper(comboBox->model()).ForeachModelIndex([&result, property](const QModelIndex& index){
                     if(index.data(Qt::EditRole).value<Name>() == *property) {
                         return true;
                     }
@@ -364,7 +364,7 @@ LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const ModelsStandardListModelPtr& model)
     : Super([property, comboBox, model]{
                 qint32 result = 0;
-                forEachModelIndex(comboBox->model(), QModelIndex(), [&result, property](const QModelIndex& index){
+                ViewModelWrapper(comboBox->model()).ForeachModelIndex([&result, property](const QModelIndex& index){
                     if(index.data(Qt::EditRole).toInt() == *property) {
                         return true;
                     }

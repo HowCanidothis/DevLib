@@ -85,9 +85,9 @@ public:
         }, []{})
     {
         qint32 value = (qint32)T::First;
-        MenuWrapper menuWrapper(menu);
+        MenuWrapper MenuWrapper(menu);
         for(const auto& name : property->GetNames()) {
-            auto action = menuWrapper.AddAction(name, [property, value]{
+            auto action = MenuWrapper.AddAction(name, [property, value]{
                 *property = (T)value;
             });
             actionsRules(action, value);

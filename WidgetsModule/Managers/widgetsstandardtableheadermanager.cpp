@@ -74,7 +74,7 @@ void WidgetsStandardTableHeaderManager::StateObject::Initialize(const Latin1Name
 void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& params, QHeaderView* headerView)
 {
     const auto& stateName = params.StateTag;
-    HeaderViewWrapper header(headerView);
+    WidgetHeaderViewWrapper header(headerView);
     auto applyParams = [&]{
         Q_ASSERT(params.ColumnsParams.isEmpty() || header->count() != 0);
         for(auto it(params.ColumnsParams.begin()), e(params.ColumnsParams.end()); it != e; ++it) {

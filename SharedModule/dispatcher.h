@@ -269,14 +269,15 @@ public:
         return *this;
     }
 
-    SharedPointer<DispatcherConnectionsSafe> OnFirstInvoke(const FCommonDispatcherAction& action) const
+    template<typename ... SafeConnections>
+    DispatcherConnections OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
-        auto connections = ::make_shared<DispatcherConnectionsSafe>();
-        Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
+        auto connections = ::make_shared<DispatcherConnections>();
+        *connections += Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
             action(args...);
-            connections->clear();
-        }).MakeSafe(*connections);
-        return connections;
+            connections->Disconnect();
+        });
+        return *connections;
     }
 
 private:
@@ -303,6 +304,7 @@ using Dispatcher = CommonDispatcher<>;
 DECLARE_WITH_FIELD(DispatcherConnectionsSafe, Connections);
 DECLARE_WITH_FIELD(DispatcherConnections, ConnectionsUnsafe);
 
+inline SharedPointer<Dispatcher> DispatcherCreate() { return ::make_shared<Dispatcher>(); }
 Q_DECLARE_METATYPE(SharedPointer<DispatcherConnectionsSafe>)
 
 #endif // NOTIFICATION_H

@@ -19,9 +19,9 @@ Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
 #define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType, type) \
     const WrapperType& Make(const std::function<void (const WrapperType&)>& handler) const { return make<WrapperType>(handler); } \
-    type* GetWidget() const { return reinterpret_cast<type*>(m_widget); } \
-    type* operator->() const { return reinterpret_cast<type*>(m_widget); } \
-    operator type*() const { return reinterpret_cast<type*>(m_widget); } \
+    type* GetWidget() const { return reinterpret_cast<type*>(m_object); } \
+    type* operator->() const { return reinterpret_cast<type*>(m_object); } \
+    operator type*() const { return reinterpret_cast<type*>(m_object); } \
     using expected_type = type;
 
 class ObjectWrapper
@@ -30,6 +30,8 @@ public:
     ObjectWrapper(QObject* object)
         : m_object(object)
     {}
+
+    template<class T> T& Cast() { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((T*)this); }
 
     template<class T>
     SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
@@ -66,7 +68,16 @@ public:
         });
     }
 
-private:
+protected:
+    template<class T>
+    const T& make(const std::function<void (const T&)>& handler) const
+    {
+        auto* tThis = reinterpret_cast<const T*>(this);
+        handler(*tThis);
+        return *tThis;
+    }
+
+protected:
     QObject* m_object;
 };
 
@@ -80,15 +91,13 @@ public:
     template<class T>
     T* InjectedWidget(const char* propertyName, const std::function<T* (QWidget* parent)>& creator = nullptr) const
     {
-        auto* value = (T*)m_widget->property(propertyName).value<size_t>();
+        auto* value = (T*)GetWidget()->property(propertyName).value<size_t>();
         if(value == nullptr) {
-            value = creator != nullptr ? creator(m_widget) : new T(m_widget);
-            m_widget->setProperty(propertyName, (size_t)value);
+            value = creator != nullptr ? creator(GetWidget()) : new T(GetWidget());
+            GetWidget()->setProperty(propertyName, (size_t)value);
         }
         return value;
     }
-
-    template<class T> T& Cast() { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_widget)); return *((T*)this); }
 
     DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
     DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another) const;
@@ -150,18 +159,6 @@ private:
         }
         return result;
     }
-
-protected:
-    template<class T>
-    const T& make(const std::function<void (const T&)>& handler) const
-    {
-        auto* tThis = reinterpret_cast<const T*>(this);
-        handler(*tThis);
-        return *tThis;
-    }
-
-protected:
-    QWidget* m_widget;
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper
@@ -185,7 +182,7 @@ public:
     WidgetLineEditWrapper(class QLineEdit* lineEdit);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
-    WidgetLineEditWrapper& SetDynamicSizeAdjusting();
+    const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
 private:
 };
@@ -208,7 +205,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     template<class Enum>
-    const WidgetComboboxWrapper& SetEnum(const std::function<void (QStringList&)>& specialRule = [](QStringList&){})
+    const WidgetComboboxWrapper& SetEnum(const std::function<void (QStringList&)>& specialRule = [](QStringList&){}) const
     {
         auto& connections = *Injected<DispatcherConnectionsSafe>("a_items_connections");
         connections.clear();
@@ -301,21 +298,15 @@ class ActionWrapper : public ObjectWrapper
 public:
     ActionWrapper(QAction* action);
 
-    const ActionWrapper& Make(const std::function<void (const ActionWrapper&)>& handler) const;
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(ActionWrapper, QAction);
     const ActionWrapper& SetShortcut(const QKeySequence& keySequence) const;
     const ActionWrapper& SetText(const QString& text) const;
 
-    QAction* GetAction() const { return m_action; }
+    QAction* GetAction() const { return GetWidget(); }
 
     LocalPropertyBool& ActionVisibility() const;
     LocalPropertyBool& ActionEnablity() const;
     TranslatedStringPtr ActionText() const;
-
-    QAction* operator->() const { return m_action; }
-    operator QAction*() const { return m_action; }
-
-private:
-    QAction* m_action;
 };
 
 class WidgetSplitterWrapper : public WidgetWrapper
@@ -324,7 +315,7 @@ class WidgetSplitterWrapper : public WidgetWrapper
 public:
     WidgetSplitterWrapper(class QSplitter* widget);
 
-    void SetWidgetSize(QWidget* widget, qint32 size);
+    void SetWidgetSize(QWidget* widget, qint32 size) const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSplitterWrapper, QSplitter);
 };
@@ -351,44 +342,47 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSpinBoxWrapper, QSpinBox);
 };
 
-class DialogWrapper : public WidgetWrapper
+class WidgetDialogWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
 public:
-    DialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator);
+    WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator);
 
     template<class T>
     T* GetCustomView() const { return WidgetsDialogsManager::GetInstance().CustomDialogView<T>(GetWidget()); }
     void Show(const DescShowDialogParams& params) const;
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(DialogWrapper, QDialog)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDialogWrapper, QDialog)
 };
 
-class HeaderViewWrapper : WidgetWrapper
+class WidgetHeaderViewWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
 public:
-    HeaderViewWrapper(class QHeaderView* header);
+    WidgetHeaderViewWrapper(class QHeaderView* header);
 
-    LocalPropertyBool& SectionVisibility(qint32 logicalIndex);
-    HeaderViewWrapper& MoveSection(qint32 logicalIndexFrom, qint32 logicalIndexTo);
+    LocalPropertyBool& SectionVisibility(qint32 logicalIndex) const;
+    const WidgetHeaderViewWrapper& MoveSection(qint32 logicalIndexFrom, qint32 logicalIndexTo) const;
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(HeaderViewWrapper, QHeaderView);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetHeaderViewWrapper, QHeaderView);
 };
 
-class MenuWrapper
+class MenuWrapper : public WidgetWrapper
 {
+    using Super = WidgetWrapper;
 public:
     MenuWrapper(QWidget* widget, const WidgetsGlobalTableActionsScopeHandlersPtr& handlers = nullptr)
-        : m_widget(widget)
+        : Super(widget)
         , m_globalActionsHandlers(handlers)
     {}
 
-    const MenuWrapper& Make(const std::function<void (const MenuWrapper&)>& handler) const { handler(*this); return *this; }
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(MenuWrapper, QMenu);
     const MenuWrapper& AddGlobalAction(const QString& path) const;
     const MenuWrapper& AddGlobalTableAction(const Latin1Name& id) const;
     ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
     ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
+
+    QMenu* GetMenu() const { return GetWidget(); }
 
     template<class Property>
     ActionWrapper AddCheckboxAction(const QString& title, Property* value) const
@@ -421,14 +415,9 @@ public:
     static QMenu* CreatePreventedFromClosingMenu(const QString& title);
     QMenu* AddMenu(const QString& label) const;
 
-    QMenu* GetMenu() const { return reinterpret_cast<QMenu*>(m_widget); }
-
 private:
-    QWidget* m_widget;
     WidgetsGlobalTableActionsScopeHandlersPtr m_globalActionsHandlers;
 };
-
-_Export void forEachModelIndex(const QAbstractItemModel* model, QModelIndex parent, const std::function<bool (const QModelIndex& index)>& function);
 
 class WidgetsObserver : public QObject
 {
@@ -442,6 +431,24 @@ public:
 
 private:
     bool eventFilter(QObject* watched, QEvent* e) override;
+};
+
+class ViewModelWrapper : public ObjectWrapper
+{
+    using Super = ObjectWrapper;
+public:
+    using FIterationHandler = std::function<bool (const QModelIndex& index)>; // if returns true then interrupt iterating
+    ViewModelWrapper(QAbstractItemModel* model);
+
+    QAbstractItemModel* GetViewModel() const { return GetWidget(); }
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(ViewModelWrapper, QAbstractItemModel);
+
+    const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function) const;
+    const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function) const { return ForeachModelIndex(QModelIndex(), function); }
+    qint32 IndexOf(const FIterationHandler& handler) const;
+
+    Dispatcher& OnReset() const;
 };
 
 #endif // WIDGETHELPERS_H

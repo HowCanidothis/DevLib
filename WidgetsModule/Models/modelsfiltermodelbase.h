@@ -104,7 +104,7 @@ public:
             }
         });
         m_proxyModel->OnInvalidated.Connect(CONNECTION_DEBUG_LOCATION, [this, treeView]{
-            forEachModelIndex(m_proxyModel, QModelIndex(), [this,treeView](const QModelIndex& index){
+            ViewModelWrapper(m_proxyModel).ForeachModelIndex([this,treeView](const QModelIndex& index){
                 auto* item = m_sourceModel->AsItem(m_proxyModel->mapToSource(index));
                 if(item != nullptr && item->IsExpanded((size_t)treeView)) {
                     treeView->expand(index);
@@ -281,13 +281,13 @@ public:
 
     void CreateDefaultActions(QTableView* table)
     {
-        MenuWrapper menuWrapper(table);
-        menuWrapper.AddAction(tr("Check Selected"), [this, table](QAction*){
+        MenuWrapper MenuWrapper(table);
+        MenuWrapper.AddAction(tr("Check Selected"), [this, table](QAction*){
             emit layoutAboutToBeChanged();
             Select(table->selectionModel()->selectedIndexes());
             emit layoutChanged();
         })->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Insert));
-        menuWrapper.AddAction(tr("Uncheck selected"), [this, table](QAction*){
+        MenuWrapper.AddAction(tr("Uncheck selected"), [this, table](QAction*){
             emit layoutAboutToBeChanged();
             Deselect(table->selectionModel()->selectedIndexes());
             emit layoutChanged();
