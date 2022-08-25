@@ -95,6 +95,17 @@ public:
         return _value & flag;
     }
 
+    void Foreach(const std::function<void (ValueType flag)>& handler)
+    {
+        ValueType it = 1;
+        while(it != 0) {
+            if((_value & it) != 0) {
+                handler(it);
+            }
+            it <<= 1;
+        }
+    }
+
     Flags& ChangeFromBoolean(bool flag, ValueType flags)
     {
         FlagsHelpers<ValueType>::ChangeFromBoolean(flag, _value, flags);

@@ -237,7 +237,11 @@ Range<It> range(It begin, It end) {
 
 template<typename ORange, typename It = decltype(std::begin(std::declval<ORange>()))>
 Range<It> withoutFirst(ORange&& originalRange) {
-    return Range<It>(std::begin(originalRange) + 1, std::end(originalRange));
+    auto b = std::begin(originalRange), e = std::end(originalRange);
+    if(b == e) {
+        return Range<It>(b, e);
+    }
+    return Range<It>(b + 1, e);
 }
 
 template<typename Container, typename It = typename Container::const_iterator>

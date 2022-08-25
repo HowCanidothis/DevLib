@@ -89,6 +89,14 @@ struct DescTableViewParams
         return *this;
     }
 
+    DescTableViewParams& ShowColumnsAlways(const QVector<qint32>& columns)
+    {
+        for(auto column : columns) {
+            Column(column).ShowAlways();
+        }
+        return *this;
+    }
+
     DescTableViewParams& HideColumns(const QVector<qint32>& columns)
     {
         for(auto column : columns) {
