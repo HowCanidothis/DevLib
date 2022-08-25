@@ -7,10 +7,9 @@ Exception::Exception(const QString& text)
 {}
 Exception::Exception(const FTranslationHandler& handler)
     : TranslationHandler(handler)
-    , Type(-1)
 {}
-Exception::Exception(qint32 type)
-    : Type(type)
+Exception::Exception(const QVariant& data)
+    : ExceptionData(data)
 {}
 
 void Exception::raise() const { throw *this; }
@@ -43,16 +42,11 @@ bool Exception::Handle(const ExceptionHandleParams& params)
     } catch(const Exception& exception) {
         auto notifier = params.Notifier;
         auto processName = params.ProcessName;
-        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(processName), [notifier, exception, processName]{
-            notifier(processName, exception);
-        }, DelayedCallObjectParams(1000));
-
+        notifier(processName, exception);
     } catch(...) {
         auto notifier = params.Notifier;
         auto processName = params.ProcessName;
-        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(processName), [notifier, processName]{
-            notifier(processName, Exception([]{ return tr("Unhandled exception"); }));
-        }, DelayedCallObjectParams(1000));
+        notifier(processName, Exception([]{ return tr("Unhandled exception"); }));
     }
     return false;
 }
@@ -60,5 +54,13 @@ bool Exception::Handle(const ExceptionHandleParams& params)
 ExceptionHandleParams::ExceptionHandleParams(const FAction& action)
     : ProcessName(DefaultProcessName)
     , Action(action)
-    , Notifier([](const QString& module, const Exception& ex){ qCCritical(LC_UI) << QString("%1: %2").arg(module, ex.Message()); })
+    , Notifier([](const QString& module, const Exception& ex){
+        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(module), [ex, module]{
+            auto message = ex.Message();
+            if(message.isEmpty()) {
+                return;
+            }
+            qCCritical(LC_UI) << QString("%1: %2").arg(module, message);
+        }, DelayedCallObjectParams(1000));
+    })
 {}

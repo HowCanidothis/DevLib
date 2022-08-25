@@ -28,10 +28,10 @@ class Exception : public QException
     Q_DECLARE_TR_FUNCTIONS(Exception)
 public:
     FTranslationHandler TranslationHandler;
-    qint32 Type;
+    QVariant ExceptionData;
     Exception(const QString& text);
     Exception(const FTranslationHandler& handler);
-    Exception(qint32 type);
+    Exception(const QVariant& exceptionData);
 
     void raise() const override;
     QException* clone() const override;
