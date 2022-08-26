@@ -70,7 +70,7 @@ class _Export LocalPropertiesMenuLabelConnector : public LocalPropertiesWidgetCo
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesMenuLabelConnector(LocalPropertyString* property, QMenu* menu);
+    LocalPropertiesMenuLabelConnector(LocalPropertyString* property, class QMenu* menu);
 };
 
 class LocalPropertiesMenuActionsConnector : public LocalPropertiesWidgetConnectorBase
@@ -78,7 +78,7 @@ class LocalPropertiesMenuActionsConnector : public LocalPropertiesWidgetConnecto
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     template<class T>
-    LocalPropertiesMenuActionsConnector(LocalPropertySequentialEnum<T>* property, QMenu* menu, const std::function<void (QAction* action, qint32 index)>& actionsRules = [](QAction*,qint32){})
+    LocalPropertiesMenuActionsConnector(LocalPropertySequentialEnum<T>* property, QMenu* menu, const std::function<void (class QAction* action, qint32 index)>& actionsRules = [](QAction*,qint32){})
         : Super([]{
         }, []{})
     {

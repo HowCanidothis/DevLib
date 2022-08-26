@@ -2,7 +2,7 @@
 #define WPSCIMPORTPREPARATIONDIALOG_H
 
 #include <QWidget>
-#include <PropertiesModule/Ui/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/widgetsdeclarations.h"
 

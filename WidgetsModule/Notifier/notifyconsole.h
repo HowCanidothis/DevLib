@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include <PropertiesModule/Ui/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 #include "notifydeclarations.h"
 

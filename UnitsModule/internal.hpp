@@ -33,6 +33,10 @@
 
 #include "measurementunitmanager.h"
 
+#ifdef SHARED_LIB_ADD_UI
+#include "Ui/internal.hpp"
+#endif
+
 #endif
 
 #endif // INTERNAL_H

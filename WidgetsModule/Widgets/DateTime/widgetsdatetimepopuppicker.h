@@ -3,7 +3,7 @@
 
 #include <QFrame>
 #include <QDateTimeEdit>
-#include <PropertiesModule/Ui/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 namespace Ui {
 class WidgetsDatetimePopupPicker;

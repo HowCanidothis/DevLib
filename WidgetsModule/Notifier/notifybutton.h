@@ -3,7 +3,7 @@
 
 #include <QPushButton>
 
-#include <PropertiesModule/Ui/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 class NotifyButton : public QPushButton
 {

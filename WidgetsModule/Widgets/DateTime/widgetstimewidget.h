@@ -6,7 +6,7 @@
 #include <QSpinBox>
 #include <QTimeEdit>
 #include <QDateEdit>
-#include <PropertiesModule/Ui/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 namespace Ui {
 class WidgetsTimeWidget;

@@ -19,6 +19,11 @@
 #include "localpropertyerrorscontainer.h"
 #include "Models/wrappers.h"
 #include "Models/modelstree.h"
+
+#ifdef SHARED_LIB_ADD_UI
+#include "Ui/internal.hpp"
+#endif
+
 #endif
 
 #endif // INTERNAL_HPP
