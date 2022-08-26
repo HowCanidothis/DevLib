@@ -191,7 +191,7 @@ class WidgetCheckBoxWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
 public:
-    WidgetCheckBoxWrapper(QCheckBox* target);
+    WidgetCheckBoxWrapper(class QCheckBox* target);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetCheckBoxWrapper, QCheckBox)
     LocalPropertyBool& WidgetChecked() const;
@@ -265,7 +265,7 @@ public:
 class WidgetLabelWrapper : public WidgetWrapper
 {
 public:
-    WidgetLabelWrapper(QLabel* label);
+    WidgetLabelWrapper(class QLabel* label);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLabelWrapper, QLabel)
 
@@ -277,7 +277,7 @@ public:
 class WidgetTableViewWrapper : public WidgetWrapper
 {
 public:
-    WidgetTableViewWrapper(QTableView* tableView);
+    WidgetTableViewWrapper(class QTableView* tableView);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper, QTableView)
     bool CopySelectedTableContentsToClipboard(bool includeHeaders = false) const;

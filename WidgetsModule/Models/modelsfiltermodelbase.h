@@ -88,7 +88,7 @@ public:
 
     FilterClassData FilterData;
 
-    void ConnectTreeView(QTreeView* treeView)
+    void ConnectTreeView(class QTreeView* treeView)
     {
         Q_ASSERT(treeView->model() == m_proxyModel && m_proxyModel->sourceModel() == m_sourceModel);
         m_qtConnections.connect(treeView, &QTreeView::expanded, [treeView, this](const QModelIndex& index){
@@ -279,7 +279,7 @@ public:
         return defaultFlags;
     };
 
-    void CreateDefaultActions(QTableView* table)
+    void CreateDefaultActions(class QTableView* table)
     {
         MenuWrapper MenuWrapper(table);
         MenuWrapper.AddAction(tr("Check Selected"), [this, table](QAction*){

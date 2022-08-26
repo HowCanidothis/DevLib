@@ -28,7 +28,7 @@ struct NetworkSettings
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
 };
 
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
 struct StyleSettings
 {
     StyleSettings();
@@ -75,7 +75,6 @@ struct PathSettings
     {
         buffer.OpenSection("PathSettings");
         buffer << buffer.Sect("TextComparatorApplicationPath", TextComparatorApplicationPath);
-        buffer << buffer.Sect("SharedsPath", ShadersPath);
         buffer.CloseSection();
     }
 
@@ -131,7 +130,7 @@ class SharedSettings : public Singletone<SharedSettings>
 public:
     SharedSettings();
 
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
     StyleSettings StyleSettings;
 #endif
     PathSettings PathSettings;

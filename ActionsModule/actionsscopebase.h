@@ -1,8 +1,6 @@
 #ifndef ACTIONSSCOPEBASE_H
 #define ACTIONSSCOPEBASE_H
 
-#ifdef QT_GUI_LIB
-
 #include <SharedModule/internal.hpp>
 
 class Action;
@@ -45,7 +43,5 @@ public:
 
     QAction* CreateAction(const Latin1Name& actionName, const FAction& action) { return Super::createAction(actionName, action); }
 };
-
-#endif
 
 #endif // IACTIONSSCOPE_H

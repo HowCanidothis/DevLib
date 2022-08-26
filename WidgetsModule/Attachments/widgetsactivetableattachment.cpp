@@ -1,6 +1,7 @@
 #include "widgetsactivetableattachment.h"
 
 #include <QHeaderView>
+#include <QTableView>
 #include <QAbstractButton>
 
 #include "WidgetsModule/Utils/widgethelpers.h"

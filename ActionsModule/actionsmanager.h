@@ -1,8 +1,6 @@
 #ifndef ACTIONSMANAGER_H
 #define ACTIONSMANAGER_H
 
-#ifdef QT_GUI_LIB
-
 #include <SharedModule/internal.hpp>
 
 class ActionsScopeBase;
@@ -15,9 +13,9 @@ public:
 
     void CreateActionsFromRegisteredScopes();
     ActionsScopeBase* FindScope(const Latin1Name& scopeName) const;
-    bool AddTo(const Latin1Name& scopeName, QMenu* menu);
+    bool AddTo(const Latin1Name& scopeName, class QMenu* menu);
     bool AddTo(const Latin1Name& scopeName, QWidget* widget);
-    QAction* FindAction(const QString& path) const;
+    class QAction* FindAction(const QString& path) const;
 
 private:
     friend class ActionsScopeBase;
@@ -28,7 +26,5 @@ private:
     std::map<Latin1Name, QAction*> m_actions;
     std::map<Latin1Name, ActionsScopeBase*> m_actionsScopes;
 };
-
-#endif
 
 #endif // ACTIONSMANAGER_H

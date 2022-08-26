@@ -197,11 +197,11 @@ public:
     void SetProjectionProperties(float angle, float nearValue, float farValue);
 
     void Resize(qint32 w, qint32 h);
-    void MouseMoveEvent(QMouseEvent* event);
+    void MouseMoveEvent(class QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
     void MouseReleaseEvent(QMouseEvent* event);
-    void WheelEvent(QWheelEvent* event);
-    void KeyPressEvent(QKeyEvent* event);
+    void WheelEvent(class QWheelEvent* event);
+    void KeyPressEvent(class QKeyEvent* event);
     void KeyReleaseEvent(QKeyEvent* event);
 
     LocalPropertyColor SpaceColor;

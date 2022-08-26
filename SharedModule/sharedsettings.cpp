@@ -1,5 +1,9 @@
 #include "sharedsettings.h"
 
+#ifdef SHARED_LIB_ADD_UI
+#include <WidgetsModule/internal.hpp>
+#endif
+
 #include <QStandardPaths>
 
 NetworkSettings::NetworkSettings()
@@ -10,9 +14,7 @@ NetworkSettings::NetworkSettings()
                         ProxyPort);
 }
 
-#ifdef QT_GUI_LIB
-
-#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
+#ifdef SHARED_LIB_ADD_UI
 
 StyleSettings::StyleSettings()
     : DisabledTableCellColor("#d4d4d4")
@@ -26,7 +28,6 @@ StyleSettings::StyleSettings()
     #endif
 {
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
-
     StylesQSSFile.OnChanged += { this, [this]{
         InstallQSSReader(StylesQSSFile);
     }};
@@ -121,14 +122,14 @@ SharedSettings::SharedSettings()
 
 MetricsSettings::MetricsSettings()
 {
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
     WidgetsDialogsManager::GetInstance().ShadowBlurRadius.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowBlurRadius);
 #endif
 }
 
 void SharedSettings::Release()
 {
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
     StyleSettings.Release();
 #endif
 }

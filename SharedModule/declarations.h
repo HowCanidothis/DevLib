@@ -12,6 +12,10 @@
 
 #define toPointer(x) auto* p##x = x.get()
 
+#if defined(QT_GUI_LIB) && !defined(FORCE_NO_UI)
+    #define SHARED_LIB_ADD_UI
+#endif
+
 #define DELCARE_WITH_FIELD_BASE(FieldType, FieldName, Label) \
 template<class T> \
 class With##Label : public T \

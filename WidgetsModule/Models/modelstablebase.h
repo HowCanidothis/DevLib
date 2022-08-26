@@ -4,8 +4,19 @@
 #include <QAbstractTableModel>
 #include <QMimeData>
 
-#include "wrappers.h"
+#include <PropertiesModule/internal.hpp>
 #include "WidgetsModule/Utils/iconsmanager.h"
+
+class ModelsAbstractItemModel : public QAbstractItemModel
+{
+    using Super = QAbstractItemModel;
+    using Super::Super;
+
+    friend class ModelsWrapperBase;
+    friend class ModelsTableWrapper;
+    friend class ModelsTreeWrapper;
+    static ModelsAbstractItemModel* Wrap(QAbstractItemModel* model) { return reinterpret_cast<ModelsAbstractItemModel*>(model); }
+};
 
 struct ModelsIconsContext
 {

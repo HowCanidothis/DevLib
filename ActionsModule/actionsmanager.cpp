@@ -1,7 +1,5 @@
 #include "actionsmanager.h"
 
-#ifdef QT_GUI_LIB
-
 #include <QMenu>
 
 #include "actionsscopebase.h"
@@ -78,5 +76,3 @@ QAction* ActionsManager::createAction(const Latin1Name& actionName, const FActio
     const auto& it = m_actions.emplace(actionName, newAction).first;
     return it->second;
 }
-
-#endif

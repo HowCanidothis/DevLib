@@ -8,6 +8,11 @@ for(VAR,$$list($$(BUILD_CONFIG))) {
     CONFIG += $$VAR
 }
 
+excludeUi {
+    DEFINES += FORCE_NO_UI
+    export(DEFINES)
+}
+
 defineTest(includeAll) {
 
 sources = $$files(*.cpp, true)
@@ -31,10 +36,24 @@ precompiled = $$files(*.hpp, true)
 
 defineTest(includeFiles) {
     absfilepath
-    for(var, $$1){
-        absfilepath += $$absolute_path($$var)
-        $$2 *= $$absfilepath
+
+    excludeUi {
+        for(var, $$1) {
+            firstFolder = $$section(var, /, 0, 0)
+            !equals(firstFolder, "Ui") {
+                absfilepath += $$absolute_path($$var)
+                $$2 *= $$absfilepath
+            } else {
+                message(excluding $$var)
+            }
+        }
+    } else {
+        for(var, $$1){
+            absfilepath += $$absolute_path($$var)
+            $$2 *= $$absfilepath
+        }
     }
+
     export($$2)
     return(true)
 }#includeFiles

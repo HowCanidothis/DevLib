@@ -4,6 +4,7 @@
 #include <QClipboard>
 #include <QHeaderView>
 #include <QAction>
+#include <QTableView>
 
 #include <ActionsModule/internal.hpp>
 

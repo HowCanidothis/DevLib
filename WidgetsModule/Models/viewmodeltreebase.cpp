@@ -1,6 +1,6 @@
 #include "viewmodeltreebase.h"
 
-#include "modelstreeitembase.h"
+#include <PropertiesModule/internal.hpp>
 
 ViewModelsTreeBase::ViewModelsTreeBase(QObject* parent)
     : Super(parent)

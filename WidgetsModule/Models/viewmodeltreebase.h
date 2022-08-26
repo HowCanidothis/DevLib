@@ -3,7 +3,7 @@
 
 #include <QAbstractItemModel>
 
-#include "wrappers.h"
+#include <PropertiesModule/internal.hpp>
 #include "WidgetsModule/Utils/iconsmanager.h"
 
 class ViewModelsTreeBase : public QAbstractItemModel

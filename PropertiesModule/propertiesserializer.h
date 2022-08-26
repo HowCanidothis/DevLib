@@ -156,6 +156,10 @@ struct Serializer<LocalPropertySet<T>>
 
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(LocalPropertySet)
 
+#ifdef SHARED_LIB_ADD_UI
+
+#include "Ui/localpropertypalette.h"
+
 template<>
 struct Serializer<LocalPropertyPalette>
 {
@@ -220,7 +224,7 @@ struct Serializer<LocalPropertyPalette>
 };
 
 DECLARE_SERIALIZER_XML_TO_SERIALIZER(LocalPropertyPalette)
-
+#endif
 template<typename T>
 struct Serializer<LocalPropertyLimitedDecimal<T>>
 {

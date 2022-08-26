@@ -6,9 +6,6 @@
 #include "Actions/widgetsglobaltableactionsscope.h"
 
 #include "Models/viewmodeltreebase.h"
-#include "Models/modelstreeitembase.h"
-#include "Models/modelstree.h"
-#include "Models/wrappers.h"
 #include "Models/modelstablebase.h"
 #include "Models/modelslistbase.h"
 #include "Models/modelserrorscomponents.h"
@@ -70,6 +67,8 @@
 #include "Managers/widgetsstandardtableheadermanager.h"
 
 #include "widgetsserializer.h"
+
+#include "qtqssreader.h"
 
 #endif
 

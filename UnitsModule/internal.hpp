@@ -3,9 +3,6 @@
 
 #if defined __cplusplus
 
-#include "measurementunitmanager.h"
-#include "measurementvaluewithunitconnectorscontainer.h"
-
 #include "MeasurementTypes/angledeclarations.h"
 #include "MeasurementTypes/distancedeclarations.h"
 #include "MeasurementTypes/doglegdeclarations.h"
@@ -33,6 +30,8 @@
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/powerdeclarations.h"
 #include "MeasurementTypes/consistencyfactordeclarations.h"
+
+#include "measurementunitmanager.h"
 
 #endif
 

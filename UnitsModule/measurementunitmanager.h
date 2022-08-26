@@ -2,7 +2,6 @@
 #define MEASUREMENTUNITMANAGER_H
 
 #include <PropertiesModule/internal.hpp>
-#include <WidgetsModule/internal.hpp>
 #include <qmath.h>
 
 #include "measurementdeclarations.h"
@@ -43,9 +42,9 @@ private:
 };
 using MeasurementPtr = SharedPointer<Measurement>;
 Q_DECLARE_METATYPE(SharedPointer<Measurement>);
+
 using WPSCUnitMeasurementTableWrapper = TModelsTableWrapper<QVector<MeasurementPtr>>;
 using WPSCUnitMeasurementTableWrapperPtr = SharedPointer<WPSCUnitMeasurementTableWrapper>;
-
 
 struct MeasurementParams
 {
@@ -153,38 +152,6 @@ private:
 };
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;
-
-class MeasurementDoubleSpinBoxWrapper
-{
-public:
-    MeasurementDoubleSpinBoxWrapper(const Name& measurementType, QDoubleSpinBox* spinBox)
-        : m_spinBox(spinBox)
-    {
-        const auto& measurement = MeasurementManager::GetInstance().GetMeasurement(measurementType);
-        m_baseToUnitConverter = measurement->GetCurrentUnit()->GetBaseToUnitConverter();
-        spinBox->setDecimals(measurement->CurrentPrecision);
-        spinBox->setSingleStep(measurement->CurrentStep);
-    }
-
-    void SetRange(double min, double max)
-    {
-        m_spinBox->setRange(m_baseToUnitConverter(min),m_baseToUnitConverter(max));
-    }
-
-    void SetMinimum(double min, double offset = 0.0)
-    {
-        m_spinBox->setMinimum(m_baseToUnitConverter(min) + offset);
-    }
-
-    void SetMaximum(double max, double offset = 0.0)
-    {
-        m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
-    }
-
-protected:
-    QDoubleSpinBox* m_spinBox;
-    MeasurementUnit::FTransform m_baseToUnitConverter;
-};
 
 #define MEASUREMENT_UNIT_TO_BASE(system, x) \
 	MeasurementManager::GetInstance().GetCurrentUnit(system)->FromUnitToBase(x)

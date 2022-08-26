@@ -4,6 +4,100 @@
 #include <UnitsModule/internal.hpp>
 #endif
 
+void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+
+    OnAboutToBeReseted += { model, [model]{
+        model->beginResetModel();
+    }};
+    OnReseted += { model, [model]{
+        model->endResetModel();
+    }};
+    OnAboutToBeUpdated += { model, [model]{
+        emit model->layoutAboutToBeChanged();
+    }};
+    OnUpdated += { model, [model]{
+        emit model->layoutChanged();
+    }};
+    OnRowsRemoved += { model, [model]{ model->endRemoveRows(); } };
+    OnRowsInserted += { model, [model](qint32, qint32){ model->endInsertRows(); }};
+    OnRowsChanged += { model, [model] (qint32 row, qint32 count, const QSet<qint32>& columns){
+        auto startmi = model->index(row, columns.isEmpty() ? 0 : *columns.begin());
+//        Q_ASSERT(columns.isEmpty() || *(columns.end()-1) == *std::max_element(columns.constBegin(), columns.constEnd()));//ебанет?
+        auto endmi = model->index(row + count - 1, columns.isEmpty() ? model->columnCount() : *std::max_element(columns.constBegin(), columns.constEnd()));
+        model->dataChanged(startmi, endmi);
+    }};
+}
+
+void ModelsWrapperBase::DisconnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+
+    OnAboutToBeReseted -= model;
+    OnReseted -= model;
+    OnAboutToBeUpdated -= model;
+    OnUpdated -= model;
+    OnRowsRemoved -= model;
+    OnRowsInserted -= model;
+    OnAboutToBeDestroyed -= model;
+    OnRowsChanged -= model;
+}
+
+void ModelsTreeWrapper::ConnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::ConnectModel(qmodel);
+    OnAboutToInsertRows += { model, [model](qint32 start,qint32 end, ModelsTreeItemBase* parent){
+        if(parent->GetParent() == nullptr) {
+            model->beginInsertRows(QModelIndex(), start, end);
+        } else {
+            model->beginInsertRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
+        }
+    }};
+    OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end, ModelsTreeItemBase* parent){
+        if(parent->GetParent() == nullptr) {
+            model->beginRemoveRows(QModelIndex(), start, end);
+        } else {
+            model->beginRemoveRows(model->createIndex(parent->GetRow(), 0, parent), start, end);
+        }
+    }};
+    OnTreeValueChanged += {model, [model](size_t, ModelsTreeItemBase* item, QVector<int> roles){
+        auto index = model->createIndex(item->GetRow(), 0, item);
+        emit model->dataChanged(index, index, roles);
+    }};
+}
+
+void ModelsTreeWrapper::DisconnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::DisconnectModel(qmodel);
+    OnAboutToRemoveRows -= model;
+    OnAboutToInsertRows -= model;
+    OnTreeValueChanged -= model;
+}
+
+void ModelsTableWrapper::ConnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::ConnectModel(qmodel);
+    OnValueChanged += { model, [model](qint32 row, qint32 column) {
+        auto modelIndex = model->index(row, column);
+        emit model->dataChanged(modelIndex, modelIndex);
+    }};
+    OnAboutToRemoveRows += { model, [model](qint32 start,qint32 end){ model->beginRemoveRows(QModelIndex(), start, end); } };
+    OnAboutToInsertRows += { model, [model](qint32 start,qint32 end){ model->beginInsertRows(QModelIndex(), start, end); } };
+}
+
+void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
+{
+    auto* model = ModelsAbstractItemModel::Wrap(qmodel);
+    Super::DisconnectModel(qmodel);
+    OnAboutToRemoveRows -= model;
+    OnAboutToInsertRows -= model;
+    OnValueChanged -= model;
+}
+
 ViewModelsTableBase::ViewModelsTableBase(QObject* parent)
     : Super(parent)
     , m_mostLeftColumnToUpdate(-1)

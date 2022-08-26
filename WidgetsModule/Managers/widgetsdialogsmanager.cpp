@@ -11,6 +11,8 @@
 #include <QDesktopWidget>
 #include <QSettings>
 
+#include <PropertiesModule/Ui/internal.hpp>
+
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"

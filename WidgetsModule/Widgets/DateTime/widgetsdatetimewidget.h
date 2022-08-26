@@ -1,7 +1,7 @@
 #ifndef WIDGETSDATETIMEWIDGET_H
 #define WIDGETSDATETIMEWIDGET_H
 
-#include <QWidget>
+#include <QFrame>
 #include <PropertiesModule/internal.hpp>
 
 namespace Ui {

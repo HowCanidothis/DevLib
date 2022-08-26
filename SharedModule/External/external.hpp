@@ -6,7 +6,6 @@
 #include "qtinlineevent.h"
 #include "qtobserver.h"
 #include "qtlambdaconnections.h"
-#include "qtqssreader.h"
 #include "ticksplitter.h"
 
 #endif

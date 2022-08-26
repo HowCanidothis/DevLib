@@ -64,7 +64,7 @@ public:
 
     WidgetsGlobalTableActionsScope();
 
-    static WidgetsGlobalTableActionsScopeHandlersPtr EditHandlers(QTableView* table);
+    static WidgetsGlobalTableActionsScopeHandlersPtr EditHandlers(class QTableView* table);
     static WidgetsGlobalTableActionsScopeHandlersPtr AddDefaultHandlers(QTableView* table);
 
     static FAction CreateDefaultDeleteHandler(QTableView* table);

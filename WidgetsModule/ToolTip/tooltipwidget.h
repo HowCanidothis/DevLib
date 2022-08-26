@@ -1,7 +1,7 @@
 #ifndef TOOLTIPWIDGET_H
 #define TOOLTIPWIDGET_H
 
-#include <QWidget>
+#include <QFrame>
 
 #include <PropertiesModule/internal.hpp>
 

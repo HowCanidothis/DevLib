@@ -1,7 +1,7 @@
 #ifndef WIDGETSTIMEPICKER_H
 #define WIDGETSTIMEPICKER_H
 
-#include <QWidget>
+#include <QFrame>
 #include <PropertiesModule/internal.hpp>
 
 enum class ClockType {

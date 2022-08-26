@@ -1,7 +1,5 @@
 #include "actionsscopebase.h"
 
-#ifdef QT_GUI_LIB
-
 #include "actionsmanager.h"
 
 ActionsScopeBase::ActionsScopeBase(const Latin1Name& scopeName)
@@ -40,5 +38,3 @@ Latin1Name ActionsScopeBase::GenerateFullActionName(const Latin1Name& actionName
 {
     return Latin1Name(m_name.AsLatin1String() + "." + actionName.AsLatin1String());
 }
-
-#endif

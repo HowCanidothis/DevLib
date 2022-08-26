@@ -17,7 +17,7 @@ public:
 
     class ComponentPlacer* GetComponentPlacer() const;
 
-    QPushButton* CreateDrawerButton(QWidget* drawer, qint32 drawerSize = 450);
+    class QPushButton* CreateDrawerButton(QWidget* drawer, qint32 drawerSize = 450);
     QPushButton* CreateButton(const QString& objectName);
 
 private:
