@@ -25,6 +25,8 @@ class TErrorParamsContainer
 public:
     using Params = TErrorParams<Input...>;
     using ValidatorValue = std::pair<const Flags, Params>;
+    using PutValue = typename std::map<Flags, Params>::const_iterator;
+    using MappedResult = QMap<Flags, QVector<PutValue>>;
 
     class Output
     {
@@ -34,35 +36,41 @@ public:
         Output()
             : m_resultFlags((Flags)0)
             , m_resultFlagsCollector([](Flags){})
-            , m_resultFlagsContainerCollector([](Flags){})
-            , m_errorCollector([](const Params*){})
+            , m_errorCollector([](const PutValue&){})
+            , m_mappedResultCollector([](const PutValue&){})
         {}
 
+        Output& EnableMappedResult()
+        {
+            m_mappedResultCollector = [this](const PutValue& value){
+                m_mappedResult[value->first].append(value);
+            };
+            return *this;
+        }
         Output& EnableResultFlags() { m_resultFlagsCollector = [this](Flags flags){ m_resultFlags.AddFlags(flags); }; return *this; }
-        Output& EnableResultFlagsContainer() { m_resultFlagsContainerCollector = [this](Flags flags){ m_resultFlagsContainer.append(flags); }; return *this; }
-        Output& EnableResult() { m_errorCollector = [this](const Params* error){ m_error.append(error); }; return *this; }
+        Output& EnableResult() { m_errorCollector = [this](const PutValue& error){ m_error.append(error); }; return *this; }
 
         Flags GetResultFlags() const { return m_resultFlags; }
-        const QVector<Flags>& GetResultFlagsContainer() const { return m_resultFlagsContainer; }
-        const QVector<const Params*>& GetErrors() const { return m_error; }
+        const QVector<PutValue>& GetResult() const { return m_error; }
+        const MappedResult& GetMappedResult() const { return m_mappedResult; }
 
     private:
-        void put(Flags flags, const Params* value)
+        void put(const PutValue& iterator)
         {
-            m_resultFlagsCollector(flags);
-            m_resultFlagsContainerCollector(flags);
-            m_errorCollector(value);
+            m_resultFlagsCollector(iterator->first);
+            m_errorCollector(iterator);
+            m_mappedResultCollector(iterator);
         }
 
     private:
         friend class TErrorParamsContainer;
         Flags m_resultFlags;
-        QVector<Flags> m_resultFlagsContainer;
-        QVector<const Params*> m_error;
+        QVector<PutValue> m_error;
+        MappedResult m_mappedResult;
 
         std::function<void (Flags)> m_resultFlagsCollector;
-        std::function<void (Flags)> m_resultFlagsContainerCollector;
-        std::function<void (const Params*)> m_errorCollector;
+        std::function<void (const PutValue&)> m_errorCollector;
+        std::function<void (const PutValue&)> m_mappedResultCollector;
     };
 
     using FValidator = typename Output::FValidator;
@@ -84,17 +92,17 @@ public:
                 const auto& cvalue = value;
                 auto ckey = key;
                 if(oldResult == nullptr) {
-                    result = [value, validator, ckey](Output& result, const Input&... context){
+                    result = [it, validator](Output& result, const Input&... context){
                         if(!validator(context...)) {
-                            result.put(ckey, value);
+                            result.put(it);
                         }
                     };
                     continue;
                 }
-                result = [value, oldResult, validator, ckey](Output& result, const Input&... context){
+                result = [it, oldResult, validator](Output& result, const Input&... context){
                     oldResult(result, context...);
                     if(!validator(context...)) {
-                        result.put(ckey, value);
+                        result.put(it);
                     }
                 };
             }

@@ -386,6 +386,36 @@ bool JoinIt(const Container& container, const std::function<void (const typename
 }
 
 template<class Container>
+QString Join(const QChar& separator, const Container& container, const std::function<bool (const typename Container::value_type& value, QString&)>& joinHandler)
+{
+    QString result;
+    for(const auto& value : container) {
+        if(joinHandler(value, result)) {
+            result.append(separator);
+        }
+    }
+    if(!result.isEmpty()) {
+        result.resize(result.size() - 1);
+    }
+    return result;
+}
+
+template<class Container>
+QString Join(const QString& separator, const Container& container, const std::function<bool (const typename Container::value_type& value, QString&)>& joinHandler)
+{
+    QString result;
+    for(const auto& value : container) {
+        if(joinHandler(value, result)) {
+            result.append(separator);
+        }
+    }
+    if(!result.isEmpty()) {
+        result.resize(result.size() - separator.size());
+    }
+    return result;
+}
+
+template<class Container>
 QString Join(const QChar& separator, const Container& container)
 {
     QString result;
