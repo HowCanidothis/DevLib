@@ -160,7 +160,8 @@ bool WidgetsObserver::eventFilter(QObject* o, QEvent *e)
     return false;
 }
 
-static const char* WidgetAppearanceAnimationPropertyName = "WidgetAppearanceAnimation";
+static const char* WidgetAppearanceAnimationPropertyName = "a_WAA";
+static const char* WidgetAppearanceAnimationIsHidePropertyName = "a_WAAH";
 
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
 Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
@@ -850,16 +851,27 @@ void WidgetWrapper::ShowAnimated(int duration, double opacity) const
         prevAnimation->stop();
     }
 
+    auto& visible = WidgetWrapper(widget).WidgetVisibility();
+    if(visible) {
+        return;
+    }
+
+    auto prevOpacity = 0.0;
+    auto prevEffect = qobject_cast<QGraphicsOpacityEffect*>(widget->graphicsEffect());
+    if(prevEffect != nullptr) {
+        prevOpacity = prevEffect->opacity();
+    }
+
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(widget);
     widget->setGraphicsEffect(effect);
-    SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
+    auto animation = ::make_shared<QPropertyAnimation>(effect,"opacity");
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(duration);
-    animation->setStartValue(0.0);
+    animation->setStartValue(prevOpacity);
     animation->setEndValue(opacity);
     animation->setEasingCurve(QEasingCurve::InBack);
     animation->start();
-    WidgetWrapper(widget).WidgetVisibility() = true;
+    visible = true;
 }
 
 void WidgetWrapper::HideAnimated(int duration) const
@@ -867,22 +879,39 @@ void WidgetWrapper::HideAnimated(int duration) const
     auto* widget = GetWidget();
     auto prevAnimation = widget->property(WidgetAppearanceAnimationPropertyName).value<SharedPointer<QPropertyAnimation>>();
     if(prevAnimation != nullptr) {
+        if(prevAnimation->property(WidgetAppearanceAnimationIsHidePropertyName).toBool()) {
+            return;
+        }
         prevAnimation->stop();
+    }
+
+    auto& visible = WidgetWrapper(widget).WidgetVisibility();
+    if(!visible) {
+        return;
+    }
+
+    auto prevOpacity = 1.0;
+    auto prevEffect = qobject_cast<QGraphicsOpacityEffect*>(widget->graphicsEffect());
+    if(prevEffect != nullptr) {
+        prevOpacity = prevEffect->opacity();
     }
 
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(widget);
     widget->setGraphicsEffect(effect);
-    SharedPointer<QPropertyAnimation> animation(new QPropertyAnimation(effect,"opacity"));
+    auto animation = ::make_shared<QPropertyAnimation>(effect,"opacity");
     widget->setProperty(WidgetAppearanceAnimationPropertyName, QVariant::fromValue(animation));
     animation->setDuration(duration);
-    animation->setStartValue(widget->windowOpacity());
+    animation->setStartValue(prevOpacity);
     animation->setEndValue(0);
+    animation->setProperty(WidgetAppearanceAnimationIsHidePropertyName, true);
     animation->setEasingCurve(QEasingCurve::OutBack);
     animation->start();
-    animation->connect(animation.get(), &QPropertyAnimation::finished, [widget]{
-        WidgetWrapper(widget).WidgetVisibility() = false;
+    animation->connect(animation.get(), &QPropertyAnimation::stateChanged, [widget](QAbstractAnimation::State newState, QAbstractAnimation::State){
+        if(newState == QAbstractAnimation::Stopped) {
+            WidgetWrapper(widget).WidgetVisibility() = false;
+        }
     });
-    WidgetWrapper(widget).WidgetVisibility() = true;
+    visible = true;
 }
 
 const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const
@@ -944,7 +973,7 @@ LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated) const
         } else {
             action->setVisible(visible);
         }
-    }, true);
+    }, GetWidget()->isVisible());
 }
 
 LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
@@ -952,7 +981,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
     return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
         action->setEnabled(visible);
-    }, true);
+    }, GetWidget()->isEnabled());
 }
 
 bool WidgetWrapper::HasParent(QWidget* parent) const

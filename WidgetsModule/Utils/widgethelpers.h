@@ -117,9 +117,9 @@ public:
     void ActivateWindow(int mode, qint32 delay = 1000) const;
     void Highlight(qint32 unhightlightIn = 0) const;
     void Lowlight() const;
-    void SetVisibleAnimated(bool visible, int duration = 2000, double opacity = 0.8) const;
-    void ShowAnimated(int duration = 2000, double opacity = 0.8) const;
-    void HideAnimated(int duration = 2000) const;
+    void SetVisibleAnimated(bool visible, int duration = 1000, double opacity = 0.8) const;
+    void ShowAnimated(int duration = 1000, double opacity = 0.8) const;
+    void HideAnimated(int duration = 1000) const;
 
     class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
     WidgetsLocationAttachment* Location() const;

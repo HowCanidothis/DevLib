@@ -18,8 +18,8 @@ public:
     explicit TopNotifierFrame(QWidget* parent);
     ~TopNotifierFrame();
 
-    void SetText(const QString& text);
-    void SetActionText(const QString& text);
+    void SetText(const FTranslationHandler& text);
+    void SetActionText(const FTranslationHandler& text);
     void SetAction(const FAction& action);
 
     // QObject interface

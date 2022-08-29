@@ -23,16 +23,16 @@ TopNotifierFrame::~TopNotifierFrame()
     delete ui;
 }
 
-void TopNotifierFrame::SetText(const QString& text)
+void TopNotifierFrame::SetText(const FTranslationHandler& text)
 {
-    ui->Label->setText(text);
+    WidgetLabelWrapper(ui->Label).WidgetText()->SetTranslationHandler(text);
     adjustSize();
 }
 
-void TopNotifierFrame::SetActionText(const QString& text)
+void TopNotifierFrame::SetActionText(const FTranslationHandler& text)
 {
-    ui->BtnAction->setText(text);
-    ui->BtnAction->setVisible(!text.isEmpty());
+    WidgetPushButtonWrapper(ui->BtnAction).WidgetText()->SetTranslationHandler(text);
+    ui->BtnAction->setVisible(!text().isEmpty());
 }
 
 void TopNotifierFrame::SetAction(const FAction& action)
@@ -59,14 +59,16 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
     , m_updateText(1000)
 {
     auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [frame, errors]{
-        QString message;
-        for(const auto& error : *errors) {
-            message += error.Error->Native() + "\n";
-        }
-        if(!message.isEmpty()) {
-            message.resize(message.size() - 1);
-        }
-        frame->SetText(message);
+        frame->SetText([errors]{
+            QString message;
+            for(const auto& error : *errors) {
+                message += error.Error->Native() + "\n";
+            }
+            if(!message.isEmpty()) {
+                message.resize(message.size() - 1);
+            }
+            return message;
+        });
         WidgetWrapper(frame).SetVisibleAnimated(!errors->IsEmpty());
     });
     errors->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);

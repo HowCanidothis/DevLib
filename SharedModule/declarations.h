@@ -74,7 +74,7 @@ typedef qint32 count_t;
 
 using FAction = std::function<void ()>;
 using FTranslationHandler = std::function<QString ()>;
-#define TR(x) [=]{ return x; }
+#define TR(x, ...) [__VA_ARGS__]{ return x; }
 
 class QTextStream;
 
