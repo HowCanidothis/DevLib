@@ -5,9 +5,10 @@ uint qHash(const FTSObjectRow& row, uint seed=0)
     return qHashBits(&row, sizeof(FTSObjectRow) - sizeof(double), seed);
 }
 
+thread_local static QRegExp m_digitsRegexp(R"((\d+))");
+thread_local static QRegExp m_nonDigitsLettersSpacesRegexp(R"([\(\)\[\]\"\"])");
+
 FTSDictionary::FTSDictionary()
-    : m_digitsRegexp(R"((\d+))")
-    , m_nonDigitsLettersSpacesRegexp(R"([\(\)\[\]\"\"])")
 {
 }
 

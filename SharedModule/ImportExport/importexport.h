@@ -35,7 +35,6 @@ struct ImportExportSourceStandardProperties
     QVariant Error;
     bool IsMultithread = false;
     bool IsCompressed = false;
-    bool IsStrictVersion = false;
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
     bool IsMuted = false;
@@ -64,10 +63,6 @@ public:
     ImportExportSourceStandardProperties StandardProperties;
 
     void SetError(const QVariant& error);
-
-private:
-    static thread_local QRegExp m_parseExtension;
-    static thread_local QRegExp m_parseExtensionEx;
 };
 
 using ImportExportSourcePtr = SharedPointer<ImportExportSource>;
@@ -148,6 +143,12 @@ public:
 
     using FImportDelegate = std::function<AsyncResult (const ImportExportSourcePtr&, const T&)>;
     using FExportDelegate = std::function<AsyncResult (const ImportExportSourcePtr&, const T&)>;
+
+    ImportExportDelegate(const FImportDelegate& importDelegate = nullptr, const FExportDelegate& exportDelegate = nullptr)
+        : ImportDelegate(importDelegate)
+        , ExportDelegate(exportDelegate)
+    {}
+    virtual ~ImportExportDelegate(){}
 
     FImportDelegate ImportDelegate;
     FExportDelegate ExportDelegate;
@@ -328,20 +329,10 @@ struct DescImportExportTableExport
     DescImportExportTableExport(const QChar& separator)
         : DescImportExportTableExport([separator](const ImportExportSourcePtr& source, const QList<RowType>& data) -> bool {
                 QTextStream stream(source->GetDevice());
-                auto joinRow = [&](const RowType& row){
-                    lq::Join(row, [&](const ExportDataValueType& value) {
-                        stream << value.first.toString();
-                        stream << separator;
-                    }, [&](const ExportDataValueType& value) {
-                        stream << value.first.toString();
+                StringBuilder::Join(stream, '\n', data, [&](const auto& it){
+                    StringBuilder::Join(stream, separator, *it, [&](const auto& it){
+                        stream << it->first.toString();
                     });
-                };
-
-                lq::Join(data, [&](const RowType& row) {
-                    joinRow(row);
-                    stream << '\n';
-                }, [&](const RowType& row){
-                    joinRow(row);
                 });
                 return true;
             }, nullptr)
@@ -489,7 +480,7 @@ public:
             QXmlStreamReader reader(source->GetDevice());
             SerializerXmlReadBuffer buffer(&reader);
             auto currentVersion = buffer.ReadVersion();
-            auto result = version->CheckVersion(currentVersion, source->StandardProperties.IsStrictVersion);
+            auto result = version->CheckVersion(currentVersion);
             source->SetError(result);
             if(result.isValid()) {
                 return false;
@@ -503,7 +494,7 @@ public:
         return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8{
             SerializerReadBuffer buffer(source->GetDevice());
             auto currentVersion = buffer.ReadVersion();
-            auto result = version->CheckVersion(currentVersion, source->StandardProperties.IsStrictVersion, buffer.GetDevice()->size());
+            auto result = version->CheckVersion(currentVersion, buffer.GetDevice()->size());
             source->SetError(result);
             if(result.isValid()) {
                 return false;

@@ -12,7 +12,7 @@ void GtTextMap::LoadFromFnt(const QString& fntFile)
     QFile file(fntFile);
     if(file.open(QFile::ReadOnly)) {
         auto contents = file.readAll();
-        QRegExp regexp(R"((\w+)=([^\s]+))");
+        thread_local static QRegExp regexp(R"((\w+)=([^\s]+))");
         qint32 pos = 0;
         m_height = 0;
 

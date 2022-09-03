@@ -50,12 +50,10 @@ struct DescSerializationReadParams
 {
     SerializationModes SerializationMode;
     std::function<bool (SerializerReadBuffer& )> InitHandler;
-    bool IsStrictVersion;
 
     DescSerializationReadParams(qint32 mode)
         : SerializationMode((SerializationModes)mode)
         , InitHandler([](SerializerReadBuffer& ){ return true; })
-        , IsStrictVersion(false)
     {}
 
     DescSerializationReadParams(SerializationModes mode = SerializationMode_Default)
@@ -65,12 +63,6 @@ struct DescSerializationReadParams
     DescSerializationReadParams& SetInitHandler(const std::function<bool (SerializerReadBuffer& )>& handler)
     {
         InitHandler = handler;
-        return *this;
-    }
-
-    DescSerializationReadParams& SetStrictVersion(bool strict)
-    {
-        IsStrictVersion = strict;
         return *this;
     }
 };
@@ -122,7 +114,7 @@ bool DeSerializeFromArrayVersioned(const SerializerVersion& version, const QByte
 {
     params.InitHandler = [&](SerializerReadBuffer& buffer){
         auto currentVersion = buffer.ReadVersion();
-        auto result = version.CheckVersion(currentVersion, params.IsStrictVersion, buffer.GetDevice()->size());
+        auto result = version.CheckVersion(currentVersion, buffer.GetDevice()->size());
         if(result.isValid()) {
             return false;
         }

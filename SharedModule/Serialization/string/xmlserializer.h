@@ -303,6 +303,7 @@ struct SerializerXmlVersion
 
     Name Target;
     DataContainer Data;
+    qint32 SupportVersionFrom;
 
     void SetVersion(qint32 version);
     bool HasVersion() const;
@@ -314,19 +315,21 @@ struct SerializerXmlVersion
     SerializerXmlVersion()
     {}
 
-    SerializerXmlVersion(const Name& target, const DataContainer& data)
+    SerializerXmlVersion(const Name& target, const DataContainer& data, qint32 supportVersionFrom)
         : Target(target)
         , Data(data)
+        , SupportVersionFrom(supportVersionFrom)
     {}
 
-    SerializerXmlVersion(const Name& target, qint64 format, qint32 version)
+    SerializerXmlVersion(const Name& target, qint64 format, qint32 version, qint32 supportVersionFrom)
         : Target(target)
+        , SupportVersionFrom(supportVersionFrom)
     {
         SetVersion(version);
         SetFormat(format);
     }
 
-    QVariant CheckVersion(const SerializerXmlVersion& another, bool strictVersion) const;
+    QVariant CheckVersion(const SerializerXmlVersion& another) const;
 
     Q_DECLARE_TR_FUNCTIONS(SerializerXmlVersion)
 };
@@ -557,7 +560,6 @@ struct DescSerializationXMLReadParams
     using FInitHandler = std::function<bool (SerializerXmlReadBuffer&)>;
     SerializationModes Mode;
     FInitHandler InitHandler;
-    bool IsStrictVersion = false;
 
     DescSerializationXMLReadParams(qint32 mode)
         : Mode((SerializationMode)mode)
@@ -567,7 +569,6 @@ struct DescSerializationXMLReadParams
     {}
 
     DescSerializationXMLReadParams& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
-    DescSerializationXMLReadParams& SetStrictVersion(bool strictVersion) { IsStrictVersion = strictVersion; return *this; }
 };
 
 template<class T>
@@ -606,7 +607,7 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&](SerializerXmlReadBuffer& buffer){
         auto version = buffer.ReadVersion();
-        auto checkVersionError = currentVersion.CheckVersion(version, properties.IsStrictVersion);
+        auto checkVersionError = currentVersion.CheckVersion(version);
         if(checkVersionError.isValid()) {
             return false;
         }
@@ -621,7 +622,7 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&](SerializerXmlReadBuffer& buffer){
         auto version = buffer.ReadVersion();
-        auto checkVersionError = currentVersion.CheckVersion(version, properties.IsStrictVersion);
+        auto checkVersionError = currentVersion.CheckVersion(version);
         if(checkVersionError.isValid()) {
             return false;
         }

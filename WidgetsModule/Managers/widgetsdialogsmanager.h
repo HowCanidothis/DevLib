@@ -75,7 +75,9 @@ private:
 template<>
 inline QList<ImportExportSourcePtr> ImportExportSource::CreateSources<WidgetsDialogsManager>(const DescImportExportSourceParams& params)
 {
-    return lq::Select<ImportExportSourcePtr>(WidgetsDialogsManager::GetInstance().SelectDirectory(params), [](const QUrl& url){ return ::make_shared<ImportExportFileSource>(url); });
+    return ContainerBuilder<QList<ImportExportSourcePtr>>().Append(lq::select(WidgetsDialogsManager::GetInstance().SelectDirectory(params),0), [](const auto& it){
+        return ::make_shared<ImportExportFileSource>(*it);
+    });
 }
 
 #endif // WIDGETSDIALOGMANAGER_H

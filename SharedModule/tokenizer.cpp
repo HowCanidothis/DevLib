@@ -1,4 +1,5 @@
 #include "tokenizer.h"
+#include "builders.h"
 
 Tokenizer::Tokenizer(const QString& pattern)
     : m_pattern(pattern)
@@ -12,16 +13,9 @@ Tokenizer::Tokens Tokenizer::CreateTokens(const ProcessFactory& factory)
         return tokenInfoFromFactory(factory);
     }
 
-    QString regExpPattern("(");
-    lq::JoinIt(factory, [&](const auto& it){
-        regExpPattern.append(R"(\[)");
-        regExpPattern.append(it.key().AsString());
-        regExpPattern.append(R"(\]|)");
-    }, [&](const auto& it){
-        regExpPattern.append(R"(\[)");
-        regExpPattern.append(it.key().AsString());
-        regExpPattern.append(R"(\]))");
-    });
+    auto regExpPattern = StringBuilder("(").Join('|', factory, [](const auto& iterator){
+        return R"(\[)" + iterator.key().AsString() + R"(\])";
+    }).append(')');
 
     QRegExp regExp(regExpPattern);
 

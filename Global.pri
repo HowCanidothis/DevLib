@@ -4,6 +4,10 @@
 #if it called twice, it will not include dublicated files
 #removeMain should be always true when it called in pri files and always false in pro, by default it's false
 
+force_debug_info {
+DEFINES += QT_PROFILE
+}
+
 for(VAR,$$list($$(BUILD_CONFIG))) {
     CONFIG += $$VAR
 }
@@ -44,7 +48,7 @@ defineTest(includeFiles) {
                 absfilepath += $$absolute_path($$var)
                 $$2 *= $$absfilepath
             } else {
-                message(excluding $$var)
+                #message(excluding $$var)
             }
         }
     } else {

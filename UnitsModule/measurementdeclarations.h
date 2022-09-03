@@ -66,4 +66,17 @@ using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 
 bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
 
+template<template<class T>typename Helper, typename Context>
+template<class T2>
+ParseFactoryBuilder<Helper, Context>& ParseFactoryBuilder<Helper, Context>::RegisterMeasurementField(const Name& key, const MeasurementUnit& unit,
+                              const FPropertyExtractor<double,T2>& targetPropertyExtractor,
+                              const FTargetExtractor<T2>& targetExtractor,
+                              const typename Helper<double>::extractor_type& extractor)
+{
+    Super::insert(key, [extractor, targetExtractor, targetPropertyExtractor, &unit](const typename Helper<void>::parse_type& in, Context& context){
+        targetPropertyExtractor(targetExtractor(context)) = unit.FromUnitToBase(extractor(in));
+    });
+    return *this;
+}
+
 #endif // MEASUREMENTDECLARATIONS_H

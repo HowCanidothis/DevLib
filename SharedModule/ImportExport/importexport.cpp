@@ -1,4 +1,5 @@
 #include "importexport.h"
+#include "SharedModule/builders.h"
 
 ImportExportFilterExtensionsBuilder::ImportExportFilterExtensionsBuilder(bool addZip)
     : m_addAllTypes([](QStringList&){})
@@ -16,9 +17,9 @@ ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddAll
 {
     if(enable) {
         m_addAllTypes = [this](QStringList& result){
-            result.append(QString("All Types (%1)").arg(lq::Join(' ', lq::Select<QString>(m_extensions, [](const ExtensionValue& value){
-                return QString("*.%1").arg(value.second);
-            }))));
+            result.append(QString("All Types (%1)").arg(StringBuilder().Join(' ', m_extensions, [](const auto& it){
+                return QString("*.%1").arg(it->second);
+            })));
         };
     } else {
         m_addAllTypes = [](QStringList&){};
@@ -57,12 +58,12 @@ ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddExt
 
 QStringList ImportExportFilterExtensionsBuilder::Result()
 {
-    QStringList result;
+    ContainerBuilder<QStringList> result;
     m_addAllTypes(result);
-    lq::Join(m_extensions, [&](const ExtensionValue& value){
-        const auto& label = value.first;
-        const auto& ext = value.second;
-        result.append(QString("%1 (*.%2)").arg(label.isEmpty() ? ext.toUpper() : label, ext));
+    result.Append(m_extensions, [](const auto& value){
+        const auto& label = value->first;
+        const auto& ext = value->second;
+        return QString("%1 (*.%2)").arg(label.isEmpty() ? ext.toUpper() : label, ext);
     });
     return result;
 }
@@ -88,14 +89,15 @@ AsyncResult ImportExport::async(const FAction& function, const EPriority priorit
     return threadPool().PushTask(function, priority);
 }
 
-thread_local QRegExp ImportExportSource::m_parseExtension(R"([^\/\\]+)");
-thread_local QRegExp ImportExportSource::m_parseExtensionEx(R"(([^\.]*)\.(.*))");
-
 QString ImportExportSource::ParseExtension(const QString& path)
 {    
     QString extension;
     QString fileName;
     qint32 index(0);
+
+    thread_local QRegExp m_parseExtension(R"([^\/\\]+)");
+    thread_local QRegExp m_parseExtensionEx(R"(([^\.]*)\.(.*))");
+
     while((index = m_parseExtension.indexIn(path, index)) != -1) {
         fileName = m_parseExtension.cap();
         index += m_parseExtension.matchedLength();

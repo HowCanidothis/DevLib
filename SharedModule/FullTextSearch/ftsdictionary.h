@@ -79,8 +79,6 @@ private:
 
 private:
     QHash<Name, QSet<FTSObjectRow>> m_dictionary;
-    QRegExp m_digitsRegexp;
-    QRegExp m_nonDigitsLettersSpacesRegexp;
 };
 
 #endif // FTSDICTIONARY_H

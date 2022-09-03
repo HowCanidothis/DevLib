@@ -49,7 +49,7 @@ QString QtQSSReader::ReadAll()
     QFile file(fi.absoluteFilePath());
     if(file.open(QFile::ReadOnly)) {
         QString importsFile = file.readAll();
-        QRegExp re("@import url\\(\"([^\\)]*)\"\\);");
+        thread_local static QRegExp re("@import url\\(\"([^\\)]*)\"\\);");
         qint32 pos(0);
         while ((pos = re.indexIn(importsFile,pos)) != -1) {
             QString qssFileName = re.cap(1);

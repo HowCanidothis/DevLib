@@ -42,7 +42,7 @@ const QByteArray& GtSharedShaderManager::Extract(const Name& fileName) const
 QByteArray GtSharedShaderManager::Merge(const QByteArray& shader) const
 {
     QByteArray result;
-    QRegExp regExp(R"(#include \"([^\"]+)\")");
+    thread_local static QRegExp regExp(R"(#include \"([^\"]+)\")");
     qint32 pos = 0;
     qint32 lastPos = 0;
     while((pos = regExp.indexIn(shader, pos)) != -1) {

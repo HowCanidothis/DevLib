@@ -610,7 +610,7 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
 {
     return [translationHandler, metrics, connections]{
         THREAD_ASSERT_IS_MAIN()
-        static QRegExp regExp("%un");
+        thread_local static QRegExp regExp("%un");
         auto string = translationHandler();
         qint32 index = 0, stringIndex = 0;
         auto it = metrics.begin();

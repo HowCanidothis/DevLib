@@ -8,7 +8,7 @@ GtMeshPtr GtMeshLoader::LoadObj(const QString& fileName){
     QVector<qint32> faceIndices;
     QVector<qint32> texIndices;
 
-    QRegExp regExp(R"((\d+)\/(\d+)\/?(\d+)?)");
+    thread_local static QRegExp regExp(R"((\d+)\/(\d+)\/?(\d+)?)");
     QFile file(fileName);
     if(!file.open(QFile::ReadOnly)) {
         return nullptr;
@@ -25,7 +25,7 @@ GtMeshPtr GtMeshLoader::LoadObj(const QString& fileName){
             stream >> point.X() >> point.Y() >> point.Z();
             texCoords.append(point);
         }},
-        { "f", [&faceIndices, &regExp, &texIndices](QTextStream& stream) {
+        { "f", [&faceIndices, &texIndices](QTextStream& stream) {
             auto line = stream.readLine();
             qint32 pos = 0;
             qint32 count = 0;

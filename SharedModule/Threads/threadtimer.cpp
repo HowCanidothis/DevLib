@@ -76,11 +76,9 @@ void ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    FutureResult futureResult;
-    futureResult += ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [msecs, onTimeout]{
+    ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [msecs, onTimeout]{
         QTimer::singleShot(msecs, onTimeout);
     });
-    futureResult.Wait();
 }
 
 QTimer* ThreadTimerManager::createTimer(qint32 msecs)

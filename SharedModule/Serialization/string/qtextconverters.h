@@ -101,7 +101,7 @@ struct TextConverter<QList<T>>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\(([^\)]+)\))");
+        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
         qint32 pos = 0;
         value_type result;
         while((pos = regExp.indexIn(string, pos)) != -1) {
@@ -278,7 +278,7 @@ struct TextConverter<QMatrix4x4>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\(([^\)]+)\))");
+        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
         qint32 pos = 0;
         float values[16];
         qint32 index = 0;
@@ -326,7 +326,7 @@ struct TextConverter<QHash<Key, Value>>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\{\(([^\|]+)\)\|\(([^\}]*)\)\})");
+        thread_local static QRegExp regExp(R"(\{\(([^\|]+)\)\|\(([^\}]*)\)\})");
         qint32 pos = 0;
         value_type result;
         while((pos = regExp.indexIn(string, pos)) != -1) {
@@ -353,7 +353,7 @@ struct TextConverter<QSet<Key>>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\(([^\)]+)\))");
+        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
         qint32 pos = 0;
         value_type result;
         while((pos = regExp.indexIn(string, pos)) != -1) {
@@ -376,7 +376,7 @@ struct TextConverter<QPoint>
 
     static value_type FromText(const QString& string)
     {
-        static QRegExp regExp(R"(\(([^,]+),([^\)]+)\))");
+        thread_local static QRegExp regExp(R"(\(([^,]+),([^\)]+)\))");
         qint32 pos = 0;
         value_type result;
         while((pos = regExp.indexIn(string, pos)) != -1) {

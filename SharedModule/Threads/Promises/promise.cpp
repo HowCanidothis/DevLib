@@ -51,9 +51,8 @@ DispatcherConnection PromiseData::then(const FCallback& handler)
     if(m_isCompleted) {
         handler(m_result);
         return DispatcherConnection();
-    } else {
-        return onFinished.Connect(CONNECTION_DEBUG_LOCATION, handler);
     }
+    return onFinished.Connect(CONNECTION_DEBUG_LOCATION, handler);
 }
 
 void PromiseData::mute()

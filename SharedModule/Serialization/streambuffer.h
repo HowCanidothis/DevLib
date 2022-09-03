@@ -70,16 +70,18 @@ struct SerializerVersion
     qint64 Format = -1;
     qint32 Version = -1;
     qint64 HashSum = -1;
+    qint32 SupportFromVersion = -1;
 
     SerializerVersion()
     {}
 
-    SerializerVersion(qint64 format, qint32 version)
+    SerializerVersion(qint64 format, qint32 version, qint32 supportVersionFrom)
         : Format(format)
         , Version(version)
+        , SupportFromVersion(supportVersionFrom)
     {}
 
-    QVariant CheckVersion(const SerializerVersion& current, bool strictVersion, qint64 size) const;
+    QVariant CheckVersion(const SerializerVersion& current, qint64 size) const;
 
     template<class Buffer>
     void Serialize(Buffer& buffer)

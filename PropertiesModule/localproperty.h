@@ -141,6 +141,13 @@ public:
         }
     }
 
+    void SetSilentWithValidators(const T& value)
+    {
+        auto validatedValue = m_validator(value);
+        validate(validatedValue);
+        m_value = validatedValue;
+    }
+
     void SetValueForceInvoke(const T& value)
     {
         auto validatedValue = m_validator(value);

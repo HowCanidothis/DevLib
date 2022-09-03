@@ -68,7 +68,7 @@ bool PropertiesDelegateFactory::SetModelData(QWidget* editor, QAbstractItemModel
         return true;
     case Property::DelegateRect:
         if(auto e = qobject_cast<QLineEdit*>(editor)) {
-            QRegExp regExp(R"((\d+),(\d+),(-?\d+),(-?\d+))");
+            thread_local static QRegExp regExp(R"((\d+),(\d+),(-?\d+),(-?\d+))");
             if(regExp.exactMatch(e->text())) {
                 auto x = regExp.cap(1).toInt();
                 auto y = regExp.cap(2).toInt();

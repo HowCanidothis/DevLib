@@ -26,13 +26,13 @@ typedef QSize SizeI;
 typedef QRect RectI;
 
 template<class T> inline static void point2DFromString(T& point, const QString& string){
-    static QRegExp re(R"((\()?([^,]+),([^,\)]+)\)?)");
+    thread_local static QRegExp re(R"((\()?([^,]+),([^,\)]+)\)?)");
     re.indexIn(string);
     point.X() = re.cap(2).toDouble();
     point.Y() = re.cap(3).toDouble();
 }
 template<class T> inline static void point3DFromString(T& point, const QString& string){
-    static QRegExp re(R"((\()?([^,]+),([^,]+),([^,\)]+)\)?)");
+    thread_local static QRegExp re(R"((\()?([^,]+),([^,]+),([^,\)]+)\)?)");
     re.indexIn(string);
     point.X() = re.cap(2).toDouble();
     point.Y() = re.cap(3).toDouble();

@@ -13,7 +13,7 @@ QString SerializerXmlVersion::DataContainer::ToString(const QChar& separator) co
     return result;
 }
 
-QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another, bool strictVersion) const
+QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another) const
 {
     if(another.Target != Target) {
         return tr("Unexpected file contents");
@@ -22,11 +22,10 @@ QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another,
         return tr("Format error - expected %1, but file version is %2").arg(QString::number(GetFormat()) , QString::number(another.GetFormat()));
     }
     auto currentVersionValue = (quint32)another.GetVersion();
-    if(strictVersion) {
-        if(currentVersionValue != (quint32)GetVersion()) {
-            return tr("Version is not supported - application supported version is %1, but file version is %2").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
-        }
-    } else if(currentVersionValue > (quint32)GetVersion()) {
+    if(SupportVersionFrom != -1 && currentVersionValue < (quint32)SupportVersionFrom) {
+        return tr("Version is not supported - application supports versions starting from %1, but file version is %2").arg(QString::number(SupportVersionFrom) , QString::number(another.GetVersion()));
+    }
+     if(currentVersionValue > (quint32)GetVersion()) {
         return tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
     }
 
