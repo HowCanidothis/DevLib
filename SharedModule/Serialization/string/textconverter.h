@@ -20,17 +20,17 @@ struct TextConverter
     }
 };
 
-template<class T>
-QString TextConverterToText(const T& value, const TextConverterContext& context = TextConverterContext())
+struct TextHelper
 {
-    return TextConverter<T>::ToText(value, context);
-}
+    template<class T> static QString ToText(const T& value, const TextConverterContext& context = TextConverterContext())
+    {
+        return TextConverter<T>::ToText(value, context);
+    }
 
-template<class T>
-void TextConverterFromText(const QString& text, T& value)
-{
-    value = TextConverter<T>::FromText(text);
-}
-
+    template<class T> static T FromText(const QString& value)
+    {
+        return TextConverter<T>::FromText(value);
+    }
+};
 
 #endif // STRINGCONVERTER_H

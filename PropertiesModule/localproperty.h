@@ -1020,6 +1020,16 @@ struct LocalPropertyOptional
         IsValid.EditSilent() = true;
     }
 
+    void SetSilentWithValidators(const std::optional<value_type>& value)
+    {
+        if(value.has_value()) {
+            Value.SetSilentWithValidators(value.value());
+            IsValid.EditSilent() = true;
+        } else {
+            IsValid.EditSilent() = false;
+        }
+    }
+
     DispatcherConnections ConnectAction(const char* locationInfo, const FAction& action) const
     {
         DispatcherConnections connections;

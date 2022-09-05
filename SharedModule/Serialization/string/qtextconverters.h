@@ -9,6 +9,26 @@
 
 #include "textconvertercontext.h"
 
+template <typename T>
+struct TextConverter<std::optional<T>>
+{
+    using value_type = std::optional<T>;
+    static QString ToText(const value_type& value, const TextConverterContext& context)
+    {
+        return value.has_value() ? TextConverter<T>::ToText(value.value(), context) : QString();
+    }
+
+    static value_type FromText(const QString& string)
+    {
+        return string.isEmpty() ? std::nullopt : std::make_optional(TextConverter<T>::FromText(string));
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.isEmpty() ? std::nullopt : std::make_optional(TextConverter<T>::FromText(string));
+    }
+};
+
 template <>
 struct TextConverter<QUrl>
 {
@@ -168,7 +188,12 @@ struct TextConverter<qint32>
 
     static value_type FromText(const QString& string)
     {
-        return string.toInt();
+        return string.toDouble();
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.toDouble();
     }
 };
 
@@ -183,7 +208,12 @@ struct TextConverter<qint64>
 
     static value_type FromText(const QString& string)
     {
-        return string.toLongLong();
+        return string.toDouble();
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.toDouble();
     }
 };
 
@@ -198,7 +228,12 @@ struct TextConverter<size_t>
 
     static value_type FromText(const QString& string)
     {
-        return string.toLongLong();
+        return string.toDouble();
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.toDouble();
     }
 };
 
@@ -206,11 +241,17 @@ struct TextConverter<size_t>
 template<>
 struct TextConverter<double>
 {
-    static QString ToText(double value, const TextConverterContext& context)
+    using value_type = double;
+    static QString ToText(value_type value, const TextConverterContext& context)
     {
         return QString::number(value, 'f', context.DoublePrecision);
     }
-    static double FromText(const QString& string)
+    static value_type FromText(const QString& string)
+    {
+        return string.toDouble();
+    }
+
+    static value_type FromText(const QStringRef& string)
     {
         return string.toDouble();
     }
@@ -219,24 +260,36 @@ struct TextConverter<double>
 template<>
 struct TextConverter<float>
 {
-    static QString ToText(float value, const TextConverterContext& context)
+    using value_type = float;
+    static QString ToText(value_type value, const TextConverterContext& context)
     {
         return QString::number(value, 'f', context.FloatPrecision);
     }
-    static float FromText(const QString& string)
+    static value_type FromText(const QString& string)
     {
         return string.toFloat();
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.toDouble();
     }
 };
 
 template<>
 struct TextConverter<bool>
 {
-    static QString ToText(bool value, const TextConverterContext& )
+    using value_type = bool;
+    static QString ToText(value_type value, const TextConverterContext& )
     {
         return QString::number((qint32)value);
     }
-    static bool FromText(const QString& string)
+    static value_type FromText(const QString& string)
+    {
+        return string.toInt();
+    }
+
+    static value_type FromText(const QStringRef& string)
     {
         return string.toInt();
     }

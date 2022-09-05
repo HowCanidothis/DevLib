@@ -10,6 +10,36 @@
 #include "flags.h"
 #include "debugobjectinfo.h"
 
+#define FIRST_DECLARE(container) template<class, template<typename> class> class container;
+
+using FAction = std::function<void ()>;
+using FTranslationHandler = std::function<QString ()>;
+#define TR(x, ...) [__VA_ARGS__]{ return x; }
+
+#define DECLARE_GLOBAL(Type, name) \
+extern const Type name;
+
+#define IMPLEMENT_GLOBAL(Type, name, ...) \
+const Type name(__VA_ARGS__);
+
+template<class T>
+struct Default
+{
+    static const T Value;
+};
+
+#define IMPLEMENT_DEFAULT_PTR(type) \
+template<> const SharedPointer<type> Default<SharedPointer<type>>::Value;
+
+#define IMPLEMENT_DEFAULT(type) \
+template<> const type Default<type>::Value;
+
+#define IMPLEMENT_DEFAULT_WITH_PARAMS(type, ...) \
+template<> const type Default<type>::Value(__VA_ARGS__);
+
+DECLARE_GLOBAL(FTranslationHandler, TR_NONE);
+DECLARE_GLOBAL(QString, DASH);
+
 #define toPointer(x) auto* p##x = x.get()
 
 #if defined(QT_GUI_LIB) && !defined(FORCE_NO_UI)
@@ -71,10 +101,6 @@ private:
 #endif
 
 typedef qint32 count_t;
-
-using FAction = std::function<void ()>;
-using FTranslationHandler = std::function<QString ()>;
-#define TR(x, ...) [__VA_ARGS__]{ return x; }
 
 class QTextStream;
 
@@ -283,12 +309,21 @@ inline T make_copy_if_not_detached(const T& container)
     return make_copy(container);
 }
 
-
 template<typename Enum>
 struct EnumHelper
 {
+    template<typename T> static T Validate(qint64 value);
     static QStringList GetNames();
 };
+
+template<>
+struct EnumHelper<void>
+{
+    template<typename T> static T Validate(qint64 value) { return (T)::clamp(value, (qint64)T::First, (qint64)T::Last); }
+    static QStringList GetNames();
+};
+
+using EnumHelperCommon = EnumHelper<void>;
 
 enum Sides {
     Left,
@@ -482,31 +517,6 @@ _Export Q_DECLARE_LOGGING_CATEGORY(LC_SYSTEM)
 #ifdef _MSC_VER
     //if msvc compiler
 #endif
-
-#define FIRST_DECLARE(container) template<class, template<typename> class> class container;
-
-#define DECLARE_GLOBAL(Type, name) \
-extern const Type name;
-
-#define IMPLEMENT_GLOBAL(Type, name, ...) \
-const Type name(__VA_ARGS__);
-
-template<class T>
-struct Default
-{
-    static const T Value;
-};
-
-#define IMPLEMENT_DEFAULT_PTR(type) \
-template<> const SharedPointer<type> Default<SharedPointer<type>>::Value;
-
-#define IMPLEMENT_DEFAULT(type) \
-template<> const type Default<type>::Value;
-
-#define IMPLEMENT_DEFAULT_WITH_PARAMS(type, ...) \
-template<> const type Default<type>::Value(__VA_ARGS__);
-
-DECLARE_GLOBAL(FTranslationHandler, TR_NONE);
 
 template<class T>
 T& GlobalSelfGetter(T& v) { return v; };

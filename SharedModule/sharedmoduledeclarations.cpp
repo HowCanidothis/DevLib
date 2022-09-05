@@ -16,5 +16,5 @@ QString Nanosecs::ToString(const QString& caption) const
 }
 
 IMPLEMENT_GLOBAL(FTranslationHandler, TR_NONE, []{ return QString(); })
-
+IMPLEMENT_GLOBAL(QString, DASH, '-');
 IMPLEMENT_DEFAULT(QString);

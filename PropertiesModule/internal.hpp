@@ -19,6 +19,7 @@
 #include "localpropertyerrorscontainer.h"
 #include "Models/wrappers.h"
 #include "Models/modelstree.h"
+#include "textconverters.h"
 
 #ifdef SHARED_LIB_ADD_UI
 #include "Ui/internal.hpp"
