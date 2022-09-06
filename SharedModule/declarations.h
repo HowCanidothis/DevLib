@@ -521,4 +521,7 @@ _Export Q_DECLARE_LOGGING_CATEGORY(LC_SYSTEM)
 template<class T>
 T& GlobalSelfGetter(T& v) { return v; };
 
+template<class T>
+T* GlobalSelfGetterPointer(T& v) { return &v; };
+
 #endif // SHARED_DECL_H

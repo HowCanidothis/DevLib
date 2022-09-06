@@ -16,8 +16,10 @@ struct ExceptionHandleParams
     FNotifier Notifier;
     bool StartProcess = false;
 
-    ExceptionHandleParams(const FAction& action);
+    ExceptionHandleParams(const QString& processName, const FAction& action);
 
+    ExceptionHandleParams& SetDefaultNotificatorWarningHandler();
+    ExceptionHandleParams& SetDefaultNotificatorHandler(const std::function<void (const QString&, const QString&)>& handlerModuleMessage);
     ExceptionHandleParams& SetNotificator(const FNotifier& notifier);
     ExceptionHandleParams& SetProcessName(const QString& processName) { ProcessName = processName; return *this; }
     ExceptionHandleParams& SetStartProcess(const QString& processName){ StartProcess = true; ProcessName = processName;  return *this; }

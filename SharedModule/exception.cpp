@@ -27,7 +27,7 @@ ExceptionHandleParams& ExceptionHandleParams::SetNotificator(const ExceptionHand
 
 bool Exception::Handle(const QString& module, const FAction& action)
 {
-    return Handle(ExceptionHandleParams(action).SetProcessName(module));
+    return Handle(ExceptionHandleParams(module, action));
 }
 bool Exception::Handle(const ExceptionHandleParams& params)
 {
@@ -51,16 +51,33 @@ bool Exception::Handle(const ExceptionHandleParams& params)
     return false;
 }
 
-ExceptionHandleParams::ExceptionHandleParams(const FAction& action)
-    : ProcessName(DefaultProcessName)
+ExceptionHandleParams::ExceptionHandleParams(const QString& processName, const FAction& action)
+    : ProcessName(processName)
     , Action(action)
-    , Notifier([](const QString& module, const Exception& ex){
-        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(module), [ex, module]{
+{
+    SetDefaultNotificatorHandler([](const QString& module, const QString& message){
+        qCCritical(LC_UI) << QString("%1: %2").arg(module, message);
+    });
+}
+
+ExceptionHandleParams& ExceptionHandleParams::SetDefaultNotificatorHandler(const std::function<void (const QString&, const QString&)>& handlerModuleMessage)
+{
+    Notifier = [handlerModuleMessage](const QString& module, const Exception& ex){
+        DelayedCallManager::CallDelayed(CONNECTION_DEBUG_LOCATION, Name(module), [ex, module, handlerModuleMessage]{
             auto message = ex.Message();
             if(message.isEmpty()) {
                 return;
             }
-            qCCritical(LC_UI) << QString("%1: %2").arg(module, message);
+            handlerModuleMessage(module, message);
         }, DelayedCallObjectParams(1000));
-    })
-{}
+    };
+    return *this;
+}
+
+ExceptionHandleParams& ExceptionHandleParams::SetDefaultNotificatorWarningHandler()
+{
+    SetDefaultNotificatorHandler([](const QString& module, const QString& message){
+        qCWarning(LC_UI) << QString("%1: %2").arg(module, message);
+    });
+    return *this;
+}

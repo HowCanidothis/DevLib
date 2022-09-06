@@ -27,6 +27,7 @@ StyleSettings::StyleSettings()
     , ShadersPath(":/")
     #endif
 {
+    ShadersPath.SetValidator([](const QString& path){ return path.isEmpty() ? ":/" : path; });
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
     StylesQSSFile.OnChanged += { this, [this]{
         InstallQSSReader(StylesQSSFile);

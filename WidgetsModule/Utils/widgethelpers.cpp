@@ -708,19 +708,19 @@ TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
     });
 }
 
-DispatcherConnection WidgetWrapper::ConnectVisibility(const char* debugLocation, QWidget* another) const
+DispatcherConnection WidgetWrapper::ConnectEnablityFrom(const char* conInfo, QWidget* widget) const
 {
-    return WidgetWrapper(another).WidgetVisibility().ConnectFrom(debugLocation, WidgetVisibility());
+    return WidgetEnablity().ConnectFrom(conInfo, WidgetWrapper(widget).WidgetEnablity());
 }
 
-DispatcherConnection WidgetWrapper::ConnectEnablity(const char* debugLocation, QWidget* another) const
+DispatcherConnection WidgetWrapper::ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const
 {
-    return WidgetWrapper(another).WidgetEnablity().ConnectFrom(debugLocation, WidgetEnablity());
+    return WidgetVisibility().ConnectFrom(conInfo, WidgetWrapper(widget).WidgetVisibility());
 }
 
 DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
 {
-    auto result = createRule(debugLocation, &WidgetVisibility(), handler, additionalWidgets, &WidgetWrapper::ConnectVisibility, *dispatchers.first());
+    auto result = createRule<WidgetWrapper>(debugLocation, QOverload<>::of(&WidgetWrapper::WidgetVisibility), handler, additionalWidgets, *dispatchers.first());
     for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
         result += WidgetVisibility().ConnectFrom(debugLocation, handler, *dispatcher);
     }
@@ -729,7 +729,7 @@ DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocat
 
 DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
 {
-    auto result = createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, *dispatchers.first());
+    auto result = createRule<WidgetWrapper>(debugLocation, &WidgetWrapper::WidgetEnablity, handler, additionalWidgets, *dispatchers.first());
     for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
         result += WidgetEnablity().ConnectFrom(debugLocation, handler, *dispatcher);
     }
@@ -1257,13 +1257,28 @@ LocalPropertyDouble& WidgetDoubleSpinBoxWrapper::WidgetValue() const
     return *Injected<LocalPropertyDouble>("a_value", [&]() -> LocalPropertyDouble* {
        auto* property = new LocalPropertyDouble();
        auto* widget = GetWidget();
-       property->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
+       property->EditSilent() = widget->value();
        widget->connect(widget, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [property](double value){
            *property = value;
        });
+       property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
        property->SetSetterHandler(ThreadHandlerMain);
        return property;
    });
+}
+
+LocalPropertyBool& WidgetDoubleSpinBoxWrapper::WidgetReadOnly() const
+{
+    return *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool();
+        auto* widget = GetWidget();
+        property->EditSilent() = widget->isReadOnly();
+        property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
+            widget->setReadOnly(*property);
+        });
+        property->SetSetterHandler(ThreadHandlerMain);
+        return property;
+    });
 }
 
 WidgetSplitterWrapper::WidgetSplitterWrapper(QSplitter* splitter)

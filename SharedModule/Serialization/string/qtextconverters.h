@@ -145,6 +145,11 @@ struct TextConverter<QString>
     {
         return string;
     }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return string.toString();
+    }
 };
 
 template <>

@@ -31,7 +31,7 @@ public:
         : m_object(object)
     {}
 
-    template<class T> T& Cast() { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((T*)this); }
+    template<class T> const T& Cast() const { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((const T*)this); }
 
     template<class T>
     SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
@@ -84,7 +84,6 @@ protected:
 class WidgetWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
-    using FConnector = DispatcherConnection (WidgetWrapper::*)(const char*, QWidget*) const;
 public:
     WidgetWrapper(QWidget* widget);
 
@@ -99,19 +98,20 @@ public:
         return value;
     }
 
-    DispatcherConnection ConnectVisibility(const char* debugLocation, QWidget* another) const;
-    DispatcherConnection ConnectEnablity(const char* debugLocation, QWidget* another) const;
+    DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
+    DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
+
     DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     template<typename ... Dispatchers>
     DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
     {
-        return createRule(debugLocation, &WidgetVisibility(), handler, additionalWidgets, &WidgetWrapper::ConnectVisibility, dispatchers...);
+        return createRule<WidgetWrapper>(debugLocation, QOverload<>::of(&WidgetWrapper::WidgetVisibility), handler, additionalWidgets, dispatchers...);
     }
     template<typename ... Dispatchers>
     DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
     {
-        return createRule(debugLocation, &WidgetEnablity(), handler, additionalWidgets, &WidgetWrapper::ConnectEnablity, dispatchers...);
+        return createRule<WidgetWrapper>(debugLocation, &WidgetWrapper::WidgetEnablity, handler, additionalWidgets, dispatchers...);
     }
 
     void ActivateWindow(int mode, qint32 delay = 1000) const;
@@ -138,7 +138,8 @@ public:
 
     DispatcherConnectionsSafe& WidgetConnections() const;
     LocalPropertyBool& WidgetHighlighted() const;
-    LocalPropertyBool& WidgetVisibility(bool animated = false) const;
+    LocalPropertyBool& WidgetVisibility() const { return WidgetVisibility(false); }
+    LocalPropertyBool& WidgetVisibility(bool animated) const;
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
@@ -147,15 +148,15 @@ public:
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
     void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const;
 
-private:
-    template<typename ... Dispatchers>
-    DispatcherConnections createRule(const char* debugLocation, LocalPropertyBool* property, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets,
-                                     const FConnector& connector, Dispatchers&... dispatchers) const
+protected:
+    template<typename T, typename FPropertyGetter, typename ... Dispatchers>
+    DispatcherConnections createRule(const char* debugLocation, const FPropertyGetter& propertyGetter, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
     {
         DispatcherConnections result;
-        result += property->ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers...);
+        auto& targetProperty = (Cast<T>().*propertyGetter)();
+        result += targetProperty.ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers...);
         for(auto* widget : additionalWidgets) {
-            result += (this->*connector)(debugLocation, widget);
+            result += (WidgetWrapper(widget).Cast<T>().*propertyGetter)().ConnectFrom(debugLocation, targetProperty);
         }
         return result;
     }
@@ -326,7 +327,14 @@ class WidgetDoubleSpinBoxWrapper : public WidgetWrapper
 public:
     WidgetDoubleSpinBoxWrapper(class QDoubleSpinBox* widget);
 
+    template<typename ... Dispatchers>
+    DispatcherConnections CreateReadOnlyRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
+    {
+        return createRule<WidgetDoubleSpinBoxWrapper>(debugLocation, &WidgetDoubleSpinBoxWrapper::WidgetReadOnly, handler, additionalWidgets, dispatchers...);
+    }
+
     LocalPropertyDouble& WidgetValue() const;
+    LocalPropertyBool& WidgetReadOnly() const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDoubleSpinBoxWrapper, QDoubleSpinBox);
 };

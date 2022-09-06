@@ -329,7 +329,7 @@ class ParseFactoryBuilder : public ParseFactoryBuilderBase<const typename Helper
 {
     using Super = ParseFactoryBuilderBase<const typename Helper<void>::parse_type&, Context&>;
     using FFunctor = typename Super::const_iterator::value_type;
-    template<class T> using FTargetExtractor = std::function<T& (Context&)>;
+    template<class T> using FTargetExtractor = std::function<T* (Context&)>;
     template<class T, class T2> using FPropertyExtractor = std::function<T& (T2&)>;
 public:
     using Super::Super;
@@ -364,7 +364,13 @@ public:
         const ParseFactoryBuilderObject& Insert(const Name& key, const std::function<void (const QStringRef&, T2&)>& handler) const
         {
             auto extractor = m_targetExtractor;
-            m_builder->Insert(key, [extractor, handler](const QStringRef& ref, Context& context){ handler(ref, extractor(context)); });
+            m_builder->Insert(key, [extractor, handler](const QStringRef& ref, Context& context){
+                auto* target = extractor(context);
+                if(target == nullptr) {
+                    return;
+                }
+                handler(ref, *target);
+            });
             return *this;
         }
 
@@ -394,6 +400,22 @@ public:
             return *this;
         }
 
+        const ParseFactoryBuilderObject& RegisterMeasurementOptional(const Name& key, const MeasurementUnit& unit,
+                                      const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
+                                      const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        {
+            m_builder->RegisterMeasurementOptional<T2>(key, unit, targetPropertyExtractor, m_targetExtractor, extractor);
+            return *this;
+        }
+
+        const ParseFactoryBuilderObject& RegisterMeasurementPropertyOptional(const Name& key, const MeasurementUnit& unit,
+                                      const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
+                                      const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        {
+            m_builder->RegisterMeasurementPropertyOptional<T2>(key, unit, targetPropertyExtractor, m_targetExtractor, extractor);
+            return *this;
+        }
+
         template<typename T>
         const ParseFactoryBuilderObject& RegisterField(const Name& key,
                                       const FPropertyExtractor<T,T2>& targetPropertyExtractor,
@@ -403,12 +425,28 @@ public:
             return *this;
         }
 
+        const ParseFactoryBuilderObject& RegisterPropertyDoubleOptional(const Name& key,
+                                                                        const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
+                                                                        const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        {
+            m_builder->RegisterPropertyDoubleOptional<T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            return *this;
+        }
+
+        const ParseFactoryBuilderObject& RegisterPropertyStringOptional(const Name& key,
+                                                                        const FPropertyExtractor<LocalPropertyStringOptional,T2>& targetPropertyExtractor,
+                                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract) const
+        {
+            m_builder->RegisterPropertyStringOptional<T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            return *this;
+        }
+
         template<typename T, typename value_type = typename T::value_type>
         const ParseFactoryBuilderObject& RegisterPropertyOptional(const Name& key,
                                       const FPropertyExtractor<T,T2>& targetPropertyExtractor,
                                       const typename Helper<std::optional<value_type>>::extractor_type& extractor = &Helper<std::optional<value_type>>::Extract) const
         {
-            m_builder->RegisterPropertyOptional<T,Context>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            m_builder->RegisterPropertyOptional<T,T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
             return *this;
         }
 
@@ -417,7 +455,7 @@ public:
                                       const FPropertyExtractor<std::optional<T>,T2>& targetPropertyExtractor,
                                       const typename Helper<std::optional<T>>::extractor_type& extractor = &Helper<std::optional<T>>::Extract) const
         {
-            m_builder->RegisterOptional<T,Context>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            m_builder->RegisterOptional<T,T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
             return *this;
         }
 
@@ -437,7 +475,11 @@ public:
                                   const typename Helper<std::optional<value_type>>::extractor_type& extractor = &Helper<std::optional<value_type>>::Extract)
     {
         return Insert(key, [targetPropertyExtractor, targetExtractor, extractor](const typename Helper<void>::parse_type& toParse, Context& context){
-            targetPropertyExtractor(targetExtractor(context)).SetSilentWithValidators(extractor(toParse));
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target).SetSilentWithValidators(extractor(toParse));
         });
     }
 
@@ -448,7 +490,11 @@ public:
                                   const typename Helper<std::optional<T>>::extractor_type& extractor = &Helper<std::optional<T>>::Extract)
     {
         return Insert(key, [targetPropertyExtractor, targetExtractor, extractor](const typename Helper<void>::parse_type& toParse, Context& context){
-            targetPropertyExtractor(targetExtractor(context)) = extractor(toParse);
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target) = extractor(toParse);
         });
     }
 
@@ -459,7 +505,11 @@ public:
                                   const typename Helper<qint64>::extractor_type& extractor = &Helper<qint64>::Extract)
     {
         return Insert(key, [targetPropertyExtractor, targetExtractor, extractor](const typename Helper<void>::parse_type& toParse, Context& context){
-            targetPropertyExtractor(targetExtractor(context)) = EnumHelper<void>::Validate<Enum>(extractor(toParse));
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target) = EnumHelper<void>::Validate<Enum>(extractor(toParse));
         });
     }
 
@@ -479,18 +529,26 @@ public:
                                   const typename Helper<T>::extractor_type& extractor = &Helper<T>::Extract)
     {
         return Insert(key, [extractor, targetPropertyExtractor, targetExtractor](const typename Helper<void>::parse_type& toParse, Context& context){
-            targetPropertyExtractor(targetExtractor(context)).SetSilentWithValidators(extractor(toParse));
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target).SetSilentWithValidators(extractor(toParse));
         });
     }
 
     template<typename T, class T2>
     ParseFactoryBuilder& RegisterField(const Name& key,
                                   const FPropertyExtractor<T,T2>& targetPropertyExtractor,
-                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetter<T2>,
+                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
                                   const typename Helper<T>::extractor_type& extractor = &Helper<T>::Extract)
     {
         return Insert(key, [extractor, targetExtractor, targetPropertyExtractor](const typename Helper<void>::parse_type& in, Context& context){
-            targetPropertyExtractor(targetExtractor(context)) = extractor(in);
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target) = extractor(in);
         });
     }
 
@@ -499,6 +557,54 @@ public:
         Q_ASSERT(!Super::contains(key));
         Super::insert(key, extractor);
         return *this;
+    }
+
+    template<class T2>
+    ParseFactoryBuilder& RegisterPropertyDoubleOptional(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
+                                                        const FTargetExtractor<T2>& targetExtractor,
+                                                        const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract)
+    {
+        return RegisterPropertyOptional<LocalPropertyDoubleOptional>(key, targetPropertyExtractor, targetExtractor, extractor);
+    }
+
+    template<class T2>
+    ParseFactoryBuilder& RegisterPropertyStringOptional(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyStringOptional,T2>& targetPropertyExtractor,
+                                                        const FTargetExtractor<T2>& targetExtractor,
+                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract)
+    {
+        return RegisterPropertyOptional<LocalPropertyStringOptional>(key, targetPropertyExtractor, targetExtractor, extractor);
+    }
+
+    template<class T2>
+    ParseFactoryBuilder& RegisterMeasurementOptional(const Name& key, const MeasurementUnit& unit,
+                                  const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor,
+                                  const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract)
+    {
+        return RegisterOptional<double, T2>(key, targetPropertyExtractor, targetExtractor, [extractor, &unit](const typename Helper<void>::parse_type& ref) -> std::optional<double> {
+            auto result = extractor(ref);
+            if(result.has_value()) {
+                return unit.FromUnitToBase(result.value());
+            }
+            return result;
+        });
+    }
+
+    template<class T2>
+    ParseFactoryBuilder& RegisterMeasurementPropertyOptional(const Name& key, const MeasurementUnit& unit,
+                                  const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor,
+                                  const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract)
+    {
+        return RegisterPropertyOptional<LocalPropertyDoubleOptional, T2>(key, targetPropertyExtractor, targetExtractor, [extractor, &unit](const typename Helper<void>::parse_type& ref) -> std::optional<double> {
+            auto result = extractor(ref);
+            if(result.has_value()) {
+                return unit.FromUnitToBase(result.value());
+            }
+            return result;
+        });
     }
 
     template<class T2>
@@ -519,7 +625,11 @@ public:
                                   const typename Helper<double>::extractor_type& extractor = &Helper<double>::Extract)
     {
         return Insert(key, [extractor, targetExtractor, targetPropertyExtractor, &unit](const typename Helper<void>::parse_type& in, Context& context){
-            targetPropertyExtractor(targetExtractor(context)) = unit.FromUnitToBase(extractor(in));
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target) = unit.FromUnitToBase(extractor(in));
         });
     }
 
@@ -537,7 +647,7 @@ public:
 
     ParseFactoryBuilderObject<Context> MakeObject()
     {
-        return ParseFactoryBuilderObject<Context>(this, &GlobalSelfGetter<Context>);
+        return ParseFactoryBuilderObject<Context>(this, &GlobalSelfGetterPointer<Context>);
     }
 
     const ParseFactoryBuilder& ParseXmlAttributes(QXmlStreamReader& xml, const Context& context) const
