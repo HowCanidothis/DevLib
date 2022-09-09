@@ -239,13 +239,13 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::EditHa
     });
 }
 
-WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDefaultHandlers(QTableView* table)
+WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDefaultHandlers(QTableView* table, bool assert)
 {
     auto result = WidgetWrapper(table).Injected<WidgetsGlobalTableActionsScopeHandlers>("a_tableActionsHandlers", []{
         return new WidgetsGlobalTableActionsScopeHandlers();
     });
 
-    Q_ASSERT(result->Handlers.isEmpty());
+    Q_ASSERT(!assert || result->Handlers.isEmpty());
 
     auto action = GetInstance().FindAction(GlobalActionCopyWithHeadersId);
     result->AddHandler([]{ return tr("Copy With Headers"); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), action, [table]{

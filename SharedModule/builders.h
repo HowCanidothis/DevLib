@@ -307,7 +307,7 @@ template<>
 struct ParseFactoryBuilderTextHelper<bool>
 {
     using extractor_type = std::function<bool (const QStringRef&)>;
-    static bool Extract(const QStringRef& ref) { return ref.toInt(); }
+    static bool Extract(const QStringRef& ref) { return ref.toDouble(); }
 };
 
 template<>
@@ -374,7 +374,7 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterMeasurementField(const Name& key, const class MeasurementUnit& unit,
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key, const class MeasurementUnit& unit,
                                       const FPropertyExtractor<double,T2>& targetPropertyExtractor,
                                       const typename Helper<double>::extractor_type& extractor = &Helper<double>::Extract) const
         {
@@ -382,11 +382,19 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterMeasurementProperty(const Name& key, const class MeasurementUnit& unit,
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key, const class MeasurementUnit& unit,
                                       const FPropertyExtractor<LocalPropertyDouble,T2>& targetPropertyExtractor,
                                       const typename Helper<double>::extractor_type& extractor = &Helper<double>::Extract) const
         {
             m_builder->RegisterMeasurementProperty<T2>(key, unit, targetPropertyExtractor, m_targetExtractor, extractor);
+            return *this;
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                      const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
+                                      const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        {
+            m_builder->RegisterOptional<double, T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
             return *this;
         }
 
@@ -400,7 +408,50 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterMeasurementOptional(const Name& key, const MeasurementUnit& unit,
+        template<class Enum, typename value_type = typename LocalPropertySequentialEnum<Enum>::value_type>
+        const ParseFactoryBuilderObject& RegisterEnum(const Name& key,
+                                      const FPropertyExtractor<LocalPropertySequentialEnum<Enum>,T2>& targetPropertyExtractor,
+                                      const typename Helper<value_type>::extractor_type& extractor = &Helper<value_type>::Extract) const
+        {
+            return RegisterPropertyEnum<Enum>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterBool(const Name& key,
+                                      const FPropertyExtractor<bool,T2>& targetPropertyExtractor,
+                                      const typename Helper<bool>::extractor_type& extractor = &Helper<bool>::Extract) const
+        {
+            return RegisterField<bool>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterBool(const Name& key,
+                                      const FPropertyExtractor<LocalPropertyBool,T2>& targetPropertyExtractor,
+                                      const typename Helper<bool>::extractor_type& extractor = &Helper<bool>::Extract) const
+        {
+            return RegisterProperty<LocalPropertyBool>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterId(const Name& key,
+                                      const FPropertyExtractor<Name,T2>& targetPropertyExtractor,
+                                      const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract) const
+        {
+            return RegisterField<Name>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterId(const Name& key,
+                                      const FPropertyExtractor<LocalProperty<Name>,T2>& targetPropertyExtractor,
+                                      const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract) const
+        {
+            return RegisterProperty<LocalProperty<Name>>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterIdPointer(const Name& key,
+                                      const FPropertyExtractor<Name*,T2>& targetPropertyExtractor,
+                                      const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract) const
+        {
+            return RegisterFieldPointer<Name>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key, const MeasurementUnit& unit,
                                       const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
                                       const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
         {
@@ -408,7 +459,7 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterMeasurementPropertyOptional(const Name& key, const MeasurementUnit& unit,
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key, const MeasurementUnit& unit,
                                       const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
                                       const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
         {
@@ -425,20 +476,91 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterPropertyDoubleOptional(const Name& key,
-                                                                        const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
-                                                                        const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        template<typename T>
+        const ParseFactoryBuilderObject& RegisterFieldPointer(const Name& key,
+                                      const FPropertyExtractor<T*,T2>& targetPropertyExtractor,
+                                      const typename Helper<T>::extractor_type& extractor = &Helper<T>::Extract) const
         {
-            m_builder->RegisterPropertyDoubleOptional<T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            m_builder->RegisterField<T, T2>(key, [targetPropertyExtractor](T2& context) -> T& { return *targetPropertyExtractor(context); }, m_targetExtractor, extractor);
             return *this;
         }
 
-        const ParseFactoryBuilderObject& RegisterPropertyStringOptional(const Name& key,
-                                                                        const FPropertyExtractor<LocalPropertyStringOptional,T2>& targetPropertyExtractor,
-                                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract) const
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyInt,T2>& targetPropertyExtractor,
+                                                        const typename Helper<qint32>::extractor_type& extractor = &Helper<qint32>::Extract) const
         {
-            m_builder->RegisterPropertyStringOptional<T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
+            return RegisterProperty<LocalPropertyInt>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<std::optional<qint32>,T2>& targetPropertyExtractor,
+                                                        const typename Helper<std::optional<qint32>>::extractor_type& extractor = &Helper<std::optional<qint32>>::Extract) const
+        {
+            return RegisterOptional<qint32>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<qint32,T2>& targetPropertyExtractor,
+                                                        const typename Helper<qint32>::extractor_type& extractor = &Helper<qint32>::Extract) const
+        {
+            return RegisterField<qint32>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyIntOptional,T2>& targetPropertyExtractor,
+                                                        const typename Helper<std::optional<qint32>>::extractor_type& extractor = &Helper<std::optional<qint32>>::Extract) const
+        {
+            return RegisterPropertyOptional<LocalPropertyIntOptional>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
+                                                        const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
+        {
+            return RegisterPropertyOptional<LocalPropertyDoubleOptional>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyDouble,T2>& targetPropertyExtractor,
+                                                        const typename Helper<double>::extractor_type& extractor = &Helper<double>::Extract) const
+        {
+            return RegisterProperty<LocalPropertyDouble>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
+                                                        const FPropertyExtractor<double,T2>& targetPropertyExtractor,
+                                                        const typename Helper<double>::extractor_type& extractor = &Helper<double>::Extract) const
+        {
+            m_builder->RegisterField<double, T2>(key, targetPropertyExtractor, m_targetExtractor, extractor);
             return *this;
+        }
+
+        const ParseFactoryBuilderObject& RegisterString(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyString,T2>& targetPropertyExtractor,
+                                                        const typename Helper<QString>::extractor_type& extractor = &Helper<QString>::Extract) const
+        {
+            return RegisterProperty<LocalPropertyString>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterString(const Name& key,
+                                                        const FPropertyExtractor<LocalPropertyStringOptional,T2>& targetPropertyExtractor,
+                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract) const
+        {
+            return RegisterPropertyOptional<LocalPropertyStringOptional>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterString(const Name& key,
+                                                        const FPropertyExtractor<std::optional<QString>,T2>& targetPropertyExtractor,
+                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract) const
+        {
+            return RegisterOptional<QString>(key, targetPropertyExtractor, extractor);
+        }
+
+        const ParseFactoryBuilderObject& RegisterString(const Name& key,
+                                                        const FPropertyExtractor<QString,T2>& targetPropertyExtractor,
+                                                        const typename Helper<QString>::extractor_type& extractor = &Helper<QString>::Extract) const
+        {
+            return RegisterField<QString>(key, targetPropertyExtractor, extractor);
         }
 
         template<typename T, typename value_type = typename T::value_type>
@@ -537,6 +659,24 @@ public:
         });
     }
 
+    template<class T2>
+    ParseFactoryBuilder& RegisterId(const Name& key,
+                                  const FPropertyExtractor<Name,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
+                                  const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
+    {
+        return RegisterField<Name>(key, targetPropertyExtractor, targetExtractor, extractor);
+    }
+
+    template<class T2>
+    ParseFactoryBuilder& RegisterId(const Name& key,
+                                  const FPropertyExtractor<LocalProperty<Name>,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
+                                  const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
+    {
+        return RegisterProperty<LocalProperty<Name>>(key, targetPropertyExtractor, targetExtractor, extractor);
+    }
+
     template<typename T, class T2>
     ParseFactoryBuilder& RegisterField(const Name& key,
                                   const FPropertyExtractor<T,T2>& targetPropertyExtractor,
@@ -557,24 +697,6 @@ public:
         Q_ASSERT(!Super::contains(key));
         Super::insert(key, extractor);
         return *this;
-    }
-
-    template<class T2>
-    ParseFactoryBuilder& RegisterPropertyDoubleOptional(const Name& key,
-                                                        const FPropertyExtractor<LocalPropertyDoubleOptional,T2>& targetPropertyExtractor,
-                                                        const FTargetExtractor<T2>& targetExtractor,
-                                                        const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract)
-    {
-        return RegisterPropertyOptional<LocalPropertyDoubleOptional>(key, targetPropertyExtractor, targetExtractor, extractor);
-    }
-
-    template<class T2>
-    ParseFactoryBuilder& RegisterPropertyStringOptional(const Name& key,
-                                                        const FPropertyExtractor<LocalPropertyStringOptional,T2>& targetPropertyExtractor,
-                                                        const FTargetExtractor<T2>& targetExtractor,
-                                                        const typename Helper<std::optional<QString>>::extractor_type& extractor = &Helper<std::optional<QString>>::Extract)
-    {
-        return RegisterPropertyOptional<LocalPropertyStringOptional>(key, targetPropertyExtractor, targetExtractor, extractor);
     }
 
     template<class T2>
@@ -643,6 +765,12 @@ public:
     ParseFactoryBuilderObject<T> MakeObject(const FTargetExtractor<T>& targetExtractor)
     {
         return ParseFactoryBuilderObject<T>(this, targetExtractor);
+    }
+
+    template<typename T>
+    ParseFactoryBuilderObject<T> MakeObject(const FTargetExtractor<T*>& targetExtractor)
+    {
+        return MakeObject<T>(this, [targetExtractor](Context& context) -> T& { return *targetExtractor(context); });
     }
 
     ParseFactoryBuilderObject<Context> MakeObject()
