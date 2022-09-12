@@ -266,7 +266,7 @@ public:
     }
 };
 
-template<class ... Args> using ParseFactoryBuilderBase = QHash<Name, std::function<void (const Args&...)>>;
+template<typename Key, class ... Args> using ParseFactoryBuilderBase = QHash<Key, std::function<void (const Args&...)>>;
 
 template<class T>
 struct ParseFactoryBuilderTextHelper
@@ -325,9 +325,9 @@ struct ParseFactoryBuilderTextHelper<std::optional<T>>
 };
 
 template<template<class T> typename Helper, class Context>
-class ParseFactoryBuilder : public ParseFactoryBuilderBase<const typename Helper<void>::parse_type&, Context&>
+class ParseFactoryBuilder : public ParseFactoryBuilderBase<Name, const typename Helper<void>::parse_type&, Context&>
 {
-    using Super = ParseFactoryBuilderBase<const typename Helper<void>::parse_type&, Context&>;
+    using Super = ParseFactoryBuilderBase<Name, const typename Helper<void>::parse_type&, Context&>;
     using FFunctor = typename Super::const_iterator::value_type;
     template<class T> using FTargetExtractor = std::function<T* (Context&)>;
     template<class T, class T2> using FPropertyExtractor = std::function<T& (T2&)>;
@@ -794,19 +794,20 @@ public:
     }
 };
 
-template<class ... Context>
-class FactoryBuilder : public ParseFactoryBuilderBase<Context...>
+template<typename Key, class ... Context>
+class FactoryBuilder : public ParseFactoryBuilderBase<Key, Context...>
 {
-    using Super = ParseFactoryBuilderBase<Context...>;
+    using Super = ParseFactoryBuilderBase<Key, Context...>;
 public:
 
-    FactoryBuilder<Context...>& Insert(const Name& name, const std::function<void (Context...)>& handler)
+    FactoryBuilder& Insert(const Key& name, const std::function<void (Context...)>& handler)
     {
+        Q_ASSERT(!Super::contains(name));
         Super::insert(name, handler);
         return *this;
     }
 
-    bool Process(const Name& name, Context... context) const
+    bool Process(const Key& name, Context... context) const
     {
         auto foundIt = Super::find(name);
         if(foundIt != Super::cend()) {

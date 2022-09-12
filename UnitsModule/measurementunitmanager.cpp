@@ -81,14 +81,19 @@ Measurement& Measurement::AddUnit(const MeasurementUnit* unit)
     return *this;
 }
 
-double Measurement::CurrentUnitToBaseValue(double currentUnit) const
+double Measurement::FromUnitToBase(double currentUnit) const
 {
     return m_currentUnit->FromUnitToBase(currentUnit);
 }
 
-double Measurement::BaseValueToCurrentUnit(double baseValue) const
+double Measurement::FromBaseToUnit(double baseValue) const
 {
     return m_currentUnit->FromBaseToUnit(baseValue);
+}
+
+QString Measurement::FromBaseToUnitUi(double value) const
+{
+    return QString::number(GetCurrentUnit()->GetBaseToUnitConverter()(value), 'f', CurrentPrecision);
 }
 
 const MeasurementUnit* Measurement::FindUnit(const Name &metric) const
@@ -481,7 +486,7 @@ DispatcherConnections MeasurementManager::AttachConverter(const Name& measuremen
     auto* measurement = GetMeasurement(measurementName).get();
     DispatcherConnections result;
     result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
-        return [measurement](double value) { return measurement->BaseValueToCurrentUnit(value); };
+        return [measurement](double value) { return measurement->FromBaseToUnit(value); };
     }, measurement->OnChanged);
     if(precision != nullptr) {
         result += precision->ConnectFrom(CONNECTION_DEBUG_LOCATION, measurement->CurrentPrecision);
@@ -542,8 +547,7 @@ const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& measuremen
 
 QString MeasurementManager::FromBaseToUnitUi(const Name& systemName, double value) const
 {
-    const auto& measurement = GetMeasurement(systemName);
-    return QString::number(measurement->GetCurrentUnit()->GetBaseToUnitConverter()(value), 'f', measurement->CurrentPrecision);
+    return GetMeasurement(systemName)->FromBaseToUnitUi(value);
 }
 
 QStringList MeasurementManager::DefaultSystems()
@@ -556,14 +560,14 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
     m_connections.clear();
     if(baseValueProperty != nullptr) {
         baseValueProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,Value, [this](double baseValue){
-                                 return m_metricSystem->BaseValueToCurrentUnit(baseValue);
+                                 return m_metricSystem->FromBaseToUnit(baseValue);
                              }, [this](double currentUnit){
-                                 return m_metricSystem->CurrentUnitToBaseValue(currentUnit);
+                                 return m_metricSystem->FromUnitToBase(currentUnit);
                              }).MakeSafe(m_connections);
         
         auto updateMinMax = [baseValueProperty, this]{
             auto convertValue = [this](double source) {
-                auto unitValue = m_metricSystem->BaseValueToCurrentUnit(source);
+                auto unitValue = m_metricSystem->FromBaseToUnit(source);
                 return qIsInf(unitValue) ? source : unitValue;
             };
             Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));

@@ -14,11 +14,12 @@ public:
     Measurement& AddUnit(const class MeasurementUnit* unit);
     const MeasurementUnit* FindUnit(const Name& metric) const;
     
-    double CurrentUnitToBaseValue(double currentUnit) const;
-    double BaseValueToCurrentUnit(double baseValue) const;
+    double FromUnitToBase(double currentUnit) const;
+    double FromBaseToUnit(double baseValue) const;
     
     const MeasurementUnit* GetCurrentUnit() const { return m_currentUnit; }
     const WPSCUnitTableWrapperPtr& GetTableWrapper() const { return m_wrapper; }
+    QString FromBaseToUnitUi(double value) const;
     
     TranslatedString Label;
     LocalPropertyInt CurrentPrecision;

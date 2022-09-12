@@ -18,6 +18,7 @@ struct ExceptionHandleParams
 
     ExceptionHandleParams(const QString& processName, const FAction& action);
 
+    ExceptionHandleParams& RemoveNotificator() { Notifier = [](const QString&, const Exception&){}; }
     ExceptionHandleParams& SetDefaultNotificatorWarningHandler();
     ExceptionHandleParams& SetDefaultNotificatorHandler(const std::function<void (const QString&, const QString&)>& handlerModuleMessage);
     ExceptionHandleParams& SetNotificator(const FNotifier& notifier);
