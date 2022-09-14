@@ -476,9 +476,9 @@ public:
     {
         THREAD_ASSERT_IS_NOT_MAIN()
         return ::make_shared<guards::LambdaGuard>([this]{
-            ThreadsBase::DoMainAwait([this]{ Unlock(); });
+            ThreadsBase::DoMainAwait(CONNECTION_DEBUG_LOCATION,[this]{ Unlock(); });
         }, [this]{
-            ThreadsBase::DoMainAwait([this]{ Lock(); });
+            ThreadsBase::DoMainAwait(CONNECTION_DEBUG_LOCATION,[this]{ Lock(); });
         });
     }
 
@@ -494,7 +494,7 @@ public:
         --m_lockCounter;
         if(m_lockCounter == 0 && m_isDirty) {
             m_isDirty = false;
-            ThreadsBase::DoMain([this]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{
                 m_calculator.RequestRecalculate();
             });
         }

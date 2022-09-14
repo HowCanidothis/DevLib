@@ -39,7 +39,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
             *valid = false;
             return value();
         } else {
-            ThreadsBase::DoMain([valid]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[valid]{
                 *valid = true;
             });
         }
@@ -145,7 +145,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
             *valid = false;
             return value();
         }
-        ThreadsBase::DoMain([valid]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[valid]{
             *valid = true;
         });
         return GetDefaultValueFromTextHandler()(spin, text);

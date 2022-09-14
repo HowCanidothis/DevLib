@@ -180,7 +180,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     for(auto* button : buttons) {
         button->setCheckable(true);
         WidgetPushButtonWrapper(button).OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [i, this]{
-            ThreadsBase::DoMain([i, this]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[i, this]{
                 m_currentIndex = i;
                 m_propertySetter();
                 m_widgetSetter();

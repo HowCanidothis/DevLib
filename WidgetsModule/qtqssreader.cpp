@@ -38,7 +38,7 @@ QString QtQSSReader::ReadAll()
     if(_observer) {
         _observer->Clear();
         _observer->AddFileObserver(_fileName, [this]{
-            ThreadsBase::DoMain([this]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{
                 Install(_fileName);
             });
         });

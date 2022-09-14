@@ -23,7 +23,7 @@ MainProgressBar::MainProgressBar(QWidget *parent, Qt::WindowFlags windowFlags)
         if(progressBar == nullptr) {
             return;
         }
-        ThreadsBase::DoMain([visible, processState, progressBar, this]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, progressBar, this]{
             if(progressBar->isVisible() != visible) {
                 if(processState.Depth == 0) {
                     setVisible(visible);
@@ -47,7 +47,7 @@ MainProgressBar::MainProgressBar(QWidget *parent, Qt::WindowFlags windowFlags)
         if(progressBar == nullptr) {
             return;
         }
-        ThreadsBase::DoMain([visible, processState, progressBar, this]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, progressBar, this]{
             if(progressBar->isVisible() != visible) {
                 if(processState.Depth == 0) {
                     setVisible(visible);

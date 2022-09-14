@@ -31,7 +31,7 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
         auto determinateValue = value->AsDeterminate();
         auto processState = determinateValue->GetState();
         bool visible = processState.IsShouldStayVisible();
-        ThreadsBase::DoMain([visible, processState, value, this]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, value, this]{
             if(processState.Depth < 8) {
                 auto* progressBar = m_progressBars[processState.Depth];
                 progressBar->ProgressBar->setMaximum(processState.StepsCount);
@@ -68,7 +68,7 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
     ProcessFactory::Instance().SetShadowIndeterminateCallback([this](ProcessValue* value){
         auto processState = value->GetState();
         bool visible = processState.IsShouldStayVisible();
-        ThreadsBase::DoMain([visible, processState, value, this]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, value, this]{
             if(processState.Depth < 8) {
                 auto* progressBar = m_progressBars[processState.Depth];
                 progressBar->ProgressBar->setMaximum(0);

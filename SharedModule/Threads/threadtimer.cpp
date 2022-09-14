@@ -17,7 +17,7 @@ void ThreadTimerManager::Terminate()
 void ThreadTimerManager::terminate()
 {
     FutureResult result;
-    result += ThreadsBase::DoQThreadWorkerWithResult(m_threadWorker.get(), [this]{
+    result += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, m_threadWorker.get(), [this]{
         m_timers.Clear();
         m_threadWorker = nullptr;
     });
@@ -59,7 +59,7 @@ ThreadTimerManager::~ThreadTimerManager()
 void ThreadTimerManager::SingleShotDoMain(qint32 msecs, const FAction& onTimeout)
 {
     SingleShot(msecs, [onTimeout]{
-        ThreadsBase::DoMain([onTimeout]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[onTimeout]{
             onTimeout();
         });
     });
@@ -68,7 +68,7 @@ void ThreadTimerManager::SingleShotDoMain(qint32 msecs, const FAction& onTimeout
 void ThreadTimerManager::SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker)
 {
     SingleShot(msecs, [onTimeout, threadWorker]{
-        ThreadsBase::DoQThreadWorker(threadWorker, onTimeout);
+        ThreadsBase::DoQThreadWorker(CONNECTION_DEBUG_LOCATION, threadWorker, onTimeout);
     });
 }
 
@@ -76,7 +76,7 @@ void ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [msecs, onTimeout]{
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, onTimeout]{
         QTimer::singleShot(msecs, onTimeout);
     });
 }
@@ -87,7 +87,7 @@ QTimer* ThreadTimerManager::createTimer(qint32 msecs)
 
     FutureResult futureResult;
     QTimer* result;
-    futureResult += ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [msecs, &result]{
+    futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, &result]{
         auto* timer = new QTimer;
         getInstance().m_timers.InsertSortedUnique(timer);
         timer->start(msecs);
@@ -101,7 +101,7 @@ AsyncResult ThreadTimerManager::deleteTimer(QTimer* timerHandle)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    return ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [timerHandle]{
+    return ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [timerHandle]{
         getInstance().m_timers.Remove(timerHandle);
         delete timerHandle;
     });
@@ -113,7 +113,7 @@ QMetaObject::Connection ThreadTimerManager::addTimerConnection(QTimer* timerHand
 
     FutureResult futureResult;
     QMetaObject::Connection result;
-    futureResult += ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [timerHandle, onTimeout, &result]{
+    futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [timerHandle, onTimeout, &result]{
         result = QObject::connect(timerHandle, &QTimer::timeout, onTimeout);
     });
     futureResult.Wait();
@@ -124,7 +124,7 @@ void ThreadTimerManager::removeTimerConnection(const QMetaObject::Connection& co
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    ThreadsBase::DoQThreadWorkerWithResult(getInstance().m_threadWorker.get(), [connection]{
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [connection]{
         QObject::disconnect(connection);
     });
 }

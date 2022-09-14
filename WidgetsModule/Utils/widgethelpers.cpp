@@ -664,7 +664,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
         animation->start();
     };
     QObject::connect(widget, &QGroupBox::toggled, update);
-    ThreadsBase::DoMain([widget, update]{
+    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, update]{
         update(widget->isChecked());
     });
     return *this;
@@ -685,7 +685,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Disp
     auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
                                  auto* widget = reinterpret_cast<QGroupBox*>(w);
                                  if(widget->isChecked()) {
-                                     ThreadsBase::DoMain([widget, handler]{
+                                     ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, handler]{
                                          widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
                                      });
                                  }

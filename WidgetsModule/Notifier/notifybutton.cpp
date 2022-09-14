@@ -36,7 +36,7 @@ NotifyButton::NotifyButton(QWidget* parent)
     });
 
     NotificationsCountString.OnChanged += { this, [this]{
-        ThreadsBase::DoMain([this]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{
             if(NotificationsCount == 0) {
                 m_label->setVisible(false);
             } else {

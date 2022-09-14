@@ -16,18 +16,18 @@ class _Export ThreadsBase
 public:
 
     static bool IsTerminated();
-    static AsyncResult DoMainWithResult(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     template<class T>
     static void FreeAtMainThread(SharedPointer<T>& ptr)
     {
         SharedPointer<SharedPointer<T>> pPtr(new SharedPointer<T>(ptr));
         ptr = nullptr;
-        ThreadsBase::DoMain([pPtr]{});
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[pPtr]{});
     }
-    static void DoMain(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void DoMainAwait(const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void DoQThreadWorker(QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static AsyncResult DoQThreadWorkerWithResult(QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void DoMain(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void DoMainAwait(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void DoQThreadWorker(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult DoQThreadWorkerWithResult(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Async(const FAction& task, EPriority priority = EPriority::High);
     static void TerminateAllAsyncTasks();
     static void AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task);

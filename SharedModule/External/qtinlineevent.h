@@ -10,33 +10,39 @@
 class _Export QtInlineEvent : public QEvent
 {
 public:
-    QtInlineEvent(const FAction& function)
+    QtInlineEvent(const char* location, const FAction& function)
         : QEvent(QEvent::User)
         , m_function(function)
+#ifdef QT_DEBUG
+        , m_location(location)
+#endif
     {}
     ~QtInlineEvent() {
         m_function();
     }
 
-    static void Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static void Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void Post(const char* location, const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static void Post(const char* location, const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
 
 private:
     FAction m_function;
+#ifdef QT_DEBUG
+    const char* m_location;
+#endif
 };
 
 class _Export QtInlineEventWithResult : public QtInlineEvent
 {
     using Super = QtInlineEvent;
 public:
-    QtInlineEventWithResult(const FAction& function, const AsyncResult& result)
-        : Super([function, result]{
+    QtInlineEventWithResult(const char* location, const FAction& function, const AsyncResult& result)
+        : Super(location, [function, result]{
             result.Resolve([function]{ function(); return true; });
         })
     {}
 
-    static AsyncResult Post(const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
-    static AsyncResult Post(const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult Post(const char* location, const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
+    static AsyncResult Post(const char* location, const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);
 };
 
 #endif // QTCUSTOMEVENTS_H

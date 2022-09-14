@@ -78,21 +78,21 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
     switch (type) {
     case QtCriticalMsg:
         if(logger.m_severity >= Error) {
-            ThreadsBase::DoMain([message, currentDateTime]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[message, currentDateTime]{
                 GetInstance().Print("Error " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     case QtWarningMsg:
         if(logger.m_severity >= Warning) {
-            ThreadsBase::DoMain([message, currentDateTime]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[message, currentDateTime]{
                 GetInstance().Print("Warning " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
         break;
     case QtInfoMsg:
         if(logger.m_severity >= Info) {
-            ThreadsBase::DoMain([message, currentDateTime]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[message, currentDateTime]{
                 GetInstance().Print("Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }
@@ -100,7 +100,7 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, c
     default:
         if(logger.m_severity >= Debug) {
             QString debugLineAndFile = QString("   Loc: [%1:%2] ").arg(context.file, QString::number(context.line));
-            ThreadsBase::DoMain([message, currentDateTime, debugLineAndFile]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[message, currentDateTime, debugLineAndFile]{
                 GetInstance().Print(debugLineAndFile + " Info " + currentDateTime + message.toLocal8Bit() + "\n");
             });
         }

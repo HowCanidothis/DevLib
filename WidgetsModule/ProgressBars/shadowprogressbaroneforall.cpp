@@ -10,7 +10,7 @@ ShadowProgressBarOneForAll::ShadowProgressBarOneForAll(QWidget *parent)
     ui->setupUi(this);
 
     auto accumulateProcesses = [this](ProcessValue* value, bool visible, qint32 steps, qint32 stepsCount, const QString& title){
-        ThreadsBase::DoMain([visible, value, this, steps, stepsCount, title]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, value, this, steps, stepsCount, title]{
             if(visible) {
                 if(!title.isEmpty()) {
                     m_processes.insert(value, title);

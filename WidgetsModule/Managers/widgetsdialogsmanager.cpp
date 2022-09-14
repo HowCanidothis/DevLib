@@ -251,7 +251,7 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
     auto qtBugFix = [widget]{
         auto widgetOldSize = widget->size();
         widget->resize(widgetOldSize.width() - 1, widgetOldSize.height());
-        ThreadsBase::DoMain([widget, widgetOldSize]{
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, widgetOldSize]{
             widget->resize(widgetOldSize);
         });
     };

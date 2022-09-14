@@ -15,17 +15,17 @@ ThreadsBase::ThreadsBase()
 
 }
 
-AsyncResult ThreadsBase::DoMainWithResult(const FAction& task, Qt::EventPriority priority)
+AsyncResult ThreadsBase::DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority)
 {
-    return QtInlineEventWithResult::Post(task, priority);
+    return QtInlineEventWithResult::Post(location, task, priority);
 }
 
-void ThreadsBase::DoMain(const FAction& task, Qt::EventPriority priority)
+void ThreadsBase::DoMain(const char* location, const FAction& task, Qt::EventPriority priority)
 {
-    QtInlineEvent::Post(task, priority);
+    QtInlineEvent::Post(location, task, priority);
 }
 
-void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
+void ThreadsBase::DoMainAwait(const char* location, const FAction &task, Qt::EventPriority priority)
 {
     if(QCoreApplication::instance() == nullptr) {
         return;
@@ -34,7 +34,7 @@ void ThreadsBase::DoMainAwait(const FAction &task, Qt::EventPriority priority)
         task();
     } else {
         FutureResult result;
-        result += QtInlineEventWithResult::Post(task, priority);
+        result += QtInlineEventWithResult::Post(location, task, priority);
         result.Wait();
     }
 }
@@ -50,18 +50,18 @@ void ThreadsBase::TerminateAllAsyncTasks()
     ImportExport::threadPool().TerminateAll();
 }
 // Due to Qt arch we have to use threadWorker here
-void ThreadsBase::DoQThreadWorker(QObject* threadObject, const FAction& task, Qt::EventPriority priority)
+void ThreadsBase::DoQThreadWorker(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority)
 {
     Q_ASSERT(!qobject_cast<QThread*>(threadObject));
 
-    QtInlineEvent::Post(task, threadObject, priority);
+    QtInlineEvent::Post(location, task, threadObject, priority);
 }
 // Due to Qt arch we have to use threadWorker here
-AsyncResult ThreadsBase::DoQThreadWorkerWithResult(QObject* threadObject, const FAction& task, Qt::EventPriority priority)
+AsyncResult ThreadsBase::DoQThreadWorkerWithResult(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority)
 {
     Q_ASSERT(!qobject_cast<QThread*>(threadObject));
 
-    return QtInlineEventWithResult::Post(task, threadObject, priority);
+    return QtInlineEventWithResult::Post(location, task, threadObject, priority);
 }
 
 AsyncResult ThreadsBase::Async(const FAction& task, EPriority priority)

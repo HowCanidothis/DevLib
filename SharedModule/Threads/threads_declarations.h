@@ -10,7 +10,7 @@ const ThreadHandlerNoThreadCheck ThreadHandlerNoCheckMainLowPriority = [](const 
     if(QCoreApplication::instance() == nullptr) {
         return AsyncError();
     }
-    return ThreadsBase::DoMainWithResult(action, Qt::LowEventPriority);
+    return ThreadsBase::DoMainWithResult(CONNECTION_DEBUG_LOCATION, action, Qt::LowEventPriority);
 };
 
 const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult {
@@ -23,7 +23,7 @@ const ThreadHandler ThreadHandlerMain = [](const FAction& action) -> AsyncResult
         result.Resolve(true);
         return result;
     } else {
-        return ThreadsBase::DoMainWithResult(action);
+        return ThreadsBase::DoMainWithResult(CONNECTION_DEBUG_LOCATION, action);
     }
 };
 

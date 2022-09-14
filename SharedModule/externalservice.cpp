@@ -89,7 +89,7 @@ void ExternalService::stop()
 
 void ExternalService::doAsync(const FAction& handler)
 {
-    ThreadsBase::DoQThreadWorker(this, handler);
+    ThreadsBase::DoQThreadWorker(CONNECTION_DEBUG_LOCATION, this, handler);
 }
 
 void ExternalService::start()

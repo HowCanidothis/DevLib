@@ -30,16 +30,25 @@ DispatcherConnections StateProperty::PerformWhenEveryIsValid(const QVector<Local
     auto commutator = ::make_shared<LocalPropertyBoolCommutator>(true, delayMsecs);
     auto connections = ::make_shared<DispatcherConnections>(commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties));
     commutator->Update();
-    *connections += commutator->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [connections, handler, commutator, once]{
+    auto update = [commutator, handler, once, connections]{
         if(*commutator) {
             handler();
             if(once) {
-                ThreadsBase::DoMain([connections]{
-                    connections->Disconnect();
-                });
+                connections->Disconnect();
             }
+            return true;
         }
-    });
+        return false;
+    };
+    if(update()) {
+        connections->Disconnect();
+        connections->clear();
+    } else {
+        *connections += commutator->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [update,commutator]{
+            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [commutator]{}); // Save delete
+            update();
+        });
+    }
     return *connections;
 }
 
