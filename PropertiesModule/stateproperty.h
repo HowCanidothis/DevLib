@@ -15,8 +15,40 @@ public:
 
     DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
     DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
-    static DispatcherConnections PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once);
-    static DispatcherConnections OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler);
+
+    template<typename ... SafeConnections>
+    static void PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once, SafeConnections&... connections)
+    {
+        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true, delayMsecs);
+        commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties).MakeSafe(commutator->Connections);
+        commutator->Update();
+
+        if(*commutator) {
+            handler();
+            if(once) {
+                return;
+            }
+        }
+
+        if(once) {
+            commutator->OnChanged.OnFirstInvoke([handler, commutator]{
+                handler();
+                ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [commutator]{}); // Safe deletion
+            }, connections...);
+        } else {
+            commutator->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [commutator, handler]{
+                if(*commutator) {
+                    handler();
+                }
+            }).MakeSafe(connections...);
+        }
+    }
+
+    template<typename ... SafeConnections>
+    static void OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, SafeConnections&... connections)
+    {
+        PerformWhenEveryIsValid(stateProperties, handler, 0, true, connections...);
+    }
 };
 
 class StatePropertyBoolCommutator : public StateProperty

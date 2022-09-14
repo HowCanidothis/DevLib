@@ -50,11 +50,9 @@ class DispatcherConnection
     FDispatcherRegistrator m_registrator;
 
     DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator);
-
+    void disconnect() const;
 public:
     DispatcherConnection();
-
-    void Disconnect() const;
 
     DispatcherConnectionSafePtr MakeSafe();
 
@@ -73,10 +71,9 @@ public:
 class DispatcherConnections : public QVector<DispatcherConnection>
 {
     using Super = QVector<DispatcherConnection>;
-public:
-    using Super::Super;
 
-    void Disconnect();
+public:
+    using Super::Super;   
 
     void MakeSafe(DispatcherConnectionsSafe& safeConnections);
 
@@ -234,6 +231,7 @@ public:
             }
         }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
             QMutexLocker lock(&m_mutex);
+            Q_ASSERT(!m_safeConnections.contains(id));
             m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
         });
     }
@@ -270,14 +268,27 @@ public:
     }
 
     template<typename ... SafeConnections>
-    DispatcherConnections OnFirstInvoke(const FCommonDispatcherAction& action) const
+    void OnFirstInvoke(const FCommonDispatcherAction& action, DispatcherConnectionsSafe& firstConnections, SafeConnections&... connections) const
     {
-        auto connections = ::make_shared<DispatcherConnections>();
-        *connections += Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
+        auto firstInvokeConnections = DispatcherConnectionsSafeCreate();
+        Connect(CONNECTION_DEBUG_LOCATION, [action, firstInvokeConnections](Args... args){
             action(args...);
-            connections->Disconnect();
-        });
-        return *connections;
+            for(const auto& v : *firstInvokeConnections) {
+                v->Disconnect();
+            }
+        }).MakeSafe(*firstInvokeConnections, firstConnections, connections...);
+    }
+
+    template<typename ... SafeConnections>
+    void OnFirstInvoke(const FCommonDispatcherAction& action) const
+    {
+        auto firstInvokeConnections = DispatcherConnectionsSafeCreate();
+        Connect(CONNECTION_DEBUG_LOCATION, [action, firstInvokeConnections](Args... args){
+            action(args...);
+            for(const auto& v : *firstInvokeConnections) {
+                v->Disconnect();
+            }
+        }).MakeSafe(*firstInvokeConnections);
     }
 
 private:

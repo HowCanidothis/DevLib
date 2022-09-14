@@ -38,20 +38,11 @@ DispatcherConnection::DispatcherConnection()
     , m_registrator([](const DispatcherConnectionSafePtr&){})
 {}
 
-void DispatcherConnection::Disconnect() const
+void DispatcherConnection::disconnect() const
 {
     if(m_disconnector != nullptr) {
         m_disconnector();
     }
-}
-
-void DispatcherConnections::Disconnect()
-{
-    for(const auto& connection : *this)
-    {
-        connection.Disconnect();
-    }
-    clear();
 }
 
 DispatcherConnectionSafePtr DispatcherConnection::MakeSafe()
