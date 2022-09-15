@@ -78,13 +78,20 @@ win32-g++ {
 defineTest(setBuildDirectory) {
     buildPath = $$1
 
-    CONFIG(debug, debug|release) {
-        BUILDTYPE = debug
+    CONFIG(force_debug_info) {
+        message(Profiling)
+        BUILDTYPE = profile
         CONFIG += console
-        DESTDIR = $$join(buildPath,,,_debug)
+        DESTDIR = $$join(buildPath,,,_profile)
     } else {
-        BUILDTYPE = release
-        DESTDIR = $$join(buildPath,,,_release)
+        CONFIG(debug, debug|release) {
+            BUILDTYPE = debug
+            CONFIG += console
+            DESTDIR = $$join(buildPath,,,_debug)
+        } else {
+            BUILDTYPE = release
+            DESTDIR = $$join(buildPath,,,_release)
+        }
     }
 
     message($$DESTDIR)
