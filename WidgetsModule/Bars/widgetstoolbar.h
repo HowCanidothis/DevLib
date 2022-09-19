@@ -22,6 +22,7 @@ public:
 
 private:
     class QBoxLayout* m_layout;
+    Qt::Orientation m_buttonsOrientation;
 };
 
 #endif // WidgetsToolBar_H

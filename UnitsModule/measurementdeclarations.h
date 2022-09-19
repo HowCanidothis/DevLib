@@ -16,7 +16,7 @@ double BaseToCurrentUnit(double x); \
 QString BaseToCurrentUnitUi(double x); \
 double CurrentUnitPrecision(); \
 const QString& CurrentUnitString(); \
-const Measurement* Get(); \
+extern const FMeasurementGetter Get; \
 }
 
 #define IMPLEMENT_MEASUREMENT(name) \
@@ -27,7 +27,7 @@ double BaseToCurrentUnit(double x) { return Get()->FromBaseToUnit(x); } \
 QString BaseToCurrentUnitUi(double x) { return Get()->FromBaseToUnitUi(x); } \
 double CurrentUnitPrecision() { return Get()->CurrentPrecision; } \
 const QString& CurrentUnitString() { return Get()->CurrentUnitLabel.Native(); } \
-const Measurement* Get() { return MeasurementManager::GetInstance().GetMeasurement(NAME).get(); } \
+static const FMeasurementGetter Get([]{ return MeasurementManager::GetInstance().GetMeasurement(NAME).get(); }); \
 }
 
 static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;
@@ -70,5 +70,49 @@ using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 
 bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
 
+class MeasurementProperty
+{
+public:
+    MeasurementProperty(const Measurement* measurement);
+
+    void Connect(LocalPropertyDouble* baseValueProperty);
+    LocalPropertyDouble Value;
+    LocalPropertyInt Precision;
+    LocalPropertyDouble Step;
+
+private:
+    LocalPropertyDouble* m_currentValue;
+    DispatcherConnectionsSafe m_connections;
+    DispatcherConnectionsSafe m_systemConnections;
+    const Measurement* m_metricSystem;
+};
+
+class MeasurementValueWrapper
+{
+public:
+    MeasurementValueWrapper();
+    MeasurementValueWrapper(const Measurement* measurement, double* value, double min = std::numeric_limits<double>().lowest(), double max = std::numeric_limits<double>().max());
+
+    void SetCurrentUnit(double value);
+
+    SharedPointer<LocalPropertyDouble> CreateProperty() const;
+
+    QString GetCurrentUnitUi() const;
+    double GetCurrentUnit() const;
+    double GetMin() const { return m_min; }
+    double GetMax() const { return m_max; }
+
+    const Measurement* GetMeasurement() const { return m_measurement; }
+
+    MeasurementValueWrapper& operator=(double value);
+
+    operator double() { return *m_target; }
+
+private:
+    double* m_target;
+    const Measurement* m_measurement;
+    double m_min;
+    double m_max;
+};
 
 #endif // MEASUREMENTDECLARATIONS_H

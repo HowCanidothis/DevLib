@@ -141,7 +141,7 @@ public:
     LocalPropertyBool& WidgetVisibility() const { return WidgetVisibility(false); }
     LocalPropertyBool& WidgetVisibility(bool animated) const;
     LocalPropertyBool& WidgetEnablity() const;
-    LocalPropertyBool& WidgetCollapsing(bool horizontal, qint32 initialWidth) const;
+    LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
 
     bool HasParent(QWidget* parent) const;

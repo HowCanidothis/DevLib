@@ -13,15 +13,15 @@ ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
     : m_header(dictionary)
 {
 #ifdef UNITS_MODULE_LIB
-    QSet<Name> measurements;
+    QSet<const Measurement*> measurements;
     for(const auto& value : ::make_const(m_header)) {
-        if(!value.Measurement.IsNull()) {
-            MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { value.Measurement });
-            measurements.insert(value.Measurement);
+        if(value.Measurement != nullptr) {
+            auto* measurement = value.Measurement();
+            MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { measurement });
+            measurements.insert(measurement);
         }
     }
-    for(const auto& measurementName : measurements) {
-        const auto& measurement = MeasurementManager::GetInstance().GetMeasurement(measurementName);
+    for(const auto* measurement : measurements) {
         measurement->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{ UpdateUi([]{}); }).MakeSafe(m_connections);
     }
 
@@ -40,7 +40,7 @@ const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name
 
 const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 column) const
 {
-    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>(TR_NONE), Name()};
+    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>(TR_NONE), nullptr};
     if(column < 0 || column >= m_header.size()) {
         return result;
     }
@@ -58,8 +58,8 @@ TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 
             const auto& header = ptr->GetHeader(column);
 #ifdef UNITS_MODULE_LIB            
             QVariant value = ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
-            if(value.isValid() && !header.Measurement.IsNull()) {
-                value = MeasurementManager::GetInstance().GetCurrentUnit(header.Measurement)->GetBaseToUnitConverter()(value.toDouble());
+            if(value.isValid() && header.Measurement != nullptr) {
+                value = header.Measurement()->GetCurrentUnit()->GetBaseToUnitConverter()(value.toDouble());
             }
             return value;
 #else
@@ -216,21 +216,21 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
 #ifdef UNITS_MODULE_LIB
         qint32 i(0);
         for(const auto& header : model->GetHeader()) {
-            if(!header.Measurement.IsNull()) {
-                auto measurement = header.Measurement;
+            if(header.Measurement != nullptr) {
+                auto measurement = header.Measurement();
                 sourceModel->SetterDelegates.insert(i, [measurement](QVariant& value){
                     if(value.isValid()) {
-                        value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetUnitToBaseConverter()(value.toDouble());
+                        value = measurement->FromUnitToBase(value.toDouble());
                     }
                 });
                 sourceModel->GetterDelegates.insert(i, [measurement](QVariant& value){
                     if(value.isValid()) {
-                        value = MeasurementManager::GetInstance().GetCurrentUnit(measurement)->GetBaseToUnitConverter()(value.toDouble());
+                        value = measurement->FromBaseToUnit(value.toDouble());
                     }
                 });
                 sourceModel->GetterDisplayDelegates.insert(i, [measurement](QVariant& value){
                     if(value.isValid()) {
-                        value = MeasurementManager::GetInstance().FromBaseToUnitUi(measurement, value.toDouble());
+                        value = measurement->FromBaseToUnitUi(value.toDouble());
                     }
                 });
             }

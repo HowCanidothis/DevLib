@@ -99,7 +99,7 @@ public:
 
     QString FromBaseToUnitUi(const Name& measurementName, double value) const;
     
-    DispatcherConnections AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
+    DispatcherConnections AttachConverter(const Measurement* measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision = nullptr);
 
     static constexpr double UsFeetsToFeets(double meters) { return meters * USFEETS_TO_FEETS_MULTIPLIER; }
     static constexpr double FeetsToUsFeets(double feets) { return feets / USFEETS_TO_FEETS_MULTIPLIER; }
@@ -125,31 +125,14 @@ private:
     QHash<Name, MeasurementPtr> m_metricMeasurements;
 };
 
-class MeasurementProperty
-{
-public:
-    MeasurementProperty(const Name& systemName);
-    
-    void Connect(LocalPropertyDouble* baseValueProperty);
-    LocalPropertyDouble Value;
-    LocalPropertyInt Precision;
-    LocalPropertyDouble Step;
-    
-private:
-    LocalPropertyDouble* m_currentValue;
-    DispatcherConnectionsSafe m_connections;
-    DispatcherConnectionsSafe m_systemConnections;
-    MeasurementPtr m_metricSystem;
-};
-
 class MeasurementTranslatedString
 {
 public:
-    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics);
-    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics, DispatcherConnectionsSafe& connections);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, DispatcherConnectionsSafe& connections);
 
 private:
-    static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections);
+    static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, const DispatcherConnectionsSafe& connections);
 };
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;

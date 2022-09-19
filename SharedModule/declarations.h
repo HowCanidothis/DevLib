@@ -413,6 +413,45 @@ CommonGuard<Owner, BindFunc, ReleaseFunc> make(Owner* owner, BindFunc bind, Rele
 }
 
 template<class T>
+class TCachedExpression
+{
+public:
+    using FEvaluator = std::function<T()>;
+    TCachedExpression()
+    {}
+    TCachedExpression(nullptr_t)
+    {}
+    TCachedExpression(const std::function<T ()>& evaluator)
+        : m_evaluator(evaluator)
+        , m_initial(evaluator)
+    {}
+
+    bool operator!=(nullptr_t) const
+    {
+        return m_evaluator != nullptr;
+    }
+
+    void Reset()
+    {
+        m_evaluator = m_initial;
+    }
+
+    T operator()() const
+    {
+        auto result = m_evaluator();
+        m_evaluator = [result]{ return result; };
+        return result;
+    }
+
+private:
+    mutable FEvaluator m_evaluator;
+    FEvaluator m_initial;
+};
+
+using CachedExpressionDouble = TCachedExpression<double>;
+using FMeasurementGetter = TCachedExpression<const class Measurement*>;
+
+template<class T>
 class Singletone
 {
 public:

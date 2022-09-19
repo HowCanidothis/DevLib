@@ -109,23 +109,23 @@ MeasurementManager::MeasurementManager()
     : m_systemWrapper(::make_shared<WPSCUnitSystemTableWrapper>())
       , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
 {
-    AddMeasurement(MeasurementAngle::NAME, []{ return tr("Angles"); })
+    AddMeasurement(MeasurementAngle::NAME, TR(tr("Angles")))
             .AddUnit(&AngleUnits::Degrees)
             .AddUnit(&AngleUnits::Radians);
 
-    AddMeasurement(MeasurementDistance::NAME, []{ return tr("Distances"); })
+    AddMeasurement(MeasurementDistance::NAME, TR(tr("Distances")))
             .AddUnit(&DistanceUnits::USFeets)
             .AddUnit(&DistanceUnits::Feets)
             .AddUnit(&DistanceUnits::Meters);
 
-    AddMeasurement(MeasurementFunnelViscosity::NAME, []{ return tr("Funnel Viscosity"); })
+    AddMeasurement(MeasurementFunnelViscosity::NAME, TR(tr("Funnel Viscosity")))
             .AddUnit(&FunnelViscosityUnits::SecondsForQuart);
 
-    AddMeasurement(MeasurementPercents::NAME, []{ return tr("Percents"); })
+    AddMeasurement(MeasurementPercents::NAME, TR(tr("Percents")))
             .AddUnit(&PercentsUnits::Partial)
             .AddUnit(&PercentsUnits::Percents);
 
-    AddMeasurement(MeasurementDiameter::NAME, []{ return tr("Diameter"); })
+    AddMeasurement(MeasurementDiameter::NAME, TR(tr("Diameter")))
             .AddUnit(&DistanceUnits::USFeets)
             .AddUnit(&DistanceUnits::Feets)
             .AddUnit(&DistanceUnits::Inches)
@@ -135,18 +135,18 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&DistanceUnits::Centimeters)
             .AddUnit(&DistanceUnits::Kilometers);
 
-    AddMeasurement(MeasurementMagneticField::NAME, []{ return tr("Magnetic Field"); })
+    AddMeasurement(MeasurementMagneticField::NAME, TR(tr("Magnetic Field")))
             .AddUnit(&FieldStrengthUnits::MicroTeslas)
             .AddUnit(&FieldStrengthUnits::Gauss)
             .AddUnit(&FieldStrengthUnits::NanoTeslas);
 
-    AddMeasurement(MeasurementDLS::NAME, []{ return tr("Dogleg Severity"); })
+    AddMeasurement(MeasurementDLS::NAME, TR(tr("Dogleg Severity")))
             .AddUnit(&DLSUnits::DegreeUSFeet)
             .AddUnit(&DLSUnits::DegreeFeet)
             .AddUnit(&DLSUnits::DegreeMeter)
             .AddUnit(&DLSUnits::RadMeter);
 
-    AddMeasurement(MeasurementFlowSpeed::NAME, []{ return tr("Flow Speed"); })
+    AddMeasurement(MeasurementFlowSpeed::NAME, TR(tr("Flow Speed")))
             .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
@@ -157,22 +157,22 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    )
             .AddUnit(&FlowSpeedUnits::CubicFeetPerSecond  );
 
-    AddMeasurement(MeasurementThermalConductivity::NAME, []{ return tr("Thermal Conductivity"); })
+    AddMeasurement(MeasurementThermalConductivity::NAME, TR(tr("Thermal Conductivity")))
             .AddUnit(&ThermalConductivityUnits::WattMeterCelsius)
             .AddUnit(&ThermalConductivityUnits::FootHourSquareFootFahrenheit);
 
-    AddMeasurement(MeasurementSpecificHeatCapacity::NAME, []{ return tr("Specific Heat Capacity"); })
+    AddMeasurement(MeasurementSpecificHeatCapacity::NAME, TR(tr("Specific Heat Capacity")))
             .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramCelsius)
             .AddUnit(&SpecificHeatCapacityUnits::PoundFahrenheit);
 
-    AddMeasurement(MeasurementMass::NAME, []{ return tr("Mass"); })
+    AddMeasurement(MeasurementMass::NAME, TR(tr("Mass")))
             .AddUnit(&MassUnits::Kilograms )
             .AddUnit(&MassUnits::Grams     )
             .AddUnit(&MassUnits::Tonnes    )
             .AddUnit(&MassUnits::Pounds    )
             .AddUnit(&MassUnits::Kilopounds);
 
-    AddMeasurement(MeasurementPressure::NAME, []{ return tr("Pressure"); })
+    AddMeasurement(MeasurementPressure::NAME, TR(tr("Pressure")))
             .AddUnit(&PressureUnits::Pascals                    )
             .AddUnit(&PressureUnits::Kilopascals                )
             .AddUnit(&PressureUnits::Bars                       )
@@ -185,7 +185,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&PressureUnits::PoundsPerSquareFeet     )
             .AddUnit(&PressureUnits::PoundsPer100SquareFeet     );
 
-    AddMeasurement(MeasurementSpeed::NAME, []{ return tr("Speed"); })
+    AddMeasurement(MeasurementSpeed::NAME, TR(tr("Speed")))
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
             .AddUnit(&SpeedUnits::MetersPerHour    )
@@ -198,7 +198,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
-    AddMeasurement(MeasurementTorque::NAME, []{ return tr("Torque"); })
+    AddMeasurement(MeasurementTorque::NAME, TR(tr("Torque")))
             .AddUnit(&TorqueUnits::NewtonMeters      )
             .AddUnit(&TorqueUnits::DecaNewtonMeters  )
             .AddUnit(&TorqueUnits::KilonewtonMeters  )
@@ -206,27 +206,27 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TorqueUnits::KilopoundForceFeet)
             .AddUnit(&TorqueUnits::PoundFoot);
 
-    AddMeasurement(MeasurementMudWeight::NAME, []{ return tr("Mud Weight"); })
+    AddMeasurement(MeasurementMudWeight::NAME, TR(tr("Mud Weight")))
             .AddUnit(&MudWeightUnits::PoundPerGallon      )
             .AddUnit(&MudWeightUnits::PoundPerCubicFeet   )
             .AddUnit(&MudWeightUnits::KilogramPerCubicMeter);
 
-    AddMeasurement(MeasurementViscosity::NAME, []{ return tr("Viscosity"); })
+    AddMeasurement(MeasurementViscosity::NAME, TR(tr("Viscosity")))
             .AddUnit(&ViscosityUnits::Centipoise       )
             .AddUnit(&ViscosityUnits::MilliPascalSecond);
 
-    AddMeasurement(MeasurementYieldPoint::NAME, []{ return tr("Yield Point"); })
+    AddMeasurement(MeasurementYieldPoint::NAME, TR(tr("Yield Point")))
             .AddUnit(&PressureUnits::Pascals)
             .AddUnit(&PressureUnits::PoundsPerSquareFeet)
             .AddUnit(&PressureUnits::PoundsPer100SquareFeet)
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::KilopoundsPerSquareInch);
 
-    AddMeasurement(MeasurementTemperature::NAME, []{ return tr("Temperature"); })
+    AddMeasurement(MeasurementTemperature::NAME, TR(tr("Temperature")))
             .AddUnit(&TemperatureUnits::Celsius   )
             .AddUnit(&TemperatureUnits::Fahrenheit);
 
-    AddMeasurement(MeasurementTemperaturePerDistance::NAME, []{ return tr("Temperature Per Distance"); })
+    AddMeasurement(MeasurementTemperaturePerDistance::NAME, TR(tr("Temperature Per Distance")))
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerMeter)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPer100Feet)
@@ -234,77 +234,77 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPer100Feet);
 
-    AddMeasurement(MeasurementDensity::NAME, []{ return tr("Density"); })
+    AddMeasurement(MeasurementDensity::NAME, TR(tr("Density")))
             .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
             .AddUnit(&DensityUnits::KilogramsPerLiter)
             .AddUnit(&DensityUnits::PoundsPerGallon)
             .AddUnit(&DensityUnits::PoundsPerCubicFeet);
 
-    AddMeasurement(MeasurementWeightPerLength::NAME, []{ return tr("Weight Per Length"); })
+    AddMeasurement(MeasurementWeightPerLength::NAME, TR(tr("Weight Per Length")))
             .AddUnit(&WeightPerLengthUnits::KilogramPerMeter)
             .AddUnit(&WeightPerLengthUnits::KilogramPerCantimeter)
             .AddUnit(&WeightPerLengthUnits::PoundPerFoot)
             .AddUnit(&WeightPerLengthUnits::PoundPerInch);
 
-    AddMeasurement(MeasurementYoungModulus::NAME, []{ return tr("Young Modulus"); })
+    AddMeasurement(MeasurementYoungModulus::NAME, TR(tr("Young Modulus")))
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::Kilopascals);
 
-    AddMeasurement(MeasurementYieldStrength::NAME, []{ return tr("Yield Strength"); })
+    AddMeasurement(MeasurementYieldStrength::NAME, TR(tr("Yield Strength")))
             .AddUnit(&PressureUnits::PoundsPerSquareInch)
             .AddUnit(&PressureUnits::Kilopascals);
 
-    AddMeasurement(MeasurementThermalExpansion::NAME, []{ return tr("Thermal Expansion"); })
+    AddMeasurement(MeasurementThermalExpansion::NAME, TR(tr("Thermal Expansion")))
             .AddUnit(&ThermalExpansionUnits::PerDegreeFahrenheit)
             .AddUnit(&ThermalExpansionUnits::PerDegreeCelsius);
 
-    AddMeasurement(MeasurementJetDiameter::NAME, []{ return tr("Jet Diameter"); })
+    AddMeasurement(MeasurementJetDiameter::NAME, TR(tr("Jet Diameter")))
             .AddUnit(&DistanceUnits::Milimeters)
             .AddUnit(&DistanceUnits::Centimeters)
             .AddUnit(&DistanceUnits::Inches)
             .AddUnit(&DistanceUnits::OnePerThirtyTwoInches);
 
-    AddMeasurement(MeasurementArea::NAME, []{ return tr("Area"); })
+    AddMeasurement(MeasurementArea::NAME, TR(tr("Area")))
             .AddUnit(&AreaUnits::SqMeters)
             .AddUnit(&AreaUnits::SqCentimeters)
             .AddUnit(&AreaUnits::SqMilimeters)
             .AddUnit(&AreaUnits::SqFeets)
             .AddUnit(&AreaUnits::SqInches);
 
-    AddMeasurement(MeasurementForce::NAME, []{ return tr("Force"); })
+    AddMeasurement(MeasurementForce::NAME, TR(tr("Force")))
             .AddUnit(&ForceUnits::Newton)
             .AddUnit(&ForceUnits::Kilonewton)
             .AddUnit(&ForceUnits::PoundsForce)
             .AddUnit(&ForceUnits::KiloGrammForce)
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
-    AddMeasurement(MeasurementMotorSpeed::NAME, []{ return tr("Motor Speed"); })
+    AddMeasurement(MeasurementMotorSpeed::NAME, TR(tr("Motor Speed")))
         .AddUnit(&MotorSpeedUnits::RevolutionPerGallon);
 
-    AddMeasurement(MeasurementTime::NAME, []{ return tr("Time"); })
+    AddMeasurement(MeasurementTime::NAME, TR(tr("Time")))
             .AddUnit(&TimeUnits::MSeconds)
             .AddUnit(&TimeUnits::Seconds)
             .AddUnit(&TimeUnits::Minutes)
             .AddUnit(&TimeUnits::Hours);
 
-    AddMeasurement(MeasurementLinearCapacity::NAME, []{ return tr("Linear Capacity"); })
+    AddMeasurement(MeasurementLinearCapacity::NAME, TR(tr("Linear Capacity")))
             .AddUnit(&VolumePerLengthUnits::CubicMeterPerMeter)
             .AddUnit(&VolumePerLengthUnits::BarrelPerFoot)
             .AddUnit(&VolumePerLengthUnits::LiterPerMeter);
 
-    AddMeasurement(MeasurementFrequency::NAME, []{ return tr("Frequency"); })
+    AddMeasurement(MeasurementFrequency::NAME, TR(tr("Frequency")))
             .AddUnit(&FrequencyUnits::RevolutionPerMinute);
 
-    AddMeasurement(MeasurementCutterDiameter::NAME, []{ return tr("Cutter Diameter"); })
+    AddMeasurement(MeasurementCutterDiameter::NAME, TR(tr("Cutter Diameter")))
             .AddUnit(&DistanceUnits::Milimeters);
 
-    AddMeasurement(MeasurementPower::NAME, []{ return tr("Power"); })
+    AddMeasurement(MeasurementPower::NAME, TR(tr("Power")))
             .AddUnit(&PowerUnits::Watt)
             .AddUnit(&PowerUnits::JoulePerSecond)
             .AddUnit(&PowerUnits::KiloWatt)
             .AddUnit(&PowerUnits::HoursePower);
 
-    AddMeasurement(MeasurementAnnularVelocity::NAME, []{ return tr("Annular Velocity"); })
+    AddMeasurement(MeasurementAnnularVelocity::NAME, TR(tr("Annular Velocity")))
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
             .AddUnit(&SpeedUnits::MetersPerHour    )
@@ -317,7 +317,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
-    AddMeasurement(MeasurementROP::NAME, []{ return tr("Rate Of Penetration"); })
+    AddMeasurement(MeasurementROP::NAME, TR(tr("Rate Of Penetration")))
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
             .AddUnit(&SpeedUnits::MetersPerHour    )
@@ -330,7 +330,7 @@ MeasurementManager::MeasurementManager()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
-    AddMeasurement(MeasurementFlowConsistencyFactor::NAME, []{ return tr("Flow Consistency Factor"); })
+    AddMeasurement(MeasurementFlowConsistencyFactor::NAME, TR(tr("Flow Consistency Factor")))
             .AddUnit(&FlowConsistencyFactorUnits::FactorPascals  )
             .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
 
@@ -481,9 +481,8 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
     return defaultResult;
 }
 
-DispatcherConnections MeasurementManager::AttachConverter(const Name& measurementName, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
+DispatcherConnections MeasurementManager::AttachConverter(const Measurement* measurement, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
 {
-    auto* measurement = GetMeasurement(measurementName).get();
     DispatcherConnections result;
     result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
         return [measurement](double value) { return measurement->FromBaseToUnit(value); };
@@ -555,62 +554,26 @@ QStringList MeasurementManager::DefaultSystems()
 	return {UNIT_SYSTEM_API.AsString(), UNIT_SYSTEM_API_USFT.AsString(), UNIT_SYSTEM_SI.AsString()};
 }
 
-void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
-{
-    m_connections.clear();
-    if(baseValueProperty != nullptr) {
-        baseValueProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,Value, [this](double baseValue){
-                                 return m_metricSystem->FromBaseToUnit(baseValue);
-                             }, [this](double currentUnit){
-                                 return m_metricSystem->FromUnitToBase(currentUnit);
-                             }).MakeSafe(m_connections);
-        
-        auto updateMinMax = [baseValueProperty, this]{
-            auto convertValue = [this](double source) {
-                auto unitValue = m_metricSystem->FromBaseToUnit(source);
-                return qIsInf(unitValue) ? source : unitValue;
-            };
-            Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));
-            Value = convertValue(baseValueProperty->Native());
-        };
-        baseValueProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, updateMinMax).MakeSafe(m_connections);
-        updateMinMax();
-    }
-    m_currentValue = baseValueProperty;
-}
-
-MeasurementProperty::MeasurementProperty(const Name& systemName)
-    : m_currentValue(nullptr)
-{
-    m_metricSystem = MeasurementManager::GetInstance().GetMeasurement(systemName);
-    m_metricSystem->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-                                                      Connect(m_currentValue);
-                                                  }).MakeSafe(m_systemConnections);
-
-    Precision.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_metricSystem->CurrentPrecision).MakeSafe(m_systemConnections);
-    Step.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_metricSystem->CurrentStep).MakeSafe(m_systemConnections);
-}
-
-void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics)
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics)
 {
     DispatcherConnectionsSafe connections;
     AttachToTranslatedString(string, translationHandler, metrics, connections);
 }
 
-void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<Name>& metrics, DispatcherConnectionsSafe& connections)
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, DispatcherConnectionsSafe& connections)
 {
-    QSet<Name> uniqueMetrics;
-    for(const auto& metric : metrics) {
+    QSet<const Measurement*> uniqueMetrics;
+    for(const auto* metric : metrics) {
         auto foundIt = uniqueMetrics.find(metric);
         if(foundIt == uniqueMetrics.end()) {
-            string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, MeasurementManager::GetInstance().GetMeasurement(metric)->CurrentUnitLabel.OnChanged).MakeSafe(connections);
+            string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, metric->CurrentUnitLabel.OnChanged).MakeSafe(connections);
             uniqueMetrics.insert(metric);
         }
     }
     string.SetTranslationHandler(generateTranslationHandler(translationHandler, metrics, connections));
 }
 
-FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<Name>& metrics, const DispatcherConnectionsSafe& connections)
+FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, const DispatcherConnectionsSafe& connections)
 {
     return [translationHandler, metrics, connections]{
         THREAD_ASSERT_IS_MAIN()
@@ -621,7 +584,7 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
         QString resultString;
         while((index = regExp.indexIn(string, index)) != -1 && it != metrics.end()) {
             resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
-            auto metricSystem = MeasurementManager::GetInstance().GetMeasurement(*it);
+            const auto* metricSystem = *it;
             resultString.append(metricSystem->CurrentUnitLabel);
             it++;
             index += regExp.matchedLength();

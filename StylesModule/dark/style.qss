@@ -907,3 +907,13 @@ QPushButton#btnDrawer
 QPushButton#btnDrawer:hover{
     border-color: white;
 }
+
+QPushButton#btnDrawerVertical
+{
+    background: transparent;
+    border-color: #3e3e3e;
+}
+
+QPushButton#btnDrawerVertical:hover{
+    border-color: white;
+}

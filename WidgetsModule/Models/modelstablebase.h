@@ -112,11 +112,11 @@ public:
     void RequestUpdateUi(qint32 left, qint32 right);
 
 #ifdef UNITS_MODULE_LIB // TODO. Do not use it. Deprecated
-    DispatcherConnection AttachTempDependence(const char* locationInfo, const Name& unitName, int first, int last);
-    void AttachDependence(const char* locationInfo, const Name& unitName, int first, int last);
+    DispatcherConnection AttachTempDependence(const char* locationInfo, const class Measurement* unitName, int first, int last);
+    void AttachDependence(const char* locationInfo, const Measurement* unitName, int first, int last);
 #endif
-    DispatcherConnection AttachTempDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last);
-    void AttachDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last);
+    DispatcherConnection AttachTempDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last);
+    void AttachDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last);
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 

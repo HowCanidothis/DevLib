@@ -138,25 +138,25 @@ void ViewModelsTableBase::RequestUpdateUi(qint32 left, qint32 right)
 }
 
 #ifdef UNITS_MODULE_LIB
-DispatcherConnection ViewModelsTableBase::AttachTempDependence(const char* locationInfo, const Name& unitName, int first, int last)
+DispatcherConnection ViewModelsTableBase::AttachTempDependence(const char* locationInfo, const Measurement* unitName, int first, int last)
 {
-    return AttachTempDependence(locationInfo, &MeasurementManager::GetInstance().GetMeasurement(unitName)->OnChanged, first, last);
+    return AttachTempDependence(locationInfo, &unitName->OnChanged, first, last);
 }
 
-void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Name& unitName, int first, int last)
+void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Measurement* unitName, int first, int last)
 {
-    AttachDependence(locationInfo, &MeasurementManager::GetInstance().GetMeasurement(unitName)->OnChanged, first, last);
+    AttachDependence(locationInfo, &unitName->OnChanged, first, last);
 }
 #endif
 
-DispatcherConnection ViewModelsTableBase::AttachTempDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last)
+DispatcherConnection ViewModelsTableBase::AttachTempDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last)
 {
     return dispatcher->Connect(locationInfo, [first, last, this]{
         RequestUpdateUi(first, last);
     });
 }
 
-void ViewModelsTableBase::AttachDependence(const char* locationInfo, Dispatcher* dispatcher, int first, int last)
+void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last)
 {
     AttachTempDependence(locationInfo, dispatcher, first, last).MakeSafe(m_connections);
 }

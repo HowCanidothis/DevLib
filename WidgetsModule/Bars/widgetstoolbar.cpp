@@ -9,8 +9,8 @@ WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
     : Super(parent)
 {
     switch(orientation){
-    case Qt::Vertical: m_layout = new QVBoxLayout(this); break;
-    case Qt::Horizontal: m_layout = new QHBoxLayout(this); break;
+    case Qt::Vertical: m_layout = new QVBoxLayout(this); m_buttonsOrientation = Qt::Horizontal; break;
+    case Qt::Horizontal: m_layout = new QHBoxLayout(this); m_buttonsOrientation = Qt::Vertical; break;
     }
 
     m_layout->setSpacing(0);
@@ -32,8 +32,8 @@ ComponentPlacer* WidgetsToolBar::GetComponentPlacer() const
 
 QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSize)
 {
-    auto* result = CreateButton("btnDrawer");
-    auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(true, drawerSize);
+    auto* result = CreateButton(m_buttonsOrientation == Qt::Horizontal ? "btnDrawer" : "btnDrawerVertical");
+    auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
     connect(result, &QPushButton::clicked, [collapsed](bool checked){
         *collapsed = checked;
     });

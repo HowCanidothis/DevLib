@@ -18,7 +18,7 @@ public:
     {
         Name ColumnKey;
         TranslatedStringPtr Label;
-        Name Measurement;
+        FMeasurementGetter Measurement;
     };
     using HeaderData = QVector<HeaderDataValue>;
 

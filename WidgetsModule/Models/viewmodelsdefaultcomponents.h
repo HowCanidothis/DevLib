@@ -199,10 +199,10 @@ public:
     }
 
 #ifdef UNITS_MODULE_LIB
-    TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Name& measurementName)
+    TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Measurement* measurement)
     {
         AttachDependencies();
-        m_currentMeasurement = MeasurementManager::GetInstance().GetMeasurement(measurementName);
+        m_currentMeasurement = measurement;
         return *this;
     }
 
@@ -220,7 +220,7 @@ public:
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
-        auto pMeasurement = m_currentMeasurement.get();
+        auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value));
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -238,7 +238,7 @@ public:
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
-        auto pMeasurement = m_currentMeasurement.get();
+        auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value));
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -258,7 +258,7 @@ public:
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
-        auto pMeasurement = m_currentMeasurement.get();
+        auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value)).Native();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -278,7 +278,7 @@ public:
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
-        auto pMeasurement = m_currentMeasurement.get();
+        auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType constValue) -> QVariant {
             auto& value = const_cast<ValueType>(constValue);
             auto& dataValue = getter(value);
@@ -311,7 +311,7 @@ public:
 private:
     std::function<Wrapper* ()> m_modelGetter;
 #ifdef UNITS_MODULE_LIB
-    SharedPointer<class Measurement> m_currentMeasurement;
+    const class Measurement* m_currentMeasurement;
     Array<qint32> m_currentMeasurementColumns;
 #endif
 };

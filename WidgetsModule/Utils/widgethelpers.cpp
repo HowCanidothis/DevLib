@@ -820,26 +820,27 @@ const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& a
     return *this;
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetCollapsing(bool horizontal, qint32 initialWidth) const
+LocalPropertyBool& WidgetWrapper::WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const
 {
-    // TODO. NOT WORKING
-    return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [horizontal, initialWidth](QObject* object, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_collapsed", [orientation, initialWidth](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
-        if(horizontal) {
-            auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
-                return new QPropertyAnimation(action, "maximumSize");
-            });
-            animation->stop();
-            auto fullSize = QSize(initialWidth, action->maximumHeight());
-            auto minSize = QSize(0, action->maximumHeight());
-            animation->setDuration(250);
-            animation->setEasingCurve(QEasingCurve::OutExpo);
-            animation->setStartValue(!visible ? fullSize : minSize);
-            animation->setEndValue(visible ? fullSize : minSize);
-            animation->start();
+        QSize fullSize, minSize;
+        if(orientation == Qt::Horizontal) {
+            fullSize = QSize(initialWidth, action->maximumHeight());
+            minSize = QSize(0, action->maximumHeight());
         } else {
-            action->setVisible(visible);
+            fullSize = QSize(action->maximumWidth(), initialWidth);
+            minSize = QSize(action->maximumWidth(), 0);
         }
+        auto animation = WidgetWrapper(action).Injected<QPropertyAnimation>("a_collapsedAnimation", [&]{
+            return new QPropertyAnimation(action, "maximumSize");
+        });
+        animation->stop();
+        animation->setDuration(250);
+        animation->setEasingCurve(QEasingCurve::OutExpo);
+        animation->setStartValue(!visible ? fullSize : minSize);
+        animation->setEndValue(visible ? fullSize : minSize);
+        animation->start();
     }, true);
 }
 
