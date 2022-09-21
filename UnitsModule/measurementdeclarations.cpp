@@ -114,3 +114,5 @@ MeasurementValueWrapper& MeasurementValueWrapper::operator=(double value)
     *m_target = clamp(value, m_min, m_max);
     return *this;
 }
+
+IMPLEMENT_GLOBAL(QString, MEASUREMENT_UN, "%un");

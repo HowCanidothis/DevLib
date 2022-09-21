@@ -9,11 +9,13 @@
 class Measurement
 {
 public:
-    Measurement(const FTranslationHandler& label);
+    Measurement(const Name& key, const FTranslationHandler& label);
     
     Measurement& AddUnit(const class MeasurementUnit* unit);
     const MeasurementUnit* FindUnit(const Name& metric) const;
     
+    const Name& GetName() const { return m_key; }
+
     double FromUnitToBase(double currentUnit) const;
     double FromBaseToUnit(double baseValue) const;
     
@@ -40,6 +42,7 @@ private:
     DispatcherConnectionsSafe m_currentConnections;
     ScopedPointer<class FTSDictionary> m_idsDictionary;
     ScopedPointer<class FTSObject> m_idsCache;
+    Name m_key;
 };
 using MeasurementPtr = SharedPointer<Measurement>;
 Q_DECLARE_METATYPE(SharedPointer<Measurement>);
@@ -89,7 +92,9 @@ class MeasurementManager
 public:
     static MeasurementManager& GetInstance();
     
-    Measurement& AddMeasurement(const Name& measurementName, const FTranslationHandler& translationHandler);
+    void Initialize();
+
+    Measurement& AddMeasurement(const MeasurementPtr& measurement);
     MeasurementSystem& AddSystem(const Name& systemName);
     void AddSystem(const MeasurementSystemPtr& system);
     const MeasurementPtr& GetMeasurement(const Name& measurementName) const;
@@ -117,6 +122,7 @@ public:
     const WPSCUnitMeasurementTableWrapperPtr& GetMeasurementWrapper() const { return m_measurmentWrapper; }
     
 private:
+    bool m_initialized;
     DispatcherConnectionsSafe m_connections;
     WPSCUnitSystemTableWrapperPtr m_systemWrapper;
     WPSCUnitMeasurementTableWrapperPtr m_measurmentWrapper;

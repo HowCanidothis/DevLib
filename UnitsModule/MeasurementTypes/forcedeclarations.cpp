@@ -10,4 +10,4 @@ namespace ForceUnits
     IMPLEMENT_MEASUREMENT_UNIT(KiloPoundsForce, []{return QObject::tr("1000 pounds-force");}, []{ return QObject::tr("kip"); }, 4448.22);
 };
 
-IMPLEMENT_MEASUREMENT(Force)
+IMPLEMENT_MEASUREMENT(Force, TR(MeasurementTr::tr("Force")))

@@ -11,4 +11,4 @@ namespace TorqueUnits
     IMPLEMENT_MEASUREMENT_UNIT(PoundFoot, []{return QObject::tr("pound-foot");}, []{ return QObject::tr("lbf*ft");}, 0.73756214927727);
 }
 
-IMPLEMENT_MEASUREMENT(Torque)
+IMPLEMENT_MEASUREMENT(Torque, TR(MeasurementTr::tr("Torque")))

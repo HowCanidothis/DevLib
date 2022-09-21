@@ -9,4 +9,4 @@ namespace MudWeightUnits
     IMPLEMENT_MEASUREMENT_UNIT(KilogramPerCubicMeter, []{return QObject::tr("kilogram per cubic meter");}, []{ return QObject::tr("kg/m3"); }, 1.0);
 };
 
-IMPLEMENT_MEASUREMENT(MudWeight)
+IMPLEMENT_MEASUREMENT(MudWeight, TR(MeasurementTr::tr("Mud Weight")))

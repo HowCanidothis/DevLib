@@ -7,4 +7,4 @@ namespace SpecificHeatCapacityUnits
     IMPLEMENT_MEASUREMENT_UNIT(PoundFahrenheit, []{return QObject::tr("pound/Fahrenheit");}, []{ return QObject::tr("BTU/(lb*F)"); }, 4184.0);
 };
 
-IMPLEMENT_MEASUREMENT(SpecificHeatCapacity)
+IMPLEMENT_MEASUREMENT(SpecificHeatCapacity, TR(MeasurementTr::tr("Specific Heat Capacity")))

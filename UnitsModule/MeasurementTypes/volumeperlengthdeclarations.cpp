@@ -8,5 +8,4 @@ namespace VolumePerLengthUnits
     IMPLEMENT_MEASUREMENT_UNIT(LiterPerMeter, []{return QObject::tr("liter per meter");}, []{ return QObject::tr("L/m"); }, 0.001);
 };
 
-IMPLEMENT_MEASUREMENT(VolumePerLength)
-IMPLEMENT_MEASUREMENT(LinearCapacity)
+IMPLEMENT_MEASUREMENT(LinearCapacity, TR(MeasurementTr::tr("Linear Capacity")))

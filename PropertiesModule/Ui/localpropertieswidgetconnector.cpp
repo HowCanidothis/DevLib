@@ -61,6 +61,19 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
     });
 }
 
+LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox)
+    : Super([checkBox, property]{
+                checkBox->setText(*property);
+            },
+            [property, checkBox]{
+                *property = checkBox->text();
+            }
+    )
+{
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this](){
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+}
 
 LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit, bool reactive)
     : Super([lineEdit, property](){

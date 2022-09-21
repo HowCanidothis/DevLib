@@ -10,4 +10,4 @@ namespace PowerUnits
     IMPLEMENT_MEASUREMENT_UNIT(HoursePower, []{return QObject::tr("Hourse Power");}, []{ return "hp"; }, 735.49875);
 };
 
-IMPLEMENT_MEASUREMENT(Power)
+IMPLEMENT_MEASUREMENT(Power, TR(MeasurementTr::tr("Power")))

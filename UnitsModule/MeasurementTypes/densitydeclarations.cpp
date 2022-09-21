@@ -11,4 +11,4 @@ namespace DensityUnits
     IMPLEMENT_MEASUREMENT_UNIT(MilligrammPerLiter, []{return QObject::tr("milligrams/liter");}, []{ return QObject::tr("mg/L"); }, 0.001);
 };
 
-IMPLEMENT_MEASUREMENT(Density)
+IMPLEMENT_MEASUREMENT(Density, TR(MeasurementTr::tr("Density")))

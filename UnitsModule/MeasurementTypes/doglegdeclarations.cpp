@@ -11,4 +11,4 @@ namespace DLSUnits
     IMPLEMENT_MEASUREMENT_UNIT(DegreeMeter, []{return QObject::tr("deg per 30m");}, []{ return QObject::tr("°/30m"); }, DEGREES_TO_RADIANS);
 }
 
-IMPLEMENT_MEASUREMENT(DLS)
+IMPLEMENT_MEASUREMENT(DLS, TR(MeasurementTr::tr("Dogleg Severity")))

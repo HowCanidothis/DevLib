@@ -7,4 +7,4 @@ namespace PercentsUnits
     IMPLEMENT_MEASUREMENT_UNIT(Percents, []{return QObject::tr("percents");     }, []{ return "%";   }, 0.01);
 }
 
-IMPLEMENT_MEASUREMENT(Percents)
+IMPLEMENT_MEASUREMENT(Percents,TR(MeasurementTr::tr("Percents")))

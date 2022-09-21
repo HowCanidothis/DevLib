@@ -8,4 +8,4 @@ namespace ViscosityUnits
     IMPLEMENT_MEASUREMENT_UNIT(MilliPascalSecond, []{return QObject::tr("millipascal-second");}, []{ return QObject::tr("mPa*s"); }, 0.001);
 };
 
-IMPLEMENT_MEASUREMENT(Viscosity)
+IMPLEMENT_MEASUREMENT(Viscosity, TR(MeasurementTr::tr("Viscosity")))

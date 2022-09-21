@@ -8,4 +8,4 @@ namespace ThermalExpansionUnits
     IMPLEMENT_MEASUREMENT_UNIT(PerDegreeFahrenheit, []{return QObject::tr("per degree Fahrenheit");}, []{ return QObject::tr("E-06/F"); }, 0.555555556);
 };
 
-IMPLEMENT_MEASUREMENT(ThermalExpansion)
+IMPLEMENT_MEASUREMENT(ThermalExpansion, TR(MeasurementTr::tr("Thermal Expansion")))

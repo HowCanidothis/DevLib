@@ -17,7 +17,7 @@ namespace PressureUnits
     IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet, []{return QObject::tr("pounds-force/100 sq.feet");     }, []{ return QObject::tr("lbf/100ft2");}, 0.47880172);
 }
 
-IMPLEMENT_MEASUREMENT(Pressure)
-IMPLEMENT_MEASUREMENT(YieldPoint)
-IMPLEMENT_MEASUREMENT(YieldStrength)
-IMPLEMENT_MEASUREMENT(YoungModulus)
+IMPLEMENT_MEASUREMENT(Pressure, TR(MeasurementTr::tr("Pressure")))
+IMPLEMENT_MEASUREMENT(YieldPoint, TR(MeasurementTr::tr("Yield Point")))
+IMPLEMENT_MEASUREMENT(YieldStrength, TR(MeasurementTr::tr("Yield Strength")))
+IMPLEMENT_MEASUREMENT(YoungModulus, TR(MeasurementTr::tr("Young Modulus")))

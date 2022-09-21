@@ -9,4 +9,4 @@ namespace FieldStrengthUnits
     IMPLEMENT_MEASUREMENT_UNIT(Gauss, []{return QObject::tr("gauss");}, []{ return QObject::tr("G"); }, 100000.0);
 };
 
-IMPLEMENT_MEASUREMENT(MagneticField)
+IMPLEMENT_MEASUREMENT(MagneticField, TR(MeasurementTr::tr("Magnetic Field")))

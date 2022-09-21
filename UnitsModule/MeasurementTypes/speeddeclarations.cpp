@@ -17,6 +17,6 @@ namespace SpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(MilesPerHour,      []{return QObject::tr("Miles Per Hour");},      []{ return QObject::tr("mphr");      }, 5280 / METERS_TO_FEETS_MULTIPLIER / 60.0 / 60.0);
 }
 
-IMPLEMENT_MEASUREMENT(Speed)
-IMPLEMENT_MEASUREMENT(AnnularVelocity)
-IMPLEMENT_MEASUREMENT(ROP)
+IMPLEMENT_MEASUREMENT(Speed, TR(MeasurementTr::tr("Speed")))
+IMPLEMENT_MEASUREMENT(AnnularVelocity, TR(MeasurementTr::tr("Annular Velocity")))
+IMPLEMENT_MEASUREMENT(ROP, TR(MeasurementTr::tr("Rate Of Penetration")))

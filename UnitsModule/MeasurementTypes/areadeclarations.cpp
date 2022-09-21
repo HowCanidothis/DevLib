@@ -12,4 +12,4 @@ namespace AreaUnits
     IMPLEMENT_MEASUREMENT_UNIT(SqInches, []{return QObject::tr("square inches");}, []{ return QObject::tr("in2"); }, 1.0 / 144.0 / SQ_METERS_TO_FEETS_MULTIPLIER);
 };
 
-IMPLEMENT_MEASUREMENT(Area)
+IMPLEMENT_MEASUREMENT(Area, TR(MeasurementTr::tr("Area")))

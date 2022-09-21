@@ -19,7 +19,7 @@ TranslatedString::TranslatedString(const FTranslationHandler& translationHandler
 {
     TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, translationHandler]{
         retranslate();
-    }).MakeSafe(m_connections);
+    }).MakeSafe(Connections);
 
     Retranslate += { this, [this]{ retranslate(); }};
 }
@@ -28,7 +28,7 @@ TranslatedString::TranslatedString(const FTranslationHandler& translationHandler
     : TranslatedString(translationHandler)
 {
     for(auto* retranslator : retranslators) {
-        Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, *retranslator).MakeSafe(m_connections);
+        Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, *retranslator).MakeSafe(Connections);
     }
 }
 

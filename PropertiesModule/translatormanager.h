@@ -118,13 +118,13 @@ public:
     const FTranslationHandler& GetTranslationHandler() const { return m_translationHandler; }
 
     Dispatcher Retranslate;
+    DispatcherConnectionsSafe Connections;
 
 protected:
     void retranslate();
 
 protected:
     FTranslationHandler m_translationHandler;
-    DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_retranslate;
 };
 

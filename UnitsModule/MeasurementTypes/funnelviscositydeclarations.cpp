@@ -8,4 +8,4 @@ namespace FunnelViscosityUnits
     IMPLEMENT_MEASUREMENT_UNIT(SecondsForQuart, []{return QObject::tr("seconds/quart");}, []{ return QObject::tr("sec/qt"); }, 1.0 / 0.000946353);
 };
 
-IMPLEMENT_MEASUREMENT(FunnelViscosity)
+IMPLEMENT_MEASUREMENT(FunnelViscosity, TR(MeasurementTr::tr("Funnel Viscosity")))

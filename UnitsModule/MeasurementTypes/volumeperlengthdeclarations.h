@@ -10,7 +10,6 @@ namespace VolumePerLengthUnits
     DECLARE_MEASUREMENT_UNIT(LiterPerMeter)
 };
 
-DECLARE_MEASUREMENT(VolumePerLength)
 DECLARE_MEASUREMENT(LinearCapacity)
 
 #endif // VOLUMEPERLENGTHDECLARATIONS_H

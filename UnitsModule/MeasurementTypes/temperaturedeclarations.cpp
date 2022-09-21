@@ -18,5 +18,5 @@ namespace TemperaturePerDistanceUnits
     IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPer100Feet,    []{return QObject::tr("Fahrenheit Per 100 Feet");}, []{ return QObject::tr("F/100ft"); }, METERS_TO_FEETS_MULTIPLIER/100*5/9);
 };
 
-IMPLEMENT_MEASUREMENT(Temperature)
-IMPLEMENT_MEASUREMENT(TemperaturePerDistance)
+IMPLEMENT_MEASUREMENT(Temperature, TR(MeasurementTr::tr("Temperature")))
+IMPLEMENT_MEASUREMENT(TemperaturePerDistance, TR(MeasurementTr::tr("Temperature Per Distance")))

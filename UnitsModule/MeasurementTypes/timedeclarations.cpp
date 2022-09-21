@@ -12,4 +12,4 @@ namespace TimeUnits
     IMPLEMENT_MEASUREMENT_UNIT(Years,      []{return QObject::tr("years");}, []{ return QObject::tr("year"); }, 31536000.0);
 };
 
-IMPLEMENT_MEASUREMENT(Time)
+IMPLEMENT_MEASUREMENT(Time, TR(MeasurementTr::tr("Time")))

@@ -8,4 +8,4 @@ namespace FrequencyUnits
 //    static const MeasurementUnit RevolutionPerSecond("RevolutionPerSecond", []{return QObject::tr("rps");}, []{ return QObject::tr("1/sec"); }, 1.0);
 };
 
-IMPLEMENT_MEASUREMENT(Frequency)
+IMPLEMENT_MEASUREMENT(Frequency, TR(MeasurementTr::tr("Frequency")))

@@ -6,28 +6,35 @@
 #define DECLARE_MEASUREMENT_UNIT(x) extern const MeasurementUnit x;
 #define IMPLEMENT_MEASUREMENT_UNIT(x, ...) const MeasurementUnit x(Name(QT_STRINGIFY(x)), __VA_ARGS__);
 
+DECLARE_GLOBAL(QString, MEASUREMENT_UN);
+
 class Measurement;
+
+struct MeasurementTr
+{
+    Q_DECLARE_TR_FUNCTIONS(MeasurementTr);
+};
 
 #define DECLARE_MEASUREMENT(name) \
 namespace Measurement##name { \
 extern const Name NAME; \
-double CurrentUnitToBase(double x); \
-double BaseToCurrentUnit(double x); \
-QString BaseToCurrentUnitUi(double x); \
-double CurrentUnitPrecision(); \
-const QString& CurrentUnitString(); \
-extern const FMeasurementGetter Get; \
+double FromBaseToUnit(double value);\
+QString FromBaseToUnitUi(double value);\
+double FromUnitToBase(double value);\
+QString CurrentUnitString(); \
+extern const SharedPointer<Measurement> Value; \
+extern const Measurement* Get(); \
 }
 
-#define IMPLEMENT_MEASUREMENT(name) \
+#define IMPLEMENT_MEASUREMENT(name, translationHandler) \
 namespace Measurement##name { \
 const Name NAME(QT_STRINGIFY(name)); \
-double CurrentUnitToBase(double x) { return Get()->FromUnitToBase(x); } \
-double BaseToCurrentUnit(double x) { return Get()->FromBaseToUnit(x); } \
-QString BaseToCurrentUnitUi(double x) { return Get()->FromBaseToUnitUi(x); } \
-double CurrentUnitPrecision() { return Get()->CurrentPrecision; } \
-const QString& CurrentUnitString() { return Get()->CurrentUnitLabel.Native(); } \
-static const FMeasurementGetter Get([]{ return MeasurementManager::GetInstance().GetMeasurement(NAME).get(); }); \
+const SharedPointer<Measurement> Value = ::make_shared<Measurement>(NAME, translationHandler); \
+const Measurement* Get() { return Value.get(); } \
+double FromBaseToUnit(double value) { return Get()->FromBaseToUnit(value); } \
+QString FromBaseToUnitUi(double value) { return Get()->FromBaseToUnitUi(value); } \
+double FromUnitToBase(double value) { return Get()->FromUnitToBase(value); } \
+QString CurrentUnitString() { return Get()->CurrentUnitLabel; }    \
 }
 
 static constexpr double METERS_TO_FEETS_MULTIPLIER = 3.280839895;

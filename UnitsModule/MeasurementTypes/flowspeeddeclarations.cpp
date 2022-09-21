@@ -15,4 +15,4 @@ namespace FlowSpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(CubicFeetPerSecond, []{return QObject::tr("Cubic feet per second");     }, []{ return QObject::tr("ft³/s");}, 0.0283168466);
 }
 
-IMPLEMENT_MEASUREMENT(FlowSpeed)
+IMPLEMENT_MEASUREMENT(FlowSpeed, TR(MeasurementTr::tr("Flow Speed")))

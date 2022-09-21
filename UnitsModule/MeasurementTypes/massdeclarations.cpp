@@ -11,4 +11,4 @@ namespace MassUnits
     IMPLEMENT_MEASUREMENT_UNIT(Kilopounds, []{return QObject::tr("kilopounds");}, []{ return QObject::tr("klbf");}, 453.592);
 }
 
-IMPLEMENT_MEASUREMENT(Mass)
+IMPLEMENT_MEASUREMENT(Mass, TR(MeasurementTr::tr("Mass")))

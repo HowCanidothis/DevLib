@@ -9,4 +9,4 @@ namespace MotorSpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(RevolutionPerCubicMeter, []{return QObject::tr("revolution per cubic meter");}, []{ return QObject::tr("rev/m3"); }, 1.0);
 };
 
-IMPLEMENT_MEASUREMENT(MotorSpeed)
+IMPLEMENT_MEASUREMENT(MotorSpeed, TR(MeasurementTr::tr("Motor Speed")))

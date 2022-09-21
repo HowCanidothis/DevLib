@@ -361,6 +361,7 @@ public:
     const value_type& Last() const { return Super::last(); }
     bool IsEmpty() const { return Super::isEmpty(); }
     qint32 GetSize() const { return Super::size(); }
+    bool IsLastIndex(qint32 index) const { return (Super::size() - 1) == index; }
 
     bool AtSafe(qint32 index, const value_type*& value) const
     {
@@ -423,5 +424,34 @@ public:
 
 using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
 using ModelsTreeWrapperPtr = SharedPointer<ModelsTreeWrapper>;
+
+template<class T>
+class ModelsTableView
+{
+    using TPtr = SharedPointer<T>;
+public:
+    ModelsTableView(const TPtr& data, qint32 start, qint32 count)
+        : m_data(data)
+        , m_offset(start)
+        , m_last(start + count)
+    {
+        OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_data->OnChanged).MakeSafe(m_connections);
+    }
+
+    Dispatcher OnChanged;
+
+    typename T::const_iterator At(qint32 index) const { return index >= m_data->GetSize() ? m_data->end() : m_data->begin() + index;  }
+    typename T::const_iterator begin() const { return At(m_offset);  }
+    typename T::const_iterator end() const { return m_data->begin() + std::min(m_last, m_data->GetSize()); }
+
+    bool HasValue(qint32 index) const { return At(index) != m_data->end(); }
+    qint32 GetSize() const { return std::distance(begin(), end()); }
+
+private:
+    TPtr m_data;
+    DispatcherConnectionsSafe m_connections;
+    qint32 m_offset;
+    qint32 m_last;
+};
 
 #endif // WRAPPERS_H

@@ -10,4 +10,4 @@ namespace WeightPerLengthUnits
     IMPLEMENT_MEASUREMENT_UNIT(PoundPerInch, []{return QObject::tr("pound per inch");}, []{ return QObject::tr("lb/in"); }, 17.88);
 };
 
-IMPLEMENT_MEASUREMENT(WeightPerLength)
+IMPLEMENT_MEASUREMENT(WeightPerLength, TR(MeasurementTr::tr("Weight Per Length")))
