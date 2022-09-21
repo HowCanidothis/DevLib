@@ -718,6 +718,16 @@ DispatcherConnection WidgetWrapper::ConnectVisibilityFrom(const char* conInfo, Q
     return WidgetVisibility().ConnectFrom(conInfo, WidgetWrapper(widget).WidgetVisibility());
 }
 
+DispatcherConnection WidgetWrapper::ConnectEnablityTo(const char* conInfo, QWidget* widget) const
+{
+    return WidgetWrapper(widget).WidgetEnablity().ConnectFrom(conInfo, WidgetEnablity());
+}
+
+DispatcherConnection WidgetWrapper::ConnectVisibilityTo(const char* conInfo, QWidget* widget) const
+{
+    return WidgetWrapper(widget).WidgetVisibility().ConnectFrom(conInfo, WidgetVisibility());
+}
+
 DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const
 {
     auto result = createRule<WidgetWrapper>(debugLocation, QOverload<>::of(&WidgetWrapper::WidgetVisibility), handler, additionalWidgets, *dispatchers.first());

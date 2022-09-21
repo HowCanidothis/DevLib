@@ -101,6 +101,9 @@ public:
     DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
 
+    DispatcherConnection ConnectEnablityTo(const char* conInfo, QWidget* widget) const;
+    DispatcherConnection ConnectVisibilityTo(const char* conInfo, QWidget* widget) const;
+
     DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     template<typename ... Dispatchers>
