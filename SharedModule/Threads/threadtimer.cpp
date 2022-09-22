@@ -29,7 +29,9 @@ void ThreadTimerManager::terminate()
 
 QMetaObject::Connection ThreadTimer::OnTimeout(const FAction& action)
 {
-    return ThreadTimerManager::addTimerConnection(m_handle, action);
+    auto connection = ThreadTimerManager::addTimerConnection(m_handle, action);
+    m_connections.Add(connection);
+    return connection;
 }
 
 ThreadTimer::~ThreadTimer()

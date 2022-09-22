@@ -4,23 +4,22 @@
 #include <QFileInfo>
 #include <QDateTime>
 
-QtObserverData::QtObserverData(qint32 msInterval)
-    : m_timer(msInterval)
-    , m_doObserve([](const Observable*){})
+QtObserverData::QtObserverData()
+    : m_doObserve([](const Observable*){})
 {
 
 }
 
-void QtObserverData::onTimeout()
+void QtObserverData::observe()
 {
-    for(const QtObserverData::Observable* observable : m_observables) {
-        m_doObserve(observable);
-    }
     m_doObserve = [](const QtObserverData::Observable* observable){
         if(observable->Condition()) {
             observable->Handle();
         }
     };
+    for(const QtObserverData::Observable* observable : m_observables) {
+        m_doObserve(observable);
+    }    
 }
 
 void QtObserverData::add(const FCondition& condition, const FHandle& handle)
@@ -74,12 +73,13 @@ void QtObserverData::clear()
 
 QtObserver::QtObserver(qint32 msInterval, const ThreadHandlerNoThreadCheck& threadHandler, QObject* parent)
     : QObject(parent)
-    , d(::make_shared<QtObserverData>(msInterval))
+    , d(::make_shared<QtObserverData>())
+    , m_timer(msInterval)
 {
-    d->m_timer.OnTimeout([this, threadHandler]{
-        auto data = d;
+    auto data = d;
+    m_timer.OnTimeout([data, threadHandler]{
         threadHandler([data]{
-            data->onTimeout();
+            data->observe();
         });
     });
 }

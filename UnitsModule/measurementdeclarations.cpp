@@ -40,9 +40,9 @@ double MeasurementUnit::FromBaseToUnit(double baseValue) const
     return m_baseToUnit(baseValue);
 }
 
-bool LocalPropertyNotEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
+bool LocalPropertyEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
 {
-    return true;
+    return false;
 }
 
 void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)

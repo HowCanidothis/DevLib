@@ -230,6 +230,9 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
                 auto precision = epsilon(spinBox->decimals() + 1);
+                if(qIsNaN(*property)) {
+                    return;
+                }
                 if(!fuzzyCompare(spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare(spinBox->maximum(), property->GetMax(), precision)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }
@@ -262,6 +265,9 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
     : Super([spinBox, property](){
                 float precision = epsilon(spinBox->decimals());
+                if(qIsNaN(*property)) {
+                    return;
+                }
                 if(!fuzzyCompare((float)spinBox->minimum(), property->GetMin(), precision) || !fuzzyCompare((float)spinBox->maximum(), property->GetMax(), precision)) {
                     spinBox->setRange(property->GetMin(), property->GetMax());
                 }

@@ -402,6 +402,10 @@ public:
     {
         return !m_left.EqualTo(another.m_left) || !m_right.EqualTo(another.m_right);
     }
+    bool operator== (const BoundingRect& another) const
+    {
+        return !operator!=(another);
+    }
 };
 
 class BoundingSphere
@@ -582,6 +586,11 @@ public:
     bool operator!=(const BoundingBox& another) const
     {
         return !GetLeft().EqualTo(another.GetLeft()) || !GetRight().EqualTo(another.GetRight());
+    }
+
+    bool operator==(const BoundingBox& another) const
+    {
+        return !operator!=(another);
     }
 
     bool IsNull() const { return m_bottomRightBack == m_topLeftFront; }

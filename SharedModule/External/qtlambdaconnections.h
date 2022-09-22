@@ -13,6 +13,7 @@ public:
 
     template<typename ... Args>
     void connect(Args... args);
+    void Add(QMetaObject::Connection);
     void Clear();
     bool IsEmpty() const { return m_connections.isEmpty(); }
 

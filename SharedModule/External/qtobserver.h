@@ -19,16 +19,15 @@ class QtObserverData
 
     typedef std::function<void (const Observable*)> FObserve;
 
-    ThreadTimer m_timer;
     ArrayPointers<Observable> m_observables;
     QHash<const void*, qint64> m_counters;
     FObserve m_doObserve;
     friend class QtObserver;
 public:
-    QtObserverData(qint32 msInterval);
+    QtObserverData();
 
 private:
-    void onTimeout();
+    void observe();
     void add(const FCondition& condition, const FHandle& handle);
     void addFileObserver(const QString& file, const FHandle& handle);
     void addFileObserver(const QString& dir, const QString& file, const FHandle& handle);
@@ -43,6 +42,7 @@ class QtObserver : public QObject
     typedef std::function<bool ()> FCondition;
 
     SharedPointer<QtObserverData> d;
+    ThreadTimer m_timer;
 
 public:
     QtObserver(qint32 msInterval, const ThreadHandlerNoThreadCheck& threadHandler, QObject* parent=0);
@@ -53,7 +53,7 @@ public:
     void AddFileObserver(const QString& dir, const QString& file, const FHandle& handle) { d->addFileObserver(dir, file, handle); }
     void Clear() { d->clear(); }
 
-    void Observe() { d->onTimeout(); }
+    void Observe() { d->observe(); }
 
     static QtObserver* Instance() { static QtObserver* res = new QtObserver(1000, ThreadHandlerNoCheckMainLowPriority); return res; }
 };
