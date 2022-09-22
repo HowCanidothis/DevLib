@@ -115,4 +115,10 @@ MeasurementValueWrapper& MeasurementValueWrapper::operator=(double value)
     return *this;
 }
 
+MeasurementValueWrapper& MeasurementValueWrapper::operator=(const MeasurementValueWrapper& value)
+{
+    *m_target = clamp(value.GetBase(), m_min, m_max);
+    return *this;
+}
+
 IMPLEMENT_GLOBAL(QString, MEASUREMENT_UN, "%un");

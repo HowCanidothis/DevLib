@@ -1276,6 +1276,7 @@ LocalPropertyBool& WidgetDoubleSpinBoxWrapper::WidgetReadOnly() const
         property->EditSilent() = widget->isReadOnly();
         property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
             widget->setReadOnly(*property);
+            StyleUtils::UpdateStyle(widget);
         });
         property->SetSetterHandler(ThreadHandlerMain);
         return property;

@@ -104,6 +104,7 @@ public:
 
     SharedPointer<LocalPropertyDouble> CreateProperty() const;
 
+    double GetBase() const { return *m_target; }
     QString GetCurrentUnitUi() const;
     double GetCurrentUnit() const;
     double GetMin() const { return m_min; }
@@ -112,8 +113,9 @@ public:
     const Measurement* GetMeasurement() const { return m_measurement; }
 
     MeasurementValueWrapper& operator=(double value);
+    MeasurementValueWrapper& operator=(const MeasurementValueWrapper& value);
 
-    operator double() { return *m_target; }
+    operator double() const { return *m_target; }
 
 private:
     double* m_target;
