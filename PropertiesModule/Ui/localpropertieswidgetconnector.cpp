@@ -12,6 +12,12 @@
 #include <QMenu>
 #include <QPushButton>
 
+#ifdef WIDGETS_MODULE_LIB
+
+#include <WidgetsModule/internal.hpp>
+
+#endif
+
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
         if(!m_ignorePropertyChange) {
@@ -45,7 +51,7 @@ LocalPropertiesMenuLabelConnector::LocalPropertiesMenuLabelConnector(LocalProper
 
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, QCheckBox* checkBox)
     : Super([checkBox, property]{
-                checkBox->setChecked(*property);
+                WidgetCheckBoxWrapper(checkBox).WidgetChecked() = property->Native();
             },
             [property, checkBox]{
                 *property = checkBox->isChecked();
@@ -63,7 +69,7 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox)
     : Super([checkBox, property]{
-                checkBox->setText(*property);
+                WidgetCheckBoxWrapper(checkBox).WidgetText()->SetTranslationHandler(TR(property->Native(), property));
             },
             [property, checkBox]{
                 *property = checkBox->text();
@@ -166,8 +172,6 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
 }
 
 #ifdef WIDGETS_MODULE_LIB
-
-#include <WidgetsModule/internal.hpp>
 
 LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
     : Super([buttons, property]{
