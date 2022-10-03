@@ -195,14 +195,16 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     if(params.UseStandardActions) {
         auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
         if(editScope != nullptr){
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyId);
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyWithHeadersId);
-            MenuWrapper(tableView).AddSeparator();
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionImportId);
-            MenuWrapper(tableView).AddSeparator();
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
+            MenuWrapper tableViewWrapper(tableView);
+            tableViewWrapper.AddGlobalTableAction(GlobalActionCopyId);
+            tableViewWrapper.AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+            tableViewWrapper.AddSeparator();
+            tableViewWrapper.AddGlobalTableAction(GlobalActionInsertId);
+            tableViewWrapper.AddGlobalTableAction(GlobalActionPasteId);
+            tableViewWrapper.AddGlobalTableAction(GlobalActionImportId);
+            tableViewWrapper.AddSeparator();
+            tableViewWrapper.AddGlobalTableAction(GlobalActionDeleteId);
+            //tableViewWrapper.AddTableColumnsAction();
             tableView->addAction(columnsAction->menuAction());
         }
     }
