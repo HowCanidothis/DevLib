@@ -362,6 +362,7 @@ public:
     bool IsEmpty() const { return Super::isEmpty(); }
     qint32 GetSize() const { return Super::size(); }
     bool IsLastIndex(qint32 index) const { return (Super::size() - 1) == index; }
+    bool HasIndex(qint32 index) const { return index >= 0 && index < Super::size(); }
 
     bool AtSafe(qint32 index, const value_type*& value) const
     {
