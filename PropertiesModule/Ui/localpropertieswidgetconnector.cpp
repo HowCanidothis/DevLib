@@ -203,7 +203,11 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
                 m_widgetSetter();
             });
         }).MakeSafe(m_dispatcherConnections);
+        WidgetPushButtonWrapper(button).WidgetChecked() = false;
         ++i;
+    }
+    if(*property >= 0 && *property < buttons.size()) {
+        WidgetPushButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
     }
 }
 

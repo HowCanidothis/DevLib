@@ -460,3 +460,7 @@ MenuBar QLabel#ExpiryTimeDesc {
     background: transparent;
     margin-left: 5px;
 }
+
+QLabel[PropertiesToolViewLabel="true"] {
+    font-weight: bold;
+}
