@@ -932,6 +932,10 @@ QPushButton[a_control="1"]:hover{ /* Icon */
     background: #3C3C3C;
 }
 
+QPushButton[a_control="1"]::menu-indicator {
+    width: 0px;
+}
+
 QPushButton[a_control="2"]{  /* Save */
     color: #707070;
     background: #373737;
