@@ -291,7 +291,7 @@ QLabel:disabled {
   color: #787878;
 }
 
-QPushButton {
+/*QPushButton {
   background-color: #1976D2;
   color: white;
 }
@@ -334,7 +334,7 @@ QPushButton:selected {
 QPushButton:hover {
   color: white;
   background: #189EF7;
-}
+}*/
 
 WidgetsDatetimePopupPicker QPushButton {
   background-color: transparent;

@@ -509,28 +509,6 @@ QAbstractSpinBox::down-arrow:hover {
   image: url(":/qss_icons/rc/arrow_down.png");
 }
 
-QPushButton {
-  border: none;
-  font-weight: bold;
-  padding: 5px 10px 5px 10px;
-  outline: none;
-  font-size: 12px;
-}
-
-QPushButton:checked {
-  outline: none;
-}
-
-QPushButton:checked:disabled {
-  outline: none;
-}
-
-QPushButton::menu-indicator {
-  subcontrol-origin: padding;
-  subcontrol-position: bottom right;
-  bottom: 4px;
-}
-
 QToolButton {
   background-color: transparent;
   border: none;
@@ -1076,73 +1054,37 @@ WidgetsDateTimeWidget {
    padding: 6px;
 }
 
-WPSCImportExportReportBar QPushButton#btnImport
-{
-    image: url(":/qss_icons/rc/file-upload-outline.svg");
-    background: transparent;
-    border-radius: 4px;
+QPushButton { /* Action */
+    border: none;
+    border-radius: 6px;
+    min-height: 18px;
+    font-weight: bold;
+    padding: 5px 10px 5px 10px;
+    outline: none;
+    font-size: 12px;
+}
+
+QPushButton:checked {
+    outline: none;
+}
+
+QPushButton:checked:disabled {
+    outline: none;
+}
+
+QPushButton::menu-indicator {
+    subcontrol-origin: padding;
+    subcontrol-position: bottom right;
+    bottom: 4px;
+}
+
+QPushButton[a_control="1"]{  /* Icon */
     qproperty-text: "";
     min-width: 18px;
     min-height: 18px;
     max-width: 18px;
     max-height: 18px;
-}
-
-WPSCImportExportReportBar QPushButton#btnExport
-{
-    image: url(":/qss_icons/rc/file-download-outline.svg");
     background: transparent;
-    border-radius: 4px;
-    qproperty-text: "";
-    min-width: 18px;
-    min-height: 18px;
-    max-width: 18px;
-    max-height: 18px;
-}
-
-WPSCImportExportReportBar QPushButton#btnReport
-{
-    image: url(":/qss_icons/rc/file-chart-outline.svg");
-    background: transparent;
-    border-radius: 4px;
-    qproperty-text: "";
-    min-width: 18px;
-    min-height: 18px;
-    max-width: 18px;
-    max-height: 18px;
-}
-
-WPSCImportExportReportBar QPushButton#btnImport:hover
-{
-    image: url(":/qss_icons/rc/file-upload.svg");
-    background: #1976D2;
-}
-
-WPSCImportExportReportBar QPushButton#btnExport:hover
-{
-    image: url(":/qss_icons/rc/file-download.svg");
-    background: #1976D2;
-}
-
-WPSCImportExportReportBar QPushButton#btnReport:hover
-{
-    image: url(":/qss_icons/rc/file-chart.svg");
-    background: #1976D2;
-}
-
-WPSCImportExportReportBar QPushButton#btnImport::disabled
-{
-    image: url(":/qss_icons/rc/file-upload-outline-disable.svg");
-}
-
-WPSCImportExportReportBar QPushButton#btnExport::disabled
-{
-    image: url(":/qss_icons/rc/file-download-outline-disable.svg");
-}
-
-WPSCImportExportReportBar QPushButton#btnReport::disabled
-{
-    image: url(":/qss_icons/rc/file-chart-outline-disable.svg");
 }
 
 WidgetsDatetimePopupPicker QPushButton#CalendarButton

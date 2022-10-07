@@ -242,5 +242,11 @@
         <file>rc/ads/detach-button.svg</file>
         <file>rc/ads/tabs-menu-button.svg</file>
         <file>rc/chevron-up.svg</file>
+        <file>rc/editor.svg</file>
+        <file>rc/orderdown.svg</file>
+        <file>rc/orderup.svg</file>
+        <file>rc/plus.svg</file>
+        <file>rc/rooms.svg</file>
+        <file>rc/burger.svg</file>
     </qresource>
 </RCC>

@@ -17,12 +17,27 @@ struct WidgetWrapperInjectedCommutatorData
 
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
-#define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType, type) \
+#define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
+    const WrapperType& SetChecked(bool checked) const { return setChecked<WrapperType>(checked); }
+#define DECLARE_WIDGET_WRAPPER_ADD_TEXT(WrapperType) \
+    template<typename ... Dispatchers> \
+    const WrapperType& SetText(const FTranslationHandler& handler, Dispatchers&... dispatchers) const { return setText<WrapperType>(handler, dispatchers...); }
+#define DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WrapperType) \
+    const WrapperType& SetOnClicked(const FAction& action) const { return setOnClicked<WrapperType>(action); }
+
+#define DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(WrapperType, type) \
     const WrapperType& Make(const std::function<void (const WrapperType&)>& handler) const { return make<WrapperType>(handler); } \
     type* GetWidget() const { return reinterpret_cast<type*>(m_object); } \
     type* operator->() const { return reinterpret_cast<type*>(m_object); } \
     operator type*() const { return reinterpret_cast<type*>(m_object); } \
     using expected_type = type;
+#define DECLARE_WIDGET_WRAPPER_FUNCTIONS(WrapperType, type) \
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(WrapperType, type) \
+    const WrapperType& SetVisible(bool visible) const { return setVisible<WrapperType>(visible); } \
+    const WrapperType& SetEnabled(bool enabled) const { return setEnabled<WrapperType>(enabled); } \
+    const WrapperType& SetHighlighted(bool highlighted) const { return setHighlighted<WrapperType>(highlighted); } \
+    template<typename ... Dispatchers> \
+    const WrapperType& SetToolTip(const FTranslationHandler& handler, Dispatchers&... dispatchers) const { return setToolTip<WrapperType>(handler, dispatchers...); }
 
 class ObjectWrapper
 {
@@ -163,21 +178,76 @@ protected:
         }
         return result;
     }
+
+    template<typename T>
+    const T& setChecked(bool checked) const { reinterpret_cast<const T*>(this)->WidgetChecked() = checked; return *(T*)this; }
+    template<typename T, typename ... Dispatchers>
+    const T& setText(const FTranslationHandler& handler, Dispatchers&... dispatchers) const
+    {
+        reinterpret_cast<const T*>(this)->WidgetText()->SetTranslationHandler(handler, dispatchers...);
+        return *(T*)this;
+    }
+    template<typename T>
+    const T& setOnClicked(const FAction& handler) const
+    {
+        auto connections = DispatcherConnectionsSafeCreate();
+        reinterpret_cast<const T*>(this)->OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [connections, handler]{ handler(); }).MakeSafe(*connections);
+        return *(T*)this;
+    }
+    template<typename T>
+    const T& setVisible(bool visible) const
+    {
+        WidgetVisibility() = visible;
+        return *(T*)this;
+    }
+    template<typename T>
+    const T& setEnabled(bool visible) const
+    {
+        WidgetEnablity() = visible;
+        return *(T*)this;
+    }
+    template<typename T>
+    const T& setHighlighted(bool visible) const
+    {
+        WidgetHighlighted() = visible;
+        return *(T*)this;
+    }
+    template<typename T, typename ... Dispatchers>
+    const T& setToolTip(const FTranslationHandler& handler, Dispatchers&... dispatchers) const
+    {
+        WidgetToolTip()->SetTranslationHandler(handler, dispatchers...);
+        return *(T*)this;
+    }
+};
+
+enum class ButtonRole
+{
+    Action,
+    Icon = 1,
+    Save,
+    Reset,
+    Cancel,
+    AddIcon,
+    Add
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
-public:
+public:    
     WidgetPushButtonWrapper(class QPushButton* pushButton);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
+    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetPushButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WidgetPushButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetPushButtonWrapper)
+
+    const WidgetPushButtonWrapper& SetControl(ButtonRole i = ButtonRole::Icon, bool update = false) const;
 
     LocalPropertyBool& WidgetChecked() const;
-    const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
-
-    Dispatcher& OnClicked() const;
     TranslatedStringPtr WidgetText() const;
+    Dispatcher& OnClicked() const;
+    const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
 };
 
 class WidgetLineEditWrapper : public WidgetWrapper
@@ -196,6 +266,9 @@ class WidgetCheckBoxWrapper : public WidgetWrapper
     using Super = WidgetWrapper;
 public:
     WidgetCheckBoxWrapper(class QCheckBox* target);
+
+    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetCheckBoxWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetCheckBoxWrapper)
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetCheckBoxWrapper, QCheckBox)
     LocalPropertyBool& WidgetChecked() const;
@@ -272,6 +345,7 @@ public:
     WidgetLabelWrapper(class QLabel* label);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLabelWrapper, QLabel)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetLabelWrapper)
 
     TranslatedStringPtr WidgetText() const;
 
@@ -302,15 +376,18 @@ class ActionWrapper : public ObjectWrapper
 public:
     ActionWrapper(QAction* action);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(ActionWrapper, QAction);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ActionWrapper, QAction);
     const ActionWrapper& SetShortcut(const QKeySequence& keySequence) const;
     const ActionWrapper& SetText(const QString& text) const;
+    const ActionWrapper& SetIcon(const Name& iconName) const;
+
+    Dispatcher& OnClicked() const;
 
     QAction* GetAction() const { return GetWidget(); }
 
-    LocalPropertyBool& ActionVisibility() const;
-    LocalPropertyBool& ActionEnablity() const;
-    TranslatedStringPtr ActionText() const;
+    LocalPropertyBool& WidgetVisibility() const;
+    LocalPropertyBool& WidgetEnablity() const;
+    TranslatedStringPtr WidgetText() const;
 };
 
 class WidgetSplitterWrapper : public WidgetWrapper
@@ -453,7 +530,7 @@ public:
 
     QAbstractItemModel* GetViewModel() const { return GetWidget(); }
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(ViewModelWrapper, QAbstractItemModel);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ViewModelWrapper, QAbstractItemModel);
 
     const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function) const;
     const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function) const { return ForeachModelIndex(QModelIndex(), function); }

@@ -40,7 +40,7 @@
      <item>
       <widget class="QPushButton" name="btnNow">
        <property name="text">
-        <string>Open Date</string>
+        <string>OPEN DATE</string>
        </property>
       </widget>
      </item>
@@ -60,7 +60,7 @@
      <item>
       <widget class="QPushButton" name="btnApply">
        <property name="text">
-        <string>Apply</string>
+        <string>SAVE</string>
        </property>
       </widget>
      </item>

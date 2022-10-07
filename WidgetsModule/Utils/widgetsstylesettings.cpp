@@ -19,7 +19,9 @@ WidgetsStyleSettings::WidgetsStyleSettings()
     styleSettings.EnabledTableCellTextColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_enabledTableTextColor);
 
     styleSettings.IconPrimaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_normalColor);
+    styleSettings.IconSecondaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_secondaryColor);
     styleSettings.IconSelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_selectionColor);
+    styleSettings.IconSecondarySelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_secondarySelectionColor);
     styleSettings.ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_shadowColor);
 
     styleSettings.ShowFocusMinFrame.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_showFocusMinFrame);

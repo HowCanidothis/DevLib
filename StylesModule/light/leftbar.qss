@@ -141,6 +141,8 @@ TreeBar QLabel {
 }
 
 WidgetsStyleSettings {
+    qproperty-normalColor: black;
+    qproperty-selectionColor: black;
     qproperty-enabledTableColor: white;
     qproperty-enabledTableTextColor: black;
     qproperty-disabledTableColor: #d4d4d4;

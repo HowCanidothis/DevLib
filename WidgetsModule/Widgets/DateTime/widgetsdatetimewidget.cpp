@@ -63,6 +63,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         ui->widget->Locale = Locale.Native();
     });
 
+    WidgetPushButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
+
     WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 }
 

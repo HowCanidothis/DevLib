@@ -289,6 +289,26 @@ const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetIcon(const Name& icon
     return *this;
 }
 
+Dispatcher& ActionWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QAction::triggered, [result]{ result->Invoke(); });
+        return result;
+    });
+}
+
+const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetControl(ButtonRole i, bool update) const
+{
+    if(update) {
+        StyleUtils::ApplyStyleProperty("a_control", GetWidget(), (qint32)i);
+    } else {
+        GetWidget()->setProperty("a_control", (qint32)i);
+    }
+    return *this;
+}
+
 TranslatedStringPtr WidgetPushButtonWrapper::WidgetText() const
 {
     auto* label = GetWidget();
@@ -1047,7 +1067,13 @@ const ActionWrapper& ActionWrapper::SetText(const QString& text) const
     return *this;
 }
 
-LocalPropertyBool& ActionWrapper::ActionVisibility() const
+const ActionWrapper& ActionWrapper::SetIcon(const Name& iconName) const
+{
+    GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconName));
+    return *this;
+}
+
+LocalPropertyBool& ActionWrapper::WidgetVisibility() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QAction*>(object);
@@ -1055,7 +1081,7 @@ LocalPropertyBool& ActionWrapper::ActionVisibility() const
     }, true);
 }
 
-LocalPropertyBool& ActionWrapper::ActionEnablity() const
+LocalPropertyBool& ActionWrapper::WidgetEnablity() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QAction*>(object);
@@ -1063,7 +1089,7 @@ LocalPropertyBool& ActionWrapper::ActionEnablity() const
     }, true);
 }
 
-TranslatedStringPtr ActionWrapper::ActionText() const
+TranslatedStringPtr ActionWrapper::WidgetText() const
 {
     return GetOrCreateProperty<TranslatedString>("a_text", [](QObject* object, const TranslatedString& text){
         auto* action = reinterpret_cast<QAction*>(object);

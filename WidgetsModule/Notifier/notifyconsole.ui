@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
+    <width>662</width>
     <height>229</height>
    </rect>
   </property>
@@ -144,7 +144,7 @@
         <string>Clear Resolved</string>
        </property>
        <property name="text">
-        <string>Clear Resolved</string>
+        <string>CLEAR RESOLVED</string>
        </property>
       </widget>
      </item>
@@ -154,7 +154,7 @@
         <string>Hide Notifications Pane</string>
        </property>
        <property name="text">
-        <string>Close</string>
+        <string>CLOSE</string>
        </property>
       </widget>
      </item>

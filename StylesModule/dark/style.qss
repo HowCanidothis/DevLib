@@ -308,7 +308,7 @@ QLabel:disabled {
   color: #787878;
 }
 
-QPushButton {
+/*QPushButton {
   background-color: #1976D2;
   color: white;
 }
@@ -351,7 +351,7 @@ QPushButton:selected {
 QPushButton:hover {
   color: #F0F0F0;
   background: #189EF7;
-}
+}*/
 
 QToolButton {
   background-color: transparent;
@@ -916,4 +916,64 @@ QPushButton#btnDrawerVertical
 
 QPushButton#btnDrawerVertical:hover{
     border-color: white;
+}
+
+QPushButton { /* Action */
+    color: #3EA6FF;
+    background: transparent;
+}
+
+QPushButton:hover{
+    color: #3EA6FF;
+    background: #3C3C3C;
+}
+
+QPushButton[a_control="1"]:hover{ /* Icon */
+    background: #3C3C3C;
+}
+
+QPushButton[a_control="2"]{  /* Save */
+    color: #707070;
+    background: #373737;
+}
+
+QPushButton[a_control="2"]:hover{
+    color: white;
+    background: #3EA6FF;
+}
+
+QPushButton[a_control="3"]{  /* Reset */
+    color: white;
+    background: #FF5252;
+}
+
+QPushButton[a_control="3"]:hover{
+    background: #FF6060;
+}
+
+QPushButton[a_control="4"]{  /* Cancel */
+    color: white;
+    background: transparent;
+}
+
+QPushButton[a_control="4"]:hover{
+    background: #353535;
+}
+
+QPushButton[a_control="5"]{  /* AddIcon */
+    color: white;
+    background: transparent;
+}
+
+QPushButton[a_control="5"]:hover{
+    background: #3C3C3C;
+}
+
+QPushButton[a_control="6"]{  /* Add */
+    color: #3EA6FF;
+    background: transparent;
+}
+
+QPushButton[a_control="6"]:hover{
+    background: #3C3C3C;
 }

@@ -29,7 +29,7 @@ void TopNotifierFrame::SetText(const FTranslationHandler& text)
     adjustSize();
 }
 
-void TopNotifierFrame::SetActionText(const FTranslationHandler& text)
+void TopNotifierFrame::SetWidgetText(const FTranslationHandler& text)
 {
     WidgetPushButtonWrapper(ui->BtnAction).WidgetText()->SetTranslationHandler(text);
     ui->BtnAction->setVisible(!text().isEmpty());

@@ -9,7 +9,8 @@ class WidgetsStyleSettings : public QWidget
     using Super = QWidget;
 
     Q_PROPERTY(QColor normalColor MEMBER m_normalColor)
-    Q_PROPERTY(QColor selectionColor MEMBER m_selectionColor)
+    Q_PROPERTY(QColor secondaryColor MEMBER m_secondaryColor)
+    Q_PROPERTY(QColor secondarySelectionColor MEMBER m_secondarySelectionColor)
     Q_PROPERTY(QColor shadowColor MEMBER m_shadowColor)
     Q_PROPERTY(qint32 shadowBlurRadius MEMBER m_shadowBlurRadius)
 
@@ -29,7 +30,9 @@ private:
     LocalPropertyColor m_disabledTableColor;
     LocalPropertyColor m_disabledTableTextColor;
 
+    LocalPropertyColor m_secondarySelectionColor;
     LocalPropertyColor m_normalColor;
+    LocalPropertyColor m_secondaryColor;
     LocalPropertyColor m_selectionColor;
     LocalPropertyColor m_shadowColor;
     LocalPropertyInt m_shadowBlurRadius;

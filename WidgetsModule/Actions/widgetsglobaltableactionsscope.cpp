@@ -87,8 +87,8 @@ WidgetsGlobalTableActionsScope::WidgetsGlobalTableActionsScope()
         m_currentHandlersConnections.clear();
 
         auto offAction = [](QAction* action) {
-            ActionWrapper(action).ActionVisibility() = false;
-            ActionWrapper(action).ActionEnablity() = false;
+            ActionWrapper(action).WidgetVisibility() = false;
+            ActionWrapper(action).WidgetEnablity() = false;
         };
 
         if(m_currentHandlers == nullptr) {
@@ -165,11 +165,11 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
         ActionWrapper(action).Injected<FConnector>("a_connector", [this, action]() -> FConnector* {
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
                 auto& hasSelection = WidgetsActiveTableViewAttachment::GetInstance()->SelectedRowsCount;
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [handler]{
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [handler]{
                     return WidgetsActiveTableViewAttachment::GetInstance()->SelectedRowsCount == 1 && handler.Enablity();
                 }, handler.Enablity().OnChanged, hasSelection.OnChanged).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
     case EIM_TableSelectionOnlyOneAndIsEditable:
@@ -177,11 +177,11 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
                 auto& isReadOnly = m_currentHandlers->IsReadOnly;
                 auto& selectedRowsCount = WidgetsActiveTableViewAttachment::GetInstance()->SelectedRowsCount;
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
                     return !m_currentHandlers->IsReadOnly && handler.Enablity() && WidgetsActiveTableViewAttachment::GetInstance()->SelectedRowsCount == 1;
                 }, handler.Enablity().OnChanged, selectedRowsCount.OnChanged, isReadOnly.OnChanged).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
     case EIM_TableHasSelectionAndIsEditable:
@@ -189,41 +189,41 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
                 auto& isReadOnly = m_currentHandlers->IsReadOnly;
                 auto& hasSelection = WidgetsActiveTableViewAttachment::GetInstance()->HasSelection;
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
                     return !m_currentHandlers->IsReadOnly && handler.Enablity() && WidgetsActiveTableViewAttachment::GetInstance()->HasSelection.Native();
                 }, handler.Enablity().OnChanged, hasSelection.OnChanged, isReadOnly.OnChanged).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
     case EIM_TableIsEditable:
         ActionWrapper(action).Injected<FConnector>("a_connector", [this, action]() -> FConnector* {
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
                 auto& hasSelection = m_currentHandlers->IsReadOnly;
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [this, handler]{
                     return !m_currentHandlers->IsReadOnly && handler.Enablity();
                 }, handler.Enablity().OnChanged, hasSelection.OnChanged).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
     case EIM_TableHasSelection:
         ActionWrapper(action).Injected<FConnector>("a_connector", [this, action]() -> FConnector* {
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
                 auto& hasSelection = WidgetsActiveTableViewAttachment::GetInstance()->HasSelection;
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [handler]{
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [handler]{
                     return WidgetsActiveTableViewAttachment::GetInstance()->HasSelection.Native() && handler.Enablity();
                 }, handler.Enablity().OnChanged, hasSelection.OnChanged).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
     default:
         ActionWrapper(action).Injected<FConnector>("a_connector", [this, action]() -> FConnector* {
             return new FConnector([this, action](const WidgetsGlobalTableActionsScopeHandler& handler){
-                ActionWrapper(action).ActionVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Enablity()).MakeSafe(m_currentHandlersConnections);
-                ActionWrapper(action).ActionText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Enablity()).MakeSafe(m_currentHandlersConnections);
+                ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
         break;

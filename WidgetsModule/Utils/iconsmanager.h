@@ -59,6 +59,7 @@ public:
     IconsSvgIcon RegisterIcon(qint32 index, const QString& path);
     IconsSvgIcon RegisterIcon(const Name& id, const QString& path);
     IconsSvgIcon RegisterIconWithDefaultColorScheme(const Name& id, const QString& path);
+    IconsSvgIcon RegisterIconWithSecondaryColorScheme(const Name& id, const QString& path);
     const IconsSvgIcon& GetIcon(qint32 index) const;
     const IconsSvgIcon& GetIcon(const Name& id) const;
 

@@ -310,8 +310,22 @@ IconsSvgIcon IconsManager::RegisterIconWithDefaultColorScheme(const Name& id, co
 
     icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
     icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
-    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
     icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
+
+    return icon;
+}
+
+IconsSvgIcon IconsManager::RegisterIconWithSecondaryColorScheme(const Name& id, const QString& path)
+{
+    auto icon = RegisterIcon(id, path);
+
+    auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
+
+    icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
+    icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
 
     return icon;
 }

@@ -113,6 +113,13 @@ public:
     TranslatedString(const FTranslationHandler& translationHandler = TR_NONE);
     TranslatedString(const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& retranslators);
 
+    template<typename ... Dispatchers>
+    void SetTranslationHandler(const FTranslationHandler& handler, Dispatchers&... dispatchers)
+    {
+        auto connections = DispatcherConnectionsSafeCreate();
+        SetTranslationHandler(TR(handler(), handler, connections));
+        Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, dispatchers...).MakeSafe(*connections);
+    }
     void SetTranslationHandler(const FTranslationHandler& handler);
     DispatcherConnections SetTranslationHandler(const char* connectionInfo, const FTranslationHandler& handler, const QVector<Dispatcher*>& retranslators);
     const FTranslationHandler& GetTranslationHandler() const { return m_translationHandler; }

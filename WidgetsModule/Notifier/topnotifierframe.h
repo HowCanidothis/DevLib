@@ -19,7 +19,7 @@ public:
     ~TopNotifierFrame();
 
     void SetText(const FTranslationHandler& text);
-    void SetActionText(const FTranslationHandler& text);
+    void SetWidgetText(const FTranslationHandler& text);
     void SetAction(const FAction& action);
 
     // QObject interface

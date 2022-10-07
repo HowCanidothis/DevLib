@@ -28,8 +28,8 @@ bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QStri
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(tr("Ok"), QMessageBox::YesRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
+    auto* defaultButton = dialog.addButton(tr("SAVE"), QMessageBox::YesRole);
+    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);
     auto res = dialog.exec();
