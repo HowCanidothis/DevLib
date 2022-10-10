@@ -937,13 +937,13 @@ QPushButton[a_control="1"]::menu-indicator {
 }
 
 QPushButton[a_control="2"]{  /* Save */
-    color: #707070;
-    background: #373737;
+    color: white;
+    background: #3EA6FF;
 }
 
 QPushButton[a_control="2"]:hover{
     color: white;
-    background: #3EA6FF;
+    background: #4DADFF;
 }
 
 QPushButton[a_control="3"]{  /* Reset */
@@ -996,4 +996,9 @@ QPushButton[a_control="7"]:hover{
 
 QPushButton[a_control="7"]:checked{
     border-bottom: 2px solid #3EA6FF;
+}
+
+QPushButton:disabled {
+    color: #6C6C6C;
+    background: #3C3C3C;
 }

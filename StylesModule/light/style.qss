@@ -874,3 +874,88 @@ QPushButton#btnDrawerVertical:hover{
     background: #f3f3f3;
     border-color: #3e3e3e;
 }
+
+QPushButton { /* Action */
+    color: #3EA6FF;
+    background: transparent;
+}
+
+QPushButton:hover{
+    color: #3EA6FF;
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="1"]:hover{ /* Icon */
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="1"]::menu-indicator {
+    width: 0px;
+}
+
+QPushButton[a_control="2"]{  /* Save */
+    color: white;
+    background: #3EA6FF;
+}
+
+QPushButton[a_control="2"]:hover{
+    color: white;
+    background: #4DADFF;
+}
+
+QPushButton[a_control="3"]{  /* Reset */
+    color: white;
+    background: #FF5252;
+}
+
+QPushButton[a_control="3"]:hover{
+    background: #FF6060;
+}
+
+QPushButton[a_control="4"]{  /* Cancel */
+    color: #6F6F6F;
+    background: transparent;
+}
+
+QPushButton[a_control="4"]:hover{
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="5"]{  /* AddIcon */
+    color: #6F6F6F;
+    background: transparent;
+}
+
+QPushButton[a_control="5"]:hover{
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="6"]{  /* Add */
+    color: #3EA6FF;
+    background: transparent;
+}
+
+QPushButton[a_control="6"]:hover{
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="7"]{  /* Tab */
+    border-radius: 0px;
+    color: #3EA6FF;
+    background: transparent;
+    border: none;
+}
+
+QPushButton[a_control="7"]:hover{
+    background: #EEEEEE;
+    border: none;
+}
+
+QPushButton[a_control="7"]:checked{
+    border-bottom: 2px solid #3EA6FF;
+}
+
+QPushButton:disabled {
+    color: #6C6C6C;
+    background: #3C3C3C;
+}

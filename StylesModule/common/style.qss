@@ -1078,6 +1078,10 @@ QPushButton::menu-indicator {
     bottom: 4px;
 }
 
+QPushButton:disabled {
+    outline: none;
+}
+
 QPushButton[a_control="1"]{  /* Icon */
     qproperty-text: "";
     min-width: 18px;
