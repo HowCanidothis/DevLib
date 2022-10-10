@@ -24,6 +24,8 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
         }
         return false;
     });
+
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
 QSize WidgetsAdjustableTableView::minimumSizeHint() const

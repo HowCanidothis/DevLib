@@ -981,3 +981,19 @@ QPushButton[a_control="6"]{  /* Add */
 QPushButton[a_control="6"]:hover{
     background: #3C3C3C;
 }
+
+QPushButton[a_control="7"]{  /* Tab */
+    border-radius: 0px;
+    color: #3EA6FF;
+    background: transparent;
+    border: none;
+}
+
+QPushButton[a_control="7"]:hover{
+    background: #3C3C3C;
+    border: none;
+}
+
+QPushButton[a_control="7"]:checked{
+    border-bottom: 2px solid #3EA6FF;
+}

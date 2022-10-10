@@ -228,7 +228,8 @@ enum class ButtonRole
     Reset,
     Cancel,
     AddIcon,
-    Add
+    Add,
+    Tab
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper

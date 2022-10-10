@@ -196,7 +196,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     qint32 i(0);
     for(auto* button : buttons) {
         button->setCheckable(true);
-        WidgetPushButtonWrapper(button).OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [i, this]{
+        WidgetPushButtonWrapper(button).SetControl(ButtonRole::Tab).OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [i, this]{
             ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[i, this]{
                 m_currentIndex = i;
                 m_propertySetter();
