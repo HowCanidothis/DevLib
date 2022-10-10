@@ -63,7 +63,7 @@ public:
     LocalPropertyColor ShadowColor;
 
     CommonDispatcher<QWidget*> OnDialogCreated;
-    const char* CustomViewPropertyKey = "CustomView";
+    static const char* CustomViewPropertyKey;
 
 private:
     QHash<Name, QWidget*> m_taggedDialog;

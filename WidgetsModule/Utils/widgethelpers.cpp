@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QMenu>
+#include <QSettings>
 #include <QHBoxLayout>
 #include <ActionsModule/internal.hpp>
 
@@ -175,6 +176,11 @@ WidgetDialogWrapper::WidgetDialogWrapper(const Name& id, const std::function<Des
     : Super(WidgetsDialogsManager::GetInstance().GetOrCreateCustomDialog(id, paramsCreator))
 {
 
+}
+
+void WidgetColorDialogWrapper::Show(const DescShowDialogParams& params) const
+{
+    WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
 }
 
 void WidgetDialogWrapper::Show(const DescShowDialogParams& params) const
@@ -1166,16 +1172,41 @@ ActionWrapper MenuWrapper::AddCheckboxAction(const QString& title, bool checked,
     return result;
 }
 
+WidgetColorDialogWrapper::WidgetColorDialogWrapper(class QColorDialog* dialog)
+    : Super(dialog)
+{}
+
+const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() const
+{
+    static const QVector<std::function<void (QPushButton*)>> buttonsDelegates {
+        [](QPushButton* btn) { btn->setText(QObject::tr("PICK SCREEN COLOR")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("ADD TO CUSTOM COLORS")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("APPLY")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("CANCEL")); }
+    };
+    auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
+    ForeachChildWidget([&](const WidgetWrapper& widget) {
+        auto* button = qobject_cast<QPushButton*>(widget);
+        if(button != nullptr && it != e) {
+            (*it)(button);
+            ++it;
+        }
+    });
+    return *this;
+}
+
 ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const
 {
     static QPixmap pixmap(10,10);
     auto colorAction = AddAction(title, [handler, color](QAction* action){
-        QColorDialog dialog(qApp->activeWindow());
-        dialog.setModal(true);
-        WidgetsDialogsManager::GetInstance().OnDialogCreated(&dialog);
-        dialog.setCurrentColor(color);
-        if(dialog.exec() == QDialog::Accepted) {
-            auto result = dialog.currentColor();
+        WidgetColorDialogWrapper dialog(WidgetsDialogsManager::GetInstance().GetOrCreateDialog<QColorDialog>("ColorDialog", []{
+            return WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow()))
+                   .SetDefaultLabels();
+        }, "ColorDialog"));
+        dialog->setCurrentColor(color);
+        dialog.Show(DescShowDialogParams());
+        if(dialog->result() == QDialog::Accepted) {
+            auto result = dialog->currentColor();
             pixmap.fill(result);
             action->setIcon(pixmap);
             handler(result);

@@ -10,6 +10,11 @@
 #include "PropertiesModule/property.h"
 #include "propertiesstyleddelegatelistener.h"
 
+#ifdef WIDGETS_MODULE_LIB
+#include <WidgetsModule/Utils/widgethelpers.h>
+#include <WidgetsModule/Managers/widgetsdialogsmanager.h>
+#endif
+
 PropertiesDelegateFactory::PropertiesDelegateFactory()
 {
 
@@ -42,7 +47,9 @@ QWidget*PropertiesDelegateFactory::CreateEditor(QWidget* parent, const QStyleOpt
         return result;
     }
     case Property::DelegateColor: {
-        QColorDialog* result = new QColorDialog(parent);
+        WidgetColorDialogWrapper result(new QColorDialog(parent));
+        WidgetsDialogsManager::GetInstance().OnDialogCreated(result);
+        result.SetDefaultLabels();
         result->setCurrentColor(index.data().value<QColor>());
         result->setOption(QColorDialog::ShowAlphaChannel);
         return result;

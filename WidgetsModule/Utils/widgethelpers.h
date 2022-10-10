@@ -431,6 +431,18 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSpinBoxWrapper, QSpinBox);
 };
 
+class WidgetColorDialogWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetColorDialogWrapper(class QColorDialog* dialog);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetColorDialogWrapper, QColorDialog)
+
+    const WidgetColorDialogWrapper& SetDefaultLabels() const;
+    void Show(const DescShowDialogParams& params) const;
+};
+
 class WidgetDialogWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;

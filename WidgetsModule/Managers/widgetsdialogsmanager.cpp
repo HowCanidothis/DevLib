@@ -17,6 +17,8 @@
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
+const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
+
 WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
 {
@@ -52,7 +54,7 @@ QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const s
 {
     return GetOrCreateDialog<QDialog>(tag, [this, paramsCreator]{
         auto params = paramsCreator();
-        auto* dialog = new QDialog();
+        auto* dialog = new QDialog(GetParentWindow());
         auto* vlayout = new QVBoxLayout();
         dialog->setLayout(vlayout);
         vlayout->addWidget(params.View);
