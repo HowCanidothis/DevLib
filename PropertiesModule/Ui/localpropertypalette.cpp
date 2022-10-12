@@ -83,6 +83,14 @@ const LocalPropertyPaletteObject& LocalPropertyPalette::FindObject(const Name& o
     return defaultValue;
 }
 
+LocalPropertyPaletteBuilder::LocalPropertyPaletteBuilder(bool)
+{
+    AddColor(LOCALPROPERTY_PALETTE_COLOR, QColor()).
+    AddBool(LOCALPROPERTY_PALETTE_VISIBILITY, true).
+    AddDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH, 4.0).
+    AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 4.0);
+}
+
 LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddDouble(const Name& key, double defaultValue)
 {
     m_result.insert(key, { LocalPropertyPaletteDataData::Double, defaultValue });

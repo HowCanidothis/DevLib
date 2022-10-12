@@ -109,13 +109,7 @@ private:
 struct LocalPropertyPaletteBuilder
 {
     LocalPropertyPaletteBuilder(){}
-    LocalPropertyPaletteBuilder(bool /*defaultPalette*/)
-    {
-        AddColor(LOCALPROPERTY_PALETTE_COLOR, QColor()).
-        AddBool(LOCALPROPERTY_PALETTE_VISIBILITY, true).
-        AddDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH, 2.5).
-        AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 2.5);
-    }
+    LocalPropertyPaletteBuilder(bool /*defaultPalette*/);
 
     LocalPropertyPaletteBuilder& AddDouble(const Name& key, double defaultValue);
     LocalPropertyPaletteBuilder& AddBool(const Name& key, bool defaultValue);
