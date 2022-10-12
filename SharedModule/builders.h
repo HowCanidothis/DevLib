@@ -807,6 +807,15 @@ public:
         return *this;
     }
 
+    FactoryBuilder& Replace(const Key& name, const std::function<void (Context...)>& handler)
+    {
+        Q_ASSERT(Super::contains(name));
+        Super::insert(name, handler);
+        return *this;
+    }
+
+    FactoryBuilder Clone() { return *this; }
+
     bool Process(const Key& name, Context... context) const
     {
         auto foundIt = Super::find(name);

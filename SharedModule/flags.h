@@ -95,7 +95,7 @@ public:
         return _value & flag;
     }
 
-    void Foreach(const std::function<void (ValueType flag)>& handler)
+    void Foreach(const std::function<void (ValueType flag)>& handler) const
     {
         ValueType it = 1;
         while(it != 0) {
