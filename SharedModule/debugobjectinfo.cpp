@@ -8,6 +8,7 @@ void DebugObjectManager::Create(const char* location, void* object, const QStrin
 {
 #ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
+    qDebug() << "Debug object" << name << "is registered by key" << QString::number(size_t(object), 16);
     create(location, object, name, safeConnections);
 #endif
 }
