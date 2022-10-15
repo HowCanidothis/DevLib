@@ -97,7 +97,7 @@ public:
             m_data->CalculatorHandler = calculator;
             m_data->ReleaserHandler = releaser;
             
-            if(m_data->Calculating) {
+            if(m_data->Calculating && !m_latestTask.IsResolved()) {
                 bool resetedInThisThread = false;
                 m_latestTask.Resolve([&resetedInThisThread]{ resetedInThisThread = true; return false; });
                 if(!resetedInThisThread) {
