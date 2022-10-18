@@ -240,7 +240,7 @@ public:
 
         auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            auto& dataValue = getter(const_cast<ValueType>(value));
+            auto dataValue = getter(const_cast<ValueType>(value));
             if(!dataValue.has_value()) {
                 return "-";
             }
@@ -251,7 +251,8 @@ public:
 
             return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
         }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
+            auto dataValue = getter(const_cast<ValueType>(value));
+            return pMeasurement->FromBaseToUnit(dataValue.value());
         });
     }
 
