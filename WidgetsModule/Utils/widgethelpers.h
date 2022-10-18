@@ -259,6 +259,7 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
+    LocalPropertyBool& WidgetReadOnly() const;
 private:
 };
 

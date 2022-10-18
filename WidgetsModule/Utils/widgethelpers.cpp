@@ -123,6 +123,15 @@ const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() co
     return *this;
 }
 
+LocalPropertyBool& WidgetLineEditWrapper::WidgetReadOnly() const
+{
+    return *GetOrCreateProperty<LocalPropertyBool>("a_readonly", [](QObject* object, const LocalPropertyBool& readOnly){
+        auto* line = reinterpret_cast<QLineEdit*>(object);
+        line->setReadOnly(readOnly);
+        StyleUtils::UpdateStyle(line);
+    }, GetWidget()->isReadOnly());
+}
+
 void WidgetsObserver::EnableAutoCollapsibleGroupboxes()
 {
     OnAdded += { this, [](QWidget* widget){
