@@ -232,6 +232,29 @@ public:
         });
     }
 
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter)
+    {
+        Q_ASSERT(m_currentMeasurement != nullptr);
+        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
+        m_currentMeasurementColumns.InsertSortedUnique(column);
+
+        auto pMeasurement = m_currentMeasurement;
+        return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+            auto& dataValue = getter(const_cast<ValueType>(value));
+            if(!dataValue.has_value()) {
+                return "-";
+            }
+            const auto& concreteValue = dataValue.value();
+            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
+                return "-";
+            }
+
+            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+        }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
+            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
+        });
+    }
+
     TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
