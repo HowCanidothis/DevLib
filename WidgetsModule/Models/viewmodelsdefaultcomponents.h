@@ -232,7 +232,7 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculableOpt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
