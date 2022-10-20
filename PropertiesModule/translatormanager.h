@@ -143,4 +143,5 @@ Q_DECLARE_METATYPE(SharedPointer<TranslatedString>)
 #define TRANSLATED_PTR_1(handler, ...) \
     ::make_shared<TranslatedString>([__VA_ARGS__]{ return handler; })
 
+#define TRS(handler, ...) TRANSLATED_PTR_1(handler, __VA_ARGS__)
 #endif // TRANSLATORMANAGER_H
