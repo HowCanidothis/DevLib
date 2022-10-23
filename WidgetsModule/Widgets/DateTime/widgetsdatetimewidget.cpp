@@ -73,20 +73,22 @@ WidgetsDateTimeWidget::~WidgetsDateTimeWidget()
     delete ui;
 }
 
-void WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive)
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive)
 {
+    DispatcherConnections ret;
     if(reactive) {
-        modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
+        ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
                                   [](const QDateTime& time){ return time; },
-                                  [](const QDateTime& time){ return time; }).MakeSafe(m_connections);
+                                  [](const QDateTime& time){ return time; });
     } else {
         CurrentDateTime = modelProperty->Native();
         OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
             *modelProperty = CurrentDateTime.Native();
         });
     }
-    modelProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+    ret += modelProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
-    }).MakeSafe(m_connections);
+    });
     CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
+    return ret;
 }

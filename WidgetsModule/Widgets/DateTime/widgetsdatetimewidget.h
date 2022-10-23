@@ -16,7 +16,7 @@ public:
     explicit WidgetsDateTimeWidget(QWidget *parent = nullptr);
     ~WidgetsDateTimeWidget() override;
 	
-    void ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive = true);
+    DispatcherConnections ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive = true);
 
     LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;
@@ -27,7 +27,6 @@ public:
 	
 private:
     Ui::WidgetsDateTimeWidget *ui;
-	DispatcherConnectionsSafe m_connections;
 };
 
 #endif // WIDGETSDATETIMEWIDGET_H
