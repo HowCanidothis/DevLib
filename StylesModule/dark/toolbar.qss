@@ -11,6 +11,15 @@ QPushButton#PropertiesToolBarButton:hover {
     background: #3C3C3C;
 }
 
+QPushButton#PropertiesToolBarDeleteButton {
+    image: url(":/qss_icons/rc/delete.svg");
+    padding: 10px 0px 10px 0px;
+}
+
+QPushButton#PropertiesToolBarDeleteButton:hover {
+    image: url(":/qss_icons/rc/delete-hover.svg");
+}
+
 WidgetsFloatingToolBar {
     border: none;
     qproperty-direction: 1;

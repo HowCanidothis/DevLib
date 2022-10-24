@@ -11,3 +11,14 @@ QPushButton#PropertiesToolBarButton:hover {
     background: #1976D2;
     color: white;
 }
+
+QPushButton#PropertiesToolBarDeleteButton {
+    image: url(":/qss_icons/rc/delete-light.svg");;
+    background: #F3F3F3;
+    padding: 10px 0px 10px 0px;
+}
+
+QPushButton#PropertiesToolBarDeleteButton:hover {
+    image: url(":/qss_icons/rc/delete-hover.svg");
+    background: #1976D2;
+}

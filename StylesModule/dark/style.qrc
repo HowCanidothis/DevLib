@@ -233,6 +233,9 @@
         <file>rc/chart-line.svg</file>
         <file>rc/table-large.svg</file>
         <file>rc/chevron-up.svg</file>
+        <file>rc/delete.svg</file>
+        <file>rc/delete-hover.svg</file>
+        <file>rc/delete-light.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>
