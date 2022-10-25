@@ -208,7 +208,7 @@ public:
             *this = thisEvaluator();
         };
         for(auto* dispatcher : dispatchers) {
-            result += dispatcher->Connect(locationInfo, thisEvaluator);
+            result += dispatcher->Connect(locationInfo, onChange);
         }
         return result;
     }
@@ -1044,6 +1044,48 @@ struct LocalPropertyOptional
         connections += Value.ConnectFrom(locationInfo, another.Value);
         connections += IsValid.ConnectFrom(locationInfo, another.IsValid);
         return connections;
+    }
+
+    template<typename ... Args, typename Function>
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, Args... args)
+    {
+
+        static auto dispatcherExtractor([](QVector<Dispatcher*>& dispatchers, Property& property){
+            dispatchers.append(&property.OnChanged);
+        });
+        QVector<Dispatcher*> valuesDispatchers;
+        (dispatcherExtractor(valuesDispatchers, args->Value), ...);
+
+        auto connections = DispatcherConnectionsSafeCreate();
+        auto result = IsValid.ConnectAndCall(locationInfo, [=](bool isValid){
+            connections->clear();
+            if(isValid) {
+                Value.ConnectFromDispatchers(locationInfo, [=]()->double {
+                    return handler(args->Value.Native()...);
+                }, valuesDispatchers).MakeSafe(*connections);
+            }
+        });
+
+        static auto boolExtractor([](QVector<LocalPropertyBool*>& validators, LocalPropertyBool& property){
+            validators.append(&property);
+        });
+        QVector<LocalPropertyBool*> validators;
+        (boolExtractor(validators, args->IsValid), ...);
+
+        QVector<Dispatcher*> validatorDispatchers;
+        for(const auto* valid : validators){
+            validatorDispatchers.append(&valid->OnChanged);
+        }
+        result += IsValid.ConnectFromDispatchers(locationInfo, [validators]{
+            for(const auto* valid : validators){
+                if(!valid->Native()){
+                    return false;
+                }
+            }
+            return true;
+        }, validatorDispatchers);
+
+        return result;
     }
 
     LocalPropertyOptional& operator=(const value_type& value) { Value = value; IsValid = true; return *this; }
