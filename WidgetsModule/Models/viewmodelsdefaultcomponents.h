@@ -304,15 +304,26 @@ public:
 
         auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            auto concreteValue = getter(const_cast<ValueType>(value)).Native();
+            const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
                 return "-";
             }
             return QString::number(pMeasurement->FromBaseToUnit(concreteValue.Value), 'f', pMeasurement->CurrentPrecision);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{ getter(value) = pMeasurement->FromUnitToBase(data.toDouble()); };
+            return [&]{
+                bool isDouble; auto dval = data.toDouble(&isDouble);
+                if(isDouble){
+                    getter(value).Value = pMeasurement->FromUnitToBase(dval);
+                } else {
+                    getter(value).IsValid = false;
+                }
+            };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
+            const auto& concreteValue = getter(const_cast<ValueType>(value));
+            if(concreteValue.IsValid){
+                return QVariant();
+            }
+            return pMeasurement->FromBaseToUnit(concreteValue.Value);
         });
     }
 
