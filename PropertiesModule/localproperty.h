@@ -22,6 +22,7 @@ struct LocalPropertyDescInitializationParams
 
     LocalPropertyDescInitializationParams& SetMin(const value_type& value) { Min = value; return *this; }
     LocalPropertyDescInitializationParams& SetMax(const value_type& value) { Max = value; return *this; }
+    LocalPropertyDescInitializationParams& SetMinMax(const value_type& min, const value_type& max) { Min = min; Max = max; return *this; }
 
     std::optional<value_type> InitialValue;
     std::optional<value_type> Min;
@@ -1088,6 +1089,15 @@ struct LocalPropertyOptional
         return result;
     }
 
+    LocalPropertyOptional& operator=(const std::optional<value_type>& value)
+    {
+        if(value.has_value()) {
+            Value = value.value();
+        } else {
+            IsValid = false;
+        }
+        return *this;
+    }
     LocalPropertyOptional& operator=(const value_type& value) { Value = value; IsValid = true; return *this; }
     void FromVariant(const QVariant& value, const FValidator& handler = [](const value_type& value) { return value; })
     {
@@ -1106,6 +1116,7 @@ struct LocalPropertyOptional
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
 using LocalPropertyIntOptional = LocalPropertyOptional<LocalPropertyInt>;
 using LocalPropertyStringOptional = LocalPropertyOptional<LocalPropertyString>;
+using LocalPropertyDateOptional = LocalPropertyOptional<LocalPropertyDate>;
 
 template<class Property>
 class LocalPropertyPreviousValue

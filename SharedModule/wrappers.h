@@ -6,6 +6,7 @@ class ContainerWrapper
 {
 public:
     using value_type = T;
+    using container_type = Container;
     using const_iterator = typename Container::const_iterator;
     using iterator = typename Container::iterator;
     using FIdGetter = std::function<const ComparisonTarget& (const value_type&)>;

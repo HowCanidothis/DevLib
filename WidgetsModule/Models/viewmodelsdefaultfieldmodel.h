@@ -11,7 +11,7 @@ class ViewModelsDefaultFieldModel : public QAbstractListModel
 public:
     ViewModelsDefaultFieldModel(QObject* parent);
 
-    void SetDefaultFieldLabel(const QString& label);
+    void SetDefaultFieldLabel(const FTranslationHandler& label);
     void SetSourceModel(QAbstractItemModel* model);
 
     // QAbstractItemModel interface
@@ -20,7 +20,7 @@ public:
     int rowCount(const QModelIndex& index = QModelIndex()) const override;
 
 private:
-    QString m_label;
+    FTranslationHandler m_label;
     QAbstractItemModel* m_sourceModel;
     QtLambdaConnections m_connections;
 };

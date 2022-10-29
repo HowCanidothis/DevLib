@@ -28,6 +28,11 @@ QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
     return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
 }
 
+QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const
+{
+    return Super::validate(input, pos);
+}
+
 void WidgetsDateTimeEdit::Resize()
 {
     m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{

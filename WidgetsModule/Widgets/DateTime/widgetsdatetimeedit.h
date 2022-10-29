@@ -21,7 +21,7 @@ public:
 
     QDateTime dateTimeFromText(const QString &text) const override;
     QString textFromDateTime(const QDateTime &dt) const override;
-    QValidator::State validate(QString&, int&) const override { return QValidator::Acceptable; }
+    QValidator::State validate(QString&, int&) const override;
 
 protected:
     WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent);

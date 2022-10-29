@@ -558,6 +558,18 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QS
     return *this;
 }
 
+bool WidgetComboboxWrapper::SetCurrentData(const QVariant& value, Qt::ItemDataRole role) const
+{
+    auto indexOf = ViewModelWrapper(GetWidget()->model()).IndexOf([&](const QModelIndex& index){
+        return index.data(role) == value;
+    });
+    if(indexOf != -1) {
+        GetWidget()->setCurrentIndex(indexOf);
+        return true;
+    }
+    return false;
+}
+
 CommonDispatcher<qint32>& WidgetComboboxWrapper::OnActivated() const
 {
     auto* widget = GetWidget();

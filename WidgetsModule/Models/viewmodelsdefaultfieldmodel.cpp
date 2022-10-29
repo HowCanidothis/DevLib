@@ -1,11 +1,11 @@
-#include "ViewModelsDefaultFieldModel.h"
+#include "viewmodelsdefaultfieldmodel.h"
 
 ViewModelsDefaultFieldModel::ViewModelsDefaultFieldModel(QObject* parent)
     : Super(parent)
     , m_sourceModel(nullptr)
 {}
 
-void ViewModelsDefaultFieldModel::SetDefaultFieldLabel(const QString& label)
+void ViewModelsDefaultFieldModel::SetDefaultFieldLabel(const FTranslationHandler& label)
 {
     m_label = label;
 }
@@ -61,7 +61,7 @@ QVariant ViewModelsDefaultFieldModel::data(const QModelIndex& index, int role) c
     
     if(index.row() == 0) {
         if(role == Qt::DisplayRole) {
-            return m_label;
+            return m_label();
         }
         return QVariant();
     }

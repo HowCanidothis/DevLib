@@ -110,6 +110,7 @@ defineTest(setBuildDirectory) {
 }
 
 defineTest(makeDeploy) {
+    ignoreQt = $$1
     for(FILE,DEPLOY_FILES){
         QMAKE_POST_LINK +=$$quote($(COPY_DIR) $$system_path($${FILE}) $$system_path($${DESTDIR}) $$escape_expand(\n\t))
     }
@@ -118,7 +119,9 @@ defineTest(makeDeploy) {
         QMAKE_POST_LINK +=$$quote($(COPY_DIR) $$system_path($${DIR}) $$system_path($${DESTDIR}/$$basename(DIR)) $$escape_expand(\n\t))
     }
 
-    DEPLOY_COMMAND = $$shell_quote($$system_path($$[QT_INSTALL_BINS]/windeployqt))
+    if(!$$ignoreQt) {
+        DEPLOY_COMMAND = $$shell_quote($$system_path($$[QT_INSTALL_BINS]/windeployqt))
+    }
     DEPLOY_ARG += $$shell_quote($$system_path($$DESTDIR/$$TARGET.exe)) $$EOL
 
     QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_ARG}
