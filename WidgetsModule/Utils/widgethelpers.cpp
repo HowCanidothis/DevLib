@@ -31,6 +31,7 @@
 
 #include <ActionsModule/internal.hpp>
 
+#include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
 #include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 #include "WidgetsModule/Managers/widgetsfocusmanager.h"
@@ -1438,6 +1439,16 @@ qint32 ViewModelWrapper::IndexOf(const FIterationHandler& handler) const
         return false;
     });
     return result;
+}
+
+ViewModelsDefaultFieldModel* ViewModelWrapper::CreateDefaultFieldModel(const FTranslationHandler& field) const
+{
+    static const auto defaultField = TR(tr("None"));
+    auto resField = field == nullptr ? defaultField : field;
+    auto* model = new ViewModelsDefaultFieldModel(GetViewModel());
+    model->SetSourceModel(GetViewModel());
+    model->SetDefaultFieldLabel(resField);
+    return model;
 }
 
 Dispatcher& ViewModelWrapper::OnReset() const

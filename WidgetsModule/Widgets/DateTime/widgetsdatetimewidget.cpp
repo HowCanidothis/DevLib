@@ -64,13 +64,37 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     });
 
     WidgetPushButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
-
+    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, Mode, [](qint32 mode){
+        return mode == DateTime;
+    });
     WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 }
 
 WidgetsDateTimeWidget::~WidgetsDateTimeWidget()
 {
     delete ui;
+}
+
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* modelProperty, bool reactive)
+{
+    DispatcherConnections ret;
+    if(reactive) {
+        ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
+                                  [](const QDate& time){ return QDateTime(time, QTime()); },
+                                  [](const QDateTime& time){ return time.date(); });
+    } else {
+        ret += CurrentDateTime.ConnectFrom(CONNECTION_DEBUG_LOCATION, *modelProperty, [](const QDate& time){ return QDateTime(time, QTime()); });
+        ret += OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
+            *modelProperty = CurrentDateTime.Native().date();
+        });
+        ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+            CurrentDateTime = QDateTime(*modelProperty, QTime());
+        });
+    }
+    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+        CurrentDateTime.SetMinMax(QDateTime(modelProperty->GetMin(), QTime()), QDateTime(modelProperty->GetMax(), QTime()));
+    });
+    return ret;
 }
 
 DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive)
@@ -81,14 +105,16 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime*
                                   [](const QDateTime& time){ return time; },
                                   [](const QDateTime& time){ return time; });
     } else {
-        CurrentDateTime = modelProperty->Native();
-        OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
+        ret += CurrentDateTime.ConnectFrom(CONNECTION_DEBUG_LOCATION, *modelProperty);
+        ret += OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
             *modelProperty = CurrentDateTime.Native();
         });
+        ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+            CurrentDateTime = modelProperty->Native();
+        });
     }
-    ret += modelProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     });
-    CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     return ret;
 }

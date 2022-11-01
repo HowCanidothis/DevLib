@@ -359,6 +359,10 @@ void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
     m_connections.connect(comboBox->model(), &QAbstractItemModel::modelReset, [this]{
         m_widgetSetter();
     });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsInserted,       [this]{ m_widgetSetter(); });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::columnsInserted,    [this]{ m_widgetSetter(); });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsRemoved,        [this]{ m_widgetSetter(); });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::columnsRemoved,     [this]{ m_widgetSetter(); });
 }
 
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox)

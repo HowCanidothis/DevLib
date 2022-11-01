@@ -224,12 +224,13 @@ enum class ButtonRole
 {
     Action,
     Icon = 1,
-    Save,
-    Reset,
-    Cancel,
-    AddIcon,
-    Add,
-    Tab
+    Save = 2,
+    Reset = 3,
+    Cancel = 4,
+    AddIcon = 5,
+    Add = 6,
+    Tab = 7,
+    DateTimePicker = 8
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper
@@ -540,6 +541,7 @@ private:
 class ViewModelWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
+    Q_DECLARE_TR_FUNCTIONS(ViewModelWrapper);
 public:
     using FIterationHandler = std::function<bool (const QModelIndex& index)>; // if returns true then interrupt iterating
     ViewModelWrapper(QAbstractItemModel* model);
@@ -548,6 +550,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ViewModelWrapper, QAbstractItemModel);
 
+    class ViewModelsDefaultFieldModel* CreateDefaultFieldModel(const FTranslationHandler& field = nullptr) const;
     const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function) const;
     const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function) const { return ForeachModelIndex(QModelIndex(), function); }
     qint32 IndexOf(const FIterationHandler& handler) const;

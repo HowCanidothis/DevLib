@@ -1091,23 +1091,17 @@ QPushButton[a_control="1"]{  /* Icon */
     background: transparent;
 }
 
-WidgetsDatetimePopupPicker QPushButton#CalendarButton
+QPushButton[a_control="8"]
 {
-    image: url(":/qss_icons/rc/calendar-month-dark.svg");
     background: transparent;
     qproperty-text: "";
-    min-width: 17px;
-    min-height: 14px;
-    max-width: 17px;
+    min-width: 5px;
+    min-height: 18px;
+    max-width: 5px;
     max-height: 18px;
+    border: none;
+    border-radius: 0px;
 }
-
-WidgetsDatetimePopupPicker QPushButton#CalendarButton:hover
-{
-    image: url(":/qss_icons/rc/calendar-month-dark.svg");
-    background: #1976D2;
-}
-
 
 QPushButton#ResetButton
 {
