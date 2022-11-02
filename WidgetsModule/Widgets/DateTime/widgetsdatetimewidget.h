@@ -21,8 +21,8 @@ public:
     explicit WidgetsDateTimeWidget(QWidget *parent = nullptr);
     ~WidgetsDateTimeWidget() override;
 	
-    DispatcherConnections ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive = true);
-    DispatcherConnections ConnectModel(LocalPropertyDate* modelProperty, bool reactive = true);
+    DispatcherConnections ConnectModel(LocalPropertyDateTime* modelProperty);
+    DispatcherConnections ConnectModel(LocalPropertyDate* modelProperty);
 
     LocalPropertyInt Mode;
     LocalPropertyBool NowEnabled;
@@ -31,6 +31,7 @@ public:
 
 	Dispatcher OnNowActivate;
 	Dispatcher OnApplyActivate;
+    Dispatcher Store;
     Dispatcher Reset;
 	
 private:

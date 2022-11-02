@@ -30,7 +30,6 @@ private:
     WidgetsDateTimeWidget* m_editor;
     DispatcherConnectionsSafe m_connections;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
-    Dispatcher m_onDataReset;
 };
 
 #endif // WIDGETSDATETIMEPOPUPPICKER_H

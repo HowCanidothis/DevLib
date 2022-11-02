@@ -24,18 +24,18 @@ WidgetsDatePopupPicker::WidgetsDatePopupPicker(QWidget *parent) :
     menu->addAction(ac);
     connect(ui->CalendarButton, &QPushButton::clicked, [menu, this](bool){
         menu->setProperty("a_accept", false);
+        m_editor->Store();
         menu->exec(ui->DateEdit->mapToGlobal(ui->DateEdit->geometry().bottomLeft()));
         if(menu->property("a_accept").toBool()) {
             OnDataCommit();
         } else {
-            m_onDataReset();
+            m_editor->Reset();
         }
         OnCloseEditor();
     });
     m_editor->Mode = WidgetsDateTimeWidget::Date;
     m_editor->OnNowActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     m_editor->OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
-    m_editor->Reset.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_onDataReset);
 
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->DateEdit);
     m_editor->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);

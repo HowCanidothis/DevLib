@@ -75,44 +75,38 @@ WidgetsDateTimeWidget::~WidgetsDateTimeWidget()
     delete ui;
 }
 
-DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* modelProperty, bool reactive)
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* modelProperty)
 {
     DispatcherConnections ret;
-    if(reactive) {
-        ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
-                                  [](const QDate& time){ return QDateTime(time, QTime()); },
-                                  [](const QDateTime& time){ return time.date(); });
-    } else {
-        ret += CurrentDateTime.ConnectFrom(CONNECTION_DEBUG_LOCATION, *modelProperty, [](const QDate& time){ return QDateTime(time, QTime()); });
-        ret += OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
-            *modelProperty = CurrentDateTime.Native().date();
-        });
-        ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
-            CurrentDateTime = QDateTime(*modelProperty, QTime());
-        });
-    }
+    auto storedDate = ::make_shared<QDate>();
+    ret += Store.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, storedDate]{
+        *storedDate = *modelProperty;
+    });
+    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
+                              [](const QDate& time){ return QDateTime(time, QTime()); },
+                              [](const QDateTime& time){ return time.date(); });
+    ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, storedDate]{
+        CurrentDateTime = QDateTime(*storedDate, QTime());
+    });
     ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(QDateTime(modelProperty->GetMin(), QTime()), QDateTime(modelProperty->GetMax(), QTime()));
     });
     return ret;
 }
 
-DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty, bool reactive)
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty)
 {
     DispatcherConnections ret;
-    if(reactive) {
-        ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
-                                  [](const QDateTime& time){ return time; },
-                                  [](const QDateTime& time){ return time; });
-    } else {
-        ret += CurrentDateTime.ConnectFrom(CONNECTION_DEBUG_LOCATION, *modelProperty);
-        ret += OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, this]{
-            *modelProperty = CurrentDateTime.Native();
-        });
-        ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
-            CurrentDateTime = modelProperty->Native();
-        });
-    }
+    auto storedDate = ::make_shared<QDateTime>();
+    ret += Store.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, storedDate]{
+        *storedDate = *modelProperty;
+    });
+    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
+                              [](const QDateTime& time){ return time; },
+                              [](const QDateTime& time){ return time; });
+    ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, storedDate]{
+        CurrentDateTime = *storedDate;
+    });
     ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     });
