@@ -77,7 +77,7 @@ public:
 
     ViewModelsTableColumnComponents();
 
-    void AddComponent(Qt::ItemDataRole role, qint32 column, const ColumnComponentData& columnData);
+    void AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
 
     std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
@@ -88,11 +88,11 @@ public:
     qint32 GetColumnCount() const;
 
 private:
-    bool callHandler(qint32 column, Qt::ItemDataRole role, const std::function<void (const QVector<ColumnComponentData>&)>& onFound) const;
+    bool callHandler(qint32 column, qint32 role, const std::function<void (const QVector<ColumnComponentData>&)>& onFound) const;
     bool callFlagsHandler(qint32 column, const std::function<void (const QVector<ColumnFlagsComponentData>& )>& onFound) const;
 
 private:
-    QMap<qint32, QHash<Qt::ItemDataRole, QVector<ColumnComponentData>>> m_columnComponents;
+    QMap<qint32, QHash<qint32, QVector<ColumnComponentData>>> m_columnComponents;
     QMap<qint32, QVector<ColumnFlagsComponentData>> m_columnFlagsComponents;
 };
 

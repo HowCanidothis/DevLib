@@ -10,6 +10,11 @@
 #include "flags.h"
 #include "debugobjectinfo.h"
 
+enum AdditionalStandardRoles {
+    ObjectRole = Qt::UserRole,
+    IdRole
+};
+
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;
 
 using FAction = std::function<void ()>;

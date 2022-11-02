@@ -249,7 +249,7 @@ ViewModelsTableColumnComponents::ViewModelsTableColumnComponents()
 
 }
 
-void ViewModelsTableColumnComponents::AddComponent(Qt::ItemDataRole role, qint32 column, const ColumnComponentData& columnData)
+void ViewModelsTableColumnComponents::AddComponent(qint32 role, qint32 column, const ColumnComponentData& columnData)
 {
     auto foundIt = m_columnComponents.find(column);
     if(foundIt == m_columnComponents.end()) {
@@ -347,7 +347,7 @@ qint32 ViewModelsTableColumnComponents::GetColumnCount() const
     return m_columnComponents.lastKey() + 1;
 }
 
-bool ViewModelsTableColumnComponents::callHandler(qint32 column, Qt::ItemDataRole role, const std::function<void (const QVector<ColumnComponentData> &)> &onFound) const
+bool ViewModelsTableColumnComponents::callHandler(qint32 column, qint32 role, const std::function<void (const QVector<ColumnComponentData> &)> &onFound) const
 {
     auto foundIt = m_columnComponents.find(column);
     if(foundIt != m_columnComponents.end()) {

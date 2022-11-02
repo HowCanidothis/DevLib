@@ -134,7 +134,7 @@ public:
         : LocalPropertiesComboBoxConnector(property, comboBox, (qint32)Enum::First)
     {}
     LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, qint32 offset = 0);
-    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox);
+    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, qint32 role);
     template<class T>
     LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox)

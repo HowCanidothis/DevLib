@@ -488,9 +488,10 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 // NOTE. Model must be case insensitively sorted! Otherwise there'll be undefined completion behavior
 QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column) const
 {
-    GetWidget()->setModel(model);
-    GetWidget()->setEditable(true);
-    auto* completer = new QCompleter(GetWidget());
+    auto* combo = GetWidget();
+    combo->setModel(model);
+    combo->setEditable(true);
+    auto* completer = new QCompleter(combo);
     completer->setCompletionRole(Qt::DisplayRole);
     completer->setCompletionColumn(column);
     completer->setCompletionMode(QCompleter::PopupCompletion);
@@ -501,13 +502,12 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
         completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [onActivated](const QModelIndex& index){
             onActivated(index);
         });
-        auto* combo = GetWidget();
         combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
             onActivated(combo->model()->index(row, 0));
         });
     }
-    GetWidget()->setModelColumn(column);
-    GetWidget()->setCompleter(completer);
+    combo->setModelColumn(column);
+    combo->setCompleter(completer);
     DisconnectModel();
     return completer;
 }
@@ -1308,7 +1308,7 @@ TranslatedStringPtr WidgetLabelWrapper::WidgetText() const
     });
 }
 
-const const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing) const
+const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing) const
 {
     auto* w = GetWidget();
     w->setContextMenuPolicy(Qt::CustomContextMenu);
