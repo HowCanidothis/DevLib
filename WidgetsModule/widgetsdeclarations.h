@@ -214,4 +214,6 @@ inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumn
 
 using WidgetsGlobalTableActionsScopeHandlersPtr = SharedPointer<struct WidgetsGlobalTableActionsScopeHandlers>;
 
+extern const char* ExtraFieldsCountPropertyName;
+
 #endif // WIDGETSDECLARATIONS_H

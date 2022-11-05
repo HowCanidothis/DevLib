@@ -310,7 +310,7 @@ struct DescImportExportTableExport
                     }
                     dataToExport << header;
                 }
-                auto rowCount = model->rowCount() - model->property("ExtraFieldsCount").toInt();
+                auto rowCount = model->rowCount() - model->property(ExtraFieldsCountPropertyName).toInt();
                 RowType data;
                 data.reserve(count);
                 for(int r = 0; r<rowCount; ++r){
@@ -382,7 +382,7 @@ public:
                 auto convertedData = params.Converter(data);
                 auto targetCount = model->rowCount();
                 auto sourceCount = convertedData.size();
-                targetCount -= model->property("ExtraFieldsCount").toInt();
+                targetCount -= model->property(ExtraFieldsCountPropertyName).toInt();
                 if(sourceCount < targetCount){
                     model->removeRows(sourceCount, targetCount - sourceCount);
                 } else if(targetCount < sourceCount){

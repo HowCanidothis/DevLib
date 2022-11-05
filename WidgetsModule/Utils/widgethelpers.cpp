@@ -360,7 +360,7 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
     while(qobject_cast<QSortFilterProxyModel*>(model)) {
         model = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
     }
-    if(model->property("ExtraFieldsCount") == 1) {
+    if(model->property(ExtraFieldsCountPropertyName) == 1) {
         set.remove(model->rowCount() - 1);
     }
 
@@ -1441,11 +1441,11 @@ qint32 ViewModelWrapper::IndexOf(const FIterationHandler& handler) const
     return result;
 }
 
-ViewModelsDefaultFieldModel* ViewModelWrapper::CreateDefaultFieldModel(const FTranslationHandler& field) const
+ViewModelsDefaultFieldModel* ViewModelWrapper::CreateDefaultFieldModel(QObject* parent, const FTranslationHandler& field) const
 {
     static const auto defaultField = TR(tr("None"));
     auto resField = field == nullptr ? defaultField : field;
-    auto* model = new ViewModelsDefaultFieldModel(GetViewModel());
+    auto* model = new ViewModelsDefaultFieldModel(parent);
     model->SetSourceModel(GetViewModel());
     model->SetDefaultFieldLabel(resField);
     return model;

@@ -301,24 +301,52 @@ public:
         , CreateDataHandler ([this](qint32, const QVariant&){ insertRows(rowCount()-1, 1); })
         , IsEditColumn      ([](qint32 column){ return true; })
         , DataHandler       ([](qint32, int ){ return QVariant();})
+        , IsEditable(true)
+        , m_isEditable(true)
     {
-        setProperty("ExtraFieldsCount", 1);
+        setProperty(ExtraFieldsCountPropertyName, 1);
+
+        IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool editable){
+            if(GetData() == nullptr) {
+                m_isEditable = editable;
+                return;
+            }
+            auto rows = Super::rowCount() + 1;
+            if(editable) {
+                beginInsertRows(QModelIndex(), rows, rows);
+                m_isEditable = editable;
+                setProperty(ExtraFieldsCountPropertyName, 1);
+                endInsertRows();
+            } else {
+                beginRemoveRows(QModelIndex(), rows, rows);
+                m_isEditable = editable;
+                setProperty(ExtraFieldsCountPropertyName, 0);
+                endRemoveRows();
+            }
+        });
     }
 
     std::function<void(qint32, const QVariant&)> CreateDataHandler;
     std::function<bool(qint32)> IsEditColumn;
     std::function<QVariant(qint32, int)> DataHandler;
+    LocalPropertyBool IsEditable;
 
-public:
+public:    
     int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
         if(GetData() == nullptr) {
             return 0;
         }
+        if(!m_isEditable) {
+            return Super::rowCount(parent);
+        }
         return Super::rowCount(parent) + 1;
     }
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override
-    {        
+    {
+        if(!m_isEditable) {
+            return Super::data(index, role);
+        }
         if(!index.isValid()){
             return QVariant();
         }
@@ -330,6 +358,10 @@ public:
 
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
     {
+        if(!m_isEditable) {
+            return Super::setData(index, value, role);
+        }
+
         if(!index.isValid()){
             return false;
         }
@@ -341,6 +373,10 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index = QModelIndex()) const override
     {
+        if(!m_isEditable) {
+            return Super::flags(index);
+        }
+
         if(!index.isValid()) {
             return Qt::ItemIsDropEnabled;
         }
@@ -352,6 +388,10 @@ public:
 
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
     {
+        if(!m_isEditable) {
+            return Super::removeRows(row, count, parent);
+        }
+
         if(row + count >= rowCount()){
             count = Super::rowCount() - row;
         }
@@ -363,12 +403,19 @@ public:
 
     bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
     {
+        if(!m_isEditable) {
+            return Super::insertRows(row, count, parent);
+        }
+
         auto existsCount = rowCount();
         if(row >= existsCount){
             row = existsCount - 1;
         }
         return Super::insertRows(row, count, parent);
-    } 
+    }
+
+private:
+    bool m_isEditable;
 };
 
 template<class T>
