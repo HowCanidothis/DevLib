@@ -320,8 +320,8 @@ public:
             };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
-            if(concreteValue.IsValid){
-                return QVariant();
+            if(!concreteValue.IsValid){
+                return 0.0;
             }
             return pMeasurement->FromBaseToUnit(concreteValue.Value);
         });
