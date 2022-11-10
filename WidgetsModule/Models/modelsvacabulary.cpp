@@ -15,6 +15,7 @@ ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
 #ifdef UNITS_MODULE_LIB
     QSet<const Measurement*> measurements;
     for(const auto& value : ::make_const(m_header)) {
+        Q_ASSERT(value.Label != nullptr);
         if(value.Measurement != nullptr) {
             auto* measurement = value.Measurement();
             MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { measurement });
