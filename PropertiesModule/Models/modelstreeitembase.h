@@ -5,6 +5,40 @@
 
 #include <SharedModule/internal.hpp>
 
+template<class T>
+class ModelsTreeBuilder
+{
+public:
+    ModelsTreeBuilder(const SharedPointer<T>& root)
+        : m_root(root)
+    {
+        m_path.append(root.get());
+    }
+
+    template<typename ... Args>
+    ModelsTreeBuilder(Args... args)
+        : m_root(::make_shared<T>(args...))
+    {
+        m_path.append(m_root.get());
+    }
+
+    template<typename ... Args>
+    ModelsTreeBuilder& AddChild(Args... args);
+    template<typename ... Args>
+    ModelsTreeBuilder& Cd(Args... args);
+    ModelsTreeBuilder& Up() { m_path.pop_back(); Q_ASSERT(!m_path.isEmpty()); return *this; }
+    ModelsTreeBuilder& UpToRoot() { m_path.resize(1); return *this; }
+
+    T* GetCurrent() const { return m_path.constLast(); }
+    const SharedPointer<T>& GetRoot() const { return m_root; }
+
+private:
+    friend class ModelsTreeItemBase;
+
+    SharedPointer<T> m_root;
+    QVector<T*> m_path;
+};
+
 class ModelsTreeItemBase
 {
     friend class ModelsTree;
@@ -36,7 +70,7 @@ public:
     bool IsExpanded(size_t key) const;
     void SetExpanded(size_t key, bool flag);
 
-    ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;
+    ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;    
     const SharedPointer<ModelsTreeItemBase>& AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void InsertChilds(qint32 before, qint32 count, const std::function<SharedPointer<ModelsTreeItemBase> ()>& itemCreator);
     const SharedPointer<ModelsTreeItemBase>& InsertChild(qint32 before, const SharedPointer<ModelsTreeItemBase>& item);
@@ -76,6 +110,32 @@ private:
 
 protected:
     virtual void clone(ModelsTreeItemBase* item) const;
+};
+
+template<class T> template<typename ... Args>
+ModelsTreeBuilder<T>& ModelsTreeBuilder<T>::AddChild(Args... args)
+{
+    const auto& child = GetCurrent()->AddChild(::make_shared<T>(args...));
+    return *this;
+}
+
+template<class T> template<typename ... Args>
+ModelsTreeBuilder<T>& ModelsTreeBuilder<T>::Cd(Args... args)
+{
+    const auto& child = GetCurrent()->AddChild(::make_shared<T>(args...));
+    m_path.append((T*)child.get());
+    return *this;
+}
+
+class ModelsStandardTreeItem : public ModelsTreeItemBase // TODO. Need to finish this
+{
+public:
+    ModelsStandardTreeItem(const FTranslationHandler& label = nullptr);
+
+    QString GetLabel() const override;
+
+private:
+    FTranslationHandler m_label;
 };
 
 Q_DECLARE_METATYPE(SharedPointer<ModelsTreeItemBase>)

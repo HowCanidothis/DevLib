@@ -207,3 +207,12 @@ QVector<ModelsTreeItemBase*> ModelsTreeItemBase::GetPath() const
 
     return result;
 }
+
+ModelsStandardTreeItem::ModelsStandardTreeItem(const FTranslationHandler& label)
+    : m_label(label)
+{}
+
+QString ModelsStandardTreeItem::GetLabel() const
+{
+    return m_label == nullptr ? QString() : m_label();
+}

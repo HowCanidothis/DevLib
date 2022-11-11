@@ -285,24 +285,21 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     template<class Enum>
-    const WidgetComboboxWrapper& SetEnum(const std::function<void (QStringList&)>& specialRule = [](QStringList&){}) const
+    const WidgetComboboxWrapper& SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){}) const
     {
-        auto& connections = *Injected<DispatcherConnectionsSafe>("a_items_connections");
-        connections.clear();
-        auto *widget = GetWidget();
-        TranslatorManager::GetInstance().OnLanguageChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, specialRule]{
-            QSignalBlocker blocker(widget);
-            widget->clear();
-            const auto& names = TranslatorManager::GetInstance().GetEnumNames<Enum>();
-            QStringList list;
-            for(const auto& value : adapters::range(names.begin() + (qint32)Enum::First, names.begin() + (qint32)Enum::Last + 1)) {
-                list.append(value);
-            }
-            specialRule(list);
-            widget->addItems(list);
-        }).MakeSafe(connections);
+        auto* viewModel = ViewModelsStandardListModel::CreateEnumViewModel<Enum>(GetWidget(), handler);
+        GetWidget()->setModel(viewModel);
         return *this;
     }
+
+    template<class Enum>
+    const WidgetComboboxWrapper& SetCategorizedEnum(const ViewModelsCategoriesContainer<Enum>& categories) const
+    {
+        auto* viewModel = ViewModelsStandardListModel::CreateCategorizedEnumViewModel<Enum>(GetWidget(), categories);
+        GetWidget()->setModel(viewModel);
+        return *this;
+    }
+
     const WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisconnectModel() const;
@@ -311,6 +308,9 @@ public:
     bool SetCurrentData(const QVariant& value, Qt::ItemDataRole role) const;
 
     CommonDispatcher<qint32>& OnActivated() const;
+
+private:
+    struct DisabledColumnComponentData& disabledColumnComponent() const;
 };
 
 class WidgetGroupboxWrapper : public WidgetWrapper

@@ -14,7 +14,7 @@ class ModelsTree : public ModelsTreeWrapper
 public:
     using value_type = ModelsTreeItemBase*;
 
-    ModelsTree(ModelsTreeItemBase* root = nullptr);
+    ModelsTree(const SharedPointer<ModelsTreeItemBase>& root = SharedPointer<ModelsTreeItemBase>());
 
     void SetRoot(const SharedPointer<ModelsTreeItemBase>& root);
 

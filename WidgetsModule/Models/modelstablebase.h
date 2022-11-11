@@ -72,7 +72,7 @@ public:
 
     struct ColumnFlagsComponentData
     {
-        std::function<Qt::ItemFlags (qint32 row)> GetFlagsHandler = [](qint32) { return Qt::NoItemFlags; };
+        std::function<std::optional<Qt::ItemFlags> (qint32 row)> GetFlagsHandler = [](qint32) { return std::nullopt; };
     };
 
     ViewModelsTableColumnComponents();
@@ -119,6 +119,9 @@ public:
     void AttachDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last);
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
+
+    static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
+    static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
 
     Dispatcher OnModelChanged;
 
@@ -210,8 +213,11 @@ public:
         }
     }
 
-    qint32 rowCount(const QModelIndex&  = QModelIndex()) const override
+    qint32 rowCount(const QModelIndex& index = QModelIndex()) const override
     {
+        if(index.isValid()) {
+            return 0;
+        }
         return GetData() != nullptr ? GetData()->GetSize() : 0;
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
@@ -271,9 +277,6 @@ public:
         OnModelChanged();
     }
     const SharedPointer<T>& GetData() const { return m_data; }
-
-    static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
-    static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
 
 protected:
     bool isLastEditRow(const QModelIndex& index) const

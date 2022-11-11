@@ -34,6 +34,8 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
+    lineEdit()->setPlaceholderText("-");
+
     SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(text.isEmpty()) {
             *valid = false;
@@ -73,7 +75,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
     }
 
     QString inputCopy = input.replace(',', '.');
-    if(input.startsWith("")) {
+    if(input.startsWith("-")) {
         inputCopy = input.mid(1);
     }
 

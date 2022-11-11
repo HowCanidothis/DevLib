@@ -109,9 +109,10 @@ void ModelsTree::Update(const std::function<void ()>& predicate)
     OnUpdated();
 }
 
-ModelsTree::ModelsTree(ModelsTreeItemBase* root)
+ModelsTree::ModelsTree(const SharedPointer<ModelsTreeItemBase>& root)
+    : m_root(root)
 {
-    m_root = root;
+
 }
 
 void ModelsTree::SetRoot(const ModelsTreeItemBasePtr& root)

@@ -4,15 +4,16 @@
 #include <QAbstractListModel>
 
 #include "modelstablebase.h"
+#include "WidgetsModule/widgetsdeclarations.h"
 
 template<class T>
 class TViewModelsListBase : public TViewModelsTableBase<T>
 {
     using Super = TViewModelsTableBase<T>;
-    using ValueExtractor = std::function<QVariant (const SharedPointer<T>&, const QModelIndex&, int)>;
-    using CountExtractor = std::function<qint32 (const SharedPointer<T>&)>;
+    using FValueExtractor = std::function<QVariant (const SharedPointer<T>&, const QModelIndex&, int)>;
+    using FCountExtractor = std::function<qint32 (const SharedPointer<T>&)>;
 public:
-    TViewModelsListBase(QObject* parent, const ValueExtractor& extractor, const CountExtractor& countExtractor)
+    TViewModelsListBase(QObject* parent, const FValueExtractor& extractor, const FCountExtractor& countExtractor)
         : Super(parent)
         , m_extractor(extractor)
         , m_countExtractor(countExtractor)
@@ -23,7 +24,7 @@ public:
         , m_countExtractor([](const SharedPointer<T>&){ return 0; })
     {}
 
-    // QAbstractItemModel interface
+    // QAbstractItemModel interface☺
 public:
     int rowCount(const QModelIndex& index = QModelIndex()) const override
     {
@@ -54,15 +55,15 @@ public:
     }
 
 private:
-    ValueExtractor m_extractor;
-    CountExtractor m_countExtractor;
+    FValueExtractor m_extractor;
+    FCountExtractor m_countExtractor;
 };
 
-class ModelsStandardListModel : public TModelsTableWrapper<QVector<QHash<qint32, QVariant>>>
+class ModelsStandardListModel : public TModelsTableWrapper<ModelsStandardListModelContainer>
 {
-    using Super = TModelsTableWrapper<QVector<QHash<qint32, QVariant>>>;
+    using Super = TModelsTableWrapper<ModelsStandardListModelContainer>;
 public:
-    using container_type = QVector<QHash<qint32, QVariant>>;
+    using container_type = ModelsStandardListModelContainer;
 
     template<class ... Args>
     DispatcherConnection AddTrigger(CommonDispatcher<Args...>* dispatcher, const std::function<void (container_type&)>& handler, const std::function<bool ()>& apply = []{ return true; })
@@ -78,25 +79,64 @@ public:
     }
 
     template<class Enum>
-    void SetEnum(const std::function<void (qint32 i, container_type::value_type&)>& handler = [](container_type&){})
+    void SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){})
     {
+        m_enumConnections.clear();
         AddTrigger(&TranslatorManager::GetInstance().OnLanguageChanged, [handler](container_type& native){
             native.clear();
             auto names = TranslatorManager::GetNames<Enum>();
             for(qint32 i((qint32)Enum::First), e((qint32)Enum::Last); i <= e; i++) {
                 ModelsStandardListModel::value_type data;
-                data.insert(Qt::DisplayRole, names.at(i));
-                data.insert(Qt::EditRole, i);
-                handler(i, data);
+                const auto& label = names.at(i);
+                data.insert(Qt::DisplayRole, label);
+                data.insert(Qt::EditRole, label);
+                data.insert(IdRole, i);
                 native.append(data);
             }
-        });
+            handler(native);
+        }).MakeSafe(m_enumConnections);
     }
+
+    template<class Enum>
+    void SetEnumCategorized(const ViewModelsCategoriesContainer<Enum>& categories)
+    {
+        m_enumConnections.clear();
+        AddTrigger(&TranslatorManager::GetInstance().OnLanguageChanged, [categories](container_type& native){
+            native.clear();
+            const auto& names = TranslatorManager::GetInstance().GetEnumNames<Enum>();
+            QFont bold;
+            bold.setBold(true);
+            for(const auto& category : categories) {
+                if(category.first != nullptr) {
+                    ModelsStandardListModel::value_type categoryData;
+                    categoryData.insert(Qt::DisplayRole, category.first());
+                    categoryData.insert(Qt::FontRole, bold);
+                    categoryData.insert(Qt::BackgroundRole, SharedSettings::GetInstance().StyleSettings.DisabledTableCellColor.Native());
+                    categoryData.insert(Qt::ForegroundRole, SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native());
+                    categoryData.insert(IdRole, -1);
+                    native.append(categoryData);
+                }
+
+                for(const auto& index : category.second) {
+                    ModelsStandardListModel::value_type data;
+                    const auto& label = names.at((qint32)index);
+                    data.insert(Qt::DisplayRole, label);
+                    data.insert(Qt::EditRole, label);
+                    data.insert(IdRole, (qint32)index);
+                    native.append(data);
+                }
+            }
+        }).MakeSafe(m_enumConnections);
+    }
+
+private:
+    DispatcherConnectionsSafe m_enumConnections;
 };
 using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
 
 class ViewModelsStandardListModel : public TViewModelsTableBase<ModelsStandardListModel>
 {
+    Q_OBJECT
     using Super = TViewModelsTableBase<ModelsStandardListModel>;
 public:
     using Super::Super;
@@ -110,17 +150,6 @@ public:
         return GetData()->At(index.row()).value(role, QVariant());
     }
 
-    int rowCount(const QModelIndex& index = QModelIndex()) const override
-    {
-        if(index.isValid()) {
-            return 0;
-        }
-        if(GetData() == nullptr) {
-            return 0;
-        }
-        return GetData()->GetSize();
-    }
-
     int columnCount(const QModelIndex& index = QModelIndex()) const override
     {
         if(index.isValid()) {
@@ -130,11 +159,29 @@ public:
     }
 
     template<class Enum>
-    static ViewModelsStandardListModel* CreateEnumModel(QObject* parent, const std::function<void (qint32, ModelsStandardListModel::value_type&)>& extraFieldsHandler = [](ModelsStandardListModel::container_type&){})
+    static ViewModelsStandardListModel* CreateEnumViewModel(QObject* parent, const std::function<void (ModelsStandardListModelContainer&)>& extraFieldsHandler = [](ModelsStandardListModelContainer&){})
     {
         auto* result = new ViewModelsStandardListModel(parent);
         auto model = ::make_shared<ModelsStandardListModel>();
         model->SetEnum<Enum>(extraFieldsHandler);
+        result->SetData(model);
+        return result;
+    }
+
+    template<class Enum>
+    static ViewModelsStandardListModel* CreateCategorizedEnumViewModel(QObject* parent, const ViewModelsCategoriesContainer<Enum>& categories)
+    {
+        auto* result = new ViewModelsStandardListModel(parent);
+        ViewModelsTableColumnComponents::ColumnFlagsComponentData flagsComponent;
+        flagsComponent.GetFlagsHandler = [result](qint32 row) -> std::optional<Qt::ItemFlags> {
+            if(result->GetData()->At(row).value(IdRole, -1) == -1) {
+                return Qt::ItemIsEnabled;
+            }
+            return std::nullopt;
+        };
+        result->ColumnComponents.AddFlagsComponent(0, flagsComponent);
+        auto model = ::make_shared<ModelsStandardListModel>();
+        model->SetEnumCategorized<Enum>(categories);
         result->SetData(model);
         return result;
     }

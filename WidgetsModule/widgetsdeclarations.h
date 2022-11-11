@@ -213,6 +213,11 @@ inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumn
 }
 
 using WidgetsGlobalTableActionsScopeHandlersPtr = SharedPointer<struct WidgetsGlobalTableActionsScopeHandlers>;
+template<class Enum>
+using ViewModelsCategoriesContainer = QVector<std::pair<FTranslationHandler, QVector<Enum>>>;
+template<class Enum>
+ContainerBuilder<ViewModelsCategoriesContainer<Enum>> ViewModelsCategoriesContainerCreate() { return ContainerBuilder<ViewModelsCategoriesContainer<Enum>>(); }
+using ModelsStandardListModelContainer = QVector<QHash<qint32, QVariant>>;
 
 extern const char* ExtraFieldsCountPropertyName;
 

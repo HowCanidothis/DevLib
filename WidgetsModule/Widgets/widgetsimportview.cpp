@@ -7,6 +7,7 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
+#include "WidgetsModule/Models/modelslistbase.h"
 
 class VariantListModel : public QAbstractTableModel
 {
@@ -61,9 +62,9 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
     WidgetComboboxWrapper(ui->cbLocale).SetEnum<LocaleType>();
     WidgetComboboxWrapper(ui->cbGroup).SetEnum<GroupKeyboardSeparator>();
     WidgetComboboxWrapper(ui->cbDecimal).SetEnum<DecimalKeyboardSeparator>();
-	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&ImportLocale, ui->cbLocale);
-	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&GroupSeparator, ui->cbGroup);
-	m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&DecimalSeparator, ui->cbDecimal);
+    m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&ImportLocale, ui->cbLocale);
+    m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&GroupSeparator, ui->cbGroup);
+    m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(&DecimalSeparator, ui->cbDecimal);
 	m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&DateTimeFormat, ui->leDateTime);
     m_connectors.AddConnector<LocalPropertiesCheckBoxConnector>(&ShowPreview, ui->ShowPreview);
 	

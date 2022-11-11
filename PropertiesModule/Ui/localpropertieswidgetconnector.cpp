@@ -334,22 +334,6 @@ void LocalPropertiesWidgetConnectorsContainer::Clear()
     onClear();
 }
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, qint32 offset)
-    : Super([property, comboBox, offset]{
-                comboBox->setCurrentIndex(*property - offset);
-            },
-            [property, comboBox, offset]{
-                *property = comboBox->currentIndex() + offset;
-            }
-    )
-{
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    connectComboBox(comboBox);
-}
-
 void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
 {
     m_connections.connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this]{
@@ -361,69 +345,22 @@ void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
     });
     m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsInserted,       [this]{ m_widgetSetter(); });
     m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsRemoved,        [this]{ m_widgetSetter(); });
+
+    Q_ASSERT(comboBox->currentIndex() != -1);
 }
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, qint32 role)
-    : Super([property, comboBox, role]{
-                qint32 result = 0;
-                ViewModelWrapper(comboBox->model()).ForeachModelIndex([&result, property, role](const QModelIndex& index){
-                    if(index.data(role).value<Name>() == *property) {
-                        return true;
-                    }
-                    result++;
-                    return false;
-                });
-                comboBox->setCurrentIndex(result);
-            },
-            [property, comboBox, role]{
-                *property = comboBox->currentData(role).value<Name>();
-            }
-    )
+void LocalPropertiesComboBoxConnector::setCurrentIndex(QComboBox* comboBox, const std::function<bool (const QModelIndex&)>& handler)
 {
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    connectComboBox(comboBox);
+    comboBox->setCurrentIndex(ViewModelWrapper(comboBox->model()).IndexOf(handler));
 }
 
-#ifdef WIDGETS_MODULE_LIB
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const ModelsStandardListModelPtr& model)
-    : Super([property, comboBox, model]{
-                qint32 result = 0;
-                ViewModelWrapper(comboBox->model()).ForeachModelIndex([&result, property](const QModelIndex& index){
-                    if(index.data(Qt::EditRole).toInt() == *property) {
-                        return true;
-                    }
-                    result++;
-                    return false;
-                });
-                comboBox->setCurrentIndex(result);
-            },
-            [property, comboBox]{
-                *property = comboBox->currentData(Qt::EditRole).toInt();
-            }
-    )
+QModelIndex LocalPropertiesComboBoxConnector::currentIndex(QComboBox* combobox)
 {
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    model->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    connectComboBox(comboBox);
+    if(combobox->currentIndex() == -1) {
+        return QModelIndex();
+    }
+    return combobox->model()->index(combobox->currentIndex(), 0);
 }
-
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, const SharedPointer<ModelsStandardListModel>& model)
-    : LocalPropertiesComboBoxConnector(property, comboBox, Qt::EditRole)
-{
-    model->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-}
-#endif
 
 LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
     : Super([property, buttons]{

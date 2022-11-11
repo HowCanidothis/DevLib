@@ -129,27 +129,53 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    template<class Enum>
-    LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, class QComboBox* comboBox)
-        : LocalPropertiesComboBoxConnector(property, comboBox, (qint32)Enum::First)
+    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* combo)
+        : LocalPropertiesComboBoxConnector(property, combo, IdRole)
     {}
-    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, qint32 offset = 0);
-    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* comboBox, qint32 role);
-    template<class T>
+    template<class Enum>
+    LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, QComboBox* combo)
+        : LocalPropertiesComboBoxConnector(property, combo, IdRole)
+    {}
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo)
+        : LocalPropertiesComboBoxConnector(property, combo, [](const QModelIndex& index) { return index.row(); })
+    {}
+    template<class T, typename value_type = typename T::value_type>
     LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox)
     {}
-#ifdef WIDGETS_MODULE_LIB
-    template<class T>
-    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model)
-        : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, model)
+    template<class T, typename value_type = typename T::value_type>
+    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox, qint32 role)
+        : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, role)
     {}
-    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* comboBox, const SharedPointer<class ModelsStandardListModel>& model);
-    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* combobox, const SharedPointer<ModelsStandardListModel>& model);
-#endif
+    template<class T, typename value_type = typename T::value_type>
+    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox, const std::function<value_type (const QModelIndex&)>& getter)
+        : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, getter)
+    {}
+    template<class T>
+    LocalPropertiesComboBoxConnector(T* property, QComboBox* comboBox, qint32 role)
+        : LocalPropertiesComboBoxConnector(property, comboBox, [role](const QModelIndex& index) -> typename T::value_type { return index.data(role).value<typename T::value_type>(); })
+    {}
+    template<class T>
+    LocalPropertiesComboBoxConnector(T* property, QComboBox* comboBox, const std::function<typename T::value_type (const QModelIndex&)>& getter)
+        : Super([property, comboBox, getter]{
+                    setCurrentIndex(comboBox, [property, getter](const QModelIndex& index) -> bool { return *property == getter(index); });
+                },
+                [property, comboBox, getter]{
+                    *property = getter(currentIndex(comboBox));
+                }
+        )
+    {
+        property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+            m_widgetSetter();
+        }).MakeSafe(m_dispatcherConnections);
+
+        connectComboBox(comboBox);
+    }
 
 private:
     void connectComboBox(QComboBox* combobox);
+    static void setCurrentIndex(QComboBox* combobox, const std::function<bool (const QModelIndex&)>& handler);
+    static QModelIndex currentIndex(QComboBox* combobox);
 };
 
 class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetConnectorBase

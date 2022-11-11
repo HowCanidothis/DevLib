@@ -32,6 +32,8 @@
 #include <ActionsModule/internal.hpp>
 
 #include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
+#include "WidgetsModule/Models/modelslistbase.h"
+
 #include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 #include "WidgetsModule/Managers/widgetsfocusmanager.h"
@@ -54,6 +56,14 @@ Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
+
+struct DisabledColumnComponentData
+{
+   bool Installed = false;
+   QSet<qint32> DisabledItems;
+};
+
+Q_DECLARE_METATYPE(SharedPointer<DisabledColumnComponentData>)
 
 class WidgetsAttachment : public QObject
 {
@@ -545,16 +555,42 @@ WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)
     : WidgetWrapper(combobox)
 {}
 
+DisabledColumnComponentData& WidgetComboboxWrapper::disabledColumnComponent() const
+{
+    Q_ASSERT(qobject_cast<ViewModelsStandardListModel*>(GetWidget()->model()));
+    auto* viewModel = reinterpret_cast<ViewModelsStandardListModel*>(GetWidget()->model());
+    auto result = Injected<DisabledColumnComponentData>("a_disabledItemsComponentIndex", []{ return new DisabledColumnComponentData(); });
+    if(!result->Installed) {
+        ViewModelsTableColumnComponents::ColumnFlagsComponentData flagsComponent;
+        flagsComponent.GetFlagsHandler = [result](qint32 row) -> std::optional<Qt::ItemFlags> {
+            if(result->DisabledItems.contains(row)) {
+                return ViewModelsTableBase::StandardNonEditableFlags() ^ Qt::ItemIsEnabled;
+            }
+            return std::nullopt;
+        };
+        viewModel->ColumnComponents.AddFlagsComponent(0, flagsComponent);
+        result->Installed = true;
+    }
+    return *result;
+}
+
 const WidgetComboboxWrapper& WidgetComboboxWrapper::EnableStandardItems(const QSet<qint32>& indices) const
 {
-    auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
-    if(itemModel != nullptr){
-        for(const auto& index : indices){
-            auto* item = itemModel->item(index);
-            item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, true));
-        }
+    auto* standardModel = qobject_cast<ViewModelsStandardListModel*>(GetWidget()->model());
+    if(standardModel != nullptr) {
+        disabledColumnComponent().DisabledItems -= indices;
     } else {
-        Q_ASSERT(false);
+        auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
+        if(itemModel != nullptr){
+            for(const auto& index : indices){
+                auto* item = itemModel->item(index);
+                if(item != nullptr) {
+                    item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, true));
+                }
+            }
+        } else {
+            Q_ASSERT(false);
+        }
     }
     return *this;
 }
@@ -683,17 +719,23 @@ const WidgetWrapper& WidgetWrapper::FixUp() const
 
 const WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const QSet<qint32>& indices) const
 {
-    auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
-    if(itemModel != nullptr){
-        for(const auto& index : indices){
-            auto* item = itemModel->item(index);
-            if(item != nullptr) {
-                item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, false));
-            }
-        }
+    auto* standardModel = qobject_cast<ViewModelsStandardListModel*>(GetWidget()->model());
+    if(standardModel != nullptr) {
+        disabledColumnComponent().DisabledItems += indices;
     } else {
-        Q_ASSERT(false);
+        auto* itemModel = qobject_cast<QStandardItemModel*>(GetWidget()->model());
+        if(itemModel != nullptr){
+            for(const auto& index : indices){
+                auto* item = itemModel->item(index);
+                if(item != nullptr) {
+                    item->setFlags(item->flags().setFlag(Qt::ItemIsEnabled, false));
+                }
+            }
+        } else {
+            Q_ASSERT(false);
+        }
     }
+
     return *this;
 }
 
