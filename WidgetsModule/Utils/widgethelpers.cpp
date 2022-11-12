@@ -50,6 +50,7 @@
 #include "WidgetsModule/Utils/iconsmanager.h"
 
 #include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Delegates/delegates.h"
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
@@ -235,6 +236,22 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
         }
     }
 
+    if(params.UseMeasurementDelegates){
+        auto* model = tableView->model();
+        auto count = model->columnCount();
+        Q_ASSERT(count > 0);
+        auto delegate = new DelegatesDoubleSpinBox(tableView);
+        delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
+            editor->setRange(index.data(MinLimitRole).toDouble(), index.data(MaxLimitRole).toDouble());
+        });
+        for(int section(0); section < count; ++section){
+            auto data = model->headerData(section, Qt::Horizontal, MinLimitRole);
+            if(data.isValid() && data.toBool()){
+                tableView->setItemDelegateForColumn(section, delegate);
+            }
+        }
+    }
+
     tableView->setWordWrap(true);
     auto* verticalHeader = tableView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
@@ -285,6 +302,22 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
             tableView->addAction(columnsAction->menuAction());
+        }
+    }
+
+    if(params.UseMeasurementDelegates){
+        auto* model = tableView->model();
+        auto count = model->columnCount();
+        Q_ASSERT(count > 0);
+        auto delegate = new DelegatesDoubleSpinBox(tableView);
+        delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
+            editor->setRange(index.data(MinLimitRole).toDouble(), index.data(MaxLimitRole).toDouble());
+        });
+        for(int section(0); section < count; ++section){
+            auto data = model->headerData(section, Qt::Vertical, MinLimitRole);
+            if(data.isValid() && data.toBool()){
+                tableView->setItemDelegateForRow(section, delegate);
+            }
         }
     }
 

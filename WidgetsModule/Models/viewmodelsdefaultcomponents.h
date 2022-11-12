@@ -16,6 +16,9 @@ public:
     TViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                    LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor);
 
+
+    static std::function<QVariant(const QTime&)> TimeConveerterHandler;
+    static std::function<QVariant(const QDateTime&)> DateTimeConveerterHandler;
 protected:
     ViewModelsTableBase* m_viewModel;
 };
@@ -97,21 +100,22 @@ public:
         return *this;
     }
 
-    TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns)
+    template<typename T2>
+    TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns, const std::function<const T2&(ConstValueType&)>& extractor = [](ConstValueType& d){return d;})
     {
         auto* viewModel = m_viewModel;
         auto modelGetter = m_modelGetter;
         for(const auto& [column, errorsStack] : columns) {
             auto errorsStackCopy = errorsStack;
             viewModel->ColumnComponents.AddComponent(Qt::DecorationRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
-                                                   .SetGetter([viewModel, component, errorsStackCopy, modelGetter](const QModelIndex& index) {
+                                                   .SetGetter([viewModel, component, errorsStackCopy, modelGetter, extractor](const QModelIndex& index) {
                                                         ConstValueType data = modelGetter()->At(index.row());
-                                                        return component->ErrorIcon(data, errorsStackCopy, viewModel->GetIconsContext());
+                                                        return component->ErrorIcon(extractor(data), errorsStackCopy, viewModel->GetIconsContext());
                                                     }));
             viewModel->ColumnComponents.AddComponent(Qt::ToolTipRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
-                                                   .SetGetter([component, errorsStackCopy, modelGetter](const QModelIndex& index) {
+                                                   .SetGetter([component, errorsStackCopy, modelGetter, extractor](const QModelIndex& index) {
                                                         ConstValueType data = modelGetter()->At(index.row());
-                                                        return component->ErrorString(data, errorsStackCopy);
+                                                        return component->ErrorString(extractor(data), errorsStackCopy);
                                                     }));
         }
         return *this;
@@ -198,6 +202,51 @@ public:
         });
     }
 
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& AddPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalProperty<T>& (ValueType)>& getter, bool readOnly = false)
+    {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return getter(data).Native();
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = value.value<T>();};
+        });
+    }
+    TViewModelsColumnComponentsBuilder& AddIdPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalProperty<Name>& (ValueType)>& getter, bool readOnly = false){
+        return AddPropertyColumn<Name>(column, header, getter, readOnly);
+    }
+    TViewModelsColumnComponentsBuilder& AddIntPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyInt& (ValueType)>& getter, bool readOnly = false){
+        return AddPropertyColumn<int>(column, header, getter, readOnly);
+    }
+    TViewModelsColumnComponentsBuilder& AddDoublePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false){
+        return AddPropertyColumn<double>(column, header, getter, readOnly);
+    }
+    TViewModelsColumnComponentsBuilder& AddStringPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyString& (ValueType)>& getter, bool readOnly = false){
+        return AddPropertyColumn<QString>(column, header, getter, readOnly);
+    }
+    TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, bool readOnly = false){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TViewModelsColumnComponentsBuilderBase::TimeConveerterHandler(getter(data).Native());
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = value.value<QTime>();};
+        }, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return getter(data).Native();
+        });
+    }
+    TViewModelsColumnComponentsBuilder& AddDateTimePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, bool readOnly = false){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TViewModelsColumnComponentsBuilderBase::DateTimeConveerterHandler(getter(data).Native());
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = value.value<QDateTime>();};
+        }, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return getter(data).Native();
+        });
+    }
+
 #ifdef UNITS_MODULE_LIB
     TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Measurement* measurement)
     {
@@ -276,6 +325,26 @@ public:
         });
     }
 
+    TViewModelsColumnComponentsBuilder& AddMeasurementLimits(qint32 column, const Measurement* pMeasurement, const std::function<LocalPropertyDouble& (ValueType)>& getter)
+    {
+        auto modelGetter = m_modelGetter;
+        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::nullopt;
+            }
+            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMin());
+        }).SetHeader([]{ return true; }));
+        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::numeric_limits<double>().min();
+            }
+            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMax());
+        }).SetHeader([]{ return true; }));
+        return *this;
+    }
+
     TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
@@ -283,6 +352,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
+        if(!readOnly) AddMeasurementLimits(column, pMeasurement, getter);
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value)).Native();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -303,6 +373,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
+        if(!readOnly) AddMeasurementLimits(column, pMeasurement, [getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
         return AddColumn(column, [header, pMeasurement]{ return header().arg(pMeasurement->CurrentUnitLabel); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
@@ -313,7 +384,9 @@ public:
             return [&]{
                 bool isDouble; auto dval = data.toDouble(&isDouble);
                 if(isDouble){
-                    getter(value).Value = pMeasurement->FromUnitToBase(dval);
+                    auto& property = getter(value);
+                    property.Value = pMeasurement->FromUnitToBase(dval);
+                    property.IsValid = true;
                 } else {
                     getter(value).IsValid = false;
                 }

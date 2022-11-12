@@ -14,7 +14,11 @@ public:
     void InvalidateFilter();
     bool IsLastEditRow(const QModelIndex& index) const
     {
-        return (sourceModel()->rowCount() - 1) == index.row();
+        return IsLastEditRow(index.row());
+    }
+    bool IsLastEditRow(qint32 row) const
+    {
+        return (sourceModel()->rowCount() - 1) == row;
     }
     bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
     {

@@ -12,7 +12,9 @@
 
 enum AdditionalStandardRoles {
     ObjectRole = Qt::UserRole,
-    IdRole
+    IdRole,
+    MinLimitRole,
+    MaxLimitRole,
 };
 
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;
