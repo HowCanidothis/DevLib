@@ -37,6 +37,13 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     return comboBox;
 }
 
+DelegatesCombobox::DelegatesCombobox(QObject* parent)
+    : Super(parent)
+    , m_aligment(Qt::AlignCenter)
+{
+
+}
+
 DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& valuesExtractor, QObject* parent)
     : Super(parent)
     , m_valuesExtractor(valuesExtractor)
@@ -329,4 +336,58 @@ void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QP
         }
         currentDateTime.SetMinMax(*start, *stop);
     });
+}
+
+DelegatesComboboxSelector::ValueExtractorHandler DelegatesComboboxSelector::IdExtractor([](const QModelIndex& index){
+    return index.data(Qt::EditRole);
+});
+DelegatesComboboxSelector::ComparatorHandler DelegatesComboboxSelector::IdComparator([](const QModelIndex& tableIndex, const QModelIndex& comboIndex){
+    return IdExtractor(tableIndex) == IdExtractor(comboIndex);//прокатит?
+});
+
+DelegatesComboboxSelector::DelegatesComboboxSelector(const DelegatesComboboxCustomViewModel::ModelGetter& getter, QObject* parent)
+    : Super(getter, parent)
+{
+    SetCustomComparator(IdComparator);
+    SetValueExtractor(IdExtractor);
+}
+
+QWidget* DelegatesComboboxSelector::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex&) const
+{
+    auto* comboBox = new QComboBox(parent);
+    comboBox->setModel(m_getter());
+    WidgetComboboxWrapper(comboBox).Make([this, comboBox](const WidgetComboboxWrapper& wrapper){
+        wrapper.BlockWheel();
+        wrapper.OnActivated().Connect(CONNECTION_DEBUG_LOCATION, [this, comboBox](qint32){
+            auto* nonConstThis = const_cast<DelegatesComboboxSelector*>(this);
+            emit nonConstThis->commitData(comboBox);
+            emit nonConstThis->closeEditor(comboBox);
+        });
+    });
+    return comboBox;
+}
+
+void DelegatesComboboxSelector::setEditorData(QWidget* editor, const QModelIndex& tableIndex) const
+{
+    QComboBox* comboBox = qobject_cast<QComboBox*>(editor);
+    Q_ASSERT(comboBox != nullptr);
+    OnEditorAboutToBeShown(comboBox, tableIndex);
+    auto comboboxModel = comboBox->model();
+    int dataIndex(-1);
+    for(int row(0), count(comboboxModel->rowCount()); row < count; ++row){
+        if(m_comparator(tableIndex, comboboxModel->index(row, 0))){
+            dataIndex = row;
+            break;
+        }
+    }
+    comboBox->setCurrentIndex(dataIndex);
+//    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [comboBox]{
+//        comboBox->showPopup();
+//    });
+}
+
+void DelegatesComboboxSelector::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
+    QComboBox* combo = static_cast<QComboBox*>(editor);
+    OnAboutToSetModelData(combo, index);
+    model->setData(index, m_extractor(combo->model()->index(combo->currentIndex(), 0)));
 }

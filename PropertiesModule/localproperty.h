@@ -405,6 +405,7 @@ public:
     }
     LocalPropertySequentialEnum& operator=(qint32 value) { SetValue(value); return *this; }
     LocalPropertySequentialEnum& operator=(Enum value) { return operator=((qint32)value); }
+    bool operator==(qint32 value) const { return Super::m_value == value; }
     bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
     bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
