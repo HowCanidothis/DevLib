@@ -125,6 +125,7 @@ public:
                     data.insert(IdRole, (qint32)index);
                     native.append(data);
                 }
+                native.append(ModelsStandardListModel::value_type());
             }
         }).MakeSafe(m_enumConnections);
     }

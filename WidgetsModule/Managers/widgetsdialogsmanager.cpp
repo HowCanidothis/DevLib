@@ -144,7 +144,18 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
     auto lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
     QFileDialog fileDialog(GetParentWindow(), params.Label, lastSearchFolder);
     OnDialogCreated(&fileDialog);
-    fileDialog.setNameFilters(params.Filters);
+    auto filters = params.Filters;
+    if(params.Mode == DescImportExportSourceParams::Save) {
+        std::sort(filters.begin(), filters.end(), [&](const QString& f, const QString& s){
+            auto fcontains = f.contains(params.DefaultSuffix);
+            auto scontains = s.contains(params.DefaultSuffix);
+            if(fcontains != scontains) {
+                return fcontains;
+            }
+            return f < s;
+        });
+    }
+    fileDialog.setNameFilters(filters);
     fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile :
                                           DescImportExportSourceParams::Load ? QFileDialog::ExistingFiles : QFileDialog::ExistingFile);
 
