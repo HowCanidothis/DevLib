@@ -486,6 +486,7 @@ public:
     const MenuWrapper& AddGlobalTableAction(const Latin1Name& id) const;
     ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;
     ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
+    const MenuWrapper& SetIcon(const Name& iconName) const;
 
     QMenu* GetMenu() const { return GetWidget(); }
 

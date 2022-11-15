@@ -1233,6 +1233,12 @@ ActionWrapper MenuWrapper::AddAction(const QString& title, const std::function<v
     return result;
 }
 
+const MenuWrapper& MenuWrapper::SetIcon(const Name& iconName) const
+{
+    GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconName));
+    return *this;
+}
+
 ActionWrapper MenuWrapper::AddTableColumnsAction() const
 {
     auto* tableView = qobject_cast<QTableView*>(GetWidget());
