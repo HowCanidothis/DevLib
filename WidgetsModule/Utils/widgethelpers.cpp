@@ -212,11 +212,11 @@ void WidgetDialogWrapper::Show(const DescShowDialogParams& params) const
 QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params) const
 {
     auto* tableView = GetWidget();
-    auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView);
+    auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView, params);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
+    auto* columnsAction = WidgetsResizableHeaderAttachment::CreateShowColumsMenu(dragDropHeader, params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
 
     if(params.UseStandardActions) {
@@ -284,11 +284,18 @@ const WidgetHeaderViewWrapper& WidgetHeaderViewWrapper::MoveSection(qint32 logic
 QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParams& params) const
 {
     auto* tableView = GetWidget();
-    auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Vertical, tableView);
-    tableView->setVerticalHeader(dragDropHeader);
+    auto verticalHeader = tableView->verticalHeader();
+    qint32 alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap;
+    verticalHeader->setDefaultAlignment((Qt::Alignment)alignment);
+    verticalHeader->setStretchLastSection(params.StretchLastSection);
+    verticalHeader->setSectionsMovable(params.SectionsMovable);
+    verticalHeader->setSectionsClickable(params.SectionsClickable);
+    verticalHeader->setHighlightSections(params.HighlightSections);
+    verticalHeader->setDropIndicatorShown(params.DropIndicatorShown);
+    verticalHeader->setSortIndicatorShown(params.SortIndicatorShown);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    auto* columnsAction = dragDropHeader->CreateShowColumsMenu(params);
+    auto* columnsAction = WidgetsResizableHeaderAttachment::CreateShowColumsMenu(verticalHeader, params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
     if(params.UseStandardActions) {
         auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
@@ -322,10 +329,10 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     }
 
     tableView->setWordWrap(true);
-    tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     WidgetsActiveTableViewAttachment::Attach(tableView);
-    WidgetsStandardTableHeaderManager::GetInstance().Register(params, dragDropHeader);
-    return dragDropHeader;
+//    WidgetsStandardTableHeaderManager::GetInstance().Register(params, verticalHeader);
+    return verticalHeader;
 }
 
 WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* pushButton)

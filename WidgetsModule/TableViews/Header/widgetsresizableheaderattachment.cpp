@@ -7,40 +7,40 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientation orientation, QTableView* parent)
+WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientation orientation, QTableView* parent, const DescTableViewParams& params)
     : Super(orientation, parent)
 {
     qint32 alignment = Qt::AlignCenter | Qt::TextWordWrap;
     setDefaultAlignment((Qt::Alignment)alignment);
-    setStretchLastSection(true);
-    setSectionsMovable(true);
-    setSectionsClickable(true);
-    setHighlightSections(true);
+    setStretchLastSection(params.StretchLastSection);
+    setSectionsMovable(params.SectionsMovable);
+    setSectionsClickable(params.SectionsClickable);
+    setHighlightSections(params.HighlightSections);
 
-    setDropIndicatorShown(true);
-    setSortIndicatorShown(true);
+    setDropIndicatorShown(params.DropIndicatorShown);
+    setSortIndicatorShown(params.SortIndicatorShown);
 }
 
-QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(const DescTableViewParams& params)
+QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QHeaderView* hv, const DescTableViewParams& params)
 {
-    QTableView* table = qobject_cast<QTableView*> (parentWidget());
+    QTableView* table = qobject_cast<QTableView*> (hv->parentWidget());
     Q_ASSERT(table != nullptr);
-    auto* result = MenuWrapper(table).AddPreventedFromClosingMenu(orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"));
-    connect(result, &QMenu::aboutToShow, [table, result, params, this]{
+    auto* result = MenuWrapper(table).AddPreventedFromClosingMenu(hv->orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"));
+    connect(result, &QMenu::aboutToShow, [table, result, params, hv]{
         result->clear();
         MenuWrapper wrapper(result);
 
         auto* model = table->model();
-        for(int i=0; i < count(); ++i){
+        for(int i=0; i < hv->count(); ++i){
             auto foundIt = params.ColumnsParams.find(i);
             if(foundIt != params.ColumnsParams.end()){
                 if(!foundIt->CanBeHidden) {
                     continue;
                 }
             }
-            auto title = model->headerData(i, orientation()).toString();
-            wrapper.AddCheckboxAction(title, !isSectionHidden(i), [this, i](bool checked){
-                setSectionHidden(i, !checked);
+            auto title = model->headerData(i, hv->orientation()).toString();
+            wrapper.AddCheckboxAction(title, !hv->isSectionHidden(i), [hv, i](bool checked){
+                hv->setSectionHidden(i, !checked);
             });
         }
         auto oldActions = result->actions();

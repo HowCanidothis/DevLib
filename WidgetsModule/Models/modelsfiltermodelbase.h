@@ -7,8 +7,8 @@
 
 class ViewModelsFilterModelBase : public QSortFilterProxyModel
 {
-    using Super = QSortFilterProxyModel;
 public:
+    using Super = QSortFilterProxyModel;
     ViewModelsFilterModelBase(QObject* parent);
 
     void InvalidateFilter();

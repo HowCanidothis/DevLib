@@ -10,9 +10,9 @@ class WidgetsResizableHeaderAttachment : public QHeaderView
     Q_OBJECT
     using Super = QHeaderView;
 public:
-    WidgetsResizableHeaderAttachment(Qt::Orientation orientation, class QTableView* parent);
+    WidgetsResizableHeaderAttachment(Qt::Orientation orientation, class QTableView* parent, const DescTableViewParams& params);
 
-    class QMenu* CreateShowColumsMenu(const DescTableViewParams& ignorColumns = DescTableViewParams());
+    static class QMenu* CreateShowColumsMenu(QHeaderView* hv, const DescTableViewParams& ignorColumns = DescTableViewParams());
     // QHeaderView interface
 protected:
     QSize sectionSizeFromContents(int logicalIndex) const override;

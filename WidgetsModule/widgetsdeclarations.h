@@ -209,6 +209,19 @@ struct DescTableViewParams
     Latin1Name StateTag;
     bool UseStandardActions;
     bool UseMeasurementDelegates;
+
+    bool StretchLastSection = true;
+    bool SectionsMovable = true;
+    bool SectionsClickable = true;
+    bool HighlightSections = true;
+    bool DropIndicatorShown = true;
+    bool SortIndicatorShown = true;
+    DescTableViewParams& SetStretchLastSection (bool state) { StretchLastSection = state; return *this; }
+    DescTableViewParams& SetSectionsMovable    (bool state) { SectionsMovable = state; return *this; }
+    DescTableViewParams& SetSectionsClickable  (bool state) { SectionsClickable = state; return *this; }
+    DescTableViewParams& SetHighlightSections  (bool state) { HighlightSections = state; return *this; }
+    DescTableViewParams& SetDropIndicatorShown (bool state) { DropIndicatorShown = state; return *this; }
+    DescTableViewParams& SetSortIndicatorShown (bool state) { SortIndicatorShown = state; return *this; }
 };
 
 inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumns)
