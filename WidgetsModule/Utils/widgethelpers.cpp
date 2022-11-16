@@ -1207,6 +1207,14 @@ TranslatedStringPtr ActionWrapper::WidgetText() const
     }, TR_NONE);
 }
 
+LocalPropertyBool& MenuWrapper::WidgetVisibility() const
+{
+    return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
+        auto* action = reinterpret_cast<QMenu*>(object);
+        action->menuAction()->setVisible(visible);
+    }, true);
+}
+
 ActionWrapper MenuWrapper::AddSeparator() const
 {
     QAction *action = new QAction(GetWidget());

@@ -488,6 +488,8 @@ public:
     ActionWrapper AddAction(const QString &title, const std::function<void (QAction*)> &handle) const;
     const MenuWrapper& SetIcon(const Name& iconName) const;
 
+    LocalPropertyBool& WidgetVisibility() const;
+
     QMenu* GetMenu() const { return GetWidget(); }
 
     template<class Property>
