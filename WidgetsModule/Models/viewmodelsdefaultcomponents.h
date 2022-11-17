@@ -101,7 +101,7 @@ public:
     }
 
     template<typename T2>
-    TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns, const std::function<const T2&(ConstValueType&)>& extractor = [](ConstValueType& d){return d;})
+    TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns, const std::function<const T2&(ConstValueType&)>& extractor = [](ConstValueType& d)->ConstValueType&{return d;})
     {
         auto* viewModel = m_viewModel;
         auto modelGetter = m_modelGetter;

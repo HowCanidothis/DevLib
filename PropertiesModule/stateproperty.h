@@ -526,9 +526,7 @@ public:
         --m_lockCounter;
         if(m_lockCounter == 0 && m_isDirty) {
             m_isDirty = false;
-            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{
-                m_calculator.RequestRecalculate();
-            });
+            m_calculator.RequestRecalculate();
         }
         Q_ASSERT(m_lockCounter >= 0);
     }

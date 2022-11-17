@@ -1108,10 +1108,6 @@ struct LocalPropertyOptional
     template<typename ... Args, typename Function>
     DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, Args... args)
     {
-
-        static auto dispatcherExtractor([](QVector<Dispatcher*>& dispatchers, Property& property){
-            dispatchers.append(&property.OnChanged);
-        });
         QVector<Dispatcher*> valuesDispatchers;
         (dispatcherExtractor(valuesDispatchers, args->Value), ...);
 
@@ -1170,6 +1166,11 @@ struct LocalPropertyOptional
     QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
     QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler = [](value_type v){return QString::number(v); }) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
+private:
+    template<typename T>
+    static void dispatcherExtractor(QVector<Dispatcher*>& dispatchers, T& property){
+        dispatchers.append(&property.OnChanged);
+    }
 };
 
 using LocalPropertyDoubleOptional = LocalPropertyOptional<LocalPropertyDouble>;
