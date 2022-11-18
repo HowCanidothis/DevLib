@@ -55,6 +55,19 @@ void DebugObjectManager::PrintInfo(const char* location, void* object, const FAc
 #endif
 }
 
+const DebugObjectManager::DebugInfo DebugObjectManager::GetInfo(void* object)
+{
+#ifdef QT_DEBUG
+    QMutexLocker locker(&m_mutex);
+    const auto& info = debugInfo();
+    auto foundIt = info.find(reinterpret_cast<size_t>(object));
+    if(foundIt != info.end() && !foundIt.value().ObjectName.isEmpty()) {
+        return foundIt.value();
+    }
+#endif
+    return DebugInfo();
+}
+
 void DebugObjectManager::Synchronize(void* object, const QSet<void*>& children)
 {
 #ifdef QT_DEBUG

@@ -38,6 +38,7 @@ public:
     static void Create(const char* location, void* object, const QString& name, QVector<SharedPointer<class DispatcherConnectionSafe>>& connections);
     static void PrintInfo(const char* location, void* object, const std::function<void ()>& onPrinted = nullptr);
     static void Synchronize(void* object, const QSet<void*>& children);
+    static const DebugInfo GetInfo(void* object);
 
 private:
     static void create(const char* location, void* object, const QString& name, QVector<SharedPointer<DispatcherConnectionSafe>>& connections);

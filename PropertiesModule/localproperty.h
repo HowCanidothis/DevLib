@@ -37,6 +37,45 @@ DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, cons
 class LocalPropertyBool;
 
 template<class T>
+class LocalPropertyValidatorBuilder
+{
+public:
+    using value_type = typename T::value_type;
+    using FValidator = std::function<void (T*, value_type&)>;
+    LocalPropertyValidatorBuilder()
+    {}
+
+    LocalPropertyValidatorBuilder& Add(const FValidator& validator) {
+        m_validators.append(validator);
+        return *this;
+    }
+
+    LocalPropertyValidatorBuilder& SetEpsilonEquality(const value_type& eps) {
+        m_validators.append([eps](T* property, value_type& value){
+            value = fuzzyCompare(property->Native(), value, eps) ? property->Native() : value;
+        });
+        return *this;
+    }
+
+    const LocalPropertyValidatorBuilder& Install(T* property) const
+    {
+        Q_ASSERT(!m_validators.isEmpty());
+        auto validators = m_validators;
+        property->SetValidator([property, validators](const value_type& value) -> value_type {
+            auto validated = value;
+            for(const auto& validator : validators) {
+                validator(property, validated);
+            }
+            return validated;
+        });
+        return *this;
+    }
+
+private:
+    QVector<FValidator> m_validators;
+};
+
+template<class T>
 class LocalProperty
 {
     using FSetter = std::function<void ()>;
@@ -113,6 +152,11 @@ public:
     {
         Subscribe(handler);
         handler(*this);
+    }
+
+    static LocalPropertyValidatorBuilder<LocalProperty<T>> CreateValidatorBuilder()
+    {
+        return LocalPropertyValidatorBuilder<LocalProperty<T>>();
     }
 
     void SetValidator(const FValidator& validator)
