@@ -314,7 +314,7 @@ public:
                 m_isEditable = editable;
                 return;
             }
-            auto rows = Super::rowCount() + 1;
+            auto rows = Super::rowCount();
             if(editable) {
                 beginInsertRows(QModelIndex(), rows, rows);
                 m_isEditable = editable;
