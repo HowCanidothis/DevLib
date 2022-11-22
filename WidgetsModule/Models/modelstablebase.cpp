@@ -116,7 +116,7 @@ qint32 ViewModelsTableBase::columnCount(const QModelIndex&) const
     return ColumnComponents.GetColumnCount();
 }
 
-void ViewModelsTableBase::RequestUpdateUi(qint32 left, qint32 right)
+void ViewModelsTableBase::RequestUpdateUi(const char* locationInfo, qint32 left, qint32 right)
 {
     if(m_mostLeftColumnToUpdate == -1) {
         m_mostLeftColumnToUpdate = left;
@@ -129,7 +129,7 @@ void ViewModelsTableBase::RequestUpdateUi(qint32 left, qint32 right)
     } else {
         m_mostRightColumnToUpdate = std::max(m_mostRightColumnToUpdate, right);
     }
-    m_update.Call(CONNECTION_DEBUG_LOCATION, [this]{
+    m_update.Call(locationInfo, [this]{
         emit dataChanged(createIndex(0, m_mostLeftColumnToUpdate), createIndex(rowCount()-1, m_mostRightColumnToUpdate));
         emit headerDataChanged(Qt::Horizontal, m_mostLeftColumnToUpdate, m_mostRightColumnToUpdate);
         m_mostLeftColumnToUpdate = -1;
@@ -151,8 +151,8 @@ void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Measu
 
 DispatcherConnection ViewModelsTableBase::AttachTempDependence(const char* locationInfo, const Dispatcher* dispatcher, int first, int last)
 {
-    return dispatcher->Connect(locationInfo, [first, last, this]{
-        RequestUpdateUi(first, last);
+    return dispatcher->Connect(locationInfo, [locationInfo, first, last, this]{
+        RequestUpdateUi(locationInfo, first, last);
     });
 }
 

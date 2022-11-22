@@ -109,7 +109,7 @@ public:
     QVariant headerData(qint32 section, Qt::Orientation orientation, qint32 role) const override;
     qint32 columnCount(const QModelIndex& = QModelIndex()) const override;
 
-    void RequestUpdateUi(qint32 left, qint32 right);
+    void RequestUpdateUi(const char* locationInfo, qint32 left, qint32 right);
 
 #ifdef UNITS_MODULE_LIB // TODO. Do not use it. Deprecated
     DispatcherConnection AttachTempDependence(const char* locationInfo, const class Measurement* unitName, int first, int last);
