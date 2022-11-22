@@ -109,6 +109,8 @@ public:
 
     }
 
+    bool IsValueValid() const { return true; }
+
     void Invoke()
     {
         m_setterHandler([this]{
@@ -1107,49 +1109,52 @@ struct LocalPropertyOptional
 
     template<typename ... Args, typename Function>
     DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, Args... args)
+    {        
+        DispatcherConnections connections;
+        auto delayedCall = DelayedCallObjectCreate();
+        auto update = delayedCall->Wrap(locationInfo, [=]{
+            this->operator=(handler(args->Native()...));
+        });
+        IsValid.OnChanged.Connect(locationInfo, [delayedCall]{});
+        adapters::Combine([&](const auto* property){
+            connections += property->ConnectAction(locationInfo, update);
+        }, args...);
+
+        return connections;
+    }
+
+    template<typename ... Args, typename Function>
+    DispatcherConnections ConnectFromOptional(const char* locationInfo, const Function& handler, Args... args)
     {
-        QVector<Dispatcher*> valuesDispatchers;
-        (dispatcherExtractor(valuesDispatchers, args->Value), ...);
-
-        auto connections = DispatcherConnectionsSafeCreate();
-        auto result = IsValid.ConnectAndCall(locationInfo, [=](bool isValid){
-            connections->clear();
-            if(isValid) {
-                Value.ConnectFromDispatchers(locationInfo, [=]()->double {
-                    return handler(args->Value.Native()...);
-                }, valuesDispatchers).MakeSafe(*connections);
-            }
-        });
-
-        static auto boolExtractor([](QVector<LocalPropertyBool*>& validators, LocalPropertyBool& property){
-            validators.append(&property);
-        });
-        QVector<LocalPropertyBool*> validators;
-        (boolExtractor(validators, args->IsValid), ...);
-
-        QVector<Dispatcher*> validatorDispatchers;
-        for(const auto* valid : validators){
-            validatorDispatchers.append(&valid->OnChanged);
-        }
-        result += IsValid.ConnectFromDispatchers(locationInfo, [validators]{
-            for(const auto* valid : validators){
-                if(!valid->Native()){
-                    return false;
+        DispatcherConnections connections;
+        auto delayedCall = DelayedCallObjectCreate();
+        auto update = delayedCall->Wrap(locationInfo, [=]{
+            bool isValid = true;
+            for(auto* property : {args...}) {
+                if(!property->IsValueValid()) {
+                    isValid = false;
+                    break;
                 }
             }
-            return true;
-        }, validatorDispatchers);
+            if(isValid) {
+                Value = handler(args->Value.Native()...);
+            }
+            IsValid = isValid;
+        });
+        IsValid.OnChanged.Connect(locationInfo, [delayedCall]{});
+        adapters::Combine([&](const auto* property){
+            connections += property->ConnectAction(locationInfo, update);
+        }, args...);
 
-        return result;
+        return connections;
     }
 
     LocalPropertyOptional& operator=(const std::optional<value_type>& value)
     {
         if(value.has_value()) {
             Value = value.value();
-        } else {
-            IsValid = false;
         }
+        IsValid = value.has_value();
         return *this;
     }
     LocalPropertyOptional& operator=(const value_type& value) { Value = value; IsValid = true; return *this; }
@@ -1162,6 +1167,8 @@ struct LocalPropertyOptional
             IsValid = true;
         }
     }
+    bool IsValueValid() const { return IsValid; }
+    std::optional<value_type> Native() const { return ToStdOptional(); }
     std::optional<value_type> ToStdOptional() const { return IsValid ? std::make_optional(Value.Native()) : std::nullopt; }
     QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
