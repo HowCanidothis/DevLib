@@ -1001,3 +1001,23 @@ QPushButton:disabled {
     color: #6C6C6C;
     background: #3C3C3C;
 }
+
+QPushButton[a_simulation=true]{  /* Tab */
+    border-radius: 0px;
+    color: #F0F0F0;
+    background: transparent;
+    font-size: 14px;
+    border: none;
+}
+
+QPushButton[a_simulation=true]:hover{
+    background: #3C3C3C;
+    border: none;
+}
+
+QPushButton[a_simulation=true]:checked{
+    color: #3EA6FF;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 2px solid #3EA6FF;
+}
