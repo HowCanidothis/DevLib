@@ -15,6 +15,20 @@ struct WidgetWrapperInjectedCommutatorData
     {}
 };
 
+class EventFilterObject : public QObject
+{
+    using Super = QObject;
+
+    using FFilter = std::function<bool (QObject*, QEvent*)>;
+    EventFilterObject(const FFilter& filter, QObject* parent);
+
+    bool eventFilter(QObject* watched, QEvent* e) override;
+
+protected:
+    friend class ObjectWrapper;
+    FFilter m_filter;
+};
+
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
 #define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
@@ -45,6 +59,8 @@ public:
     ObjectWrapper(QObject* object)
         : m_object(object)
     {}
+
+    const WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
 
     template<class T> const T& Cast() const { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((const T*)this); }
 
@@ -145,8 +161,6 @@ public:
 
     const WidgetWrapper& AddModalProgressBar() const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
-    const WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
-    const WidgetWrapper& AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
 
     const WidgetWrapper& BlockWheel() const;
