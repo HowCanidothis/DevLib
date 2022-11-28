@@ -66,59 +66,16 @@ struct DisabledColumnComponentData
 
 Q_DECLARE_METATYPE(SharedPointer<DisabledColumnComponentData>)
 
-class WidgetsAttachment : public QObject
-{
-    using Super = QObject;
-public:
-    using FFilter = std::function<bool (QObject*, QEvent*)>;
-    WidgetsAttachment(const FFilter& filter, QObject* parent);
-
-    static void Attach(QObject* target, const FFilter& filter);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-protected:
-    FFilter m_filter;
-};
-
-WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
+EventFilterObject::EventFilterObject(const FFilter& filter, QObject* parent)
     : Super(parent)
     , m_filter(filter)
 {
     parent->installEventFilter(this);
 }
 
-void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
-{
-    new WidgetsAttachment(filter, target);
-}
-
-bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
+bool EventFilterObject::eventFilter(QObject* watched, QEvent* e)
 {
     return m_filter(watched, e);
-}
-
-class WidgetsDisconnectableAttachment : public WidgetsAttachment
-{
-    using Super = WidgetsAttachment;
-public:
-    using Super::Super;
-
-    static void Attach(QObject* target, const FFilter& filter);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-};
-
-void WidgetsDisconnectableAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
-{
-    new WidgetsDisconnectableAttachment(filter, target);
-}
-
-bool WidgetsDisconnectableAttachment::eventFilter(QObject*, QEvent* e)
-{
-    return m_filter(this, e);
 }
 
 const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() const
@@ -925,16 +882,9 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class QLineEdit* lineEdit)
 
 }
 
-const WidgetWrapper& WidgetWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
+EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
-    WidgetsAttachment::Attach(GetWidget(), filter);
-    return *this;
-}
-
-const WidgetWrapper& WidgetWrapper::AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
-{
-    WidgetsDisconnectableAttachment::Attach(GetWidget(), filter);
-    return *this;
+    return new EventFilterObject(filter, m_object);
 }
 
 const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const
