@@ -92,6 +92,13 @@ FAction SafeCall::Wrap(const FAction& handler) const
     };
 }
 
+void Promise::Wait()
+{
+    FutureResult result;
+    result += *this;
+    result.Wait();
+}
+
 Promise Promise::MoveToMain(const std::function<qint8 (qint8)>& handler)
 {
     Promise promise;
@@ -166,9 +173,15 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
 
 void FutureResultData::wait()
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    while(!isFinished()) {
-        m_conditional.wait(lock);
+    if(QThread::currentThread() == qApp->thread()) {
+        while(!isFinished()) {
+            qApp->processEvents();
+        }
+    } else {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        while(!isFinished()) {
+            m_conditional.wait(lock);
+        }
     }
 }
 

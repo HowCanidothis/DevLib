@@ -82,6 +82,7 @@ public:
     }
 
     Promise MoveToMain(const std::function<qint8 (qint8)>& handler);
+    void Wait();
 };
 
 using AsyncResult = Promise;
