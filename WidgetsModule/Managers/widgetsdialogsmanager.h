@@ -13,6 +13,7 @@ public:
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
+    bool ShowSaveCancelDialog(const QString& label, const QString& text);
     bool ShowOkCancelDialog(const QString& label, const QString& text);
     void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
 

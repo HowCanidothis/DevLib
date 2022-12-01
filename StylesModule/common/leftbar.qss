@@ -464,3 +464,11 @@ MenuBar QLabel#ExpiryTimeDesc {
 QLabel[PropertiesToolViewLabel="true"] {
     font-weight: bold;
 }
+
+WidgetsProjectsTreeView QPushButton#BtnActivateObject {
+    margin: 0px;
+    padding: 0px;
+    background: none;
+    border-radius: 10px;
+}
+

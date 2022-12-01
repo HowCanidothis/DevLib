@@ -81,12 +81,10 @@ defineTest(setBuildDirectory) {
     CONFIG(force_debug_info) {
         message(Profiling)
         BUILDTYPE = profile
-#        CONFIG += console
         DESTDIR = $$join(buildPath,,,_profile)
     } else {
         CONFIG(debug, debug|release) {
             BUILDTYPE = debug
-#            CONFIG += console
             DESTDIR = $$join(buildPath,,,_debug)
         } else {
             BUILDTYPE = release
@@ -111,7 +109,6 @@ defineTest(setBuildDirectory) {
 
 defineTest(makeDeploy) {
     ignoreQt = $$1
-    appName = $$2
     for(FILE,DEPLOY_FILES){
         QMAKE_POST_LINK +=$$quote($(COPY_DIR) $$system_path($${FILE}) $$system_path($${DESTDIR}) $$escape_expand(\n\t))
     }
@@ -121,8 +118,8 @@ defineTest(makeDeploy) {
     }
 
     if(!$$ignoreQt) {
-        DEPLOY_ARG += $$shell_quote($$system_path($$DESTDIR/$$TARGET.exe)) $$EOL
         DEPLOY_COMMAND = $$shell_quote($$system_path($$[QT_INSTALL_BINS]/windeployqt))
+        DEPLOY_ARG += $$shell_quote($$system_path($$DESTDIR/$$TARGET.exe)) $$EOL
         QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_ARG}
     }
 

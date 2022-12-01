@@ -17,7 +17,7 @@ public:
     DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
 
     template<typename ... SafeConnections>
-    static void PerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once, SafeConnections&... connections)
+    static void PerformWhenEveryIsValid(const QVector<const LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once, SafeConnections&... connections)
     {
         auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true, delayMsecs);
         commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties).MakeSafe(commutator->Connections);
@@ -45,7 +45,7 @@ public:
     }
 
     template<typename ... SafeConnections>
-    static void OnFirstInvokePerformWhenEveryIsValid(const QVector<LocalPropertyBool*>& stateProperties, const FAction& handler, SafeConnections&... connections)
+    static void OnFirstInvokePerformWhenEveryIsValid(const QVector<const LocalPropertyBool*>& stateProperties, const FAction& handler, SafeConnections&... connections)
     {
         PerformWhenEveryIsValid(stateProperties, handler, 0, true, connections...);
     }

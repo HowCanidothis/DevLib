@@ -17,6 +17,26 @@ ModelsTreeItemBase::~ModelsTreeItemBase()
     }
 }
 
+SharedPointer<ModelsTreeItemBase> ModelsTreeItemBase::FindByPath(const QString& path, const QString& separator) const
+{
+    auto steps = path.split(separator, QString::SkipEmptyParts);
+    auto* current = const_cast<ModelsTreeItemBase*>(this);
+    for(const auto& step : steps) {
+        bool found = false;
+        for(const auto& child : current->GetChilds()) {
+            if(child->GetLabel() == step) {
+                current = child.get();
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            return nullptr;
+        }
+    }
+    return current->AsPtr();
+}
+
 ModelsTreeItemBase* ModelsTreeItemBase::FindIf(const FilterFunc& filter) const
 {
     ModelsTreeItemBase* result = nullptr;

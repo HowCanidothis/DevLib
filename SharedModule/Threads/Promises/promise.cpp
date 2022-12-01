@@ -92,11 +92,12 @@ FAction SafeCall::Wrap(const FAction& handler) const
     };
 }
 
-void Promise::Wait()
+qint8 Promise::Wait()
 {
     FutureResult result;
     result += *this;
     result.Wait();
+    return GetValue();
 }
 
 Promise Promise::MoveToMain(const std::function<qint8 (qint8)>& handler)

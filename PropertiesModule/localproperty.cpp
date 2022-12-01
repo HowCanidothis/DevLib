@@ -55,7 +55,7 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<LocalPropertyBool*>& properties)
+DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
 {
     DispatcherConnections result;
     for(auto* property : properties) {

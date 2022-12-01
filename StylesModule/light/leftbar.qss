@@ -155,3 +155,7 @@ WidgetsStyleSettings {
 BHACatalogWidget QListView::item {
     height: 30px;
 }
+
+WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
+    background: #EEEEEE;
+}
