@@ -1119,7 +1119,7 @@ struct LocalPropertyOptional
         adapters::Combine([&](const auto* property){
             connections += property->ConnectAction(locationInfo, update);
         }, args...);
-
+        update();
         return connections;
     }
 
