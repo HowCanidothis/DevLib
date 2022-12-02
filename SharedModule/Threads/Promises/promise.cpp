@@ -174,7 +174,7 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
 
 void FutureResultData::wait()
 {
-    if(QThread::currentThread() == qApp->thread()) {
+    if(qApp != nullptr && QThread::currentThread() == qApp->thread()) {
         while(!isFinished()) {
             qApp->processEvents();
         }
