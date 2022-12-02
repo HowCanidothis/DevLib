@@ -58,9 +58,9 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(checkBox, &QCheckBox::clicked, [this](bool){
+    WidgetCheckBoxWrapper(checkBox).WidgetChecked().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_propertySetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox)
@@ -74,6 +74,10 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 {
     property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this](){
         m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    WidgetCheckBoxWrapper(checkBox).WidgetText()->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_propertySetter();
     }).MakeSafe(m_dispatcherConnections);
 }
 
