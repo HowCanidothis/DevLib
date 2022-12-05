@@ -7,6 +7,7 @@
 
 class WidgetsSpinBoxWithCustomDisplay : public QSpinBox
 {
+    Q_OBJECT
     using Super = QSpinBox;
 public:
     using ValueFromTextHandler = std::function<qint32 (const WidgetsSpinBoxWithCustomDisplay* spinBox, const QString&)>;
@@ -33,6 +34,7 @@ public:
     }
 
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
+    void SetText(const QString& text);
 
 private:
     QString textFromValue(int val) const override;
@@ -46,6 +48,7 @@ private:
 
 class WidgetsDoubleSpinBoxWithCustomDisplay : public QDoubleSpinBox
 {
+    Q_OBJECT
     using Super = QDoubleSpinBox;
 public:
     using ValueFromTextHandler = std::function<double (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, const QString&)>;
@@ -74,6 +77,7 @@ public:
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
     void MakeOptional();
 
+    void SetText(const QString& text);
     bool IsValid() const;
 
 private:

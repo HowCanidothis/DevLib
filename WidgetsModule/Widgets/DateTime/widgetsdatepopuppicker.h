@@ -16,6 +16,7 @@ public:
     ~WidgetsDatePopupPicker();
 
     class WidgetsDateTimeWidget* GetDateWidget() const { return m_editor; }
+    class WidgetsDateTimeEdit* GetLineEdit() const;
 
     LocalPropertyString DisplayFormat;
     LocalPropertyLocale Locale;

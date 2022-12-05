@@ -54,6 +54,7 @@
 #include "Widgets/widgetsimportview.h"
 #include "Widgets/DateTime/widgetsdatetimeedit.h"
 #include "Widgets/DateTime/widgetsdatetimepopuppicker.h"
+#include "Widgets/DateTime/widgetsdatepopuppicker.h"
 #include "Widgets/DateTime/widgetsdatetimewidget.h"
 #include "Widgets/DateTime/widgetstimepicker.h"
 #include "Widgets/DateTime/widgetstimewidget.h"

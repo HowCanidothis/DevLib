@@ -10,6 +10,8 @@ class WidgetsDialogsManager : public SingletoneGlobal<WidgetsDialogsManager>
     template<class T> friend class SingletoneGlobal;
     WidgetsDialogsManager();
 public:
+    QList<QString> AutomatedSourcePaths;
+
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
@@ -76,6 +78,11 @@ private:
 template<>
 inline QList<ImportExportSourcePtr> ImportExportSource::CreateSources<WidgetsDialogsManager>(const DescImportExportSourceParams& params)
 {
+    if(!WidgetsDialogsManager::GetInstance().AutomatedSourcePaths.isEmpty()) {
+        return ContainerBuilder<QList<ImportExportSourcePtr>>().Append(WidgetsDialogsManager::GetInstance().AutomatedSourcePaths, [](const auto& it){
+            return ImportExportFileSource::FromFilePath(*it);
+        });
+    }
     return ContainerBuilder<QList<ImportExportSourcePtr>>().Append(lq::select(WidgetsDialogsManager::GetInstance().SelectDirectory(params),0), [](const auto& it){
         return ::make_shared<ImportExportFileSource>(*it);
     });

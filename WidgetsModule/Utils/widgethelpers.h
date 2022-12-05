@@ -278,6 +278,20 @@ public:
 private:
 };
 
+class WidgetTextEditWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetTextEditWrapper(class QTextEdit* lineEdit);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTextEditWrapper, QTextEdit)
+
+    QString Chopped(qint32 maxCount) const;
+    LocalPropertyBool& WidgetReadOnly() const;
+
+private:
+};
+
 class WidgetCheckBoxWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;

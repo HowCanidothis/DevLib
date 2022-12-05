@@ -286,7 +286,7 @@ struct DescImportExportTableImport
 template<class T>
 struct DescImportExportTableExport
 {
-    using ExportDataValueType = std::pair<QVariant, QVariant::Type>;
+    using ExportDataValueType = QVariant;
     using RowType = QVector<ExportDataValueType>;
 
     using FSaver = std::function<bool (const ImportExportSourcePtr& source, const QList<QVector<ExportDataValueType>>& data)>;
@@ -294,19 +294,19 @@ struct DescImportExportTableExport
     FSaver Saver;
     FExtractor Extractor;
 
-    DescImportExportTableExport(const FSaver& saver, const FExtractor& extractor)
+    DescImportExportTableExport(const FSaver& saver, const FExtractor& extractor, qint32 role)
         : Saver(saver)
         , Extractor(extractor)
     {
         if(Extractor == nullptr) {
-            Extractor = [](const ImportExportSourcePtr& source, const T& model, const DescImportExportTableExport& params){
+            Extractor = [role](const ImportExportSourcePtr& source, const T& model, const DescImportExportTableExport& params){
                 QList<RowType> dataToExport;
                 int count = model->columnCount();
                 if(source->StandardProperties.IsExportHeader) {
                     RowType header;
                     header.reserve(count);
                     for(int i = 0; i < count; ++i){
-                        header << std::make_pair(model->headerData(i, Qt::Horizontal), QVariant::String);
+                        header << model->headerData(i, Qt::Horizontal);
                     }
                     dataToExport << header;
                 }
@@ -316,7 +316,7 @@ struct DescImportExportTableExport
                 for(int r = 0; r<rowCount; ++r){
                     for(int c = 0; c < count; ++c){
                         auto index = model->index(r,c);
-                        data << std::make_pair(index.data(), index.data(Qt::EditRole).type());
+                        data << index.data(role);
                     }
                     dataToExport << data;
                     data.clear();
@@ -331,11 +331,11 @@ struct DescImportExportTableExport
                 QTextStream stream(source->GetDevice());
                 StringBuilder::Join(stream, '\n', data, [&](const auto& it){
                     StringBuilder::Join(stream, separator, *it, [&](const auto& it){
-                        stream << it->first.toString();
+                        stream << it->toString();
                     });
                 });
                 return true;
-            }, nullptr)
+            }, nullptr, Qt::DisplayRole)
     {}
 };
 

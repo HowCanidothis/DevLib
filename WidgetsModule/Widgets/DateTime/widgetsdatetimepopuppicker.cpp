@@ -50,3 +50,8 @@ WidgetsDatetimePopupPicker::~WidgetsDatetimePopupPicker()
 {
     delete ui;
 }
+
+WidgetsDateTimeEdit* WidgetsDatetimePopupPicker::GetLineEdit() const
+{
+    return ui->dateTimeEdit;
+}

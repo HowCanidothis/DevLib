@@ -2,6 +2,8 @@
 
 #include <QLineEdit>
 
+static const char* IsValidPropertyName = "IsValid";
+
 WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
@@ -27,6 +29,7 @@ QString WidgetsSpinBoxWithCustomDisplay::textFromValue(int val) const
 
 DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)
 {
+    setProperty(IsValidPropertyName, (size_t)valid);
     SetTextFromValueHandler([valid](const WidgetsSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
             return QString();
@@ -50,11 +53,21 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
 
     auto updateDisplay = [this]{
         if(!hasFocus()) {
-            setDisplayIntegerBase(displayIntegerBase());
+            setPrefix(QString());
         }
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
     return result;
+}
+
+void WidgetsSpinBoxWithCustomDisplay::SetText(const QString& text)
+{
+    auto value = property(IsValidPropertyName);
+    setValue(text.toDouble());
+    if(!value.isValid()) {
+        return;
+    }
+    *((LocalPropertyBool*)value.toLongLong()) = !text.isEmpty();
 }
 
 qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
@@ -133,6 +146,7 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsDouble
 
 DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)
 {
+    setProperty(IsValidPropertyName, (size_t)valid);
     SetTextFromValueHandler([valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, double value) -> QString {
         if(!*valid) {
             return QString();
@@ -155,7 +169,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 
     auto updateDisplay = [this]{
         if(!hasFocus()) {
-            setDecimals(decimals());
+            setPrefix(QString());
         }
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
@@ -165,13 +179,23 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()
 {
     auto property = ::make_shared<LocalPropertyBool>(true);
+    setProperty("IsValidStorage", qVariantFromValue(property));
     MakeOptional(property.get());
-    setProperty("IsValid", QVariant::fromValue(property));
+}
+
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetText(const QString& text)
+{
+    auto value = property(IsValidPropertyName);
+    setValue(text.toDouble());
+    if(!value.isValid()) {
+        return;
+    }
+    *((LocalPropertyBool*)value.toLongLong()) = !text.isEmpty();
 }
 
 bool WidgetsDoubleSpinBoxWithCustomDisplay::IsValid() const
 {
-    auto value = property("IsValid");
+    auto value = property(IsValidPropertyName);
     return !value.isValid() ? true : value.value<SharedPointer<LocalPropertyBool>>()->Native();
 }
 

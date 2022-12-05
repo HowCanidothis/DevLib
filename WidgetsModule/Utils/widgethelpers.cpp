@@ -21,6 +21,7 @@
 #include <QColorDialog>
 #include <QWidgetAction>
 #include <QLabel>
+#include <QTextEdit>
 #include <QScrollArea>
 #include <QMenu>
 #include <QSettings>
@@ -1441,9 +1442,17 @@ WidgetCheckBoxWrapper::WidgetCheckBoxWrapper(QCheckBox* target)
 LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
 {
     auto* widget = GetWidget();
-    return *GetOrCreateProperty<LocalPropertyBool>("a_checked",[widget](QObject*, const LocalPropertyBool& value){
-        widget->setChecked(value);
-    }, false);
+    return *Injected<LocalPropertyBool>("a_checked", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool(false);
+        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property](bool value){
+                                               widget->setChecked(value);
+                                           });
+        property->SetSetterHandler(ThreadHandlerMain);
+        widget->connect(widget, &QCheckBox::stateChanged, [property](qint32 state){
+            *property = state;
+        });
+        return property;
+    });
 }
 
 TranslatedStringPtr WidgetCheckBoxWrapper::WidgetText() const
@@ -1504,5 +1513,36 @@ Dispatcher& ViewModelWrapper::OnReset() const
         auto* result = new Dispatcher();
         model->connect(model, &QAbstractItemModel::modelReset, [result]{ result->Invoke(); });
         return result;
+    });
+}
+
+WidgetTextEditWrapper::WidgetTextEditWrapper(QTextEdit* lineEdit)
+    : Super(lineEdit)
+{
+
+}
+
+QString WidgetTextEditWrapper::Chopped(qint32 maxCount) const
+{
+    auto text = GetWidget()->toPlainText();
+    auto withoutDots = maxCount - 3;
+    if(text.size() > withoutDots) {
+        return text.chopped(withoutDots) + "...";
+    }
+    return text;
+}
+
+LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
+{
+    return *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool();
+        auto* widget = GetWidget();
+        property->EditSilent() = widget->isReadOnly();
+        property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
+            widget->setReadOnly(*property);
+            StyleUtils::UpdateStyle(widget);
+        });
+        property->SetSetterHandler(ThreadHandlerMain);
+        return property;
     });
 }
