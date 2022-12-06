@@ -196,7 +196,7 @@ void WidgetsDoubleSpinBoxWithCustomDisplay::SetText(const QString& text)
 bool WidgetsDoubleSpinBoxWithCustomDisplay::IsValid() const
 {
     auto value = property(IsValidPropertyName);
-    return !value.isValid() ? true : value.value<SharedPointer<LocalPropertyBool>>()->Native();
+    return !value.isValid() ? true : ((LocalPropertyBool*)value.toLongLong())->Native();
 }
 
 QString WidgetsDoubleSpinBoxWithCustomDisplay::textFromValue(double val) const
