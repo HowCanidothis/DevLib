@@ -30,7 +30,7 @@ public:
 
     QHash<Name, QVariant> ErrorsMetaData;
 
-    DispatcherConnection RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
+    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
     DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
     DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors);
     DispatcherConnections ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors);

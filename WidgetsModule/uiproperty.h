@@ -32,7 +32,7 @@ public:
 
     DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, const ErrorPropertyHandler& errorHandler, const ErrorMessageHandler& errorMessage = [](const QString& v){ return QObject::tr("%1 is not set").arg(v);}){
         Q_ASSERT(!Id.IsNull());
-        return errors.RegisterError(Id, ::make_shared<TranslatedString>([this, errorMessage]{ return errorMessage(Label->Native()); }), errorHandler(*this));
+        return errors.RegisterError(Id, ::make_shared<TranslatedString>([this, errorMessage]{ return errorMessage(Label->Native()); }), errorHandler(*this), true);
     }
     DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, const ErrorMessageHandler& errorMessage = [](const QString& v){ return QObject::tr("%1 is not set").arg(v);});
 };
