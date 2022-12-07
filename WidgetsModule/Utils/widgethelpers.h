@@ -16,7 +16,6 @@ struct WidgetWrapperInjectedCommutatorData
 };
 
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
-
 #define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
     const WrapperType& SetChecked(bool checked) const { return setChecked<WrapperType>(checked); }
 #define DECLARE_WIDGET_WRAPPER_ADD_TEXT(WrapperType) \
@@ -431,6 +430,7 @@ public:
     WidgetSpinBoxWrapper(class QSpinBox* widget);
 
     LocalPropertyInt& WidgetValue() const;
+    LocalPropertyBool& WidgetReadOnly() const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSpinBoxWrapper, QSpinBox);
 };

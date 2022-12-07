@@ -3,10 +3,8 @@
 
 #include <limits>
 #include <optional>
-
 #include "property.h"
 #include "externalproperty.h"
-
 
 template<class T>
 inline bool LocalPropertyEqual(const T& v1, const T& v2) { return v1 == v2; }
@@ -730,6 +728,34 @@ private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
     QVector<LocalPropertyBool*> m_properties;
+    bool m_defaultState;
+};
+
+class LocalPropertyBoolCommutator2 : public LocalProperty<bool>
+{
+    using Super = LocalProperty<bool>;
+public:
+    LocalPropertyBoolCommutator2(bool defaultState = false, const DelayedCallObjectParams& params = DelayedCallObjectParams());
+
+    void ClearProperties();
+    void Update();
+
+    DispatcherConnections AddProperty(const char* locationInfo, LocalPropertyBool* p);
+
+    template<typename ... Args, typename Function>
+    DispatcherConnections AddProperty(const char* locationInfo, const Function& handler, Args... args)
+    {
+        DispatcherConnections connections;
+        m_handlers.append([=]{ return handler(args->Native()...); });
+        adapters::Combine([&](const auto* property){
+            connections += m_commutator.ConnectFrom(locationInfo, property->OnChanged);
+        }, args...);
+        return connections;
+    }
+private:
+    DispatchersCommutator m_commutator;
+    ThreadHandlerNoThreadCheck m_threadHandler;
+    QVector<std::function<bool()>> m_handlers;
     bool m_defaultState;
 };
 

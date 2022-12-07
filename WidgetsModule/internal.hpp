@@ -69,7 +69,7 @@
 #include "widgetsserializer.h"
 
 #include "qtqssreader.h"
-
+#include "uiproperty.h"
 #endif
 
 #endif // INTERNAL_H

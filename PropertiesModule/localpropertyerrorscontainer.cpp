@@ -54,22 +54,19 @@ void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
     }
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    auto* pProperty = const_cast<LocalPropertyBool*>(&property);
-    auto update = [this, errorId, pProperty, errorString, inverted, severity, visible]{
-        if(*pProperty ^ inverted) {
+    return property.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, errorId, errorString, inverted, severity, visible](bool value){
+        if(value ^ inverted) {
             AddError(errorId, errorString, severity, visible);
         } else {
             RemoveError(errorId);
         }
-    };
-    update();
-    return pProperty->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, update);
+    });
 }
 
 DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)

@@ -1436,6 +1436,20 @@ LocalPropertyInt& WidgetSpinBoxWrapper::WidgetValue() const
    });
 }
 
+LocalPropertyBool& WidgetSpinBoxWrapper::WidgetReadOnly() const {
+    return *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool();
+        auto* widget = GetWidget();
+        property->EditSilent() = widget->isReadOnly();
+        property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
+            widget->setReadOnly(*property);
+            StyleUtils::UpdateStyle(widget);
+        });
+        property->SetSetterHandler(ThreadHandlerMain);
+        return property;
+    });
+}
+
 WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(QDoubleSpinBox* widget)
     : Super(widget)
 {}
@@ -1443,13 +1457,13 @@ WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(QDoubleSpinBox* widget)
 LocalPropertyDouble& WidgetDoubleSpinBoxWrapper::WidgetValue() const
 {
     return *Injected<LocalPropertyDouble>("a_value", [&]() -> LocalPropertyDouble* {
-       auto* property = new LocalPropertyDouble();
-       auto* widget = GetWidget();
-       property->EditSilent() = widget->value();
-       widget->connect(widget, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [property](double value){
-           *property = value;
-       });
-       property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
+                                              auto* property = new LocalPropertyDouble();
+                                              auto* widget = GetWidget();
+                                              property->EditSilent() = widget->value();
+                                              widget->connect(widget, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [property](double value){
+                                                  *property = value;
+                                              });
+                                              property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{ widget->setValue(*property); });
        property->SetSetterHandler(ThreadHandlerMain);
        return property;
    });

@@ -169,3 +169,36 @@ LocalPropertyBool::LocalPropertyBool(bool state)
 {
 
 }
+
+LocalPropertyBoolCommutator2::LocalPropertyBoolCommutator2(bool defaultState, const DelayedCallObjectParams& params)
+    : Super(defaultState)
+    , m_commutator(params)
+    , m_defaultState(defaultState)
+{
+    m_commutator += { this, [this]{
+        Update();
+    }};
+}
+
+void LocalPropertyBoolCommutator2::ClearProperties()
+{
+    m_handlers.clear();
+}
+
+DispatcherConnections LocalPropertyBoolCommutator2::AddProperty(const char* locationInfo, LocalPropertyBool* p){
+    m_handlers.append([p]{ return p->Native(); });
+    return m_commutator.ConnectFrom(locationInfo, p->OnChanged);
+}
+
+void LocalPropertyBoolCommutator2::Update()
+{
+    bool result = m_defaultState;
+    bool oppositeState = !result;
+    for(const auto& handler : ::make_const(m_handlers)) {
+        if(handler() == oppositeState) {
+            result = oppositeState;
+            break;
+        }
+    }
+    SetValue(result);
+}
