@@ -187,7 +187,9 @@ void LocalPropertyBoolCommutator2::ClearProperties()
 
 DispatcherConnections LocalPropertyBoolCommutator2::AddProperty(const char* locationInfo, LocalPropertyBool* p){
     m_handlers.append([p]{ return p->Native(); });
-    return m_commutator.ConnectFrom(locationInfo, p->OnChanged);
+    auto result = m_commutator.ConnectFrom(locationInfo, p->OnChanged);
+    m_commutator.Invoke();
+    return result;
 }
 
 void LocalPropertyBoolCommutator2::Update()

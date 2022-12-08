@@ -750,6 +750,7 @@ public:
         adapters::Combine([&](const auto* property){
             connections += m_commutator.ConnectFrom(locationInfo, property->OnChanged);
         }, args...);
+        m_commutator.Invoke();
         return connections;
     }
 private:
