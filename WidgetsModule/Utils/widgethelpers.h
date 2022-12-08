@@ -29,7 +29,16 @@ protected:
     FFilter m_filter;
 };
 
+enum class HighLightEnum {
+    None,
+    Error,
+    Warning,
+    First = None,
+    Last = Warning,
+};
+
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
+
 #define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
     const WrapperType& SetChecked(bool checked) const { return setChecked<WrapperType>(checked); }
 #define DECLARE_WIDGET_WRAPPER_ADD_TEXT(WrapperType) \
@@ -168,12 +177,14 @@ public:
     const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
     DispatcherConnectionsSafe& WidgetConnections() const;
-    LocalPropertyBool& WidgetHighlighted() const;
+    LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const;
     LocalPropertyBool& WidgetVisibility() const { return WidgetVisibility(false); }
     LocalPropertyBool& WidgetVisibility(bool animated) const;
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
+    TranslatedStringPtr WidgetErrorDescription() const;
+    Dispatcher& ErrorFocusDispatcher() const;
 
     bool HasParent(QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
@@ -243,7 +254,9 @@ enum class ButtonRole
     AddIcon = 5,
     Add = 6,
     Tab = 7,
-    DateTimePicker = 8
+    DateTimePicker = 8,
+    GroupHeader = 9,
+    Group = 10,
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper
@@ -588,5 +601,4 @@ public:
 
     Dispatcher& OnReset() const;
 };
-
 #endif // WIDGETHELPERS_H

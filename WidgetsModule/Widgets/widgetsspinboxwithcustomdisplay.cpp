@@ -234,3 +234,15 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
 
     return QValidator::Invalid;
 }
+
+QSize WidgetsScrollArea::sizeHint() const
+{
+    auto sizeHint = QScrollArea::sizeHint();
+    if(verticalScrollBarPolicy() != Qt::ScrollBarAlwaysOff) {
+        sizeHint.setWidth(sizeHint.width() + 2 * verticalScrollBar()->sizeHint().width());
+    }
+    if(horizontalScrollBarPolicy() != Qt::ScrollBarAlwaysOff) {
+        sizeHint.setHeight(sizeHint.height() + 2 * horizontalScrollBar()->sizeHint().height());
+    }
+    return sizeHint;
+}

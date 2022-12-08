@@ -62,6 +62,7 @@ DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* con
         result += m_commutator.ConnectFrom(connectionInfo, property->OnChanged);
     }
     m_properties += properties;
+    m_commutator.Invoke();
     return result;
 }
 

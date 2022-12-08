@@ -17,7 +17,7 @@ public:
 
     const Measurement* Unit;
     TranslatedStringPtr Label;
-    LocalPropertyErrorsContainer* Errros;
+    TranslatedStringPtr ErrorMessage;
 
     UIPropertyWrapper& RegisterUI(const Name& id, const TranslatedStringPtr& label, const Measurement* measurement = nullptr){
         Q_ASSERT(Id.IsNull());
@@ -30,22 +30,26 @@ public:
     using ErrorPropertyHandler = std::function<const LocalPropertyBool&(const Super&)>;
     using ErrorMessageHandler = std::function<QString(const QString&)>;
 
-    DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, const ErrorPropertyHandler& errorHandler, const ErrorMessageHandler& errorMessage = [](const QString& v){ return QObject::tr("%1 is not set").arg(v);}){
+    DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, const ErrorPropertyHandler& errorHandler, QtMsgType severity = QtCriticalMsg){
         Q_ASSERT(!Id.IsNull());
-        return errors.RegisterError(Id, ::make_shared<TranslatedString>([this, errorMessage]{ return errorMessage(Label->Native()); }), errorHandler(*this), true);
+        if(ErrorMessage == nullptr) {
+            Q_ASSERT(Label != nullptr);
+            ErrorMessage = TRS(QObject::tr("%1 is not set").arg(Label->Native()), this);
+        }
+        return errors.RegisterError(Id, ErrorMessage, errorHandler(*this), true, severity);
     }
-    DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, const ErrorMessageHandler& errorMessage = [](const QString& v){ return QObject::tr("%1 is not set").arg(v);});
+    DispatcherConnections RegisterErrorIn(LocalPropertyErrorsContainer& errors, QtMsgType severity = QtCriticalMsg);
 };
 
 template<>
-inline DispatcherConnections UIPropertyWrapper<StateParameterProperty<LocalPropertyDoubleOptional>>::RegisterErrorIn(LocalPropertyErrorsContainer& errors, const UIPropertyWrapper::ErrorMessageHandler& errorMessage){
+inline DispatcherConnections UIPropertyWrapper<StateParameterProperty<LocalPropertyDoubleOptional>>::RegisterErrorIn(LocalPropertyErrorsContainer& errors, QtMsgType severity){
     Q_ASSERT(!Id.IsNull());
-    return RegisterErrorIn(errors, [](const StateParameterProperty<LocalPropertyDoubleOptional>& p) -> const LocalPropertyBool& { return p.InputValue.IsValid; }, errorMessage);
+    return RegisterErrorIn(errors, [](const StateParameterProperty<LocalPropertyDoubleOptional>& p) -> const LocalPropertyBool& { return p.InputValue.IsValid; }, severity);
 }
 template<>
-inline DispatcherConnections UIPropertyWrapper<LocalPropertyDoubleOptional>::RegisterErrorIn(LocalPropertyErrorsContainer& errors, const UIPropertyWrapper::ErrorMessageHandler& errorMessage){
+inline DispatcherConnections UIPropertyWrapper<LocalPropertyDoubleOptional>::RegisterErrorIn(LocalPropertyErrorsContainer& errors, QtMsgType severity){
     Q_ASSERT(!Id.IsNull());
-    return RegisterErrorIn(errors, [](const LocalPropertyDoubleOptional& p) -> const LocalPropertyBool& { return p.IsValid; }, errorMessage);
+    return RegisterErrorIn(errors, [](const LocalPropertyDoubleOptional& p) -> const LocalPropertyBool& { return p.IsValid; }, severity);
 }
 
 
