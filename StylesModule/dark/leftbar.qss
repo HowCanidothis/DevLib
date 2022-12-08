@@ -160,3 +160,7 @@ QPushButton[DrawerControl="true"] {
 BHACatalogWidget QListView::item {
     height: 30px;
 }
+
+WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
+    background: #3C3C3C;
+}

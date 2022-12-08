@@ -30,7 +30,7 @@ bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QStri
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(tr("SAVE"), QMessageBox::YesRole);
+    auto* defaultButton = dialog.addButton(tr("CONFIRM"), QMessageBox::YesRole);
     dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);
@@ -136,6 +136,19 @@ void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)
 QWidget* WidgetsDialogsManager::GetParentWindow() const
 {
     return qApp->activeWindow() == nullptr ? m_defaultParent : qApp->activeWindow();
+}
+
+bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QString& text)
+{
+    QMessageBox dialog(GetParentWindow());
+    dialog.setWindowTitle(label);
+    dialog.setText(text);
+    auto* defaultButton = dialog.addButton(tr("SAVE"), QMessageBox::YesRole);
+    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
+    dialog.setDefaultButton(defaultButton);
+    OnDialogCreated(&dialog);
+    auto res = dialog.exec();
+    return res == 0;
 }
 
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){

@@ -70,6 +70,13 @@ public:
     bool IsExpanded(size_t key) const;
     void SetExpanded(size_t key, bool flag);
 
+    template<class T>
+    SharedPointer<T> FindByPath(const QString& path, const QString& separator = ".") const
+    {
+        auto foundIt = findByPath(path, separator);
+        return foundIt.Cast<T>();
+    }
+    SharedPointer<ModelsTreeItemBase> FindByPath(const QString& path, const QString& separator = ".") const;
     ModelsTreeItemBase* FindIf(const FilterFunc& filter) const;    
     const SharedPointer<ModelsTreeItemBase>& AddChild(const SharedPointer<ModelsTreeItemBase>& item);
     void InsertChilds(qint32 before, qint32 count, const std::function<SharedPointer<ModelsTreeItemBase> ()>& itemCreator);

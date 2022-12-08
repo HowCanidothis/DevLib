@@ -15,6 +15,20 @@ struct WidgetWrapperInjectedCommutatorData
     {}
 };
 
+class EventFilterObject : public QObject
+{
+    using Super = QObject;
+
+    using FFilter = std::function<bool (QObject*, QEvent*)>;
+    EventFilterObject(const FFilter& filter, QObject* parent);
+
+    bool eventFilter(QObject* watched, QEvent* e) override;
+
+protected:
+    friend class ObjectWrapper;
+    FFilter m_filter;
+};
+
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 #define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
     const WrapperType& SetChecked(bool checked) const { return setChecked<WrapperType>(checked); }
@@ -44,6 +58,8 @@ public:
     ObjectWrapper(QObject* object)
         : m_object(object)
     {}
+
+    EventFilterObject* AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
 
     template<class T> const T& Cast() const { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((const T*)this); }
 
@@ -144,8 +160,6 @@ public:
 
     const WidgetWrapper& AddModalProgressBar() const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
-    const WidgetWrapper& AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
-    const WidgetWrapper& AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
 
     const WidgetWrapper& BlockWheel() const;
@@ -260,6 +274,20 @@ public:
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
     LocalPropertyBool& WidgetReadOnly() const;
+private:
+};
+
+class WidgetTextEditWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetTextEditWrapper(class QTextEdit* lineEdit);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTextEditWrapper, QTextEdit)
+
+    QString Chopped(qint32 maxCount) const;
+    LocalPropertyBool& WidgetReadOnly() const;
+
 private:
 };
 

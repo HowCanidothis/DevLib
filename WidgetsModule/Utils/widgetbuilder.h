@@ -36,6 +36,10 @@ public:
     WidgetBuilder& StartLayout(const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler);
     WidgetBuilder& Make(const std::function<void (WidgetBuilder&)>& handler);
     WidgetBuilder& StartLabeledLayout(QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler);
+    WidgetBuilder& StartLabeledLayout(const std::function<void (WidgetBuilder&)>& handler)
+    {
+        return StartLabeledLayout(QuadTreeF::Location_MiddleLeft, handler);
+    }
 
     class WidgetsDoubleSpinBoxWithCustomDisplay* AddDoubleSpinBox(const FTranslationHandler& label = TR_NONE);
     class WidgetsSpinBoxWithCustomDisplay* AddSpinBox(const FTranslationHandler& label = TR_NONE);

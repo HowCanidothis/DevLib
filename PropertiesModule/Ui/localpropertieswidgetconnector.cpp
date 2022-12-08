@@ -12,11 +12,7 @@
 #include <QMenu>
 #include <QPushButton>
 
-#ifdef WIDGETS_MODULE_LIB
-
 #include <WidgetsModule/internal.hpp>
-
-#endif
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
     : m_widgetSetter([this, widgetSetter](){
@@ -62,9 +58,9 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(checkBox, &QCheckBox::clicked, [this](bool){
+    WidgetCheckBoxWrapper(checkBox).WidgetChecked().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_propertySetter();
-    });
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox)
@@ -78,6 +74,10 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
 {
     property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this](){
         m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    WidgetCheckBoxWrapper(checkBox).WidgetText()->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_propertySetter();
     }).MakeSafe(m_dispatcherConnections);
 }
 
@@ -171,8 +171,6 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
-#ifdef WIDGETS_MODULE_LIB
-
 LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
     : Super([buttons, property]{
                 for(auto* button : buttons) {
@@ -232,8 +230,6 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         spinBox->setDecimals(property->Precision);
     }).MakeSafe(m_dispatcherConnections);
 }
-
-#endif
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
@@ -395,7 +391,6 @@ LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(Local
     }
 }
 
-#ifdef WIDGETS_MODULE_LIB
 LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
     : Super([](){},
             [](){}
@@ -431,6 +426,3 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
-
-
-#endif

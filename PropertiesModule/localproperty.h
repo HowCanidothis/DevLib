@@ -722,12 +722,12 @@ public:
 
     void ClearProperties();
     void Update();
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<LocalPropertyBool*>& properties);
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<LocalPropertyBool*> m_properties;
+    QVector<const LocalPropertyBool*> m_properties;
     bool m_defaultState;
 };
 
@@ -1146,7 +1146,7 @@ struct LocalPropertyOptional
         adapters::Combine([&](const auto* property){
             connections += property->ConnectAction(locationInfo, update);
         }, args...);
-
+        update();
         return connections;
     }
 

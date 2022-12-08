@@ -49,3 +49,8 @@ WidgetsDatePopupPicker::~WidgetsDatePopupPicker()
 {
     delete ui;
 }
+
+WidgetsDateTimeEdit* WidgetsDatePopupPicker::GetLineEdit() const
+{
+    return ui->DateEdit;
+}

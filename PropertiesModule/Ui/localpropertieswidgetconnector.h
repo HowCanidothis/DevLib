@@ -203,13 +203,12 @@ public:
         : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
     {}
 
-#ifdef WIDGETS_MODULE_LIB
     template<class T>
     LocalPropertiesSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
         : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
     {}
     LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, class WidgetsSpinBoxWithCustomDisplay* spinBox);
-#endif
+
 };
 
 class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
@@ -223,14 +222,12 @@ public:
         : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
     {}
 
-#ifdef WIDGETS_MODULE_LIB
     template<class T>
     LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
         : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
     {}
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
     LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
-#endif
 };
 
 class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase
@@ -258,8 +255,6 @@ private:
     DelayedCallObject m_textChanged;
 };
 
-#ifdef WIDGETS_MODULE_LIB
-
 class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
@@ -274,6 +269,5 @@ class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetCon
 public:
     LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, class WidgetsDateTimeEdit* dateTime);
 };
-#endif
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H

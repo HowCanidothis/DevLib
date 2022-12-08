@@ -21,6 +21,7 @@
 #include <QColorDialog>
 #include <QWidgetAction>
 #include <QLabel>
+#include <QTextEdit>
 #include <QScrollArea>
 #include <QMenu>
 #include <QSettings>
@@ -66,59 +67,16 @@ struct DisabledColumnComponentData
 
 Q_DECLARE_METATYPE(SharedPointer<DisabledColumnComponentData>)
 
-class WidgetsAttachment : public QObject
-{
-    using Super = QObject;
-public:
-    using FFilter = std::function<bool (QObject*, QEvent*)>;
-    WidgetsAttachment(const FFilter& filter, QObject* parent);
-
-    static void Attach(QObject* target, const FFilter& filter);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-
-protected:
-    FFilter m_filter;
-};
-
-WidgetsAttachment::WidgetsAttachment(const FFilter& filter, QObject* parent)
+EventFilterObject::EventFilterObject(const FFilter& filter, QObject* parent)
     : Super(parent)
     , m_filter(filter)
 {
     parent->installEventFilter(this);
 }
 
-void WidgetsAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
-{
-    new WidgetsAttachment(filter, target);
-}
-
-bool WidgetsAttachment::eventFilter(QObject* watched, QEvent* e)
+bool EventFilterObject::eventFilter(QObject* watched, QEvent* e)
 {
     return m_filter(watched, e);
-}
-
-class WidgetsDisconnectableAttachment : public WidgetsAttachment
-{
-    using Super = WidgetsAttachment;
-public:
-    using Super::Super;
-
-    static void Attach(QObject* target, const FFilter& filter);
-
-private:
-    bool eventFilter(QObject* watched, QEvent* e) override;
-};
-
-void WidgetsDisconnectableAttachment::Attach(QObject* target, const std::function<bool (QObject*, QEvent*)>& filter)
-{
-    new WidgetsDisconnectableAttachment(filter, target);
-}
-
-bool WidgetsDisconnectableAttachment::eventFilter(QObject*, QEvent* e)
-{
-    return m_filter(this, e);
 }
 
 const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() const
@@ -925,16 +883,9 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class QLineEdit* lineEdit)
 
 }
 
-const WidgetWrapper& WidgetWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
+EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
-    WidgetsAttachment::Attach(GetWidget(), filter);
-    return *this;
-}
-
-const WidgetWrapper& WidgetWrapper::AddDisconnectableEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
-{
-    WidgetsDisconnectableAttachment::Attach(GetWidget(), filter);
-    return *this;
+    return new EventFilterObject(filter, m_object);
 }
 
 const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const
@@ -1505,9 +1456,17 @@ WidgetCheckBoxWrapper::WidgetCheckBoxWrapper(QCheckBox* target)
 LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
 {
     auto* widget = GetWidget();
-    return *GetOrCreateProperty<LocalPropertyBool>("a_checked",[widget](QObject*, const LocalPropertyBool& value){
-        widget->setChecked(value);
-    }, false);
+    return *Injected<LocalPropertyBool>("a_checked", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool(false);
+        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property](bool value){
+                                               widget->setChecked(value);
+                                           });
+        property->SetSetterHandler(ThreadHandlerMain);
+        widget->connect(widget, &QCheckBox::stateChanged, [property](qint32 state){
+            *property = state;
+        });
+        return property;
+    });
 }
 
 TranslatedStringPtr WidgetCheckBoxWrapper::WidgetText() const
@@ -1568,5 +1527,36 @@ Dispatcher& ViewModelWrapper::OnReset() const
         auto* result = new Dispatcher();
         model->connect(model, &QAbstractItemModel::modelReset, [result]{ result->Invoke(); });
         return result;
+    });
+}
+
+WidgetTextEditWrapper::WidgetTextEditWrapper(QTextEdit* lineEdit)
+    : Super(lineEdit)
+{
+
+}
+
+QString WidgetTextEditWrapper::Chopped(qint32 maxCount) const
+{
+    auto text = GetWidget()->toPlainText();
+    auto withoutDots = maxCount - 3;
+    if(text.size() > withoutDots) {
+        return text.chopped(withoutDots) + "...";
+    }
+    return text;
+}
+
+LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
+{
+    return *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool();
+        auto* widget = GetWidget();
+        property->EditSilent() = widget->isReadOnly();
+        property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
+            widget->setReadOnly(*property);
+            StyleUtils::UpdateStyle(widget);
+        });
+        property->SetSetterHandler(ThreadHandlerMain);
+        return property;
     });
 }
