@@ -1,7 +1,7 @@
 MainWindow {
     qproperty-addIconColor: #3EA6FF;
-    qproperty-iconPlanColor: #1976D2;
-    qproperty-iconPrototypeColor: #1976D2;
+    qproperty-iconPlanColor: #3ea6ff;
+    qproperty-iconPrototypeColor: #3ea6ff;
     qproperty-iconSurveyColor: #ff3b30;
     qproperty-iconWellboreColor: #ff3b30;
     

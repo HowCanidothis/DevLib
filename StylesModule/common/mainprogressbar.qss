@@ -31,7 +31,7 @@ QProgressBar {
 
 QProgressBar::chunk {
   background-color: white;
-  color: #1E1E1E;
+  color: #181818;
   border-radius: 4px;
 }
 
@@ -40,7 +40,7 @@ QFrame[ApplicationMode="1"] QProgressBar{
 }
 
 QFrame[ApplicationMode="2"] QProgressBar{
-    background-color: #1976D2;
+    background-color: #3ea6ff;
 }
 
 OffsetView QProgressBar {

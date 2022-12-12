@@ -8,7 +8,7 @@ QPushButton#PropertiesToolBarButton {
 }
 
 QPushButton#PropertiesToolBarButton:hover {
-    background: #1976D2;
+    background: #3ea6ff;
     color: white;
 }
 
@@ -20,5 +20,17 @@ QPushButton#PropertiesToolBarDeleteButton {
 
 QPushButton#PropertiesToolBarDeleteButton:hover {
     image: url(":/qss_icons/rc/delete-hover.svg");
-    background: #1976D2;
+    background: #3ea6ff;
+}
+
+LeftBar QPushButton{
+    qproperty-text: "";
+    background: transparent;
+    max-width: 28;
+    max-height: 28;
+    min-width: 28;
+    min-height: 28;
+    margin: 5 0 10 0;
+    padding: 0 0 0 0;
+    border: none;
 }

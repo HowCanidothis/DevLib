@@ -42,6 +42,8 @@ struct StyleSettings
     LocalPropertyColor IconSecondaryColor;
     LocalPropertyColor IconSelectionColor;
     LocalPropertyColor IconSecondarySelectionColor;
+    LocalPropertyColor IconDisabledColor;
+    LocalPropertyColor IconSecondaryDisabledColor;
 
     LocalPropertyColor DisabledTableCellColor;
     LocalPropertyColor EnabledTableCellColor;

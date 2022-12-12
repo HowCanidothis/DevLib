@@ -1,16 +1,9 @@
 MainWindow {
     qproperty-visualizationTextColor: white;
     qproperty-visualizationTextBorderColor: black;
-    qproperty-visualizationBackgroundColor: #1e1e1e;
+    qproperty-visualizationBackgroundColor: #181818;
     qproperty-visualizationBoxColor: #252526;
     qproperty-visualizationAxisColor: #858585;
+    qproperty-visualizationFrameColor: #181818;
     qproperty-placeHolderColor: #4d4d4d;
-}
-
-VisualizationLegendWidget {
-    background: red;
-}
-
-VisualizationLegendItemWidget {
-    background: red;
 }

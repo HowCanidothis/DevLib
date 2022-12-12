@@ -1,124 +1,17 @@
-LeftBar QPushButton#BtnDDToolBox{
-    image: url(":/left_bar/clipboard-check-outline.svg");
+LeftBar QPushButton[a_control="1"]{
     qproperty-text: "";
+    qproperty-iconSize: 28px;
     background: transparent;
-    min-width: 28;
-    min-height: 28;
+    max-width: 28px;
+    max-height: 28px;
+    min-width: 28px;
+    min-height: 28px;
     margin: 5 0 10 0;
     padding: 0 0 0 0;
     border: none;
 }
-
-LeftBar QPushButton#BtnDDToolBox:hover{
-    image: url(":/left_bar/clipboard-check-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnDDToolBox:checked{
-    image: url(":/left_bar/clipboard-check-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnSettings{
-    image: url(":/left_bar/cog-outline.svg");
-    qproperty-text: "";
-    background: transparent;
-    min-width: 28;
-    min-height: 28;
-    margin: 5 0 10 0;
-    padding: 0 0 0 0;
-    border: none;
-}
-
-LeftBar QPushButton#BtnSettings:hover{
-    image: url(":/left_bar/cog-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnSettings:checked{
-    image: url(":/left_bar/cog-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnDataBrowser{
-    image: url(":/left_bar/text-box-search-outline.svg");
-    
-    qproperty-text: "";
-    background: transparent;
-    min-width: 28;
-    min-height: 28;
-    margin: 5 0 10 0;
-    padding: 0 0 0 0;
-    border: none;
-}
-
-LeftBar QPushButton#BtnDataBrowser:hover{
-    image: url(":/left_bar/text-box-search-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnDataBrowser:checked{
-    image: url(":/left_bar/text-box-search-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnJobSpace{
-    image: url(":/left_bar/studio.svg");
-    
-    qproperty-text: "";
-    background: transparent;
-    min-width: 28;
-    min-height: 28;
-    margin: 5 0 10 0;
-    padding: 0 0 0 0;
-    border: none;
-}
-
-LeftBar QPushButton#BtnJobSpace:hover{
-    image: url(":/left_bar/studio-hover.svg");
-}
-
-LeftBar QPushButton#BtnJobSpace:checked{
-    image: url(":/left_bar/studio-hover.svg");
-}
-
-LeftBar QPushButton#BtnDrillEngineering{
-    image: url(":/left_bar/calculator.svg");
-    
-    qproperty-text: "";
-    background: transparent;
-    min-width: 28;
-    min-height: 28;
-    margin: 5 0 10 0;
-    padding: 0 0 0 0;
-    border: none;
-}
-
-LeftBar QPushButton#BtnDrillEngineering:hover{
-    image: url(":/left_bar/calculator-hover.svg");
-}
-
-LeftBar QPushButton#BtnDrillEngineering:checked{
-    image: url(":/left_bar/calculator-hover.svg");
-}
-
-LeftBar QPushButton#BtnUser{
-    image: url(":/left_bar/account-circle-outline.svg");
-    
-    qproperty-text: "";
-    background: transparent;
-    min-width: 28;
-    min-height: 28;
-    margin: 5 0 10 0;
-    padding: 0 0 0 0;
-    border: none;
-}
-
-LeftBar QPushButton#BtnUser:hover{
-    image: url(":/left_bar/account-circle-outline-hover.svg");
-}
-
-LeftBar QPushButton#BtnUser:checked{
-    image: url(":/left_bar/account-circle-outline-hover.svg");
-}
-
 
 LeftBar {
-    background: #333333;
     padding: 20 0 0 0;
     min-width: 48;
 }
@@ -301,7 +194,7 @@ QFrame#MainFooter {
 
 DDFooter[DDReferenceMode="0"] QMenuBar {
     font-size: 12px;
-    background: #1976D2;
+    background: #3ea6ff;
 }
 DDFooter[DDReferenceMode="1"] QMenuBar {
     font-size: 12px;
@@ -309,7 +202,7 @@ DDFooter[DDReferenceMode="1"] QMenuBar {
 }
 DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
-    background: #1976D2;
+    background: #3ea6ff;
 }
 DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
@@ -339,7 +232,7 @@ DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
 }
 
 DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
-    background: #1976D2;
+    background: #3ea6ff;
 } 
 
 DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
@@ -356,7 +249,7 @@ QFrame[ApplicationMode="1"]{
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
-    background: #1976D2;
+    background: #3ea6ff;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
@@ -373,7 +266,7 @@ QFrame[ApplicationMode="1"] QWidget{
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
-    background: #1976D2;
+    background: #3ea6ff;
     color: white;
 }
 

@@ -1273,7 +1273,7 @@ ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& co
                    .SetDefaultLabels();
         }, "ColorDialog"));
         dialog->setCurrentColor(color);
-        dialog.Show(DescShowDialogParams());
+        dialog.Show(DescShowDialogParams().SetModal(false));
         if(dialog->result() == QDialog::Accepted) {
             auto result = dialog->currentColor();
             pixmap.fill(result);

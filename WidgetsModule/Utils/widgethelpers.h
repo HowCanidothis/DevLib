@@ -244,7 +244,8 @@ enum class ButtonRole
     AddIcon = 5,
     Add = 6,
     Tab = 7,
-    DateTimePicker = 8
+    DateTimePicker = 8,
+    FloatingButton = 9,
 };
 
 class WidgetPushButtonWrapper : public WidgetWrapper

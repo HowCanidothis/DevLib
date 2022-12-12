@@ -3,14 +3,19 @@
 
 #include <QWidget>
 
+#include <PropertiesModule/internal.hpp>
+
 class WidgetsStyleSettings : public QWidget
 {
     Q_OBJECT
     using Super = QWidget;
 
     Q_PROPERTY(QColor normalColor MEMBER m_normalColor)
+    Q_PROPERTY(QColor selectionColor MEMBER m_selectionColor)
     Q_PROPERTY(QColor secondaryColor MEMBER m_secondaryColor)
     Q_PROPERTY(QColor secondarySelectionColor MEMBER m_secondarySelectionColor)
+    Q_PROPERTY(QColor disabledColor MEMBER m_disabledColor)
+    Q_PROPERTY(QColor secondaryDisabledColor MEMBER m_secondaryDisabledColor)
     Q_PROPERTY(QColor shadowColor MEMBER m_shadowColor)
     Q_PROPERTY(qint32 shadowBlurRadius MEMBER m_shadowBlurRadius)
 
@@ -34,6 +39,8 @@ private:
     LocalPropertyColor m_normalColor;
     LocalPropertyColor m_secondaryColor;
     LocalPropertyColor m_selectionColor;
+    LocalPropertyColor m_disabledColor;
+    LocalPropertyColor m_secondaryDisabledColor;
     LocalPropertyColor m_shadowColor;
     LocalPropertyInt m_shadowBlurRadius;
 

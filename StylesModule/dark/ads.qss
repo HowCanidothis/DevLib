@@ -32,16 +32,19 @@ QScrollBar#ADSTabAreaHorizontalScrollBar
 ads--CDockWidgetTab
 {
     background: #2d2d2d;
-    border-color: #1e1e1e;
+    border-color: #181818;
     border-style: solid;
     border-width: 0 1px 0 0;
     padding: 10px 0px 10px 10px;
     margin: 0px;
+/*    border-top-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+*/
 }
 
 ads--CDockWidgetTab[activeTab="true"]
 {
-    background: #1e1e1e;
+    background: #181818;
     padding: 10px 0px 10px 10px;
 }
 
@@ -61,13 +64,13 @@ ads--CDockWidgetTab QLabel#IconLabel
 
 ads--CDockWidgetTab[activeTab="true"] QLabel#IconLabel
 {
-    background: #1e1e1e;
+    background: #181818;
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel
 {
     color: #9d9d9d;
-    background: #1e1e1e;
+    background: #181818;
 }
 
 ads--CDockAreaWidget {
@@ -161,7 +164,7 @@ QWidget #detachGroupButton:hover {
 }
 
 ads--CDockManager {
-    background: #1e1e1e;
+    background: #181818;
     border: none;
     padding: 0px;
     margin: 0px;

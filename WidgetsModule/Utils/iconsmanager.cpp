@@ -309,7 +309,7 @@ IconsSvgIcon IconsManager::RegisterIconWithDefaultColorScheme(const Name& id, co
     auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
 
     icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
-    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconDisabledColor);
     icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
     icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
 
@@ -323,7 +323,7 @@ IconsSvgIcon IconsManager::RegisterIconWithSecondaryColorScheme(const Name& id, 
     auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
 
     icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
-    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryDisabledColor);
     icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
     icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
 

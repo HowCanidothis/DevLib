@@ -1,6 +1,6 @@
 QPushButton#PropertiesToolBarButton {
     color: white;
-    background: #3E3E3E;
+    background: #181818;
     text-align: left;
     padding: 10px 0px 10px 0px;
     border: none;
@@ -37,5 +37,5 @@ WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
 }
 
 VisualizationLegendWidget QWidget{
-    background: #252526;
+    background: #181818;
 }

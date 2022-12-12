@@ -974,7 +974,7 @@ WPSCActiveDayComponent QPushButton#btnPrevDay
 
 WPSCActiveDayComponent QPushButton#btnPrevDay:hover{
     image: url(":/qss_icons/rc/chevron-left-hover.svg");
-    background: #1976D2;
+    background: #3ea6ff;
 }
 
 WPSCActiveDayComponent QPushButton#btnNextDay
@@ -991,7 +991,7 @@ WPSCActiveDayComponent QPushButton#btnNextDay
 WPSCActiveDayComponent QPushButton#btnNextDay:hover
 {
     image: url(":/qss_icons/rc/chevron-right-hover.svg");
-    background: #1976D2;
+    background: #3ea6ff;
 }
 
 WidgetsTimeWidget QSpinBox {
@@ -1091,6 +1091,10 @@ QPushButton[a_control="1"]{  /* Icon */
     background: transparent;
 }
 
+QPushButton[a_control="1"]:disabled {
+    background: transparent;
+}
+
 QPushButton[a_control="8"]
 {
     background: transparent;
@@ -1116,7 +1120,7 @@ QPushButton#ResetButton
 
 QPushButton#ResetButton:hover
 {
-    background: #1976D2;
+    background: #3ea6ff;
 }
 
 WPSCQuickPlanView QLabel[tiny="true"] {
@@ -1192,7 +1196,7 @@ QWidget[w_showfocus="1"]{
 QWidget[w_showfocus="2"]{
     border-width: 3px;
     border-style: solid;
-    border-color: #1976D2;
+    border-color: #3ea6ff;
 }
 
 QWidget[w_showfocus="3"]{

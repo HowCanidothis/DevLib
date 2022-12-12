@@ -48,7 +48,6 @@ QWidget*PropertiesDelegateFactory::CreateEditor(QWidget* parent, const QStyleOpt
     }
     case Property::DelegateColor: {
         WidgetColorDialogWrapper result(new QColorDialog(parent));
-        WidgetsDialogsManager::GetInstance().OnDialogCreated(result);
         result.SetDefaultLabels();
         result->setCurrentColor(index.data().value<QColor>());
         result->setOption(QColorDialog::ShowAlphaChannel);

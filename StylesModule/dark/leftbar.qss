@@ -8,19 +8,19 @@ MenuBar MenuBarMovePane {
 }
 
 MenuBarMovePane QLabel#Title {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 QPushButton#BtnMinimize {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 QPushButton#BtnMaximize {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 QPushButton#BtnClose {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 QPushButton#BtnClose:hover {
@@ -29,7 +29,7 @@ QPushButton#BtnClose:hover {
 }
 
 QPushButton#BtnCloseMinor {
-    background: #252525;
+    background: #181818;
 }
 
 QPushButton#BtnCloseMinor:hover {
@@ -50,11 +50,11 @@ LeftBar QFrame {
 }
 
 LeftBar {
-    background: #333333;
+    background: #181818;
 }
 
 MenuBar {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 MenuBar QWidget#Menus{
@@ -71,46 +71,47 @@ TreeBar QLabel#Title {
 }
 
 MenuBar QLabel#LogoIcon {
-    background: #3C3C3C;
+    background: #121212;
+    min-width: 28px;
 }
 
 MenuBarMovePane QLabel#Icon {
-    background: #3C3C3C;
+    background: #121212;
 }
 
 WidgetsEditingObjectSaveCancelButtons {
-    background: #252526;
+    background: #181818;
     padding: 10px 20px 10px 20px;
 }
 
 QFrame[Footer="true"]
 {
-    background: #252526;
+    background: #181818;
 }
 
 QFrame[Footer="true"] QLabel
 {
-    background: #252526;
+    background: #181818;
 }
 
 QFrame[Footer="true"] QCheckBox
 {
-    background: #252526;
+    background: #181818;
 }
 
 QFrame[Footer="true"] QLabel
 {
-    background: #252526;
+    background: #181818;
 }
 
 QFrame[Footer="true"] QDoubleSpinBox
 {
-    background: #252526;
+    background: #181818;
 }
 
 QFrame[Footer="true"] QSpinBox
 {
-    background: #252526;
+    background: #181818;
 }
 
 DDFooter QLabel{
@@ -123,7 +124,7 @@ QFrame#MainFooter QLabel#FooterProgressBarLabel{
 }
 
 QTreeView#OffsetsTreeView {
-    background: #1e1e1e;
+    background: #181818;
 }
 
 TreeBar QFrame#Header {
@@ -136,11 +137,25 @@ TreeBar QLabel {
     color: #9d9d9d;
 }
 
+TreeBar QTreeView {
+    background: #252526;
+}
+
+TreeBar QTreeView:selected {
+    background: #252526;
+}
+
+TreeBar QTreeView:hover {
+    background: #252526;
+}
+
 WidgetsStyleSettings {
     qproperty-normalColor: white;
     qproperty-secondaryColor: #6F6F6F;
+    qproperty-disabledColor: #cccccc;
     qproperty-selectionColor: white;
     qproperty-secondarySelectionColor: #6F6F6F;
+    qproperty-secondaryDisabledColor: #252526;
     qproperty-enabledTableColor: #252526;
     qproperty-enabledTableTextColor: white;
     qproperty-disabledTableColor: rgba(255, 255, 255, 16);

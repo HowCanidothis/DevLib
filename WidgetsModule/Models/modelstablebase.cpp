@@ -219,6 +219,9 @@ QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orienta
 
         auto foundIt = m_roleHorizontalHeaderDataHandlers.find(role);
         if(foundIt == m_roleHorizontalHeaderDataHandlers.end()) {
+            if(role == Qt::TextAlignmentRole) {
+                return qVariantFromValue(Qt::AlignBottom | Qt::AlignLeft | Qt::TextWordWrap);
+            }
             return QVariant();
         }
         return foundIt.value()(section);

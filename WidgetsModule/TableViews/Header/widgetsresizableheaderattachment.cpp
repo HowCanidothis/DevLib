@@ -10,7 +10,7 @@
 WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientation orientation, QTableView* parent, const DescTableViewParams& params)
     : Super(orientation, parent)
 {
-    qint32 alignment = Qt::AlignCenter | Qt::TextWordWrap;
+    qint32 alignment = Qt::AlignVCenter | Qt::AlignLeft | Qt::TextWordWrap;
     setDefaultAlignment((Qt::Alignment)alignment);
     setStretchLastSection(params.StretchLastSection);
     setSectionsMovable(params.SectionsMovable);

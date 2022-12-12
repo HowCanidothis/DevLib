@@ -1,8 +1,9 @@
 MainWindow {
-    qproperty-visualizationTextColor: #3C3C3C;
+    qproperty-visualizationTextColor: #787878;
     qproperty-visualizationTextBorderColor: white;
     qproperty-visualizationBackgroundColor: white;
     qproperty-visualizationBoxColor: #F3F3F3;
-    qproperty-visualizationAxisColor: #3C3C3C;
+    qproperty-visualizationAxisColor: #787878;
+    qproperty-visualizationFrameColor: white;
     qproperty-placeHolderColor: #d4d4d4;
 }

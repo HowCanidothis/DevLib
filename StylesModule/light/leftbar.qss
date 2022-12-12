@@ -8,15 +8,15 @@ MenuBar MenuBarMovePane {
 }
 
 QPushButton#BtnMinimize {
-    background: #F3F3F3;
+    background: white;
 }
 
 QPushButton#BtnMaximize {
-    background: #F3F3F3;
+    background: white;
 }
 
 QPushButton#BtnClose {
-    background: #F3F3F3;
+    background: white;
 }
 
 QPushButton#BtnClose:hover {
@@ -40,19 +40,17 @@ QPushButton#BtnMaximize:hover {
     background: #ececec;
 }
 
-
-
 LeftBar QFrame {
     background: #F3F3F3;
     min-width: 1;
 }
 
 LeftBar {
-    background: #333333;
+    background: white;
 }
 
 MenuBar {
-    background: #F3F3F3;
+    background: white;
 }
 
 MenuBar QWidget#Menus{
@@ -60,7 +58,7 @@ MenuBar QWidget#Menus{
 }
 
 MenuBar QMenuBar::item {
-    background: #F3F3F3;
+    background: white;
 }
 
 MenuBar QMenuBar::item:selected {
@@ -77,11 +75,11 @@ TreeBar QLabel#Title {
 }
 
 MenuBar QLabel#LogoIcon {
-    background: #F3F3F3;
+    background: white;
 }
 
 MenuBarMovePane QLabel#Title {
-    background: #F3F3F3;
+    background: white;
     color: #9d9d9d;
 }
 
@@ -143,8 +141,10 @@ TreeBar QLabel {
 WidgetsStyleSettings {
     qproperty-normalColor: black;
     qproperty-selectionColor: black;
+    qproperty-disabledColor: #9d9d9d;
     qproperty-secondaryColor: #9d9d9d;
     qproperty-secondarySelectionColor: #9d9d9d;
+    qproperty-secondaryDisabledColor: #cccccc;
     qproperty-enabledTableColor: white;
     qproperty-enabledTableTextColor: black;
     qproperty-disabledTableColor: #d4d4d4;
