@@ -31,7 +31,7 @@ protected:
 
 enum class HighLightEnum {
     None,
-    Error,
+    Critical,
     Warning,
     First = None,
     Last = Warning,
@@ -183,7 +183,6 @@ public:
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
-    TranslatedStringPtr WidgetErrorDescription() const;
     Dispatcher& ErrorFocusDispatcher() const;
 
     bool HasParent(QWidget* parent) const;

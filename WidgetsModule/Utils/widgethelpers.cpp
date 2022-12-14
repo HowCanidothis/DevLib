@@ -799,13 +799,6 @@ TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
     });
 }
 
-TranslatedStringPtr WidgetWrapper::WidgetErrorDescription() const
-{
-    return Injected<TranslatedString>("a_error_description", []{
-        return new TranslatedString();
-    });
-}
-
 Dispatcher& WidgetWrapper::ErrorFocusDispatcher() const {
     auto* widget = GetWidget();
     auto result = Injected<Dispatcher>("a_on_focused", []{
