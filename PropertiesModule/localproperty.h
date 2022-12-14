@@ -717,8 +717,8 @@ public:
     void ClearProperties();
     void Update();
 
-    template<typename ... Args, typename Function>
-    DispatcherConnections AddProperty(const char* locationInfo, const Function& handler, Args... args)
+    template<typename Function, typename ... Args>
+    DispatcherConnections AddRule(const char* locationInfo, const Function& handler, Args... args)
     {
         DispatcherConnections connections;
         m_handlers.append([=]{ return handler(args->Native()...); });
@@ -728,8 +728,17 @@ public:
         m_commutator.Invoke();
         return connections;
     }
-    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property);
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
+    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property){
+        return AddRule(connectionInfo, [](bool value){ return value; }, property);
+    }
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
+    {
+        DispatcherConnections result;
+        for(auto* property : properties) {
+            result += AddProperty(connectionInfo, property);
+        }
+        return result;
+    }
 
 private:
     DispatchersCommutator m_commutator;
