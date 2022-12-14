@@ -8,9 +8,9 @@
 
 WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
 {
-    HasSelection.ConnectFrom(CONNECTION_DEBUG_LOCATION, SelectedRowsCount, [](qint32 count){
+    HasSelection.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 count){
         return count != 0;
-    });
+    }, &SelectedRowsCount);
 }
 
 void WidgetsActiveTableViewAttachment::updateActiveTableView(QTableView* tableView)

@@ -278,9 +278,9 @@ public:
         , m_stateParameters(::make_shared<QSet<SharedPointer<StateParameters>>>())
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
-        Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate, [this](bool valid){
+        Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool valid){
             return !valid ? false : Valid.Native();
-        });
+        }, &m_dependenciesAreUpToDate);
 
         Enabled.OnChanged += {this, [this, recalculateOnEnabled]{
             THREAD_ASSERT_IS_MAIN();

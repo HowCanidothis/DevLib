@@ -95,9 +95,9 @@ public:
 
     void Subscribe(const FOnChange& onChange);
     void Invoke();
-    void InstallObserver(Dispatcher::Observer observer, const FAction& action) { m_onChangeDispatcher += {observer, action}; }
-    void RemoveObserver(Dispatcher::Observer observer) { m_onChangeDispatcher -= observer; }
-    Dispatcher& GetDispatcher() { return m_onChangeDispatcher; }
+    void InstallObserver(Dispatcher::Observer observer, const FAction& action) { OnChanged += {observer, action}; }
+    void RemoveObserver(Dispatcher::Observer observer) { OnChanged -= observer; }
+    Dispatcher& GetDispatcher() { return OnChanged; }
 
     virtual DelegateValue GetDelegateValue() const { return DelegateDefault; }
     virtual const QVariant* GetDelegateData() const { return nullptr; }
@@ -112,6 +112,10 @@ public:
 
     QVariant GetValueFromRole(int role) const;
 
+    DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const;
+
+    Dispatcher OnChanged;
+
 protected:
     friend class ExternalPropertyProperty;
     friend class PropertiesSystem;
@@ -125,7 +129,6 @@ protected:
     Q_DISABLE_COPY(Property)
 
 protected:
-    Dispatcher m_onChangeDispatcher;
     FHandle m_fHandle;
     FOnChange m_fOnChange;
     FValidator m_fValidator;

@@ -906,16 +906,16 @@ QSplitter {
 
 QSplitter::handle {
   spacing: 0px;
-  margin: 0px 2px 0px 2px;
+  margin: 0px 0px 0px 0px;
 }
 
 QSplitter::handle:horizontal {
-  width: 1px;
+  width: 5px;
   image: url(":/qss_icons/rc/line_vertical.png");
 }
 
 QSplitter::handle:vertical {
-  height: 1px;
+  height: 5px;
   image: url(":/qss_icons/rc/line_horizontal.png");
 }
 

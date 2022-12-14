@@ -64,9 +64,9 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     });
 
     WidgetPushButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
-    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, Mode, [](qint32 mode){
+    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){
         return mode == DateTime;
-    });
+    }, &Mode);
     WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 }
 

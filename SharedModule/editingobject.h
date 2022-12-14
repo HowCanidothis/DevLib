@@ -1,6 +1,8 @@
 #ifndef EDITINGOBJECT_H
 #define EDITINGOBJECT_H
 
+#include <PropertiesModule/internal.hpp>
+
 using EditingObjectPtr = SharedPointer<class EditingObject>;
 
 class EditingObject

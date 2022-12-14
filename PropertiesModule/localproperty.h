@@ -217,24 +217,18 @@ public:
         return OnChanged.ConnectAndCallCombined(connectionInfo, [handler, this]{ handler(*this); }, dispatchers...);
     }
 
-    DispatcherConnection ConnectFromResetToIf(const char* connectionInfo, const T& resetTo, const T& expectedValue, const LocalPropertyBool& condition)
+    template<typename ... Args, typename First, typename Function>
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, First* first, Args... args)
     {
-        return ConnectFrom(connectionInfo, condition, [this, expectedValue, resetTo](bool ok){
-            if(Native() == expectedValue && !ok) {
-                return resetTo;
-            }
-            return Native();
-        });
-    }
-
-    template<class T2, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalProperty<T2>& another, const ThisEvaluator& thisEvaluator, Dispatchers&... dispatchers)
-    {
-        *this = thisEvaluator(another.Native());
-        auto onChange = [this, thisEvaluator, &another, locationInfo]{
-            *this = thisEvaluator(another.Native());
+        DispatcherConnections connections;
+        auto update = [=]{
+            this->operator=(handler(first->Native(), args->Native()...));
         };
-        return another.OnChanged.ConnectCombined(locationInfo, onChange, dispatchers...);
+        adapters::Combine([&](const auto* property){
+            connections += property->ConnectAction(locationInfo, update);
+        }, first, args...);
+        update();
+        return connections;
     }
 
     template<typename... Args, typename... Dispatchers>
@@ -1099,6 +1093,45 @@ struct LocalPropertyOptional
         return connections;
     }
 
+    template<class Another, typename T = typename Property::value_type, typename T2 = typename Another::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
+    DispatcherConnections ConnectBoth(const char* locationInfo, Another& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, Dispatchers&... dispatchers)
+    {
+        DispatcherConnections result;
+        if(IsValid) {
+            another.Value = anotherEvaluator(Value);
+        }
+        another.IsValid = IsValid.Native();
+        auto sync = ::make_shared<std::atomic_bool>(false);
+
+        auto setThis = [this, thisEvaluator, &another, sync, locationInfo]{
+            if(!*sync) {
+                *sync = true;
+                if(another.IsValid) {
+                    Value = thisEvaluator(another.Value);
+                }
+                IsValid = another.IsValid.Native();
+                *sync = false;
+            }
+        };
+
+        result += another.IsValid.OnChanged.Connect(locationInfo, setThis);
+        result += another.Value.OnChanged.Connect(locationInfo, setThis);
+        auto setAnother = [this, anotherEvaluator, &another, sync, locationInfo]{
+            if(!*sync) {
+                *sync = true;
+                if(IsValid) {
+                    another.Value = anotherEvaluator(Value);
+                }
+                another.IsValid = IsValid.Native();
+                *sync = false;
+            }
+        };
+
+        result += IsValid.OnChanged.Connect(locationInfo, setThis, dispatchers...);
+        result += Value.OnChanged.Connect(locationInfo, setThis, dispatchers...);
+        return result;
+    }
+
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
     {
         DispatcherConnections connections;
@@ -1111,11 +1144,9 @@ struct LocalPropertyOptional
     DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, Args... args)
     {        
         DispatcherConnections connections;
-        auto delayedCall = DelayedCallObjectCreate();
-        auto update = delayedCall->Wrap(locationInfo, [=]{
+        auto update = [=]{
             this->operator=(handler(args->Native()...));
-        });
-        IsValid.OnChanged.Connect(locationInfo, [delayedCall]{});
+        };
         adapters::Combine([&](const auto* property){
             connections += property->ConnectAction(locationInfo, update);
         }, args...);
@@ -1127,8 +1158,7 @@ struct LocalPropertyOptional
     DispatcherConnections ConnectFromOptional(const char* locationInfo, const Function& handler, Args... args)
     {
         DispatcherConnections connections;
-        auto delayedCall = DelayedCallObjectCreate();
-        auto update = delayedCall->Wrap(locationInfo, [=]{
+        auto update = [=]{
             bool isValid = true;
             for(auto* property : {args...}) {
                 if(!property->IsValueValid()) {
@@ -1140,8 +1170,7 @@ struct LocalPropertyOptional
                 Value = handler(args->Value.Native()...);
             }
             IsValid = isValid;
-        });
-        IsValid.OnChanged.Connect(locationInfo, [delayedCall]{});
+        };
         adapters::Combine([&](const auto* property){
             connections += property->ConnectAction(locationInfo, update);
         }, args...);

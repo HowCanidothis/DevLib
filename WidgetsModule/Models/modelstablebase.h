@@ -303,7 +303,7 @@ public:
         : Super(parent)
         , CreateDataHandler ([this](qint32, const QVariant&){ insertRows(rowCount()-1, 1); })
         , IsEditColumn      ([](qint32 column){ return true; })
-        , DataHandler       ([](qint32, int ){ return QVariant();})
+        , DataHandler       ([](qint32 , int role){ return QVariant(); })
         , IsEditable(true)
         , m_isEditable(true)
     {
@@ -354,7 +354,21 @@ public:
             return QVariant();
         }
         if(isLastEditRow(index)){
-            return DataHandler(index.column(), role);
+            auto ret = DataHandler(index.column(), role);
+            if(ret.isValid()) {
+                return ret;
+            }
+            switch(role) {
+            case Qt::FontRole: {
+                QFont result;
+                result.setItalic(true);
+                return result;
+            }
+            case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
+            case Qt::DisplayRole: return tr("Add");
+            default: break;
+            }
+            return QVariant();
         }
         return Super::data(index, role);
     }

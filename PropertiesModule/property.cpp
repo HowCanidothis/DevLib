@@ -46,7 +46,7 @@ void Property::Invoke()
     // Q_ASSERT(!m_isSubscribed);
 #endif
     m_fOnChange();
-    m_onChangeDispatcher.Invoke();
+    OnChanged.Invoke();
 }
 
 SharedPointer<ExternalPropertyProperty> Property::Clone(const Name& newName) const
@@ -89,6 +89,11 @@ QVariant Property::GetValueFromRole(int role) const
         break;
     }
     return QVariant();
+}
+
+DispatcherConnection Property::ConnectAction(const char* locationInfo, const FAction& action) const
+{
+    return OnChanged.Connect(locationInfo, action);
 }
 
 void NamedUIntProperty::SetNames(const QStringList& names)

@@ -19,6 +19,7 @@ enum AdditionalStandardRoles {
 
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;
 
+const auto FInverseBool = [](bool b) { return !b; };
 using FAction = std::function<void ()>;
 using FTranslationHandler = std::function<QString ()>;
 #define TR(x, ...) [__VA_ARGS__]{ return x; }

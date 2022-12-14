@@ -22,6 +22,7 @@ public:
     const MeasurementUnit* GetCurrentUnit() const { return m_currentUnit; }
     const WPSCUnitTableWrapperPtr& GetTableWrapper() const { return m_wrapper; }
     QString FromBaseToUnitUi(double value) const;
+    const QString& CurrentUnitString() const { return CurrentUnitLabel; }
     
     TranslatedString Label;
     LocalPropertyInt CurrentPrecision;
@@ -29,6 +30,13 @@ public:
     
     LocalProperty<Name> CurrentUnitId;
     LocalPropertyString CurrentUnitLabel;
+
+    DispatcherConnection ConnectAction(const char* location, const FAction& action) const
+    {
+        return OnChanged.ConnectAction(location, action);
+    }
+
+    const Measurement& Native() const { return *this; }
     
     DispatchersCommutator OnChanged;
     

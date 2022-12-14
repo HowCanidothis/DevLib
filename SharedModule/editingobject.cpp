@@ -5,20 +5,15 @@ EditingObject::EditingObject()
     , m_isActive(false)
     , m_isDirty(false)
 {
-    m_isDirty.ConnectFrom(CONNECTION_DEBUG_LOCATION, ForceDirty, [this](bool forceDirty) { return forceDirty ? true : m_isDirty.Native(); });
+    m_isDirty.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool forceDirty) { return forceDirty ? true : m_isDirty.Native(); }, &ForceDirty);
 }
 
 void EditingObject::SetParent(EditingObject* parent)
 {
     m_parentConnections.clear();
 
-    parent->OnEnteredEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        OnEnteredEditingMode();
-    }).MakeSafe(m_parentConnections);
-
-    parent->OnLeavedEditingMode.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        OnLeavedEditingMode();
-    }).MakeSafe(m_parentConnections);
+    OnEnteredEditingMode.ConnectFrom(CONNECTION_DEBUG_LOCATION, parent->OnEnteredEditingMode).MakeSafe(m_parentConnections);
+    OnLeavedEditingMode.ConnectFrom(CONNECTION_DEBUG_LOCATION, parent->OnLeavedEditingMode).MakeSafe(m_parentConnections);
 
     parent->OnAboutToBeSaved.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Save();
