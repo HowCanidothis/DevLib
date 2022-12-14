@@ -3,10 +3,8 @@
 
 #include <limits>
 #include <optional>
-
 #include "property.h"
 #include "externalproperty.h"
-
 
 template<class T>
 inline bool LocalPropertyEqual(const T& v1, const T& v2) { return v1 == v2; }
@@ -450,6 +448,7 @@ public:
     bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
     Enum Native() const { return (Enum)Super::m_value; }
+    int Value() const { return Super::m_value; }
 
     QString GetName() const
     {
@@ -717,12 +716,25 @@ public:
 
     void ClearProperties();
     void Update();
+
+    template<typename ... Args, typename Function>
+    DispatcherConnections AddProperty(const char* locationInfo, const Function& handler, Args... args)
+    {
+        DispatcherConnections connections;
+        m_handlers.append([=]{ return handler(args->Native()...); });
+        adapters::Combine([&](const auto* property){
+            connections += m_commutator.ConnectFrom(locationInfo, property->OnChanged);
+        }, args...);
+        m_commutator.Invoke();
+        return connections;
+    }
+    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property);
     DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<const LocalPropertyBool*> m_properties;
+    QVector<std::function<bool()>> m_handlers;
     bool m_defaultState;
 };
 

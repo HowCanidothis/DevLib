@@ -1011,12 +1011,48 @@ QPushButton[a_control="7"]:checked{
     border-bottom: 2px solid #3EA6FF;
 }
 
-QPushButton[a_control="8"]:hover{
+QPushButton[a_control="8"]:hover{/* Date Time */
     background: #3C3C3C;
 }
 
 QPushButton[a_control="9"]:hover{
     background: transparent;
+    border-bottom: 2px solid #3EA6FF;
+}
+
+QPushButton[a_control="10"]{/* GroupHeader */
+    border-radius: 0px;
+    color: #F0F0F0;
+    background: #3c3c3c;
+    font-size: 14px;
+    font-weight: normal;
+    border: none;
+}
+
+QPushButton[a_control="10"]:hover{
+    background: #666666;
+}
+
+QPushButton[a_control="10"]:checked{
+    font-weight: bold;
+    background: transparent;
+}
+
+QPushButton[a_control="11"]{/* Group */
+    border-radius: 0px;
+    color: #F0F0F0;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+}
+
+QPushButton[a_control="11"]:hover{
+    background: #666666;
+}
+
+QPushButton[a_control="11"]:checked{
+    color: #3EA6FF;
+    font-weight: bold;
     border-bottom: 2px solid #3EA6FF;
 }
 
