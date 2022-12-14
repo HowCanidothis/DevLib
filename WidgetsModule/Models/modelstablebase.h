@@ -358,15 +358,17 @@ public:
             if(ret.isValid()) {
                 return ret;
             }
-            switch(role) {
-            case Qt::FontRole: {
-                QFont result;
-                result.setItalic(true);
-                return result;
-            }
-            case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
-            case Qt::DisplayRole: return tr("Add");
-            default: break;
+            if(IsEditColumn(index.column())) {
+                switch(role) {
+                case Qt::FontRole: {
+                    QFont result;
+                    result.setItalic(true);
+                    return result;
+                }
+                case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
+                case Qt::DisplayRole: return tr("Add");
+                default: break;
+                }
             }
             return QVariant();
         }
