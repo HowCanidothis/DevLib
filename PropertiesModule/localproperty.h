@@ -722,6 +722,7 @@ public:
 
     void ClearProperties();
     void Update();
+    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool& property);
     DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
 
 private:

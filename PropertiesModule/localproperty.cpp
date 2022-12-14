@@ -55,6 +55,13 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
+DispatcherConnections LocalPropertyBoolCommutator::AddProperty(const char* connectionInfo, const LocalPropertyBool& property)
+{
+    m_properties.append(&property);
+    m_commutator.Invoke();
+    return m_commutator.ConnectFrom(connectionInfo, property.OnChanged);
+}
+
 DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
 {
     DispatcherConnections result;
