@@ -231,14 +231,18 @@ public:
         return connections;
     }
 
-    template<typename... Args, typename... Dispatchers>
-    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<T ()>& thisEvaluator, const CommonDispatcher<Args...>& first, Dispatchers&... dispatchers)
+    template<typename... Args, typename First, typename... Dispatchers>
+    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<T ()>& thisEvaluator, const First& first, Dispatchers&... dispatchers)
     {
+        DispatcherConnections result;
         *this = thisEvaluator();
         auto onChange = [this, thisEvaluator, locationInfo]{
             *this = thisEvaluator();
         };
-        return first.ConnectCombined(locationInfo, onChange, dispatchers...);
+        adapters::Combine([&](const auto& property){
+            result += property.ConnectAction(locationInfo, onChange);
+        }, first, dispatchers...);
+        return result;
     }
 
     DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<T ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
@@ -1141,10 +1145,10 @@ struct LocalPropertyOptional
     }
 
     template<typename ... Args, typename Function>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, Args... args)
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, const Args&... args)
     {        
         DispatcherConnections connections;
-        auto update = [=]{
+        auto update = [this, handler, &args...]{
             this->operator=(handler(args->Native()...));
         };
         adapters::Combine([&](const auto* property){
@@ -1155,24 +1159,24 @@ struct LocalPropertyOptional
     }
 
     template<typename ... Args, typename Function>
-    DispatcherConnections ConnectFromOptional(const char* locationInfo, const Function& handler, Args... args)
+    DispatcherConnections ConnectFromOptional(const char* locationInfo, const Function& handler, const Args&... args)
     {
         DispatcherConnections connections;
-        auto update = [=]{
+        auto update = [this, handler, &args...]{
             bool isValid = true;
-            for(auto* property : {args...}) {
-                if(!property->IsValueValid()) {
+            for(bool valid : {args.IsValueValid()...}) {
+                if(!valid) {
                     isValid = false;
                     break;
                 }
             }
             if(isValid) {
-                Value = handler(args->Value.Native()...);
+                Value = handler(args.Value.Native()...);
             }
             IsValid = isValid;
         };
-        adapters::Combine([&](const auto* property){
-            connections += property->ConnectAction(locationInfo, update);
+        adapters::Combine([&](const auto& property){
+            connections += property.ConnectAction(locationInfo, update);
         }, args...);
         update();
         return connections;

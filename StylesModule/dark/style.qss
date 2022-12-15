@@ -1016,8 +1016,7 @@ QPushButton[a_control="8"]:hover{
 }
 
 QPushButton[a_control="9"]:hover{
-    background: transparent;
-    border-bottom: 2px solid #3EA6FF;
+    background: #3C3C3C;
 }
 
 QPushButton:disabled {

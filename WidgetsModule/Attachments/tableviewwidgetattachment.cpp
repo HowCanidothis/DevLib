@@ -170,7 +170,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         auto* sourceModel = m_tableView->model();
         auto sourceCount = sourceModel->rowCount() - start;
         auto targetCount = m_targetModel->rowCount();
-        targetCount -= m_targetModel->property(ExtraFieldsCountPropertyName).toInt();
+        targetCount -= m_targetModel->property(WidgetProperties::ExtraFieldsCount).toInt();
         if(sourceCount < targetCount){
             m_targetModel->removeRows(sourceCount, targetCount - sourceCount);
         } else if(targetCount < sourceCount){

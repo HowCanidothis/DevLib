@@ -919,6 +919,18 @@ QSplitter::handle:vertical {
   image: url(":/qss_icons/rc/line_horizontal.png");
 }
 
+QSplitter[inner="true"]::handle:horizontal {
+  margin: 0px;
+  width: 1px;
+  image: url(":/qss_icons/rc/line_vertical.png");
+}
+
+QSplitter[inner="true"]::handle:vertical {
+  margin: 0px;
+  height: 1px;
+  image: url(":/qss_icons/rc/line_horizontal.png");
+}
+
 WidgetsDateEdit {
   border-style: solid;
   border-radius: 4px;

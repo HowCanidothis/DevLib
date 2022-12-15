@@ -393,7 +393,7 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
     while(qobject_cast<QSortFilterProxyModel*>(model)) {
         model = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
     }
-    if(model->property(ExtraFieldsCountPropertyName) == 1) {
+    if(model->property(WidgetProperties::ExtraFieldsCount) == 1) {
         set.remove(model->rowCount() - 1);
     }
 

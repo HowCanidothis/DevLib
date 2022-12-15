@@ -2,7 +2,10 @@
 
 #include <QLabel>
 
-const char* ExtraFieldsCountPropertyName = "ExtraFieldsCount";
+namespace WidgetProperties {
+IMPLEMENT_GLOBAL_CHAR_1(ExtraFieldsCount);
+IMPLEMENT_GLOBAL_CHAR(InnerSplitter, inner);
+}
 
 DescCustomDialogParams& DescCustomDialogParams::FillWithText(const QString& text)
 {

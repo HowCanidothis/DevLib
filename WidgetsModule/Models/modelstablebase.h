@@ -307,7 +307,7 @@ public:
         , IsEditable(true)
         , m_isEditable(true)
     {
-        setProperty(ExtraFieldsCountPropertyName, 1);
+        setProperty(WidgetProperties::ExtraFieldsCount, 1);
 
         IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool editable){
             if(GetData() == nullptr) {
@@ -318,12 +318,12 @@ public:
             if(editable) {
                 beginInsertRows(QModelIndex(), rows, rows);
                 m_isEditable = editable;
-                setProperty(ExtraFieldsCountPropertyName, 1);
+                setProperty(WidgetProperties::ExtraFieldsCount, 1);
                 endInsertRows();
             } else {
                 beginRemoveRows(QModelIndex(), rows, rows);
                 m_isEditable = editable;
-                setProperty(ExtraFieldsCountPropertyName, 0);
+                setProperty(WidgetProperties::ExtraFieldsCount, 0);
                 endRemoveRows();
             }
         });

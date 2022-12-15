@@ -14,7 +14,26 @@ public:
     void SetState(bool state);
 
     DispatcherConnections ConnectFromStateProperty(const char* location, const StateProperty& property);
-    DispatcherConnections ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs);
+    template<typename ... Properties>
+    DispatcherConnections ConnectFromStateProperty(const char* location, const LocalPropertyBool& property, const Properties&... props)
+    {
+        DispatcherConnections result;
+        auto update = [this, &property, &props...] {
+            bool valid = true;
+            for(bool prop : {property.Native(), props.Native()...}) {
+                if(!prop) {
+                    valid = false;
+                    break;
+                }
+            }
+            SetState(valid);
+        };
+        adapters::Combine([&](const auto& property){
+            result += property.OnChanged.Connect(location, update);
+        }, property, props...);
+        update();
+        return result;
+    }
 
     template<typename ... SafeConnections>
     static void PerformWhenEveryIsValid(const QVector<const LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once, SafeConnections&... connections)
@@ -280,7 +299,7 @@ public:
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
         Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool valid){
             return !valid ? false : Valid.Native();
-        }, &m_dependenciesAreUpToDate);
+        }, m_dependenciesAreUpToDate);
 
         Enabled.OnChanged += {this, [this, recalculateOnEnabled]{
             THREAD_ASSERT_IS_MAIN();
@@ -704,7 +723,7 @@ template<typename... Dispatchers>
 SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
 {
     auto result = ::make_shared<WithDispatcherConnectionsSafe<StateProperty>>();
-    result->ConnectFrom(connection, handler, dispatcher, dispatchers...).MakeSafe(result->Connections);
+    result->ConnectFromDispatchers(connection, handler, dispatcher, dispatchers...).MakeSafe(result->Connections);
     return result;
 }
 

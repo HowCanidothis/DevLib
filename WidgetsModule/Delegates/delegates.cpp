@@ -100,7 +100,7 @@ DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
 
 QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
-    auto* spin = new QSpinBox (parent);
+    auto* spin = new WidgetsSpinBoxWithCustomDisplay(parent);
     OnEditorAboutToBeShown(spin, index);
     connect(spin, QOverload<qint32>::of(&QSpinBox::valueChanged), [this, index](int value){
         OnEditorValueChanged(value, index);

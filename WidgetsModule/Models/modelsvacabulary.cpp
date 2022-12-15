@@ -79,7 +79,7 @@ TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 
 ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
 {
-    setProperty(ExtraFieldsCountPropertyName, 1);
+    setProperty(WidgetProperties::ExtraFieldsCount, 1);
 
     auto editRoleHandler = [this](qint32 row, qint32 column) -> QVariant {
         auto ret = GetData()->At(row)[GetData()->GetHeader(column).ColumnKey];
