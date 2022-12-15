@@ -32,5 +32,5 @@ WidgetsStyleSettings::WidgetsStyleSettings()
 
     metricSettings.ShadowBlurRadius.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 radius){
         return radius;
-    }, &m_shadowBlurRadius);
+    }, m_shadowBlurRadius);
 }

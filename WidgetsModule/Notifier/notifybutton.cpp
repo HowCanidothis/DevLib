@@ -19,7 +19,7 @@ NotifyButton::NotifyButton(QWidget* parent)
             }
         }
         return QString("");
-    }, &NotificationsCount);
+    }, NotificationsCount);
 
     m_label->setAttribute(Qt::WA_TransparentForMouseEvents, true);
     m_label->setObjectName("NotificationCounter");
@@ -33,7 +33,7 @@ NotifyButton::NotifyButton(QWidget* parent)
 
     attachment->GetComponentPlacer()->Offset.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QSize& size){
         return QPoint(size.width(), size.height());
-    }, &m_offset);
+    }, m_offset);
 
     NotificationsCountString.OnChanged += { this, [this]{
         ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{

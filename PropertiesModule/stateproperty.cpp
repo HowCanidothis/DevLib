@@ -7,7 +7,7 @@ void StateProperty::SetState(bool state)
 
 DispatcherConnections StateProperty::ConnectFromStateProperty(const char* location, const StateProperty& property)
 {
-    return Super::ConnectFrom(location, [this](bool valid) { return valid ? Super::m_value : valid; }, &property);
+    return Super::ConnectFrom(location, [this](bool valid) { return valid ? Super::m_value : valid; }, property);
 }
 
 DispatcherConnections StateProperty::ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)

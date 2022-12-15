@@ -65,7 +65,7 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
 
     ui->timePicker->HourType.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QLocale& locale){
         return qint32(locale.language() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24);
-    }, &Locale);
+    }, Locale);
 
     WidgetWrapper(ui->spHours).AddEventFilter([this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {

@@ -168,7 +168,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
                 ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool enabled, qint32 hasSelection){
                     return hasSelection == 1 && enabled;
-                }, &handler.Enablity(), &hasSelection).MakeSafe(m_currentHandlersConnections);
+                }, handler.Enablity(), hasSelection).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
@@ -180,7 +180,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
                 ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool enabled, qint32 selected, qint32 readOnly){
                     return !readOnly && enabled && selected == 1;
-                }, &handler.Enablity(), &selectedRowsCount, &isReadOnly).MakeSafe(m_currentHandlersConnections);
+                }, handler.Enablity(), selectedRowsCount, isReadOnly).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
@@ -192,7 +192,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
                 ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool enabled, bool hasSelection, bool readOnly){
                     return !readOnly && enabled && hasSelection;
-                }, &handler.Enablity(), &hasSelection, &isReadOnly).MakeSafe(m_currentHandlersConnections);
+                }, handler.Enablity(), hasSelection, isReadOnly).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
@@ -202,7 +202,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
                 ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool enabled, bool readOnly){
                     return !readOnly && enabled;
-                }, &handler.Enablity(), &m_currentHandlers->IsReadOnly).MakeSafe(m_currentHandlersConnections);
+                }, handler.Enablity(), m_currentHandlers->IsReadOnly).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });
@@ -213,7 +213,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
                 ActionWrapper(action).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Visibility()).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [handler](bool enabled, bool hasSelection){
                     return hasSelection && enabled;
-                }, &handler.Enablity(), &hasSelection).MakeSafe(m_currentHandlersConnections);
+                }, handler.Enablity(), hasSelection).MakeSafe(m_currentHandlersConnections);
                 ActionWrapper(action).WidgetText()->ConnectFrom(CONNECTION_DEBUG_LOCATION, handler.Text()).MakeSafe(m_currentHandlersConnections);
             });
         });

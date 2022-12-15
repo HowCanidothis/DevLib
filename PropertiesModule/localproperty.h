@@ -218,21 +218,21 @@ public:
     }
 
     template<typename ... Args, typename First, typename Function>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, First* first, Args... args)
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, const First& first, const Args&... args)
     {
         DispatcherConnections connections;
-        auto update = [=]{
-            this->operator=(handler(first->Native(), args->Native()...));
+        auto update = [this, handler, &first, &args...]{
+            this->operator=(handler(first.Native(), args.Native()...));
         };
-        adapters::Combine([&](const auto* property){
-            connections += property->ConnectAction(locationInfo, update);
+        adapters::Combine([&](const auto& property){
+            connections += property.ConnectAction(locationInfo, update);
         }, first, args...);
         update();
         return connections;
     }
 
     template<typename... Args, typename... Dispatchers>
-    DispatcherConnections ConnectFrom(const char* locationInfo, const std::function<T ()>& thisEvaluator, const CommonDispatcher<Args...>& first, Dispatchers&... dispatchers)
+    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<T ()>& thisEvaluator, const CommonDispatcher<Args...>& first, Dispatchers&... dispatchers)
     {
         *this = thisEvaluator();
         auto onChange = [this, thisEvaluator, locationInfo]{

@@ -53,6 +53,8 @@
 #include "WidgetsModule/Utils/styleutils.h"
 #include "WidgetsModule/Delegates/delegates.h"
 
+Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const QString&>>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyString>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
@@ -91,6 +93,26 @@ const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() co
     QObject::connect(edit, &QLineEdit::textChanged, invalidate);
     invalidate();
     return *this;
+}
+
+CommonDispatcher<const QString&>& WidgetLineEditWrapper::OnEditFinished() const
+{
+    auto* widget = GetWidget();
+    return *Injected<CommonDispatcher<const QString&>>("a_on_ef", [widget]{
+        auto* result = new CommonDispatcher<const QString&>();
+        widget->connect(widget, &QLineEdit::editingFinished, [result, widget]{ result->Invoke(widget->text()); });
+        return result;
+    });
+}
+
+LocalPropertyString& WidgetLineEditWrapper::WidgetText() const
+{
+    Q_ASSERT(m_object->property("a_textec").isNull());
+    return *GetOrCreateProperty<QLineEdit, LocalPropertyString>("a_text", [](QLineEdit* action, const LocalPropertyString& text){
+        action->setText(text);
+    }, [](QLineEdit* btn, LocalPropertyString* property){
+        *property = btn->text();
+    }, &QLineEdit::textChanged, [](QLineEdit*){}, GetWidget()->text());
 }
 
 LocalPropertyBool& WidgetLineEditWrapper::WidgetReadOnly() const
@@ -301,9 +323,12 @@ WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* pushButton)
 
 LocalPropertyBool& WidgetPushButtonWrapper::WidgetChecked() const
 {
-    return *GetOrCreateProperty<LocalPropertyBool>("a_checked", [](QObject* object, const LocalPropertyBool& visible){
-        auto* action = reinterpret_cast<QPushButton*>(object);
+    return *GetOrCreateProperty<QPushButton, LocalPropertyBool>("a_checked", [](QPushButton* action, const LocalPropertyBool& visible){
         action->setChecked(visible);
+    }, [](QPushButton* btn, LocalPropertyBool* property){
+        *property = btn->isChecked();
+    }, &QPushButton::toggled, [](QPushButton* btn){
+        btn->setCheckable(true);
     }, false);
 }
 
@@ -822,7 +847,7 @@ DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocat
 {
     auto result = createRule<WidgetWrapper>(debugLocation, QOverload<>::of(&WidgetWrapper::WidgetVisibility), handler, additionalWidgets, *dispatchers.first());
     for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
-        result += WidgetVisibility().ConnectFrom(debugLocation, handler, *dispatcher);
+        result += WidgetVisibility().ConnectFromDispatchers(debugLocation, handler, *dispatcher);
     }
     return result;
 }
@@ -831,7 +856,7 @@ DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocatio
 {
     auto result = createRule<WidgetWrapper>(debugLocation, &WidgetWrapper::WidgetEnablity, handler, additionalWidgets, *dispatchers.first());
     for(auto* dispatcher : adapters::withoutFirst(dispatchers)) {
-        result += WidgetEnablity().ConnectFrom(debugLocation, handler, *dispatcher);
+        result += WidgetEnablity().ConnectFromDispatchers(debugLocation, handler, *dispatcher);
     }
     return result;
 }
