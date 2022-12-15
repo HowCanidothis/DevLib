@@ -183,7 +183,8 @@ public:
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
-    Dispatcher& ErrorFocusDispatcher() const;
+    LocalPropertyErrorsContainer& WidgetErrors(bool autoHighlight = true) const;
+    Dispatcher& FocusDispatcher() const;
 
     bool HasParent(QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;

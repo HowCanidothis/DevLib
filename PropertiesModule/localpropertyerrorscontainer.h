@@ -10,6 +10,7 @@ struct LocalPropertyErrorsContainerValue
     TranslatedStringPtr Error;
     QtMsgType Type = QtMsgType::QtCriticalMsg;
     SharedPointer<LocalPropertyBool> Visible;
+    FAction FocusHandler;
     DispatcherConnectionsSafe Connection;
 
     operator qint32() const { return Id; }
@@ -22,7 +23,7 @@ public:
     LocalPropertyErrorsContainer();
 
     void AddError(const Name& errorName, const QString& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
-    void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
+    void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr, const FAction& focus = nullptr);
     void RemoveError(const Name& errorName);
     bool HasError(const Name& errorName) const;
 
@@ -52,6 +53,7 @@ public:
     }
     DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors);
     DispatcherConnections ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors);
+    DispatcherConnections ConnectFromErrors(const char* debugLocation, const LocalPropertyErrorsContainer& errors, const QSet<Name>& activeErrors);
 
     QString ToString() const;
     QStringList ToStringList() const;

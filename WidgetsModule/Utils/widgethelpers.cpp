@@ -59,6 +59,7 @@ Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
 
 struct DisabledColumnComponentData
 {
@@ -799,13 +800,35 @@ TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
     });
 }
 
-Dispatcher& WidgetWrapper::ErrorFocusDispatcher() const {
-    auto* widget = GetWidget();
-    auto result = Injected<Dispatcher>("a_on_focused", []{
-        return new Dispatcher();
+LocalPropertyErrorsContainer& WidgetWrapper::WidgetErrors(bool autoHighlight) const {
+    auto result = Injected<LocalPropertyErrorsContainer>("a_errors", []{
+        return new LocalPropertyErrorsContainer();
     });
-//    result->Connect(CONNECTION_DEBUG_LOCATION, [widget]{ widget->setFocus(); });
+    if(autoHighlight){
+        WidgetHighlighted().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QSet<LocalPropertyErrorsContainerValue>& errors){
+            if(errors.isEmpty()){
+                return (int)HighLightEnum::None;
+            }
+            for(const auto& error : errors){
+                if(error.Type == QtCriticalMsg && (error.Visible == nullptr || *error.Visible)) {
+                    return (int)HighLightEnum::Critical;
+                }
+            }
+            return (int)HighLightEnum::Warning;
+        }, result.get());
+    }
     return *result;
+}
+
+Dispatcher& WidgetWrapper::FocusDispatcher() const {
+    auto w = GetWidget();
+    return *Injected<Dispatcher>("a_on_focused", [w]{
+        auto dispatcher = new Dispatcher();
+        dispatcher->ConnectAction(CONNECTION_DEBUG_LOCATION, [w]{
+            w->setFocus();
+        });
+        return dispatcher;
+    });
 }
 
 DispatcherConnection WidgetWrapper::ConnectEnablityFrom(const char* conInfo, QWidget* widget) const
