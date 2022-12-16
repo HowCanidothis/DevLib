@@ -848,6 +848,7 @@ QHeaderView::section::vertical {
 }
 
 QHeaderView::down-arrow {
+  background: transparent;
   border: none;
   height: 12px;
   width: 12px;
@@ -857,6 +858,7 @@ QHeaderView::down-arrow {
 }
 
 QHeaderView::up-arrow {
+  background: transparent;
   border: none;
   height: 12px;
   width: 12px;

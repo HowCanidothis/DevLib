@@ -704,14 +704,6 @@ QHeaderView::section::vertical:disabled {
   color: #787878;
 }
 
-QHeaderView::down-arrow {
-  background-color: #3C3C3C;
-}
-
-QHeaderView::up-arrow {
-  background-color: #3C3C3C;
-}
-
 QToolBox {
   border: 1px solid #3C3C3C;
 }
