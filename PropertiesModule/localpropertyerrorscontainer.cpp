@@ -152,7 +152,7 @@ DispatcherConnections LocalPropertyErrorsContainer::ConnectFromErrors(const char
             }
         }
         return result;
-    }, &errors);
+    }, errors);
 }
 
 QString LocalPropertyErrorsContainer::ToString() const

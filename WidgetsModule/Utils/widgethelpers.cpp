@@ -840,7 +840,7 @@ LocalPropertyErrorsContainer& WidgetWrapper::WidgetErrors(bool autoHighlight) co
                 }
             }
             return (int)HighLightEnum::Warning;
-        }, result.get());
+        }, *result);
     }
     return *result;
 }
