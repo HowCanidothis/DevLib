@@ -561,7 +561,7 @@ QTreeView,
 QListView,
 QTableView,
 QColumnView {
-  background: #181818;
+  background: transparent;
   color: #F0F0F0;
   gridline-color: #3C3C3C;
 }

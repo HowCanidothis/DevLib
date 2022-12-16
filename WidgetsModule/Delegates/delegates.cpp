@@ -247,7 +247,7 @@ DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
 
 void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    auto value = index.model()->data(index, Qt::DisplayRole);
+    auto value = index.model()->data(index, Qt::EditRole);
     if(value.isNull()){
         Super::paint(painter, option, index);
         return;
@@ -264,7 +264,7 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
     } else {
         checkboxstyle.state = QStyle::State_Off|QStyle::State_Enabled;
     }
-
+    Super::paint(painter, option, index);
     QApplication::style()->drawControl(QStyle::CE_CheckBox,&checkboxstyle, painter, option.widget);
 }
 
@@ -272,7 +272,7 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
 {
     if(index.flags().testFlag(Qt::ItemIsEditable)) {
         if(event->type() == QEvent::MouseButtonRelease){
-            model->setData(index, !model->data(index).toBool());
+            model->setData(index, !model->data(index, Qt::EditRole).toBool());
             event->accept();
         } else if(event->type() == QEvent::MouseButtonDblClick){
             event->accept();
