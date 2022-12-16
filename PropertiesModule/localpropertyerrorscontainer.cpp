@@ -54,31 +54,31 @@ void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
     }
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    return property.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, errorId, errorString, inverted, severity, visible](bool value){
+    return property.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, errorId, errorString, inverted, severity, visible, focus](bool value){
         if(value ^ inverted) {
-            AddError(errorId, errorString, severity, visible);
+            AddError(errorId, errorString, severity, visible, focus);
         } else {
             RemoveError(errorId);
         }
     });
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
     DispatcherConnections result;
-    auto update = [this, validator, errorId, errorString, severity, visible]{
+    auto update = [this, validator, errorId, errorString, severity, visible, focus]{
         if(!validator()) {
-            AddError(errorId, errorString, severity, visible);
+            AddError(errorId, errorString, severity, visible, focus);
         } else {
             RemoveError(errorId);
         }

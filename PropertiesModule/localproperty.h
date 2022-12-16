@@ -720,8 +720,11 @@ public:
     template<typename Function, typename ... Args>
     DispatcherConnections AddRule(const char* locationInfo, const Function& handler, Args... args)
     {
+        m_handlers.append([=]{
+            auto result = handler(args->Native()...);
+            return result;
+        });
         DispatcherConnections connections;
-        m_handlers.append([=]{ return handler(args->Native()...); });
         adapters::Combine([&](const auto* property){
             connections += m_commutator.ConnectFrom(locationInfo, property->OnChanged);
         }, args...);

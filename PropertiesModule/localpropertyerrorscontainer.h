@@ -31,8 +31,8 @@ public:
 
     QHash<Name, QVariant> ErrorsMetaData;
 
-    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
-    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr);
+    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted = false, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr, const FAction& focus = nullptr);
+    DispatcherConnections RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr, const FAction& focus = nullptr);
     template<typename Function, typename ... Args>
     DispatcherConnections RegisterCritical(const Name& errorId, const TranslatedStringPtr& errorString, const Function& validator, Args ... args) {
         return RegisterError(QtCriticalMsg, errorId, errorString, validator, args...);
