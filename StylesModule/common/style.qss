@@ -848,6 +848,7 @@ QHeaderView::section::vertical {
 }
 
 QHeaderView::down-arrow {
+  background: transparent;
   border: none;
   height: 12px;
   width: 12px;
@@ -857,6 +858,7 @@ QHeaderView::down-arrow {
 }
 
 QHeaderView::up-arrow {
+  background: transparent;
   border: none;
   height: 12px;
   width: 12px;
@@ -916,6 +918,18 @@ QSplitter::handle:horizontal {
 
 QSplitter::handle:vertical {
   height: 5px;
+  image: url(":/qss_icons/rc/line_horizontal.png");
+}
+
+QSplitter[inner="true"]::handle:horizontal {
+  margin: 0px;
+  width: 1px;
+  image: url(":/qss_icons/rc/line_vertical.png");
+}
+
+QSplitter[inner="true"]::handle:vertical {
+  margin: 0px;
+  height: 1px;
   image: url(":/qss_icons/rc/line_horizontal.png");
 }
 

@@ -107,6 +107,35 @@ public:
         });
     }
 
+    template<class Widget, class Property, typename Signal, typename ... Args>
+    SharedPointer<Property> GetOrCreateProperty(const char* propName, const std::function<void (Widget*, const Property&)>& setWidgetFromProperty,
+                                                const std::function<void (Widget*, Property*)>& setPropertyFromWidget, Signal signal, const std::function<void (Widget*)>& initialization,
+                                                Args... args) const
+    {
+        return Injected<Property>(propName, [&]() -> Property* {
+            auto* property = new Property(args...);
+            auto* widget = (Widget*)m_object;
+            auto recursionGuard = ::make_shared<bool>(false);
+            property->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, setWidgetFromProperty, property, recursionGuard]{
+                if(*recursionGuard) {
+                    return;
+                }
+                guards::BooleanGuard guard(recursionGuard.get());
+                setWidgetFromProperty(widget, *property);
+            });
+            widget->connect(widget, signal, [widget, property, recursionGuard, setPropertyFromWidget]{
+                  if(*recursionGuard) {
+                      return;
+                  }
+                  guards::BooleanGuard guard(recursionGuard.get());
+                  setPropertyFromWidget(widget, property);
+            });
+            initialization(widget);
+            property->SetSetterHandler(ThreadHandlerMain);
+            return property;
+        });
+    }
+
 protected:
     template<class T>
     const T& make(const std::function<void (const T&)>& handler) const
@@ -196,7 +225,7 @@ protected:
     {
         DispatcherConnections result;
         auto& targetProperty = (Cast<T>().*propertyGetter)();
-        result += targetProperty.ConnectFrom(debugLocation, [handler] { return handler(); }, dispatchers...);
+        result += targetProperty.ConnectFromDispatchers(debugLocation, [handler] { return handler(); }, dispatchers...);
         for(auto* widget : additionalWidgets) {
             result += (WidgetWrapper(widget).Cast<T>().*propertyGetter)().ConnectFrom(debugLocation, targetProperty);
         }
@@ -287,6 +316,8 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
+    CommonDispatcher<const QString&>& OnEditFinished() const;
+    LocalPropertyString& WidgetText() const;
     LocalPropertyBool& WidgetReadOnly() const;
 private:
 };

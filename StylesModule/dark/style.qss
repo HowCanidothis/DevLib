@@ -561,7 +561,7 @@ QTreeView,
 QListView,
 QTableView,
 QColumnView {
-  background: #181818;
+  background: transparent;
   color: #F0F0F0;
   gridline-color: #3C3C3C;
 }
@@ -702,14 +702,6 @@ QHeaderView::section::vertical {
 
 QHeaderView::section::vertical:disabled {
   color: #787878;
-}
-
-QHeaderView::down-arrow {
-  background-color: #3C3C3C;
-}
-
-QHeaderView::up-arrow {
-  background-color: #3C3C3C;
 }
 
 QToolBox {
@@ -1016,8 +1008,7 @@ QPushButton[a_control="8"]:hover{/* Date Time */
 }
 
 QPushButton[a_control="9"]:hover{
-    background: transparent;
-    border-bottom: 2px solid #3EA6FF;
+    background: #3C3C3C;
 }
 
 QPushButton[a_control="10"]{/* GroupHeader */

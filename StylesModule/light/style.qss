@@ -956,8 +956,7 @@ QPushButton[a_control="8"]:hover /*datetime*/
 }
 
 QPushButton[a_control="9"]:hover{
-    background: transparent;
-    border-bottom: 2px solid #3EA6FF;
+    background: #EEEEEE;
 }
 
 QPushButton:disabled {

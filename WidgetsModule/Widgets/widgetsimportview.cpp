@@ -178,7 +178,7 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
     m_matchingAttachment->DateFormat.ConnectFrom(CONNECTION_DEBUG_LOCATION, DateTimeFormat);
     m_matchingAttachment->DecimalSeparator.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](DecimalKeyboardSeparator key){
         return TranslatorManager::ToString(key);
-    }, &DecimalSeparator);
+    }, DecimalSeparator);
     ui->PreviewTable->setModel(targetModel);
 }
 

@@ -4,6 +4,8 @@
 #include <QHash>
 #include <QDialogButtonBox>
 
+#include <SharedModule/internal.hpp>
+
 enum class LocaleType {
     English,
     Russian,
@@ -239,6 +241,9 @@ template<class Enum>
 ContainerBuilder<ViewModelsCategoriesContainer<Enum>> ViewModelsCategoriesContainerCreate() { return ContainerBuilder<ViewModelsCategoriesContainer<Enum>>(); }
 using ModelsStandardListModelContainer = QVector<QHash<qint32, QVariant>>;
 
-extern const char* ExtraFieldsCountPropertyName;
+namespace WidgetProperties {
+DECLARE_GLOBAL_CHAR(ExtraFieldsCount);
+DECLARE_GLOBAL_CHAR(InnerSplitter);
+}
 
 #endif // WIDGETSDECLARATIONS_H

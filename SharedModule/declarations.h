@@ -30,6 +30,15 @@ extern const Type name;
 #define IMPLEMENT_GLOBAL(Type, name, ...) \
 const Type name(__VA_ARGS__);
 
+#define DECLARE_GLOBAL_CHAR(name) \
+    DECLARE_GLOBAL(char*, name)
+
+#define IMPLEMENT_GLOBAL_CHAR(name, value) \
+    const char* name = QT_STRINGIFY(value);
+
+#define IMPLEMENT_GLOBAL_CHAR_1(name) \
+    const char* name = QT_STRINGIFY(name);
+
 template<class T>
 struct Default
 {

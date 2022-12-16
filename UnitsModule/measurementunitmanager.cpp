@@ -128,7 +128,7 @@ const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
 DispatcherConnections MeasurementManager::AttachConverter(const Measurement* measurement, LocalProperty<MeasurementUnit::FTransform>* property, LocalPropertyInt* precision)
 {
     DispatcherConnections result;
-    result = property->ConnectFrom(CONNECTION_DEBUG_LOCATION, [measurement]{
+    result = property->ConnectFromDispatchers(CONNECTION_DEBUG_LOCATION, [measurement]{
         return [measurement](double value) { return measurement->FromBaseToUnit(value); };
     }, measurement->OnChanged);
     if(precision != nullptr) {

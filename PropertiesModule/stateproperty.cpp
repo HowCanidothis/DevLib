@@ -7,22 +7,7 @@ void StateProperty::SetState(bool state)
 
 DispatcherConnections StateProperty::ConnectFromStateProperty(const char* location, const StateProperty& property)
 {
-    return Super::ConnectFrom(location, [this](bool valid) { return valid ? Super::m_value : valid; }, &property);
-}
-
-DispatcherConnections StateProperty::ConnectFromDispatchers(const QVector<Dispatcher*>& dispatchers, qint32 delayMsecs)
-{
-    auto delayedCall = ::make_shared<DelayedCallObject>(delayMsecs);
-    DispatcherConnections result;
-    for(auto* dispatcher : dispatchers) {
-        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, [this, delayedCall]{
-            SetState(false);
-            delayedCall->Call(CONNECTION_DEBUG_LOCATION, [this]{
-                SetState(true);
-            });
-        });
-    }
-    return result;
+    return Super::ConnectFrom(location, [this](bool valid) { return valid ? Super::m_value : valid; }, property);
 }
 
 StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)

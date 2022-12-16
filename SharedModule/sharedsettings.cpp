@@ -22,7 +22,7 @@ StyleSettings::StyleSettings()
     , DefaultRedColor("#ff3b30")
     , ShowFocusMinFrame(3, 0, 9)
     #ifdef QT_DEBUG
-    , ShadersPath("D:/Work/wps-client/libs/Content/Shaders/")
+    , ShadersPath("C:/Work/wps-client/libs/Content/Shaders/")
     #else
     , ShadersPath(":/")
     #endif
