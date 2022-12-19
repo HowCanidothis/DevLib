@@ -845,7 +845,7 @@ QWidget#widgetheader {
 NotifierErrorsFrame
 {
     qproperty-errorLinkColor: black;
-    qproperty-warningLinkColor: #8c580e;
+    qproperty-warningLinkColor: #D4D4D4;
 }
 
 QPushButton#btnDrawer
@@ -957,6 +957,42 @@ QPushButton[a_control="8"]:hover /*datetime*/
 
 QPushButton[a_control="9"]:hover{
     background: #EEEEEE;
+}
+
+QPushButton[a_control="10"]{/* GroupHeader */
+    border-radius: 0px;
+    font-size: 14px;
+    color: #414141;
+    background: #f3f3f3;
+    border: none;
+}
+
+QPushButton[a_control="10"]:hover{
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="10"]:checked{
+    font-weight: bold;
+    color: black;
+    background: transparent;
+}
+
+QPushButton[a_control="11"]{/* Group */
+    border-radius: 0px;
+    color: #414141;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+}
+
+QPushButton[a_control="11"]:hover{
+    background: #EEEEEE;
+}
+
+QPushButton[a_control="11"]:checked{
+    color: #3EA6FF;
+    font-weight: bold;
+    border-bottom: 2px solid #3EA6FF;
 }
 
 QPushButton:disabled {

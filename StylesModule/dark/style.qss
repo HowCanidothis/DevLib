@@ -1016,7 +1016,6 @@ QPushButton[a_control="10"]{/* GroupHeader */
     color: #F0F0F0;
     background: #3c3c3c;
     font-size: 14px;
-    font-weight: normal;
     border: none;
 }
 
@@ -1025,7 +1024,6 @@ QPushButton[a_control="10"]:hover{
 }
 
 QPushButton[a_control="10"]:checked{
-    font-weight: bold;
     background: transparent;
 }
 
