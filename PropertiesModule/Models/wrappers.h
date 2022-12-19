@@ -392,6 +392,11 @@ public:
         handler(*this);
         return ret;
     }
+
+    DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
+    {
+        return OnChanged.Connect(locationInfo, action);
+    }
 };
 
 template<class Container>

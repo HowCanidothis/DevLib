@@ -43,13 +43,24 @@ public:
     }
     template<typename Function, typename ... Args>
     DispatcherConnections RegisterError(QtMsgType severity, const Name& errorId, const TranslatedStringPtr& errorString, const Function& validator, Args ... args) {
-        auto handler = [=]{ return validator(args->Native()...); };
+#ifdef QT_DEBUG
+        Q_ASSERT(!m_registeredErrors.contains(errorId));
+        m_registeredErrors.insert(errorId);
+#endif
+        DispatcherConnections result;
+        auto update = [this, validator, errorId, errorString, severity, args...]{
+            if(!validator(args->Native()...)) {
+                AddError(errorId, errorString, severity);
+            } else {
+                RemoveError(errorId);
+            }
+        };
 
-        QVector<Dispatcher*> dispatchers;
         adapters::Combine([&](const auto property){
-            dispatchers.append(&property->OnChanged);
+            result += property->ConnectAction(CONNECTION_DEBUG_LOCATION, update);
         }, args...);
-        return RegisterError(errorId, errorString, handler, dispatchers, severity);
+        update();
+        return result;
     }
     DispatcherConnections Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors);
     DispatcherConnections ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors);

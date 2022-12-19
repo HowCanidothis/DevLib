@@ -725,8 +725,7 @@ public:
     DispatcherConnections AddRule(const char* locationInfo, const Function& handler, Args... args)
     {
         m_handlers.append([=]{
-            auto result = handler(args->Native()...);
-            return result;
+            return handler(args->Native()...);
         });
         DispatcherConnections connections;
         adapters::Combine([&](const auto* property){
