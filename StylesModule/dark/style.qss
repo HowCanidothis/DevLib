@@ -1014,7 +1014,7 @@ QAbstractButton[a_control="9"]:hover{
 QAbstractButton[a_control="10"]{/* GroupHeader */
     border-radius: 0px;
     color: #F0F0F0;
-    background: #3c3c3c;
+    background: #252526;
     font-size: 14px;
     border: none;
 }
