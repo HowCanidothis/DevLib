@@ -16,6 +16,7 @@
 #include <QAction>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QToolButton>
 #include <QStandardItemModel>
 #include <QSpinBox>
 #include <QColorDialog>
@@ -317,40 +318,30 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     return verticalHeader;
 }
 
-WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* pushButton)
-    : Super(pushButton)
+WidgetAbstractButtonWrapper::WidgetAbstractButtonWrapper(QAbstractButton* button)
+    : Super(button)
 {
 
 }
 
-LocalPropertyBool& WidgetPushButtonWrapper::WidgetChecked() const
+LocalPropertyBool& WidgetAbstractButtonWrapper::WidgetChecked() const
 {
-    return *GetOrCreateProperty<QPushButton, LocalPropertyBool>("a_checked", [](QPushButton* action, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<QAbstractButton, LocalPropertyBool>("a_checked", [](QAbstractButton* action, const LocalPropertyBool& visible){
         action->setChecked(visible);
-    }, [](QPushButton* btn, LocalPropertyBool* property){
+    }, [](QAbstractButton* btn, LocalPropertyBool* property){
         *property = btn->isChecked();
-    }, &QPushButton::toggled, [](QPushButton* btn){
+    }, &QAbstractButton::toggled, [](QAbstractButton* btn){
         btn->setCheckable(true);
     }, false);
 }
 
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetIcon(const Name& iconId) const
+const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetIcon(const Name& iconId) const
 {
     GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconId));
     return *this;
 }
 
-Dispatcher& ActionWrapper::OnClicked() const
-{
-    auto* widget = GetWidget();
-    return *Injected<Dispatcher>("a_on_clicked", [widget]{
-        auto* result = new Dispatcher();
-        widget->connect(widget, &QAction::triggered, [result]{ result->Invoke(); });
-        return result;
-    });
-}
-
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetControl(ButtonRole i, bool update) const
+const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetControl(ButtonRole i, bool update) const
 {
     if(update) {
         StyleUtils::ApplyStyleProperty("a_control", GetWidget(), (qint32)i);
@@ -360,11 +351,43 @@ const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetControl(ButtonRole i,
     return *this;
 }
 
-TranslatedStringPtr WidgetPushButtonWrapper::WidgetText() const
+TranslatedStringPtr WidgetAbstractButtonWrapper::WidgetText() const
 {
     auto* label = GetWidget();
     return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const TranslatedString& text){
         label->setText(text.Native());
+    });
+}
+
+Dispatcher& WidgetAbstractButtonWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QAbstractButton::clicked, [result]{ result->Invoke(); });
+        return result;
+    });
+}
+
+WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* button)
+    : Super(button)
+{
+
+}
+
+WidgetToolButtonWrapper::WidgetToolButtonWrapper(QToolButton* button)
+    : Super(button)
+{
+
+}
+
+Dispatcher& ActionWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QAction::triggered, [result]{ result->Invoke(); });
+        return result;
     });
 }
 
@@ -654,16 +677,6 @@ void WidgetWrapper::Highlight(qint32 unhightlightIn) const
             wrapper.Lowlight();
         });
     }
-}
-
-Dispatcher& WidgetPushButtonWrapper::OnClicked() const
-{
-    auto* widget = GetWidget();
-    return *Injected<Dispatcher>("a_on_clicked", [widget]{
-        auto* result = new Dispatcher();
-        widget->connect(widget, &QPushButton::clicked, [result]{ result->Invoke(); });
-        return result;
-    });
 }
 
 CommonDispatcher<const Name&>& WidgetLabelWrapper::OnLinkActivated() const
@@ -1613,3 +1626,4 @@ LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
         return property;
     });
 }
+

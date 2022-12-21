@@ -61,6 +61,7 @@ public:
     LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QPushButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons);
+    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<class QAbstractButton*>& buttons);
 
 private:
     qint32 m_currentIndex;

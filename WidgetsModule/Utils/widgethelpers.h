@@ -289,23 +289,39 @@ enum class ButtonRole
     Group = 11,
 };
 
-class WidgetPushButtonWrapper : public WidgetWrapper
+class WidgetAbstractButtonWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
-public:    
-    WidgetPushButtonWrapper(class QPushButton* pushButton);
+public:
+    WidgetAbstractButtonWrapper(class QAbstractButton* button);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
-    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetPushButtonWrapper)
-    DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WidgetPushButtonWrapper)
-    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetPushButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetAbstractButtonWrapper, QAbstractButton)
+    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetAbstractButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WidgetAbstractButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetAbstractButtonWrapper)
 
-    const WidgetPushButtonWrapper& SetControl(ButtonRole i = ButtonRole::Icon, bool update = false) const;
+    const WidgetAbstractButtonWrapper& SetControl(ButtonRole i = ButtonRole::Icon, bool update = false) const;
 
     LocalPropertyBool& WidgetChecked() const;
     TranslatedStringPtr WidgetText() const;
     Dispatcher& OnClicked() const;
-    const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
+    const WidgetAbstractButtonWrapper& SetIcon(const Name& iconId) const;
+};
+
+class WidgetPushButtonWrapper : public WidgetAbstractButtonWrapper
+{
+    using Super = WidgetAbstractButtonWrapper;
+public:    
+    WidgetPushButtonWrapper(class QPushButton* button);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
+};
+
+class WidgetToolButtonWrapper : public WidgetAbstractButtonWrapper
+{
+    using Super = WidgetAbstractButtonWrapper;
+public:
+    WidgetToolButtonWrapper(class QToolButton* button);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetToolButtonWrapper, QToolButton)
 };
 
 class WidgetLineEditWrapper : public WidgetWrapper
