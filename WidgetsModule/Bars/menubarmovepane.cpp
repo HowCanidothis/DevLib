@@ -3,6 +3,7 @@
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
+#include <windowsx.h>
 #endif
 
 #include <QMouseEvent>

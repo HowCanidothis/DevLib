@@ -247,8 +247,8 @@ DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
 
 void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    auto value = index.model()->data(index, Qt::EditRole);
-    if(value.isNull()){
+    auto value = index.data(Qt::EditRole);
+    if(value.isNull() || index.data(Qt::CheckStateRole).isValid()){
         Super::paint(painter, option, index);
         return;
     }

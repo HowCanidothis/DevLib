@@ -1469,11 +1469,11 @@ LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
     auto* widget = GetWidget();
     return *Injected<LocalPropertyBool>("a_checked", [&]() -> LocalPropertyBool* {
         auto* property = new LocalPropertyBool(false);
-        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget, property](bool value){
+        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget](bool value){
                                                widget->setChecked(value);
                                            });
         property->SetSetterHandler(ThreadHandlerMain);
-        widget->connect(widget, &QCheckBox::stateChanged, [property](qint32 state){
+        widget->connect(widget, &QCheckBox::stateChanged, [widget, property](qint32 state){
             *property = state;
         });
         return property;
