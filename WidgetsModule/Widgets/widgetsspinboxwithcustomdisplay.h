@@ -90,14 +90,4 @@ private:
     ValueFromTextHandler m_valueFromTextHandler;
 };
 
-#include <QScrollBar>
-#include <QScrollArea>
-class WidgetsScrollArea : public QScrollArea
-{
-    using Super = QScrollArea;
-public:
-    using Super::Super;
-    QSize sizeHint() const override;
-};
-
 #endif // WIDGETSSPINBOXWITHCUSTOMDISPLAY_H

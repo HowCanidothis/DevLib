@@ -55,7 +55,18 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
+DispatcherConnections LocalPropertyBoolCommutator::AddProperty(const char* connectionInfo, const LocalPropertyBool* property){
+    return AddRule(connectionInfo, [](bool value){ return value; }, property);
+}
 
+DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
+{
+    DispatcherConnections result;
+    for(auto* property : properties) {
+        result += AddProperty(connectionInfo, property);
+    }
+    return result;
+}
 
 LocalPropertyDate::LocalPropertyDate(const QDate& value, const QDate& min, const QDate& max)
     : Super(applyRange(value, min, max))

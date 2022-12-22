@@ -734,17 +734,8 @@ public:
         m_commutator.Invoke();
         return connections;
     }
-    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property){
-        return AddRule(connectionInfo, [](bool value){ return value; }, property);
-    }
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
-    {
-        DispatcherConnections result;
-        for(auto* property : properties) {
-            result += AddProperty(connectionInfo, property);
-        }
-        return result;
-    }
+    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property);
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
 
 private:
     DispatchersCommutator m_commutator;
