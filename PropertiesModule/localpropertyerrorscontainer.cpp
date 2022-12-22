@@ -28,9 +28,9 @@ void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString
     AddError(errorName, ::make_shared<TranslatedString>([errorString]{ return errorString; }), severity, visible);
 }
 
-void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
 {
-    LocalPropertyErrorsContainerValue toInsert{ errorName, errorString, severity, visible };
+    LocalPropertyErrorsContainerValue toInsert{ errorName, errorString, severity, visible, focus };
     if(Super::Native().contains(toInsert)) {
        return;
     }
@@ -54,34 +54,31 @@ void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
     }
 }
 
-DispatcherConnection LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    auto* pProperty = const_cast<LocalPropertyBool*>(&property);
-    auto update = [this, errorId, pProperty, errorString, inverted, severity, visible]{
-        if(*pProperty ^ inverted) {
-            AddError(errorId, errorString, severity, visible);
+    return property.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, errorId, errorString, inverted, severity, visible, focus](bool value){
+        if(value ^ inverted) {
+            AddError(errorId, errorString, severity, visible, focus);
         } else {
             RemoveError(errorId);
         }
-    };
-    update();
-    return pProperty->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, update);
+    });
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
+DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
     DispatcherConnections result;
-    auto update = [this, validator, errorId, errorString, severity, visible]{
+    auto update = [this, validator, errorId, errorString, severity, visible, focus]{
         if(!validator()) {
-            AddError(errorId, errorString, severity, visible);
+            AddError(errorId, errorString, severity, visible, focus);
         } else {
             RemoveError(errorId);
         }
@@ -142,6 +139,20 @@ DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name&
         AddError(errorId, foundIt->Error);
     }
     return result;
+}
+
+DispatcherConnections LocalPropertyErrorsContainer::ConnectFromErrors(const char* debugLocation, const LocalPropertyErrorsContainer& errors, const QSet<Name>& activeErrors)
+{
+    return ConnectFrom(debugLocation, [activeErrors](const QSet<LocalPropertyErrorsContainerValue>& errors){
+        QSet<LocalPropertyErrorsContainerValue> result;
+        for(const auto& errorId : activeErrors){
+            auto iter = errors.find({errorId});
+            if(iter != errors.end()){
+                result.insert(*iter);
+            }
+        }
+        return result;
+    }, errors);
 }
 
 QString LocalPropertyErrorsContainer::ToString() const

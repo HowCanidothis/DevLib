@@ -29,6 +29,14 @@ protected:
     FFilter m_filter;
 };
 
+enum class HighLightEnum {
+    None,
+    Critical,
+    Warning,
+    First = None,
+    Last = Warning,
+};
+
 Q_DECLARE_METATYPE(SharedPointer<WidgetWrapperInjectedCommutatorData>)
 
 #define DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WrapperType) \
@@ -198,12 +206,14 @@ public:
     const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
     DispatcherConnectionsSafe& WidgetConnections() const;
-    LocalPropertyBool& WidgetHighlighted() const;
+    LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const;
     LocalPropertyBool& WidgetVisibility() const { return WidgetVisibility(false); }
     LocalPropertyBool& WidgetVisibility(bool animated) const;
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
+    LocalPropertyErrorsContainer& WidgetErrors(bool autoHighlight = true) const;
+    Dispatcher& FocusDispatcher() const;
 
     bool HasParent(QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
@@ -275,25 +285,43 @@ enum class ButtonRole
     Tab = 7,
     DateTimePicker = 8,
     FloatingButton = 9,
+    GroupHeader = 10,
+    Group = 11,
 };
 
-class WidgetPushButtonWrapper : public WidgetWrapper
+class WidgetAbstractButtonWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
-public:    
-    WidgetPushButtonWrapper(class QPushButton* pushButton);
+public:
+    WidgetAbstractButtonWrapper(class QAbstractButton* button);
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
-    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetPushButtonWrapper)
-    DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WidgetPushButtonWrapper)
-    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetPushButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetAbstractButtonWrapper, QAbstractButton)
+    DECLARE_WIDGET_WRAPPER_ADD_CHECKED(WidgetAbstractButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_CLICKED(WidgetAbstractButtonWrapper)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetAbstractButtonWrapper)
 
-    const WidgetPushButtonWrapper& SetControl(ButtonRole i = ButtonRole::Icon, bool update = false) const;
+    const WidgetAbstractButtonWrapper& SetControl(ButtonRole i = ButtonRole::Icon, bool update = false) const;
 
     LocalPropertyBool& WidgetChecked() const;
     TranslatedStringPtr WidgetText() const;
     Dispatcher& OnClicked() const;
-    const WidgetPushButtonWrapper& SetIcon(const Name& iconId) const;
+    const WidgetAbstractButtonWrapper& SetIcon(const Name& iconId) const;
+};
+
+class WidgetPushButtonWrapper : public WidgetAbstractButtonWrapper
+{
+    using Super = WidgetAbstractButtonWrapper;
+public:    
+    WidgetPushButtonWrapper(class QPushButton* button);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
+};
+
+class WidgetToolButtonWrapper : public WidgetAbstractButtonWrapper
+{
+    using Super = WidgetAbstractButtonWrapper;
+public:
+    WidgetToolButtonWrapper(class QToolButton* button);
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetToolButtonWrapper, QToolButton)
 };
 
 class WidgetLineEditWrapper : public WidgetWrapper
@@ -491,6 +519,7 @@ public:
     WidgetSpinBoxWrapper(class QSpinBox* widget);
 
     LocalPropertyInt& WidgetValue() const;
+    LocalPropertyBool& WidgetReadOnly() const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSpinBoxWrapper, QSpinBox);
 };
@@ -620,5 +649,4 @@ public:
 
     Dispatcher& OnReset() const;
 };
-
 #endif // WIDGETHELPERS_H

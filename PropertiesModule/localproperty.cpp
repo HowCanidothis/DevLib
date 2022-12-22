@@ -39,15 +39,15 @@ LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, cons
 
 void LocalPropertyBoolCommutator::ClearProperties()
 {
-    m_properties.clear();
+    m_handlers.clear();
 }
 
 void LocalPropertyBoolCommutator::Update()
 {
     bool result = m_defaultState;
     bool oppositeState = !result;
-    for(auto* property : ::make_const(m_properties)) {
-        if(*property == oppositeState) {
+    for(const auto& handler : ::make_const(m_handlers)) {
+        if(handler() == oppositeState) {
             result = oppositeState;
             break;
         }
@@ -55,15 +55,7 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
-{
-    DispatcherConnections result;
-    for(auto* property : properties) {
-        result += m_commutator.ConnectFrom(connectionInfo, property->OnChanged);
-    }
-    m_properties += properties;
-    return result;
-}
+
 
 LocalPropertyDate::LocalPropertyDate(const QDate& value, const QDate& min, const QDate& max)
     : Super(applyRange(value, min, max))

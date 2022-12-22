@@ -16,6 +16,7 @@
 #include <QAction>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QToolButton>
 #include <QStandardItemModel>
 #include <QSpinBox>
 #include <QColorDialog>
@@ -60,6 +61,8 @@ Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
 
 struct DisabledColumnComponentData
 {
@@ -315,40 +318,30 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     return verticalHeader;
 }
 
-WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* pushButton)
-    : Super(pushButton)
+WidgetAbstractButtonWrapper::WidgetAbstractButtonWrapper(QAbstractButton* button)
+    : Super(button)
 {
 
 }
 
-LocalPropertyBool& WidgetPushButtonWrapper::WidgetChecked() const
+LocalPropertyBool& WidgetAbstractButtonWrapper::WidgetChecked() const
 {
-    return *GetOrCreateProperty<QPushButton, LocalPropertyBool>("a_checked", [](QPushButton* action, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<QAbstractButton, LocalPropertyBool>("a_checked", [](QAbstractButton* action, const LocalPropertyBool& visible){
         action->setChecked(visible);
-    }, [](QPushButton* btn, LocalPropertyBool* property){
+    }, [](QAbstractButton* btn, LocalPropertyBool* property){
         *property = btn->isChecked();
-    }, &QPushButton::toggled, [](QPushButton* btn){
+    }, &QAbstractButton::toggled, [](QAbstractButton* btn){
         btn->setCheckable(true);
     }, false);
 }
 
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetIcon(const Name& iconId) const
+const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetIcon(const Name& iconId) const
 {
     GetWidget()->setIcon(IconsManager::GetInstance().GetIcon(iconId));
     return *this;
 }
 
-Dispatcher& ActionWrapper::OnClicked() const
-{
-    auto* widget = GetWidget();
-    return *Injected<Dispatcher>("a_on_clicked", [widget]{
-        auto* result = new Dispatcher();
-        widget->connect(widget, &QAction::triggered, [result]{ result->Invoke(); });
-        return result;
-    });
-}
-
-const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetControl(ButtonRole i, bool update) const
+const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetControl(ButtonRole i, bool update) const
 {
     if(update) {
         StyleUtils::ApplyStyleProperty("a_control", GetWidget(), (qint32)i);
@@ -358,11 +351,43 @@ const WidgetPushButtonWrapper& WidgetPushButtonWrapper::SetControl(ButtonRole i,
     return *this;
 }
 
-TranslatedStringPtr WidgetPushButtonWrapper::WidgetText() const
+TranslatedStringPtr WidgetAbstractButtonWrapper::WidgetText() const
 {
     auto* label = GetWidget();
-    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
-        label->setText(text);
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const TranslatedString& text){
+        label->setText(text.Native());
+    });
+}
+
+Dispatcher& WidgetAbstractButtonWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QAbstractButton::clicked, [result]{ result->Invoke(); });
+        return result;
+    });
+}
+
+WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* button)
+    : Super(button)
+{
+
+}
+
+WidgetToolButtonWrapper::WidgetToolButtonWrapper(QToolButton* button)
+    : Super(button)
+{
+
+}
+
+Dispatcher& ActionWrapper::OnClicked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<Dispatcher>("a_on_clicked", [widget]{
+        auto* result = new Dispatcher();
+        widget->connect(widget, &QAction::triggered, [result]{ result->Invoke(); });
+        return result;
     });
 }
 
@@ -654,16 +679,6 @@ void WidgetWrapper::Highlight(qint32 unhightlightIn) const
     }
 }
 
-Dispatcher& WidgetPushButtonWrapper::OnClicked() const
-{
-    auto* widget = GetWidget();
-    return *Injected<Dispatcher>("a_on_clicked", [widget]{
-        auto* result = new Dispatcher();
-        widget->connect(widget, &QPushButton::clicked, [result]{ result->Invoke(); });
-        return result;
-    });
-}
-
 CommonDispatcher<const Name&>& WidgetLabelWrapper::OnLinkActivated() const
 {
     auto* widget = GetWidget();
@@ -820,6 +835,37 @@ TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
     auto* widget = GetWidget();
     return GetOrCreateProperty<TranslatedString>("a_tooltip", [widget](QObject*, const TranslatedString& text){
         widget->setToolTip(text);
+    });
+}
+
+LocalPropertyErrorsContainer& WidgetWrapper::WidgetErrors(bool autoHighlight) const {
+    auto result = Injected<LocalPropertyErrorsContainer>("a_errors", []{
+        return new LocalPropertyErrorsContainer();
+    });
+    if(autoHighlight){
+        WidgetHighlighted().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QSet<LocalPropertyErrorsContainerValue>& errors){
+            if(errors.isEmpty()){
+                return (int)HighLightEnum::None;
+            }
+            for(const auto& error : errors){
+                if(error.Type == QtCriticalMsg && (error.Visible == nullptr || *error.Visible)) {
+                    return (int)HighLightEnum::Critical;
+                }
+            }
+            return (int)HighLightEnum::Warning;
+        }, *result);
+    }
+    return *result;
+}
+
+Dispatcher& WidgetWrapper::FocusDispatcher() const {
+    auto w = GetWidget();
+    return *Injected<Dispatcher>("a_on_focused", [w]{
+        auto dispatcher = new Dispatcher();
+        dispatcher->ConnectAction(CONNECTION_DEBUG_LOCATION, [w]{
+            w->setFocus();
+        });
+        return dispatcher;
     });
 }
 
@@ -1071,16 +1117,11 @@ DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const
     return *Injected<DispatcherConnectionsSafe>("a_connections");
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetHighlighted() const
+LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const
 {
-    auto wrapper = *this;
-    return *GetOrCreateProperty<LocalPropertyBool>("a_highlighted", [wrapper](QObject*, const LocalPropertyBool& highlighted){
-        if(highlighted) {
-            wrapper.Highlight();
-        } else {
-            wrapper.Lowlight();
-        }
-    }, false);
+    return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [](QObject* object, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+        StyleUtils::ApplyStyleProperty("w_highlighted", reinterpret_cast<QWidget*>(object), highlighted.Value());
+    }, HighLightEnum::None);
 }
 
 LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated) const
@@ -1375,8 +1416,8 @@ WidgetLabelWrapper::WidgetLabelWrapper(QLabel* label)
 TranslatedStringPtr WidgetLabelWrapper::WidgetText() const
 {
     auto* label = GetWidget();
-    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const LocalPropertyString& text){
-        label->setText(text);
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const TranslatedString& text){
+        label->setText(text.Native());
     });
 }
 
@@ -1410,6 +1451,20 @@ LocalPropertyInt& WidgetSpinBoxWrapper::WidgetValue() const
        property->SetSetterHandler(ThreadHandlerMain);
        return property;
    });
+}
+
+LocalPropertyBool& WidgetSpinBoxWrapper::WidgetReadOnly() const {
+    return *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool();
+        auto* widget = GetWidget();
+        property->EditSilent() = widget->isReadOnly();
+        property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
+            widget->setReadOnly(*property);
+            StyleUtils::UpdateStyle(widget);
+        });
+        property->SetSetterHandler(ThreadHandlerMain);
+        return property;
+    });
 }
 
 WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(QDoubleSpinBox* widget)
@@ -1571,3 +1626,4 @@ LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
         return property;
     });
 }
+

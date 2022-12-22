@@ -932,86 +932,120 @@ QPushButton:hover{
     background: #3C3C3C;
 }
 
-QPushButton[a_control="1"]:hover{ /* Icon */
+QAbstractButton[a_control="1"]:hover{ /* Icon */
     background: #3C3C3C;
 }
 
-QPushButton[a_control="1"]::menu-indicator {
+QAbstractButton[a_control="1"]::menu-indicator {
     width: 0px;
 }
 
-QPushButton[a_control="2"]{  /* Save */
+QAbstractButton[a_control="2"]{  /* Save */
     color: white;
     background: #3EA6FF;
 }
 
-QPushButton[a_control="2"]:hover{
+QAbstractButton[a_control="2"]:hover{
     color: white;
     background: #4DADFF;
 }
 
-QPushButton[a_control="3"]{  /* Reset */
+QAbstractButton[a_control="3"]{  /* Reset */
     color: white;
     background: #FF5252;
 }
 
-QPushButton[a_control="3"]:hover{
+QAbstractButton[a_control="3"]:hover{
     background: #FF6060;
 }
 
-QPushButton[a_control="4"]{  /* Cancel */
+QAbstractButton[a_control="4"]{  /* Cancel */
     color: white;
     background: transparent;
 }
 
-QPushButton[a_control="4"]:hover{
+QAbstractButton[a_control="4"]:hover{
     background: #353535;
 }
 
-QPushButton[a_control="5"]{  /* AddIcon */
+QAbstractButton[a_control="5"]{  /* AddIcon */
     color: white;
     background: transparent;
 }
 
-QPushButton[a_control="5"]:hover{
+QAbstractButton[a_control="5"]:hover{
     background: #3C3C3C;
 }
 
-QPushButton[a_control="6"]{  /* Add */
+QAbstractButton[a_control="6"]{  /* Add */
     color: #3EA6FF;
     background: transparent;
 }
 
-QPushButton[a_control="6"]:hover{
+QAbstractButton[a_control="6"]:hover{
     background: #3C3C3C;
 }
 
-QPushButton[a_control="7"]{  /* Tab */
+QAbstractButton[a_control="7"]{  /* Tab */
     border-radius: 0px;
     color: #848484;
     background: transparent;
     border: none;
 }
 
-QPushButton[a_control="7"]:hover{
+QAbstractButton[a_control="7"]:hover{
     background: #3C3C3C;
     border: none;
 }
 
-QPushButton[a_control="7"]:checked{
+QAbstractButton[a_control="7"]:checked{
     color: #3EA6FF;
     border-bottom: 2px solid #3EA6FF;
 }
 
-QPushButton[a_control="8"]:hover{
+QAbstractButton[a_control="8"]:hover{/* Date Time */
     background: #3C3C3C;
 }
 
-QPushButton[a_control="9"]:hover{
+QAbstractButton[a_control="9"]:hover{
     background: #3C3C3C;
 }
 
-QPushButton:disabled {
+QAbstractButton[a_control="10"]{/* GroupHeader */
+    border-radius: 0px;
+    color: #F0F0F0;
+    background: #252526;
+    font-size: 14px;
+    border: none;
+}
+
+QAbstractButton[a_control="10"]:hover{
+    background: #666666;
+}
+
+QAbstractButton[a_control="10"]:checked{
+    background: transparent;
+}
+
+QAbstractButton[a_control="11"]{/* Group */
+    border-radius: 0px;
+    color: #F0F0F0;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+}
+
+QAbstractButton[a_control="11"]:hover{
+    background: #666666;
+}
+
+QAbstractButton[a_control="11"]:checked{
+    color: #3EA6FF;
+    font-weight: bold;
+    border-bottom: 2px solid #3EA6FF;
+}
+
+QAbstractButton:disabled {
     color: #6C6C6C;
     background: #3C3C3C;
 }

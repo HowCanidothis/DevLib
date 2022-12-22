@@ -1141,12 +1141,20 @@ WPSCQuickPlanView QLabel[tiny="true"] {
     font-size: 12px;
 }
 
-QWidget[w_highlighted="true"]
+QWidget[w_highlighted="1"]
 {
     border-width: 1px;
     border-style: solid;
-    border-color: red;
+    border-color: #cc3300;
 }
+
+QWidget[w_highlighted="2"]
+{
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ffcc00;
+}
+
 
 NotifierErrorsFrame QLabel#ErrorTitle
 {

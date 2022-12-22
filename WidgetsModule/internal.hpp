@@ -70,7 +70,6 @@
 #include "widgetsserializer.h"
 
 #include "qtqssreader.h"
-
 #endif
 
 #endif // INTERNAL_H

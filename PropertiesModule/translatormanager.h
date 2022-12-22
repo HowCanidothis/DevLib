@@ -144,4 +144,5 @@ Q_DECLARE_METATYPE(SharedPointer<TranslatedString>)
     ::make_shared<TranslatedString>([__VA_ARGS__]{ return handler; })
 
 #define TRS(handler, ...) TRANSLATED_PTR_1(handler, __VA_ARGS__)
+#define TR_ENUM(value) TranslatorManager::GetInstance().ToString(value)
 #endif // TRANSLATORMANAGER_H

@@ -3,10 +3,8 @@
 
 #include <limits>
 #include <optional>
-
 #include "property.h"
 #include "externalproperty.h"
-
 
 template<class T>
 inline bool LocalPropertyEqual(const T& v1, const T& v2) { return v1 == v2; }
@@ -454,6 +452,7 @@ public:
     bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
     Enum Native() const { return (Enum)Super::m_value; }
+    int Value() const { return Super::m_value; }
 
     QString GetName() const
     {
@@ -721,12 +720,36 @@ public:
 
     void ClearProperties();
     void Update();
-    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties);
+
+    template<typename Function, typename ... Args>
+    DispatcherConnections AddRule(const char* locationInfo, const Function& handler, Args... args)
+    {
+        m_handlers.append([=]{
+            return handler(args->Native()...);
+        });
+        DispatcherConnections connections;
+        adapters::Combine([&](const auto* property){
+            connections += m_commutator.ConnectFrom(locationInfo, property->OnChanged);
+        }, args...);
+        m_commutator.Invoke();
+        return connections;
+    }
+    DispatcherConnections AddProperty(const char* connectionInfo, const LocalPropertyBool* property){
+        return AddRule(connectionInfo, [](bool value){ return value; }, property);
+    }
+    DispatcherConnections AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
+    {
+        DispatcherConnections result;
+        for(auto* property : properties) {
+            result += AddProperty(connectionInfo, property);
+        }
+        return result;
+    }
 
 private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<const LocalPropertyBool*> m_properties;
+    QVector<std::function<bool()>> m_handlers;
     bool m_defaultState;
 };
 

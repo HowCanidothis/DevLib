@@ -11,6 +11,7 @@
 #include <QDateTimeEdit>
 #include <QMenu>
 #include <QPushButton>
+#include <QAbstractButton>>
 
 #include <WidgetsModule/internal.hpp>
 
@@ -135,6 +136,21 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
+template <typename T1, typename T2>
+QVector<T2> mutate(const QVector<T1>& source){
+    QVector<T2> result; result.reserve(source.size());
+    for(const auto& value : source){
+        result.append(value);
+    }
+    return result;
+}
+
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
+    : LocalPropertiesPushButtonConnector(property, mutate<QPushButton*, QAbstractButton*>(buttons))
+{
+
+}
+
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
     label->setText(*property);
@@ -171,17 +187,18 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
-LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QAbstractButton*>& buttons)
     : Super([buttons, property]{
                 for(auto* button : buttons) {
-                    auto& checked = WidgetPushButtonWrapper(button).WidgetChecked();
+                    WidgetAbstractButtonWrapper wrapper (button);
+                    auto& checked = wrapper.WidgetChecked();
                     checked = false;
-                    if(WidgetPushButtonWrapper(button).GetWidget()->isChecked() != checked) { // Qt internally changed value
+                    if(wrapper.GetWidget()->isChecked() != checked) { // Qt internally changed value
                         checked.Invoke();
                     }
                 }
                 if(*property >= 0 && *property < buttons.size()) {
-                    WidgetPushButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
+                    WidgetAbstractButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
                 }
             }, [this, property]{
                 *property = m_currentIndex;
@@ -194,18 +211,19 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     qint32 i(0);
     for(auto* button : buttons) {
         button->setCheckable(true);
-        WidgetPushButtonWrapper(button).SetControl(ButtonRole::Tab).OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [i, this]{
+        WidgetAbstractButtonWrapper wrapper (button);
+        wrapper.OnClicked().Connect(CONNECTION_DEBUG_LOCATION, [i, this]{
             ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[i, this]{
                 m_currentIndex = i;
                 m_propertySetter();
                 m_widgetSetter();
             });
         }).MakeSafe(m_dispatcherConnections);
-        WidgetPushButtonWrapper(button).WidgetChecked() = false;
+        wrapper.WidgetChecked() = false;
         ++i;
     }
     if(*property >= 0 && *property < buttons.size()) {
-        WidgetPushButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
+        WidgetAbstractButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
     }
 }
 

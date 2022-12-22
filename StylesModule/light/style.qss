@@ -845,7 +845,7 @@ QWidget#widgetheader {
 NotifierErrorsFrame
 {
     qproperty-errorLinkColor: black;
-    qproperty-warningLinkColor: #8c580e;
+    qproperty-warningLinkColor: #D4D4D4;
 }
 
 QPushButton#btnDrawer
@@ -880,83 +880,119 @@ QPushButton:hover{
     background: #EEEEEE;
 }
 
-QPushButton[a_control="1"]:hover{ /* Icon */
+QAbstractButton[a_control="1"]:hover{ /* Icon */
     background: #EEEEEE;
 }
 
-QPushButton[a_control="1"]::menu-indicator {
+QAbstractButton[a_control="1"]::menu-indicator {
     width: 0px;
 }
 
-QPushButton[a_control="2"]{  /* Save */
+QAbstractButton[a_control="2"]{  /* Save */
     color: white;
     background: #3EA6FF;
 }
 
-QPushButton[a_control="2"]:hover{
+QAbstractButton[a_control="2"]:hover{
     color: white;
     background: #4DADFF;
 }
 
-QPushButton[a_control="3"]{  /* Reset */
+QAbstractButton[a_control="3"]{  /* Reset */
     color: white;
     background: #FF5252;
 }
 
-QPushButton[a_control="3"]:hover{
+QAbstractButton[a_control="3"]:hover{
     background: #FF6060;
 }
 
-QPushButton[a_control="4"]{  /* Cancel */
+QAbstractButton[a_control="4"]{  /* Cancel */
     color: #6F6F6F;
     background: transparent;
 }
 
-QPushButton[a_control="4"]:hover{
+QAbstractButton[a_control="4"]:hover{
     background: #EEEEEE;
 }
 
-QPushButton[a_control="5"]{  /* AddIcon */
+QAbstractButton[a_control="5"]{  /* AddIcon */
     color: #6F6F6F;
     background: transparent;
 }
 
-QPushButton[a_control="5"]:hover{
+QAbstractButton[a_control="5"]:hover{
     background: #EEEEEE;
 }
 
-QPushButton[a_control="6"]{  /* Add */
+QAbstractButton[a_control="6"]{  /* Add */
     color: #3EA6FF;
     background: transparent;
 }
 
-QPushButton[a_control="6"]:hover{
+QAbstractButton[a_control="6"]:hover{
     background: #EEEEEE;
 }
 
-QPushButton[a_control="7"]{  /* Tab */
+QAbstractButton[a_control="7"]{  /* Tab */
     border-radius: 0px;
     color: #3EA6FF;
     background: transparent;
     border: none;
 }
 
-QPushButton[a_control="7"]:hover{
+QAbstractButton[a_control="7"]:hover{
     background: #EEEEEE;
     border: none;
 }
 
-QPushButton[a_control="7"]:checked{
+QAbstractButton[a_control="7"]:checked{
     border-bottom: 2px solid #3EA6FF;
 }
 
-QPushButton[a_control="8"]:hover /*datetime*/
+QAbstractButton[a_control="8"]:hover /*datetime*/
 {
     background: #EEEEEE;
 }
 
-QPushButton[a_control="9"]:hover{
+QAbstractButton[a_control="9"]:hover{
     background: #EEEEEE;
+}
+
+QAbstractButton[a_control="10"]{/* GroupHeader */
+    border-radius: 0px;
+    font-size: 14px;
+    color: #414141;
+    background: #f3f3f3;
+    border: none;
+}
+
+QAbstractButton[a_control="10"]:hover{
+    background: #EEEEEE;
+}
+
+QAbstractButton[a_control="10"]:checked{
+    font-weight: bold;
+    color: black;
+    background: transparent;
+}
+
+QAbstractButton[a_control="11"]{/* Group */
+    border-radius: 0px;
+    color: #414141;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+}
+
+QAbstractButton[a_control="11"]:hover{
+    background: #EEEEEE;
+}
+
+QAbstractButton[a_control="11"]:checked{
+    color: #3EA6FF;
+    font-weight: bold;
+    border-bottom: 2px solid #3EA6FF;
 }
 
 QPushButton:disabled {
