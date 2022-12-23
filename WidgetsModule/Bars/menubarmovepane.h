@@ -19,13 +19,16 @@ public:
     LocalPropertyBool Resizeable;
     LocalPropertyBool Modal;
 
+    void SetWindow(QWidget* w);
+
     QString GetTitle() const;
+    QLabel* GetTitleWidget() const;
     void SetTitle(const QString& title);
     void MaximizeRestore();
 
     // QObject interface
 public:
-    bool eventFilter(QObject* watched, QEvent* event) override;
+    bool filter(QObject* watched, QEvent* event);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -40,6 +43,7 @@ private slots:
 
 private:
     Ui::MenuBarMovePane* ui;
+    class EventFilterObject* m_windowEventFilter;
     QByteArray m_windowGeometry;
     QPoint m_pressPoint;
     bool m_ignoreMoveEvents;

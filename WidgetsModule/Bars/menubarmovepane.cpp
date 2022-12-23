@@ -16,6 +16,7 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     , Resizeable(true)
     , Modal(false)
     , ui(new Ui::MenuBarMovePane())
+    , m_windowEventFilter(nullptr)
     , m_ignoreMoveEvents(false)
     , m_isDrag(false)
 {
@@ -26,8 +27,7 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     ui->BtnMinimize->setAttribute(Qt::WA_NoMousePropagation);
     ui->BtnMaximize->setAttribute(Qt::WA_NoMousePropagation);
 
-    Q_ASSERT(window() != nullptr);
-    window()->installEventFilter(this);
+    SetWindow(this);
 
     Resizeable.Subscribe([this]{
         ui->BtnMaximize->setVisible(Resizeable);
@@ -37,6 +37,43 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
         ui->BtnMinimize->setVisible(!Modal);
     });
     m_windowGeometry = parent->saveGeometry();
+}
+
+bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
+{
+    switch(event->type()) {
+    case QEvent::WindowTitleChange: {
+        auto* widget = reinterpret_cast<QWidget*>(watched);
+        SetTitle(widget->windowTitle());
+    } break;
+    case QEvent::Resize:
+    case QEvent::Move:
+    case QEvent::WindowStateChange: {
+        auto* widget = window();
+        if(widget->isMaximized()) {
+            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, true);
+        } else {
+            m_windowGeometry = window()->saveGeometry();
+            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, false);
+        }
+    } break;
+    default: break;
+    }
+
+    return false;
+}
+
+void MenuBarMovePane::SetWindow(QWidget* w)
+{
+    if(m_windowEventFilter != nullptr) {
+        m_windowEventFilter->deleteLater();
+    }
+    m_windowEventFilter = WidgetWrapper(w->window()).AddEventFilter([this](QObject* o, QEvent* e){ return filter(o,e); });
+}
+
+QLabel* MenuBarMovePane::GetTitleWidget() const
+{
+    return ui->Title;
 }
 
 QString MenuBarMovePane::GetTitle() const
@@ -76,7 +113,7 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
             m_isDrag = true;
             ::SendNotifyMessage(HWND(window()->winId()), WM_ENTERSIZEMOVE, NULL, NULL);
         }
-        
+
         auto rect = window()->geometry();
         RECT rectW {rect.left(), rect.top(), rect.right(), rect.bottom()};
         ::SendMessageA(HWND(window()->winId()), WM_MOVING, NULL, LPARAM(&rectW));
@@ -95,7 +132,7 @@ void MenuBarMovePane::MaximizeRestore()
 {
     if(!Resizeable) {
         return;
-    }
+    }    
     if(window()->isMaximized()) {
         auto* graphicsEffect = window()->graphicsEffect();
         if(graphicsEffect != nullptr) {
@@ -104,7 +141,6 @@ void MenuBarMovePane::MaximizeRestore()
         }
         window()->restoreGeometry(m_windowGeometry);
     } else {
-        m_windowGeometry = window()->saveGeometry();
         auto* graphicsEffect = window()->graphicsEffect();
         if(graphicsEffect != nullptr) {
             graphicsEffect->setEnabled(false);
@@ -139,21 +175,4 @@ void MenuBarMovePane::on_BtnMaximize_clicked()
 void MenuBarMovePane::on_BtnClose_clicked()
 {
     window()->close();
-}
-
-bool MenuBarMovePane::eventFilter(QObject* watched, QEvent* event)
-{
-    if(event->type() == QEvent::WindowTitleChange) {
-        auto* widget = reinterpret_cast<QWidget*>(watched);
-        SetTitle(widget->windowTitle());
-    } else if(event->type() == QEvent::Resize || event->type() == QEvent::WindowStateChange) {
-        auto* widget = reinterpret_cast<QWidget*>(watched);
-        if(widget->isMaximized()) {
-            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, true);
-        } else {
-            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, false);
-        }
-    }
-
-    return false;
 }
