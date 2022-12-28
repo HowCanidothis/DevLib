@@ -21,7 +21,6 @@ public:
     class WidgetsDateTimeEdit* GetLineEdit() const;
 
     LocalPropertyString DisplayFormat;
-    LocalPropertyLocale Locale;
         
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;

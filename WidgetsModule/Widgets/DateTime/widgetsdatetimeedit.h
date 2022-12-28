@@ -14,7 +14,6 @@ public:
     WidgetsDateTimeEdit(QWidget* parent = nullptr);
 
     LocalPropertyDateTime CurrentDateTime;
-    LocalPropertyLocale Locale;
     LocalPropertyString DisplayFormat;
     std::function<QDateTime ()> DefaultDateTimeDelegate = []{ return QDateTime(); };
     void Resize();
@@ -28,10 +27,11 @@ protected:
 
 private:
     void init();
-    virtual void connectLocale();
+    virtual void updateLocale();
 
 private:
     DispatcherConnectionsSafe m_connections;
+    DelayedCallObject m_updateDisplayFormat;
     DelayedCallObject m_call;
     bool m_recursionBlock;
 };
@@ -46,7 +46,7 @@ public:
     LocalPropertyDate CurrentDate;
 
 private:
-    void connectLocale() override;
+    void updateLocale() override;
 };
 
 #endif // WIDGETSDATETIMEEDIT_H

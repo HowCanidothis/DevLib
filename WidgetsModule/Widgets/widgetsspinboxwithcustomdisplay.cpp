@@ -53,7 +53,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
 
     auto updateDisplay = [this]{
         if(!hasFocus()) {
-            setPrefix(QString());
+            setPrefix(prefix());
         }
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
@@ -140,7 +140,7 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultTextFromValueHandler()
 {
-    static TextFromValueHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return QString::number(value, 'f', spinBox->decimals()); };
+    static TextFromValueHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return LanguageSettings::DoubleToString(value, spinBox->decimals()); };
     return result;
 }
 
@@ -169,7 +169,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 
     auto updateDisplay = [this]{
         if(!hasFocus()) {
-            setPrefix(QString());
+            setPrefix(prefix());
         }
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
@@ -219,7 +219,8 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         return QValidator::Intermediate;
     }
 
-    QString inputCopy = input.replace(',', '.');
+    QString inputCopy = input;
+    inputCopy.replace(',', '.');
     if(input.startsWith("-")) {
         inputCopy = input.mid(1);
     }

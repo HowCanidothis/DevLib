@@ -94,7 +94,7 @@ double Measurement::FromBaseToUnit(double baseValue) const
 
 QString Measurement::FromBaseToUnitUi(double value) const
 {
-    return QString::number(GetCurrentUnit()->GetBaseToUnitConverter()(value), 'f', CurrentPrecision);
+    return LanguageSettings::DoubleToString(GetCurrentUnit()->GetBaseToUnitConverter()(value), CurrentPrecision);
 }
 
 const MeasurementUnit* Measurement::FindUnit(const Name &metric) const

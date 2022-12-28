@@ -275,7 +275,7 @@ public:
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
                 return "-";
             }
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
         });
@@ -298,7 +298,7 @@ public:
                 return "-";
             }
 
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto dataValue = getter(const_cast<ValueType>(value));
             return pMeasurement->FromBaseToUnit(dataValue.value());
@@ -317,7 +317,7 @@ public:
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
                 return "-";
             }
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{ getter(value) = pMeasurement->FromUnitToBase(data.toDouble()); };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
@@ -358,7 +358,7 @@ public:
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
                 return "-";
             }
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{ getter(value) = pMeasurement->FromUnitToBase(data.toDouble()); };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
@@ -379,7 +379,7 @@ public:
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
                 return "-";
             }
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue.Value), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue.Value);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{
                 bool isDouble; auto dval = data.toDouble(&isDouble);
@@ -417,7 +417,7 @@ public:
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
                 return "-";
             }
-            return QString::number(pMeasurement->FromBaseToUnit(concreteValue), 'f', pMeasurement->CurrentPrecision);
+            return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{
                 if(data.isValid()) {

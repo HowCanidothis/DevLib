@@ -111,10 +111,25 @@ struct SaveLoadSettings
     }
 };
 
+enum class LocaleType {
+    English,
+    Russian,
+    First = English,
+    Last = Russian,
+};
+
+template<>
+struct EnumHelper<LocaleType>
+{
+    static QStringList GetNames() { return { tr("EN"), tr("RU")}; }
+    Q_DECLARE_TR_FUNCTIONS(EnumHelper)
+};
+
 struct LanguageSettings
 {
     LanguageSettings();
 
+    LocalPropertySequentialEnum<LocaleType> LocaleIndex;
     LocalPropertyLocale ApplicationLocale;
     LocalProperty<std::function<QString (const QLocale&, const QDateTime& dt)>> DateTimeToStringHandler;
 
@@ -126,7 +141,10 @@ struct LanguageSettings
         buffer.CloseSection();
     }
 
+    void Initialize();
+
     static QString DateTimeToString(const QDateTime& dt);
+    static QString DoubleToString(double v, qint32 precision);
 };
 
 class SharedSettings : public Singletone<SharedSettings>

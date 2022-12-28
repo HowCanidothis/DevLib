@@ -6,20 +6,6 @@
 
 #include <SharedModule/internal.hpp>
 
-enum class LocaleType {
-    English,
-    Russian,
-    First = English,
-    Last = Russian,
-};
-
-template<>
-struct EnumHelper<LocaleType>
-{
-    static QStringList GetNames() { return { tr("EN"), tr("RU")}; }
-    Q_DECLARE_TR_FUNCTIONS(EnumHelper)
-};
-
 enum class GroupKeyboardSeparator {
     Space,
     Semicolon,

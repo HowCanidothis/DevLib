@@ -39,8 +39,6 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     m_editor->OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
-    m_editor->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);
-    ui->dateTimeEdit->Locale.ConnectFrom(CONNECTION_DEBUG_LOCATION, Locale);
     ui->dateTimeEdit->DisplayFormat.ConnectFrom(CONNECTION_DEBUG_LOCATION, DisplayFormat);
 
     WidgetPushButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::DateTimePicker).SetIcon("Calendar");

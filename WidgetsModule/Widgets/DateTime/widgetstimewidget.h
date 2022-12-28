@@ -46,7 +46,6 @@ private:
 
 public:
     LocalPropertyTime& CurrentTime;
-    LocalPropertyLocale Locale;
 };
 
 #endif // WIDGETSTIMEWIDGET_H

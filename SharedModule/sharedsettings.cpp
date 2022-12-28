@@ -1,6 +1,7 @@
 #include "sharedsettings.h"
 
 #ifdef SHARED_LIB_ADD_UI
+#include <QApplication>
 #include <WidgetsModule/internal.hpp>
 #endif
 
@@ -92,19 +93,57 @@ void PathSettings::Initialize(const QString& productName)
 static const QString DefaultDateTimeFormat = "MM/dd/yyyy hh:mm AP";
 
 LanguageSettings::LanguageSettings()
-    : DateTimeToStringHandler([](const QLocale& locale, const QDateTime& dt){
+    : ApplicationLocale(QLocale::system())
+    , DateTimeToStringHandler([](const QLocale& locale, const QDateTime& dt){
         if(locale.language() == QLocale::English){
             return locale.toString(dt, DefaultDateTimeFormat);
         }
         return locale.toString(dt, QLocale::FormatType::ShortFormat);
     })
 {
+    ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+        ApplicationLocale.EditSilent().setNumberOptions(QLocale::OmitGroupSeparator);
+    });
+    ApplicationLocale.ConnectBoth(CONNECTION_DEBUG_LOCATION, LocaleIndex, [](const QLocale& locale){
+        if(locale.language() == QLocale::English) {
+            return LocaleType::English;
+        }
+        return LocaleType::Russian;
+    }, [](qint32 localeType){
+        QLocale result;
+        if(localeType == (qint32)LocaleType::English) {
+            result = QLocale(QLocale::English);
+        } else {
+            result = QLocale(QLocale::Russian);
+        }
+        return result;
+    });
+}
+
+void LanguageSettings::Initialize()
+{
+#ifdef SHARED_LIB_ADD_UI
+    ApplicationLocale.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [&]{
+        for(auto* w : qApp->topLevelWidgets()) {
+            auto spinboxes = w->findChildren<QDoubleSpinBox*>();
+            for(auto* s : spinboxes) {
+                s->setLocale(ApplicationLocale);
+            }
+        }
+    });
+#endif
 }
 
 QString LanguageSettings::DateTimeToString(const QDateTime& dt)
 {
     const auto& settings = SharedSettings::GetInstance().LanguageSettings;
     return settings.DateTimeToStringHandler.Native()(settings.ApplicationLocale, dt);
+}
+
+QString LanguageSettings::DoubleToString(double v, qint32 precision)
+{
+    const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+    return settings.ApplicationLocale.Native().toString(v, 'f', precision);
 }
 
 SaveLoadSettings::SaveLoadSettings()

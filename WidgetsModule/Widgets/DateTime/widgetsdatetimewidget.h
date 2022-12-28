@@ -27,7 +27,6 @@ public:
     LocalPropertyInt Mode;
     LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;
-    LocalPropertyLocale Locale;
 
 	Dispatcher OnNowActivate;
 	Dispatcher OnApplyActivate;
@@ -36,6 +35,7 @@ public:
 	
 private:
     Ui::WidgetsDateTimeWidget *ui;
+    DispatcherConnectionsSafe m_connections;
 };
 
 #endif // WIDGETSDATETIMEWIDGET_H

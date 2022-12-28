@@ -48,13 +48,16 @@ void WidgetsDateTimeEdit::Resize()
 void WidgetsDateTimeEdit::init()
 {
     m_recursionBlock = false;
-    Locale.SetAndSubscribe([this]{
-        setLocale(Locale);
+    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Connect(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
+        setLocale(locale);
         if(calendarWidget() != nullptr) {
-            calendarWidget()->setLocale(Locale);
+            calendarWidget()->setLocale(locale);
         }
         Resize();
-    });
+        m_updateDisplayFormat.Call(CONNECTION_DEBUG_LOCATION, [this]{
+            updateLocale();
+        });
+    }).MakeSafe(m_connections);
 
     CurrentDateTime.SetAndSubscribe([this]{
         if(m_recursionBlock) {
@@ -86,7 +89,6 @@ void WidgetsDateTimeEdit::init()
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
         switch(event->type()){
-            case QEvent::Show: connectLocale(); break;
             case QEvent::KeyPress: {
                 auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
                 switch(keyEvent->key()){
@@ -124,17 +126,14 @@ void WidgetsDateTimeEdit::init()
     });
 }
 
-void WidgetsDateTimeEdit::connectLocale()
+void WidgetsDateTimeEdit::updateLocale()
 {
-    m_connections.clear();
-    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        const auto& locale = Locale.Native();
-        if(locale.language() == QLocale::English){
-            DisplayFormat = "MM/dd/yy hh:mm AP";
-        } else {
-            DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
-        }
-    }).MakeSafe(m_connections);
+    const auto& locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
+    if(locale.language() == QLocale::English){
+        DisplayFormat = "MM/dd/yy hh:mm AP";
+    } else {
+        DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
+    }
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
@@ -162,15 +161,13 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
     });
 }
 
-void WidgetsDateEdit::connectLocale()
+void WidgetsDateEdit::updateLocale()
 {
-    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        const auto& locale = Locale.Native();
-        if(locale.language() == QLocale::English){
-            DisplayFormat = "MM/dd/yyyy";
-        } else {
-            DisplayFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
-        }
-    });
+    const auto& locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
+    if(locale.language() == QLocale::English){
+        DisplayFormat = "MM/dd/yyyy";
+    } else {
+        DisplayFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
+    }
 }
 

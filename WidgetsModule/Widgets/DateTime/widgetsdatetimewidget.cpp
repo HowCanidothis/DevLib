@@ -58,10 +58,9 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         OnApplyActivate();
 	});
 
-    Locale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        ui->calendarWidget->setLocale(Locale);
-        ui->widget->Locale = Locale.Native();
-    });
+    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+        ui->calendarWidget->setLocale(SharedSettings::GetInstance().LanguageSettings.ApplicationLocale);
+    }).MakeSafe(m_connections);
 
     WidgetPushButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){
