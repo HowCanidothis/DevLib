@@ -239,9 +239,12 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
     layout->invalidate();
     widget->hide();
 
-    newWidget->setMinimumSize(widget->size() + QSize(20,20));
+
     if(!resizeable) {
+        newWidget->setMinimumSize(widget->size() + QSize(20,20));
         layout->setSizeConstraint(QLayout::SetNoConstraint);
+    } else {
+        newWidget->setMinimumSize(widget->minimumSizeHint() + QSize(20,20));
     }
     newWidget->setLayout(layout);
 

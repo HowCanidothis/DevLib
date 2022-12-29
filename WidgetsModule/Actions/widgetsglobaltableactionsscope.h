@@ -68,6 +68,7 @@ public:
     static WidgetsGlobalTableActionsScopeHandlersPtr AddDefaultHandlers(QTableView* table, bool assert = true);
 
     static FAction CreateDefaultDeleteHandler(QTableView* table);
+    static QList<QString> ClipboardRows();
 
 private:
     friend class WidgetsGlobalTableActionId;

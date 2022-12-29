@@ -144,6 +144,18 @@ FAction WidgetsGlobalTableActionsScope::CreateDefaultDeleteHandler(QTableView* t
     };
 }
 
+QList<QString> WidgetsGlobalTableActionsScope::ClipboardRows()
+{
+    QList<QString> ret;
+
+    QClipboard* clipboard = qApp->clipboard();
+    auto rows = clipboard->text().split('\n');
+    for(const auto& row : rows){
+        ret.append(row);
+    }
+    return ret;
+}
+
 QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, EnableIfMode mode)
 {
     Q_ASSERT(FindAction(id) == nullptr);
