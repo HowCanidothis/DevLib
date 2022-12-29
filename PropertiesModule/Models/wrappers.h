@@ -460,4 +460,39 @@ private:
     qint32 m_last;
 };
 
+
+template<class T>
+struct LambdaValueWrapper
+{
+
+};
+
+template<class T>
+struct LambdaValueWrapper<T&>
+{
+    LambdaValueWrapper(T& value)
+        : m_value(value)
+    {}
+
+    T& GetValue() const { return m_value; }
+    operator T&() const { return m_value; }
+
+private:
+    T& m_value;
+};
+
+template<class T>
+struct LambdaValueWrapper<T*>
+{
+    LambdaValueWrapper(T* value)
+        : m_value(value)
+    {}
+
+    T* GetValue() const { return m_value; }
+    operator T*() const { return m_value; }
+
+private:
+    T* m_value;
+};
+
 #endif // WRAPPERS_H

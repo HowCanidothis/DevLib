@@ -19,6 +19,9 @@
 #include "localpropertyerrorscontainer.h"
 #include "Models/wrappers.h"
 #include "Models/modelstree.h"
+#include "Models/modelsvacabulary.h"
+#include "Models/modelserrorscomponents.h"
+#include "Models/modelsserializer.h"
 #include "textconverters.h"
 
 #ifdef SHARED_LIB_ADD_UI

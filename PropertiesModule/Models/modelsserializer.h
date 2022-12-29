@@ -1,5 +1,5 @@
-#ifndef WIDGETSSERIALIZER_H
-#define WIDGETSSERIALIZER_H
+#ifndef MODELSSERIALIZER_H
+#define MODELSSERIALIZER_H
 
 template<class T>
 struct Serializer<TModelsTableWrapper<T>>
@@ -47,4 +47,4 @@ struct SerializerXml<TModelsTableWrapper<T>>
     }
 };
 
-#endif // WIDGETSSERIALIZER_H
+#endif // MODELSSERIALIZER_H

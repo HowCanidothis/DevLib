@@ -8,9 +8,8 @@
 #include "Models/viewmodeltreebase.h"
 #include "Models/modelstablebase.h"
 #include "Models/modelslistbase.h"
-#include "Models/modelserrorscomponents.h"
 #include "Models/modelsfiltermodelbase.h"
-#include "Models/modelsvacabulary.h"
+#include "Models/viewmodelvacabulary.h"
 #include "Models/viewmodelsdefaultcomponents.h"
 #include "Models/viewmodelsdefaultfieldmodel.h"
 
@@ -65,9 +64,8 @@
 
 #include "Managers/widgetsdialogsmanager.h"
 #include "Managers/widgetsfocusmanager.h"
+#include "Managers/modelsvocabularymanager.h"
 #include "Managers/widgetsstandardtableheadermanager.h"
-
-#include "widgetsserializer.h"
 
 #include "qtqssreader.h"
 #endif
