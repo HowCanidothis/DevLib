@@ -23,6 +23,15 @@ void ViewModelsFilterModelBase::InvalidateFilter()
     });
 }
 
+void ViewModelsFilterModelBase::setSourceModel(QAbstractItemModel* m)
+{
+    auto* oldModel = sourceModel();
+    Super::setSourceModel(m);
+    if(oldModel != m) {
+        OnModelChanged();
+    }
+}
+
 QVariant ViewModelsFilterModelBase::data(const QModelIndex& index, qint32 role) const
 {
     if(!index.isValid()) {

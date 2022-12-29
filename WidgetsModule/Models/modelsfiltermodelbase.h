@@ -25,6 +25,8 @@ public:
         return Super::lessThan(f,s);
     }
 
+    void setSourceModel(QAbstractItemModel* m) override;
+
     bool filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const override;
     bool filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const override;
 
@@ -44,6 +46,7 @@ public:
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
     Dispatcher OnInvalidated;
     Dispatcher Invalidate;
+    Dispatcher OnModelChanged;
 
 protected:
     bool lessThan(const QModelIndex& f, const QModelIndex& s) const override;
