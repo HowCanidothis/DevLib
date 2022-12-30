@@ -103,6 +103,7 @@ LanguageSettings::LanguageSettings()
 {
     ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
         ApplicationLocale.EditSilent().setNumberOptions(QLocale::OmitGroupSeparator);
+        QLocale::setDefault(ApplicationLocale);
     });
     ApplicationLocale.ConnectBoth(CONNECTION_DEBUG_LOCATION, LocaleIndex, [](const QLocale& locale){
         if(locale.language() == QLocale::English) {
