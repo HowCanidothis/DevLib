@@ -105,6 +105,7 @@ public:
     Measurement& AddMeasurement(const MeasurementPtr& measurement);
     MeasurementSystem& AddSystem(const Name& systemName);
     void AddSystem(const MeasurementSystemPtr& system);
+    bool RemoveSystem(const Name& systemName);
     const MeasurementPtr& GetMeasurement(const Name& measurementName) const;
     const MeasurementSystemPtr& GetSystem(const Name& systemName) const;
     

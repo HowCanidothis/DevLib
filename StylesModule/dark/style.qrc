@@ -251,5 +251,6 @@
         <file>rc/plus.svg</file>
         <file>rc/rooms.svg</file>
         <file>rc/burger.svg</file>
+        <file>rc/copy.svg</file>
     </qresource>
 </RCC>

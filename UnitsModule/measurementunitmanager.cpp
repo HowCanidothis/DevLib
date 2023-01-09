@@ -175,6 +175,25 @@ void MeasurementManager::AddSystem(const MeasurementSystemPtr & system) {
     }
 }
 
+bool MeasurementManager::RemoveSystem(const Name& systemName)
+{
+    auto foundIt = m_metricSystems.find(systemName);
+    if(foundIt == m_metricSystems.cend()) {
+        return false;
+    }
+    auto indexOf = m_systemWrapper->IndexOf(*foundIt);
+    if(indexOf < 3) {
+        return false;
+    }
+    if(CurrentMeasurementSystem == systemName) {
+        CurrentMeasurementSystem = Name(m_systemWrapper->At(0)->Label);
+    }
+
+    m_metricSystems.erase(foundIt);
+    m_systemWrapper->Remove({indexOf});
+    return true;
+}
+
 MeasurementManager& MeasurementManager::GetInstance()
 {
     static MeasurementManager result;

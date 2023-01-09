@@ -18,6 +18,10 @@ public:
     bool ShowSaveCancelDialog(const QString& label, const QString& text);
     bool ShowOkCancelDialog(const QString& label, const QString& text);
     void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
+    QString GetText(const QString& title, const QString& label,
+                    const QString& text = QString(), bool* ok = nullptr,
+                    qint32 echoMode = 0,
+                    Qt::InputMethodHints inputMethodHints = Qt::ImhNone);
 
     QDialog* GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
 

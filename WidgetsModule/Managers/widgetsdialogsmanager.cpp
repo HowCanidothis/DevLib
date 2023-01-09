@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QDesktopWidget>
 #include <QSettings>
+#include <QInputDialog>
 
 #include <PropertiesModule/internal.hpp>
 
@@ -48,6 +49,26 @@ void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& tit
     dialog.setModal(true);
     OnDialogCreated(&dialog);
     dialog.exec();
+}
+
+QString WidgetsDialogsManager::GetText(const QString& title, const QString& label, const QString& text, bool* ok, qint32 echoMode, Qt::InputMethodHints inputMethodHints)
+{
+    QInputDialog dialog(GetParentWindow());
+    dialog.setWindowTitle(title);
+    dialog.setLabelText(label);
+    dialog.setTextValue(text);
+    dialog.setTextEchoMode((QLineEdit::EchoMode)echoMode);
+    dialog.setInputMethodHints(inputMethodHints);
+    OnDialogCreated(&dialog);
+
+    const int ret = dialog.exec();
+    if (ok)
+        *ok = !!ret;
+    if (ret) {
+        return dialog.textValue();
+    } else {
+        return QString();
+    }
 }
 
 QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator)

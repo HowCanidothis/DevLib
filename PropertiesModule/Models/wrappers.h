@@ -110,6 +110,7 @@ class TModelsTableWrapper : protected Container, public ModelsTableWrapper
 public:
     using container_type = Container;
     using value_type = typename Super::value_type;
+    using const_iterator = typename Super::const_iterator;
     using Super::Super;
     using FDataInitializer = std::function<void (qint32 index, value_type& data)>;
 
@@ -190,7 +191,7 @@ public:
     }
 
     template<class T2, typename F = bool (*)(const value_type&, const T2&)>
-    typename Super::const_iterator FindSorted(const T2& value, const F& lessThan) const
+    typename const_iterator FindSorted(const T2& value, const F& lessThan) const
     {
         return std::lower_bound(begin(), end(), value, lessThan);
     }
@@ -376,8 +377,8 @@ public:
     const value_type& At(qint32 index) const { return Super::at(index); }
     const value_type& operator[](qint32 index) const { return Super::operator[](index); }
 
-    typename Super::const_iterator begin() const { return Super::begin(); }
-    typename Super::const_iterator end() const { return Super::end(); }
+    typename const_iterator begin() const { return Super::begin(); }
+    typename const_iterator end() const { return Super::end(); }
 
     template<typename ... Dispatchers>
     DispatcherConnections Connect(const char* connectionInfo, const std::function<void(const Container&)>& handler, Dispatchers&... dispatchers){
