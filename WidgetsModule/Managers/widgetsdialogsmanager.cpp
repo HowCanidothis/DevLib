@@ -17,6 +17,7 @@
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Dialogs/widgetsinputdialog.h"
 
 const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
 
@@ -51,21 +52,19 @@ void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& tit
     dialog.exec();
 }
 
-QString WidgetsDialogsManager::GetText(const QString& title, const QString& label, const QString& text, bool* ok, qint32 echoMode, Qt::InputMethodHints inputMethodHints)
+QString WidgetsDialogsManager::GetText(const QString& title, const QString& text, bool* ok)
 {
-    QInputDialog dialog(GetParentWindow());
-    dialog.setWindowTitle(title);
-    dialog.setLabelText(label);
-    dialog.setTextValue(text);
-    dialog.setTextEchoMode((QLineEdit::EchoMode)echoMode);
-    dialog.setInputMethodHints(inputMethodHints);
+    LocalPropertyString v(text);
+    WidgetsInputDialog dialog(GetParentWindow());
+    dialog.AddLineText(title, &v);
+
     OnDialogCreated(&dialog);
 
     const int ret = dialog.exec();
     if (ok)
         *ok = !!ret;
     if (ret) {
-        return dialog.textValue();
+        return v;
     } else {
         return QString();
     }
@@ -238,10 +237,8 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
 
     bool resizeable = true;
 
-    if(widget->layout() != nullptr) { // TODO. It's a crutch
-        if(widget->layout()->sizeConstraint() == QLayout::SetFixedSize || widget->layout()->sizeConstraint() == QLayout::SetNoConstraint) {
-            resizeable = false;
-        }
+    if(widget->layout()->sizeConstraint() == QLayout::SetFixedSize || widget->layout()->sizeConstraint() == QLayout::SetNoConstraint) {
+        resizeable = false;
     }
 
     auto* vboxla = new QBoxLayout(QBoxLayout::TopToBottom);

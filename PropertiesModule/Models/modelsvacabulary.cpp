@@ -43,6 +43,8 @@ const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 colu
     return m_header.at(column);
 }
 #ifdef WIDGETS_MODULE_LIB
+#include <WidgetsModule/internal.hpp>
+
 TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
 {
     return new TViewModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {

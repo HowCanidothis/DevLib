@@ -272,30 +272,40 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
 
     action = GetInstance().FindAction(GlobalActionPasteId);
     result->AddHandler([]{ return tr("Paste"); }, QKeySequence(Qt::CTRL + Qt::Key_V), action, [table]{
-        auto setModelData = [](QTableView* tableView, const QList<int>& rowIdexs, const QVector<QStringList>& data){
+        auto setModelData = [](QTableView* tableView, const QModelIndex& currentIndex, const QVector<QStringList>& data){
+            if(!currentIndex.isValid()) {
+                return;
+            }
             auto* model = tableView->model();
             const auto* header = tableView->horizontalHeader();
 
-            auto dataRowIterator = data.begin();
-            for(auto row : rowIdexs){
-                if(dataRowIterator == data.end()){
-                    break;
-                }
-                const auto& insertData = *dataRowIterator;
-                qint32 column = 0;
-                for(const auto& value : insertData) {
-                    if(header->isSectionHidden(column)){
-                        column++;
+            auto currentRow = currentIndex.row();
+            QItemSelection toSelect;
+            for(const auto& row : data) {
+                auto currentColumn = currentIndex.column();
+                for(const auto& value : row) {
+                    if(header->isSectionHidden(currentColumn)){
+                        currentColumn++;
                         continue;
                     }
-                    model->setData(model->index(row, column), value);
-                    column++;
-                }
 
-                ++dataRowIterator;
+                    auto index = model->index(currentRow, currentColumn);
+                    if(index.flags().testFlag(Qt::ItemIsEditable)) {
+                        if(index.data(Qt::EditRole).type() == QVariant::Double) {
+                            auto corrected = value;
+                            model->setData(index, corrected.replace(',', '.'));
+                        } else {
+                            model->setData(index, value);
+                        }
+                        toSelect.append(QItemSelectionRange(index, index));
+                    }
+                    currentColumn++;
+                }
+                currentRow++;
             }
+            tableView->selectionModel()->select(toSelect, QItemSelectionModel::Clear | QItemSelectionModel::Select);
         };
-        setModelData(table, WidgetTableViewWrapper(table).SelectedRowsSorted(), clipboardData());
+        setModelData(table, WidgetTableViewWrapper(table)->currentIndex(), clipboardData());
     });
 
 
