@@ -144,6 +144,52 @@ FAction WidgetsGlobalTableActionsScope::CreateDefaultDeleteHandler(QTableView* t
     };
 }
 
+FAction WidgetsGlobalTableActionsScope::CreateDefaultPasteHandler(QTableView* table)
+{
+    return [table]{
+            auto setModelData = [](QTableView* tableView, const QModelIndex& currentIndex, const QVector<QStringList>& data){
+                if(!currentIndex.isValid()) {
+                    return;
+                }
+                auto* model = tableView->model();
+                const auto* header = tableView->horizontalHeader();
+
+                auto currentRow = currentIndex.row();
+                QVector<std::pair<qint32,qint32>> toSelect;
+                for(const auto& row : data) {
+                    auto currentColumn = currentIndex.column();
+                    for(const auto& value : row) {
+                        if(header->isSectionHidden(currentColumn)){
+                            currentColumn++;
+                            continue;
+                        }
+
+                        auto index = model->index(currentRow, currentColumn);
+                        if(index.flags().testFlag(Qt::ItemIsEditable)) {
+                            QLocale currentLocale;
+                            bool ok;
+                            auto doubleValue = currentLocale.toDouble(value, &ok);
+                            if(ok) {
+                                model->setData(index, doubleValue);
+                            } else {
+                                model->setData(index, value);
+                            }
+                            toSelect.append(std::make_pair(currentRow, currentColumn));
+                        }
+                        currentColumn++;
+                    }
+                    currentRow++;
+                }
+                QItemSelection selection;
+                for(const auto& item : toSelect) {
+                    selection.append(QItemSelectionRange(model->index(item.first, item.second)));
+                }
+                tableView->selectionModel()->select(selection, QItemSelectionModel::Clear | QItemSelectionModel::Select);
+            };
+            setModelData(table, WidgetTableViewWrapper(table)->currentIndex(), clipboardData());
+        };
+}
+
 QList<QString> WidgetsGlobalTableActionsScope::ClipboardRows()
 {
     QList<QString> ret;
@@ -271,42 +317,7 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     result->AddHandler([]{ return tr("Copy"); }, QKeySequence(Qt::CTRL + Qt::Key_C), action, copyHandler);
 
     action = GetInstance().FindAction(GlobalActionPasteId);
-    result->AddHandler([]{ return tr("Paste"); }, QKeySequence(Qt::CTRL + Qt::Key_V), action, [table]{
-        auto setModelData = [](QTableView* tableView, const QModelIndex& currentIndex, const QVector<QStringList>& data){
-            if(!currentIndex.isValid()) {
-                return;
-            }
-            auto* model = tableView->model();
-            const auto* header = tableView->horizontalHeader();
-
-            auto currentRow = currentIndex.row();
-            QItemSelection toSelect;
-            for(const auto& row : data) {
-                auto currentColumn = currentIndex.column();
-                for(const auto& value : row) {
-                    if(header->isSectionHidden(currentColumn)){
-                        currentColumn++;
-                        continue;
-                    }
-
-                    auto index = model->index(currentRow, currentColumn);
-                    if(index.flags().testFlag(Qt::ItemIsEditable)) {
-                        if(index.data(Qt::EditRole).type() == QVariant::Double) {
-                            auto corrected = value;
-                            model->setData(index, corrected.replace(',', '.'));
-                        } else {
-                            model->setData(index, value);
-                        }
-                        toSelect.append(QItemSelectionRange(index, index));
-                    }
-                    currentColumn++;
-                }
-                currentRow++;
-            }
-            tableView->selectionModel()->select(toSelect, QItemSelectionModel::Clear | QItemSelectionModel::Select);
-        };
-        setModelData(table, WidgetTableViewWrapper(table)->currentIndex(), clipboardData());
-    });
+    result->AddHandler([]{ return tr("Paste"); }, QKeySequence(Qt::CTRL + Qt::Key_V), action, CreateDefaultPasteHandler(table));
 
 
     action = GetInstance().FindAction(GlobalActionDeleteId);
