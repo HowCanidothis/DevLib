@@ -51,7 +51,6 @@ DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* loc
     for(auto* property : properties) {
         dispatchers.append(&property->OnChanged);
     }
-    SetState(handler());
 
     return AddHandler(location, handler, dispatchers);
 }
