@@ -166,6 +166,8 @@ public:
         return value;
     }
 
+    const WidgetWrapper& Click();
+
     DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
 
@@ -195,7 +197,6 @@ public:
     class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
     WidgetsLocationAttachment* Location() const;
 
-
     const WidgetWrapper& AddModalProgressBar() const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
@@ -213,7 +214,8 @@ public:
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
     LocalPropertyErrorsContainer& WidgetErrors(bool autoHighlight = true) const;
-    Dispatcher& FocusDispatcher() const;
+    Dispatcher& OnClicked() const;
+    const WidgetWrapper& SetOnClicked(const FAction& action) const;
 
     bool HasParent(QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;

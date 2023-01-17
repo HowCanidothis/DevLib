@@ -4,9 +4,6 @@
 #include <UnitsModule/internal.hpp>
 #endif
 
-std::function<QVariant(const QTime&)> TViewModelsColumnComponentsBuilderBase::TimeConveerterHandler([](const QTime& dt)->QVariant { return dt.toString(); });
-std::function<QVariant(const QDateTime&)> TViewModelsColumnComponentsBuilderBase::DateTimeConveerterHandler([](const QDateTime& dt)->QVariant { return dt.toString(); });
-
 TViewModelsColumnComponentsBuilderBase& TViewModelsColumnComponentsBuilderBase::AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor)
 {

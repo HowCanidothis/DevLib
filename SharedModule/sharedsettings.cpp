@@ -135,6 +135,21 @@ void LanguageSettings::Initialize()
 #endif
 }
 
+QTime LanguageSettings::TimeFromVariant(const QVariant& data)
+{
+    return data.toTime();
+}
+
+QDate LanguageSettings::DateFromVariant(const QVariant& data)
+{
+    return data.toDate();
+}
+
+QDateTime LanguageSettings::DateTimeFromVariant(const QVariant& data)
+{
+    return data.toDateTime();
+}
+
 QString LanguageSettings::DateTimeToString(const QDateTime& dt)
 {
     const auto& settings = SharedSettings::GetInstance().LanguageSettings;

@@ -86,6 +86,10 @@ public:
         _value &= ~flag;
         return *this;
     }
+    Flags RemovedFlag(ValueType flags) const
+    {
+        return _value & ~flags;
+    }
     bool TestFlag(Enum flag) const
     {
         return _value & flag;

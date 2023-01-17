@@ -16,9 +16,6 @@ public:
     TViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
                                    LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor);
 
-
-    static std::function<QVariant(const QTime&)> TimeConveerterHandler;
-    static std::function<QVariant(const QDateTime&)> DateTimeConveerterHandler;
 protected:
     ViewModelsTableBase* m_viewModel;
 };
@@ -193,9 +190,9 @@ public:
     TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, bool readOnly = false){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TViewModelsColumnComponentsBuilderBase::TimeConveerterHandler(getter(data).Native());
+            return TimeToString(getter(data).Native());
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = value.value<QTime>();};
+            return [&]{ getter(data) = TimeFromVariant(value);};
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return getter(data).Native();
@@ -204,9 +201,9 @@ public:
     TViewModelsColumnComponentsBuilder& AddDateTimePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, bool readOnly = false){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TViewModelsColumnComponentsBuilderBase::DateTimeConveerterHandler(getter(data).Native());
+            return DateTimeToString(getter(data).Native());
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = value.value<QDateTime>();};
+            return [&]{ getter(data) = DateTimeFromVariant(value);};
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return getter(data).Native();

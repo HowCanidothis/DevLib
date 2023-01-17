@@ -830,6 +830,15 @@ WidgetWrapper::WidgetWrapper(QWidget* widget)
 
 }
 
+const WidgetWrapper& WidgetWrapper::Click()
+{
+    QMouseEvent e(QEvent::MouseButtonPress, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent er(QEvent::MouseButtonRelease, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    qApp->sendEvent(m_object, &e);
+    qApp->sendEvent(m_object, &er);
+    return *this;
+}
+
 TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
 {
     auto* widget = GetWidget();
@@ -858,15 +867,39 @@ LocalPropertyErrorsContainer& WidgetWrapper::WidgetErrors(bool autoHighlight) co
     return *result;
 }
 
-Dispatcher& WidgetWrapper::FocusDispatcher() const {
-    auto w = GetWidget();
-    return *Injected<Dispatcher>("a_on_focused", [w]{
-        auto dispatcher = new Dispatcher();
-        dispatcher->ConnectAction(CONNECTION_DEBUG_LOCATION, [w]{
-            w->setFocus();
+Dispatcher& WidgetWrapper::OnClicked() const
+{
+    auto w = *this;
+    Q_ASSERT(!qobject_cast<QAbstractButton*>(w));
+    return *Injected<Dispatcher>("a_on_clicked", [w]{
+        auto* result = new Dispatcher();
+        auto eventFilter = [result](QObject*, QEvent* event){
+            switch (event->type()) {
+            case QEvent::MouseButtonPress: result->Invoke(); break;
+            default: break;
+            }
+            return false;
+        };
+
+        w.AddEventFilter(eventFilter);
+        w.ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
+            widget.AddEventFilter(eventFilter);
         });
-        return dispatcher;
+
+        WidgetsObserver::GetInstance().OnAdded.Connect(CONNECTION_DEBUG_LOCATION, [w, eventFilter](QObject* o){
+            auto* created = qobject_cast<QWidget*>(o);
+            if(WidgetWrapper(created).HasParent(w)) {
+                WidgetWrapper(created).AddEventFilter(eventFilter);
+            }
+        }).MakeSafe(w.WidgetConnections());
+        return result;
     });
+}
+
+const WidgetWrapper& WidgetWrapper::SetOnClicked(const FAction& action) const
+{
+    OnClicked().Connect(CONNECTION_DEBUG_LOCATION, action);
+    return *this;
 }
 
 DispatcherConnection WidgetWrapper::ConnectEnablityFrom(const char* conInfo, QWidget* widget) const
@@ -961,26 +994,44 @@ EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObje
 
 const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const
 {
-    auto* target = GetWidget();
-    auto eventFilter = [target](QObject*, QEvent* event){
+    const auto& w = *this;
+    auto eventFilter = [w](QObject* watched, QEvent* event){
         switch (event->type()) {
-        case QEvent::FocusIn: FocusManager::GetInstance().SetFocusWidget(target); break;
+        case QEvent::MouseButtonPress: {
+            auto toBlock = qobject_cast<QCheckBox*>(watched) || qobject_cast<QComboBox*>(watched);
+            bool interupt = false;
+            if(toBlock) {
+                auto& fm = FocusManager::GetInstance();
+                interupt = fm.FocusedWidget() != w;
+            }
+            FocusManager::GetInstance().SetFocusWidget(w);
+            return interupt;
+        }
         default: break;
         }
         return false;
     };
 
-    QObject::connect(GetWidget(), &QWidget::destroyed, [target]{
-        FocusManager::GetInstance().destroyed(target);
-    });
-    AddEventFilter(eventFilter);
-    ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
+    w.AddEventFilter(eventFilter);
+    w.ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
         widget.AddEventFilter(eventFilter);
     });
+
+    WidgetsObserver::GetInstance().OnAdded.Connect(CONNECTION_DEBUG_LOCATION, [w, eventFilter](QObject* o){
+        auto* created = qobject_cast<QWidget*>(o);
+        if(WidgetWrapper(created).HasParent(w)) {
+            WidgetWrapper(created).AddEventFilter(eventFilter);
+        }
+    }).MakeSafe(w.WidgetConnections());
+
+
+    QObject::connect(GetWidget(), &QWidget::destroyed, [w]{
+        FocusManager::GetInstance().destroyed(w);
+    });
+
     for(auto* child : additionalWidgets) {
         WidgetWrapper(child).AddEventFilter(eventFilter);
     }
-
     return *this;
 }
 

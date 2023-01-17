@@ -51,6 +51,7 @@
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "Widgets/widgetsimportview.h"
+#include "Widgets/widgetseditingobjectsavecancelbuttons.h"
 #include "Widgets/DateTime/widgetsdatetimeedit.h"
 #include "Widgets/DateTime/widgetsdatetimepopuppicker.h"
 #include "Widgets/DateTime/widgetsdatepopuppicker.h"
