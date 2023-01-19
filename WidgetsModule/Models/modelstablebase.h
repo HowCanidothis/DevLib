@@ -279,10 +279,11 @@ public:
     const SharedPointer<T>& GetData() const { return m_data; }
 
 protected:
+    // TODO. Legacy, avoid using it
     bool isLastEditRow(const QModelIndex& index) const
     {
         Q_ASSERT(GetData() != nullptr);
-        return GetData()->GetSize() == index.row();
+        return GetData()->GetSize() <= index.row();
     }
 
 private:
@@ -334,7 +335,13 @@ public:
     std::function<QVariant(qint32, int)> DataHandler;
     LocalPropertyBool IsEditable;
 
-public:    
+public:
+    bool IsLastRow(const QModelIndex& index) const
+    {
+        Q_ASSERT(GetData() != nullptr);
+        return GetData()->GetSize() == index.row();
+    }
+
     int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
         if(GetData() == nullptr) {
@@ -353,7 +360,7 @@ public:
         if(!index.isValid()){
             return QVariant();
         }
-        if(isLastEditRow(index)){
+        if(IsLastRow(index)){
             auto ret = DataHandler(index.column(), role);
             if(ret.isValid()) {
                 return ret;
@@ -384,7 +391,7 @@ public:
         if(!index.isValid()){
             return false;
         }
-        if(isLastEditRow(index)){
+        if(IsLastRow(index)){
             CreateDataHandler(index.column(), value);
         }
         return Super::setData(index, value, role);
@@ -399,7 +406,7 @@ public:
         if(!index.isValid()) {
             return Qt::ItemIsDropEnabled;
         }
-        if(isLastEditRow(index)){
+        if(IsLastRow(index)){
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | (IsEditColumn(index.column()) ? Qt::ItemIsEditable : Qt::NoItemFlags);
         }
         return Super::flags(index);

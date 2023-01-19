@@ -3,15 +3,12 @@
 
 #include "modelstablebase.h"
 
-class ModelsVocabularyViewModel : public TViewModelsTableBase<ModelsVocabulary>
+class ModelsVocabularyViewModel : public TViewModelsEditTable<TViewModelsTableBase<ModelsVocabulary>>
 {
-    using Super = TViewModelsTableBase<ModelsVocabulary>;
+    using Super = TViewModelsEditTable<TViewModelsTableBase<ModelsVocabulary>>;
 public:
     ModelsVocabularyViewModel(QObject* parent = nullptr);
 
-    bool setData(const QModelIndex& index, const QVariant& value, qint32 role) override;
-    QVariant data(const QModelIndex& index, qint32 role) const override;
-    qint32 rowCount(const QModelIndex&) const override;
     qint32 columnCount(const QModelIndex&) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 

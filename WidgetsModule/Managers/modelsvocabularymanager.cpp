@@ -34,17 +34,18 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
     const auto& model = m_models[modelName];
 
     if(columnIndex == -1) {
+        auto* sourceModel = new ModelsVocabularyViewModel(nullptr);
         sortModel->LessThan = [sortModel](const QModelIndex& f, const QModelIndex& s) {
-            if(sortModel->IsLastEditRow(f)) {
+            if(sortModel->IsLastRow(f)) {
                 return sortModel->sortOrder() == Qt::AscendingOrder ? false : true;
             }
-            if(sortModel->IsLastEditRow(s)) {
+            if(sortModel->IsLastRow(s)) {
                 return sortModel->sortOrder() == Qt::AscendingOrder ? true : false;
             }
             return sortModel->DefaultLessThan(f, s);
         };
 
-        auto* sourceModel = new ModelsVocabularyViewModel(nullptr);
+
 #ifdef UNITS_MODULE_LIB
         qint32 i(0);
         for(const auto& header : model->GetHeader()) {

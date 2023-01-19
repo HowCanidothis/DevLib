@@ -48,42 +48,6 @@ ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
 });
 }
 
-bool ModelsVocabularyViewModel::setData(const QModelIndex& index, const QVariant& value, qint32 role)
-{
-    if(!index.isValid()) {
-        return false;
-    }
-
-    if(isLastEditRow(index)) {
-        if(role == Qt::EditRole) {
-            QHash<Name, QVariant> newRow;
-            GetData()->Append(newRow);
-        } else {
-            return false;
-        }
-    }
-
-    return Super::setData(index, value, role);
-}
-
-QVariant ModelsVocabularyViewModel::data(const QModelIndex& index, qint32 role) const
-{
-    if(!index.isValid()) {
-        return QVariant();
-    }
-
-    if(isLastEditRow(index)) {
-        return QVariant();
-    }
-
-    return Super::data(index, role);
-}
-
-qint32 ModelsVocabularyViewModel::rowCount(const QModelIndex&) const
-{
-    return GetData() == nullptr ? 0 : (GetData()->GetSize() + 1);
-}
-
 qint32 ModelsVocabularyViewModel::columnCount(const QModelIndex&) const
 {
     return GetData() != nullptr ? GetData()->GetColumnsCount() : 0;
@@ -91,9 +55,8 @@ qint32 ModelsVocabularyViewModel::columnCount(const QModelIndex&) const
 
 Qt::ItemFlags ModelsVocabularyViewModel::flags(const QModelIndex& index) const
 {
-    if(!index.isValid()) {
-        return Qt::NoItemFlags;
+    if(IsLastRow(index)) {
+        return Super::flags(index);
     }
-
-    return Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return StandardEditableFlags();
 }

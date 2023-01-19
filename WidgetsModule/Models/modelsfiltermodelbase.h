@@ -12,18 +12,9 @@ public:
     ViewModelsFilterModelBase(QObject* parent);
 
     void InvalidateFilter();
-    bool IsLastEditRow(const QModelIndex& index) const
-    {
-        return IsLastEditRow(index.row());
-    }
-    bool IsLastEditRow(qint32 row) const
-    {
-        return (sourceModel()->rowCount() - 1) == row;
-    }
-    bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
-    {
-        return Super::lessThan(f,s);
-    }
+    bool IsLastRow(const QModelIndex& index) const;
+    bool IsLastRow(qint32 row) const;
+    bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const;
 
     void setSourceModel(QAbstractItemModel* m) override;
 

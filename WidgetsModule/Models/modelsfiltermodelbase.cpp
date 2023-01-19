@@ -23,6 +23,21 @@ void ViewModelsFilterModelBase::InvalidateFilter()
     });
 }
 
+bool ViewModelsFilterModelBase::IsLastRow(const QModelIndex& index) const
+{
+    return IsLastRow(index.row());
+}
+
+bool ViewModelsFilterModelBase::IsLastRow(qint32 row) const
+{
+    return row >= (sourceModel()->rowCount() - 1);
+}
+
+bool ViewModelsFilterModelBase::DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
+{
+    return Super::lessThan(f,s);
+}
+
 void ViewModelsFilterModelBase::setSourceModel(QAbstractItemModel* m)
 {
     auto* oldModel = sourceModel();
