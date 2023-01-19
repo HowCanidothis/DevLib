@@ -72,13 +72,16 @@ public:
 
     struct ColumnFlagsComponentData
     {
-        std::function<std::optional<Qt::ItemFlags> (qint32 row)> GetFlagsHandler = [](qint32) { return std::nullopt; };
+        using FHandler = std::function<std::optional<Qt::ItemFlags> (qint32 row)>;
+        ColumnFlagsComponentData(const FHandler& handler = [](qint32) { return std::nullopt; });
+        FHandler GetFlagsHandler;
     };
 
     ViewModelsTableColumnComponents();
 
     void AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
+    void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
 
     std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
     std::optional<QVariant> GetData(const QModelIndex& index, qint32 role) const;

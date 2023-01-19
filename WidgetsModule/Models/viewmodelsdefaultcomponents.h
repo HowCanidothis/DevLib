@@ -133,9 +133,9 @@ public:
                 return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
             };
 
-            m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); } });
+            m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); });
         } else {
-            m_viewModel->ColumnComponents.AddFlagsComponent(column, { [](qint32) { return ViewModelsTableBase::StandardNonEditableFlags(); } });
+            m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardNonEditableFlags(); });
         }
 
         m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);

@@ -270,6 +270,11 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const Col
     foundIt.value().append(flagsColumnData);
 }
 
+void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler)
+{
+    AddFlagsComponent(column, ColumnFlagsComponentData(handler));
+}
+
 std::optional<bool> ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QVariant& data, qint32 role)
 {
     std::optional<bool> result;
@@ -388,4 +393,10 @@ bool ViewModelsTableColumnComponents::callFlagsHandler(qint32 column, const std:
         return true;
     }
     return false;
+}
+
+ViewModelsTableColumnComponents::ColumnFlagsComponentData::ColumnFlagsComponentData(const FHandler& handler)
+    : GetFlagsHandler(handler)
+{
+
 }
