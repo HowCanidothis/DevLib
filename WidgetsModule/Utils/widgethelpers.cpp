@@ -415,10 +415,12 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
     }
 
     QAbstractItemModel* model = GetWidget()->model();
-    while(qobject_cast<QSortFilterProxyModel*>(model)) {
-        model = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
+    QAbstractItemModel* sourceModel = model;
+    while(qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
+        sourceModel = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
     }
-    if(model->property(WidgetProperties::ExtraFieldsCount) == 1) {
+
+    if(sourceModel != model && sourceModel->property(WidgetProperties::ExtraFieldsCount) == 1) {
         set.remove(model->rowCount() - 1);
     }
 

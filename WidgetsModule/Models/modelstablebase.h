@@ -341,8 +341,13 @@ public:
 public:
     bool IsLastRow(const QModelIndex& index) const
     {
+        return IsLastRow(index.row());
+    }
+
+    bool IsLastRow(qint32 row) const
+    {
         Q_ASSERT(GetData() != nullptr);
-        return GetData()->GetSize() == index.row();
+        return GetData()->GetSize() == row;
     }
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override

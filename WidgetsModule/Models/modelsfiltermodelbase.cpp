@@ -30,7 +30,7 @@ bool ViewModelsFilterModelBase::IsLastRow(const QModelIndex& index) const
 
 bool ViewModelsFilterModelBase::IsLastRow(qint32 row) const
 {
-    return row >= (sourceModel()->rowCount() - 1);
+    return row >= rowCount() - 1;
 }
 
 bool ViewModelsFilterModelBase::DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
