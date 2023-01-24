@@ -219,7 +219,7 @@ public:
     DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, const First& first, const Args&... args)
     {
         DispatcherConnections connections;
-        auto update = [this, handler, &first, &args...]{
+        auto update = [locationInfo, this, handler, &first, &args...]{
             this->operator=(handler(first.Native(), args.Native()...));
         };
         adapters::Combine([&](const auto& property){
@@ -1162,11 +1162,11 @@ struct LocalPropertyOptional
     DispatcherConnections ConnectFrom(const char* locationInfo, const Function& handler, const Args&... args)
     {        
         DispatcherConnections connections;
-        auto update = [this, handler, &args...]{
-            this->operator=(handler(args->Native()...));
+        auto update = [locationInfo, this, handler, &args...]{
+            this->operator=(handler(args.Native()...));
         };
-        adapters::Combine([&](const auto* property){
-            connections += property->ConnectAction(locationInfo, update);
+        adapters::Combine([&](const auto& property){
+            connections += property.ConnectAction(locationInfo, update);
         }, args...);
         update();
         return connections;
@@ -1176,7 +1176,7 @@ struct LocalPropertyOptional
     DispatcherConnections ConnectFromOptional(const char* locationInfo, const Function& handler, const Args&... args)
     {
         DispatcherConnections connections;
-        auto update = [this, handler, &args...]{
+        auto update = [locationInfo, this, handler, &args...]{
             bool isValid = true;
             for(bool valid : {args.IsValueValid()...}) {
                 if(!valid) {
