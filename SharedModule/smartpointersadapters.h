@@ -2,6 +2,7 @@
 #define SMARTPOINTERSADAPTERS_H
 
 #include <memory>
+#include <functional>
 
 template<typename T, typename deleter = std::default_delete<T>>
 class ScopedPointer : public std::unique_ptr<T, deleter>
@@ -69,6 +70,36 @@ public:
     SharedPointerInitialized()
         : Super(::make_shared<T>())
     {}
+};
+
+class SmartPointerWatcher
+{
+public:
+    SmartPointerWatcher(const std::function<void ()>& disconnector);
+    ~SmartPointerWatcher();
+
+private:
+    friend class SmartPointer;
+    void disconnect();
+
+private:
+    std::function<void ()> m_disconnector;
+};
+
+using SmartPointerWatcherPtr = SharedPointer<SmartPointerWatcher>;
+
+class SmartPointer
+{
+public:
+    SmartPointer(const std::function<void ()>& onCaptured, const std::function<void ()>& onReleased);
+    ~SmartPointer();
+
+    SmartPointerWatcherPtr Capture();
+
+private:
+    std::function<void ()> m_onCaptured;
+    std::function<void ()> m_onReleased;
+    std::weak_ptr<SmartPointerWatcher> m_watcher;
 };
 
 #endif // SMARTPOINTERSADAPTERS_H
