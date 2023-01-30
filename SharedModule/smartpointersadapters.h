@@ -87,6 +87,10 @@ private:
 };
 
 using SmartPointerWatcherPtr = SharedPointer<SmartPointerWatcher>;
+using SmartPointerWatchers = QVector<SmartPointerWatcherPtr>;
+
+inline SharedPointer<SmartPointerWatcherPtr> SmartPointerWatcherCreate() { return ::make_shared<SmartPointerWatcherPtr>(); }
+inline SharedPointer<SmartPointerWatchers> SmartPointerWatchersCreate() { return ::make_shared<SmartPointerWatchers>(); }
 
 class SmartPointer
 {

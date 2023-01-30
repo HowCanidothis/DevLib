@@ -32,16 +32,16 @@ public:
     {
         const char* Location;
         QString ObjectName;
-        QSet<void*> Children;
+        QSet<const void*> Children;
     };
 
-    static void Create(const char* location, void* object, const QString& name, QVector<SharedPointer<class DispatcherConnectionSafe>>& connections);
-    static void PrintInfo(const char* location, void* object, const std::function<void ()>& onPrinted = nullptr);
-    static void Synchronize(void* object, const QSet<void*>& children);
-    static const DebugInfo GetInfo(void* object);
+    static void Create(const char* location, const void* object, const QString& name, QVector<SharedPointer<class DispatcherConnectionSafe>>& connections);
+    static void PrintInfo(const char* location, const void* object, const std::function<void ()>& onPrinted = nullptr);
+    static void Synchronize(const void* object, const QSet<const void*>& children);
+    static const DebugInfo GetInfo(const void* object);
 
 private:
-    static void create(const char* location, void* object, const QString& name, QVector<SharedPointer<DispatcherConnectionSafe>>& connections);
+    static void create(const char* location, const void* object, const QString& name, QVector<SharedPointer<DispatcherConnectionSafe>>& connections);
     static QHash<size_t, DebugInfo>& debugInfo();
     static QMutex m_mutex;
 };

@@ -131,6 +131,9 @@ public:
     }
 
     void Clear() {
+        if(Super::isEmpty()) {
+            return;
+        }
         OnAboutToBeReseted();
         Super::clear();
         OnReseted();
@@ -495,5 +498,23 @@ struct LambdaValueWrapper<T*>
 private:
     T* m_value;
 };
+
+#define REGISTER_MODEL(TypeName) \
+    using TypeName##Container = QVector<TypeName>; \
+    using TypeName##Model = TStatedModelsTableWrapper<TypeName##Container>; \
+    using TypeName##ModelPtr = SharedPointer<TypeName##Model>; \
+    using TypeName##ModelPtrInitialized = SharedPointerInitialized<TypeName##Model>; \
+    using TypeName##ImmutableModel = StateImmutableData<TypeName##Model>; \
+    using TypeName##ImmutableModelPtr = SharedPointer<StateImmutableData<TypeName##Model>>; \
+    using TypeName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<TypeName##Model>>; \
+    using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>;
+
+#define FIRST_REGISTER_MODEL(ModelName) \
+    using ModelName##Ptr = SharedPointer<class ModelName>; \
+    using ModelName##PtrInitialized = SharedPointerInitialized<ModelName>; \
+    using ModelName##ImmutableModel = StateImmutableData<ModelName>; \
+    using ModelName##ImmutableModelPtr = SharedPointer<StateImmutableData<ModelName>>; \
+    using ModelName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<ModelName>>; \
+    using ModelName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<ModelName>>;
 
 #endif // WRAPPERS_H

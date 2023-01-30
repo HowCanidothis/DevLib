@@ -83,7 +83,20 @@ public:
 
     DispatcherConnections AddProperties(const char* location, const QVector<LocalPropertyBool*>& properties);
     DispatcherConnections AddProperty(const char* location, LocalPropertyBool* property, bool inverted = false);
-    DispatcherConnections AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
+    DispatcherConnections AddHandlerFromDispatchers(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
+    template<typename ... Args>
+    DispatcherConnections AddHandler(const char* location, const FHandler& handler, Args&... dispatchers)
+    {
+        DispatcherConnections result;
+        adapters::Combine([this, &result](const auto& property){
+            result += property.ConnectAction(CONNECTION_DEBUG_LOCATION, [this]{
+                m_commutator.Invoke();
+            });
+        }, dispatchers...);
+        m_properties += handler;
+        m_commutator.Invoke();
+        return result;
+    }
 
     QString ToString() const;
 
@@ -218,7 +231,7 @@ public:
 
     operator T&() { THREAD_ASSERT_IS_MAIN(); return Super::InputValue; }
     const T& GetImmutableProperty() const { return m_immutableValue; }
-    const value_type& GetImmutable() const { return m_immutableValue; }
+    auto GetImmutable() const { return m_immutableValue.Native(); }
 
 private:
     template<class T2> friend struct Serializer;
@@ -272,17 +285,89 @@ template<class T>
 class StateParametersContainer : public StateParameters
 {
 public:
+    using container_type = typename T::container_type;
     using TPtr = SharedPointer<T>;
     StateParametersContainer()
-        : Parameter(this)
+        : m_parameter(this)
     {}
 
-    StateParameterImmutableData<T> Parameter;
+    bool HasValue() const
+    {
+        return !IsNull();
+    }
+
+    bool IsNull() const
+    {
+        return m_parameter.InputValue == nullptr;
+    }
+
+    template<class T2>
+    void SetParameter(const T2& data)
+    {
+        m_parameter.InputValue = data;
+    }
+
+    template<class T2>
+    void SetLockedParameter(const T2& data)
+    {
+#ifdef QT_DEBUG
+        m_lockConnections.clear();
+#endif
+        SetParameter(data);
+#ifdef QT_DEBUG
+        GetProperty().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, []{
+            Q_ASSERT(false);
+        }).MakeSafe(m_lockConnections);
+#endif
+    }
+
+    const TPtr& GetImmutableData() const
+    {
+        return m_parameter.InputValue;
+    }
+
+    const container_type& GetImmutable() const
+    {
+        return GetImmutableData()->GetData()->Native();
+    }
+
+    LocalPropertySharedPtr<T>& GetProperty()
+    {
+        return m_parameter.InputValue;
+    }
+
+private:
+    StateParameterImmutableData<T> m_parameter;
+#ifdef QT_DEBUG
+    DispatcherConnectionsSafe m_lockConnections;
+#endif
 };
+
 template<class T> using StateParametersContainerPtr = SharedPointer<StateParametersContainer<T>>;
 template<class T> using StateParametersContainerPtrInitialized = SharedPointerInitialized<StateParametersContainer<T>>;
 
 inline uint qHash(const SharedPointer<StateParameters>& key, uint seed = 0) { return qHash(key.get(), seed); }
+
+template<class T>
+class StateCalculatorSwitcher
+{
+    template<class T2> friend class StateCalculator;
+    StateCalculatorSwitcher(T* calculator)
+        : m_pointer([calculator]{
+            calculator->Enabled = true;
+        }, [calculator]{
+            calculator->Enabled = false;
+        })
+    {
+        calculator->SetRecalculateOnEnabled(true);
+    }
+public:
+    SmartPointerWatcherPtr Capture() { return m_pointer.Capture(); }
+
+private:
+    StateProperty m_enabled;
+    SmartPointer m_pointer;
+};
 
 template<class T>
 class StateCalculator : public ThreadCalculator<T>
@@ -295,19 +380,20 @@ public:
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
         , m_stateParameters(::make_shared<QSet<SharedPointer<StateParameters>>>())
+        , m_recalculateOnEnabled(recalculateOnEnabled)
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
         Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool valid){
             return !valid ? false : Valid.Native();
         }, m_dependenciesAreUpToDate);
 
-        Enabled.OnChanged += {this, [this, recalculateOnEnabled]{
+        Enabled.OnChanged += {this, [this]{
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onDirectOnChanged += { this, [this]{
                     Cancel();
                 }};
-                m_onChanged += { this, [this, recalculateOnEnabled]{
+                m_onChanged += { this, [this]{
                     Valid.SetState(false);
 
                     DEBUG_PRINT_INFO_ACTION(this,
@@ -320,14 +406,29 @@ public:
                         OnCalculationRejected();
                     }
                 }};
-                if(recalculateOnEnabled) {
+                if(m_recalculateOnEnabled) {
                     RequestRecalculate();
                 }
             } else {
                 m_onChanged -= this;
                 m_onDirectOnChanged -= this;
+                Valid.SetState(false);
             }
         }};
+    }
+
+    SmartPointerWatcherPtr Capture()
+    {
+        if(m_switcher == nullptr) {
+            m_switcher = new StateCalculatorSwitcher<StateCalculator>(this);
+        }
+        return m_switcher->Capture();
+    }
+
+    StateCalculator& SetRecalculateOnEnabled(bool recalculate)
+    {
+        m_recalculateOnEnabled = recalculate;
+        return *this;
     }
 
     void RequestRecalculate() const
@@ -376,6 +477,31 @@ public:
 
         };
         m_calculator = calculator;
+    }
+
+    template<class DoubleBuffer>
+    void InitializeByDoubleBuffer(const char* connectionInfo, DoubleBuffer& buffer, bool enable = true)
+    {
+        OnCalculationRejected += { this, [&buffer]{
+            buffer.EditData()->Clear();
+        }};
+        Super::OnCalculated += { this, [&buffer](const auto& container){
+            buffer.EditData()->Set(container);
+            buffer.EditData()->IsValid.SetState(true);
+        }};
+        buffer.EditData()->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
+        Enabled = enable;
+        buffer.Enabled = true;
+    }
+
+    template<class DoubleBuffer>
+    void ConnectBuffer(const char* connectionInfo, DoubleBuffer& buffer)
+    {
+        OnCalculationRejected.Connect(connectionInfo, [&buffer]{
+            buffer.EditData()->Clear();
+        });
+        buffer.EditData()->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
+        buffer.Enabled = true;
     }
 
     template<class T2>
@@ -469,12 +595,15 @@ private:
     mutable DispatchersCommutator m_onChanged;
     mutable Dispatcher m_onDirectOnChanged;
     mutable SharedPointer<QSet<SharedPointer<StateParameters>>> m_stateParameters;
+    bool m_recalculateOnEnabled;
+    ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
 };
 
 template<class T>
 class StateImmutableData {
     using TPtr = SharedPointer<T>;
 public:
+    using container_type = typename T::container_type;
     StateImmutableData(const TPtr& data)
         : m_lockCounter(0)
         , m_isDirty(false)
@@ -656,6 +785,11 @@ class StateDoubleBufferData
 {
 public:
     using TPtr = SharedPointer<T>;
+    StateDoubleBufferData(bool copy = false)
+        : StateDoubleBufferData(::make_shared<T>(), ::make_shared<T>(), copy)
+    {}
+
+    using TPtr = SharedPointer<T>;
     StateDoubleBufferData(const TPtr& source, const TPtr& immutable, bool copy = false)
         : m_immutableData(::make_shared<StateImmutableData<T>>(immutable))
         , m_data(source)
@@ -675,7 +809,7 @@ public:
     }
 
     const TPtr& EditData() { return m_data; }
-    const TPtr& GetData() const { return m_data; }
+    const TPtr& EditData() const { return m_data; }
     const StateImmutableDataPtr<T>& GetImmutableData() const { return m_immutableData; }
 
 private:

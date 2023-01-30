@@ -4,7 +4,7 @@
 
 QMutex DebugObjectManager::m_mutex;
 
-void DebugObjectManager::Create(const char* location, void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
+void DebugObjectManager::Create(const char* location, const void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
 {
 #ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
@@ -13,7 +13,7 @@ void DebugObjectManager::Create(const char* location, void* object, const QStrin
 #endif
 }
 
-void DebugObjectManager::create(const char* location, void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
+void DebugObjectManager::create(const char* location, const void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
 {
 #ifdef QT_DEBUG
     QVector<DispatcherConnectionSafePtr> result;
@@ -39,7 +39,7 @@ void DebugObjectManager::create(const char* location, void* object, const QStrin
 
 const QString PrintPattern("From %1: Created at: %2; ObjectName: %3");
 
-void DebugObjectManager::PrintInfo(const char* location, void* object, const FAction& onPrinted)
+void DebugObjectManager::PrintInfo(const char* location, const void* object, const FAction& onPrinted)
 {
 #ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
@@ -55,7 +55,7 @@ void DebugObjectManager::PrintInfo(const char* location, void* object, const FAc
 #endif
 }
 
-const DebugObjectManager::DebugInfo DebugObjectManager::GetInfo(void* object)
+const DebugObjectManager::DebugInfo DebugObjectManager::GetInfo(const void* object)
 {
 #ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
@@ -68,7 +68,7 @@ const DebugObjectManager::DebugInfo DebugObjectManager::GetInfo(void* object)
     return DebugInfo();
 }
 
-void DebugObjectManager::Synchronize(void* object, const QSet<void*>& children)
+void DebugObjectManager::Synchronize(const void* object, const QSet<const void*>& children)
 {
 #ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);

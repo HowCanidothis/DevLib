@@ -20,7 +20,11 @@ StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
                 SetValue(value());
             });
         } else {
+#ifdef QT_DEBUG
+            SetValueForceInvoke(false);
+#else
             SetValue(false);
+#endif
         }
     }};
 }
@@ -52,15 +56,15 @@ DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* loc
         dispatchers.append(&property->OnChanged);
     }
 
-    return AddHandler(location, handler, dispatchers);
+    return AddHandlerFromDispatchers(location, handler, dispatchers);
 }
 
 DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalPropertyBool* property, bool inverted)
 {
-    return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, { &property->OnChanged });
+    return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, *property);
 }
 
-DispatcherConnections StatePropertyBoolCommutator::AddHandler(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
+DispatcherConnections StatePropertyBoolCommutator::AddHandlerFromDispatchers(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
 {
     DispatcherConnections result;
     for(auto* dispatcher : dispatchers) {
