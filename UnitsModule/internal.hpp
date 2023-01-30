@@ -3,6 +3,7 @@
 
 #if defined __cplusplus
 
+#include "MeasurementTypes/accelerationdeclarations.h"
 #include "MeasurementTypes/angledeclarations.h"
 #include "MeasurementTypes/distancedeclarations.h"
 #include "MeasurementTypes/doglegdeclarations.h"
@@ -29,6 +30,7 @@
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/powerdeclarations.h"
+#include "MeasurementTypes/powerareadeclarations.h"
 #include "MeasurementTypes/consistencyfactordeclarations.h"
 
 #include "measurementunitmanager.h"

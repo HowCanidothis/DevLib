@@ -1,5 +1,6 @@
 #include "measurementunitmanager.h"
 
+#include "MeasurementTypes/accelerationdeclarations.h"
 #include "MeasurementTypes/angledeclarations.h"
 #include "MeasurementTypes/distancedeclarations.h"
 #include "MeasurementTypes/doglegdeclarations.h"
@@ -26,6 +27,7 @@
 #include "MeasurementTypes/thermalconductivitydeclarations.h"
 #include "MeasurementTypes/specificheatcapacitydeclarations.h"
 #include "MeasurementTypes/powerdeclarations.h"
+#include "MeasurementTypes/powerareadeclarations.h"
 #include "MeasurementTypes/consistencyfactordeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
@@ -204,6 +206,18 @@ void MeasurementManager::Initialize()
 {
     Q_ASSERT(!m_initialized);
     m_initialized = true;
+    AddMeasurement(MeasurementAcceleration::Value)
+            .AddUnit(&AccelerationUnits::MetersPerSqSec)
+            .AddUnit(&AccelerationUnits::MetersPerSqMinute)
+            .AddUnit(&AccelerationUnits::MetersPerSqHour)
+            .AddUnit(&AccelerationUnits::KilometersPerSqHour)
+            .AddUnit(&AccelerationUnits::FeetsPerSqSec)
+            .AddUnit(&AccelerationUnits::FeetsPerSqMinute)
+            .AddUnit(&AccelerationUnits::FeetsPerSqHour)
+            .AddUnit(&AccelerationUnits::USFeetsPerSqSec)
+            .AddUnit(&AccelerationUnits::USFeetsPerSqMinute)
+            .AddUnit(&AccelerationUnits::USFeetsPerSqHour);
+
     AddMeasurement(MeasurementAngle::Value)
             .AddUnit(&AngleUnits::Degrees)
             .AddUnit(&AngleUnits::Radians);
@@ -239,7 +253,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&DLSUnits::DegreeUSFeet)
             .AddUnit(&DLSUnits::DegreeFeet)
             .AddUnit(&DLSUnits::DegreeMeter)
-            .AddUnit(&DLSUnits::RadMeter);
+            .AddUnit(&DLSUnits::RadMeter)
+            .AddUnit(&DLSUnits::Rad30Meter);
 
     AddMeasurement(MeasurementFlowSpeed::Value)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
@@ -399,6 +414,11 @@ void MeasurementManager::Initialize()
             .AddUnit(&PowerUnits::KiloWatt)
             .AddUnit(&PowerUnits::HoursePower);
 
+    AddMeasurement(MeasurementPowerArea::Value)
+            .AddUnit(&PowerAreaUnits::WattPerSqMeter)
+            .AddUnit(&PowerAreaUnits::HoursePowerPerSqMeter)
+            .AddUnit(&PowerAreaUnits::HoursePowerPerSqInch);
+
     AddMeasurement(MeasurementAnnularVelocity::Value)
             .AddUnit(&SpeedUnits::MetersPerSecond  )
             .AddUnit(&SpeedUnits::MetersPerMinute  )
@@ -430,6 +450,7 @@ void MeasurementManager::Initialize()
             .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
 
     AddSystem(UNIT_SYSTEM_API_USFT)
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
@@ -462,12 +483,14 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementPowerArea::NAME,         {PowerAreaUnits::HoursePowerPerSqInch.Id,      3})
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API)
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
@@ -500,6 +523,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::PoundsPerSquareInch.Id,        2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::HoursePower.Id,                   3})
+            .AddParameter(MeasurementPowerArea::NAME,         {PowerAreaUnits::HoursePowerPerSqInch.Id,      3})
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
@@ -507,6 +531,7 @@ void MeasurementManager::Initialize()
 
 
     AddSystem(UNIT_SYSTEM_SI)
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
@@ -539,6 +564,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MeasurementPower::NAME,             {PowerUnits::Watt.Id,                          3})
+            .AddParameter(MeasurementPowerArea::NAME,         {PowerAreaUnits::WattPerSqMeter.Id,      3})
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPascals.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
