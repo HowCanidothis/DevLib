@@ -119,7 +119,9 @@ StateParameters::StateParameters()
     , m_initializer([this]{
         THREAD_ASSERT_IS_MAIN();
         for(auto* parameter : ::make_const(m_parameters)) {
-            parameter->initialize();
+            if(!parameter->IsInitialized()) {
+                parameter->initialize();
+            }
         }
     })
 {

@@ -144,6 +144,8 @@ class IStateParameterBase
 public:
     IStateParameterBase(StateParameters* params);
 
+    virtual bool IsInitialized() const = 0;
+
 protected:
     friend class StateParameters;
     virtual void initialize(){}
@@ -169,7 +171,7 @@ public:
         });
     }
 
-    bool IsInitialized() const { return m_initializer == nullptr; }
+    bool IsInitialized() const override { return m_initializer == nullptr; }
     StateParameters* GetParameters() const { return m_parameters; }
 
     T InputValue;
@@ -281,6 +283,10 @@ private:
     DispatcherConnectionsSafe m_modelConnections;
 };
 
+enum InitializationWithLock {
+    Lock
+};
+
 template<class T>
 class StateParametersContainer : public StateParameters
 {
@@ -289,7 +295,20 @@ public:
     using TPtr = SharedPointer<T>;
     StateParametersContainer()
         : m_parameter(this)
-    {}
+    {
+        IsValid.EditSilent() = false;
+    }
+    StateParametersContainer(const TPtr& initial)
+        : m_parameter(this, initial)
+    {
+        IsValid.EditSilent() = false;
+    }
+    StateParametersContainer(const TPtr& initial, InitializationWithLock)
+        : m_parameter(this)
+    {
+        IsValid.EditSilent() = false;
+        SetLockedParameter(initial);
+    }
 
     bool HasValue() const
     {
@@ -456,6 +475,7 @@ public:
     template<typename ... Args, typename Function>
     void SetCalculatorWithParams(const char* connectionInfo, const Function& handler, Args... args)
     {
+        Q_ASSERT(m_stateParameters->isEmpty());
         SetCalculatorBasedOnStateParameters([=]{
             return handler(args...);
         });
@@ -854,10 +874,18 @@ private:
 };
 
 template<typename... Dispatchers>
-SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
+SharedPointer<StateProperty> StatePropertyCreateFromDispatchers(const char* connection, const std::function<bool ()>& handler, Dispatcher& dispatcher, Dispatchers&... dispatchers)
 {
     auto result = ::make_shared<WithDispatcherConnectionsSafe<StateProperty>>();
     result->ConnectFromDispatchers(connection, handler, dispatcher, dispatchers...).MakeSafe(result->Connections);
+    return result;
+}
+
+template<typename... Props, typename FHandler>
+SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const FHandler& handler, Props&... properties)
+{
+    auto result = ::make_shared<WithDispatcherConnectionsSafe<StateProperty>>();
+    result->ConnectFrom(connection, handler, properties...).MakeSafe(result->Connections);
     return result;
 }
 

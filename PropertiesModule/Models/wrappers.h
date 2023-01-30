@@ -506,6 +506,7 @@ private:
     using TypeName##ModelPtrInitialized = SharedPointerInitialized<TypeName##Model>; \
     using TypeName##ImmutableModel = StateImmutableData<TypeName##Model>; \
     using TypeName##ImmutableModelPtr = SharedPointer<StateImmutableData<TypeName##Model>>; \
+    using TypeName##StateParameter = StateParametersContainer<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>;
 
@@ -514,6 +515,7 @@ private:
     using ModelName##PtrInitialized = SharedPointerInitialized<ModelName>; \
     using ModelName##ImmutableModel = StateImmutableData<ModelName>; \
     using ModelName##ImmutableModelPtr = SharedPointer<StateImmutableData<ModelName>>; \
+    using ModelName##StateParameter = StateParametersContainer<StateImmutableData<ModelName>>; \
     using ModelName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<ModelName>>; \
     using ModelName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<ModelName>>;
 
