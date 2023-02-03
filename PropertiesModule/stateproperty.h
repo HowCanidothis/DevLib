@@ -410,6 +410,7 @@ public:
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onDirectOnChanged += { this, [this]{
+                    Valid.SetState(false);
                     Cancel();
                 }};
                 m_onChanged += { this, [this]{
