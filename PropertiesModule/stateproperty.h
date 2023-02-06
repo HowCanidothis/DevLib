@@ -350,6 +350,17 @@ public:
         return GetImmutableData()->GetData()->Native();
     }
 
+    DispatcherConnections AddValidator(const char* connectionInfo, const std::function<bool (const T& value)>& validator)
+    {
+        auto dispatcher = GetProperty().DispatcherParamsOnChanged(CONNECTION_DEBUG_LOCATION).CreateDispatcher();
+        return IsValid.AddHandler(connectionInfo, [this, validator, dispatcher]{
+            if(GetProperty() == nullptr) {
+                return false;
+            }
+            return validator(*GetProperty());
+        }, *dispatcher);
+    }
+
     LocalPropertySharedPtr<T>& GetProperty()
     {
         return m_parameter.InputValue;
@@ -410,6 +421,7 @@ public:
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onDirectOnChanged += { this, [this]{
+                    Q_ASSERT(m_calculator && m_preparator && m_releaser);
                     Valid.SetState(false);
                     Cancel();
                 }};
@@ -454,6 +466,7 @@ public:
     void RequestRecalculate() const
     {
         THREAD_ASSERT_IS_MAIN();
+        m_onDirectOnChanged();
         m_dependenciesAreUpToDate.Update();
     }
 
