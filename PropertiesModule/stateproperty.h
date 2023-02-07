@@ -350,7 +350,8 @@ public:
         return GetImmutableData()->GetData()->Native();
     }
 
-    DispatcherConnections AddValidator(const char* connectionInfo, const std::function<bool (const T& value)>& validator)
+    template<typename ... Dispatchers>
+    DispatcherConnections AddValidatorOnChanged(const char* connectionInfo, const std::function<bool (const T& value)>& validator, const Dispatchers&... args)
     {
         auto dispatcher = GetProperty().DispatcherParamsOnChanged(CONNECTION_DEBUG_LOCATION).CreateDispatcher();
         return IsValid.AddHandler(connectionInfo, [this, validator, dispatcher]{
@@ -358,7 +359,18 @@ public:
                 return false;
             }
             return validator(*GetProperty());
-        }, *dispatcher);
+        }, *dispatcher, args...);
+    }
+
+    template<typename ... Dispatchers>
+    DispatcherConnections AddValidator(const char* connectionInfo, const std::function<bool (const T& value)>& validator, const Dispatchers&... args)
+    {
+        return IsValid.AddHandler(connectionInfo, [this, validator]{
+            if(GetProperty() == nullptr) {
+                return false;
+            }
+            return validator(*GetProperty());
+        }, args...);
     }
 
     LocalPropertySharedPtr<T>& GetProperty()
