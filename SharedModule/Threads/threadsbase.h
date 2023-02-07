@@ -20,9 +20,9 @@ public:
     template<class T>
     static void FreeAtMainThread(SharedPointer<T>& ptr)
     {
-        SharedPointer<SharedPointer<T>> pPtr(new SharedPointer<T>(ptr));
+        auto* pPtr = new SharedPointer<T>(ptr);
         ptr = nullptr;
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[pPtr]{});
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[pPtr]{ delete pPtr; });
     }
     static void DoMain(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoMainAwait(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);

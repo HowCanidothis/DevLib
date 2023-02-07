@@ -34,6 +34,8 @@ public:
     Name& operator=(const Name& another);
     bool operator==(const Name& another) const { return another.m_value == m_value && (m_text.isEmpty() || another.m_text.isEmpty() || m_text == another.m_text); }
     bool operator!=(const Name& another) const { return !operator==(another); }
+    bool operator<(const Name& another) const { return m_text < another.m_text; }
+    bool operator<=(const Name& another) const { return operator<(another) || operator==(another); }
 
     static Name FromValue(qint64 value) { Name result; result.m_value = value; return result; }
 

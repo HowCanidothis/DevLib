@@ -20,6 +20,8 @@ public:
         , m_idGetter(idGetter)
     {}
 
+    const FLessThan& GetLessThan() const { return m_lessThan; }
+
     size_t IndexOf(const const_iterator& iterator) const
     {
         return std::distance(m_container->cbegin(), iterator);
@@ -44,6 +46,25 @@ public:
         auto foundIt = find(m_idGetter(object));
         m_container->insert(foundIt, object);
         return *this;
+    }
+
+    value_type& FindOrCreate(const ComparisonTarget& id, const std::function<value_type ()>& createHandler)
+    {
+        auto foundIt = find(id);
+        if(foundIt == m_container->cend() || m_idGetter(*foundIt) != id) {
+            foundIt = m_container->insert(foundIt, createHandler());
+        }
+        return *foundIt;
+    }
+
+    bool Remove(const ComparisonTarget& id)
+    {
+        auto foundIt = (iterator)FindExact(id);
+        if(foundIt == end()) {
+            return false;
+        }
+        m_container->erase(foundIt, foundIt + 1);
+        return true;
     }
 
     void Remove(const QSet<qint32>& indexes)
@@ -97,6 +118,16 @@ public:
         return std::lower_bound(m_container->begin(), m_container->end(), id, [this](const value_type& f, const ComparisonTarget& s){
             return m_idGetter(f) < s;
         });
+    }
+
+    const_iterator FindExact(const ComparisonTarget& id) const
+    {
+        Q_ASSERT(IsSorted());
+        auto foundIt = Find(id);
+        if(foundIt == end()) {
+            return foundIt;
+        }
+        return m_idGetter(*foundIt) == id ? foundIt : end();
     }
 
     const_iterator begin() const { return m_container->begin(); }
