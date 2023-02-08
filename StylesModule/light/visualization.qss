@@ -5,6 +5,6 @@ MainWindow {
     qproperty-visualizationBoxColor: #F3F3F3;
     qproperty-visualizationAxisColor: #787878;
     qproperty-visualizationFrameColor: white;
-    qproperty-visualizationFrameSelectionColor: white;
+    qproperty-visualizationFrameSelectionColor: #EEEEEE;
     qproperty-placeHolderColor: #d4d4d4;
 }
