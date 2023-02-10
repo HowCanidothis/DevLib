@@ -739,21 +739,17 @@ public:
 
     void AttachCopy(const TPtr& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
     {
-        AttachSource(externalData, connectorHandler, externalData == nullptr ? nullptr :
+        AttachSource(connectorHandler, externalData == nullptr ? nullptr :
                                                                                handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler);
     }
 
-    template<class ExternalData>
-    void AttachSource(const SharedPointer<ExternalData>& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+    void AttachSource(const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
     {
         m_calculator.Disconnect();
-
-        if(externalData != nullptr) {
-            Q_ASSERT(handler != nullptr);
-            m_handler = handler;
+//        Q_ASSERT(handler != nullptr);
+        m_handler = handler;
+        if(m_handler){
             connectorHandler(m_calculator);
-        } else {
-            m_handler = nullptr;
         }
 
         m_calculator.SetCalculator([]{
