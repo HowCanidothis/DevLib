@@ -51,6 +51,7 @@ DispatcherConnections TranslatedString::SetTranslationHandler(const char* connec
 
 void TranslatedString::retranslate()
 {
+	Q_ASSERT(m_translationHandler != nullptr);
     m_retranslate.Call(CONNECTION_DEBUG_LOCATION, [this]{
         SetValue(m_translationHandler());
     });

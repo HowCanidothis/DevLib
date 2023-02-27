@@ -626,6 +626,7 @@ void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& str
 
 FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, const DispatcherConnectionsSafe& connections)
 {
+	Q_ASSERT(translationHandler != nullptr);
     return [translationHandler, metrics, connections]{
         THREAD_ASSERT_IS_MAIN()
         thread_local static QRegExp regExp(MEASUREMENT_UN);
