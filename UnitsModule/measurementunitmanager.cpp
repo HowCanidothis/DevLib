@@ -403,7 +403,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&VolumePerLengthUnits::LiterPerMeter);
 
     AddMeasurement(MeasurementFrequency::Value)
-            .AddUnit(&FrequencyUnits::RevolutionPerMinute);
+            .AddUnit(&FrequencyUnits::RevolutionPerMinute)
+            .AddUnit(&FrequencyUnits::RevolutionPerSecond);
 
     AddMeasurement(MeasurementCutterDiameter::Value)
             .AddUnit(&DistanceUnits::Milimeters);
@@ -460,7 +461,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
             .AddParameter(MeasurementForce::NAME,             {ForceUnits::KiloPoundsForce.Id,               2})
-            .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
+            .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerSecond.Id,       0})
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
             .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
