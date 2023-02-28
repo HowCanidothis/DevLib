@@ -154,9 +154,10 @@ private:
 };
 
 #ifdef QT_DEBUG
-class DebugNameManager : public SingletoneGlobal<DebugNameManager>
+class DebugNameManager : public Singletone<DebugNameManager>
 {
 public:
+    DebugNameManager();
     void PrintReport(qint32 maxSymbolUsage = 64);
 
 private:
@@ -167,6 +168,7 @@ private:
     QHash<QString, QHash<const QChar*, qint32>> m_counter;
     QMutex m_mutex;
 };
+
 #endif
 
 Q_DECLARE_METATYPE(Name)

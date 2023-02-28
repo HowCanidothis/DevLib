@@ -35,11 +35,11 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
 
     if(columnIndex == -1) {
         auto* sourceModel = new ModelsVocabularyViewModel(nullptr);
-        sortModel->LessThan = [sortModel](const QModelIndex& f, const QModelIndex& s) {
-            if(sortModel->IsLastRow(f)) {
+        sortModel->LessThan = [sortModel, sourceModel](const QModelIndex& f, const QModelIndex& s) {
+            if(sourceModel->IsLastRow(f)) {
                 return sortModel->sortOrder() == Qt::AscendingOrder ? false : true;
             }
-            if(sortModel->IsLastRow(s)) {
+            if(sourceModel->IsLastRow(s)) {
                 return sortModel->sortOrder() == Qt::AscendingOrder ? true : false;
             }
             return sortModel->DefaultLessThan(f, s);

@@ -854,6 +854,17 @@ public:
         }};
     }
 
+    void Reset()
+    {
+        m_data->IsValid.SetState(false);
+    }
+
+    void Set(const typename T::container_type& data)
+    {
+        m_data->Set(data);
+        m_data->IsValid.SetState(true);
+    }
+
     const TPtr& EditData() { return m_data; }
     const TPtr& EditData() const { return m_data; }
     const StateImmutableDataPtr<T>& GetImmutableData() const { return m_immutableData; }

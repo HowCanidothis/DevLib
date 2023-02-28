@@ -8,11 +8,16 @@
 
 #include <SharedModule/internal.hpp>
 
+static bool createdOne = false;
+
 ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
     : QFrame(parent, flags)
     , ui(new Ui::ShadowProgressBar)
 {
     ui->setupUi(this);
+
+    Q_ASSERT(!createdOne);
+    createdOne = true;
 
     setAttribute(Qt::WA_ShowWithoutActivating);
 
@@ -27,63 +32,56 @@ ShadowProgressBar::ShadowProgressBar(QWidget *parent, Qt::WindowFlags flags)
     layout()->addWidget(m_extraProcessesLabel = new QLabel);
     m_extraProcessesLabel->setVisible(false);
 
-    ProcessFactory::Instance().SetShadowDeterminateCallback([this](ProcessValue* value){
-        auto determinateValue = value->AsDeterminate();
-        auto processState = determinateValue->GetState();
+    ProcessFactory::Instance().OnDeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this](size_t desc, const DescProcessDeterminateValueState& processState){
         bool visible = processState.IsShouldStayVisible();
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, value, this]{
-            if(processState.Depth < 8) {
-                auto* progressBar = m_progressBars[processState.Depth];
-                progressBar->ProgressBar->setMaximum(processState.StepsCount);
-                progressBar->ProgressBar->setValue(processState.CurrentStep);
-                progressBar->CancelButton->setVisible(processState.IsCancelable);
-                progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? (size_t)value : 0);
-                if(processState.IsTitleChanged) {
-                    progressBar->Label->setText(processState.Title);
-                }
-
-                if(progressBar->isVisible() != visible) {
-                    progressBar->setVisible(visible);
-                    adjustSize();
-                    move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
-                }
-            } else {
-                if(visible) {
-                    m_extraProcesses.insert(value);
-                } else {
-                    m_extraProcesses.remove(value);
-                }
-
-                auto visible = !m_extraProcesses.isEmpty();
-                m_extraProcessesLabel->setText(QString(tr("Additional processes: %1").arg(m_extraProcesses.size())));
-                if(visible != m_extraProcessesLabel->isVisible()) {
-                    m_extraProcessesLabel->setVisible(visible);
-                    adjustSize();
-                    move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
-                }
+        if(processState.Depth < 8) {
+            auto* progressBar = m_progressBars[processState.Depth];
+            progressBar->ProgressBar->setMaximum(processState.StepsCount);
+            progressBar->ProgressBar->setValue(processState.CurrentStep);
+            progressBar->CancelButton->setVisible(processState.IsCancelable);
+            progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? desc : 0);
+            if(processState.IsTitleChanged) {
+                progressBar->Label->setText(processState.Title);
             }
-        });
+
+            if(progressBar->isVisible() != visible) {
+                progressBar->setVisible(visible);
+                adjustSize();
+                move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
+            }
+        } else {
+            if(visible) {
+                m_extraProcesses.insert(desc);
+            } else {
+                m_extraProcesses.remove(desc);
+            }
+
+            auto visible = !m_extraProcesses.isEmpty();
+            m_extraProcessesLabel->setText(QString(tr("Additional processes: %1").arg(m_extraProcesses.size())));
+            if(visible != m_extraProcessesLabel->isVisible()) {
+                m_extraProcessesLabel->setVisible(visible);
+                adjustSize();
+                move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
+            }
+        }
     });
 
-    ProcessFactory::Instance().SetShadowIndeterminateCallback([this](ProcessValue* value){
-        auto processState = value->GetState();
+    ProcessFactory::Instance().OnIndeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this](size_t desc, const DescProcessValueState& processState){
         bool visible = processState.IsShouldStayVisible();
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[visible, processState, value, this]{
-            if(processState.Depth < 8) {
-                auto* progressBar = m_progressBars[processState.Depth];
-                progressBar->ProgressBar->setMaximum(0);
-                progressBar->CancelButton->setVisible(processState.IsCancelable);
-                progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? (size_t)value : 0);
-                if(processState.IsTitleChanged) {
-                    progressBar->Label->setText(processState.Title);
-                }
-                if(progressBar->isVisible() != visible) {
-                    progressBar->setVisible(visible);
-                    adjustSize();
-                    move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
-                }
+        if(processState.Depth < 8) {
+            auto* progressBar = m_progressBars[processState.Depth];
+            progressBar->ProgressBar->setMaximum(0);
+            progressBar->CancelButton->setVisible(processState.IsCancelable);
+            progressBar->CancelButton->setProperty("UsrValue", (processState.IsCancelable && visible) ? desc : 0);
+            if(processState.IsTitleChanged) {
+                progressBar->Label->setText(processState.Title);
             }
-        });
+            if(progressBar->isVisible() != visible) {
+                progressBar->setVisible(visible);
+                adjustSize();
+                move(parentWidget()->mapToGlobal(parentWidget()->rect().bottomRight()) - QPoint(width(), height()));
+            }
+        }
     });
 }
 

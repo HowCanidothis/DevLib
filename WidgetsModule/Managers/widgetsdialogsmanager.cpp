@@ -133,8 +133,7 @@ void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogPara
 void WidgetsDialogsManager::ShowPropertiesDialog(const PropertiesScopeName& scope, const DescShowDialogParams& params)
 {
     auto* dialog = GetOrCreateDialog<PropertiesDialog>(scope, [this, scope]{
-        auto* dialog = new PropertiesDialog(scope, GetParentWindow());
-        return dialog;
+        return new PropertiesDialog(scope, GetParentWindow());
     }, scope);
     dialog->Initialize([]{});
     dialog->GetView<PropertiesView>()->expandAll();
@@ -229,7 +228,7 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
     return result;
 }
 
-void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
+void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, const QString& movePaneId)
 {
     if(widget->layout() == nullptr) {
         return;
@@ -247,6 +246,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
         pane = new MenuBarMovePane(widget);
+        pane->setProperty("a_type", movePaneId);
         vboxla->addWidget(pane);
     }
     auto* layout = widget->layout();
@@ -273,7 +273,12 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane)
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
-        pane->Modal = widget->isModal();
+        WidgetWrapper(widget).AddEventFilter([widget, pane](QObject*, QEvent* e){
+            if(e->type() == QEvent::Show) {
+                pane->Modal = widget->isModal();
+            }
+            return false;
+        });
     }
     if(resizeable) {
         WindowResizeAttachment::Attach(widget);

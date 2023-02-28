@@ -13,6 +13,11 @@ struct ThreadTaskDesc
 {
     FAction Task;
     AsyncResult Result;
+
+    ThreadTaskDesc(){}
+    ThreadTaskDesc(const FAction& action)
+        : Task(action)
+    {}
 };
 
 class Thread : public QThread
@@ -20,7 +25,7 @@ class Thread : public QThread
 public:
     Thread(class ThreadPool* pool);
     ~Thread();
-    void RunTask(ThreadTaskDesc* task);
+    AsyncResult RunTask(ThreadTaskDesc* task);
 
     Dispatcher OnFinished;
 

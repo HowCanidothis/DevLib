@@ -179,3 +179,23 @@ BHACatalogWidget QListView::item {
 WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
     background: #3C3C3C;
 }
+
+MenuBarMovePane[a_type="dialog"] QLabel#Title {
+    background: #181818;
+}
+
+MenuBarMovePane[a_type="dialog"] QLabel#Icon {
+    background: #181818;
+}
+
+MenuBarMovePane[a_type="dialog"] QPushButton#BtnMinimize {
+    background: #181818;
+}
+
+MenuBarMovePane[a_type="dialog"] QPushButton#BtnMaximize {
+    background: #181818;
+}
+
+MenuBarMovePane[a_type="dialog"] QPushButton#BtnClose {
+    background: #181818;
+}

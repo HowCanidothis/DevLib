@@ -308,9 +308,9 @@ public:
     const T& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
 
-    void SetFromSilent(const LocalProperty<T>& another)
+    void SetFromSilent(const T& another)
     {
-        m_value = another.m_value;
+        m_value = another;
     }
 
     DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
@@ -427,6 +427,16 @@ public:
     LocalPropertySequentialEnum(Enum initial)
         : Super((qint32)initial,(qint32)Enum::First,(qint32)Enum::Last)
     {}
+
+    void SetFromSilent(const value_type& value)
+    {
+        Super::SetFromSilent(value);
+    }
+
+    void SetFromSilent(const Enum& another)
+    {
+        Super::m_value = (qint32)another;
+    }
 
     FAction SetterFromString(const QString& value)
     {

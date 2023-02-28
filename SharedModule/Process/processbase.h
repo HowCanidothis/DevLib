@@ -5,19 +5,17 @@
 #include <memory>
 
 #include "SharedModule/interruptor.h"
+#include "SharedModule/name.h"
 
 class ProcessValue;
 
 struct ProcessBaseIndeterminateParams
 {
-    bool Shadow = false;
     QString Title;
 
     ProcessBaseIndeterminateParams(const QString& title)
         : Title(title)
     {}
-
-    ProcessBaseIndeterminateParams& SetShadow() { Shadow = true; return *this; }
 };
 
 
@@ -28,13 +26,13 @@ struct ProcessBaseDeterminateParams : ProcessBaseIndeterminateParams
     qint32 WantedCount = 100;
     qint32 StepsCount;
 
-    ProcessBaseDeterminateParams(const QString& title)
+    ProcessBaseDeterminateParams(const QString& title, qint32 stepsCount)
         : Super(title)
+        , StepsCount(stepsCount)
     {}
 
-    ProcessBaseDeterminateParams& SetLimits(qint32 stepsCount, qint32 wantedCount = 100)
+    ProcessBaseDeterminateParams& SetWantedCount(qint32 wantedCount)
     {
-        StepsCount = stepsCount;
         WantedCount = wantedCount;
         return *this;
     }
@@ -56,21 +54,17 @@ public:
     void BeginProcess(const ProcessBaseIndeterminateParams& params);
     void BeginProcess(const ProcessBaseDeterminateParams& params);
     void SetProcessTitle(const QString&title);
+    void SetId(const Name& id);
 
-    void BeginShadowProcess(const QString& title)
-    {
-        BeginProcess(ProcessBaseIndeterminateParams(title).SetShadow());
-    }
-    void BeginShadowProcess(const QString& title, int stepsCount, int wantedCount = 100)
-    {
-        BeginProcess(ProcessBaseDeterminateParams(title).SetLimits(stepsCount, wantedCount).SetShadow());
-    }
+    void BeginProcess(const QString& title);
+    void BeginProcess(const QString& title, int stepsCount, int wantedCount = 100);
 
 private:
     std::unique_ptr<ProcessValue> m_processValue;
     int m_divider;
     ScopedPointer<Interruptor> m_interruptor;
     bool m_silentIfOneStep;
+    Name m_id;
 };
 
 class ProcessIncrementGuard

@@ -121,6 +121,19 @@ public:
         }
     }
 
+    void Reset()
+    {
+        QMutexLocker lock(&m_mutex);
+        m_connectionSubscribes.clear();
+        m_subscribes.clear();
+        for(const auto& connection : m_safeConnections) {
+            if(!connection.expired()) {
+                connection.lock()->disable();
+            }
+        }
+        m_safeConnections.clear();
+    }
+
     bool IsEmpty() const
     {
         return m_subscribes.isEmpty();

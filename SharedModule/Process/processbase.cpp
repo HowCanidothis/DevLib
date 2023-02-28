@@ -12,7 +12,7 @@ ProcessBase::ProcessBase()
 ProcessBase::~ProcessBase()
 {
     if(m_interruptor != nullptr) {
-        m_interruptor->OnInterrupted -= this;
+        m_interruptor->OnInterrupted() -= this;
     }
 }
 
@@ -20,7 +20,7 @@ void ProcessBase::SetInterruptor(const Interruptor& interruptor)
 {
     Q_ASSERT(m_interruptor == nullptr);
     m_interruptor = ::make_scoped<Interruptor>(interruptor);
-    m_interruptor->OnInterrupted += { this, [this]{
+    m_interruptor->OnInterrupted() += { this, [this]{
         m_processValue->finish();
     }};
 }
@@ -33,7 +33,8 @@ const QString& ProcessBase::GetTitle() const
 void ProcessBase::BeginProcess(const ProcessBaseIndeterminateParams& params)
 {
     m_processValue = nullptr;
-    m_processValue.reset(params.Shadow ? ProcessFactory::Instance().createShadowIndeterminate() : ProcessFactory::Instance().createIndeterminate());
+    m_processValue.reset(ProcessFactory::Instance().createIndeterminate());
+    m_processValue->SetId(m_id);
     m_processValue->init(m_interruptor.get(), params.Title);
 }
 
@@ -48,15 +49,31 @@ void ProcessBase::BeginProcess(const ProcessBaseDeterminateParams& params)
         m_divider = 0;
     }
     m_processValue = nullptr;
-    auto value = params.Shadow ? ProcessFactory::Instance().createShadowDeterminate() : ProcessFactory::Instance().createDeterminate();
+    auto value = ProcessFactory::Instance().createDeterminate();
     value->SetDummy(m_silentIfOneStep && m_divider < 2);
     value->init(m_interruptor.get(), params.Title, stepsCount);
+    value->SetId(m_id);
     m_processValue.reset(value);
 }
 
 void ProcessBase::SetProcessTitle(const QString& title)
 {
     m_processValue->setTitle(title);
+}
+
+void ProcessBase::SetId(const Name& id)
+{
+    m_id = id;
+}
+
+void ProcessBase::BeginProcess(const QString& title)
+{
+    BeginProcess(ProcessBaseIndeterminateParams(title));
+}
+
+void ProcessBase::BeginProcess(const QString& title, int stepsCount, int wantedCount)
+{
+    BeginProcess(ProcessBaseDeterminateParams(title, stepsCount).SetWantedCount(wantedCount));
 }
 
 void ProcessBase::IncreaseProcessStepsCount(int stepsCount)

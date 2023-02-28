@@ -3,6 +3,8 @@
 
 #include <QFrame>
 
+#include <SharedModule/internal.hpp>
+
 namespace Ui {
 class MainProgressBar;
 }
@@ -13,18 +15,13 @@ class MainProgressBar : public QFrame
     using Super = QFrame;
 
 public:
-    explicit MainProgressBar(QWidget *parent = 0, Qt::WindowFlags windowFlags = 0);
+    explicit MainProgressBar(const Name& processId, QWidget* parent = 0, Qt::WindowFlags windowFlags = 0);
     ~MainProgressBar();
-
-    // QObject interface
-public:
-    virtual bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE;
-
-private:
-    class QRoundProgressBar* getProgressBarFromDepth(qint32 depth) const;
 
 private:
     Ui::MainProgressBar *ui;
+    DispatcherConnectionsSafe m_connections;
+    qint32 m_counter;
 };
 
 #endif // MAINPROGRESSBAR_H

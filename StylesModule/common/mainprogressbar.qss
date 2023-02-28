@@ -4,16 +4,11 @@ MainProgressBar {
 }
 
 MainProgressBar QRoundProgressBar {
-    alternate-background-color: gray;
-    color: black;
+    alternate-background-color: #3ea6ff;
+    color: white;
     font-size: 12px;
     qproperty-ringWidth: 12;
-}
-
-MainProgressBar QRoundProgressBar#SubProgressBar {
-    color: transparent;
-    font-size: 2px;
-    qproperty-ringWidth: 10;
+    qproperty-ringSize: 70;
 }
 
 QWidget#FooterProgressBar{

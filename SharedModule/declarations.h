@@ -15,6 +15,7 @@ enum AdditionalStandardRoles {
     IdRole,
     MinLimitRole,
     MaxLimitRole,
+    LastEditRowRole
 };
 
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;
@@ -482,6 +483,11 @@ public:
     static T& GetInstance()
     {
         Q_ASSERT(m_instance != nullptr);
+        return *m_instance;
+    }
+
+    static T& GetInstanceCanBeNull()
+    {
         return *m_instance;
     }
 

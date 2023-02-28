@@ -827,5 +827,24 @@ public:
     }
 };
 
+template<class K, class V>
+class Factory : public QHash<K, V>
+{
+    using Super = QHash<K,V>;
+public:
+    Factory& Insert(const K& key, const V& value)
+    {
+        Q_ASSERT(!Super::contains(key));
+        Super::insert(key, value);
+        return *this;
+    }
+
+    V Value(const K& key, const V& defaultValue) const
+    {
+        return Super::value(key, defaultValue);
+    }
+
+};
+
 
 #endif // BUILDERS_H

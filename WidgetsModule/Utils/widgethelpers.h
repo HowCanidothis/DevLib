@@ -197,7 +197,7 @@ public:
     class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
     WidgetsLocationAttachment* Location() const;
 
-    const WidgetWrapper& AddModalProgressBar() const;
+    const WidgetWrapper& AddModalProgressBar(const Name& processId = Name()) const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
 
@@ -366,6 +366,9 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetCheckBoxWrapper, QCheckBox)
     LocalPropertyBool& WidgetChecked() const;
     TranslatedStringPtr WidgetText() const;
+
+    qint64 GetAssignedFlag() const;
+    const WidgetCheckBoxWrapper& AssignFlag(qint64 flag) const;
 };
 
 class WidgetComboboxWrapper : public WidgetWrapper
@@ -463,6 +466,9 @@ public:
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;
     class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const;
+
+    CommonDispatcher<qint32, qint32>& OnCurrentIndexChanged() const;
+    const WidgetTableViewWrapper& SetOnCurrentIndexChanged(const std::function<void (qint32, qint32)>& handler) const;
 };
 
 class ActionWrapper : public ObjectWrapper
@@ -483,6 +489,7 @@ public:
     LocalPropertyBool& WidgetVisibility() const;
     LocalPropertyBool& WidgetEnablity() const;
     TranslatedStringPtr WidgetText() const;
+    LocalPropertyBool& WidgetChecked() const;
 };
 
 class WidgetSplitterWrapper : public WidgetWrapper
@@ -648,6 +655,7 @@ public:
     const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function) const;
     const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function) const { return ForeachModelIndex(QModelIndex(), function); }
     qint32 IndexOf(const FIterationHandler& handler) const;
+    QModelIndex Find(const FIterationHandler& handler) const;
 
     Dispatcher& OnReset() const;
 };

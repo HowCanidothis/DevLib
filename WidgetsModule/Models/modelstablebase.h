@@ -106,6 +106,9 @@ public:
     ViewModelsTableBase(QObject* parent = nullptr);
     ~ViewModelsTableBase();
 
+    bool IsLastRow(const QModelIndex& index) const;
+    bool IsLastRow(qint32 row) const;
+
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QVariant data(const QModelIndex& index, qint32 role) const override;
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
@@ -305,7 +308,7 @@ class TViewModelsEditTable : public T
 public:
     TViewModelsEditTable(QObject* parent)
         : Super(parent)
-        , CreateDataHandler ([this](qint32, const QVariant&){ insertRows(rowCount()-1, 1); })
+        , CreateDataHandler ([this](qint32, const QVariant&, bool&){ insertRows(rowCount()-1, 1); })
         , IsEditColumn      ([](qint32 column){ return true; })
         , DataHandler       ([](qint32 , int role){ return QVariant(); })
         , IsEditable(true)
@@ -333,23 +336,12 @@ public:
         });
     }
 
-    std::function<void(qint32, const QVariant&)> CreateDataHandler;
+    std::function<void(qint32, const QVariant&, bool&)> CreateDataHandler;
     std::function<bool(qint32)> IsEditColumn;
     std::function<QVariant(qint32, int)> DataHandler;
     LocalPropertyBool IsEditable;
 
 public:
-    bool IsLastRow(const QModelIndex& index) const
-    {
-        return IsLastRow(index.row());
-    }
-
-    bool IsLastRow(qint32 row) const
-    {
-        Q_ASSERT(GetData() != nullptr);
-        return GetData()->GetSize() == row;
-    }
-
     int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
         if(GetData() == nullptr) {
@@ -368,7 +360,10 @@ public:
         if(!index.isValid()){
             return QVariant();
         }
-        if(IsLastRow(index)){
+        if(isLastEditRow(index)){
+            if(role == LastEditRowRole) {
+                return true;
+            }
             auto ret = DataHandler(index.column(), role);
             if(ret.isValid()) {
                 return ret;
@@ -400,7 +395,11 @@ public:
             return false;
         }
         if(IsLastRow(index)){
-            CreateDataHandler(index.column(), value);
+            bool ignoreSet = false;
+            CreateDataHandler(index.column(), value, ignoreSet);
+            if(ignoreSet) {
+                return true;
+            }
         }
         return Super::setData(index, value, role);
     }

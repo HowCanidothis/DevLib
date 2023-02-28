@@ -25,12 +25,12 @@ void ViewModelsFilterModelBase::InvalidateFilter()
 
 bool ViewModelsFilterModelBase::IsLastRow(const QModelIndex& index) const
 {
-    return IsLastRow(index.row());
+    return index.data(LastEditRowRole).toBool();
 }
 
 bool ViewModelsFilterModelBase::IsLastRow(qint32 row) const
 {
-    return row >= rowCount() - 1;
+    return IsLastRow(index(row, 0));
 }
 
 bool ViewModelsFilterModelBase::DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const

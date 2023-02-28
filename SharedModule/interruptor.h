@@ -2,6 +2,7 @@
 #define INTERRUPTOR_H
 
 #include "dispatcher.h"
+#include "name.h"
 #include "SharedModule/Threads/threadtimer.h"
 
 class InterruptorData
@@ -11,54 +12,60 @@ class InterruptorData
     std::atomic_bool m_interupted;
     InterruptorData* m_parentData;
 
-    void interrupt()
-    {
-        m_interupted = true;
-        OnInterrupted.Invoke();
-    }
-    void setParent(InterruptorData* data)
-    {
-        Q_ASSERT(m_parentData == nullptr);
-        m_parentData = data;
-        data->OnInterrupted += { this, [this]{ interrupt(); } };
-    }
+    void interrupt();
+    void setParent(InterruptorData* data);
 
 public:
-    InterruptorData()
-        : m_interupted(false)
-        , m_parentData(nullptr)
-    {
-    }
+    InterruptorData();
 
-    ~InterruptorData()
-    {
-        if(m_parentData != nullptr) {
-            m_parentData->OnInterrupted -= this;
-        }
-    }
+    ~InterruptorData();
 };
 
 class Interruptor
 {
 public:
-    Interruptor()
-        : m_data(::make_shared<InterruptorData>())
-        , OnInterrupted(m_data->OnInterrupted)
-    {}
+    Interruptor();
 
+    void SetParent(const Interruptor& another);
+    void Interrupt() const;
+    void Interrupt(qint32 msecs) const;
 
-    void SetParent(const Interruptor& another) { m_data->setParent(another.m_data.get());  }
-    void Interrupt() const { m_data->interrupt(); }
-    void Interrupt(qint32 msecs) const { auto data = m_data; ThreadTimer::SingleShot(msecs, [data]{ data->interrupt(); }); }
+    bool IsInterrupted() const;
 
-    bool IsInterrupted() const { return m_data->m_interupted; }
+    const Dispatcher& OnInterrupted() const;
 
 private:
     SharedPointer<InterruptorData> m_data;
-
-public:
-    Dispatcher& OnInterrupted;
 };
 
+struct AsyncRequest
+{
+    AsyncResult Result;
+    Interruptor ResultInterruptor;
+};
+
+class AsyncRequestPending
+{
+public:
+    AsyncRequestPending(const Name& processId, const QString& label = QObject::tr("Fetching Data..."));
+    AsyncRequestPending();
+
+    AsyncRequest SetRequest(const AsyncRequest& request);
+
+private:
+    AsyncRequest m_currentRequest;
+    QString m_label;
+    Name m_processId;
+};
+
+SharedPointer<AsyncRequestPending> AsyncRequestPendingCreate(const Name& processId, const QString& label = QObject::tr("Fetching Data..."))
+{
+    return ::make_shared<AsyncRequestPending>(processId, label);
+}
+
+SharedPointer<AsyncRequestPending> AsyncRequestPendingCreate()
+{
+    return ::make_shared<AsyncRequestPending>();
+}
 
 #endif // INTERUPTOR_H

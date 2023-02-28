@@ -2,6 +2,8 @@
 #define PROCCESSFACTORY_H
 
 #include "SharedModule/declarations.h"
+#include "SharedModule/name.h"
+#include "SharedModule/dispatcher.h"
 
 #include <string>
 #include <atomic>
@@ -9,6 +11,7 @@
 
 struct DescProcessValueState
 {
+    Name Id;
     QString Title;
     int Depth;
     bool IsFinished;
@@ -17,8 +20,9 @@ struct DescProcessValueState
 
     bool IsShouldStayVisible() const { return !IsFinished; }
 
-    DescProcessValueState(const QString& title, int depth, bool isFinished, bool isCancelable, bool isTitleChanged)
-        : Title(title)
+    DescProcessValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, bool isTitleChanged)
+        : Id(id)
+        , Title(title)
         , Depth(depth)
         , IsFinished(isFinished)
         , IsCancelable(isCancelable)
@@ -31,14 +35,14 @@ struct DescProcessDeterminateValueState : DescProcessValueState
     int CurrentStep;
     int StepsCount;
 
-    DescProcessDeterminateValueState(const QString& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged)
-        : DescProcessValueState(title, depth, isFinished, isCancelable, isTitleChanged)
+    DescProcessDeterminateValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged)
+        : DescProcessValueState(id, title, depth, isFinished, isCancelable, isTitleChanged)
         , CurrentStep(currentStep)
         , StepsCount(stepsCount)
     {}
 
     DescProcessDeterminateValueState()
-        : DescProcessValueState(QString(), -1, false, false, false)
+        : DescProcessValueState(Name(), QString(), -1, false, false, false)
         , CurrentStep(0)
         , StepsCount(0)
     {}
@@ -56,10 +60,12 @@ public:
     void SetDummy(bool dummy);
     void Cancel();
 
-    DescProcessValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged() }; }
-    virtual DescProcessDeterminateValueState GetCommonState() const { return DescProcessDeterminateValueState(GetTitle(), GetDepth(), IsFinished(), IsCancelable(), 0, 0, IsTitleChanged()); }
+    DescProcessValueState GetState() const { return { GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged() }; }
+    virtual DescProcessDeterminateValueState GetCommonState() const { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), 0, 0, IsTitleChanged()); }
     int GetDepth() const { return m_valueDepth; }
     const QString& GetTitle() const { return m_title; }
+    void SetId(const Name& id);
+    const Name& GetId() const { return m_id; }
     bool IsFinished() const { return m_isFinished; }
     bool IsCancelable() const { return m_interruptor != nullptr; }
     bool IsTitleChanged() const { return m_isTitleChanged; }
@@ -80,6 +86,7 @@ protected:
     FCallback m_currentCallback;
     FCallback m_callback;
     QString m_title;
+    Name m_id;
     bool m_isFinished;
     Interruptor* m_interruptor;
     bool m_isTitleChanged;
@@ -93,8 +100,8 @@ class ProcessDeterminateValue : public ProcessValue
 public:
     ~ProcessDeterminateValue();
 
-    DescProcessDeterminateValueState GetState() const { return { GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged() }; }
-    DescProcessDeterminateValueState GetCommonState() const override { return DescProcessDeterminateValueState(GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged()); }
+    DescProcessDeterminateValueState GetState() const { return GetCommonState(); }
+    DescProcessDeterminateValueState GetCommonState() const override { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged()); }
     int GetCurrentStep() const { return m_currentStep; }
     int GetStepsCount() const { return m_stepsCount; }
     virtual ProcessDeterminateValue* AsDeterminate() override{ return this; }
@@ -119,23 +126,13 @@ class _Export ProcessFactory
 public:
     static ProcessFactory& Instance();
 
-    void SetDeterminateCallback(const ProcessValue::FCallback& options);
-    void SetIndeterminateCallback(const ProcessValue::FCallback& options);
-    void SetShadowDeterminateCallback(const ProcessValue::FCallback& options);
-    void SetShadowIndeterminateCallback(const ProcessValue::FCallback& options);
+    CommonDispatcher<size_t, const DescProcessValueState&> OnIndeterminate;
+    CommonDispatcher<size_t, const DescProcessDeterminateValueState&> OnDeterminate;
 
 private:
     friend class ProcessBase;
     ProcessValue* createIndeterminate() const;
     ProcessDeterminateValue* createDeterminate() const;
-    ProcessValue* createShadowIndeterminate() const;
-    ProcessDeterminateValue* createShadowDeterminate() const;
-
-private:
-    ProcessValue::FCallback m_indeterminateOptions;
-    ProcessValue::FCallback m_determinateOptions;
-    ProcessValue::FCallback m_shadowIndeterminateOptions;
-    ProcessValue::FCallback m_shadowDeterminateOptions;
 };
 
 

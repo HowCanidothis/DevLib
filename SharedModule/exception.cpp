@@ -35,7 +35,7 @@ bool Exception::Handle(const ExceptionHandleParams& params)
     try {
         if(params.StartProcess) {
             process = new QProcessBase();
-            process->BeginShadowProcess(params.ProcessName);
+            process->BeginProcess(params.ProcessName);
         }
         params.Action();
         return true;

@@ -22,8 +22,8 @@ public:
 
 private:
     Ui::ShadowProgressBarOneForAll *ui;
-    QHash<ProcessValue*, QString> m_processes;
-    LocalPropertyPtr<ProcessValue> m_value;
+    QHash<size_t, QString> m_processes;
+    LocalPropertyInt64 m_value;
     LocalPropertyInt m_stepsCount;
     LocalPropertyInt m_step;
     LocalPropertyString m_label;

@@ -42,7 +42,7 @@ void PromiseData::resolve(const std::function<qint8 ()>& handler)
         m_isCompleted = true;
     }
 
-    onFinished -= this;
+    onFinished.Reset();
 }
 
 DispatcherConnection PromiseData::then(const FCallback& handler)
@@ -57,7 +57,7 @@ DispatcherConnection PromiseData::then(const FCallback& handler)
 
 void PromiseData::mute()
 {
-     onFinished -= this;
+     onFinished.Reset();
 }
 
 Promise::Promise()
@@ -137,7 +137,7 @@ void FutureResultData::deref()
             std::unique_lock<std::mutex> lock(m_mutex);
             m_conditional.notify_one();
         }
-        onFinished -= this;
+        onFinished.Reset();
     }
 }
 

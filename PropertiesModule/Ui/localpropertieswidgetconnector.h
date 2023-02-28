@@ -122,6 +122,39 @@ class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetCon
 public:
     LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class QCheckBox* checkBox);
     LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox);
+    template<class T, typename CheckBoxWrapper, typename value_type = T::value_type>
+    LocalPropertiesCheckBoxConnector(T* property, const QVector<CheckBoxWrapper>& checkBoxes)
+        : Super([checkBoxes, property]{
+                    value_type value = property->Native();
+                    for(const auto& checkbox : checkBoxes) {
+                        Q_ASSERT(checkbox.GetAssignedFlag() != 0);
+                        checkbox->setChecked((value & checkbox.GetAssignedFlag()) == checkbox.GetAssignedFlag());
+                    }
+                },
+                [property, checkBoxes]{
+                    value_type value = 0;
+                    for(const auto& checkbox : checkBoxes) {
+                        if(checkbox->isChecked()) {
+                            value |= checkbox.GetAssignedFlag();
+                        }
+                    }
+                    *property = value;
+                })
+    {
+        property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+            m_widgetSetter();
+        }).MakeSafe(m_dispatcherConnections);
+
+        for(const auto& checkbox : checkBoxes) {
+            checkbox.WidgetChecked().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+                ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[this]{
+                    m_propertySetter();
+                    m_widgetSetter();
+                });
+            }).MakeSafe(m_dispatcherConnections);
+            checkbox.WidgetChecked() = false;
+        }
+    }
 
 protected:
 };

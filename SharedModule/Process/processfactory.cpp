@@ -32,6 +32,11 @@ void ProcessValue::Cancel()
     m_interruptor->Interrupt();
 }
 
+void ProcessValue::SetId(const Name& id)
+{
+    m_id = id;
+}
+
 void ProcessValue::setTitle(const QString& title)
 {
     m_title = title;
@@ -94,10 +99,6 @@ void ProcessDeterminateValue::increaseStepsCount(int value)
 static bool DoNothingCallback(ProcessValue*) { return true; }
 
 ProcessFactory::ProcessFactory()
-    : m_indeterminateOptions(&DoNothingCallback)
-    , m_determinateOptions(&DoNothingCallback)
-    , m_shadowIndeterminateOptions(&DoNothingCallback)
-    , m_shadowDeterminateOptions(&DoNothingCallback)
 {
 
 }
@@ -108,42 +109,22 @@ ProcessFactory& ProcessFactory::Instance()
     return ret;
 }
 
-void ProcessFactory::SetDeterminateCallback(const ProcessValue::FCallback& options)
-{
-    m_determinateOptions = options;
-}
-
-void ProcessFactory::SetIndeterminateCallback(const ProcessValue::FCallback& options)
-{
-    m_indeterminateOptions = options;
-}
-
-void ProcessFactory::SetShadowDeterminateCallback(const ProcessValue::FCallback& options)
-{
-    m_shadowDeterminateOptions = options;
-}
-
-void ProcessFactory::SetShadowIndeterminateCallback(const ProcessValue::FCallback& options)
-{
-    m_shadowIndeterminateOptions = options;
-}
-
 ProcessValue* ProcessFactory::createIndeterminate() const
 {
-    return new ProcessValue(m_indeterminateOptions);
+    return new ProcessValue([this](ProcessValue* value){
+        auto state = value->GetState();
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [value, this, state]{
+            OnIndeterminate((size_t)value, state);
+        });
+    });
 }
 
 ProcessDeterminateValue* ProcessFactory::createDeterminate() const
 {
-    return new ProcessDeterminateValue(m_determinateOptions);
-}
-
-ProcessValue* ProcessFactory::createShadowIndeterminate() const
-{
-    return new ProcessValue(m_shadowIndeterminateOptions);
-}
-
-ProcessDeterminateValue*ProcessFactory::createShadowDeterminate() const
-{
-    return new ProcessDeterminateValue(m_shadowDeterminateOptions);
+    return new ProcessDeterminateValue([this](ProcessValue* value){
+        auto state = value->GetCommonState();
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [value, this, state]{
+            OnDeterminate((size_t)value, state);
+        });
+    });
 }

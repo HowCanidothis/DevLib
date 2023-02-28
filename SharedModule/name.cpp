@@ -2,8 +2,12 @@
 #include <QHashFunctions>
 
 #ifdef QT_DEBUG
-#define ADD_NAME DebugNameManager::GetInstance().addName(AsString());
-#define REMOVE_NAME DebugNameManager::GetInstance().removeName(AsString());
+#define ADD_NAME DebugNameManager::GetInstanceCanBeNull().addName(AsString());
+#define REMOVE_NAME DebugNameManager::GetInstanceCanBeNull().removeName(AsString());
+
+DebugNameManager::DebugNameManager()
+{
+}
 
 void DebugNameManager::PrintReport(qint32 maxSymbolUsage)
 {
@@ -29,7 +33,7 @@ void DebugNameManager::PrintReport(qint32 maxSymbolUsage)
 
 void DebugNameManager::addName(const QString& name)
 {
-    if(name.isEmpty()) {
+    if(this == nullptr || name.isEmpty()) {
         return;
     }
     QMutexLocker locker(&m_mutex);
@@ -47,7 +51,7 @@ void DebugNameManager::addName(const QString& name)
 
 void DebugNameManager::removeName(const QString& name)
 {
-    if(name.isEmpty()) {
+    if(this == nullptr || name.isEmpty()) {
         return;
     }
     QMutexLocker locker(&m_mutex);

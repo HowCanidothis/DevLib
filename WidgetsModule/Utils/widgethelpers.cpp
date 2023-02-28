@@ -54,6 +54,8 @@
 #include "WidgetsModule/Utils/styleutils.h"
 #include "WidgetsModule/Delegates/delegates.h"
 
+using FCurrentChanged = SharedPointer<CommonDispatcher<qint32,qint32>>;
+
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const QString&>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyString>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
@@ -63,6 +65,7 @@ Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
+Q_DECLARE_METATYPE(FCurrentChanged)
 
 struct DisabledColumnComponentData
 {
@@ -174,6 +177,25 @@ Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
 WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const
 {
     return new WidgetsMatchingAttachment(GetWidget(), targetModel, targetImportColumns);
+}
+
+CommonDispatcher<qint32, qint32>& WidgetTableViewWrapper::OnCurrentIndexChanged() const
+{
+    auto* w = GetWidget();
+    Q_ASSERT(qobject_cast<QTableView*>(w));
+    return *Injected<CommonDispatcher<qint32, qint32>>("a_on_current_index_changed", [w]{
+        auto* result = new CommonDispatcher<qint32, qint32>();
+        QObject::connect(w->selectionModel(), &QItemSelectionModel::currentChanged, [result](const QModelIndex& current, const QModelIndex& prev) {
+            result->Invoke(current.row(), current.column());
+        });
+        return result;
+    });
+}
+
+const WidgetTableViewWrapper& WidgetTableViewWrapper::SetOnCurrentIndexChanged(const std::function<void (qint32, qint32)>& handler) const
+{
+    OnCurrentIndexChanged().Connect(CONNECTION_DEBUG_LOCATION, handler);
+    return *this;
 }
 
 WidgetDialogWrapper::WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator)
@@ -709,19 +731,9 @@ void WidgetWrapper::Lowlight() const
     StyleUtils::ApplyStyleProperty("w_highlighted", GetWidget(), false);
 }
 
-const WidgetWrapper& WidgetWrapper::AddModalProgressBar() const
+const WidgetWrapper& WidgetWrapper::AddModalProgressBar(const Name& processId) const
 {
-    Q_ASSERT(GetWidget()->isWindow());
-    auto* progressBar = new MainProgressBar(GetWidget(), Qt::Window | Qt::FramelessWindowHint);
-    auto* widget = GetWidget();
-    AddEventFilter([progressBar, widget](QObject*, QEvent* event){
-        if(event->type() == QEvent::Close && progressBar->isVisible()) {
-            event->ignore();
-            widget->close();
-            return true;
-        }
-        return false;
-    });
+    new MainProgressBar(processId, GetWidget());
 #ifdef QT_DEBUG
     Q_ASSERT(!GetWidget()->property("a_progressBar").toBool());
     GetWidget()->setProperty("a_progressBar", true);
@@ -1277,6 +1289,17 @@ TranslatedStringPtr ActionWrapper::WidgetText() const
     }, TR_NONE);
 }
 
+LocalPropertyBool& ActionWrapper::WidgetChecked() const
+{
+    return *GetOrCreateProperty<QAction, LocalPropertyBool>("a_checked", [](QAction* action, const LocalPropertyBool& visible){
+        action->setChecked(visible);
+    }, [](QAction* btn, LocalPropertyBool* property){
+        *property = btn->isChecked();
+    }, &QAction::toggled, [](QAction* btn){
+        btn->setCheckable(true);
+    }, false);
+}
+
 LocalPropertyBool& MenuWrapper::WidgetVisibility() const
 {
     return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
@@ -1596,6 +1619,17 @@ TranslatedStringPtr WidgetCheckBoxWrapper::WidgetText() const
     });
 }
 
+qint64 WidgetCheckBoxWrapper::GetAssignedFlag() const
+{
+    return GetWidget()->property("a_flag").toLongLong();
+}
+
+const WidgetCheckBoxWrapper& WidgetCheckBoxWrapper::AssignFlag(qint64 flag) const
+{
+    GetWidget()->setProperty("a_flag", flag);
+    return *this;
+}
+
 ViewModelWrapper::ViewModelWrapper(QAbstractItemModel* model)
     : Super(model)
 {}
@@ -1618,10 +1652,15 @@ const ViewModelWrapper& ViewModelWrapper::ForeachModelIndex(const QModelIndex& p
 
 qint32 ViewModelWrapper::IndexOf(const FIterationHandler& handler) const
 {
-    qint32 result = -1;
+    return Find(handler).row();
+}
+
+QModelIndex ViewModelWrapper::Find(const FIterationHandler& handler) const
+{
+    QModelIndex result;
     ForeachModelIndex([&](const QModelIndex& index) {
         if(handler(index)) {
-            result = index.row();
+            result = index;
             return true;
         }
         return false;

@@ -45,7 +45,7 @@ struct DescWidgetsLocationAttachmentParams
 {
     DescWidgetsLocationAttachmentParams(QuadTreeF::BoundingRect_Location location = QuadTreeF::Location_Center)
         : Location(location)
-        , Delay(500)
+        , Delay(0)
         , RelativeParent(nullptr)
     {}
 

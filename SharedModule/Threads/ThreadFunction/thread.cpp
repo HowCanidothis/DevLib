@@ -24,14 +24,15 @@ Thread::~Thread()
     }
 }
 
-void Thread::RunTask(ThreadTaskDesc* task)
+AsyncResult Thread::RunTask(ThreadTaskDesc* task)
 {
     if(m_aboutToBeDestroyed) {
-        return;
+        return AsyncError();
     }
     QMutexLocker locker(&m_taskMutex);
     m_task = task;
     m_taskCondition.wakeAll();
+    return task->Result;
 }
 
 void Thread::run()

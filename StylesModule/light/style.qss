@@ -796,7 +796,7 @@ WidgetsCalendarWidget
 
 QCalendarWidget QAbstractItemView:disabled 
 { 
-    color: black; 
+    color: #414141; 
 }
 
 WidgetsTimeWidget QSpinBox {
@@ -820,11 +820,11 @@ WidgetsTimeWidget QLabel[splitter] {
 }
 
 WidgetsTimeWidget QPushButton[highlighted="true"] {
-  color: black;
+  color: #414141;
 }
 
 WidgetsTimeWidget QPushButton[highlighted="false"]:hover {
-  color: black;
+  color: #414141;
 }
 
 WidgetsTimeWidget QPushButton[highlighted="false"] {
@@ -973,7 +973,7 @@ QAbstractButton[a_control="10"]:hover{
 
 QAbstractButton[a_control="10"]:checked{
     font-weight: bold;
-    color: black;
+    color: #414141;
     background: transparent;
 }
 

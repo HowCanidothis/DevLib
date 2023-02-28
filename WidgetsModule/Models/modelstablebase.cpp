@@ -111,6 +111,16 @@ ViewModelsTableBase::~ViewModelsTableBase()
 
 }
 
+bool ViewModelsTableBase::IsLastRow(const QModelIndex& index) const
+{
+    return index.data(LastEditRowRole).toBool();
+}
+
+bool ViewModelsTableBase::IsLastRow(qint32 row) const
+{
+    return IsLastRow(index(row, 0));
+}
+
 qint32 ViewModelsTableBase::columnCount(const QModelIndex&) const
 {
     return ColumnComponents.GetColumnCount();

@@ -25,11 +25,15 @@ public:
     template<class T>
     T* GetOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator, const Name& restoreGeometryName = Name())
     {
+        Q_ASSERT(!tag.IsNull());
         auto foundIt = m_taggedDialog.find(tag);
         if(foundIt != m_taggedDialog.end()) {
             return reinterpret_cast<T*>(foundIt.value());
         }
         auto* result = dialogCreator();
+        if(result->parentWidget() == nullptr) {
+            result->setParent(GetParentWindow(), result->windowFlags());
+        }
         OnDialogCreated(result);
         if(!restoreGeometryName.IsNull()) {
             QSettings geometriesSettings;
@@ -50,6 +54,12 @@ public:
     }
 
     template<class T>
+    T* GetOrCreateDialog(const Name& tag, const Name& restoreGeometryName = Name())
+    {
+        return GetOrCreateDialog<T>(tag, [this]{ return new T(GetParentWindow()); }, restoreGeometryName);
+    }
+
+    template<class T>
     T* CustomDialogView(QDialog* dialog) const
     {
         return (T*)(dialog->property(CustomViewPropertyKey).toLongLong());
@@ -58,7 +68,7 @@ public:
     void ShowPropertiesDialog(const PropertiesScopeName& name, const DescShowDialogParams& params);
 
     void ResizeDialogToDefaults(QWidget* dialog);
-    void MakeFrameless(QWidget* widget, bool attachMovePane = true);
+    void MakeFrameless(QWidget* widget, bool attachMovePane = true, const QString& movePaneId = QString());
     static void AttachShadow(class QWidget* w, bool applyMargins = true);
 
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);

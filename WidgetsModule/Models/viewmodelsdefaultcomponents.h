@@ -47,6 +47,11 @@ public:
         : Super(viewModel)
         , m_modelGetter(modelGetter)
     {}
+    template<class T>
+    TViewModelsColumnComponentsBuilder(T* viewModel)
+        : Super(viewModel)
+        , m_modelGetter([viewModel]{ return viewModel->GetData().get(); })
+    {}
 
     ~TViewModelsColumnComponentsBuilder()
     {
