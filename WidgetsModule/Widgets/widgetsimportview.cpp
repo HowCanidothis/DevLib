@@ -118,6 +118,8 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
             }
         }).SetShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Delete));
     });
+
+    WidgetWrapper(this).FixUp();
 }
 
 WidgetsImportView::~WidgetsImportView()
