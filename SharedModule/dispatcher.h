@@ -27,6 +27,7 @@ public:
 
 private:
     template<typename... Args> friend class CommonDispatcher;
+    template<typename... Args> friend class LocalDispatcher; // TODO. Must be removed
     void disable();
 
 private:
@@ -46,6 +47,7 @@ class DispatcherConnection
 
     friend class DispatcherConnectionSafe;
     template<typename ... Args> friend class CommonDispatcher;
+    template<typename... Args> friend class LocalDispatcher; // TODO. Must be removed
     FAction m_disconnector;
     FDispatcherRegistrator m_registrator;
 
