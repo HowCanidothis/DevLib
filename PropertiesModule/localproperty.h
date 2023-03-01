@@ -1116,6 +1116,12 @@ struct LocalPropertyOptional
         return connections;
     }
 
+    DispatcherConnections ConnectAndCall(const char* locationInfo, const std::function<void (const std::optional<value_type>&)>& action) const
+    {
+        action(ToStdOptional());
+        return Connect(locationInfo, action);
+    }
+
     template<class Another, typename T = typename Property::value_type, typename T2 = typename Another::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>
     DispatcherConnections ConnectBoth(const char* locationInfo, Another& another, const Evaluator& anotherEvaluator = [](const T& v) { return v; }, const ThisEvaluator& thisEvaluator = [](const T2& v) { return v; }, Dispatchers&... dispatchers)
     {
