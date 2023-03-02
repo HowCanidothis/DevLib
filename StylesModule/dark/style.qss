@@ -1049,3 +1049,7 @@ QAbstractButton:disabled {
     color: #6C6C6C;
     background: #3C3C3C;
 }
+
+WPSCDrillCaseView {
+  qproperty-blockWeightColor: #aaaaaa;
+}
