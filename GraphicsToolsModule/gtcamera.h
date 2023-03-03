@@ -134,6 +134,7 @@ public:
     bool IsFrameChanged() const;
     bool IsIsometric() const { return m_state.TestFlag(State_Isometric); }
     const Point2F& GetIsometricScale() const { return m_isometricScale; }
+    const Point2F& GetIsometricExtraScale() const { return m_isometricExtraScale; }
     const Point3F& GetIsometricCenter() const { return m_isometricCenter; }
     float GetIsometricCurtain() const { return m_isometricCurtain; }
 
