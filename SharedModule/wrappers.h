@@ -1,6 +1,8 @@
 #ifndef SHARED_LIB_WRAPPERS_H
 #define SHARED_LIB_WRAPPERS_H
 
+#include <SharedModule/declarations.h>
+
 template<class T, typename ComparisonTarget = T, typename Container = QVector<T>>
 class ContainerWrapper
 {
@@ -51,7 +53,7 @@ public:
     value_type& FindOrCreate(const ComparisonTarget& id, const std::function<value_type ()>& createHandler)
     {
         auto foundIt = find(id);
-        if(foundIt == m_container->cend() || m_idGetter(*foundIt) != id) {
+        if(foundIt == m_container->cend() || NotEqual(m_idGetter(*foundIt), id)) {
             foundIt = m_container->insert(foundIt, createHandler());
         }
         return *foundIt;
@@ -82,7 +84,7 @@ public:
     const value_type& FindValue(const ComparisonTarget& id) const
     {
         auto foundIt = Find(id);
-        if(foundIt != m_container->end() && m_idGetter(*foundIt) == id) {
+        if(foundIt != m_container->cend() && Equal(m_idGetter(*foundIt), id)) {
             return *foundIt;
         }
         return Default<value_type>::Value;
@@ -91,7 +93,7 @@ public:
     void Foreach(const ComparisonTarget& id, const std::function<void (value_type&)>& handler)
     {
         auto firstElement = find(id);
-        while(firstElement != m_container->end() && *firstElement == id) {
+        while(firstElement != m_container->end() && Equal(*firstElement, id)) {
             handler(*firstElement);
             firstElement++;
         }
@@ -124,10 +126,10 @@ public:
     {
         Q_ASSERT(IsSorted());
         auto foundIt = Find(id);
-        if(foundIt == end()) {
+        if(foundIt == m_container->cend()) {
             return foundIt;
         }
-        return m_idGetter(*foundIt) == id ? foundIt : end();
+        return Equal(m_idGetter(*foundIt), id) ? foundIt : m_container->cend();
     }
 
     const_iterator begin() const { return m_container->begin(); }

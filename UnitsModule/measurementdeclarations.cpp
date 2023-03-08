@@ -40,7 +40,7 @@ double MeasurementUnit::FromBaseToUnit(double baseValue) const
     return m_baseToUnit(baseValue);
 }
 
-bool LocalPropertyEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
+bool Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
 {
     return false;
 }

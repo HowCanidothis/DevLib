@@ -76,7 +76,7 @@ template<class T> class TModelsTableWrapper;
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
 using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 
-bool LocalPropertyEqual(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
+bool Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
 
 class MeasurementProperty
 {

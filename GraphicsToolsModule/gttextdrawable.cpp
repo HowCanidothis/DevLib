@@ -187,7 +187,6 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("CONTRAST", &Settings.Contrast.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_SCALE", &Settings.Scale.Native()));
-    m_material.AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Settings.Color.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_COLOR", &Settings.BorderColor.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_HEIGHT", &font->GetMap().GetHeight()));
     m_material.AddParameter(::make_shared<GtMaterialParameterTexture>("TEXTURE", font->GetName()));

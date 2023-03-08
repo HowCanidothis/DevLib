@@ -6,11 +6,6 @@
 #include "property.h"
 #include "externalproperty.h"
 
-template<class T>
-inline bool LocalPropertyEqual(const T& v1, const T& v2) { return v1 == v2; }
-inline bool LocalPropertyEqual(const double& v1, const double& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
-inline bool LocalPropertyEqual(const float& v1, const float& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
-
 template<class value_type>
 struct LocalPropertyDescInitializationParams
 {
@@ -178,7 +173,7 @@ public:
     {
         auto validatedValue = m_validator(value);
         validate(validatedValue);
-        if(!LocalPropertyEqual(validatedValue, m_value)) {
+        if(NotEqual(validatedValue, m_value)) {
             m_setterHandler([validatedValue, this]{
                 m_value = validatedValue;
                 Invoke();
@@ -356,7 +351,7 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        if(!LocalPropertyEqual(m_max, max) || !LocalPropertyEqual(m_min, min)) {
+        if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
             Super::SetValue(Super::m_value);
