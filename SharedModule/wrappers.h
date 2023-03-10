@@ -11,13 +11,13 @@ public:
     using container_type = Container;
     using const_iterator = typename Container::const_iterator;
     using iterator = typename Container::iterator;
-    using FIdGetter = std::function<const ComparisonTarget& (const value_type&)>;
+    using FIdGetter = std::function<const ComparisonTarget* (const value_type&)>;
     using FLessThan = std::function<bool (const value_type&, const value_type&)>;
 
     ContainerWrapper(Container* container, const FIdGetter& idGetter = [](const T& value) -> const T& { return value; })
         : m_container(container)
         , m_lessThan([this](const value_type& f, const value_type& s) -> bool {
-            return m_idGetter(f) < m_idGetter(s);
+            return *m_idGetter(f) < *m_idGetter(s);
         })
         , m_idGetter(idGetter)
     {}
@@ -45,7 +45,7 @@ public:
 
     ContainerWrapper& Insert(const value_type& object)
     {
-        auto foundIt = find(m_idGetter(object));
+        auto foundIt = find(*m_idGetter(object));
         m_container->insert(foundIt, object);
         return *this;
     }
@@ -53,7 +53,7 @@ public:
     value_type& FindOrCreate(const ComparisonTarget& id, const std::function<value_type ()>& createHandler)
     {
         auto foundIt = find(id);
-        if(foundIt == m_container->cend() || NotEqual(m_idGetter(*foundIt), id)) {
+        if(foundIt == m_container->cend() || NotEqual(*m_idGetter(*foundIt), id)) {
             foundIt = m_container->insert(foundIt, createHandler());
         }
         return *foundIt;
@@ -84,7 +84,7 @@ public:
     const value_type& FindValue(const ComparisonTarget& id) const
     {
         auto foundIt = Find(id);
-        if(foundIt != m_container->cend() && Equal(m_idGetter(*foundIt), id)) {
+        if(foundIt != m_container->cend() && Equal(*m_idGetter(*foundIt), id)) {
             return *foundIt;
         }
         return Default<value_type>::Value;
@@ -106,7 +106,7 @@ public:
         }
         auto it = begin();
         for(const auto& value : adapters::range(begin() + 1, end())) {
-            if(!(m_idGetter(*it) <= m_idGetter(value))) {
+            if(!(*m_idGetter(*it) <= *m_idGetter(value))) {
                 return false;
             }
             ++it;
@@ -118,7 +118,7 @@ public:
     {
         Q_ASSERT(IsSorted());
         return std::lower_bound(m_container->begin(), m_container->end(), id, [this](const value_type& f, const ComparisonTarget& s){
-            return m_idGetter(f) < s;
+            return *m_idGetter(f) < s;
         });
     }
 
@@ -129,7 +129,7 @@ public:
         if(foundIt == m_container->cend()) {
             return foundIt;
         }
-        return Equal(m_idGetter(*foundIt), id) ? foundIt : m_container->cend();
+        return Equal(*m_idGetter(*foundIt), id) ? foundIt : m_container->cend();
     }
 
     const_iterator begin() const { return m_container->begin(); }
@@ -140,7 +140,7 @@ private:
     {
         Q_ASSERT(IsSorted());
         return std::lower_bound(m_container->begin(), m_container->end(), id, [this](const value_type& f, const ComparisonTarget& s){
-            return m_idGetter(f) < s;
+            return *m_idGetter(f) < s;
         });
     }
 
