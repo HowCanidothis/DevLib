@@ -127,7 +127,7 @@ public:
         editRoleComponent.GetterHandler = editRoleGetter;
 
         if(setter != nullptr) {
-            editRoleComponent.SetterHandler = [modelGetter, setter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
+            editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
                 const auto& viewModel = modelGetter();
                 if(viewModel == nullptr) {
                     return false;
@@ -135,7 +135,7 @@ public:
                 if(index.row() >= viewModel->GetSize()) {
                     return false;
                 }
-                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); });
+                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); }, {column});
             };
 
             m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); });
@@ -146,6 +146,20 @@ public:
         m_viewModel->ColumnComponents.AddComponent(Qt::EditRole, column, editRoleComponent);
 
         return *this;
+    }
+
+    TViewModelsColumnComponentsBuilder& AddStringColumn(qint32 column, const FTranslationHandler& header, const std::function<QString& (ValueType)>& getter, bool readOnly = false) {
+        return AddColumn<QString>(column, header, getter, readOnly);
+    }
+
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<T& (ValueType)>& getter, bool readOnly = false) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType& data = const_cast<ValueType>(constData);
+            return getter(data);
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = value.value<T>();};
+        });
     }
 
     template<class Enum>
@@ -295,23 +309,50 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementLimits(qint32 column, const Measurement* pMeasurement, const std::function<LocalPropertyDouble& (ValueType)>& getter)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimit(qint32 column, const std::function<double(ConstValueType)>& min = [](ConstValueType){ return 0; }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         auto modelGetter = m_modelGetter;
-        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
+        Q_ASSERT(m_currentMeasurement != nullptr);
+        auto pMeasurement = m_currentMeasurement;
+        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
+        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([min, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
                 return std::nullopt;
             }
+            return pMeasurement->FromBaseToUnit(min(viewModel->At(index.row())));
+        }));
+
+        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([max, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::nullopt;
+            }
+            return pMeasurement->FromBaseToUnit(max(viewModel->At(index.row())));
+        }));
+        return *this;
+    }
+
+    TViewModelsColumnComponentsBuilder& AddMeasurementLimits(qint32 column, const std::function<LocalPropertyDouble& (ValueType)>& getter)
+    {
+        auto modelGetter = m_modelGetter;
+        Q_ASSERT(m_currentMeasurement != nullptr);
+        auto pMeasurement = m_currentMeasurement;
+        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
+        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::numeric_limits<double>().max();
+            }
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMin());
-        }).SetHeader([]{ return true; }));
+        }));
         m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::numeric_limits<double>().min();
+                return std::numeric_limits<double>().max();
             }
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMax());
-        }).SetHeader([]{ return true; }));
+        }));
         return *this;
     }
 
@@ -322,7 +363,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        if(!readOnly) AddMeasurementLimits(column, pMeasurement, getter);
+        if(!readOnly) AddMeasurementLimits(column, getter);
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value)).Native();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -343,7 +384,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        if(!readOnly) AddMeasurementLimits(column, pMeasurement, [getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
+        if(!readOnly) AddMeasurementLimits(column, [getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
@@ -405,12 +446,7 @@ public:
             return pMeasurement->FromBaseToUnit(dataValue.value());
         });
     }
-#endif
-private:
-    std::function<Wrapper* ()> m_modelGetter;
-#ifdef UNITS_MODULE_LIB
-    const class Measurement* m_currentMeasurement;
-    Array<qint32> m_currentMeasurementColumns;
+
     static QString setMeasurmentUnit(const QString& string, const Measurement* measurment)
     {
         thread_local static QRegExp regExp(MEASUREMENT_UN);
@@ -425,7 +461,12 @@ private:
         resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
         return resultString;
     }
-
+#endif
+private:
+    std::function<Wrapper* ()> m_modelGetter;
+#ifdef UNITS_MODULE_LIB
+    const class Measurement* m_currentMeasurement;
+    Array<qint32> m_currentMeasurementColumns;
 #endif
 };
 

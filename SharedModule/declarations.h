@@ -23,6 +23,7 @@ enum AdditionalStandardRoles {
     IdRole,
     MinLimitRole,
     MaxLimitRole,
+    UnitRole,
     LastEditRowRole
 };
 

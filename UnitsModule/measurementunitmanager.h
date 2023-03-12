@@ -54,6 +54,7 @@ private:
 };
 using MeasurementPtr = SharedPointer<Measurement>;
 Q_DECLARE_METATYPE(SharedPointer<Measurement>);
+Q_DECLARE_METATYPE(const Measurement*);
 
 using WPSCUnitMeasurementTableWrapper = TModelsTableWrapper<QVector<MeasurementPtr>>;
 using WPSCUnitMeasurementTableWrapperPtr = SharedPointer<WPSCUnitMeasurementTableWrapper>;
