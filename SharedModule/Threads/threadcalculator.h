@@ -93,6 +93,9 @@ public:
                    const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
         m_data->Handler([this, calculator, preparator, releaser]{
+            if(m_prevData != nullptr) {
+                m_prevData->Release();
+            }
             m_data->PreparatorHandler = preparator;
             m_data->CalculatorHandler = calculator;
             m_data->ReleaserHandler = releaser;
@@ -112,7 +115,7 @@ public:
             m_data->PreparatorHandler();
             onPreRecalculate();
             
-            auto currentData = ::make_shared<CurrentData>(m_data);
+            auto currentData = m_prevData = ::make_shared<CurrentData>(m_data);
             m_latestTask = ThreadsBase::Async([this, currentData]{
                 auto result = currentData->CurrentCalculator();
                 currentData->Data->Handler([this, result, currentData]{
@@ -156,6 +159,7 @@ protected:
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;
+    SharedPointer<CurrentData> m_prevData;
     AsyncResult m_latestTask;
 };
 
