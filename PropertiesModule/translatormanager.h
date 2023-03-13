@@ -137,8 +137,8 @@ protected:
 
 Q_DECLARE_METATYPE(SharedPointer<TranslatedString>)
 
-#define TRANSLATED_PTR(handler, translators) \
-    ::make_shared<TranslatedString>([this]{ return handler; }, translators)
+#define TRANSLATED_PTR(handler, translators, ...) \
+    ::make_shared<TranslatedString>([__VA_ARGS__]{ return handler; }, translators)
 
 #define TRANSLATED_PTR_1(handler, ...) \
     ::make_shared<TranslatedString>([__VA_ARGS__]{ return handler; })
