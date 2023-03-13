@@ -768,6 +768,11 @@ public:
         }, handler);
     }
 
+    void Disconnect() {
+        m_calculator.Disconnect();
+        m_calculator.Cancel();
+    }
+
     const TPtr& GetData() const { return m_data; }
 
 protected:
