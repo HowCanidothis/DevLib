@@ -46,11 +46,14 @@ public:
     TViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const std::function<Wrapper* ()>& modelGetter)
         : Super(viewModel)
         , m_modelGetter(modelGetter)
+        , m_currentColumn(-1)
+#ifdef UNITS_MODULE_LIB
+        , m_currentMeasurement(nullptr)
+#endif
     {}
     template<class T>
     TViewModelsColumnComponentsBuilder(T* viewModel)
-        : Super(viewModel)
-        , m_modelGetter([viewModel]{ return viewModel->GetData().get(); })
+        : TViewModelsColumnComponentsBuilder(viewModel, [viewModel]{ return viewModel->GetData().get(); })
     {}
 
     ~TViewModelsColumnComponentsBuilder()
@@ -91,6 +94,7 @@ public:
 
     TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const FModelGetter& getterUi, const FModelSetter& setter = nullptr, const FModelGetter& inGetter = nullptr)
     {
+        m_currentColumn = column;
         auto modelGetter = m_modelGetter;
         ViewModelsTableColumnComponents::ColumnComponentData displayRoleComponent;
         auto getter = inGetter;
@@ -309,8 +313,9 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimit(qint32 column, const std::function<double(ConstValueType)>& min = [](ConstValueType){ return 0; }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const std::function<double(ConstValueType)>& min = [](ConstValueType){ return 0; }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
+        qint32 column = m_currentColumn;
         auto modelGetter = m_modelGetter;
         Q_ASSERT(m_currentMeasurement != nullptr);
         auto pMeasurement = m_currentMeasurement;
@@ -333,29 +338,6 @@ public:
         return *this;
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementLimits(qint32 column, const std::function<LocalPropertyDouble& (ValueType)>& getter)
-    {
-        auto modelGetter = m_modelGetter;
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        auto pMeasurement = m_currentMeasurement;
-        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
-        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
-            const auto& viewModel = modelGetter();
-            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::numeric_limits<double>().max();
-            }
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMin());
-        }));
-        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
-            const auto& viewModel = modelGetter();
-            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::numeric_limits<double>().max();
-            }
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMax());
-        }));
-        return *this;
-    }
-
     TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
@@ -363,7 +345,10 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        if(!readOnly) AddMeasurementLimits(column, getter);
+        m_currentColumn = column;
+        if(!readOnly) {
+            addMeasurementLimits(getter);
+        }
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value)).Native();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
@@ -384,7 +369,10 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        if(!readOnly) AddMeasurementLimits(column, [getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
+        m_currentColumn = column;
+        if(!readOnly) {
+            addMeasurementLimits([getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
+        }
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
@@ -461,9 +449,35 @@ public:
         resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
         return resultString;
     }
+private:
+    TViewModelsColumnComponentsBuilder& addMeasurementLimits(const std::function<LocalPropertyDouble& (ValueType)>& getter)
+    {
+        qint32 column = m_currentColumn;
+        auto modelGetter = m_modelGetter;
+        Q_ASSERT(m_currentMeasurement != nullptr);
+        auto pMeasurement = m_currentMeasurement;
+        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
+        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::numeric_limits<double>().max();
+            }
+            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMin());
+        }));
+        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+            const auto& viewModel = modelGetter();
+            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                return std::numeric_limits<double>().max();
+            }
+            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMax());
+        }));
+        return *this;
+    }
+
 #endif
 private:
     std::function<Wrapper* ()> m_modelGetter;
+    qint32 m_currentColumn;
 #ifdef UNITS_MODULE_LIB
     const class Measurement* m_currentMeasurement;
     Array<qint32> m_currentMeasurementColumns;

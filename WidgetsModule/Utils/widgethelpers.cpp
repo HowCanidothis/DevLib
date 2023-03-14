@@ -254,7 +254,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
             auto max = index.data(MaxLimitRole);
-            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().min(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
         });
         for(int section(0); section < count; ++section){
             auto data = model->headerData(section, Qt::Horizontal, UnitRole);
@@ -331,11 +331,16 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
         Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
         delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
-            editor->setRange(index.data(MinLimitRole).toDouble(), index.data(MaxLimitRole).toDouble());
+            auto* unit = index.model()->headerData(index.column(), Qt::Vertical, UnitRole).value<const Measurement*>();
+            editor->setSingleStep(unit->CurrentStep);
+            editor->setDecimals(unit->CurrentPrecision);
+            auto min = index.data(MinLimitRole);
+            auto max = index.data(MaxLimitRole);
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
         });
         for(int section(0); section < count; ++section){
-            auto data = model->headerData(section, Qt::Vertical, MinLimitRole);
-            if(data.isValid() && data.toBool()){
+            auto data = model->headerData(section, Qt::Vertical, UnitRole);
+            if(data.isValid()){
                 tableView->setItemDelegateForRow(section, delegate);
             }
         }
