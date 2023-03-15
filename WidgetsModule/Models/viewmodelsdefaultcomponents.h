@@ -307,13 +307,19 @@ public:
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{ getter(value) = pMeasurement->FromUnitToBase(data.toDouble()); };
+            return [&]{
+                auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
+                auto& old = getter(value);
+                if(!fuzzyCompare(old, toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                    old = toSet;
+                }
+            };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const std::function<double(ConstValueType)>& min = [](ConstValueType){ return 0; }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const std::function<double(ConstValueType)>& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         qint32 column = m_currentColumn;
         auto modelGetter = m_modelGetter;
@@ -356,7 +362,13 @@ public:
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{ getter(value) = pMeasurement->FromUnitToBase(data.toDouble()); };
+            return [&]{
+                auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
+                auto& old = getter(value);
+                if(!fuzzyCompare(old, toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                    old = toSet;
+                }
+            };
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
         });
@@ -384,7 +396,10 @@ public:
                 bool isDouble; auto dval = data.toDouble(&isDouble);
                 if(isDouble){
                     auto& property = getter(value);
-                    property.Value = pMeasurement->FromUnitToBase(dval);
+                    auto toSet = pMeasurement->FromUnitToBase(dval);
+                    if(!fuzzyCompare(property.Value.Native(), toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                        property.Value = toSet;
+                    }
                     property.IsValid = true;
                 } else {
                     getter(value).IsValid = false;
