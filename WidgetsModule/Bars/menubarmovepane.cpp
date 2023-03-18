@@ -36,7 +36,7 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     Modal.Subscribe([this]{
         ui->BtnMinimize->setVisible(!Modal);
     });
-    m_windowGeometry = parent->saveGeometry();
+    m_windowGeometry = parent->window()->saveGeometry();
 }
 
 bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
@@ -99,6 +99,7 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
     if(!m_ignoreMoveEvents && event->pos() != m_pressPoint && event->buttons() == Qt::LeftButton) {
         if(window()->isMaximized()) {
             window()->restoreGeometry(m_windowGeometry);
+            OnGeometryRestored(window());
             auto size = window()->size();
             auto pos = cursor().pos();
             window()->move(pos.x() - size.width() / 2, pos.y() - 10);
@@ -140,6 +141,7 @@ void MenuBarMovePane::MaximizeRestore()
             window()->layout()->setMargin(10);
         }
         window()->restoreGeometry(m_windowGeometry);
+        OnGeometryRestored(window());
     } else {
         auto* graphicsEffect = window()->graphicsEffect();
         if(graphicsEffect != nullptr) {

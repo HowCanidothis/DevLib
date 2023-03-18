@@ -18,6 +18,7 @@ public:
     
     LocalPropertyBool Resizeable;
     LocalPropertyBool Modal;
+    CommonDispatcher<QWidget*> OnGeometryRestored;
 
     void SetWindow(QWidget* w);
 
