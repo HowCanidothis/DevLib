@@ -414,7 +414,9 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column,
+                                                             const FTranslationHandler& header,
+                                                             const std::function<std::optional<double>& (ValueType)>& getter)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -432,7 +434,7 @@ public:
                 return "-";
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
+        }, [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{
                 if(data.isValid()) {
                     getter(value) = pMeasurement->FromUnitToBase(data.toDouble());
