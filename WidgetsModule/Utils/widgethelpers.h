@@ -168,6 +168,9 @@ public:
 
     const WidgetWrapper& Click();
 
+    QByteArray StoreGeometry() const;
+    bool RestoreGeometry(const QByteArray& geometry) const;
+
     DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
 

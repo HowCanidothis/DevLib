@@ -98,7 +98,7 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
     Super::mouseMoveEvent(event);
     if(!m_ignoreMoveEvents && event->pos() != m_pressPoint && event->buttons() == Qt::LeftButton) {
         if(window()->isMaximized()) {
-            window()->restoreGeometry(m_windowGeometry);
+            WidgetWrapper(window()).RestoreGeometry(m_windowGeometry);
             OnGeometryRestored(window());
             auto size = window()->size();
             auto pos = cursor().pos();
@@ -140,7 +140,7 @@ void MenuBarMovePane::MaximizeRestore()
             graphicsEffect->setEnabled(true);
             window()->layout()->setMargin(10);
         }
-        window()->restoreGeometry(m_windowGeometry);
+        WidgetWrapper(window()).RestoreGeometry(m_windowGeometry);
         OnGeometryRestored(window());
     } else {
         auto* graphicsEffect = window()->graphicsEffect();
