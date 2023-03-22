@@ -327,11 +327,14 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
 
     if(params.UseMeasurementDelegates){
         auto* model = tableView->model();
-        auto count = model->columnCount();
+        auto count = model->rowCount();
         Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
         delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
-            auto* unit = index.model()->headerData(index.column(), Qt::Vertical, UnitRole).value<const Measurement*>();
+            auto* unit = index.model()->headerData(index.row(), Qt::Vertical, UnitRole).value<const Measurement*>();
+            if(unit == nullptr){
+                return;
+            }
             editor->setSingleStep(unit->CurrentStep);
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
