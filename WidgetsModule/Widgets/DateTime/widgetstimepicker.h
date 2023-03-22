@@ -68,12 +68,11 @@ private:
     inline int sectionsCount() const { return TypeClock.Native() == ClockType::Hour ? 12 : 60; }
 
 private:
+    QLabel* m_activeLabel;
     LocalPropertyBool m_isOut;
     LocalPropertyDouble m_angle;
     LocalProperty<QPoint> m_centerPos;
     LocalProperty<QPoint> m_cursorPos;
-    LocalPropertyPtr<QLabel> m_activeLabel;
-    DispatchersCommutator m_timeChanged;
     DispatcherConnectionsSafe m_connections;
 
     QMap<double, ClockLabel> m_labels;

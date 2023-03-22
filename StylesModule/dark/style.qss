@@ -815,10 +815,14 @@ WidgetsTimePicker {
   qproperty-arrowWidth: 2;
 }
 
-WidgetsTimePicker QLabel {
+WidgetsTimePicker QLabel[active="true"] {
   color: #F0F0F0;
   background-color: #3ea6ff;
   font: 14px;
+}
+
+WidgetsTimePicker QLabel[active="false"] {
+  background-color: transparent;
 }
 
 /*WPSCJobInformationView QPushButton[realtime] {

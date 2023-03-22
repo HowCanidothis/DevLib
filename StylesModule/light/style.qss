@@ -776,14 +776,14 @@ WidgetsTimePicker {
   qproperty-arrowWidth: 4;
 }
 
-WidgetsTimePicker QLabel {
+WidgetsTimePicker QLabel[active="true"] {
   color: white;
   background-color: #add6ff;
   font: 14px;
 }
 
-WidgetsTimePicker QLabel:disabled {
-  color: #3c3c3c;
+WidgetsTimePicker QLabel[active="false"] {
+  background-color: transparent;
 }
 
 WidgetsCalendarWidget

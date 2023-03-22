@@ -1060,10 +1060,6 @@ WidgetsTimePicker QLabel {
   border-radius: 13px;
 }
 
-WidgetsTimePicker QLabel:disabled {
-  background-color: transparent;
-}
-
 WidgetsDateTimeWidget {
    padding: 6px;
 }

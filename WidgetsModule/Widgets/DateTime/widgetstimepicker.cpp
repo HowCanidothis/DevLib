@@ -3,52 +3,49 @@
 
 #include <QLabel>
 #include <QMouseEvent>
+#include "WidgetsModule/Utils/styleutils.h"
 
 WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
     : Super(parent)
     , CurrentTime(0)
     , TypeClock(ClockType::First)
+    , m_activeLabel(nullptr)
     , m_isOut(true)
     , m_angle(-1)
 {
     for(int i=0; i<12; ++i){
-        auto iter = m_labels.insert(round<8>(2*M_PI*i/12), {this});
+        auto iter = m_labels.insert(round<8>(2.*M_PI*(double)i/12.), {this});
         iter.value().In->setText(QString::number(i+12));
     }
 
-    m_activeLabel.Subscribe([this]{
-        if(m_activeLabel.Native()){
-            m_activeLabel.Native()->setEnabled(true);
-        }
-    });
-
-    m_timeChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_angle.OnChanged, m_isOut.OnChanged);
-    m_timeChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        if(m_activeLabel.Native()) {
-            m_activeLabel->setEnabled(false);
+    m_angle.OnChanged.ConnectAndCallCombined(CONNECTION_DEBUG_LOCATION, [this]{
+        if(m_activeLabel) {
+            m_activeLabel->setProperty("active", false);
+            StyleUtils::UpdateStyle(m_activeLabel);
         }
         auto iter = m_labels.find(m_angle);
         if(iter != m_labels.end()){
             m_activeLabel = m_isOut ? iter.value().Out : iter.value().In;
+            m_activeLabel->setProperty("active", true);
+            StyleUtils::UpdateStyle(m_activeLabel);
         } else {
             m_activeLabel = nullptr;
         }
-    });
+    }, m_isOut.OnChanged);
 
-    auto updateClockFace = [this]{
-        int i=0;
+    TypeClock.OnChanged.ConnectAndCallCombined(CONNECTION_DEBUG_LOCATION, [this]{
         switch(TypeClock.Native()){
         case ClockType::Hour: {
+            int i=0;
             for(auto& lb : m_labels){
-                lb.Out->setText(QString::number(i));
+                lb.Out->setText(QString::number(i++));
                 lb.In->setVisible(HourType.Native() == HourFormat::Hour24);
-
-                ++i;
             }
             break;
         }
         case ClockType::Minutes:
         case ClockType::Seconds: {
+            int i=0;
             for(auto& lb : m_labels){
                 lb.Out->setText(QString::number(i));
                 lb.In->setVisible(false);
@@ -73,17 +70,14 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
                 return round(angle * sectionsCount() / ( M_PI*2));
             }).MakeSafe(m_connections);
         }
-    };
-
-    HourType.Subscribe(updateClockFace);
-    TypeClock.SetAndSubscribe(updateClockFace);
+    }, HourType.OnChanged);
 
     m_cursorPos.Subscribe([this]{
         auto delta = m_centerPos.Native() - m_cursorPos.Native();
         auto degree = -qRadiansToDegrees(atan2(delta.x(), delta.y()));
         auto angle = qDegreesToRadians( 360.0/sectionsCount() * qRound(degree/(360.0/sectionsCount())));
 
-        if(angle < 0) angle += 2*M_PI;
+        if(angle < 0) angle += 2.*M_PI;
         m_angle = round<8>(angle);
 
         if(TypeClock.Native() == ClockType::Hour && HourType.Native() == HourFormat::Hour24){
@@ -178,6 +172,6 @@ WidgetsTimePicker::ClockLabel::ClockLabel(QWidget* parent)
     In->setAlignment(Qt::AlignCenter);
     Out->setAlignment(Qt::AlignCenter);
 
-    In->setEnabled(false);
-    Out->setEnabled(false);
+    In->setProperty("active", false);
+    Out->setProperty("active", false);
 }
