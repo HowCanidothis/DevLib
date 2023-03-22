@@ -115,6 +115,10 @@ QAbstractScrollArea:disabled {
   color: #787878;
 }
 
+QScrollArea QWidget QWidget:disabled {
+  background-color: #ffffff;
+}
+
 QScrollBar:horizontal {
   background: #F3F3F3;
 }
