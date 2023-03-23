@@ -74,6 +74,12 @@ WidgetsDateTimeWidget::~WidgetsDateTimeWidget()
     delete ui;
 }
 
+void WidgetsDateTimeWidget::showEvent(QShowEvent* event)
+{
+    OnAboutToShow();
+    Super::showEvent(event);
+}
+
 DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* modelProperty)
 {
     DispatcherConnections ret;
@@ -90,6 +96,17 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* mod
     ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(QDateTime(modelProperty->GetMin(), QTime()), QDateTime(modelProperty->GetMax(), QTime()));
     });
+
+    auto connections = DispatcherConnectionsSafeCreate();
+    ret += OnAboutToShow.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty, connections]{
+        connections->clear();
+        auto initialDate = modelProperty->Native();
+        if(!initialDate.isValid()) initialDate = QDate::currentDate();
+        ui->calendarWidget->setCurrentPage(initialDate.year(), initialDate.month());
+        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [initialDate](const QDate& t){
+            return initialDate != t;
+        }, *modelProperty).MakeSafe(*connections);
+    });
     return ret;
 }
 
@@ -100,14 +117,24 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime*
     ret += Store.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, storedDate]{
         *storedDate = *modelProperty;
     });
-    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
-                              [](const QDateTime& time){ return time; },
-                              [](const QDateTime& time){ return time; });
+    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION, CurrentDateTime);
     ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, storedDate]{
         CurrentDateTime = *storedDate;
     });
     ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
+    });
+
+    auto connections = DispatcherConnectionsSafeCreate();
+    ret += OnAboutToShow.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty, connections]{
+        connections->clear();
+        auto initialDateTime = modelProperty->Native();
+        auto date = initialDateTime.date();
+        if(!date.isValid()) date = QDate::currentDate();
+        ui->calendarWidget->setCurrentPage(date.year(), date.month());
+        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [initialDateTime](const QDateTime& dt){
+            return initialDateTime != dt;
+        }, *modelProperty).MakeSafe(*connections);
     });
     return ret;
 }

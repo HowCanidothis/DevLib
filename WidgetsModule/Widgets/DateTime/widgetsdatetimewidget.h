@@ -33,6 +33,9 @@ public:
     Dispatcher Store;
     Dispatcher Reset;
 	
+    Dispatcher OnAboutToShow;
+protected:
+    void showEvent(QShowEvent* event) override;
 private:
     Ui::WidgetsDateTimeWidget *ui;
     DispatcherConnectionsSafe m_connections;
