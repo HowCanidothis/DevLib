@@ -152,17 +152,24 @@ public:
         return *this;
     }
 
-    TViewModelsColumnComponentsBuilder& AddStringColumn(qint32 column, const FTranslationHandler& header, const std::function<QString& (ValueType)>& getter, bool readOnly = false) {
-        return AddColumn<QString>(column, header, getter, readOnly);
+    TViewModelsColumnComponentsBuilder& AddStringColumn(qint32 column, const FTranslationHandler& header, const std::function<QString& (ValueType)>& getter) {
+        return AddColumn<QString>(column, header, getter);
     }
 
     template<typename T>
-    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<T& (ValueType)>& getter, bool readOnly = false) {
+    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<T& (ValueType)>& getter) {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType& data = const_cast<ValueType>(constData);
             return getter(data);
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{ getter(data) = value.value<T>();};
+        });
+    }
+
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& AddReadOnlyColumn(qint32 column, const FTranslationHandler& header, const std::function<T(ConstValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            return QVariant::fromValue(getter(constData));
         });
     }
 
