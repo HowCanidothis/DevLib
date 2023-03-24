@@ -117,13 +117,13 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
 
         switch(ui->timePicker->TypeClock.Native()){
         case ClockType::Hour:
-            ui->timePicker->HourType.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+            ui->timePicker->HourType.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](int hourType){
                 m_hourTypeConnections.clear();
-                switch (ui->timePicker->HourType.Native()) {
+                switch (static_cast<HourFormat>(hourType)) {
                 case HourFormat::Hour12: {
                     LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION,  {&m_timeConverter->Hours.OnChanged}, [this]{
                         const auto& time = m_timeConverter->Hours.Native();
-                        if(time <= 12){
+                        if(time < 12){
                             Type = DayType::AM;
                             ui->timePicker->CurrentTime = time;
                         } else {
