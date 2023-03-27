@@ -40,6 +40,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
 DelegatesCombobox::DelegatesCombobox(QObject* parent)
     : Super(parent)
     , m_aligment(Qt::AlignCenter)
+    , m_drawCombobox(false)
 {
 
 }
@@ -48,6 +49,7 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     : Super(parent)
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignCenter)
+    , m_drawCombobox(false)
 {}
 
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
@@ -90,12 +92,31 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
+void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    if(!m_drawCombobox) {
+        Super::paint(painter, option, index);
+        return ;
+    }
+    QStyleOptionComboBox opt;
+    static QComboBox cb;
+
+    opt.initFrom(&cb);
+    opt.editable = false;
+    opt.currentText = index.data().toString();
+    opt.rect = option.rect;
+    opt.state = option.state;
+
+    auto style = cb.style();
+    style->drawComplexControl(QStyle::CC_ComboBox, &opt, painter, &cb);
+    style->drawControl(QStyle::CE_ComboBoxLabel, &opt, painter, &cb);
+}
 
 DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
     : QStyledItemDelegate(parent)
-      , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
+    , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
-    
+
 }
 
 QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
@@ -363,6 +384,7 @@ QWidget* DelegatesComboboxSelector::createEditor(QWidget* parent, const QStyleOp
             emit nonConstThis->closeEditor(comboBox);
         });
     });
+    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [comboBox]{ comboBox->showPopup(); });
     return comboBox;
 }
 

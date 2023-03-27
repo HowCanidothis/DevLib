@@ -14,17 +14,20 @@ public:
     DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent);
 
     DelegatesCombobox* SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; return this; }
+    DelegatesCombobox* SetDrawCombobox(bool draw){ m_drawCombobox = draw; return this; }
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<class QComboBox*, const QModelIndex&> OnAboutToSetModelData;
 protected:
     std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;
+    bool m_drawCombobox;
 };
 
 class DelegatesComboboxCustomViewModel : public DelegatesCombobox
