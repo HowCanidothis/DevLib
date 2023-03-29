@@ -159,7 +159,7 @@ QDateTime LocalPropertyDateTime::applyRange(const QDateTime& cur, const QDateTim
     if(!cur.isValid()) {
         return cur;
     }
-    return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()));
+    return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()), cur.timeSpec());
 }
 
 void LocalPropertyDateTime::validate(QDateTime& value) const
