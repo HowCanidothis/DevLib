@@ -56,16 +56,12 @@ QStatusBar QLabel {
 }
 
 QCheckBox {
-  background-color: #ffffff;
+  background-color: transparent;
   color: #414141;
 }
 
-QCheckBox:focus {
-  border: none;
-}
-
 QCheckBox QWidget:disabled {
-  background-color: #ffffff;
+  background-color: transparent;
   color: #787878;
 }
 
@@ -533,7 +529,7 @@ QTreeView,
 QListView,
 QTableView,
 QColumnView {
-  background: white;
+  background: transparent;
   color: #414141;
   gridline-color: #F3F3F3;
 }
@@ -548,6 +544,7 @@ QColumnView:disabled {
 
 QTableView::item {
     color: #414141;
+    background: white;
 }
 
 QTreeView::item:selected,

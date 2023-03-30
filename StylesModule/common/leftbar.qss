@@ -359,7 +359,7 @@ QLabel[PropertiesToolViewLabel="true"] {
 }
 
 WidgetsProjectsTreeView {
-    qproperty-iconOffset: 20;
+    qproperty-iconOffset: 25;
 }
 
 WidgetsProjectsTreeView QPushButton#BtnActivateObject {

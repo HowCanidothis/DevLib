@@ -300,7 +300,7 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
             return true;
         }
     }
-    return Super::editorEvent(event, model, option, index);
+    return false;
 }
 
 DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
