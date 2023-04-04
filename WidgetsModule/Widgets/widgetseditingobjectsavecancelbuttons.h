@@ -2,6 +2,7 @@
 #define WIDGETSEDITINGOBJECTSAVECANCELBUTTONS_H
 
 #include <QFrame>
+#include <PropertiesModule/internal.hpp>
 
 namespace Ui {
 class WidgetsEditingObjectSaveCancelButtons;
@@ -15,7 +16,7 @@ public:
     explicit WidgetsEditingObjectSaveCancelButtons(QWidget *parent = nullptr);
     ~WidgetsEditingObjectSaveCancelButtons();
 
-    void SetEditingObject(class EditingObject* object);
+    LocalPropertyPtr<class EditingObject> Object;
 
     Dispatcher OnAboutToBeHidden;
 
@@ -29,8 +30,6 @@ private:
 
 private:
     Ui::WidgetsEditingObjectSaveCancelButtons *ui;
-    EditingObject* m_editingObject;
-    DispatcherConnectionsSafe m_connections;
 };
 
 #endif // WIDGETSEDITINGOBJECTSAVECANCELBUTTONS_H

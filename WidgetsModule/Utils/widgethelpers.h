@@ -220,7 +220,7 @@ public:
     Dispatcher& OnClicked() const;
     const WidgetWrapper& SetOnClicked(const FAction& action) const;
 
-    bool HasParent(QWidget* parent) const;
+    bool HasParent(const QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
     void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const;
 

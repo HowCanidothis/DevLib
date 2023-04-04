@@ -1379,7 +1379,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
     }, GetWidget()->isEnabled());
 }
 
-bool WidgetWrapper::HasParent(QWidget* parent) const
+bool WidgetWrapper::HasParent(const QWidget* parent) const
 {
     bool result = false;
     ForeachParentWidget([&result, parent](const WidgetWrapper& gypoParent){
