@@ -27,6 +27,7 @@ public:
     LocalPropertyInt Mode;
     LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;
+    LocalPropertyDoubleOptional TimeShift;
 
 	Dispatcher OnNowActivate;
 	Dispatcher OnApplyActivate;

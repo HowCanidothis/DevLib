@@ -18,37 +18,64 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
 	
     connect(ui->calendarWidget, &QCalendarWidget::clicked, [this](const QDate& date){
         if(CurrentDateTime.IsRealTime() || !ui->widget->CurrentTime.Native().isValid()) {
+            if(TimeShift.IsValid) {
+                CurrentDateTime = QDateTime(date, QTime(0,0), Qt::OffsetFromUTC, TimeShift.Value);
+                return;
+            }
             CurrentDateTime = QDateTime(date, QTime(0,0));
+            return;
+        }
+        if(TimeShift.IsValid) {
+            CurrentDateTime = QDateTime(date, CurrentDateTime.Native().time(), Qt::OffsetFromUTC, TimeShift.Value);
             return;
         }
         CurrentDateTime = QDateTime(date, CurrentDateTime.Native().time());
 	});
 
     auto updateTimeRangeHandler = [this]{
-        auto currentDateTime = QDateTime::currentDateTime();
-        ui->calendarWidget->setSelectedDate(CurrentDateTime.Native().date());
+        QDateTime dateTime, dateTimeMin, dateTimeMax;
+        if(TimeShift.IsValid) {
+            dateTime = CurrentDateTime.Native().toOffsetFromUtc(TimeShift.Value);
+            dateTimeMin = CurrentDateTime.GetMin().toOffsetFromUtc(TimeShift.Value);
+            dateTimeMax = CurrentDateTime.GetMax().toOffsetFromUtc(TimeShift.Value);
+        } else {
+            dateTime = CurrentDateTime.Native();
+            dateTimeMin = CurrentDateTime.GetMin();
+            dateTimeMax = CurrentDateTime.GetMax();
+        }
+        ui->calendarWidget->setSelectedDate(dateTime.date());
         QTime start(0,0), end(23, 59);
 
-        if(!CurrentDateTime.IsRealTime() && CurrentDateTime.GetMin().date() == CurrentDateTime.Native().date()){
-            start = CurrentDateTime.GetMin().time();
+        if(!CurrentDateTime.IsRealTime() && dateTimeMin.date() == dateTime.date()){
+            start = dateTimeMin.time();
         }
-        if(!CurrentDateTime.IsRealTime() && CurrentDateTime.GetMax().date() == CurrentDateTime.Native().date()){
-            end = CurrentDateTime.GetMax().time();
+        if(!CurrentDateTime.IsRealTime() && dateTimeMax.date() == dateTime.date()){
+            end = dateTimeMax.time();
         }
         Q_ASSERT(!end.isValid() || start <= end);
-        ui->calendarWidget->setDateRange(CurrentDateTime.GetMinValid().date(), CurrentDateTime.GetMaxValid().date());
+        ui->calendarWidget->setDateRange(CurrentDateTime.ValidatedMin(dateTimeMin).date(), CurrentDateTime.ValidatedMax(dateTimeMax).date());
         ui->widget->CurrentTime.SetMinMax(start, end);
     };
 
+    TimeShift.Value.Subscribe(updateTimeRangeHandler);
+    TimeShift.IsValid.Subscribe(updateTimeRangeHandler);
     CurrentDateTime.SetAndSubscribe(updateTimeRangeHandler);
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [updateTimeRangeHandler]{
         updateTimeRangeHandler();
 	});
 	
-    CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [](const QDateTime& dt){ return dt.time(); },
+    CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [this](const QDateTime& dt){
+        if(TimeShift.IsValid) {
+            return dt.toOffsetFromUtc(TimeShift.Value).time();
+        }
+        return dt.time();
+    },
     [this](const QTime& time){
+        if(TimeShift.IsValid) {
+            return QDateTime(CurrentDateTime.IsRealTime() ? ui->calendarWidget->selectedDate() : CurrentDateTime.Native().date(), time, Qt::OffsetFromUTC, TimeShift.Value);
+        }
         return QDateTime(CurrentDateTime.IsRealTime() ? ui->calendarWidget->selectedDate() : CurrentDateTime.Native().date(), time);
-    });
+    }, TimeShift);
 	
 	connect(ui->btnNow, &QPushButton::clicked, [this](bool){ 
         CurrentDateTime = QDateTime();

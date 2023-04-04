@@ -826,15 +826,15 @@ public:
     const QDate& GetMin() const { return m_min; }
     const QDate& GetMax() const { return m_max; }
 
-    QDate GetMinValid() const { return validatedMin(m_min); }
-    QDate GetMaxValid() const { return validatedMax(m_max); }
+    QDate GetMinValid() const { return ValidatedMin(m_min); }
+    QDate GetMaxValid() const { return ValidatedMax(m_max); }
+
+    static QDate ValidatedMin(const QDate& min) { return !min.isValid() ? QDate::currentDate().addYears(-1000) : min; }
+    static QDate ValidatedMax(const QDate& max) { return !max.isValid() ? QDate::currentDate().addYears(1000) : max; }
 
     Dispatcher OnMinMaxChanged;
 
 private:
-    static QDate validatedMin(const QDate& min) { return !min.isValid() ? QDate::currentDate().addYears(-1000) : min; }
-    static QDate validatedMax(const QDate& max) { return !max.isValid() ? QDate::currentDate().addYears(1000) : max; }
-
     static QDate applyRange(const QDate& cur, const QDate& min, const QDate& max);
 
     QDate applyMinMax(const QDate& value) const;
@@ -860,15 +860,15 @@ public:
     const QTime& GetMin() const { return m_min; }
     const QTime& GetMax() const { return m_max; }
 
-    QTime GetMinValid() const { return validatedMin(m_min); }
-    QTime GetMaxValid() const { return validatedMax(m_max); }
+    QTime GetMinValid() const { return ValidatedMin(m_min); }
+    QTime GetMaxValid() const { return ValidatedMax(m_max); }
+
+    static QTime ValidatedMin(const QTime& min) { return !min.isValid() ? QTime(0,0) : min; }
+    static QTime ValidatedMax(const QTime& max) { return !max.isValid() ? QTime(23,59,59,999) : max; }
 
     Dispatcher OnMinMaxChanged;
 
 private:
-    static QTime validatedMin(const QTime& min) { return !min.isValid() ? QTime(0,0) : min; }
-    static QTime validatedMax(const QTime& max) { return !max.isValid() ? QTime(23,59,59,999) : max; }
-
     static QTime applyRange(const QTime& cur, const QTime& min, const QTime& max);
 
     QTime applyMinMax(const QTime& value) const;
@@ -897,15 +897,15 @@ public:
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
 
-    QDateTime GetMinValid() const { return validatedMin(m_min); }
-    QDateTime GetMaxValid() const { return validatedMax(m_max); }
+    QDateTime GetMinValid() const { return ValidatedMin(m_min); }
+    QDateTime GetMaxValid() const { return ValidatedMax(m_max); }
+
+    static QDateTime ValidatedMin(const QDateTime& min) { return !min.isValid() ? QDateTime::currentDateTime().addYears(-1000) : min; }
+    static QDateTime ValidatedMax(const QDateTime& max) { return !max.isValid() ? QDateTime::currentDateTime().addYears(1000) : max; }
 
     Dispatcher OnMinMaxChanged;
 
 private:
-    static QDateTime validatedMin(const QDateTime& min) { return !min.isValid() ? QDateTime::currentDateTime().addYears(-1000) : min; }
-    static QDateTime validatedMax(const QDateTime& max) { return !max.isValid() ? QDateTime::currentDateTime().addYears(1000) : max; }
-
     static QDateTime applyRange(const QDateTime& cur, const QDateTime& min, const QDateTime& max);
 
     void validate(QDateTime& value) const override;

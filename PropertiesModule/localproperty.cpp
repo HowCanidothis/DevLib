@@ -89,7 +89,7 @@ QDate LocalPropertyDate::applyRange(const QDate& cur, const QDate& min, const QD
     if(!cur.isValid()) {
         return cur;
     }
-    return QDate::fromJulianDay(::clamp(cur.toJulianDay(), validatedMin(min).toJulianDay(), validatedMax(max).toJulianDay()));
+    return QDate::fromJulianDay(::clamp(cur.toJulianDay(), ValidatedMin(min).toJulianDay(), ValidatedMax(max).toJulianDay()));
 }
 
 QDate LocalPropertyDate::applyMinMax(const QDate& value) const
@@ -124,7 +124,7 @@ QTime LocalPropertyTime::applyRange(const QTime& cur, const QTime& min, const QT
     if(!cur.isValid()) {
         return cur;
     }
-    return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), validatedMin(min).msecsSinceStartOfDay(), validatedMax(max).msecsSinceStartOfDay()));
+    return QTime::fromMSecsSinceStartOfDay(::clamp(cur.msecsSinceStartOfDay(), ValidatedMin(min).msecsSinceStartOfDay(), ValidatedMax(max).msecsSinceStartOfDay()));
 }
 
 QTime LocalPropertyTime::applyMinMax(const QTime& value) const
@@ -159,7 +159,7 @@ QDateTime LocalPropertyDateTime::applyRange(const QDateTime& cur, const QDateTim
     if(!cur.isValid()) {
         return cur;
     }
-    return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), validatedMin(min).toMSecsSinceEpoch(), validatedMax(max).toMSecsSinceEpoch()), cur.timeSpec());
+    return QDateTime::fromMSecsSinceEpoch(::clamp(cur.toMSecsSinceEpoch(), ValidatedMin(min).toMSecsSinceEpoch(), ValidatedMax(max).toMSecsSinceEpoch()), cur.timeSpec(), cur.offsetFromUtc());
 }
 
 void LocalPropertyDateTime::validate(QDateTime& value) const

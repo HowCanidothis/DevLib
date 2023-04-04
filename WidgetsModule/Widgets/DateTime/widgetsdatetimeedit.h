@@ -13,6 +13,7 @@ public:
 //    using Super::Super;
     WidgetsDateTimeEdit(QWidget* parent = nullptr);
 
+    LocalPropertyDoubleOptional TimeShift;
     LocalPropertyDateTime CurrentDateTime;
     LocalPropertyString DisplayFormat;
     std::function<QDateTime ()> DefaultDateTimeDelegate = []{ return QDateTime(); };

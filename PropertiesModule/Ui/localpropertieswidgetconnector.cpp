@@ -421,24 +421,39 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* pr
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime)
+DispatcherConnections connectDateTime(LocalPropertyDateTime* property, WidgetsDateTimeEdit* widgetDateTime, LocalPropertyDoubleOptional* timeShift)
+{
+    DispatcherConnections result;
+    result += property->ConnectBoth(CONNECTION_DEBUG_LOCATION, widgetDateTime->CurrentDateTime, [](const QDateTime& dt){
+        return dt;
+    },
+    [](const QDateTime& dt){
+        return dt;
+    });
+    if(timeShift != nullptr) {
+        result += widgetDateTime->TimeShift.ConnectFrom(CONNECTION_DEBUG_LOCATION, *timeShift);
+    }
+    return result;
+}
+
+LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
     : Super([](){},
             [](){}
     )
 {
-    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    connectDateTime(property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime)
+LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
     : Super([](){},
             [](){}
     )
 {
-    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDateTime, [](const QDateTime& dt){ return dt; }, [](const QDateTime& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    connectDateTime(property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());

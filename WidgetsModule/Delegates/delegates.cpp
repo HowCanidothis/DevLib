@@ -7,12 +7,16 @@
 #include <QApplication>
 #include <QDateTimeEdit>
 #include <QDoubleSpinBox>
+#include <QWidgetAction>
+#include <QMenu>
+#include <QDesktopWidget>
 #include <SharedModule/internal.hpp>
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimepopuppicker.h"
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimewidget.h"
+#include "WidgetsModule/Widgets/DateTime/widgetstimewidget.h"
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
@@ -336,6 +340,47 @@ void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* 
     auto* widget = dynamic_cast<WidgetsDatetimePopupPicker*>(editor);
     Q_ASSERT(widget != nullptr);
     model->setData(index, widget->GetDateTimeWidget()->CurrentDateTime.Native(), Qt::EditRole);
+}
+
+QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto* ac = new QWidgetAction(parent);
+    auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Time"));
+
+    m_editor = new WidgetsTimeWidget(parent);
+    m_editor->CurrentTime.SetMinMax(QTime::fromMSecsSinceStartOfDay(0), QTime::fromMSecsSinceStartOfDay(24*3600*1000-1));
+    m_editor->CurrentTime = index.model()->data(index, Qt::EditRole).toTime();
+    OnEditorAboutToBeShown(m_editor, index);
+
+    ac->setDefaultWidget(m_editor);
+    menu->addAction(ac);
+    return menu;
+}
+
+void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
+{
+    auto* parentWidget = option.widget;
+    QDesktopWidget *desktop = QApplication::desktop();
+
+    auto* table = qobject_cast<QTableView*>(const_cast<QWidget*>(option.widget));
+    if(table != nullptr) {
+        parentWidget = table->viewport();
+    }
+    auto screenSize = desktop->screenGeometry(parentWidget);
+    auto mappedPos = parentWidget->mapToGlobal(option.rect.bottomLeft());
+    auto editorHeight = editor->sizeHint().height();
+    if((editorHeight + mappedPos.y()) > screenSize.height()) {
+        mappedPos -= QPoint(0, editorHeight + option.rect.height());
+    }
+    editor->move(mappedPos);
+}
+
+void DelegatesTimePicker::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    auto dt = model->data(index, Qt::EditRole);
+    dt = m_editor->CurrentTime.Native();
+    OnAboutToSetData(m_editor->CurrentTime, dt, index);
+    model->setData(index, dt);
 }
 
 void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QPair<int,int>& columns, LocalPropertyDateTime* start, LocalPropertyDateTime* stop)

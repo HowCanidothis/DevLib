@@ -294,14 +294,14 @@ class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnect
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
     LocalPropertiesDateConnector(LocalPropertyDate* property, class WidgetsDateEdit* dateTime);
-    LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime);
+    LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime, LocalPropertyDoubleOptional* timeShift = nullptr);
 };
 
 class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, class WidgetsDateTimeEdit* dateTime);
+    LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, class WidgetsDateTimeEdit* dateTime, LocalPropertyDoubleOptional* timeShift = nullptr);
 };
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H

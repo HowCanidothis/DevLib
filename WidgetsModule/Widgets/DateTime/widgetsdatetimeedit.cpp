@@ -38,7 +38,6 @@ void WidgetsDateTimeEdit::Resize()
     m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
         QFontMetrics fm(font());
         auto t = text();
-        qDebug() << t << this;
         int pixelsWide = fm.width(t);
         pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
         setMinimumWidth(pixelsWide);
@@ -59,15 +58,20 @@ void WidgetsDateTimeEdit::init()
         });
     }).MakeSafe(m_connections);
 
-    CurrentDateTime.SetAndSubscribe([this]{
+    auto updateView = [this]{
         if(m_recursionBlock) {
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        setDateTime(CurrentDateTime);
+        QDateTime dateTime = TimeShift.IsValid ? CurrentDateTime.Native().toOffsetFromUtc(TimeShift.Value) : CurrentDateTime.Native();
+        setDateTime(dateTime);
         setDisplayFormat(displayFormat());
         Resize();
-    });
+    };
+
+    CurrentDateTime.SetAndSubscribe(updateView);
+    TimeShift.IsValid.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updateView);
+    TimeShift.Value.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updateView);
 
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
@@ -84,7 +88,11 @@ void WidgetsDateTimeEdit::init()
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        CurrentDateTime = dateTime();
+        if(TimeShift.IsValid) {
+            CurrentDateTime = QDateTime(dateTime().date(), dateTime().time(), Qt::OffsetFromUTC, TimeShift.Value);
+            return;
+        }
+        CurrentDateTime = QDateTime(dateTime().date(), dateTime().time());
     });
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){

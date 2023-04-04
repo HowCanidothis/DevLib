@@ -21,6 +21,7 @@ public:
     class WidgetsDateTimeEdit* GetLineEdit() const;
 
     LocalPropertyString DisplayFormat;
+    LocalPropertyDoubleOptional TimeShift;
         
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;

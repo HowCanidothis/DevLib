@@ -160,6 +160,23 @@ public:
     void setModelData(QWidget* , QAbstractItemModel* model, const QModelIndex& index) const override;
 };
 
+class DelegatesTimePicker : public DelegatesDateTime
+{
+    using Super = DelegatesDateTime;
+public:
+    using Super::Super;
+
+    CommonDispatcher<const QTime&, QVariant&, const QModelIndex&> OnAboutToSetData;
+
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override {}
+    void setModelData(QWidget* , QAbstractItemModel* model, const QModelIndex& index) const override;
+
+private:
+    mutable class WidgetsTimeWidget* m_editor;
+};
+
 struct DateTimeRangeAttachment {
     static void Attach(DelegatesDateTimePicker* delegate, const QPair<int, int>& columns, LocalPropertyDateTime* start = nullptr, LocalPropertyDateTime* stop = nullptr);
 };

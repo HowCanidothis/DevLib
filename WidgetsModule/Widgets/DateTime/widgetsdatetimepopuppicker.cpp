@@ -20,6 +20,7 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     auto* menu = MenuWrapper(ui->CalendarButton).AddPreventedFromClosingMenu(tr("DateTime"));
     auto* ac = new QWidgetAction(parent);
     m_editor = new WidgetsDateTimeWidget(parent);
+    m_editor->TimeShift.ConnectFrom(CONNECTION_DEBUG_LOCATION, TimeShift);
     
     ac->setDefaultWidget(m_editor);
     
@@ -38,10 +39,11 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     m_editor->OnNowActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     m_editor->OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     
-    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit, &TimeShift);
     ui->dateTimeEdit->DisplayFormat.ConnectFrom(CONNECTION_DEBUG_LOCATION, DisplayFormat);
 
     WidgetPushButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::DateTimePicker).SetIcon("Calendar");
+
 }
 
 WidgetsDatetimePopupPicker::~WidgetsDatetimePopupPicker()

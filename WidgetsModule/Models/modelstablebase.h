@@ -79,7 +79,8 @@ public:
 
     ViewModelsTableColumnComponents();
 
-    void AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
+    bool SetComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, qint32 index, const ColumnComponentData& columnData);
+    qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
 

@@ -58,7 +58,7 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
         static auto timeConverter ([](const int& time, const int& count){ return round<8>(2 * M_PI * time / count); });
         if(HourType.Native() == HourFormat::Hour24){
             LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION, {&CurrentTime.OnChanged}, [this]{
-                m_isOut = CurrentTime <= sectionsCount();
+                m_isOut = CurrentTime < sectionsCount();
                 m_angle = timeConverter(CurrentTime.Native() - (m_isOut ? 0 : 12), sectionsCount());
             }, {&m_angle.OnChanged, &m_isOut.OnChanged}, [this]{
                 CurrentTime = round(m_angle * sectionsCount() / ( M_PI*2)) + (m_isOut ? 0 : 12);
