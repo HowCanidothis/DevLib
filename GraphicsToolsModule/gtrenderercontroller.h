@@ -207,6 +207,7 @@ public:
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;
 
+    GtRenderer* GetRenderer() const { return m_renderer; }
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
     GtCamera* GetCamera() { return m_camera.get(); }
     QImage GetCurrentImage() const;
