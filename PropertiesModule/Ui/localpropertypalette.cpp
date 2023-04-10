@@ -53,7 +53,7 @@ LocalPropertyPaletteObject::LocalPropertyPaletteObject()
 LocalPropertyPaletteObject::LocalPropertyPaletteObject(QHash<Name, std::pair<LocalPropertyPaletteDataData::SupportedType, QVariant>>* dataTypes)
     : m_data(::make_shared<LocalPropertyPaletteObjectData>())
 {
-    for(auto it(dataTypes->begin()), e(dataTypes->end()); it != e; ++it) {
+    for(auto it(dataTypes->cbegin()), e(dataTypes->cend()); it != e; ++it) {
         m_data->insert(it.key(), LocalPropertyPaletteData(it.value().second, it.value().first));
     }
 }
