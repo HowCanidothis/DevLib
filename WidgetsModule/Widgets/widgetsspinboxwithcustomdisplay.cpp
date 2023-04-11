@@ -105,7 +105,7 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
 {}
 
-thread_local static QRegExp regExpFractial(R"((-)?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
+thread_local static QRegExp regExpFractial(R"(([-+])?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
 {
@@ -122,12 +122,12 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
                 auto fractialValue = fractial.toDouble();
                 value = main.toDouble() + (fuzzyIsNull(fractialValue) ? 0.0 : (meaning.toDouble() / fractialValue));
             }
-            if(!regExpFractial.cap(1).isEmpty()) {
+            if(regExpFractial.cap(1) == "-") {
                 value = -value;
             }
         } else if(regExpFloating.indexIn(text) != -1){
             value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
-            if(!regExpFractial.cap(1).isEmpty()) {
+            if(regExpFractial.cap(1) == "-") {
                 value = -value;
             }
         } else {
@@ -215,13 +215,13 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         return QValidator::Acceptable;
     }
 
-    if((input.size() == 1 && input.startsWith("-")) || input.startsWith(".") || input.startsWith(",")) {
+    if((input.size() == 1 && (input.startsWith("-") || input.startsWith("+"))) || input.startsWith(".") || input.startsWith(",")) {
         return QValidator::Intermediate;
     }
 
     QString inputCopy = input;
     inputCopy.replace(',', '.');
-    if(input.startsWith("-")) {
+    if(input.startsWith("-") || input.startsWith("+")) {
         inputCopy = input.mid(1);
     }
 

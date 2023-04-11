@@ -155,6 +155,13 @@ void WidgetsTimePicker::mousePressEvent(QMouseEvent* event)
     Super::mousePressEvent(event);
 }
 
+void WidgetsTimePicker::mouseReleaseEvent(QMouseEvent* event)
+{
+    if(QVector2D(event->pos() - m_centerPos).length() < m_centerPos.Native().x()) {
+        OnMouseReleased();
+    }
+}
+
 QSize WidgetsTimePicker::minimumSizeHint() const
 {
     return {180, 180};

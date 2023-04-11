@@ -85,12 +85,10 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
     auto updatePrecision = [measurementProperty, spinBox]{
         QSignalBlocker blocker(spinBox);
         spinBox->setDecimals(measurementProperty->Precision);
-        spinBox->setValue(std::numeric_limits<double>::lowest());
-        spinBox->setValue(measurementProperty->Value);
+        spinBox->setPrefix(spinBox->prefix());
     };
 
-    data->Property.Precision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updatePrecision).MakeSafe(m_connections);
-    updatePrecision();
+    data->Property.Precision.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updatePrecision).MakeSafe(m_connections);
     AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox);
 }
 

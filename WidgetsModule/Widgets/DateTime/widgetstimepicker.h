@@ -53,6 +53,7 @@ public:
     LocalPropertySequentialEnum<ClockType> TypeClock;
     
     DispatchersCommutator OnChanged;
+    Dispatcher OnMouseReleased;
     
 protected:
     void drawTimeLine(QPainter* painter) const;
@@ -60,6 +61,7 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     QSize minimumSizeHint() const override;
     int heightForWidth(int width) const override;
     bool hasHeightForWidth() const override { return true; }

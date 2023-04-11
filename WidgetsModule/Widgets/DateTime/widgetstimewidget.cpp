@@ -111,6 +111,12 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         StyleUtils::UpdateStyle(ui->btnPM);
     });
 
+    ui->timePicker->OnMouseReleased.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        if(ui->timePicker->TypeClock == ClockType::Hour) {
+            ui->timePicker->TypeClock = ClockType::Minutes;
+        }
+    });
+
     ui->timePicker->TypeClock.SetAndSubscribe([this]{
         m_dayTypeConnections.clear();
         m_hourTypeConnections.clear();
