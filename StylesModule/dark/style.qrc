@@ -236,6 +236,8 @@
         <file>rc/delete-hover.svg</file>
         <file>rc/delete-light.svg</file>
         <file>rc/reset-zoom.svg</file>
+        <file>rc/table_edit.svg</file>
+        <file>rc/table.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>
