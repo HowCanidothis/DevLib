@@ -39,3 +39,11 @@ WidgetsFloatingToolBar QPushButton#BtnExpandCollapse{
 VisualizationLegendWidget QWidget{
     background: #181818;
 }
+
+WPSCCloudSelectWellDialog QListView {
+    background: #202020;
+}
+
+WPSCCloudSelectWellDialog QListView:hover {
+    background: #202020;
+}
