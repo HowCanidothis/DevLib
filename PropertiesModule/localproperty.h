@@ -807,6 +807,7 @@ DECLARE_LOCAL_PROPERTY_TYPE(LocalPropertyFilePath, LocalProperty<QString>)
 using LocalPropertyColor = LocalProperty<QColor>;
 using LocalPropertyString = LocalProperty<QString>;
 using LocalPropertyLocale = LocalProperty<QLocale>;
+using LocalPropertyId = LocalProperty<Name>;
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyBool>)
 
