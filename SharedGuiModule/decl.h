@@ -367,6 +367,13 @@ public:
     float Height() const { return GetHeight(); }
     float GetWidth() const { return m_right.X() - m_left.X(); }
     float GetHeight() const { return m_right.Y() - m_left.Y(); }
+    void Extend(float width, float height)
+    {
+        auto wh = width / 2.f;
+        auto hh = height/ 2.f;
+        m_left.X() -= wh; m_right.X() += wh;
+        m_left.Y() -= hh; m_right.Y() += hh;
+    }
     Point2F GetCenter() const { return (m_right + m_left) / 2.f; }
 
     bool IsInf() const { return qIsInf(m_left.x()) || qIsInf(m_left.y()) || qIsInf(m_right.x()) || qIsInf(m_right.y()); }

@@ -378,5 +378,5 @@ TreeBar QTreeView {
 }
 
 QTableView {
-    qproperty-iconSize: 12px 12px;
+    qproperty-iconSize: 24px 24px;
 }

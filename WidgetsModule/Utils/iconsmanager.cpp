@@ -275,6 +275,58 @@ IconsSvgIcon::IconsSvgIcon(const QString& filePath)
     m_engine->GetData()->FilePath = filePath;
 }
 
+QIcon IconsSvgIcon::MergedIcon(const QSize& size, const QVector<QIcon>& icons, QIcon::Mode mode, QIcon::State state) const
+{
+    QIcon result;
+    QPixmap newPixmap(size.width() * (icons.size() + 1), size.height());
+
+    auto addPixmap = [&](QIcon::Mode mode, QIcon::State state) {
+        newPixmap.fill(Qt::transparent);
+        QPainter painter(&newPixmap);
+        painter.drawPixmap(0,0, pixmap(size, mode, state));
+        qint32 step = size.width();
+        for(const auto& icon : icons) {
+            painter.drawPixmap(step,0, icon.pixmap(size, mode, state));
+            step += size.width();
+        }
+        result.addPixmap(newPixmap, mode, state);
+    };
+
+    addPixmap(mode, state);
+
+    return result;
+}
+
+QIcon IconsSvgIcon::MergedIcon(const QSize& size, const QVector<QIcon>& icons) const
+{
+    QIcon result;
+    QPixmap newPixmap(size);
+
+    auto addPixmap = [&](QIcon::Mode mode, QIcon::State state) {
+        newPixmap.fill(Qt::transparent);
+        QPainter painter(&newPixmap);
+        painter.drawPixmap(0,0, pixmap(size, mode, state));
+        qint32 step = size.width();
+        for(const auto& icon : icons) {
+            painter.drawPixmap(step,0, icon.pixmap(size, mode, state));
+            step += size.width();
+        }
+        result.addPixmap(newPixmap, mode, state);
+    };
+
+    addPixmap(QIcon::Active, QIcon::On);
+    addPixmap(QIcon::Normal, QIcon::On);
+    addPixmap(QIcon::Disabled, QIcon::On);
+    addPixmap(QIcon::Selected, QIcon::On);
+
+    addPixmap(QIcon::Active, QIcon::Off);
+    addPixmap(QIcon::Normal, QIcon::Off);
+    addPixmap(QIcon::Disabled, QIcon::Off);
+    addPixmap(QIcon::Selected, QIcon::Off);
+
+    return result;
+}
+
 IconsPalette& IconsSvgIcon::EditPalette() const
 {
     return m_engine->GetData()->Palette;

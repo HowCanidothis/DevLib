@@ -45,6 +45,9 @@ public:
     IconsSvgIcon();
     IconsSvgIcon(const QString& filePath);
 
+    QIcon MergedIcon(const QSize& size, const QVector<QIcon>& icons) const;
+    QIcon MergedIcon(const QSize& size, const QVector<QIcon>& icons, Mode mode, State state) const;
+
     IconsPalette& EditPalette() const;
 
 private:

@@ -24,18 +24,23 @@ WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const Desc
         relativeWidget->installEventFilter(this);
         m_componentPlacer->Initialize();
 
-        m_componentPlacer->ResultPosition.Subscribe([this, relativeWidget]{
+        m_componentPlacer->ResultPosition.Connect(CONNECTION_DEBUG_LOCATION, [this, relativeWidget](const auto& position){
             auto* parent = m_target->parentWidget();
-            m_target->move(relativeWidget->mapTo(parent, m_componentPlacer->ResultPosition));
+            m_target->move(relativeWidget->mapTo(parent, position));
             m_target->raise();
+        }).MakeSafe(m_componentPlacerConnections);
+
+        m_qtConnections.connect(relativeWidget, &QWidget::destroyed, [this]{
+            m_componentPlacerConnections.clear();
         });
+
     } else {
         m_parent = m_target->parentWidget();
         m_componentPlacer->Initialize();
 
-        m_componentPlacer->ResultPosition.Subscribe([this]{
-            m_target->move(m_componentPlacer->ResultPosition);
-        });;
+        m_componentPlacer->ResultPosition.Connect(CONNECTION_DEBUG_LOCATION, [this](const auto& position){
+            m_target->move(position);
+        }).MakeSafe(m_componentPlacerConnections);
     }
     StyleUtils::InstallSizeAdjuster(m_target);
 }

@@ -23,6 +23,8 @@ private:
     ScopedPointer<ComponentPlacer> m_componentPlacer;
     QWidget* m_target;
     QWidget* m_parent;
+    DispatcherConnectionsSafe m_componentPlacerConnections;
+    QtLambdaConnections m_qtConnections;
 };
 
 #endif // WIDGETSLOCATIONATTACHMENT_H

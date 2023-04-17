@@ -84,7 +84,7 @@ MenuBarMovePane QLabel#Title {
 }
 
 MenuBarMovePane QLabel#Icon {
-    background: #F3F3F3;
+    background: white;
 }
 
 WidgetsEditingObjectSaveCancelButtons {
