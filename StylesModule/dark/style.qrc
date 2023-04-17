@@ -239,6 +239,8 @@
         <file>rc/table_edit.svg</file>
         <file>rc/table.svg</file>
         <file>rc/open-in-new.svg</file>
+        <file>rc/open-in-new-disable.svg</file>
+        <file>rc/open-in-new-hover.svg</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>

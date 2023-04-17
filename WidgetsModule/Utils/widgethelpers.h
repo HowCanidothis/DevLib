@@ -292,6 +292,7 @@ enum class ButtonRole
     FloatingButton = 9,
     GroupHeader = 10,
     Group = 11,
+    Open = 12,
 };
 
 class WidgetAbstractButtonWrapper : public WidgetWrapper

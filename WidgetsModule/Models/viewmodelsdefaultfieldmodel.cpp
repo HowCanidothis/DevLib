@@ -66,7 +66,7 @@ QVariant ViewModelsDefaultFieldModel::data(const QModelIndex& index, int role) c
         return QVariant();
     }
     
-    return m_sourceModel ? m_sourceModel->data(m_sourceModel->index(index.row() - 1, index.column()), role) : QVariant();
+    return m_sourceModel ? m_sourceModel->index(index.row() - 1, index.column()).data(role) : QVariant();
 }
 
 int ViewModelsDefaultFieldModel::rowCount(const QModelIndex& index) const

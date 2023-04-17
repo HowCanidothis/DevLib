@@ -997,6 +997,30 @@ QPushButton:disabled {
     background: #3C3C3C;
 }
 
+QAbstractButton[a_control="12"]
+{
+    image: url(":/qss_icons/rc/open-in-new-disable.svg");
+    background: transparent;
+    qproperty-text: "";
+    border: none;
+    border-radius: 0px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+}
+
+QAbstractButton[a_control="12"]:hover
+{
+    image: url(":/qss_icons/rc/open-in-new-hover.svg");
+}
+
+QAbstractButton[a_control="12"]:disabled
+{
+    image: url(":/qss_icons/rc/open-in-new.svg");
+    background: transparent;
+}
+
 WPSCDrillCaseView {
   qproperty-blockWeightColor: #aaaaaa;
 }
