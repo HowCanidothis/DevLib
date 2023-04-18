@@ -831,17 +831,18 @@ WidgetsTimePicker QLabel[active="false"] {
   background: transparent;
 }*/
 
-QCalendarWidget QAbstractItemView:disabled 
-{ 
-    color: rgb(64, 64, 64); 
-}
-
 WidgetsCalendarWidget
 { 
     qproperty-outOfRangeBorder: transparent;
     qproperty-outOfRangeColor: #404040;
     qproperty-outOfRangeBackground: transparent;
     qproperty-selectedDatesBackground: #CDDC39;
+}
+
+QCalendarWidget QAbstractItemView {
+    font: bold;
+    background-color: #252526;
+    selection-background-color: #3ea6ff;
 }
 
 QCalendarWidget QAbstractItemView:disabled 
