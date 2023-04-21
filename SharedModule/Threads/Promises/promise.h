@@ -83,6 +83,7 @@ public:
 
     Promise MoveToMain(const std::function<qint8 (qint8)>& handler);
     qint8 Wait();
+    bool Wait(qint32 msecs);
 };
 
 using AsyncResult = Promise;
@@ -143,6 +144,7 @@ public:
 
     void Then(const std::function<void (qint8)>& action) const;
     void Wait() const;
+    bool Wait(qint32 msecs) const;
 
     AsyncResult ToAsyncResult() const;
 };

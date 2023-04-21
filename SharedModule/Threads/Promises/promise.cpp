@@ -3,6 +3,7 @@
 #include "SharedModule/MemoryManager/memorymanager.h"
 #include "SharedModule/smartpointersadapters.h"
 #include "SharedModule/Threads/threadsbase.h"
+#include "SharedModule/interruptor.h"
 
 PromiseData::PromiseData()
     : m_result(false)
@@ -98,6 +99,13 @@ qint8 Promise::Wait()
     result += *this;
     result.Wait();
     return GetValue();
+}
+
+bool Promise::Wait(qint32 msecs)
+{
+    FutureResult result;
+    result += *this;
+    return result.Wait(msecs);
 }
 
 Promise Promise::MoveToMain(const std::function<qint8 (qint8)>& handler)
@@ -217,6 +225,24 @@ void FutureResult::Then(const std::function<void (qint8)>& action) const
 void FutureResult::Wait() const
 {
     m_data->wait();
+}
+
+bool FutureResult::Wait(qint32 msecs) const
+{
+    bool result = true;
+    Interruptor interruptor;
+    auto data = m_data;
+    interruptor.OnInterrupted().Connect(CONNECTION_DEBUG_LOCATION, [data, &result]{
+        if(data->m_promisesCounter != 0) {
+            result = false;
+            data->m_promisesCounter = 1;
+            data->deref();
+        }
+    });
+    interruptor.Interrupt(msecs);
+
+    m_data->wait();
+    return result;
 }
 
 AsyncResult FutureResult::ToAsyncResult() const

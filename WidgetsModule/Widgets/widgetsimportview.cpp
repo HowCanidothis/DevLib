@@ -86,7 +86,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	
 	Locale.SetAndSubscribe([this]{
         DecimalSeparator = TranslatorManager::GetNames<DecimalKeyboardSeparator>().indexOf(Locale.Native().decimalPoint());
-		DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : Locale.Native().dateTimeFormat(QLocale::ShortFormat);
+        DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : "dd.MM.yyyy H:mm";
 	});
 	DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
 	
