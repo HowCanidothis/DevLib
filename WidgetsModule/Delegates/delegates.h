@@ -42,37 +42,6 @@ protected:
     ModelGetter m_getter;
 };
 
-///todo make base
-class DelegatesComboboxSelector : public DelegatesComboboxCustomViewModel
-{
-    using Super = DelegatesComboboxCustomViewModel;
-public:
-    using ComparatorHandler = std::function<bool(const QModelIndex& TableData, const QModelIndex& EditorData)>;
-    using ValueExtractorHandler = std::function<QVariant(const QModelIndex& EditorData)>;
-
-    DelegatesComboboxSelector(const ModelGetter& getter, QObject* parent);
-
-    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void setEditorData(QWidget* editor, const QModelIndex& tableIndex) const override;
-    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
-
-    DelegatesComboboxSelector& SetCustomComparator(const ComparatorHandler& handler){
-        m_comparator = handler;
-        return *this;
-    }
-    DelegatesComboboxSelector& SetValueExtractor(const ValueExtractorHandler& handler){
-        m_extractor = handler;
-        return *this;
-    }
-
-private:
-    ComparatorHandler m_comparator;
-    ValueExtractorHandler m_extractor;
-
-    static ComparatorHandler IdComparator;
-    static ValueExtractorHandler IdExtractor;
-};
-
 class DelegatesIntSpinBox : public QStyledItemDelegate
 {
     Q_OBJECT
