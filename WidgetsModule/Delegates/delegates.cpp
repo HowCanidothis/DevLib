@@ -45,6 +45,7 @@ DelegatesCombobox::DelegatesCombobox(QObject* parent)
     : Super(parent)
     , m_aligment(Qt::AlignCenter)
     , m_drawCombobox(false)
+    , m_valuesExtractor([]{ return QStringList(); })
 {
 
 }
