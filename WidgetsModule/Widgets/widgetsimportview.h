@@ -49,6 +49,9 @@ public:
 
     class WidgetsMatchingAttachment* GetAttachment() { return m_matchingAttachment.get(); }
 	
+private slots:
+    void on_BtnFlip_clicked();
+
 private:
     class VariantListModel* GetModel() const;
     void initializeMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);

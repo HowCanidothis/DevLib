@@ -29,6 +29,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QPushButton" name="BtnFlip">
+       <property name="text">
+        <string>FLIP</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="lbLocale">
        <property name="text">
         <string>Locale:</string>

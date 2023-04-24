@@ -547,6 +547,7 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 
     QString text;
     if(includeHeaders) {
+        text += "\t";
         auto rowIndex = selectedIndexes.first().row();
         for(const auto& index : selectedIndexes) {
             if(header->isSectionHidden(index.column())) {
@@ -561,8 +562,12 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
     }
 
     auto rowIndex = selectedIndexes.first().row();
+    if(includeHeaders) {
+        text += tableView->model()->headerData(rowIndex, Qt::Vertical).toString() + "\t";
+    }
+
     for(const auto& index : selectedIndexes) {
-        if(header->isSectionHidden(index.column())) {
+        if(index.data(LastEditRowRole).toBool() || header->isSectionHidden(index.column())) {
             continue;
         }
         if(rowIndex != index.row()) {
@@ -571,6 +576,9 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
                 text.resize(text.size() - 1);
             }
             text += "\n";
+            if(includeHeaders) {
+                text += tableView->model()->headerData(rowIndex, Qt::Vertical).toString() + "\t";
+            }
         }
         text += index.data().toString() + "\t";
     }

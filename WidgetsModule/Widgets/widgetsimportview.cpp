@@ -15,6 +15,7 @@ class VariantListModel : public QAbstractTableModel
 public:
     VariantListModel(QObject* parent = nullptr) : Super(parent) {}
 
+    void FlipData();
     void SetData(const QList<QVector<QVariant>>& data);
     void SetData(const QList<QString>& data, const QString& separator);
     QList<QVector<QVariant>> GetData() const;
@@ -221,6 +222,31 @@ void VariantListModel::SetData(const QList<QString>& data, const QString& separa
 	endResetModel();
 }
 
+void VariantListModel::FlipData()
+{
+    QList<QVector<QVariant>> flipData;
+
+    if(!m_data.isEmpty()) {
+        auto count = m_data.constFirst().size();
+        while(count--) {
+            flipData.append(QVector<QVariant>(m_data.size()));
+        }
+        auto cRow = 0;
+        for(const auto& r : adapters::reverse(m_data.cbegin(), m_data.cend())) {
+            auto cCol = 0;
+            for(const auto& v : r) {
+                flipData[cCol][cRow] = v;
+                ++cCol;
+            }
+            ++cRow;
+        }
+    }
+
+    beginResetModel();
+    m_data = flipData;
+    endResetModel();
+}
+
 void VariantListModel::SetData(const QList<QVector<QVariant>>& data)
 {
     beginResetModel();
@@ -279,3 +305,9 @@ bool VariantListModel::removeRows(int row, int count, const QModelIndex& parent)
 	endRemoveRows();
 	return true;
 }
+
+void WidgetsImportView::on_BtnFlip_clicked()
+{
+    GetModel()->FlipData();
+}
+

@@ -139,7 +139,11 @@ public:
                 if(index.row() >= viewModel->GetSize()) {
                     return false;
                 }
-                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(data, value); }, {column});
+                QVariant toSet;
+                if(data.toString() != "-") {
+                    toSet = data;
+                }
+                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
             };
 
             m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); });
@@ -354,6 +358,9 @@ public:
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto dataValue = getter(const_cast<ValueType>(value));
+            if(!dataValue.has_value()) {
+                return QVariant();
+            }
             return pMeasurement->FromBaseToUnit(dataValue.value());
         });
     }
@@ -473,7 +480,7 @@ public:
         }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid){
-                return 0.0;
+                return QVariant();
             }
             return pMeasurement->FromBaseToUnit(concreteValue.Value);
         });
@@ -501,8 +508,9 @@ public:
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
             return [&]{
-                if(data.isValid()) {
-                    getter(value) = pMeasurement->FromUnitToBase(data.toDouble());
+                bool isDouble; auto dval = data.toDouble(&isDouble);
+                if(isDouble){
+                    getter(value) = pMeasurement->FromUnitToBase(dval);
                 } else {
                     getter(value) = std::nullopt;
                 }
@@ -511,7 +519,7 @@ public:
             auto& value = const_cast<ValueType>(constValue);
             auto& dataValue = getter(value);
             if(!dataValue.has_value()) {
-                return 0.0;
+                return QVariant();
             }
             return pMeasurement->FromBaseToUnit(dataValue.value());
         });

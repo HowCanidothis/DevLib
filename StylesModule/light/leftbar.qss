@@ -146,9 +146,9 @@ WidgetsStyleSettings {
     qproperty-secondarySelectionColor: #9d9d9d;
     qproperty-secondaryDisabledColor: #cccccc;
     qproperty-enabledTableColor: white;
-    qproperty-enabledTableTextColor: black;
+    qproperty-enabledTableTextColor: #414141;
     qproperty-disabledTableColor: #d4d4d4;
-    qproperty-disabledTableTextColor: black;
+    qproperty-disabledTableTextColor: #787878;
     qproperty-showFocusMinFrame: 3;
 }
 
