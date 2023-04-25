@@ -9,10 +9,10 @@ class ViewModelsDefaultFieldModel : public QAbstractListModel
 {
     using Super = QAbstractListModel;
 public:
-    ViewModelsDefaultFieldModel(QObject* parent);
+    ViewModelsDefaultFieldModel(QObject* parent, const FTranslationHandler& label = nullptr, QAbstractItemModel* model  = nullptr);
 
-    void SetDefaultFieldLabel(const FTranslationHandler& label);
-    void SetSourceModel(QAbstractItemModel* model);
+    ViewModelsDefaultFieldModel& SetDefaultFieldLabel(const FTranslationHandler& label);
+    ViewModelsDefaultFieldModel& SetSourceModel(QAbstractItemModel* model);
 
     // QAbstractItemModel interface
 public:

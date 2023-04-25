@@ -1,19 +1,21 @@
 #include "viewmodelsdefaultfieldmodel.h"
 
-ViewModelsDefaultFieldModel::ViewModelsDefaultFieldModel(QObject* parent)
+ViewModelsDefaultFieldModel::ViewModelsDefaultFieldModel(QObject* parent, const FTranslationHandler& label, QAbstractItemModel* model)
     : Super(parent)
-    , m_sourceModel(nullptr)
+    , m_label(label)
+    , m_sourceModel(model)
 {}
 
-void ViewModelsDefaultFieldModel::SetDefaultFieldLabel(const FTranslationHandler& label)
+ViewModelsDefaultFieldModel& ViewModelsDefaultFieldModel::SetDefaultFieldLabel(const FTranslationHandler& label)
 {
     m_label = label;
+    return *this;
 }
 
-void ViewModelsDefaultFieldModel::SetSourceModel(QAbstractItemModel* model)
+ViewModelsDefaultFieldModel& ViewModelsDefaultFieldModel::SetSourceModel(QAbstractItemModel* model)
 {
     if (m_sourceModel == model) {
-        return;
+        return *this;
     }
     
     beginResetModel();
@@ -51,6 +53,7 @@ void ViewModelsDefaultFieldModel::SetSourceModel(QAbstractItemModel* model)
         m_connections.connect(m_sourceModel, &QAbstractItemModel::modelReset, [this]{ endResetModel(); });
     }
     endResetModel();
+    return *this;
 }
 
 QVariant ViewModelsDefaultFieldModel::data(const QModelIndex& index, int role) const
