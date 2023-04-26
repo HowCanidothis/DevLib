@@ -20,16 +20,10 @@ class DelayedCallObject
 {
 public:
     DelayedCallObject(const DelayedCallObjectParams& params = DelayedCallObjectParams());
-
-    ~DelayedCallObject()
-    {
-        OnDeleted();
-    }
+    ~DelayedCallObject();
 
     AsyncResult Call(const char* connectionInfo, const FAction& action);
-    FAction Wrap(const char* connectionInfo, const FAction& action, const FAction& prepare = []{}) {
-        return [this, action, prepare, connectionInfo]{ prepare(); Call(connectionInfo, action); };
-    }
+    FAction Wrap(const char* connectionInfo, const FAction& action, const FAction& prepare = []{});
 
     Dispatcher OnDeleted;
 

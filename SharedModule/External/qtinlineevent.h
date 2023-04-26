@@ -36,8 +36,8 @@ class _Export QtInlineEventWithResult : public QtInlineEvent
     using Super = QtInlineEvent;
 public:
     QtInlineEventWithResult(const char* location, const FAction& function, const AsyncResult& result)
-        : Super(location, [function, result]{
-            result.Resolve([function]{
+        : Super(location, [location, function, result]{
+            result.Resolve([location, function]{
                 try {
                     function();
                     return true;

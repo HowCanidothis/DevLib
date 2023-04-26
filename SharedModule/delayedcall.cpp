@@ -10,6 +10,11 @@ DelayedCallObject::DelayedCallObject(const DelayedCallObjectParams& params)
 {
 }
 
+DelayedCallObject::~DelayedCallObject()
+{
+    OnDeleted();
+}
+
 qint32 DelayedCallObject::generateId()
 {
     static qint32 id = 0;
@@ -154,4 +159,8 @@ AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, DelayedC
 AsyncResult DelayedCallObject::Call(const char* connectionInfo, const FAction& action)
 {
     return DelayedCallManager::CallDelayed(connectionInfo, this, action);
+}
+
+FAction DelayedCallObject::Wrap(const char* connectionInfo, const FAction& action, const FAction& prepare) {
+    return [this, action, prepare, connectionInfo]{ prepare(); Call(connectionInfo, action); };
 }
