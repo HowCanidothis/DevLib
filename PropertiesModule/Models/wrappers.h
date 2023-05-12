@@ -499,7 +499,7 @@ private:
     T* m_value;
 };
 
-#define REGISTER_MODEL(TypeName) \
+#define DECLARE_MODEL_BY_TYPE(TypeName) \
     using TypeName##Container = QVector<TypeName>; \
     using TypeName##Model = TStatedModelsTableWrapper<TypeName##Container>; \
     using TypeName##ModelPtr = SharedPointer<TypeName##Model>; \
@@ -510,7 +510,7 @@ private:
     using TypeName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>;
 
-#define FIRST_REGISTER_MODEL(ModelName) \
+#define DECLARE_MODEL(ModelName) \
     using ModelName##Ptr = SharedPointer<class ModelName>; \
     using ModelName##PtrInitialized = SharedPointerInitialized<ModelName>; \
     using ModelName##ImmutableModel = StateImmutableData<ModelName>; \
