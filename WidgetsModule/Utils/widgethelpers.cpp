@@ -57,6 +57,7 @@
 
 using FCurrentChanged = SharedPointer<CommonDispatcher<qint32,qint32>>;
 
+Q_DECLARE_METATYPE(SharedPointer<bool>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const QString&>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyString>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
@@ -1147,7 +1148,15 @@ void WidgetWrapper::ActivateWindow(int mode, qint32 delay) const
     }
     Q_ASSERT(delay > 0);
     auto wrapper = *this;
-    QTimer::singleShot(delay, [wrapper, revertMargins]{
+    auto valid = Injected<bool>("a_valid", [this]{
+        auto* result = new bool(true);
+        QObject::connect(GetWidget(), &QWidget::destroyed, [result]{ *result = false; });
+        return result;
+    });
+    QTimer::singleShot(delay, [wrapper, revertMargins, valid]{
+        if(!*valid) {
+            return;
+        }
         StyleUtils::ApplyStyleProperty("w_showfocus", wrapper.GetWidget(), 0);
         revertMargins();
     });
