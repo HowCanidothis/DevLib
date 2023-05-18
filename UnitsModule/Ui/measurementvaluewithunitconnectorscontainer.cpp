@@ -85,7 +85,7 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
     auto updatePrecision = [measurementProperty, spinBox]{
         QSignalBlocker blocker(spinBox);
         spinBox->setDecimals(measurementProperty->Precision);
-        spinBox->setPrefix(spinBox->prefix());
+        spinBox->setValue(measurementProperty->Value);
     };
 
     data->Property.Precision.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updatePrecision).MakeSafe(m_connections);
