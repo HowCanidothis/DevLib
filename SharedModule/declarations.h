@@ -291,6 +291,15 @@ Range<It> withoutFirst(ORange&& originalRange) {
     return Range<It>(b + 1, e);
 }
 
+template<typename ORange, typename It = decltype(std::begin(std::declval<ORange>()))>
+Range<It> withoutLast(ORange&& originalRange) {
+    auto b = std::begin(originalRange), e = std::end(originalRange);
+    if(b == e) {
+        return Range<It>(b, e);
+    }
+    return Range<It>(b, e - 1);
+}
+
 template<typename Container, typename It = typename Container::const_iterator>
 Range<It> range(const Container& container, qint32 startIndex, qint32 count) {
     return Range<It>(container.begin() + startIndex, container.begin() + startIndex + count);
