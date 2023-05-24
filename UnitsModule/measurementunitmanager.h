@@ -28,7 +28,7 @@ public:
     LocalPropertyInt CurrentPrecision;
     LocalPropertyDouble CurrentStep;
     
-    LocalProperty<Name> CurrentUnitId;
+    LocalPropertyName CurrentUnitId;
     LocalPropertyString CurrentUnitLabel;
 
     DispatcherConnection ConnectAction(const char* location, const FAction& action) const
@@ -125,7 +125,7 @@ public:
 	static constexpr double DegreeToRadian(double degree) { return degree * DEGREES_TO_RADIANS; }
 	static constexpr double RadianToDegree(double radian) { return radian / DEGREES_TO_RADIANS; }
     
-    LocalProperty<Name> CurrentMeasurementSystem;
+    LocalPropertyName CurrentMeasurementSystem;
     
 	static QStringList DefaultSystems();
     const WPSCUnitSystemTableWrapperPtr& GetSystemsWrapper() const { return m_systemWrapper; }

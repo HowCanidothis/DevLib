@@ -438,10 +438,10 @@ public:
         }
 
         const ParseFactoryBuilderObject& RegisterId(const Name& key,
-                                      const FPropertyExtractor<LocalProperty<Name>,T2>& targetPropertyExtractor,
+                                      const FPropertyExtractor<LocalPropertyName,T2>& targetPropertyExtractor,
                                       const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract) const
         {
-            return RegisterProperty<LocalProperty<Name>>(key, targetPropertyExtractor, extractor);
+            return RegisterProperty<LocalPropertyName>(key, targetPropertyExtractor, extractor);
         }
 
         const ParseFactoryBuilderObject& RegisterIdPointer(const Name& key,
@@ -670,11 +670,11 @@ public:
 
     template<class T2>
     ParseFactoryBuilder& RegisterId(const Name& key,
-                                  const FPropertyExtractor<LocalProperty<Name>,T2>& targetPropertyExtractor,
+                                  const FPropertyExtractor<LocalPropertyName,T2>& targetPropertyExtractor,
                                   const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
                                   const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
     {
-        return RegisterProperty<LocalProperty<Name>>(key, targetPropertyExtractor, targetExtractor, extractor);
+        return RegisterProperty<LocalPropertyName>(key, targetPropertyExtractor, targetExtractor, extractor);
     }
 
     template<typename T, class T2>

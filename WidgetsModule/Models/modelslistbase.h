@@ -82,19 +82,20 @@ public:
     void SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){})
     {
         m_enumConnections.clear();
-        AddTrigger(&TranslatorManager::GetInstance().OnLanguageChanged, [handler](container_type& native){
-            native.clear();
-            auto names = TranslatorManager::GetNames<Enum>();
-            for(qint32 i((qint32)Enum::First), e((qint32)Enum::Last); i <= e; i++) {
-                ModelsStandardListModel::value_type data;
-                const auto& label = names.at(i);
-                data.insert(Qt::DisplayRole, label);
-                data.insert(Qt::EditRole, label);
-                data.insert(IdRole, i);
-                native.append(data);
-            }
-            handler(native);
+        AddTrigger(&TranslatorManager::GetInstance().OnLanguageChanged, [handler, this](container_type& native){
+            setEnum<Enum>(native, handler);
         }).MakeSafe(m_enumConnections);
+    }
+
+    template<class Enum, typename ... Dispatchers>
+    void SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){}, Dispatchers&... dispatchers)
+    {
+        m_enumConnections.clear();
+        auto commutator = ::make_shared<DispatchersCommutator>();
+        commutator->ConnectFrom(CONNECTION_DEBUG_LOCATION, TranslatorManager::GetInstance().OnLanguageChanged, dispatchers...).MakeSafe(m_enumConnections);
+        AddTrigger(commutator.get(), [this, handler, commutator](container_type& native){
+            setEnum<Enum>(native, handler);
+        });
     }
 
     template<class Enum>
@@ -131,6 +132,17 @@ public:
     }
 
 private:
+    void fillContainerWithEnum(container_type& container, const QStringList& fillWith, qint32 startsWith, qint32 endsWith);
+    template<class Enum>
+    void setEnum(container_type& container, const std::function<void (ModelsStandardListModelContainer&)>& handler)
+    {
+        container.clear();
+        auto names = TranslatorManager::GetNames<Enum>();
+        fillContainerWithEnum(container, names, (qint32)Enum::First, (qint32)Enum::Last);
+        handler(container);
+    }
+
+private:
     DispatcherConnectionsSafe m_enumConnections;
 };
 using ModelsStandardListModelPtr = SharedPointer<ModelsStandardListModel>;
@@ -142,29 +154,16 @@ class ViewModelsStandardListModel : public TViewModelsTableBase<ModelsStandardLi
 public:
     using Super::Super;
 
-    QVariant data(const QModelIndex& index, int role) const override
-    {
-        if(!index.isValid() || GetData() == nullptr) {
-            return QVariant();
-        }
+    QVariant data(const QModelIndex& index, int role) const override;
 
-        return GetData()->At(index.row()).value(role, QVariant());
-    }
+    int columnCount(const QModelIndex& index = QModelIndex()) const override;
 
-    int columnCount(const QModelIndex& index = QModelIndex()) const override
-    {
-        if(index.isValid()) {
-            return 0;
-        }
-        return 1;
-    }
-
-    template<class Enum>
-    static ViewModelsStandardListModel* CreateEnumViewModel(QObject* parent, const std::function<void (ModelsStandardListModelContainer&)>& extraFieldsHandler = [](ModelsStandardListModelContainer&){})
+    template<class Enum, typename ... Dispatchers>
+    static ViewModelsStandardListModel* CreateEnumViewModel(QObject* parent, const std::function<void (ModelsStandardListModelContainer&)>& extraFieldsHandler = [](ModelsStandardListModelContainer&){}, Dispatchers&... dispatchers)
     {
         auto* result = new ViewModelsStandardListModel(parent);
         auto model = ::make_shared<ModelsStandardListModel>();
-        model->SetEnum<Enum>(extraFieldsHandler);
+        model->SetEnum<Enum>(extraFieldsHandler, dispatchers...);
         result->SetData(model);
         return result;
     }

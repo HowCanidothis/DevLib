@@ -648,6 +648,22 @@ WidgetGroupboxWrapper::WidgetGroupboxWrapper(QGroupBox* groupBox)
     : WidgetWrapper(groupBox)
 {}
 
+LocalPropertyBool& WidgetGroupboxWrapper::WidgetChecked() const
+{
+    auto* widget = GetWidget();
+    return *Injected<LocalPropertyBool>("a_checked", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool(widget->isChecked());
+        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget](bool value){
+                                               widget->setChecked(value);
+                                           });
+        property->SetSetterHandler(ThreadHandlerMain);
+        widget->connect(widget, &QGroupBox::toggled, [widget, property](qint32 state){
+            *property = state;
+        });
+        return property;
+    });
+}
+
 WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)
     : WidgetWrapper(combobox)
 {}

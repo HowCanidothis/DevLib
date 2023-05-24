@@ -163,7 +163,7 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesComboBoxConnector(LocalProperty<Name>* property, QComboBox* combo)
+    LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo)
         : LocalPropertiesComboBoxConnector(property, combo, IdRole)
     {}
     template<class Enum>

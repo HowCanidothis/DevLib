@@ -381,10 +381,10 @@ public:
     WidgetComboboxWrapper(class QComboBox* combobox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
-    template<class Enum>
-    const WidgetComboboxWrapper& SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){}) const
+    template<class Enum, typename ... Dispatchers>
+    const WidgetComboboxWrapper& SetEnum(const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){}, Dispatchers&... dispatchers) const
     {
-        auto* viewModel = ViewModelsStandardListModel::CreateEnumViewModel<Enum>(GetWidget(), handler);
+        auto* viewModel = ViewModelsStandardListModel::CreateEnumViewModel<Enum>(GetWidget(), handler, dispatchers...);
         GetWidget()->setModel(viewModel);
         return *this;
     }
@@ -416,6 +416,7 @@ public:
     WidgetGroupboxWrapper(class QGroupBox* groupBox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
+    LocalPropertyBool& WidgetChecked() const;
     const WidgetGroupboxWrapper& AddCollapsing() const;
     const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater, class QScrollArea* area = nullptr) const;
 };

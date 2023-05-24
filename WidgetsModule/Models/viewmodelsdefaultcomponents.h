@@ -209,7 +209,7 @@ public:
             return [&]{ getter(data) = value.value<T>();};
         });
     }
-    TViewModelsColumnComponentsBuilder& AddIdPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalProperty<Name>& (ValueType)>& getter, bool readOnly = false){
+    TViewModelsColumnComponentsBuilder& AddIdPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyName& (ValueType)>& getter, bool readOnly = false){
         return AddPropertyColumn<Name>(column, header, getter, readOnly);
     }
     TViewModelsColumnComponentsBuilder& AddIntPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyInt& (ValueType)>& getter, bool readOnly = false){
