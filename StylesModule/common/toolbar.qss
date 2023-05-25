@@ -7,3 +7,16 @@ WPSCSectionSummaryView QTreeView::item
 {
     min-height: 25px;
 }
+
+WPSCQPView QDoubleSpinBox{
+    margin-right: 6px;
+}
+
+WPSCQPView QLabel[tiny="true"] {
+    font-size: 12px;
+}
+
+WPSCQPView QDoubleSpinBox {
+    max-width: 100px;
+    min-width: 100px;
+}
