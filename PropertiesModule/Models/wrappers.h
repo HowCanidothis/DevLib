@@ -403,6 +403,8 @@ public:
     }
 };
 
+template<class T> using TModelsTableWrapperPtr = SharedPointer<TModelsTableWrapper<T>>;
+
 template<class Container>
 class TStatedModelsTableWrapper : public TModelsTableWrapper<Container>
 {

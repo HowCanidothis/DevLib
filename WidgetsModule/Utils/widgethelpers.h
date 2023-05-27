@@ -211,8 +211,7 @@ public:
 
     DispatcherConnectionsSafe& WidgetConnections() const;
     LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const;
-    LocalPropertyBool& WidgetVisibility() const { return WidgetVisibility(false); }
-    LocalPropertyBool& WidgetVisibility(bool animated) const;
+    LocalPropertyBool& WidgetVisibility() const;
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;

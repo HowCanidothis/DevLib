@@ -11,7 +11,6 @@
         <file>common/properties.qss</file>
         <file>common/style.qss</file>
         <file>common/mainprogressbar.qss</file>
-        <file>common/topnotifierframe.qss</file>
         <file>light/ads.qss</file>
         <file>light/leftbar.qss</file>
         <file>light/style.qss</file>
@@ -26,5 +25,6 @@
         <file>light/toolbar.qss</file>
         <file>common/toolbar.qss</file>
         <file>common/icons.qss</file>
+        <file>dark/topnotifierframe.qss</file>
     </qresource>
 </RCC>

@@ -1392,15 +1392,11 @@ LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() 
     }, HighLightEnum::None);
 }
 
-LocalPropertyBool& WidgetWrapper::WidgetVisibility(bool animated) const
+LocalPropertyBool& WidgetWrapper::WidgetVisibility() const
 {
-    return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [animated](QObject* object, const LocalPropertyBool& visible){
+    return *GetOrCreateProperty<LocalPropertyBool>("a_visible", [](QObject* object, const LocalPropertyBool& visible){
         auto* action = reinterpret_cast<QWidget*>(object);
-        if(animated) {
-            WidgetWrapper(action).SetVisibleAnimated(visible);
-        } else {
-            action->setVisible(visible);
-        }
+        action->setVisible(visible);
     }, GetWidget()->isVisible());
 }
 

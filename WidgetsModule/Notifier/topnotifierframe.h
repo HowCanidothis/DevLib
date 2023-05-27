@@ -18,27 +18,30 @@ public:
     explicit TopNotifierFrame(QWidget* parent);
     ~TopNotifierFrame();
 
-    void SetText(const FTranslationHandler& text);
-    void SetWidgetText(const FTranslationHandler& text);
-    void SetAction(const FAction& action);
-
-    // QObject interface
-public:
-    bool eventFilter(QObject* watched, QEvent* event) override;
+    TranslatedString& WidgetText();
+    LocalProperty<QuadTreeF::BoundingRect_Location>& WidgetLocation();
+    LocalProperty<QPoint>& WidgetOffset();
 
 private:
     Ui::TopNotifierFrame *ui;
+    class WidgetsLocationAttachment* m_placer;
 };
 
 class TopNotifierFrameErrorsComponent : public QObject
 {
     using Super = QObject;
 public:
+    TopNotifierFrameErrorsComponent(TopNotifierFrame* frame);
     TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame);
+    ~TopNotifierFrameErrorsComponent();
+
+    LocalPropertyErrorsContainer& GetErrors() { return *m_errors; }
 
 private:
     DelayedCallObject m_updateText;
     DispatcherConnectionsSafe m_connections;
+    LocalPropertyErrorsContainer* m_errors;
+    bool m_internalErrors;
 };
 
 #endif // TOPNOTIFIERWIDGET_H
