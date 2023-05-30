@@ -50,6 +50,11 @@ struct StyleSettings
     LocalPropertyColor DisabledTableCellTextColor;
     LocalPropertyColor EnabledTableCellTextColor;
 
+    LocalPropertyColor ErrorLinkColor;
+    LocalPropertyColor WarningLinkColor;
+    LocalPropertyColor ErrorColor;
+    LocalPropertyColor WarningColor;
+
     LocalPropertyColor DefaultRedColor;
 
     LocalPropertyInt ShowFocusMinFrame;

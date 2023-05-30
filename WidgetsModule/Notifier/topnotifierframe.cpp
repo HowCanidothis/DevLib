@@ -11,6 +11,7 @@ TopNotifierFrame::TopNotifierFrame(QWidget* parent)
     : Super(parent)
     , ui(new Ui::TopNotifierFrame)
 {
+    setProperty("use_preffered_size", QSize(50000, 100));
     ui->setupUi(this);
 
     m_placer = WidgetWrapper(this).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleTop).SetOffset({0,0}));
@@ -61,12 +62,19 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
 {
     auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [frame, errors]{
         frame->WidgetText().SetTranslationHandler([errors]{
-            QString message;
-            for(const auto& error : *errors) {
-                message += error.Error->Native() + "\n";
-            }
-            if(!message.isEmpty()) {
-                message.resize(message.size() - 1);
+            StringBuilder message;
+            for(const LocalPropertyErrorsContainerValue& error : *errors) {
+                switch(error.Type) {
+                case QtWarningMsg:
+                    message.XMLAddEnumerated(message.XMLCreateStyleColorized(error.Error->Native(), SharedSettings::GetInstance().StyleSettings.WarningColor));
+                    break;
+                case QtCriticalMsg:
+                    message.XMLAddEnumerated(message.XMLCreateStyleColorized(error.Error->Native(), SharedSettings::GetInstance().StyleSettings.ErrorColor));
+                    break;
+                default:
+                    message.XMLAddEnumerated(error.Error->Native());
+                    break;
+                }
             }
             return message;
         });

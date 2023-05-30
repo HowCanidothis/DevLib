@@ -143,18 +143,10 @@ public:
         : Super(target)
     {}
 
-    static QString XMLCreateHyperlink(const QString& text, const FAction* handler, const QColor& color)
-    {
-        return QString("<a href=\"%1\" style=\"color: %2\">%3</a>").arg(QString::number((size_t)handler), color.name(), text);
-    }
+    static QString XMLCreateStyleColorized(const QString& text, const QColor& color);
+    static QString XMLCreateHyperlink(const QString& text, const FAction* handler, const QColor& color);
+    StringBuilder& XMLAddEnumerated(const QString& text);
 
-    StringBuilder& XMLEnumerate(const QString& text)
-    {
-        *this += "<li>";
-        *this += text;
-        *this += "</li>";
-        return *this;
-    }
 
     template<typename Stream, typename T, typename Container, typename FAdapter>
     static void Join(Stream& stream, const T& separator, const Container& container, const FAdapter& adapter, bool addOnFirst = false)

@@ -23,6 +23,10 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(QColor enabledTableTextColor MEMBER m_enabledTableTextColor)
     Q_PROPERTY(QColor disabledTableColor MEMBER m_disabledTableColor)
     Q_PROPERTY(QColor disabledTableTextColor MEMBER m_disabledTableTextColor)
+    Q_PROPERTY(QColor errorLinkColor MEMBER m_errorLinkColor)
+    Q_PROPERTY(QColor warningLinkColor MEMBER m_warningLinkColor)
+    Q_PROPERTY(QColor errorColor MEMBER m_errorColor)
+    Q_PROPERTY(QColor warningColor MEMBER m_warningColor)
 
     Q_PROPERTY(qint32 showFocusMinFrame MEMBER m_showFocusMinFrame)
 
@@ -30,21 +34,25 @@ public:
     WidgetsStyleSettings();
 
 private:
-    LocalPropertyColor m_enabledTableColor;
-    LocalPropertyColor m_enabledTableTextColor;
-    LocalPropertyColor m_disabledTableColor;
-    LocalPropertyColor m_disabledTableTextColor;
+    LocalPropertyColor& m_enabledTableColor;
+    LocalPropertyColor& m_enabledTableTextColor;
+    LocalPropertyColor& m_disabledTableColor;
+    LocalPropertyColor& m_disabledTableTextColor;
 
-    LocalPropertyColor m_secondarySelectionColor;
-    LocalPropertyColor m_normalColor;
-    LocalPropertyColor m_secondaryColor;
-    LocalPropertyColor m_selectionColor;
-    LocalPropertyColor m_disabledColor;
-    LocalPropertyColor m_secondaryDisabledColor;
-    LocalPropertyColor m_shadowColor;
+    LocalPropertyColor& m_secondarySelectionColor;
+    LocalPropertyColor& m_normalColor;
+    LocalPropertyColor& m_secondaryColor;
+    LocalPropertyColor& m_selectionColor;
+    LocalPropertyColor& m_disabledColor;
+    LocalPropertyColor& m_secondaryDisabledColor;
+    LocalPropertyColor& m_shadowColor;
+    LocalPropertyColor& m_errorLinkColor;
+    LocalPropertyColor& m_errorColor;
+    LocalPropertyColor& m_warningLinkColor;
+    LocalPropertyColor& m_warningColor;
     LocalPropertyInt m_shadowBlurRadius;
 
-    LocalPropertyInt m_showFocusMinFrame;
+    LocalPropertyInt& m_showFocusMinFrame;
 
 private:
     static WidgetsStyleSettings* m_instance;

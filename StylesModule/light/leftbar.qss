@@ -150,6 +150,8 @@ WidgetsStyleSettings {
     qproperty-disabledTableColor: #d4d4d4;
     qproperty-disabledTableTextColor: #787878;
     qproperty-showFocusMinFrame: 3;
+    qproperty-errorLinkColor: black;
+    qproperty-warningLinkColor: #D4D4D4;
 }
 
 BHACatalogWidget QListView::item {

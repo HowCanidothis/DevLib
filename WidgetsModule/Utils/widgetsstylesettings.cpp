@@ -3,30 +3,27 @@
 WidgetsStyleSettings* WidgetsStyleSettings::m_instance = nullptr;
 
 WidgetsStyleSettings::WidgetsStyleSettings()
-    : m_enabledTableColor(Qt::white)
-    , m_disabledTableColor("#d4d4d4")
-    , m_showFocusMinFrame(3)
+    : m_enabledTableColor(SharedSettings::GetInstance().StyleSettings.EnabledTableCellColor)
+    , m_enabledTableTextColor(SharedSettings::GetInstance().StyleSettings.EnabledTableCellTextColor)
+    , m_disabledTableColor(SharedSettings::GetInstance().StyleSettings.DisabledTableCellColor)
+    , m_disabledTableTextColor(SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor)
+    , m_secondarySelectionColor(SharedSettings::GetInstance().StyleSettings.IconSecondarySelectionColor)
+    , m_normalColor(SharedSettings::GetInstance().StyleSettings.IconPrimaryColor)
+    , m_secondaryColor(SharedSettings::GetInstance().StyleSettings.IconSecondaryColor)
+    , m_selectionColor(SharedSettings::GetInstance().StyleSettings.IconSelectionColor)
+    , m_disabledColor(SharedSettings::GetInstance().StyleSettings.IconDisabledColor)
+    , m_secondaryDisabledColor(SharedSettings::GetInstance().StyleSettings.IconSecondaryDisabledColor)
+    , m_shadowColor(SharedSettings::GetInstance().StyleSettings.ShadowColor)
+    , m_errorLinkColor(SharedSettings::GetInstance().StyleSettings.ErrorLinkColor)
+    , m_errorColor(SharedSettings::GetInstance().StyleSettings.ErrorColor)
+    , m_warningLinkColor(SharedSettings::GetInstance().StyleSettings.WarningLinkColor)
+    , m_warningColor(SharedSettings::GetInstance().StyleSettings.WarningColor)
+    , m_showFocusMinFrame(SharedSettings::GetInstance().StyleSettings.ShowFocusMinFrame)
 {
     Q_ASSERT(m_instance == nullptr);
     m_instance = this;
 
     auto& settings = SharedSettings::GetInstance();
-    auto& styleSettings = settings.StyleSettings;
-
-    styleSettings.DisabledTableCellColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_disabledTableColor);
-    styleSettings.EnabledTableCellColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_enabledTableColor);
-    styleSettings.DisabledTableCellTextColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_disabledTableTextColor);
-    styleSettings.EnabledTableCellTextColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_enabledTableTextColor);
-
-    styleSettings.IconPrimaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_normalColor);
-    styleSettings.IconSecondaryColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_secondaryColor);
-    styleSettings.IconSelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_selectionColor);
-    styleSettings.IconSecondarySelectionColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_secondarySelectionColor);
-    styleSettings.IconDisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_disabledColor);
-    styleSettings.IconSecondaryDisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_secondaryDisabledColor);
-    styleSettings.ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_shadowColor);
-
-    styleSettings.ShowFocusMinFrame.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_showFocusMinFrame);
 
     auto& metricSettings = settings.MetricSettings;
 

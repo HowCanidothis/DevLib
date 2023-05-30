@@ -26,7 +26,7 @@ StyleSettings::StyleSettings()
     , ShadersPath("C:/Work/wps-client/libs/Content/Shaders/")
     #else
     , ShadersPath(":/")
-    #endif
+    #endif   
 {
     ShadersPath.SetValidator([](const QString& path){ return path.isEmpty() ? ":/" : path; });
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);

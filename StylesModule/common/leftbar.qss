@@ -11,6 +11,11 @@ LeftBar QPushButton[a_control="1"]{
     border: none;
 }
 
+WidgetsStyleSettings {
+    qproperty-warningColor: #F2933A;
+    qproperty-errorColor: #ff3b30;
+}
+
 LeftBar {
     padding: 20 0 0 0;
     min-width: 48;
