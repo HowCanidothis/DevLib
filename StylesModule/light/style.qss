@@ -9,8 +9,25 @@ QWidget {
 QWidget:disabled {
   background-color: #ffffff;
   color: #787878;
-  selection-background-color: #14506E;
+  selection-background-color: #3ea6ff;
+  selection-color: #ffffff;
+}
+
+QWidget[readOnly="true"] {
+  background-color: #ffffff;
+  color: #787878;
+  selection-background-color: #D2D2D2;
   selection-color: #787878;
+  /*qproperty-focusPolicy: "Qt::ClickFocus";*/
+}
+
+QWidget[readOnly="true"]:hover {
+  border-color: #787878;
+}
+
+QWidget[readOnly="true"]:focus {
+  border-color: #787878;
+  color: #787878;
 }
 
 QWidget::item:selected {

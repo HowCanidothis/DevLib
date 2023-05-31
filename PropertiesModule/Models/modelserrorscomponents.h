@@ -166,6 +166,14 @@ public:
         m_errorTypes.insert(error, type);
     }
 
+    void RegisterWarning(qint64 error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment){
+        RegisterError(error, checkHandler, errorComment, QtWarningMsg);
+    }
+
+    void RegisterWarning(qint64 error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment){
+        RegisterError(error, checkHandler, errorComment, QtWarningMsg);
+    }
+
     template<typename... Dispatchers>
     DispatcherConnections AddDependencies(const Dispatcher& first, Dispatchers&... dispatchers)
     {
