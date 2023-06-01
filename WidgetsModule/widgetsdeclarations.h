@@ -228,8 +228,9 @@ ContainerBuilder<ViewModelsCategoriesContainer<Enum>> ViewModelsCategoriesContai
 using ModelsStandardListModelContainer = QVector<QHash<qint32, QVariant>>;
 
 namespace WidgetProperties {
-DECLARE_GLOBAL_CHAR(ExtraFieldsCount);
-DECLARE_GLOBAL_CHAR(InnerSplitter);
+DECLARE_GLOBAL_CHAR(ExtraFieldsCount)
+DECLARE_GLOBAL_CHAR(InnerSplitter)
+DECLARE_GLOBAL_CHAR(Footer)
 }
 
 #endif // WIDGETSDECLARATIONS_H

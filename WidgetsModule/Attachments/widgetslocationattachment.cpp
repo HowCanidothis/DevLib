@@ -47,32 +47,50 @@ WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const Desc
 
 bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
 {
+    static auto updateParent = [](WidgetsLocationAttachment* t, QEvent* event){
+        auto size = event->type() == QEvent::Resize ? reinterpret_cast<QResizeEvent*>(event)->size() : t->m_parent->size();
+        if(t->m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
+            t->m_target->resize(t->m_parent->width() - t->m_componentPlacer->Offset.Native().x() * 2, t->m_parent->height() - t->m_componentPlacer->Offset.Native().y() * 2);
+        }
+        t->m_componentPlacer->ParentSize = size;
+        t->m_componentPlacer->ResultPosition.Invoke();
+    };
+    static auto updateTarget = [](WidgetsLocationAttachment* t, QEvent* event){
+        auto size = event->type() == QEvent::Resize ? reinterpret_cast<QResizeEvent*>(event)->size() : t->m_target->size();
+        if(t->m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
+            QSize size(t->m_parent->width() - t->m_componentPlacer->Offset.Native().x() * 2, t->m_parent->height() - t->m_componentPlacer->Offset.Native().y() * 2);
+            if(t->m_target->size() != size) {
+                t->m_target->resize(size);
+                return true;
+            }
+        }
+        t->m_componentPlacer->TargetSize = size;
+        return false;
+    };
+
     switch (event->type()) {
     case QEvent::Move: {
-        if(watched == m_parent){
+        if(watched == m_parent && m_target->isVisible()){
             m_componentPlacer->ResultPosition.Invoke();
         }
         break;
     }
-    case QEvent::Resize: {
-        auto* resizeEvent = reinterpret_cast<QResizeEvent*>(event);
+    case QEvent::Show:
         if(watched == m_target) {
-            if(m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
-                QSize size(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() - m_componentPlacer->Offset.Native().y() * 2);
-                if(m_target->size() != size) {
-                    m_target->resize(size);
-                    return true;
-                }
-            }
-            m_componentPlacer->TargetSize = resizeEvent->size();
+            return updateTarget(this, event);
         } else if(watched == m_parent){
-            if(m_componentPlacer->Location.Native() == QuadTreeF::Location_Center) {
-                m_target->resize(m_parent->width() - m_componentPlacer->Offset.Native().x() * 2, m_parent->height() - m_componentPlacer->Offset.Native().y() * 2);
+            updateParent(this, event);
+        }
+        break;
+    case QEvent::Resize: {
+        if(m_target->isVisible()) {
+            if(watched == m_target) {
+                return updateTarget(this, event);
+            } else if(watched == m_parent){
+                updateParent(this, event);
+            } else {
+                m_componentPlacer->ResultPosition.Invoke();
             }
-            m_componentPlacer->ParentSize = resizeEvent->size();
-            m_componentPlacer->ResultPosition.Invoke();
-        } else {
-            m_componentPlacer->ResultPosition.Invoke();
         }
     } break;
     default:

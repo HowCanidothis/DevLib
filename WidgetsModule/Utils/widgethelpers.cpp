@@ -7,12 +7,14 @@
 #include <QHeaderView>
 #include <QClipboard>
 #include <QCompleter>
+#include <QListView>
 #include <QCheckBox>
 #include <QSplitter>
 #include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QScrollBar>
 #include <QAction>
 #include <QGroupBox>
 #include <QPushButton>
@@ -791,9 +793,17 @@ const WidgetWrapper& WidgetWrapper::FixUp() const
         }
     });
 
-    ForeachChildWidget([](QWidget* w){
-        if(qobject_cast<QSpinBox*>(w) != nullptr || qobject_cast<QDoubleSpinBox*>(w) != nullptr || qobject_cast<QComboBox*>(w)) {
-            WidgetWrapper(w).AddEventFilter([](QObject* watched, QEvent* event) {
+    ForeachChildWidget([](QWidget* sw){
+        auto* w = qobject_cast<QAbstractItemView*>(sw);
+        if(w == nullptr) {
+            if(!qobject_cast<QAbstractSpinBox*>(sw) && !qobject_cast<QComboBox*>(sw)) {
+                sw = nullptr;
+            }
+        } else {
+            sw = w->viewport();
+        }
+        if(sw != nullptr) {
+            WidgetWrapper(sw).AddEventFilter([](QObject* watched, QEvent* event) {
                 if(event->type() == QEvent::Wheel) {
                     auto* widget = qobject_cast<QWidget*>(watched);
                     if(widget != nullptr && !widget->hasFocus()) {
@@ -803,7 +813,7 @@ const WidgetWrapper& WidgetWrapper::FixUp() const
                 }
                 return false;
             });
-            w->setFocusPolicy(Qt::StrongFocus);
+            sw->setFocusPolicy(Qt::StrongFocus);
         }
     });
 
@@ -1918,3 +1928,37 @@ LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
     });
 }
 
+
+WidgetScrollAreaWrapper::WidgetScrollAreaWrapper(QScrollArea* button)
+    : Super(button)
+{
+
+}
+
+WidgetScrollAreaWrapper& WidgetScrollAreaWrapper::AddScrollByWheel(Qt::Orientation orientation)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(!m_object->property("a_scroll_recursive_exists").toBool());
+    m_object->setProperty("a_scroll_recursive_exists", true);
+#endif
+
+    auto recursionGuard = Injected<bool>("a_scroll_recursive", [orientation]{ return new bool(false); });
+    auto* w = GetWidget();
+    WidgetWrapper(w).AddEventFilter([w,recursionGuard, orientation](QObject*, QEvent* e){
+        if(e->type() == QEvent::Wheel) {
+            if(*recursionGuard) {
+                return false;
+            }
+            guards::BooleanGuard guard(recursionGuard.get());
+            if(orientation == Qt::Horizontal) {
+                qApp->sendEvent(w->horizontalScrollBar(), e);
+            } else {
+                qApp->sendEvent(w->verticalScrollBar(), e);
+            }
+            return true;
+        }
+        return false;
+    });
+
+    return *this;
+}

@@ -294,6 +294,17 @@ enum class ButtonRole
     Open = 12,
 };
 
+class WidgetScrollAreaWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetScrollAreaWrapper(class QScrollArea* button);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetScrollAreaWrapper, QScrollArea)
+
+    WidgetScrollAreaWrapper& AddScrollByWheel(Qt::Orientation orientation);
+};
+
 class WidgetAbstractButtonWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;

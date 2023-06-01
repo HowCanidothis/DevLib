@@ -303,7 +303,8 @@ QFrame[Footer="true"]
 {
     border: none;
     border-radius: 0px;
-    padding: 10px 20px 10px 20px;
+    max-height: 50px;
+    min-height: 50px;
 }
 
 QFrame[Footer="true"] QLabel

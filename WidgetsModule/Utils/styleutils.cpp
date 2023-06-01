@@ -78,9 +78,11 @@ void StyleUtils::InstallSizeAdjuster(QWidget* widget)
                 switch (e->type()) {
                 case QEvent::Resize:
                     for(QWidget* w : *childs) {
-                        auto* layout = w->layout();
-                        if(layout != nullptr) {
-                            layout->invalidate();
+                        if(w->isVisible()) {
+                            auto* layout = w->layout();
+                            if(layout != nullptr) {
+                                layout->invalidate();
+                            }
                         }
                     }
                     break;
