@@ -3,7 +3,7 @@
 
 namespace TorqueUnits
 {
-    IMPLEMENT_MEASUREMENT_UNIT(NewtonMeters, []{return QObject::tr("newton meters");       }, []{ return QObject::tr("Nm");    }, 1);
+    IMPLEMENT_MEASUREMENT_UNIT(NewtonMeters, []{return QObject::tr("newton meters");       }, []{ return QObject::tr("Nm");    }, 1.0);
     IMPLEMENT_MEASUREMENT_UNIT(DecaNewtonMeters, []{return QObject::tr("decanewton meters");       }, []{ return QObject::tr("daNm");    }, 10.0);
     IMPLEMENT_MEASUREMENT_UNIT(KilonewtonMeters, []{return QObject::tr("kilonewton meters");   }, []{ return QObject::tr("kNm");   }, 1000.0 );
     IMPLEMENT_MEASUREMENT_UNIT(PoundForceFeet, []{return QObject::tr("pound-force feet");    }, []{ return QObject::tr("ftlbf"); }, 1.355817952003);

@@ -435,7 +435,7 @@ public:
                 m_onDirectOnChanged += { this, [this]{
                     Q_ASSERT(m_calculator && m_preparator && m_releaser);
                     Valid.SetState(false);
-                    Cancel();
+                    Super::Cancel();
                 }};
                 m_onChanged += { this, [this]{
                     Valid.SetState(false);
@@ -482,12 +482,20 @@ public:
         m_dependenciesAreUpToDate.Update();
     }
 
-    void Disconnect()
+    void Cancel()
+    {
+        m_onDirectOnChanged();
+    }
+
+    void Disconnect(bool cancel = false)
     {
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.ClearProperties();
         m_stateParameters->clear();
+        if(cancel) {
+            Cancel();
+        }
     }
 
     void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
@@ -769,8 +777,7 @@ public:
     }
 
     void Disconnect() {
-        m_calculator.Disconnect();
-        m_calculator.Cancel();
+        m_calculator.Disconnect(true);
     }
 
     const TPtr& GetData() const { return m_data; }
