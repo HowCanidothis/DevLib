@@ -68,11 +68,11 @@ public:
     void Mute() { m_data->mute(); }
 
     template<typename ... Args>
-    static Promise OnFirstInvokeWithResult(CommonDispatcher<Args...>& dispatcher, const typename CommonDispatcher<Args...>::FCommonDispatcherActionWithResult& acceptHandler = [](Args...) { return true; })
+    static Promise OnFirstInvokeWithResult(const char* location, CommonDispatcher<Args...>& dispatcher, const typename CommonDispatcher<Args...>::FCommonDispatcherActionWithResult& acceptHandler = [](Args...) { return true; })
     {
         Promise result;
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
-        dispatcher.Connect(CONNECTION_DEBUG_LOCATION, [result, connections, acceptHandler](Args... args){
+        dispatcher.Connect(location, [result, connections, acceptHandler](Args... args){
             if(acceptHandler(args...)) {
                 connections->clear();
                 result.Resolve(true);

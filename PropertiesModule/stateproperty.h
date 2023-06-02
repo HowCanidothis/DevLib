@@ -35,38 +35,36 @@ public:
         return result;
     }
 
-    template<typename ... SafeConnections>
-    static void PerformWhenEveryIsValid(const QVector<const LocalPropertyBool*>& stateProperties, const FAction& handler, qint32 delayMsecs, bool once, SafeConnections&... connections)
-    {
-        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true, delayMsecs);
-        commutator->AddProperties(CONNECTION_DEBUG_LOCATION, stateProperties).MakeSafe(commutator->Connections);
-        commutator->Update();
+    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const QVector<const LocalPropertyBool*>& properties){
+        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true);
+        commutator->ConnectFrom(location, properties).MakeSafe(commutator->Connections);
 
-        if(*commutator) {
+        if(commutator->Native()) {
             handler();
-            if(once) {
-                return;
-            }
-        }
-
-        if(once) {
-            commutator->OnChanged.OnFirstInvoke([handler, commutator]{
-                handler();
-                ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [commutator]{}); // Safe deletion
-            }, connections...);
+            return DispatcherConnection();
         } else {
-            commutator->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [commutator, handler]{
-                if(*commutator) {
-                    handler();
-                }
-            }).MakeSafe(connections...);
+            return commutator->OnChanged.OnFirstInvoke(location, [location, handler, commutator]{
+                handler();
+                ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
+            });
         }
     }
 
-    template<typename ... SafeConnections>
-    static void OnFirstInvokePerformWhenEveryIsValid(const QVector<const LocalPropertyBool*>& stateProperties, const FAction& handler, SafeConnections&... connections)
+    template<typename ... Args>
+    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const LocalPropertyBool& stateProperty, const Args&... stateProperties)
     {
-        PerformWhenEveryIsValid(stateProperties, handler, 0, true, connections...);
+        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true);
+        commutator->ConnectFrom(location, stateProperty, stateProperties...).MakeSafe(commutator->Connections);
+
+        if(commutator->Native()) {
+            handler();
+            return DispatcherConnection();
+        } else {
+            return commutator->OnChanged.OnFirstInvoke(location, [location, handler, commutator]{
+                handler();
+                ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
+            });
+        }
     }
 };
 
@@ -888,30 +886,30 @@ public:
 class StateUpdateObjectResult
 {
 public:
-    static AsyncResult GenerateUpdateResult(const StateProperty* valid, Dispatcher* onDeleted)
+    static AsyncResult GenerateUpdateResult(const char* location, const StateProperty* valid, Dispatcher* onDeleted)
     {
         AsyncResult updatedResult;
         auto* nonConst = const_cast<StateProperty*>(valid);
         if(*valid) {
-            nonConst->OnChanged.OnFirstInvoke([updatedResult, valid, onDeleted]{
-                generateUpdateResult(valid, onDeleted, updatedResult);
+            nonConst->OnChanged.OnFirstInvoke(location, [location, updatedResult, valid, onDeleted]{
+                generateUpdateResult(location, valid, onDeleted, updatedResult);
             });
         } else {
-            generateUpdateResult(valid, onDeleted, updatedResult);
+            generateUpdateResult(location, valid, onDeleted, updatedResult);
         }
         return updatedResult;
     }
 
 private:
-    static void generateUpdateResult(const StateProperty* valid, Dispatcher* onDeleted, const AsyncResult& updatedResult)
+    static void generateUpdateResult(const char* location, const StateProperty* valid, Dispatcher* onDeleted, const AsyncResult& updatedResult)
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
         auto* nonConst = const_cast<StateProperty*>(valid);
-        nonConst->OnChanged.OnFirstInvoke([updatedResult, connections]{
+        nonConst->OnChanged.OnFirstInvoke(location, [updatedResult, connections]{
             connections->clear();
             updatedResult.Resolve(true);
         });
-        onDeleted->Connect(CONNECTION_DEBUG_LOCATION, [connections, updatedResult]{
+        onDeleted->Connect(location, [connections, updatedResult]{
             connections->clear();
             updatedResult.Resolve(false);
         }).MakeSafe(*connections);

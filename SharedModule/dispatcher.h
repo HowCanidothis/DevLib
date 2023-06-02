@@ -282,29 +282,25 @@ public:
         return *this;
     }
 
-    template<typename ... SafeConnections>
-    void OnFirstInvoke(const FCommonDispatcherAction& action, DispatcherConnectionsSafe& firstConnections, SafeConnections&... connections) const
+    DispatcherConnection OnFirstInvoke(const char* connectionInfo, const FCommonDispatcherAction& action) const
     {
-        auto firstInvokeConnections = DispatcherConnectionsSafeCreate();
-        Connect(CONNECTION_DEBUG_LOCATION, [action, firstInvokeConnections](Args... args){
+        auto connections = DispatcherConnectionsSafeCreate();
+        Connect(connectionInfo, [action, connections](Args... args){
             action(args...);
-            for(const auto& v : *firstInvokeConnections) {
-                v->Disconnect();
-            }
-        }).MakeSafe(*firstInvokeConnections, firstConnections, connections...);
+            connections->clear();
+        }).MakeSafe(*connections);
+        return DispatcherConnection([connections]{ connections->clear(); }, [](const DispatcherConnectionSafePtr& ){ });
     }
 
-    template<typename ... SafeConnections>
-    void OnFirstInvoke(const FCommonDispatcherAction& action) const
-    {
-        auto firstInvokeConnections = DispatcherConnectionsSafeCreate();
-        Connect(CONNECTION_DEBUG_LOCATION, [action, firstInvokeConnections](Args... args){
-            action(args...);
-            for(const auto& v : *firstInvokeConnections) {
-                v->Disconnect();
-            }
-        }).MakeSafe(*firstInvokeConnections);
-    }
+//    template<typename ... SafeConnections>
+//    void OnFirstInvoke(const char* connectionInfo, const FCommonDispatcherAction& action, DispatcherConnectionsSafe& firstConnections, SafeConnections&... connections) const
+//    {
+//        auto firstInvokeConnections = DispatcherConnectionsSafeCreate();
+//        Connect(connectionInfo, [action, firstInvokeConnections](Args... args){
+//            action(args...);
+//            firstInvokeConnections->Clear();
+//        }).MakeSafe(*firstInvokeConnections, firstConnections, connections...);
+//    }
 
 private:
     friend class Connection;

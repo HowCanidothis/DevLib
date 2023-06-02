@@ -29,17 +29,13 @@ DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, cons
 
 LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, const DelayedCallObjectParams& params)
     : Super(defaultState)
+    , OnChanged(Super::OnChanged)
     , m_commutator(params)
     , m_defaultState(defaultState)
 {
     m_commutator += { this, [this]{
         Update();
     }};
-}
-
-void LocalPropertyBoolCommutator::ClearProperties()
-{
-    m_handlers.clear();
 }
 
 void LocalPropertyBoolCommutator::Update()
@@ -55,15 +51,20 @@ void LocalPropertyBoolCommutator::Update()
     SetValue(result);
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperty(const char* connectionInfo, const LocalPropertyBool* property){
-    return AddRule(connectionInfo, [](bool value){ return value; }, property);
+DispatcherConnections LocalPropertyBoolCommutator::ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties){
+    DispatcherConnections result;
+    for(const auto* property : properties){
+        result += ConnectFrom(locationInfo, *property);
+    }
+    return result;
 }
 
-DispatcherConnections LocalPropertyBoolCommutator::AddProperties(const char* connectionInfo, const QVector<const LocalPropertyBool*>& properties)
+DispatcherConnections LocalPropertyBoolCommutator::ConnectFromDispatchers(const char* locationInfo, const std::function<bool ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
 {
     DispatcherConnections result;
-    for(auto* property : properties) {
-        result += AddProperty(connectionInfo, property);
+    m_handlers.append(thisEvaluator);
+    for(const auto& dispatcher : dispatchers){
+        result += m_commutator.ConnectFrom(locationInfo, *dispatcher);
     }
     return result;
 }
