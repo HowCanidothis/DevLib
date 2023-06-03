@@ -9,7 +9,9 @@
 #include <QDoubleSpinBox>
 #include <QWidgetAction>
 #include <QMenu>
+#include <QTextDocument>
 #include <QDesktopWidget>
+#include <QAbstractTextDocumentLayout>
 #include <SharedModule/internal.hpp>
 
 #include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
@@ -97,24 +99,59 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
-void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inOption, const QModelIndex& index) const
 {
-    if(!m_drawCombobox) {
-        Super::paint(painter, option, index);
+    if(!m_drawCombobox && !m_drawRichText) {
+        Super::paint(painter, inOption, index);
         return ;
     }
-    QStyleOptionComboBox opt;
-    static QComboBox cb;
+    if(m_drawRichText) {
+        QStyleOptionViewItem option = inOption;
+        initStyleOption(&option, index);
 
-    opt.initFrom(&cb);
-    opt.editable = false;
-    opt.currentText = index.data().toString();
-    opt.rect = option.rect;
-    opt.state = option.state;
+        QStyle* style = option.widget? option.widget->style() : QApplication::style();
 
-    auto style = cb.style();
-    style->drawComplexControl(QStyle::CC_ComboBox, &opt, painter, &cb);
-    style->drawControl(QStyle::CE_ComboBoxLabel, &opt, painter, &cb);
+        QTextOption textOption;
+        textOption.setAlignment(option.displayAlignment);
+        textOption.setWrapMode(QTextOption::NoWrap);
+
+        QTextDocument doc;
+        option.font.setPixelSize(option.font.pixelSize() + 1);
+        doc.setDefaultFont(option.font);
+        doc.setDefaultTextOption(textOption);
+        doc.setTextWidth(option.rect.width());
+        doc.setIndentWidth(0.0);
+        doc.setHtml(option.text);
+
+        /// Painting item without text
+        option.text = QString();
+        option.state &= ~QStyle::State_HasFocus;
+        style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+
+        QAbstractTextDocumentLayout::PaintContext ctx;
+
+        ctx.palette = option.palette;
+
+        QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
+        painter->save();
+        painter->translate(textRect.topLeft());
+        painter->setClipRect(textRect.translated(-textRect.topLeft()));
+        doc.documentLayout()->draw(painter, ctx);
+        painter->restore();
+    } else {
+        QStyleOptionComboBox opt;
+        static QComboBox cb;
+
+        opt.initFrom(&cb);
+        opt.editable = false;
+        opt.currentText = index.data().toString();
+        opt.rect = inOption.rect;
+        opt.state = inOption.state;
+
+        auto style = cb.style();
+        style->drawComplexControl(QStyle::CC_ComboBox, &opt, painter, &cb);
+        style->drawControl(QStyle::CE_ComboBoxLabel, &opt, painter, &cb);
+    }
 }
 
 DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)

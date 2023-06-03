@@ -15,6 +15,7 @@ public:
 
     DelegatesCombobox* SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; return this; }
     DelegatesCombobox* SetDrawCombobox(bool draw){ m_drawCombobox = draw; return this; }
+    DelegatesCombobox* SetDrawRichText(bool draw) { m_drawRichText = draw; return this; }
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -28,6 +29,7 @@ protected:
     std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;
     bool m_drawCombobox;
+    bool m_drawRichText;
 };
 
 class DelegatesComboboxCustomViewModel : public DelegatesCombobox
