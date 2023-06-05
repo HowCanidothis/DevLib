@@ -27,7 +27,7 @@ NetworkThread::~NetworkThread()
 
 void NetworkThread::Write(qintptr descriptor, const NetworkPackage& package)
 {
-    ThreadsBase::DoQThreadWorker(&m_threadWorker, [descriptor, package, this]{
+    ThreadsBase::DoQThreadWorker(CONNECTION_DEBUG_LOCATION, &m_threadWorker, [descriptor, package, this]{
         auto find = m_connections.FindSortedByPredicate(descriptor, [](NetworkConnection* connection, qintptr d){
                 return connection->GetSocketDescriptor() < d;
         });
@@ -43,7 +43,7 @@ void NetworkThread::AddSocket(qintptr descriptor)
 {
     ++m_connectionsCounter;
 
-    ThreadsBase::DoQThreadWorker(&m_threadWorker, [descriptor, this]{
+    ThreadsBase::DoQThreadWorker(CONNECTION_DEBUG_LOCATION, &m_threadWorker, [descriptor, this]{
         NetworkConnection* connection = new NetworkConnection(m_server);
         connection->SetSocketDescriptor(descriptor);
 
@@ -62,7 +62,7 @@ void NetworkThread::onDisconnected()
     }
     NetworkConnection* connection = reinterpret_cast<NetworkConnection*>(sender());
     qintptr socketDescriptor = connection->GetSocketDescriptor();
-    ThreadsBase::DoMain([this, socketDescriptor]{
+    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [this, socketDescriptor]{
         m_server->onConnectionLost(socketDescriptor);
     });
 
@@ -73,7 +73,7 @@ void NetworkThread::onDisconnected()
 
 void NetworkThread::onRemoveInvalidConnections()
 {    
-    ThreadsBase::DoQThreadWorker(&m_threadWorker, [this]{
+    ThreadsBase::DoQThreadWorker(CONNECTION_DEBUG_LOCATION, &m_threadWorker, [this]{
         m_connections.RemoveByPredicate([this](NetworkConnection* connection){
             if(m_connectionsToRemove.contains(connection)) {
                 delete connection;
