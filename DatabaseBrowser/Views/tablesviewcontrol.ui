@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableView" name="TablesView">
+    <widget class="WidgetsTableViewBase" name="TablesView">
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectItems</enum>
      </property>

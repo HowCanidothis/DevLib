@@ -4,10 +4,11 @@
 #include <QTableView>
 
 #include <SharedModule/External/external.hpp>
+#include "widgetstableviewbase.h"
 
-class WidgetsAdjustableTableView : public QTableView
+class WidgetsAdjustableTableView : public WidgetsTableViewBase
 {
-    using Super = QTableView;
+    using Super = WidgetsTableViewBase;
 public:
     WidgetsAdjustableTableView(QWidget* parent = nullptr);
     bool KeepStrictWidth;

@@ -448,7 +448,7 @@ public:
         return Super::insertRows(row, count, parent);
     }
 
-private:
+protected:
     bool m_isEditable;
 };
 

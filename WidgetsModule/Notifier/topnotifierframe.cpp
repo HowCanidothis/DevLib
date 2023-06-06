@@ -26,6 +26,8 @@ TopNotifierFrame::TopNotifierFrame(QWidget* parent)
     WidgetLabelWrapper(ui->Label).OnLinkActivated().Connect(CONNECTION_DEBUG_LOCATION, [this](const Name& link){
         (*(FAction*)link.AsString().toLongLong())();
     });
+
+    setFocusPolicy(Qt::NoFocus);
 }
 
 TopNotifierFrame::~TopNotifierFrame()

@@ -105,10 +105,10 @@ public:
         displayRoleComponent.GetterHandler = [modelGetter, getterUi](const QModelIndex& index) -> std::optional<QVariant> {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr) {
-                return "-";
+                return DASH;
             }
             if(index.row() >= viewModel->GetSize()) {
-                return "-";
+                return DASH;
             }
             return getterUi(viewModel->At(index.row()));
         };
@@ -140,7 +140,7 @@ public:
                     return false;
                 }
                 QVariant toSet;
-                if(data.toString() != "-") {
+                if(data.toString() != DASH) {
                     toSet = data;
                 }
                 return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
@@ -330,7 +330,7 @@ public:
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value));
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return "-";
+                return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
@@ -348,11 +348,11 @@ public:
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto dataValue = getter(const_cast<ValueType>(value));
             if(!dataValue.has_value()) {
-                return "-";
+                return DASH;
             }
             const auto& concreteValue = dataValue.value();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return "-";
+                return DASH;
             }
 
             return pMeasurement->FromBaseToUnitUi(concreteValue);
@@ -375,7 +375,7 @@ public:
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value));
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return "-";
+                return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
@@ -430,7 +430,7 @@ public:
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value)).Native();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return "-";
+                return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
@@ -460,7 +460,7 @@ public:
         return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             const auto& concreteValue = getter(const_cast<ValueType>(value));
             if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
-                return "-";
+                return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue.Value);
         }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
@@ -499,11 +499,11 @@ public:
             auto& value = const_cast<ValueType>(constValue);
             auto& dataValue = getter(value);
             if(!dataValue.has_value()) {
-                return "-";
+                return DASH;
             }
             const auto& concreteValue = dataValue.value();
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return "-";
+                return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
         }, [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {

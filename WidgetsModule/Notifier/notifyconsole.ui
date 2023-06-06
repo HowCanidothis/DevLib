@@ -161,7 +161,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableView" name="TableIssues">
+    <widget class="WidgetsTableViewBase" name="TableIssues">
      <attribute name="horizontalHeaderVisible">
       <bool>false</bool>
      </attribute>
@@ -178,6 +178,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetsTableViewBase</class>
+   <extends>QTableView</extends>
+   <header>WidgetsModule/internal.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -37,7 +37,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    lineEdit()->setPlaceholderText("-");
+    lineEdit()->setPlaceholderText(DASH);
 
     SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(text.isEmpty()) {
@@ -83,12 +83,12 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
         return QValidator::Acceptable;
     }
 
-    if((input.size() == 1 && input.startsWith("-"))) {
+    if((input.size() == 1 && input.startsWith(DASH))) {
         return QValidator::Intermediate;
     }
 
     QString inputCopy = input.replace(',', '.');
-    if(input.startsWith("-")) {
+    if(input.startsWith(DASH)) {
         inputCopy = input.mid(1);
     }
 
@@ -122,12 +122,12 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
                 auto fractialValue = fractial.toDouble();
                 value = main.toDouble() + (fuzzyIsNull(fractialValue) ? 0.0 : (meaning.toDouble() / fractialValue));
             }
-            if(regExpFractial.cap(1) == "-") {
+            if(regExpFractial.cap(1) == DASH) {
                 value = -value;
             }
         } else if(regExpFloating.indexIn(text) != -1){
             value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
-            if(regExpFractial.cap(1) == "-") {
+            if(regExpFractial.cap(1) == DASH) {
                 value = -value;
             }
         } else {
@@ -154,7 +154,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
         return GetDefaultTextFromValueHandler()(spin, value);
     });
 
-    lineEdit()->setPlaceholderText("-");
+    lineEdit()->setPlaceholderText(DASH);
 
     SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(text.isEmpty()) {
@@ -215,13 +215,13 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         return QValidator::Acceptable;
     }
 
-    if((input.size() == 1 && (input.startsWith("-") || input.startsWith("+"))) || input.startsWith(".") || input.startsWith(",")) {
+    if((input.size() == 1 && (input.startsWith(DASH) || input.startsWith("+"))) || input.startsWith(".") || input.startsWith(",")) {
         return QValidator::Intermediate;
     }
 
     QString inputCopy = input;
     inputCopy.replace(',', '.');
-    if(input.startsWith("-") || input.startsWith("+")) {
+    if(input.startsWith(DASH) || input.startsWith("+")) {
         inputCopy = input.mid(1);
     }
 

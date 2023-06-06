@@ -8,6 +8,7 @@
 #include <QDateTimeEdit>
 #include <QDoubleSpinBox>
 #include <QWidgetAction>
+#include <QTableView>
 #include <QMenu>
 #include <QTextDocument>
 #include <QDesktopWidget>
@@ -19,6 +20,7 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimepopuppicker.h"
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimewidget.h"
 #include "WidgetsModule/Widgets/DateTime/widgetstimewidget.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h"
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
@@ -67,13 +69,53 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }
-    connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [this, comboBox](qint32){
+    auto commitData = [this, comboBox](QAbstractItemDelegate::EndEditHint hints){
         if(comboBox->lineEdit() != nullptr) {
             return;
         }
         auto* nonConstThis = const_cast<DelegatesCombobox*>(this);
         emit nonConstThis->commitData(comboBox);
-        emit nonConstThis->closeEditor(comboBox);
+        emit nonConstThis->closeEditor(comboBox, hints);
+    };
+    connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [commitData]{
+        commitData(QAbstractItemDelegate::NoHint);
+    });
+    WidgetWrapper(comboBox->view()).AddEventFilter([commitData, parent, comboBox](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            auto* ke = static_cast<QKeyEvent*>(e);
+            if(ke->key() == Qt::Key_Tab) {
+                comboBox->setCurrentIndex(comboBox->view()->currentIndex().row());
+                if(ke->modifiers() & Qt::ShiftModifier) {
+                    commitData(QAbstractItemDelegate::EditPreviousItem);
+                } else {
+                    commitData(QAbstractItemDelegate::EditNextItem);
+                }
+                return true;
+            }
+        }
+        return false;
+    });
+    WidgetWrapper(comboBox).AddEventFilter([commitData, parent, comboBox](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            auto* ke = static_cast<QKeyEvent*>(e);
+            switch(ke->key()) {
+            case Qt::Key_Up:
+                comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
+                return true;
+            case Qt::Key_Down:
+                comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
+                return true;
+            case Qt::Key_Tab:
+                if(ke->modifiers() & Qt::ShiftModifier) {
+                    commitData(QAbstractItemDelegate::EditPreviousItem);
+                } else {
+                    commitData(QAbstractItemDelegate::EditNextItem);
+                }
+                return true;
+            default: break;
+            }
+        }
+        return false;
     });
     return comboBox;
 }
@@ -364,6 +406,33 @@ QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOpti
     widget->OnCloseEditor.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
         auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
         nonConst->emit closeEditor(widget);
+    });
+    auto* le = widget->GetLineEdit();
+    WidgetWrapper(le).AddEventFilter([this, widget, le](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            auto* ke = static_cast<QKeyEvent*>(e);
+            auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
+            switch(ke->key()) {
+            case Qt::Key_Backtab:
+                if(ke->modifiers() & Qt::ShiftModifier) {
+                    if(le->currentSectionIndex() == 0) {
+                        emit nonConst->commitData(widget);
+                        emit nonConst->closeEditor(widget, QAbstractItemDelegate::EditPreviousItem);
+                        return true;
+                    }
+                }
+            case Qt::Key_Tab: {
+                if(le->currentSectionIndex() == (le->sectionCount() - 1)) {
+                    emit nonConst->commitData(widget);
+                    emit nonConst->closeEditor(widget, QAbstractItemDelegate::EditNextItem);
+                    return true;
+                }
+                break;
+            }
+            default: break;
+            }
+        }
+        return false;
     });
     return widget;
 }

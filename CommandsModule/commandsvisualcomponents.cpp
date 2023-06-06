@@ -53,7 +53,7 @@ QVariant CommandsModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
         if(index.row()) {
             capacity_type commandIndex = static_cast<capacity_type>(index.row() - 1);
-            return QString::number(index.row()) + "-" + _commands->GetCommand(commandIndex)->GetText();
+            return QString::number(index.row()) + DASH + _commands->GetCommand(commandIndex)->GetText();
         } else {
             return tr("<empty>");
         }

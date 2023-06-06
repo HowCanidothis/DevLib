@@ -45,7 +45,7 @@
 
 #include "Delegates/delegates.h"
 
-#include "TableViews/widgetsactivetableviewbase.h"
+#include "TableViews/widgetstableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
 #include "TableViews/Header/widgetsresizableheaderattachment.h"
 

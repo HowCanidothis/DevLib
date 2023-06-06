@@ -231,6 +231,7 @@ namespace WidgetProperties {
 DECLARE_GLOBAL_CHAR(ExtraFieldsCount)
 DECLARE_GLOBAL_CHAR(InnerSplitter)
 DECLARE_GLOBAL_CHAR(Footer)
+DECLARE_GLOBAL_CHAR(InvertedModel)
 }
 
 #endif // WIDGETSDECLARATIONS_H

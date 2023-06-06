@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableView" name="Table">
+    <widget class="WidgetsTableViewBase" name="Table">
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>

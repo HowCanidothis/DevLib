@@ -107,7 +107,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         match();
     }};
 
-    m_requestedColumns.append("-");
+    m_requestedColumns.append(DASH);
     m_requestedColumnsIndexes.append(-1);
     if(targetImportColumns.isEmpty()) {
         for(qint32 i(0); i < targetModel->columnCount(); i++) {

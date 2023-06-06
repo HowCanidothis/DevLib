@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>818</width>
+    <width>863</width>
     <height>441</height>
    </rect>
   </property>
@@ -138,7 +138,7 @@
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="QTableView" name="SourceTable">
+     <widget class="WidgetsTableViewBase" name="SourceTable">
       <property name="minimumSize">
        <size>
         <width>200</width>
@@ -146,7 +146,7 @@
        </size>
       </property>
      </widget>
-     <widget class="QTableView" name="PreviewTable">
+     <widget class="WidgetsTableViewBase" name="PreviewTable">
       <property name="minimumSize">
        <size>
         <width>200</width>
@@ -158,6 +158,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetsTableViewBase</class>
+   <extends>QTableView</extends>
+   <header>WidgetsModule/internal.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

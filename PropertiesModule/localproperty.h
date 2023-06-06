@@ -1231,7 +1231,7 @@ struct LocalPropertyOptional
     std::optional<value_type> ToStdOptional() const { return IsValid ? std::make_optional(Value.Native()) : std::nullopt; }
     QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
     QVariant ToVariant(const FValidator& unitsHandler) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(); }
-    QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler = [](value_type v){return QString::number(v); }) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant("-"); }
+    QVariant ToVariantUi(const std::function<QString (value_type)>& unitsHandler = [](value_type v){return QString::number(v); }) const { return IsValid ? QVariant(unitsHandler(Value.Native())) : QVariant(DASH); }
 private:
     template<typename T>
     static void dispatcherExtractor(QVector<Dispatcher*>& dispatchers, T& property){
