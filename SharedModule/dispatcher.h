@@ -282,10 +282,10 @@ public:
         return *this;
     }
 
-    DispatcherConnection OnFirstInvoke(const char* connectionInfo, const FCommonDispatcherAction& action) const
+    DispatcherConnection OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
         auto connections = DispatcherConnectionsSafeCreate();
-        Connect(connectionInfo, [action, connections](Args... args){
+        Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
             action(args...);
             connections->clear();
         }).MakeSafe(*connections);

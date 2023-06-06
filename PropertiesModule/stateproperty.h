@@ -43,7 +43,7 @@ public:
             handler();
             return DispatcherConnection();
         } else {
-            return commutator->OnChanged.OnFirstInvoke(location, [location, handler, commutator]{
+            return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
                 handler();
                 ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
             });
@@ -60,7 +60,7 @@ public:
             handler();
             return DispatcherConnection();
         } else {
-            return commutator->OnChanged.OnFirstInvoke(location, [location, handler, commutator]{
+            return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
                 handler();
                 ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
             });
@@ -891,7 +891,7 @@ public:
         AsyncResult updatedResult;
         auto* nonConst = const_cast<StateProperty*>(valid);
         if(*valid) {
-            nonConst->OnChanged.OnFirstInvoke(location, [location, updatedResult, valid, onDeleted]{
+            nonConst->OnChanged.OnFirstInvoke([location, updatedResult, valid, onDeleted]{
                 generateUpdateResult(location, valid, onDeleted, updatedResult);
             });
         } else {
@@ -905,7 +905,7 @@ private:
     {
         auto connections = ::make_shared<DispatcherConnectionsSafe>();
         auto* nonConst = const_cast<StateProperty*>(valid);
-        nonConst->OnChanged.OnFirstInvoke(location, [updatedResult, connections]{
+        nonConst->OnChanged.OnFirstInvoke([updatedResult, connections]{
             connections->clear();
             updatedResult.Resolve(true);
         });
