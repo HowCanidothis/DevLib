@@ -28,7 +28,7 @@ DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, cons
 }
 
 LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, const DelayedCallObjectParams& params)
-    : Super(defaultState)
+    : Super(false)
     , OnChanged(Super::OnChanged)
     , m_commutator(params)
     , m_defaultState(defaultState)
@@ -54,8 +54,9 @@ void LocalPropertyBoolCommutator::Update()
 DispatcherConnections LocalPropertyBoolCommutator::ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties){
     DispatcherConnections result;
     for(const auto* property : properties){
-        result += ConnectFrom(locationInfo, *property);
+        result += connectFromProperties(locationInfo, [](bool v){ return v; }, *property);
     }
+    m_commutator.Invoke();
     return result;
 }
 
@@ -66,6 +67,7 @@ DispatcherConnections LocalPropertyBoolCommutator::ConnectFromDispatchers(const 
     for(const auto& dispatcher : dispatchers){
         result += m_commutator.ConnectFrom(locationInfo, *dispatcher);
     }
+    m_commutator.Invoke();
     return result;
 }
 

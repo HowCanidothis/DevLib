@@ -35,36 +35,16 @@ public:
         return result;
     }
 
-    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const QVector<const LocalPropertyBool*>& properties){
-        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true);
-        commutator->ConnectFrom(location, properties).MakeSafe(commutator->Connections);
-
-        if(commutator->Native()) {
-            handler();
-            return DispatcherConnection();
-        } else {
-            return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
-                handler();
-                ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
-            });
-        }
-    }
-
     template<typename ... Args>
-    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const LocalPropertyBool& stateProperty, const Args&... stateProperties)
+    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const Args&... stateProperties)
     {
         auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true);
-        commutator->ConnectFrom(location, stateProperty, stateProperties...).MakeSafe(commutator->Connections);
+        commutator->ConnectFrom(location, stateProperties...).MakeSafe(commutator->Connections);
 
-        if(commutator->Native()) {
+        return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
             handler();
-            return DispatcherConnection();
-        } else {
-            return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
-                handler();
-                ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
-            });
-        }
+            ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
+        });
     }
 };
 

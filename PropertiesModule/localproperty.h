@@ -727,13 +727,7 @@ public:
     template<typename Function, typename ... Args>
     DispatcherConnections ConnectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
     {
-        DispatcherConnections result;
-        m_handlers.append([this, locationInfo, handler, &args...]{
-            return handler(args.Native()...);
-        });
-        adapters::Combine([&](const auto& property){
-            result += m_commutator.ConnectFrom(locationInfo, property.OnChanged);
-        }, args...);
+        auto result = connectFromProperties(locationInfo, handler, args...);
         m_commutator.Invoke();
         return result;
     }
@@ -741,8 +735,9 @@ public:
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyBool& another, const Args& ... args) {
         DispatcherConnections result;
         adapters::Combine([&](const LocalPropertyBool& p){
-            result += ConnectFromProperties(locationInfo, [](bool v){ return v; }, p);
+            result += connectFromProperties(locationInfo, [](bool v){ return v; }, p);
         }, another, args...);
+        m_commutator.Invoke();
         return result;
     }
     DispatcherConnections ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties);
@@ -772,6 +767,21 @@ public:
     operator const bool&() const { return Super::operator const bool &(); }
 
     Dispatcher& OnChanged;
+
+private:
+    template<typename Function, typename ... Args>
+    DispatcherConnections connectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
+    {
+        DispatcherConnections result;
+        m_handlers.append([this, locationInfo, handler, &args...]{
+            return handler(args.Native()...);
+        });
+        adapters::Combine([&](const auto& property){
+            result += m_commutator.ConnectFrom(locationInfo, property.OnChanged);
+        }, args...);
+        return result;
+    }
+
 private:
     DispatchersCommutator m_commutator;
     ThreadHandlerNoThreadCheck m_threadHandler;
