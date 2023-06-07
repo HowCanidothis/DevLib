@@ -372,14 +372,14 @@ public:
         , m_recalculateOnEnabled(recalculateOnEnabled)
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate);
-        Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool valid){
-            return !valid ? false : Valid.Native();
-        }, m_dependenciesAreUpToDate);
 
         Enabled.OnChanged += {this, [this]{
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
-                m_onDirectOnChanged += { this, [this]{
+                m_onChanged.OnDirectChanged += { this, [this]{
+                    if(!Valid) {
+                        return;
+                    }
                     Q_ASSERT(m_calculator && m_preparator && m_releaser);
                     Valid.SetState(false);
                     Super::Cancel();
@@ -402,7 +402,7 @@ public:
                 }
             } else {
                 m_onChanged -= this;
-                m_onDirectOnChanged -= this;
+                m_onChanged.OnDirectChanged -= this;
                 Valid.SetState(false);
             }
         }};
@@ -425,13 +425,12 @@ public:
     void RequestRecalculate() const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onDirectOnChanged();
         m_dependenciesAreUpToDate.Update();
     }
 
     void Cancel()
     {
-        m_onDirectOnChanged();
+        m_onChanged.OnDirectChanged();
     }
 
     void Disconnect(bool cancel = false)
@@ -517,7 +516,6 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         auto& nonConstProperty = const_cast<LocalProperty<T2>&>(property);
-        m_onDirectOnChanged.ConnectFrom(connection, nonConstProperty.OnChanged).MakeSafe(m_connections);
         m_onChanged.ConnectFrom(connection, nonConstProperty.OnChanged).MakeSafe(m_connections);
         return *this;
     }
@@ -544,7 +542,6 @@ public:
     const StateCalculator& Connect(const char* connection, const StatePropertyBoolCommutator& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onDirectOnChanged.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
         m_dependenciesAreUpToDate.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
         return *this;
     }
@@ -552,7 +549,6 @@ public:
     const StateCalculator& Connect(const char* connection, const StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onDirectOnChanged.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
         m_dependenciesAreUpToDate.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
         return *this;
     }
@@ -560,7 +556,6 @@ public:
     const StateCalculator& Connect(const char* connection, const Dispatcher& onChanged) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onDirectOnChanged.ConnectFrom(connection, onChanged).MakeSafe(m_connections);
         m_onChanged.ConnectFrom(connection, onChanged).MakeSafe(m_connections);
         return *this;
     }
@@ -598,8 +593,7 @@ private:
     typename ThreadCalculatorData<T>::Releaser m_releaser;
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
-    mutable DispatchersCommutator m_onChanged;
-    mutable Dispatcher m_onDirectOnChanged;
+    mutable DispatchersCommutatorWithDirect m_onChanged;
     mutable SharedPointer<QSet<SharedPointer<StateParameters>>> m_stateParameters;
     bool m_recalculateOnEnabled;
     ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
