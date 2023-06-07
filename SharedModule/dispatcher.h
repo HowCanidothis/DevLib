@@ -54,6 +54,7 @@ class DispatcherConnection
     DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator);
     void disconnect() const;
 public:
+    DispatcherConnection(const FAction& disconnector);
     DispatcherConnection();
 
     DispatcherConnectionSafePtr MakeSafe();

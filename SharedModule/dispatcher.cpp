@@ -45,6 +45,13 @@ void DispatcherConnection::disconnect() const
     }
 }
 
+DispatcherConnection::DispatcherConnection(const FAction& disconnector)
+    : m_disconnector(disconnector)
+    , m_registrator([](const DispatcherConnectionSafePtr&){})
+{
+
+}
+
 DispatcherConnectionSafePtr DispatcherConnection::MakeSafe()
 {
     Q_ASSERT(m_registrator != nullptr);

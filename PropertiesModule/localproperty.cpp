@@ -27,49 +27,17 @@ DispatcherConnections LocalPropertiesConnectBoth(const char* debugLocation, cons
     return result;
 }
 
-LocalPropertyBoolCommutator::LocalPropertyBoolCommutator(bool defaultState, const DelayedCallObjectParams& params)
-    : Super(false)
-    , OnChanged(Super::OnChanged)
-    , m_commutator(params)
-    , m_defaultState(defaultState)
-{
-    m_commutator += { this, [this]{
-        Update();
-    }};
-}
-
-void LocalPropertyBoolCommutator::Update()
-{
-    bool result = m_defaultState;
-    bool oppositeState = !result;
-    for(const auto& handler : ::make_const(m_handlers)) {
-        if(handler() == oppositeState) {
-            result = oppositeState;
-            break;
-        }
-    }
-    SetValue(result);
-}
-
-DispatcherConnections LocalPropertyBoolCommutator::ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties){
-    DispatcherConnections result;
-    for(const auto* property : properties){
-        result += connectFromProperties(locationInfo, [](bool v){ return v; }, *property);
-    }
-    m_commutator.Invoke();
-    return result;
-}
-
-DispatcherConnections LocalPropertyBoolCommutator::ConnectFromDispatchers(const char* locationInfo, const std::function<bool ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
-{
-    DispatcherConnections result;
-    m_handlers.append(thisEvaluator);
-    for(const auto& dispatcher : dispatchers){
-        result += m_commutator.ConnectFrom(locationInfo, *dispatcher);
-    }
-    m_commutator.Invoke();
-    return result;
-}
+//DispatcherConnections LocalPropertyBoolCommutator::ConnectFromDispatchers(const char* locationInfo, const std::function<bool ()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers)
+//{
+//    DispatcherConnections result;
+//    m_handlers.append(thisEvaluator);
+//    for(const auto& dispatcher : dispatchers){
+//        result += m_commutator.ConnectFrom(locationInfo, *dispatcher);
+//    }
+//    result += DispatcherConnection([this]{ Q_ASSERT_X(m_handlers.isEmpty(), DEBUG_LOCATION, "Commutator must be Reseted before disconnection"); });
+//    m_commutator.Invoke();
+//    return result;
+//}
 
 LocalPropertyDate::LocalPropertyDate(const QDate& value, const QDate& min, const QDate& max)
     : Super(applyRange(value, min, max))

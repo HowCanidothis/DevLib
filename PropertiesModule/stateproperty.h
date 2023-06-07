@@ -38,61 +38,29 @@ public:
     template<typename ... Args>
     static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const Args&... stateProperties)
     {
-        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(true);
+        auto commutator = ::make_shared<WithDispatcherConnectionsSafe<LocalPropertyBoolCommutator>>(LocalPropertyBoolCommutator::And);
         commutator->ConnectFrom(location, stateProperties...).MakeSafe(commutator->Connections);
 
-        return commutator->OnChanged.OnFirstInvoke([location, handler, commutator]{
+        return commutator->AsProperty().OnChanged.OnFirstInvoke([location, handler, commutator]{
             handler();
             ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
         });
     }
 };
 
-class StatePropertyBoolCommutator : public StateProperty
+class StatePropertyBoolCommutator : public LocalPropertyBoolCommutatorBase<DispatchersCommutatorWithDirect>
 {
-    using Super = StateProperty;
+    using Super = LocalPropertyBoolCommutatorBase<DispatchersCommutatorWithDirect>;
 public:
-    using FHandler = std::function<bool ()>;
+    StatePropertyBoolCommutator(bool defaultState = true);
 
-    StatePropertyBoolCommutator(bool defaultState = false);
-
-    void ClearProperties();
     void Update();
-
-    DispatcherConnections AddProperties(const char* location, const QVector<LocalPropertyBool*>& properties);
-    DispatcherConnections AddProperty(const char* location, LocalPropertyBool* property, bool inverted = false);
-    DispatcherConnections AddHandlerFromDispatchers(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers);
-    template<typename ... Args>
-    DispatcherConnections AddHandler(const char* location, const FHandler& handler, Args&... dispatchers)
-    {
-        DispatcherConnections result;
-        adapters::Combine([this, &result](const auto& property){
-            result += property.ConnectAction(CONNECTION_DEBUG_LOCATION, [this]{
-                m_commutator.Invoke();
-            });
-        }, dispatchers...);
-        m_properties += handler;
-        m_commutator.Invoke();
-        return result;
-    }
-
-    QString ToString() const;
-
-private:
-    bool value() const;
-
-private:
-    DelayedCallObject m_setTrue;
-    bool m_defaultState;
-    Dispatcher m_commutator;
-    ThreadHandlerNoThreadCheck m_threadHandler;
-    QVector<FHandler> m_properties;
 };
 
 class StateParameters
 {
 public:
-    StateParameters();
+    StateParameters(bool valid = true);
 
     void Initialize();
     bool IsInitialized() { return m_initializer == nullptr; }
@@ -251,7 +219,7 @@ public:
                 Super::m_parameters->OnChanged.Invoke();
             });
 
-            Super::m_parameters->IsValid.AddProperties(CONNECTION_DEBUG_LOCATION, { &m_modelIsValid });
+            Super::m_parameters->IsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_modelIsValid);
         };
     }
 
@@ -268,23 +236,24 @@ enum InitializationWithLock {
 template<class T>
 class StateParametersContainer : public StateParameters
 {
+    using Super = StateParameters;
 public:
     using container_type = typename T::container_type;
     using TPtr = SharedPointer<T>;
     StateParametersContainer()
-        : m_parameter(this)
+        : Super(false)
+        , m_parameter(this)
     {
-        IsValid.EditSilent() = false;
     }
     StateParametersContainer(const TPtr& initial)
-        : m_parameter(this, initial)
+        : Super(false)
+        , m_parameter(this, initial)
     {
-        IsValid.EditSilent() = false;
     }
     StateParametersContainer(const TPtr& initial, InitializationWithLock)
-        : m_parameter(this)
+        : Super(false)
+        , m_parameter(this)
     {
-        IsValid.EditSilent() = false;
         SetLockedParameter(initial);
     }
 
@@ -332,7 +301,7 @@ public:
     DispatcherConnections AddValidatorOnChanged(const char* connectionInfo, const std::function<bool (const T& value)>& validator, const Dispatchers&... args)
     {
         auto dispatcher = GetProperty().DispatcherParamsOnChanged(CONNECTION_DEBUG_LOCATION).CreateDispatcher();
-        return IsValid.AddHandler(connectionInfo, [this, validator, dispatcher]{
+        return IsValid.ConnectFromDispatchers(connectionInfo, [this, validator, dispatcher]{
             if(GetProperty() == nullptr) {
                 return false;
             }
@@ -343,7 +312,7 @@ public:
     template<typename ... Dispatchers>
     DispatcherConnections AddValidator(const char* connectionInfo, const std::function<bool (const T& value)>& validator, const Dispatchers&... args)
     {
-        return IsValid.AddHandler(connectionInfo, [this, validator]{
+        return IsValid.ConnectFromDispatchers(connectionInfo, [this, validator]{
             if(GetProperty() == nullptr) {
                 return false;
             }
@@ -402,7 +371,7 @@ public:
         , m_stateParameters(::make_shared<QSet<SharedPointer<StateParameters>>>())
         , m_recalculateOnEnabled(recalculateOnEnabled)
     {
-        m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate.OnChanged);
+        m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate);
         Valid.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool valid){
             return !valid ? false : Valid.Native();
         }, m_dependenciesAreUpToDate);
@@ -469,7 +438,7 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
-        m_dependenciesAreUpToDate.ClearProperties();
+        m_dependenciesAreUpToDate.Reset(false);
         m_stateParameters->clear();
         if(cancel) {
             Cancel();
@@ -540,10 +509,7 @@ public:
     const StateCalculator& Connect(const char* connection, const StateCalculator<T2>& calculator) const
     {
         THREAD_ASSERT_IS_MAIN();
-        auto& nonConstCalculator = const_cast<StateCalculator<T2>&>(calculator);
-        m_onDirectOnChanged.ConnectFrom(connection, nonConstCalculator.Valid.OnChanged).MakeSafe(m_connections);
-        m_dependenciesAreUpToDate.AddProperties(connection, { &nonConstCalculator.Valid }).MakeSafe(m_connections);
-        return *this;
+        return Connect(connection, calculator.Valid);
     }
 
     template<class T2>
@@ -575,11 +541,19 @@ public:
         return *this;
     }
 
+    const StateCalculator& Connect(const char* connection, const StatePropertyBoolCommutator& dispatcher) const
+    {
+        THREAD_ASSERT_IS_MAIN();
+        m_onDirectOnChanged.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
+        m_dependenciesAreUpToDate.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
+        return *this;
+    }
+
     const StateCalculator& Connect(const char* connection, const StateProperty& dispatcher) const
     {
         THREAD_ASSERT_IS_MAIN();
-        m_onDirectOnChanged.ConnectFrom(connection, dispatcher.OnChanged).MakeSafe(m_connections);
-        m_dependenciesAreUpToDate.AddProperties(connection, { const_cast<StateProperty*>(&dispatcher) }).MakeSafe(m_connections);
+        m_onDirectOnChanged.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
+        m_dependenciesAreUpToDate.ConnectFrom(connection, dispatcher).MakeSafe(m_connections);
         return *this;
     }
 

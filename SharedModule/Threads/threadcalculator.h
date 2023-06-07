@@ -76,7 +76,7 @@ public:
     ThreadCalculator(const ThreadHandler& threadHandler)
         : m_data(::make_shared<ThreadCalculatorData<T>>(threadHandler))
     {}
-    ~ThreadCalculator()
+    virtual ~ThreadCalculator()
     {
         m_latestTask.Resolve(false);
         SafeQuit();

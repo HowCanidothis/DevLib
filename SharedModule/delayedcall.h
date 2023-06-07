@@ -113,7 +113,24 @@ private:
     mutable DelayedCallObject m_delayedCallObject;
 };
 
+template<typename ... Args>
+class DelayedCallDispatchersCommutatorWithDirect : public DelayedCallDispatchersCommutator<Args...>
+{
+    using Super = DelayedCallDispatchersCommutator<Args...>;
+public:
+    using Super::Super;
+
+    void Invoke(Args... args) const override
+    {
+        OnDirectChanged(args...);
+        Super::Invoke(args...);
+    }
+
+    CommonDispatcher<Args...> OnDirectChanged;
+};
+
 using DispatchersCommutator = DelayedCallDispatchersCommutator<>;
+using DispatchersCommutatorWithDirect = DelayedCallDispatchersCommutatorWithDirect<>;
 
 inline DelayedCallObjectPtr DelayedCallObjectCreate(const DelayedCallObjectParams& params = DelayedCallObjectParams())
 {

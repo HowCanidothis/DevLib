@@ -717,13 +717,36 @@ public:
     LocalPropertyBool& operator=(bool value) { Super::SetValue(value); return *this; }
 };
 
-class LocalPropertyBoolCommutator : public LocalProperty<bool>
+template<class DispatcherType>
+class LocalPropertyBoolCommutatorBase
 {
-    using Super = LocalProperty<bool>;
 public:
-    LocalPropertyBoolCommutator(bool defaultState = false, const DelayedCallObjectParams& params = DelayedCallObjectParams());
+    enum Mode
+    {
+        And,
+        Or
+    };
 
-    void Update();
+    LocalPropertyBoolCommutatorBase(Mode defaultState = Or, const DelayedCallObjectParams& params = DelayedCallObjectParams())
+        : m_commutator(params)
+        , m_defaultState(defaultState == Or ? false : true)
+    {
+        m_commutator += { this, [this]{
+            Update();
+        }};
+    }
+
+    void Reset(bool invoke = true)
+    {
+        m_handlers.clear();
+        if(invoke) {
+            m_property = false;
+        }
+    }
+    void Update()
+    {
+        m_property = value();
+    }
     template<typename Function, typename ... Args>
     DispatcherConnections ConnectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
     {
@@ -733,42 +756,62 @@ public:
     }
     template<typename ... Args>
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyBool& another, const Args& ... args) {
-        DispatcherConnections result;
-        adapters::Combine([&](const LocalPropertyBool& p){
-            result += connectFromProperties(locationInfo, [](bool v){ return v; }, p);
-        }, another, args...);
+        auto result = connectFrom(locationInfo, another, args...);
         m_commutator.Invoke();
         return result;
     }
-    DispatcherConnections ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties);
+    DispatcherConnections ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties){
+        auto result = connectFrom(locationInfo, properties);
+        m_commutator.Invoke();
+        return result;
+    }
+    template<typename ... Args>
+    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<bool()>& thisEvaluator, const Args&... args)
+    {
+        auto result = connectFromDispatchers(locationInfo, thisEvaluator, args...);
+        m_commutator.Invoke();
+        return result;
+    }
     DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<bool()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers);
 
     template<typename ... Dispatchers>
     DispatcherConnections Connect(const char* connectionInfo, const std::function<void (const bool&)>& handler, Dispatchers&... dispatchers) const
     {
-        return Super::Connect(connectionInfo, handler, dispatchers...);
+        return m_property.Connect(connectionInfo, handler, dispatchers...);
     }
 
     template<typename ... Dispatchers>
     DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void (const bool&)>& handler, Dispatchers&... dispatchers) const
     {
-        return Super::ConnectAndCallCombined(connectionInfo, handler, dispatchers...);
+        return m_property.ConnectAndCall(connectionInfo, handler, dispatchers...);
     }
     DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
     {
-        return Super::ConnectAction(locationInfo, action);
+        return m_property.ConnectAction(locationInfo, action);
     }
 
-    const bool& Native() const { return m_value; }
-    bool operator!() const { return Super::operator !(); }
-    bool operator<(const bool& value) const { return Super::operator <(value); }
-    bool operator!=(const bool& value) const { return Super::operator !=(value); }
-    bool operator==(const bool& value) const { return Super::operator ==(value); }
-    operator const bool&() const { return Super::operator const bool &(); }
+    bool operator!() const { return !m_property; }
+    //bool operator<(const bool& value) const { return Super::operator <(value); }
+    bool operator!=(const bool& value) const { return m_property != value; }
+    bool operator==(const bool& value) const { return m_property == value; }
+    operator bool() const { return m_property; }
 
-    Dispatcher& OnChanged;
+    bool Native() const { return m_property; }
+    operator const LocalPropertyBool&() const { return m_property; }
+    operator const LocalProperty<bool>&() const { return m_property; }
 
-private:
+    const LocalPropertyBool& AsProperty() const { return m_property; }
+
+    QString ToString() const
+    {
+        QString result;
+        for(const auto& handler : m_handlers) {
+            result += handler() ? "true " : "false ";
+        }
+        return result;
+    }
+
+protected:
     template<typename Function, typename ... Args>
     DispatcherConnections connectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
     {
@@ -777,17 +820,58 @@ private:
             return handler(args.Native()...);
         });
         adapters::Combine([&](const auto& property){
-            result += m_commutator.ConnectFrom(locationInfo, property.OnChanged);
+            result += m_commutator.ConnectFrom(locationInfo, property);
         }, args...);
         return result;
     }
 
-private:
-    DispatchersCommutator m_commutator;
-    ThreadHandlerNoThreadCheck m_threadHandler;
+    template<typename ... Args>
+    DispatcherConnections connectFrom(const char* locationInfo, const LocalPropertyBool& another, const Args& ... args) {
+        DispatcherConnections result;
+        adapters::Combine([&](const LocalPropertyBool& p){
+            result += connectFromProperties(locationInfo, FDirectBool, p);
+        }, another, args...);
+        return result;
+    }
+    DispatcherConnections connectFrom(const char* locationInfo, const QVector<const LocalPropertyBool*>& properties){
+        DispatcherConnections result;
+        for(const auto* property : properties){
+            result += connectFromProperties(locationInfo, FDirectBool, *property);
+        }
+        return result;
+    }
+    template<typename ... Args>
+    DispatcherConnections connectFromDispatchers(const char* locationInfo, const std::function<bool()>& thisEvaluator, const Args&... args)
+    {
+        DispatcherConnections result;
+        m_handlers.append(thisEvaluator);
+        adapters::Combine([&](const auto& property){
+            result += m_commutator.ConnectFrom(locationInfo, property);
+        }, args...);
+        return result;
+    }
+
+    bool value() const
+    {
+        bool result = m_defaultState;
+        bool oppositeState = !result;
+        for(const auto& handler : ::make_const(m_handlers)) {
+            if(handler() == oppositeState) {
+                result = oppositeState;
+                break;
+            }
+        }
+        return result;
+    }
+
+protected:
+    LocalPropertyBool m_property;
+    DispatcherType m_commutator;
     QVector<std::function<bool()>> m_handlers;
     bool m_defaultState;
 };
+
+using LocalPropertyBoolCommutator = LocalPropertyBoolCommutatorBase<DispatchersCommutator>;
 
 template<class T>
 class LocalPropertyVector : public LocalProperty<QVector<T>>

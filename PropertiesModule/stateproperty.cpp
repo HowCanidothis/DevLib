@@ -11,90 +11,24 @@ DispatcherConnections StateProperty::ConnectFromStateProperty(const char* locati
 }
 
 StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
-    : Super(defaultState)
-    , m_defaultState(defaultState)
+    : Super(And)
 {
-    m_commutator += { this, [this]{
-        if(value()) {
-            m_setTrue.Call(CONNECTION_DEBUG_LOCATION, [this]{
-                SetValue(value());
-            });
-        } else {
+    m_property.EditSilent() = defaultState;
+    m_commutator.OnDirectChanged += { this, [this]{
+        if(!value()) {
 #ifdef QT_DEBUG
-            SetValueForceInvoke(false);
+            m_property.SetValueForceInvoke(false);
 #else
-            SetValue(false);
+            m_property.SetValue(false);
 #endif
         }
     }};
 }
 
-void StatePropertyBoolCommutator::ClearProperties()
-{
-    m_properties.clear();
-}
-
 void StatePropertyBoolCommutator::Update()
 {
-    SetValue(!m_defaultState);
+    m_property = false;
     m_commutator.Invoke();
-}
-
-DispatcherConnections StatePropertyBoolCommutator::AddProperties(const char* location, const QVector<LocalPropertyBool*>& properties)
-{
-    auto handler = [properties, location, this] {
-        for(auto* property : properties) {
-            if(*property == !m_defaultState) {
-                DEBUG_PRINT_INFO(property);
-                return !m_defaultState;
-            }
-        }
-        return m_defaultState;
-    };
-    QVector<Dispatcher*> dispatchers;
-    for(auto* property : properties) {
-        dispatchers.append(&property->OnChanged);
-    }
-
-    return AddHandlerFromDispatchers(location, handler, dispatchers);
-}
-
-DispatcherConnections StatePropertyBoolCommutator::AddProperty(const char* location, LocalPropertyBool* property, bool inverted)
-{
-    return AddHandler(location, [property, inverted]() -> bool { return inverted ? !property->Native() : property->Native(); }, *property);
-}
-
-DispatcherConnections StatePropertyBoolCommutator::AddHandlerFromDispatchers(const char* location, const FHandler& handler, const QVector<Dispatcher*>& dispatchers)
-{
-    DispatcherConnections result;
-    for(auto* dispatcher : dispatchers) {
-        result += m_commutator.ConnectFrom(location, *dispatcher);
-    }
-    m_properties += handler;
-    m_commutator.Invoke();
-    return result;
-}
-
-QString StatePropertyBoolCommutator::ToString() const
-{
-    QString result;
-    for(const auto& handler : m_properties) {
-        result += handler() ? "true " : "false ";
-    }
-    return result;
-}
-
-bool StatePropertyBoolCommutator::value() const
-{
-    bool result = m_defaultState;
-    bool oppositeState = !result;
-    for(const auto& handler : m_properties) {
-        if(handler() == oppositeState) {
-            result = oppositeState;
-            break;
-        }
-    }
-    return result;
 }
 
 void StateParameters::Initialize()
@@ -111,8 +45,8 @@ IStateParameterBase::IStateParameterBase(StateParameters* params)
     params->m_parameters.append(this);
 }
 
-StateParameters::StateParameters()
-    : IsValid(true)
+StateParameters::StateParameters(bool valid)
+    : IsValid(valid)
     , IsLocked(false)
     , m_counter(0)
     , m_isValid(true)
