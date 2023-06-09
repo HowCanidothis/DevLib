@@ -1268,8 +1268,7 @@ struct LocalPropertyOptional
             }
         };
 
-        result += another.IsValid.OnChanged.Connect(locationInfo, setThis);
-        result += another.Value.OnChanged.Connect(locationInfo, setThis);
+        result += another.IsValid.OnChanged.ConnectCombined(locationInfo, setThis, another.Value);
         auto setAnother = [this, anotherEvaluator, &another, sync, locationInfo]{
             if(!*sync) {
                 *sync = true;
@@ -1281,8 +1280,7 @@ struct LocalPropertyOptional
             }
         };
 
-        result += IsValid.OnChanged.Connect(locationInfo, setThis, dispatchers...);
-        result += Value.OnChanged.Connect(locationInfo, setThis, dispatchers...);
+        result += Value.OnChanged.ConnectCombined(locationInfo, setAnother, IsValid, dispatchers...);
         return result;
     }
 
