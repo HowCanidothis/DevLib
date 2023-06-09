@@ -407,6 +407,26 @@ public:
         return *this;
     }
 
+    template<typename T, class ... Args, typename = typename std::enable_if<std::is_enum<T>::value>::type>
+    const WidgetComboboxWrapper& EnableStandardItems(const T& v, Args... args) const
+    {
+        QSet<qint32> result;
+        adapters::Combine([&](auto type){
+            result.insert((qint32)type);
+        }, v, args...);
+        return EnableStandardItems(result);
+    }
+
+    template<typename T, class ... Args, typename = typename std::enable_if<std::is_enum<T>::value>::type>
+    const WidgetComboboxWrapper& DisableStandardItems(const T& v, Args... args) const
+    {
+        QSet<qint32> result;
+        adapters::Combine([&](auto type){
+            result.insert((qint32)type);
+        }, v, args...);
+        return DisableStandardItems(result);
+    }
+
     const WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisconnectModel() const;
