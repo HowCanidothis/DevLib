@@ -663,6 +663,7 @@ public:
     bool IsEmpty() const { return this->m_value.isEmpty(); }
     qint32 Size() const { return this->m_value.size(); }
     bool IsContains(const T& value) const { return this->m_value.contains(value); }
+    typename QSet<T>::const_iterator Find(const T& value) const { return this->m_value.find(value); }//TODO
 
     LocalPropertySet& operator=(const QSet<T>& another)
     {

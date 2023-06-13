@@ -46,6 +46,13 @@ bool LocalPropertyErrorsContainer::HasError(const Name& errorName) const
     return Super::IsContains(toRemove);
 }
 
+const LocalPropertyErrorsContainerValue* LocalPropertyErrorsContainer::GetError(const Name& errorName) const
+{
+    LocalPropertyErrorsContainerValue toRemove{ errorName };
+    auto iter = Super::Find(toRemove);
+    return iter == Super::end() ? nullptr : &(*iter);
+}
+
 void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
 {
     LocalPropertyErrorsContainerValue toRemove{ errorName };

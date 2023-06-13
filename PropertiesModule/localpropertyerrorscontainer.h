@@ -26,6 +26,7 @@ public:
     void AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity = QtMsgType::QtCriticalMsg, const SharedPointer<LocalPropertyBool>& visible = nullptr, const FAction& focus = nullptr);
     void RemoveError(const Name& errorName);
     bool HasError(const Name& errorName) const;
+    const LocalPropertyErrorsContainerValue* GetError(const Name& errorName) const;
 
     void Clear();
 
