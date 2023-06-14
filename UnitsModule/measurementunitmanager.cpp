@@ -112,6 +112,7 @@ MeasurementManager::MeasurementManager()
     : m_initialized(false)
     , m_systemWrapper(::make_shared<WPSCUnitSystemTableWrapper>())
     , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
+    , m_defaultSystemsCount(0)
 {
 
 }
@@ -159,15 +160,19 @@ Measurement& MeasurementManager::AddMeasurement(const MeasurementPtr& measuremen
     return *measurement;
 }
 
-MeasurementSystem & MeasurementManager::AddSystem(const Name& name)
+MeasurementSystem & MeasurementManager::AddSystem(const Name& name, bool defaultSys)
 {
     Q_ASSERT(!m_metricSystems.contains(name));
+    if(defaultSys) {
+        ++m_defaultSystemsCount;
+    }
     auto result = ::make_shared<MeasurementSystem>(name);
+    result->DefaultSystem = defaultSys;
     AddSystem(result);
     return *result;
 }
 
-void MeasurementManager::AddSystem(const MeasurementSystemPtr & system) {
+void MeasurementManager::AddSystem(const MeasurementSystemPtr& system) {
     Name key (system->Label.Native());
     m_metricSystems.insert(key, system);
     m_systemWrapper->Append(system);
@@ -184,7 +189,7 @@ bool MeasurementManager::RemoveSystem(const Name& systemName)
         return false;
     }
     auto indexOf = m_systemWrapper->IndexOf(*foundIt);
-    if(indexOf < 3) {
+    if(indexOf < m_defaultSystemsCount) {
         return false;
     }
     if(CurrentMeasurementSystem == systemName) {
@@ -450,7 +455,7 @@ void MeasurementManager::Initialize()
             .AddUnit(&FlowConsistencyFactorUnits::FactorPascals  )
             .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
 
-    AddSystem(UNIT_SYSTEM_API_USFT)
+    AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -490,7 +495,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
-    AddSystem(UNIT_SYSTEM_API)
+    AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -531,7 +536,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
 
-    AddSystem(UNIT_SYSTEM_SI)
+    AddSystem(UNIT_SYSTEM_SI, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
@@ -591,6 +596,33 @@ void MeasurementManager::Initialize()
     });
 }
 
+void MeasurementManager::SetSystems(const QVector<MeasurementSystemPtr>& systems)
+{
+    auto& hash = m_metricSystems;
+    hash.clear();
+    m_systemWrapper->Change([&](WPSCUnitSystemTableWrapper::container_type& data){
+        data.resize(m_defaultSystemsCount);
+    });
+    for(const MeasurementSystemPtr& system : ::make_const(*m_systemWrapper)) {
+        hash.insert(Name(system->Label), system);
+    }
+
+    for(const MeasurementSystemPtr& system : systems) {
+        auto foundIt = hash.find(Name(system->Label));
+        if(foundIt != hash.end() && foundIt.value()->DefaultSystem) {
+            for(auto it(foundIt.value()->begin()), e(foundIt.value()->end()); it != e; ++it) {
+                auto paramIt = system->constFind(it.key());
+                if(paramIt != system->cend()) {
+                    it->UnitPrecision = paramIt->UnitPrecision;
+                    it->UnitStep = paramIt->UnitStep;
+                }
+            }
+        } else {
+            AddSystem(system);
+        }
+    }
+}
+
 const MeasurementUnit* MeasurementManager::GetCurrentUnit(const Name& measurementName) const
 {
     return GetMeasurement(measurementName)->GetCurrentUnit();
@@ -648,7 +680,16 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
     };
 }
 
-MeasurementSystem & MeasurementSystem::AddParameter(const Name& measurmentType, const MeasurementParams& param){
+MeasurementSystem::MeasurementSystem()
+    : DefaultSystem(false)
+{}
+
+MeasurementSystem::MeasurementSystem(const Name& label)
+    : DefaultSystem(false)
+    , Label(label.AsString())
+{}
+
+MeasurementSystem& MeasurementSystem::AddParameter(const Name& measurmentType, const MeasurementParams& param){
     Q_ASSERT(!contains(measurmentType));
     insert(measurmentType, param);
     return *this;

@@ -79,9 +79,10 @@ class MeasurementSystem : public QHash<Name,MeasurementParams>
 {
     using Super = QHash<Name,MeasurementParams>;
 public:
-    MeasurementSystem(){}
-    MeasurementSystem(const Name& label) : Label(label.AsString()) {}
+    MeasurementSystem();
+    MeasurementSystem(const Name& label);
     
+    bool DefaultSystem;
     LocalPropertyString Label;
     MeasurementSystem& AddParameter(const Name& measurmentType, const MeasurementParams& param);
     const MeasurementParams& GetParameter(const Name& measurmentType) const;
@@ -96,17 +97,18 @@ class MeasurementManager
 {
     Q_DECLARE_TR_FUNCTIONS(MeasurementManager)
     MeasurementManager();
-    friend struct Serializer<MeasurementManager>;
     
 public:
     static MeasurementManager& GetInstance();
     
     void Initialize();
 
+    void SetSystems(const QVector<MeasurementSystemPtr>& systems);
     Measurement& AddMeasurement(const MeasurementPtr& measurement);
-    MeasurementSystem& AddSystem(const Name& systemName);
+    MeasurementSystem& AddSystem(const Name& systemName, bool defaultSys = false);
     void AddSystem(const MeasurementSystemPtr& system);
     bool RemoveSystem(const Name& systemName);
+    qint32 GetDefaultSystemsCount() const { return m_defaultSystemsCount; }
     const MeasurementPtr& GetMeasurement(const Name& measurementName) const;
     const MeasurementSystemPtr& GetSystem(const Name& systemName) const;
     
@@ -139,6 +141,7 @@ private:
     
     QHash<Name, MeasurementSystemPtr> m_metricSystems;
     QHash<Name, MeasurementPtr> m_metricMeasurements;
+    qint32 m_defaultSystemsCount;
 };
 
 class MeasurementTranslatedString
