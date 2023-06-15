@@ -185,7 +185,7 @@ public:
                 return data.StateError;
             }, const std::function<bool (const T& data)>& hasCriticalErrorsHandler = [](const T& data){
                 return data.HasCriticalError();
-            })
+            }, bool updateOnWrapperChanged = true)
     {
         m_updateHandler = [this, wrapper, flagsGetter, hasCriticalErrorsHandler]{
             guards::LambdaGuard guard([this]{ ErrorsHandled(); });
@@ -257,7 +257,7 @@ public:
 
         };
 
-        onInitialize(wrapper);
+        onInitialize(wrapper, updateOnWrapperChanged);
     }
 
     void InitializePerRowOnly(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
@@ -290,6 +290,7 @@ public:
         onInitialize(wrapper, updateOnWrapperChanged);
     }
 
+    void UpdateForce() { m_updateHandler(); }
 private:
     void update()
     {
