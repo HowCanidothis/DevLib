@@ -10,8 +10,10 @@ namespace DensityUnits
     DECLARE_MEASUREMENT_UNIT(PoundsPerGallon)
     DECLARE_MEASUREMENT_UNIT(PoundsPerCubicFeet)
     DECLARE_MEASUREMENT_UNIT(MilligrammPerLiter)
+    DECLARE_MEASUREMENT_UNIT(SpecificGravity)
 };
 
 DECLARE_MEASUREMENT(Density)
+DECLARE_MEASUREMENT(SolidDensity)
 
 #endif // DENSITYDECLARATIONS_H

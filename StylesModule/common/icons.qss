@@ -7,10 +7,11 @@ MainWindow {
     
     qproperty-iconJobInformationColor: #F2933A;
     qproperty-iconRunSummaryColor: #F2933A;
-    qproperty-iconDailyReportColor: #D67C33;
-    qproperty-iconSlideSheetColor: #BA6E2C;
-    qproperty-iconBHAColor: #9E5E25;
-    qproperty-iconInventoryColor: #824E1F;
+    qproperty-iconDailyReportColor: #DB8534;
+    qproperty-iconMudReportColor: #C3772F;
+    qproperty-iconSlideSheetColor: #AC6929;
+    qproperty-iconBHAColor: #955A23;
+    qproperty-iconInventoryColor: #7D4C1E;
     qproperty-iconShippingColor: #663E18;
 
     qproperty-iconCalendarColor: #F3F3F3;

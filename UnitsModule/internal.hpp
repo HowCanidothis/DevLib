@@ -32,6 +32,8 @@
 #include "MeasurementTypes/powerdeclarations.h"
 #include "MeasurementTypes/powerareadeclarations.h"
 #include "MeasurementTypes/consistencyfactordeclarations.h"
+#include "MeasurementTypes/concentrationdeclaration.h"
+#include "MeasurementTypes/voltagedeclarations.h"
 
 #include "measurementunitmanager.h"
 

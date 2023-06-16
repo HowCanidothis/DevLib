@@ -29,6 +29,8 @@
 #include "MeasurementTypes/powerdeclarations.h"
 #include "MeasurementTypes/powerareadeclarations.h"
 #include "MeasurementTypes/consistencyfactordeclarations.h"
+#include "MeasurementTypes/concentrationdeclaration.h"
+#include "MeasurementTypes/voltagedeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -353,7 +355,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
             .AddUnit(&DensityUnits::KilogramsPerLiter)
             .AddUnit(&DensityUnits::PoundsPerGallon)
-            .AddUnit(&DensityUnits::PoundsPerCubicFeet);
+            .AddUnit(&DensityUnits::PoundsPerCubicFeet)
+            .AddUnit(&DensityUnits::SpecificGravity);
 
     AddMeasurement(MeasurementWeightPerLength::Value)
             .AddUnit(&WeightPerLengthUnits::KilogramPerMeter)
@@ -451,6 +454,37 @@ void MeasurementManager::Initialize()
             .AddUnit(&SpeedUnits::USfeetPerSecond  )
             .AddUnit(&SpeedUnits::MilesPerHour     );
 
+    AddMeasurement(MeasurementConcentration::Value)
+            .AddUnit(&ConcentrationUnits::MilliliterPerMilliliter   )
+            .AddUnit(&ConcentrationUnits::PartsPerBillion           )
+            .AddUnit(&ConcentrationUnits::CubicMetersPerCubicMeters )
+            .AddUnit(&ConcentrationUnits::KilogrammPerCubicMeters   )
+            .AddUnit(&ConcentrationUnits::MilligrammPerLiter        )
+            .AddUnit(&ConcentrationUnits::GallonPerMegagallon       );
+
+    AddMeasurement(MeasurementVoltage::Value)
+            .AddUnit(&VoltageUnits::Volt);
+
+    AddMeasurement(MeasurementSolidDensity::Value)
+            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
+            .AddUnit(&DensityUnits::KilogramsPerLiter)
+            .AddUnit(&DensityUnits::PoundsPerGallon)
+            .AddUnit(&DensityUnits::PoundsPerCubicFeet)
+            .AddUnit(&DensityUnits::SpecificGravity);
+
+    AddMeasurement(MeasurementFiltrate::Value)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerHour  )
+            .AddUnit(&FlowSpeedUnits::CubicMetersPerDay   )
+            .AddUnit(&FlowSpeedUnits::LitersPerSecond     )
+            .AddUnit(&FlowSpeedUnits::LitersPerMinute     )
+            .AddUnit(&FlowSpeedUnits::GallonsPerMinute    )
+            .AddUnit(&FlowSpeedUnits::BarrelsPerMinute    )
+            .AddUnit(&FlowSpeedUnits::CubicFeetPerSecond  )
+            .AddUnit(&FlowSpeedUnits::MilliliterPer30Min  );
+
+
     AddMeasurement(MeasurementFlowConsistencyFactor::Value)
             .AddUnit(&FlowConsistencyFactorUnits::FactorPascals  )
             .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
@@ -460,11 +494,13 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2})
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::USFeets.Id,                    2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree100USFeet.Id,                    2})
             .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
+            .AddParameter(MeasurementFiltrate::NAME,         {FlowSpeedUnits::MilliliterPer30Min.Id,          0})
             .AddParameter(MeasurementForce::NAME,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
@@ -493,6 +529,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
+            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
+            .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
@@ -500,11 +538,13 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::PoundsPerCubicFeet.Id,          2})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2})
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     2, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Feets.Id,                      2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree100Feet.Id,                      2})
             .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::GallonsPerMinute.Id,          0})
+            .AddParameter(MeasurementFiltrate::NAME,         {FlowSpeedUnits::MilliliterPer30Min.Id,          0})
             .AddParameter(MeasurementForce::NAME,             {ForceUnits::KiloPoundsForce.Id,               2})
             .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerMinute.Id,       0})
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     2})
@@ -533,6 +573,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
+            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
+            .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
 
@@ -541,11 +583,13 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
             .AddParameter(MeasurementDensity::NAME,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::KilogramsPerCubicMeters.Id,          2})
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Milimeters.Id,                 2, 1.0 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Meters.Id,                     2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree30Meter.Id,                     2})
             .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
             .AddParameter(MeasurementFlowSpeed::NAME,        {FlowSpeedUnits::LitersPerSecond.Id,           0})
+            .AddParameter(MeasurementFiltrate::NAME,         {FlowSpeedUnits::LitersPerSecond.Id,          0})
             .AddParameter(MeasurementForce::NAME,             {ForceUnits::Kilonewton.Id,                    2})
             .AddParameter(MeasurementFrequency::NAME,        {FrequencyUnits::RevolutionPerSecond.Id,       0})
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
@@ -574,6 +618,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPascals.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
+            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::KilogrammPerCubicMeters.Id,     3})
+            .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
