@@ -34,8 +34,8 @@ QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSi
 {
     auto* result = CreateButton(m_buttonsOrientation == Qt::Horizontal ? "btnDrawer" : "btnDrawerVertical");
     auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
-    connect(result, &QPushButton::clicked, [collapsed](bool checked){
-        *collapsed = checked;
+    connect(result, &QPushButton::clicked, [collapsed](bool ){
+        *collapsed = !collapsed->Native();
     });
     collapsed->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [collapsed, result]{
         result->setProperty("isOpen", collapsed->Native());

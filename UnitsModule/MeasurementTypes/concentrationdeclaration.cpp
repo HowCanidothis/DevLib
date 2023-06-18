@@ -10,3 +10,5 @@ namespace ConcentrationUnits {
     IMPLEMENT_MEASUREMENT_UNIT(MilligrammPerLiter, []{return QObject::tr("milligramm per liter");}, []{ return QObject::tr("mg/L"); }, 0.000001);
     IMPLEMENT_MEASUREMENT_UNIT(GallonPerMegagallon, []{return QObject::tr("Gallon Per Megagallon");}, []{ return QObject::tr("gal/Mgal"); }, 0.000001);
 };
+
+IMPLEMENT_MEASUREMENT(Concentration, TR(MeasurementTr::tr("Concentration")))
