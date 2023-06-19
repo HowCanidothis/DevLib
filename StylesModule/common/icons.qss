@@ -8,8 +8,8 @@ MainWindow {
     qproperty-iconJobInformationColor: #F2933A;
     qproperty-iconRunSummaryColor: #F2933A;
     qproperty-iconDailyReportColor: #DB8534;
-    qproperty-iconMudReportColor: #C3772F;
-    qproperty-iconSlideSheetColor: #AC6929;
+    qproperty-iconSlideSheetColor: #C3772F;
+    qproperty-iconMudReportColor: #AC6929;
     qproperty-iconBHAColor: #955A23;
     qproperty-iconInventoryColor: #7D4C1E;
     qproperty-iconShippingColor: #663E18;
