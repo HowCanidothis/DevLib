@@ -459,7 +459,7 @@ public:
         SetCalculatorBasedOnStateParameters([=]{
             return handler(args...);
         });
-        ConnectParameters(connectionInfo, args...);
+        ConnectCombined(connectionInfo, args...);
     }
 
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
@@ -521,7 +521,7 @@ public:
     }
 
     template<typename ... Args>
-    const StateCalculator& ConnectParameters(const char* connection, Args... args) const
+    const StateCalculator& ConnectCombined(const char* connection, const Args&... args) const
     {
         (Connect(connection, args), ...);
         return *this;

@@ -169,7 +169,7 @@ public:
         m_setterHandler = handler;
     }
 
-    void SetValue(const T& value)
+    bool SetValue(const T& value)
     {
         auto validatedValue = m_validator(value);
         validate(validatedValue);
@@ -178,7 +178,9 @@ public:
                 m_value = validatedValue;
                 Invoke();
             });
+            return true;
         }
+        return false;
     }
 
     void SetSilentWithValidators(const T& value)
