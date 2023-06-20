@@ -218,6 +218,23 @@ public:
     TViewModelsColumnComponentsBuilder& AddDoublePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false){
         return AddPropertyColumn<double>(column, header, getter, readOnly);
     }
+    TViewModelsColumnComponentsBuilder& AddDoublePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDoubleOptional& (ValueType)>& getter, bool readOnly = false){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            LocalPropertyDoubleOptional& property = getter(data);
+            return property.IsValid ? QVariant(property.Value.Native()) : QVariant("-");
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                LocalPropertyDoubleOptional& property = getter(data);
+                if(value.isNull()){
+                    property.IsValid = false;
+                } else {
+                    property.Value = value.toDouble();
+                    property.IsValid = true;
+                }
+            };
+        });
+    }
     TViewModelsColumnComponentsBuilder& AddStringPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyString& (ValueType)>& getter, bool readOnly = false){
         return AddPropertyColumn<QString>(column, header, getter, readOnly);
     }

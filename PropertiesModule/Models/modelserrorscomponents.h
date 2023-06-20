@@ -210,6 +210,8 @@ public:
                         if(!foundStart && !hasCriticalErrorsHandler(data)) {
                             startCorrectIndex = index;
                             foundStart = true;
+                        } else {
+                            errorState |= flagsGetter(data);
                         }
                         ++index;
                     }
