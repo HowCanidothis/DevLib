@@ -18,6 +18,7 @@ namespace PressureUnits
 }
 
 IMPLEMENT_MEASUREMENT(Pressure, TR(MeasurementTr::tr("Pressure")))
+IMPLEMENT_MEASUREMENT(MudPressure, TR(MeasurementTr::tr("Mud Pressure")))
 IMPLEMENT_MEASUREMENT(YieldPoint, TR(MeasurementTr::tr("Yield Point")))
 IMPLEMENT_MEASUREMENT(YieldStrength, TR(MeasurementTr::tr("Yield Strength")))
 IMPLEMENT_MEASUREMENT(YoungModulus, TR(MeasurementTr::tr("Young Modulus")))

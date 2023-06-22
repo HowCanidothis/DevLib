@@ -13,5 +13,6 @@ namespace ConcentrationUnits {
 };
 
 DECLARE_MEASUREMENT(Concentration)
+DECLARE_MEASUREMENT(ConcentrationAlkalinity)
 
 #endif // CONCENTRATIONDECLARATION_H

@@ -469,6 +469,14 @@ void MeasurementManager::Initialize()
             .AddUnit(&ConcentrationUnits::MilligrammPerLiter        )
             .AddUnit(&ConcentrationUnits::GallonPerMegagallon       );
 
+    AddMeasurement(MeasurementConcentrationAlkalinity::Value)
+            .AddUnit(&ConcentrationUnits::MilliliterPerMilliliter   )
+            .AddUnit(&ConcentrationUnits::PartsPerBillion           )
+            .AddUnit(&ConcentrationUnits::CubicMetersPerCubicMeters )
+            .AddUnit(&ConcentrationUnits::KilogrammPerCubicMeters   )
+            .AddUnit(&ConcentrationUnits::MilligrammPerLiter        )
+            .AddUnit(&ConcentrationUnits::GallonPerMegagallon       );
+
     AddMeasurement(MeasurementVoltage::Value)
             .AddUnit(&VoltageUnits::Volt);
 
@@ -536,7 +544,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
-            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
+            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilligrammPerLiter.Id,     3})
+            .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
@@ -580,7 +589,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFlowConsistencyFactor::NAME, {FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet.Id, 4})
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::PoundFahrenheit.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::FahrenheitPer100Feet.Id,     3})
-            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
+            .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::MilligrammPerLiter.Id,     3})
+            .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
@@ -626,6 +636,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementSpecificHeatCapacity::NAME, {SpecificHeatCapacityUnits::JouleKilogramCelsius.Id, 2})
             .AddParameter(MeasurementTemperaturePerDistance::NAME, {TemperaturePerDistanceUnits::CelsiusPerMeter.Id,  5})
             .AddParameter(MeasurementConcentration::NAME,       {ConcentrationUnits::KilogrammPerCubicMeters.Id,     3})
+            .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::KilogrammPerCubicMeters.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 

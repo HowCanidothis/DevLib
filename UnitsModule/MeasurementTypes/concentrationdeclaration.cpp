@@ -12,3 +12,4 @@ namespace ConcentrationUnits {
 };
 
 IMPLEMENT_MEASUREMENT(Concentration, TR(MeasurementTr::tr("Concentration")))
+IMPLEMENT_MEASUREMENT(ConcentrationAlkalinity, TR(MeasurementTr::tr("Concentration Alkalinity")))
