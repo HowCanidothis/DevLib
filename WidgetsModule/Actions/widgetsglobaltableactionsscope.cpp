@@ -157,14 +157,15 @@ FAction WidgetsGlobalTableActionsScope::CreateDefaultPasteHandler(QTableView* ta
                 auto currentRow = currentIndex.row();
                 QVector<std::pair<qint32,qint32>> toSelect;
                 for(const auto& row : data) {
-                    auto currentColumn = currentIndex.column();
+                    auto currentColumn = header->visualIndex(currentIndex.column());
                     for(const auto& value : row) {
-                        if(header->isSectionHidden(currentColumn)){
+                        auto li = header->logicalIndex(currentColumn);
+                        if(header->isSectionHidden(li)){
                             currentColumn++;
                             continue;
                         }
 
-                        auto index = model->index(currentRow, currentColumn);
+                        auto index = model->index(currentRow, li);
                         if(index.flags().testFlag(Qt::ItemIsEditable)) {
                             QLocale currentLocale;
                             bool ok;
@@ -174,7 +175,7 @@ FAction WidgetsGlobalTableActionsScope::CreateDefaultPasteHandler(QTableView* ta
                             } else {
                                 model->setData(index, value);
                             }
-                            toSelect.append(std::make_pair(currentRow, currentColumn));
+                            toSelect.append(std::make_pair(currentRow, li));
                         }
                         currentColumn++;
                     }

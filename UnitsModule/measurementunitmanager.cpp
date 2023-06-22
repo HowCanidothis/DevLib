@@ -63,6 +63,13 @@ Measurement::Measurement(const Name& key, const FTranslationHandler& label)
         }
         CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
     });
+
+    CurrentEpsilon.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](const auto&, qint32 precision) {
+        if(m_currentUnit == nullptr) {
+            return 1.0;
+        }
+        return m_currentUnit->FromUnitToBase(epsilon(precision)) * 0.9;
+    }, CurrentUnitId, CurrentPrecision);
     
     OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, Label.OnChanged,
                            CurrentUnitId.OnChanged,

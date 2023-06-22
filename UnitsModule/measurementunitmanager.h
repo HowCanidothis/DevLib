@@ -27,6 +27,7 @@ public:
     TranslatedString Label;
     LocalPropertyInt CurrentPrecision;
     LocalPropertyDouble CurrentStep;
+    LocalPropertyDouble CurrentEpsilon;
     
     LocalPropertyName CurrentUnitId;
     LocalPropertyString CurrentUnitLabel;

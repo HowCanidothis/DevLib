@@ -399,7 +399,7 @@ public:
             return [&]{
                 auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
                 auto& old = getter(value);
-                if(!fuzzyCompare(old, toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
                     old = toSet;
                 }
             };
@@ -454,7 +454,7 @@ public:
             return [&]{
                 auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
                 auto& old = getter(value);
-                if(!fuzzyCompare(old, toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
                     old = toSet;
                 }
             };
@@ -486,7 +486,7 @@ public:
                 if(isDouble){
                     auto& property = getter(value);
                     auto toSet = pMeasurement->FromUnitToBase(dval);
-                    if(!fuzzyCompare(property.Value.Native(), toSet, pMeasurement->FromUnitToBase(epsilon(pMeasurement->CurrentPrecision) * 0.9))) {
+                    if(!fuzzyCompare(property.Value.Native(), toSet, pMeasurement->CurrentEpsilon)) {
                         property.Value = toSet;
                     }
                     property.IsValid = true;
