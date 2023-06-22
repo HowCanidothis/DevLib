@@ -5,9 +5,10 @@
 
 namespace TemperatureUnits
 {
+    DECLARE_MEASUREMENT_UNIT(Kelvin)
     DECLARE_MEASUREMENT_UNIT(Celsius)
     DECLARE_MEASUREMENT_UNIT(Fahrenheit)
-};
+}
 
 namespace TemperaturePerDistanceUnits
 {
@@ -17,7 +18,7 @@ namespace TemperaturePerDistanceUnits
     DECLARE_MEASUREMENT_UNIT(FahrenheitPerMeter)
     DECLARE_MEASUREMENT_UNIT(FahrenheitPerFeet)
     DECLARE_MEASUREMENT_UNIT(FahrenheitPer100Feet)
-};
+}
 
 DECLARE_MEASUREMENT(Temperature)
 DECLARE_MEASUREMENT(TemperaturePerDistance)
