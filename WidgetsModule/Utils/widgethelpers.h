@@ -491,6 +491,7 @@ public:
     WidgetTableViewWrapper(class QTableView* tableView);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper, QTableView)
+    void DebugJson() const;
     bool CopySelectedTableContentsToClipboard(bool includeHeaders = false) const;
     QList<int> SelectedRowsSorted() const;
     QList<int> SelectedColumnsSorted() const;
@@ -498,6 +499,7 @@ public:
     QSet<int> SelectedColumnsSet() const;
     void SelectRowsAndScrollToFirst(const QSet<qint32>& rows) const;
     void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns) const;
+    WidgetsGlobalTableActionsScopeHandlersPtr CreateDefaultActionHandlers() const;
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;
     class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const;
@@ -615,6 +617,7 @@ public:
     {}
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(MenuWrapper, QMenu);
+    const MenuWrapper& AddDebugActions() const;
     const MenuWrapper& AddGlobalAction(const QString& path) const;
     const MenuWrapper& AddGlobalTableAction(const Latin1Name& id) const;
     ActionWrapper AddAction(const QString& title, const std::function<void ()>& handle) const;

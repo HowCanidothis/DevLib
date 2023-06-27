@@ -168,6 +168,16 @@ public:
     }
 
     template<class T>
+    StringBuilder& Add(const T& separator, const QString& string)
+    {
+        if(!isEmpty()) {
+            append(separator);
+        }
+        append(string);
+        return *this;
+    }
+
+    template<class T>
     StringBuilder& Join(const T& separator, const QString& string)
     {
         append(separator);

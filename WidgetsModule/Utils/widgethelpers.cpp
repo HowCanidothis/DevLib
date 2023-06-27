@@ -35,6 +35,8 @@
 
 #include <ActionsModule/internal.hpp>
 
+#include "WidgetsModule/Dialogs/widgetsdebugjsondialog.h"
+
 #include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
 #include "WidgetsModule/Models/modelslistbase.h"
 
@@ -232,6 +234,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
         auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
         if(editScope != nullptr){
             MenuWrapper tableViewWrapper(tableView);
+            tableViewWrapper.AddDebugActions();
             tableViewWrapper.AddGlobalTableAction(GlobalActionCopyId);
             tableViewWrapper.AddGlobalTableAction(GlobalActionCopyWithHeadersId);
             tableViewWrapper.AddSeparator();
@@ -316,6 +319,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     if(params.UseStandardActions) {
         auto* editScope = ActionsManager::GetInstance().FindScope("TableEdit");
         if(editScope != nullptr){
+            MenuWrapper(tableView).AddDebugActions();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyId);
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyWithHeadersId);
             MenuWrapper(tableView).AddSeparator();
@@ -527,9 +531,21 @@ void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& c
     }
 }
 
+WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::CreateDefaultActionHandlers() const
+{
+    return WidgetsGlobalTableActionsScope::AddDefaultHandlers(GetWidget());
+}
+
 WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
     : WidgetWrapper(tableView)
 {}
+
+void WidgetTableViewWrapper::DebugJson() const
+{
+    auto* dialog = WidgetsDialogsManager::GetInstance().GetOrCreateDialog<WidgetsDebugJsonDialog>("DebugJson");
+    dialog->SetTableView(GetWidget());
+    dialog->show();
+}
 
 bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders) const
 {
@@ -1557,6 +1573,14 @@ ActionWrapper MenuWrapper::AddTableColumnsAction() const
     Q_ASSERT(action != nullptr);
     tableView->addAction(action);
     return action;
+}
+
+const MenuWrapper& MenuWrapper::AddDebugActions() const
+{
+#ifndef BUILD_MASTER
+    AddGlobalTableAction(GlobalActionDebugJSONId);
+#endif
+    return *this;
 }
 
 const MenuWrapper& MenuWrapper::AddGlobalAction(const QString& path) const

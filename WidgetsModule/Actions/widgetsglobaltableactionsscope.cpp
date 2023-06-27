@@ -310,6 +310,11 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
         WidgetTableViewWrapper(table).CopySelectedTableContentsToClipboard(true);
     });
 
+    action = GetInstance().FindAction(GlobalActionDebugJSONId);
+    result->AddHandler([]{ return tr("Debug JSON"); }, QKeySequence(), action, [table]{
+        WidgetTableViewWrapper(table).DebugJson();
+    });
+
     action = GetInstance().FindAction(GlobalActionCopyId);
     auto copyHandler = [table]{
         WidgetTableViewWrapper(table).CopySelectedTableContentsToClipboard();
@@ -396,6 +401,7 @@ WidgetsGlobalTableActionId::WidgetsGlobalTableActionId(const char* id, WidgetsGl
     }
 }
 
+IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugJSONId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyWithHeadersId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionCutId, WidgetsGlobalTableActionsScope::EIM_TableHasSelectionAndIsEditable)
