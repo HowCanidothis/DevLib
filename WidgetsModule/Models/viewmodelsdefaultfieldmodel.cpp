@@ -66,6 +66,9 @@ QVariant ViewModelsDefaultFieldModel::data(const QModelIndex& index, int role) c
         if(role == Qt::DisplayRole) {
             return m_label();
         }
+        if(role == IdRole) {
+            return -1;
+        }
         return QVariant();
     }
     
