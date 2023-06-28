@@ -94,17 +94,10 @@ static const QString DefaultDateTimeFormat = "MM/dd/yyyy hh:mm AP";
 
 LanguageSettings::LanguageSettings()
     : ApplicationLocale(QLocale::system())
-    , DateTimeToStringHandler([](const QLocale& locale, const QDateTime& dt){
-        if(locale.language() == QLocale::English){
-            return locale.toString(dt, DefaultDateTimeFormat);
-        }
-        return locale.toString(dt, QLocale::FormatType::ShortFormat);
+    , DateTimeToStringHandler([this](const QLocale& locale, const QDateTime& dt){
+        return locale.toString(dt, DateTimeFormat);
     })
 {
-    ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        ApplicationLocale.EditSilent().setNumberOptions(QLocale::OmitGroupSeparator);
-        QLocale::setDefault(ApplicationLocale);
-    });
     ApplicationLocale.ConnectBoth(CONNECTION_DEBUG_LOCATION, LocaleIndex, [](const QLocale& locale){
         if(locale.language() == QLocale::English) {
             return LocaleType::English;
@@ -118,6 +111,22 @@ LanguageSettings::LanguageSettings()
             result = QLocale(QLocale::Russian);
         }
         return result;
+    });
+
+    ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
+        ApplicationLocale.EditSilent().setNumberOptions(QLocale::OmitGroupSeparator);
+        QLocale::setDefault(locale);
+
+        if(locale.language() == QLocale::English){
+            TimeFormat = "hh:mm AP";
+            DateFormat = "MM/dd/yyyy";
+            DateTimeFormat = DefaultDateTimeFormat;
+            return;
+        }
+
+        TimeFormat = locale.timeFormat(QLocale::FormatType::ShortFormat);
+        DateFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
+        DateTimeFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
     });
 }
 

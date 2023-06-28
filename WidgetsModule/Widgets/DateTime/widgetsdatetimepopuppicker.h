@@ -20,7 +20,6 @@ public:
     class WidgetsDateTimeWidget* GetDateTimeWidget() const { return m_editor; }
     class WidgetsDateTimeEdit* GetLineEdit() const;
 
-    LocalPropertyString DisplayFormat;
     LocalPropertyDoubleOptional TimeShift;
         
     Dispatcher OnCloseEditor;

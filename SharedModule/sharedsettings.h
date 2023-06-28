@@ -136,6 +136,11 @@ struct LanguageSettings
 
     LocalPropertySequentialEnum<LocaleType> LocaleIndex;
     LocalPropertyLocale ApplicationLocale;
+
+    LocalPropertyString TimeFormat;
+    LocalPropertyString DateFormat;
+    LocalPropertyString DateTimeFormat;
+
     LocalProperty<std::function<QString (const QLocale&, const QDateTime& dt)>> DateTimeToStringHandler;
 
     template<class Buffer>

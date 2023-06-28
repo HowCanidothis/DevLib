@@ -10,15 +10,12 @@ class WidgetsDatePopupPicker;
 class WidgetsDatePopupPicker : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit WidgetsDatePopupPicker(QWidget *parent = nullptr);
     ~WidgetsDatePopupPicker();
 
     class WidgetsDateTimeWidget* GetDateWidget() const { return m_editor; }
     class WidgetsDateTimeEdit* GetLineEdit() const;
-
-    LocalPropertyString DisplayFormat;
 
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;

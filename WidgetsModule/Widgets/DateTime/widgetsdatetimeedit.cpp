@@ -52,27 +52,19 @@ void WidgetsDateTimeEdit::init()
         if(calendarWidget() != nullptr) {
             calendarWidget()->setLocale(locale);
         }
+        updateDisplayFormat();
         Resize();
-        m_updateDisplayFormat.Call(CONNECTION_DEBUG_LOCATION, [this]{
-            updateLocale();
-        });
     }).MakeSafe(m_connections);
 
-    auto updateView = [this]{
+    CurrentDateTime.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QDateTime& dt){
         if(m_recursionBlock) {
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        QDateTime dateTime = TimeShift.IsValid ? CurrentDateTime.Native().toOffsetFromUtc(TimeShift.Value) : CurrentDateTime.Native();
+        QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;
         setDateTime(dateTime);
-        setDisplayFormat(displayFormat());
         Resize();
-    };
-
-    CurrentDateTime.SetAndSubscribe(updateView);
-    TimeShift.IsValid.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updateView);
-    TimeShift.Value.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, updateView);
-
+    }, TimeShift);
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -83,16 +75,12 @@ void WidgetsDateTimeEdit::init()
         setDateTimeRange(CurrentDateTime.GetMinValid(), CurrentDateTime.GetMaxValid());
     });
 
-    connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this]{
+    connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this](const QDateTime& dateTime){
         if(m_recursionBlock) {
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        if(TimeShift.IsValid) {
-            CurrentDateTime = QDateTime(dateTime().date(), dateTime().time(), Qt::OffsetFromUTC, TimeShift.Value);
-            return;
-        }
-        CurrentDateTime = QDateTime(dateTime().date(), dateTime().time());
+        CurrentDateTime = TimeShift.IsValid ? dateTime.toOffsetFromUtc(TimeShift.Value) : dateTime;
     });
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
@@ -126,22 +114,11 @@ void WidgetsDateTimeEdit::init()
         }
         return false;
     });
-
-    DisplayFormat.Subscribe([this]{
-        guards::BooleanGuard guard(&m_recursionBlock);
-        setDisplayFormat(DisplayFormat);
-        Resize();
-    });
 }
 
-void WidgetsDateTimeEdit::updateLocale()
+void WidgetsDateTimeEdit::updateDisplayFormat()
 {
-    const auto& locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
-    if(locale.language() == QLocale::English){
-        DisplayFormat = "MM/dd/yy hh:mm AP";
-    } else {
-        DisplayFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
-    }
+    setDisplayFormat(SharedSettings::GetInstance().LanguageSettings.DateTimeFormat);
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
@@ -169,13 +146,8 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
     });
 }
 
-void WidgetsDateEdit::updateLocale()
+void WidgetsDateEdit::updateDisplayFormat()
 {
-    const auto& locale = SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Native();
-    if(locale.language() == QLocale::English){
-        DisplayFormat = "MM/dd/yyyy";
-    } else {
-        DisplayFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
-    }
+    setDisplayFormat(SharedSettings::GetInstance().LanguageSettings.DateFormat);
 }
 

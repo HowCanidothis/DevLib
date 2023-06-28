@@ -100,7 +100,7 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
         foundIt = m_states.insert(stateName, StateObject());
         foundIt.value().Initialize(stateName);
         const auto& data = foundIt.value().GetData();
-        data->CurrentState = saveState(headerView);
+        data->CurrentState.EditSilent() = saveState(headerView);
         data->Headers.insert(headerView);
     }
 
