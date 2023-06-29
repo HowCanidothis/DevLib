@@ -60,6 +60,7 @@ void WidgetsStandardTableHeaderManager::State::Connect(QHeaderView* headerView)
     };
 
     m_qtConnections.connect(headerView, &QHeaderView::sectionMoved, updateState);
+    m_qtConnections.connect(headerView, &QHeaderView::sectionResized, updateState);
 }
 
 WidgetsStandardTableHeaderManager::StateObject::StateObject()
