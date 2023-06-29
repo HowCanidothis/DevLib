@@ -267,6 +267,18 @@ public:
 
     TimeParams CreateTimeParams(const typename TimeParams::FGetter& getter) { return TimeParams(getter); }
 
+    TViewModelsColumnComponentsBuilder& AddTimeColumn(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TimeToString(getter(data));
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = TimeFromVariant(value); };
+        }, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return getter(data);
+        });
+    }
+
     TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const TimeParams& params){
         return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);

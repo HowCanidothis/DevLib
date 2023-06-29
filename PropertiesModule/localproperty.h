@@ -1025,6 +1025,8 @@ public:
     const QDateTime& GetMin() const { return m_min; }
     const QDateTime& GetMax() const { return m_max; }
 
+    QTime GetTime() const { return m_value.time(); }
+    QDate GetDate() const { return m_value.date(); }
     QDateTime GetMinValid() const { return ValidatedMin(m_min); }
     QDateTime GetMaxValid() const { return ValidatedMax(m_max); }
 
