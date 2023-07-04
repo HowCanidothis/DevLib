@@ -496,10 +496,12 @@ void WidgetTableViewWrapper::SelectRowsAndScrollToFirst(const QSet<qint32>& rowI
     std::optional<qint32> firstIndex;
     for(int r=0; r<model->rowCount(); ++r){
         if(rowIndices.contains(r)) {
-            selection->select(model->index(r,0), QItemSelectionModel::Select | QItemSelectionModel::Rows);
+            auto indexToSelect = model->index(r,0);
             if(!firstIndex.has_value()) {
                 firstIndex = r;
+                selection->setCurrentIndex(indexToSelect, QItemSelectionModel::NoUpdate);
             }
+            selection->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
         }
     }
     if(firstIndex.has_value()) {

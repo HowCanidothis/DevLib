@@ -146,21 +146,17 @@ private:
 template<class T>
 class TViewModelsTableBase;
 
-template<class FilterClassData, class Wrapper>
+template<class FilterClassData>
 class ViewModelsTableFilterComponent : public QObject
 {
 public:
-    using value_type = typename Wrapper::value_type;
     using FFilterHandler = std::function<bool (const FilterClassData& filterData, qint32 index)>;
 
     ViewModelsTableFilterComponent(ViewModelsFilterModelBase* proxy, const FFilterHandler& handler)
         : QObject(proxy)
-        , m_sourceModel(reinterpret_cast<TViewModelsTableBase<Wrapper>*>(proxy->sourceModel()))
         , m_filterHandler(handler)
         , m_proxyModel(proxy)
     {
-        Q_ASSERT(m_sourceModel != nullptr);
-
         proxy->FilterHandler = [this](qint32 sourceRow, const QModelIndex&) {
             if(!FilterData.HasFilter()) {
                 return true;
@@ -172,13 +168,22 @@ public:
             proxy->InvalidateFilter();
         }};
 
+        proxy->OnModelChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, proxy]{
+            m_qtConnections.Clear();
+            if(proxy->sourceModel() != nullptr) {
+                return;
+            }
+            m_qtConnections.connect(proxy->sourceModel(), &QAbstractItemModel::modelReset, [proxy]{
+                proxy->Invalidate();
+            });
+        });
+
         QObject::connect(proxy, &QSortFilterProxyModel::destroyed, [this]{ delete this; });
     }
 
     FilterClassData FilterData;
 
 private:
-    TViewModelsTableBase<Wrapper>* m_sourceModel;
     FFilterHandler m_filterHandler;
     QtLambdaConnections m_qtConnections;
     ViewModelsFilterModelBase* m_proxyModel;
