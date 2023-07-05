@@ -447,6 +447,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
     LocalPropertyBool& WidgetChecked() const;
+    void SetExpanding(bool expanding) const;
     const WidgetGroupboxWrapper& AddCollapsing() const;
     const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher* updater, class QScrollArea* area = nullptr) const;
 };

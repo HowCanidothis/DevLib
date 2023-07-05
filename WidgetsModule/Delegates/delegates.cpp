@@ -46,10 +46,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
 }
 
 DelegatesCombobox::DelegatesCombobox(QObject* parent)
-    : Super(parent)
-    , m_aligment(Qt::AlignCenter)
-    , m_drawCombobox(false)
-    , m_valuesExtractor([]{ return QStringList(); })
+    : DelegatesCombobox([]{ return QStringList(); }, parent)
 {
 
 }
@@ -59,13 +56,16 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignCenter)
     , m_drawCombobox(false)
+    , InitializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
 {}
 
-QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& ) const
+QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     QComboBox* comboBox = new QComboBox(parent);
     WidgetWrapper(comboBox).BlockWheel();
-    comboBox->addItems(m_valuesExtractor());
+    if(!InitializeHandler(comboBox, index)){
+        comboBox->addItems(m_valuesExtractor());
+    }
     for (int i = 0; i < comboBox->count() ; ++i) {
         comboBox->setItemData(i, m_aligment, Qt::TextAlignmentRole);
     }

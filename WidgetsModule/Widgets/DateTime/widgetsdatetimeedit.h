@@ -10,7 +10,6 @@ class WidgetsDateTimeEdit : public QDateTimeEdit
     Q_OBJECT
     using Super = QDateTimeEdit;
 public:
-//    using Super::Super;
     WidgetsDateTimeEdit(QWidget* parent = nullptr);
 
     LocalPropertyDoubleOptional TimeShift;
@@ -26,10 +25,6 @@ protected:
     WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent);
 
 private:
-    void init();
-    virtual void updateDisplayFormat();
-
-private:
     DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_call;
     bool m_recursionBlock;
@@ -43,9 +38,6 @@ public:
     WidgetsDateEdit(QWidget* parent = nullptr);
 
     LocalPropertyDate CurrentDate;
-
-private:
-    void updateDisplayFormat() override;
 };
 
 #endif // WIDGETSDATETIMEEDIT_H

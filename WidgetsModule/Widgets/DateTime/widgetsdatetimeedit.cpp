@@ -7,53 +7,32 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
-    : Super(parent)
+    : WidgetsDateTimeEdit(QDateTime(), QVariant::DateTime, parent)
 {
-    init();
 }
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent)
     : Super(date, type, parent)
 {
-    init();
-}
-
-QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
-{
-    return !CurrentDateTime.IsRealTime() ? Super::dateTimeFromText(text) : QDateTime();
-}
-
-QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
-{
-    return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
-}
-
-QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const
-{
-    return Super::validate(input, pos);
-}
-
-void WidgetsDateTimeEdit::Resize()
-{
-    m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
-        QFontMetrics fm(font());
-        auto t = text();
-        int pixelsWide = fm.width(t);
-        pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
-        setMinimumWidth(pixelsWide);
-    });
-}
-
-void WidgetsDateTimeEdit::init()
-{
     m_recursionBlock = false;
-    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.Connect(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
+    setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
+
+    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
         setLocale(locale);
         if(calendarWidget() != nullptr) {
             calendarWidget()->setLocale(locale);
         }
-        updateDisplayFormat();
         Resize();
+    }).MakeSafe(m_connections);
+
+    std::function<const LocalPropertyString&(const LanguageSettings&)> DisplayFormat;
+    switch(type){
+    case QVariant::Time: DisplayFormat = &LanguageSettings::TimeFormat; break;
+    case QVariant::Date: DisplayFormat = &LanguageSettings::DateFormat; break;
+    default: DisplayFormat = &LanguageSettings::DateTimeFormat; break;
+    }
+    DisplayFormat(SharedSettings::GetInstance().LanguageSettings).ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QString& format){
+        setDisplayFormat(format);
     }).MakeSafe(m_connections);
 
     CurrentDateTime.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QDateTime& dt){
@@ -65,7 +44,6 @@ void WidgetsDateTimeEdit::init()
         setDateTime(dateTime);
         Resize();
     }, TimeShift);
-    setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_recursionBlock) {
@@ -116,9 +94,30 @@ void WidgetsDateTimeEdit::init()
     });
 }
 
-void WidgetsDateTimeEdit::updateDisplayFormat()
+QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
 {
-    setDisplayFormat(SharedSettings::GetInstance().LanguageSettings.DateTimeFormat);
+    return !CurrentDateTime.IsRealTime() ? Super::dateTimeFromText(text) : QDateTime();
+}
+
+QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
+{
+    return !CurrentDateTime.IsRealTime() ? Super::textFromDateTime(dt) : "";
+}
+
+QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const
+{
+    return Super::validate(input, pos);
+}
+
+void WidgetsDateTimeEdit::Resize()
+{
+    m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
+        QFontMetrics fm(font());
+        auto t = text();
+        int pixelsWide = fm.width(t);
+        pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
+        setMinimumWidth(pixelsWide);
+    });
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
@@ -145,9 +144,3 @@ WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
                                   CurrentDate.GetMax().isValid() ? QDateTime(CurrentDate.GetMax(), QTime(0,0)) : QDateTime());
     });
 }
-
-void WidgetsDateEdit::updateDisplayFormat()
-{
-    setDisplayFormat(SharedSettings::GetInstance().LanguageSettings.DateFormat);
-}
-

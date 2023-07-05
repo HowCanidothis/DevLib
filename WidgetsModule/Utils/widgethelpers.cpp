@@ -1014,10 +1014,16 @@ bool WidgetWrapper::RestoreGeometry(const QByteArray& geometry) const
     return true;
 }
 
+void WidgetGroupboxWrapper::SetExpanding(bool expanding) const
+{
+    *WidgetWrapper(GetWidget()).Injected<bool>("a_expanding", [&]{ return new bool(false); }) = expanding;
+}
+
 const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
 {
     auto* widget = GetWidget();
     auto update = [widget](bool visible){
+        auto expanding = WidgetWrapper(widget).Injected<bool>("a_expanding", [&]{ return new bool(false); });
         auto animation = WidgetWrapper(widget).Injected<QPropertyAnimation>("a_collapsing_animation", [&]{
             return new QPropertyAnimation(widget, "maximumSize");
         });
@@ -1027,6 +1033,9 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
         auto minSize = QSize(widget->maximumWidth(), 24);
         animation->setDuration(200);
         animation->setStartValue(!visible ? fullSize : minSize);
+        if(*expanding){
+            fullSize.setHeight(2100);
+        }
         animation->setEndValue(visible ? fullSize : minSize);
         animation->start();
     };

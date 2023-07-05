@@ -126,7 +126,7 @@ LanguageSettings::LanguageSettings()
 
         TimeFormat = locale.timeFormat(QLocale::FormatType::ShortFormat);
         DateFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
-        DateTimeFormat = locale.dateFormat(QLocale::FormatType::ShortFormat);
+        DateTimeFormat = locale.dateTimeFormat(QLocale::FormatType::ShortFormat);
     });
 }
 
