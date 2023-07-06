@@ -63,7 +63,7 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
 {
     QComboBox* comboBox = new QComboBox(parent);
     WidgetWrapper(comboBox).BlockWheel();
-    if(!InitializeHandler(comboBox, index)){
+    if(!m_initializeHandler(comboBox, index)){
         comboBox->addItems(m_valuesExtractor());
     }
     for (int i = 0; i < comboBox->count() ; ++i) {
