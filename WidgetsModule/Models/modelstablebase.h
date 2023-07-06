@@ -289,7 +289,8 @@ protected:
     // TODO. Legacy, avoid using it
     bool isLastEditRow(const QModelIndex& index) const
     {
-        return GetData() == nullptr ? index.row() == 0 : GetData()->GetSize() <= index.row();
+        Q_ASSERT(GetData() != nullptr);
+        return GetData()->GetSize() <= index.row();
     }
 
 private:
@@ -344,9 +345,9 @@ public:
 public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
-//        if(GetData() == nullptr) {
-//            return 0;
-//        }
+        if(GetData() == nullptr) {
+            return 0;
+        }
         if(!m_isEditable) {
             return Super::rowCount(parent);
         }

@@ -56,7 +56,7 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignCenter)
     , m_drawCombobox(false)
-    , InitializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
+    , m_initializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
 {}
 
 QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
