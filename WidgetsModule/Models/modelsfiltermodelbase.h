@@ -14,6 +14,13 @@ public:
     void InvalidateFilter();
     bool IsLastRow(const QModelIndex& index) const;
     bool IsLastRow(qint32 row) const;
+    bool IsLastSourceRow(qint32 sourceRow) const;
+    QModelIndex SourceModelIndex(qint32 sourceRow, qint32 sourceColumn, const QModelIndex& sourceParent = QModelIndex()) const;
+    template<class T>
+    T SourceModelObject(qint32 sourceRow) const
+    {
+        return SourceModelIndex(sourceRow, 0).data(ObjectRole).value<T>();
+    }
     bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const;
 
     void setSourceModel(QAbstractItemModel* m) override;
@@ -167,16 +174,6 @@ public:
         FilterData.OnChanged += { this, [this, proxy]{
             proxy->InvalidateFilter();
         }};
-
-        proxy->OnModelChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, proxy]{
-            m_qtConnections.Clear();
-            if(proxy->sourceModel() != nullptr) {
-                return;
-            }
-            m_qtConnections.connect(proxy->sourceModel(), &QAbstractItemModel::modelReset, [proxy]{
-                proxy->Invalidate();
-            });
-        });
 
         QObject::connect(proxy, &QSortFilterProxyModel::destroyed, [this]{ delete this; });
     }

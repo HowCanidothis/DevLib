@@ -341,6 +341,17 @@ public:
         return *this;
     }
 
+    using FDoubleGetterConst = std::function<double(ConstValueType)>;
+    using FDoubleSetter = std::function<void (ValueType, double)>;
+    using FDoubleOptSetter = std::function<void (ValueType, const std::optional<double>&)>;
+
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); }, const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
+    {
+        return addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data) {
+            Q_ASSERT(m_viewModel->ColumnComponents.SetComponent(role, column, 0, data));
+        }, min, max);
+    }
+
     void AttachDependencies()
     {
         if(!m_currentMeasurementColumns.isEmpty()) {
@@ -349,7 +360,7 @@ public:
         }
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculable(qint32 column, const FTranslationHandler& header, const std::function<double (ConstValueType)>& getter, const FDoubleSetter& setter = nullptr)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -362,12 +373,23 @@ public:
                 return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
+        }, setter == nullptr ? FModelSetter() : [setter, pMeasurement, getter](const QVariant& data, ValueType value) -> FAction {
+            auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
+            auto old = getter(value);
+            if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
+                return [&value, toSet, setter]{
+                    setter(value, toSet);
+                };
+            }
+            return nullptr;
+        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
+        }).addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data){
+            m_viewModel->ColumnComponents.AddComponent(role, column, data);
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculableOpt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculableOpt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter, const FDoubleOptSetter& setter = nullptr)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -385,175 +407,70 @@ public:
             }
 
             return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, FModelSetter(), [getter, pMeasurement](ConstValueType value) -> QVariant {
+        }, setter == nullptr ? FModelSetter() : [setter, getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
+            bool isDouble; auto dval = data.toDouble(&isDouble);
+            auto currentValue = getter(value);
+            if(isDouble){
+                auto toSet = pMeasurement->FromUnitToBase(dval);
+                if(currentValue.has_value() && fuzzyCompare(currentValue.value(), toSet, pMeasurement->CurrentEpsilon)) {
+                    return nullptr;
+                }
+                return [toSet, &value, setter]{ setter(value, toSet); };
+            }
+            if(!currentValue.has_value()) {
+                return nullptr;
+            }
+            return [&]{ setter(value, std::nullopt); };
+        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto dataValue = getter(const_cast<ValueType>(value));
             if(!dataValue.has_value()) {
                 return QVariant();
             }
             return pMeasurement->FromBaseToUnit(dataValue.value());
+        }).addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data){
+            m_viewModel->ColumnComponents.AddComponent(role, column, data);
         });
     }
 
     TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<double& (ValueType)>& getter, bool readOnly = false)
     {
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
-        m_currentMeasurementColumns.InsertSortedUnique(column);
-
-        auto pMeasurement = m_currentMeasurement;
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            auto concreteValue = getter(const_cast<ValueType>(value));
-            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return DASH;
-            }
-            return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{
-                auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
-                auto& old = getter(value);
-                if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
-                    old = toSet;
-                }
-            };
-        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
-        });
-    }
-
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const std::function<double(ConstValueType)>& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); }, const std::function<double(ConstValueType)>& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
-    {
-        qint32 column = m_currentColumn;
-        auto modelGetter = m_modelGetter;
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        auto pMeasurement = m_currentMeasurement;
-        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
-        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([min, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
-            const auto& viewModel = modelGetter();
-            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::nullopt;
-            }
-            return pMeasurement->FromBaseToUnit(min(viewModel->At(index.row())));
-        }));
-
-        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([max, pMeasurement, modelGetter](const QModelIndex& index) -> std::optional<QVariant> {
-            const auto& viewModel = modelGetter();
-            if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::nullopt;
-            }
-            return pMeasurement->FromBaseToUnit(max(viewModel->At(index.row())));
-        }));
-        return *this;
-    }
-
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
-    {
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
-        m_currentMeasurementColumns.InsertSortedUnique(column);
-
-        auto pMeasurement = m_currentMeasurement;
-        m_currentColumn = column;
-        if(!readOnly) {
-            addMeasurementLimits(getter);
-        }
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            auto concreteValue = getter(const_cast<ValueType>(value)).Native();
-            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return DASH;
-            }
-            return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{
-                auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
-                auto& old = getter(value);
-                if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
-                    old = toSet;
-                }
-            };
-        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(value)));
-        });
-    }
-
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDoubleOptional& (ValueType)>& getter, bool readOnly = false)
-    {
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
-        m_currentMeasurementColumns.InsertSortedUnique(column);
-
-        auto pMeasurement = m_currentMeasurement;
-        m_currentColumn = column;
-        if(!readOnly) {
-            addMeasurementLimits([getter](ValueType value) -> LocalPropertyDouble& { return getter(value).Value; });
-        }
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            const auto& concreteValue = getter(const_cast<ValueType>(value));
-            if(!concreteValue.IsValid || qIsNaN(concreteValue.Value) || qIsInf(concreteValue.Value)) {
-                return DASH;
-            }
-            return pMeasurement->FromBaseToUnitUi(concreteValue.Value);
-        }, readOnly ? FModelSetter() : [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{
-                bool isDouble; auto dval = data.toDouble(&isDouble);
-                if(isDouble){
-                    auto& property = getter(value);
-                    auto toSet = pMeasurement->FromUnitToBase(dval);
-                    if(!fuzzyCompare(property.Value.Native(), toSet, pMeasurement->CurrentEpsilon)) {
-                        property.Value = toSet;
-                    }
-                    property.IsValid = true;
-                } else {
-                    getter(value).IsValid = false;
-                }
-            };
-        }, [getter, pMeasurement](ConstValueType value) -> QVariant {
-            const auto& concreteValue = getter(const_cast<ValueType>(value));
-            if(!concreteValue.IsValid){
-                return QVariant();
-            }
-            return pMeasurement->FromBaseToUnit(concreteValue.Value);
+        return AddMeasurementColumnCalculable(column, header, [getter](ConstValueType value) {
+            return getter(const_cast<ValueType>(value));
+        }, readOnly ? FDoubleSetter() : [getter](ValueType data, double value) {
+            getter(data) = value;
         });
     }
 
     TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column,
                                                              const FTranslationHandler& header,
-                                                             const std::function<std::optional<double>& (ValueType)>& getter)
+                                                             const std::function<std::optional<double>& (ValueType)>& getter, bool readOnly = false)
     {
-        Q_ASSERT(m_currentMeasurement != nullptr);
-        Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
-        m_currentMeasurementColumns.InsertSortedUnique(column);
-
-        auto pMeasurement = m_currentMeasurement;
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType constValue) -> QVariant {
-            auto& value = const_cast<ValueType>(constValue);
-            auto& dataValue = getter(value);
-            if(!dataValue.has_value()) {
-                return DASH;
-            }
-            const auto& concreteValue = dataValue.value();
-            if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
-                return DASH;
-            }
-            return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, [getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
-            return [&]{
-                bool isDouble; auto dval = data.toDouble(&isDouble);
-                if(isDouble){
-                    getter(value) = pMeasurement->FromUnitToBase(dval);
-                } else {
-                    getter(value) = std::nullopt;
-                }
-            };
-        }, [getter, pMeasurement](ConstValueType constValue) -> QVariant {
-            auto& value = const_cast<ValueType>(constValue);
-            auto& dataValue = getter(value);
-            if(!dataValue.has_value()) {
-                return QVariant();
-            }
-            return pMeasurement->FromBaseToUnit(dataValue.value());
+        return AddMeasurementColumnCalculableOpt(column, header, [getter](ConstValueType value) {
+            return getter(const_cast<ValueType>(value));
+        }, readOnly ? FDoubleOptSetter() : [getter](ValueType data, const std::optional<double>& value) {
+            getter(data) = value;
         });
     }
 
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false)
+    {
+        return AddMeasurementColumnCalculable(column, header, [getter](ConstValueType value) {
+            return getter(const_cast<ValueType>(value)).Native();
+        }, readOnly ? FDoubleSetter() : [getter](ValueType data, double value) {
+            getter(data) = value;
+        }).AddMeasurementColumnLimits([getter](ConstValueType v) { return getter(const_cast<ValueType>(v)).GetMin(); }, [getter](ConstValueType v) { return getter(const_cast<ValueType>(v)).GetMax(); });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDoubleOptional& (ValueType)>& getter, bool readOnly = false)
+    {
+        return AddMeasurementColumnCalculableOpt(column, header, [getter](ConstValueType value) {
+            return getter(const_cast<ValueType>(value)).Native();
+        }, readOnly ? FDoubleOptSetter() : [getter](ValueType data, const std::optional<double>& value) {
+            getter(data) = value;
+        }).AddMeasurementColumnLimits([getter](ConstValueType v) { return getter(const_cast<ValueType>(v)).Value.GetMin(); }, [getter](ConstValueType v) { return getter(const_cast<ValueType>(v)).Value.GetMax(); });
+    }
+
+private:
     static QString setMeasurmentUnit(const QString& string, const Measurement* measurment)
     {
         thread_local static QRegExp regExp(MEASUREMENT_UN);
@@ -568,27 +485,29 @@ public:
         resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
         return resultString;
     }
-private:
-    TViewModelsColumnComponentsBuilder& addMeasurementLimits(const std::function<LocalPropertyDouble& (ValueType)>& getter)
+
+    TViewModelsColumnComponentsBuilder& addMeasurementLimits(const std::function<void (qint32, qint32, const ViewModelsTableColumnComponents::ColumnComponentData&)>& addDelegate,
+                                                             const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); },
+                                                             const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         qint32 column = m_currentColumn;
         auto modelGetter = m_modelGetter;
         Q_ASSERT(m_currentMeasurement != nullptr);
         auto pMeasurement = m_currentMeasurement;
-        m_viewModel->ColumnComponents.AddComponent(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
-        m_viewModel->ColumnComponents.AddComponent(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+        addDelegate(UnitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetHeader([pMeasurement]{ return QVariant::fromValue(pMeasurement); }));
+        addDelegate(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([min, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
                 return std::numeric_limits<double>().max();
             }
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMin());
+            return pMeasurement->FromBaseToUnit(min(viewModel->At(index.row())));
         }));
-        m_viewModel->ColumnComponents.AddComponent(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([getter, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
+        addDelegate(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([max, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
                 return std::numeric_limits<double>().max();
             }
-            return pMeasurement->FromBaseToUnit(getter(const_cast<ValueType>(viewModel->At(index.row()))).GetMax());
+            return pMeasurement->FromBaseToUnit(max(viewModel->At(index.row())));
         }));
         return *this;
     }

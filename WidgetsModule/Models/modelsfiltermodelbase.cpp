@@ -33,6 +33,22 @@ bool ViewModelsFilterModelBase::IsLastRow(qint32 row) const
     return IsLastRow(index(row, 0));
 }
 
+bool ViewModelsFilterModelBase::IsLastSourceRow(qint32 sourceRow) const
+{
+    if(sourceModel() == nullptr) {
+        return false;
+    }
+    return sourceModel()->index(sourceRow, 0).data(LastEditRowRole).toBool();
+}
+
+QModelIndex ViewModelsFilterModelBase::SourceModelIndex(qint32 sourceRow, qint32 sourceColumn, const QModelIndex& sourceParent) const
+{
+    if(sourceModel() == nullptr) {
+        return QModelIndex();
+    }
+    return sourceModel()->index(sourceRow, sourceColumn, sourceParent);
+}
+
 bool ViewModelsFilterModelBase::DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const
 {
     return Super::lessThan(f,s);

@@ -153,7 +153,7 @@ class WidgetWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
 public:
-    WidgetWrapper(QWidget* widget);
+    WidgetWrapper(QWidget* widget = nullptr);
 
     template<class T>
     T* InjectedWidget(const char* propertyName, const std::function<T* (QWidget* parent)>& creator = nullptr) const
@@ -512,7 +512,7 @@ class ActionWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
 public:
-    ActionWrapper(QAction* action);
+    ActionWrapper(QAction* action = nullptr);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ActionWrapper, QAction);
     const ActionWrapper& SetShortcut(const QKeySequence& keySequence) const;
@@ -611,7 +611,7 @@ class MenuWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
 public:
-    MenuWrapper(QWidget* widget, const WidgetsGlobalTableActionsScopeHandlersPtr& handlers = nullptr)
+    MenuWrapper(QWidget* widget = nullptr, const WidgetsGlobalTableActionsScopeHandlersPtr& handlers = nullptr)
         : Super(widget)
         , m_globalActionsHandlers(handlers)
     {}
