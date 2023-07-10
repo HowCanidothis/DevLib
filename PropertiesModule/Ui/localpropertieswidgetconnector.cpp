@@ -354,13 +354,11 @@ void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
         m_propertySetter();
     });
 
-    if(comboBox->currentIndex() != -1) {
-        m_connections.connect(comboBox->model(), &QAbstractItemModel::modelReset, [this]{
-            m_widgetSetter();
-        });
-        m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsInserted,       [this]{ m_widgetSetter(); });
-        m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsRemoved,        [this]{ m_widgetSetter(); });
-    }
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::modelReset, [this]{
+        m_widgetSetter();
+    });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsInserted,       [this]{ m_widgetSetter(); });
+    m_connections.connect(comboBox->model(), &QAbstractItemModel::rowsRemoved,        [this]{ m_widgetSetter(); });
 }
 
 void LocalPropertiesComboBoxConnector::setCurrentIndex(QComboBox* comboBox, const std::function<bool (const QModelIndex&)>& handler)

@@ -83,6 +83,7 @@ public:
     MeasurementSystem();
     MeasurementSystem(const Name& label);
     
+    Name Id;
     bool DefaultSystem;
     LocalPropertyString Label;
     MeasurementSystem& AddParameter(const Name& measurmentType, const MeasurementParams& param);

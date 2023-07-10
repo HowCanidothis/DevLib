@@ -1,5 +1,7 @@
 #include "measurementunitmanager.h"
 
+#include <QUuid>
+
 #include "MeasurementTypes/accelerationdeclarations.h"
 #include "MeasurementTypes/angledeclarations.h"
 #include "MeasurementTypes/distancedeclarations.h"
@@ -172,17 +174,22 @@ Measurement& MeasurementManager::AddMeasurement(const MeasurementPtr& measuremen
 MeasurementSystem & MeasurementManager::AddSystem(const Name& name, bool defaultSys)
 {
     Q_ASSERT(!m_metricSystems.contains(name));
+    auto result = ::make_shared<MeasurementSystem>(name);
     if(defaultSys) {
         ++m_defaultSystemsCount;
+        result->Id = name;
     }
-    auto result = ::make_shared<MeasurementSystem>(name);
+
     result->DefaultSystem = defaultSys;
     AddSystem(result);
     return *result;
 }
 
 void MeasurementManager::AddSystem(const MeasurementSystemPtr& system) {
-    Name key (system->Label.Native());
+    if(system->Id.IsNull() || m_metricSystems.contains(system->Id)) {
+        system->Id = Name(QUuid::createUuid().toString());
+    }
+    const auto& key = system->Id;
     m_metricSystems.insert(key, system);
     m_systemWrapper->Append(system);
     
@@ -202,7 +209,7 @@ bool MeasurementManager::RemoveSystem(const Name& systemName)
         return false;
     }
     if(CurrentMeasurementSystem == systemName) {
-        CurrentMeasurementSystem = Name(m_systemWrapper->At(0)->Label);
+        CurrentMeasurementSystem = Name(m_systemWrapper->At(0)->Id);
     }
 
     m_metricSystems.erase(foundIt);
