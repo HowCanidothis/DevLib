@@ -469,46 +469,6 @@ QAbstractSpinBox {
   border-radius: 4px;
 }
 
-QAbstractSpinBox:up-button {
-  subcontrol-origin: border;
-  subcontrol-position: top right;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  margin: 1px;
-  width: 12px;
-  margin-bottom: -1px;
-}
-
-QAbstractSpinBox::up-arrow, QAbstractSpinBox::up-arrow:disabled, QAbstractSpinBox::up-arrow:off {
-  image: url(":/qss_icons/rc/arrow_up_disabled.png");
-  height: 8px;
-  width: 8px;
-}
-
-QAbstractSpinBox::up-arrow:hover {
-  image: url(":/qss_icons/rc/arrow_up.png");
-}
-
-QAbstractSpinBox:down-button {
-  subcontrol-origin: border;
-  subcontrol-position: bottom right;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  margin: 1px;
-  width: 12px;
-  margin-top: -1px;
-}
-
-QAbstractSpinBox::down-arrow, QAbstractSpinBox::down-arrow:disabled, QAbstractSpinBox::down-arrow:off {
-  image: url(":/qss_icons/rc/arrow_down_disabled.png");
-  height: 8px;
-  width: 8px;
-}
-
-QAbstractSpinBox::down-arrow:hover {
-  image: url(":/qss_icons/rc/arrow_down.png");
-}
-
 QToolButton {
   background-color: transparent;
   border: none;

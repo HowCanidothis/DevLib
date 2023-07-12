@@ -13,6 +13,7 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent)
     : Super(date, type, parent)
+    , AutoResize(true)
 {
     m_recursionBlock = false;
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
@@ -44,6 +45,10 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
         setDateTime(dateTime);
         Resize();
     }, TimeShift);
+
+    AutoResize.OnChanged += {this, [this]{
+        Resize();
+    }};
 
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_recursionBlock) {
@@ -111,13 +116,19 @@ QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const
 
 void WidgetsDateTimeEdit::Resize()
 {
-    m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
-        QFontMetrics fm(font());
-        auto t = text();
-        int pixelsWide = fm.width(t);
-        pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
-        setMinimumWidth(pixelsWide);
-    });
+    if(!AutoResize) {
+        m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
+            QFontMetrics fm(font());
+            auto t = text();
+            int pixelsWide = fm.width(t);
+            pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
+            setMinimumWidth(pixelsWide);
+        });
+    } else if(minimumWidth() != 0) {
+        m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
+            setMinimumWidth(0);
+        });
+    }
 }
 
 WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)

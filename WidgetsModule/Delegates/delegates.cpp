@@ -396,6 +396,7 @@ DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
 QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     auto widget = new WidgetsDatetimePopupPicker(parent);
+    widget->GetLineEdit()->AutoResize = false;
     widget->GetDateTimeWidget()->CurrentDateTime = index.model()->data(index, Qt::EditRole).toDateTime();
     OnEditorAboutToBeShown(widget, index);
     widget->OnDataCommit.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
