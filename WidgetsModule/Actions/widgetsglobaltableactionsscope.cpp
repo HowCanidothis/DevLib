@@ -309,11 +309,12 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     result->AddHandler([]{ return tr("Copy With Headers"); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), action, [table]{
         WidgetTableViewWrapper(table).CopySelectedTableContentsToClipboard(true);
     });
-
+#ifndef BUILD_MASTER
     action = GetInstance().FindAction(GlobalActionDebugJSONId);
     result->AddHandler([]{ return tr("Debug JSON"); }, QKeySequence(), action, [table]{
         WidgetTableViewWrapper(table).DebugJson();
-    });
+    }).SetVisible(true);
+#endif
 
     action = GetInstance().FindAction(GlobalActionCopyId);
     auto copyHandler = [table]{
