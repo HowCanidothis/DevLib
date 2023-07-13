@@ -43,6 +43,9 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
         guards::BooleanGuard guard(&m_recursionBlock);
         QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;
         setDateTime(dateTime);
+        if(CurrentDateTime.IsRealTime()) { // To update display value
+            setDisplayFormat(displayFormat());
+        }
         Resize();
     }, TimeShift);
 
@@ -116,18 +119,19 @@ QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const
 
 void WidgetsDateTimeEdit::Resize()
 {
-    if(!AutoResize) {
+    if(AutoResize) {
         m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
+            if(!AutoResize) {
+                return;
+            }
             QFontMetrics fm(font());
             auto t = text();
             int pixelsWide = fm.width(t);
             pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
             setMinimumWidth(pixelsWide);
         });
-    } else if(minimumWidth() != 0) {
-        m_call.Call(CONNECTION_DEBUG_LOCATION, [this]{
-            setMinimumWidth(0);
-        });
+    } else {
+        setMinimumWidth(0);
     }
 }
 
