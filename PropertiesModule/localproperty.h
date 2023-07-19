@@ -1354,6 +1354,7 @@ struct LocalPropertyOptional
         }
     }
     bool IsValueValid() const { return IsValid; }
+    value_type ValueOr(const value_type& defaultValue) const { return IsValid ? Value : defaultValue; }
     std::optional<value_type> Native() const { return ToStdOptional(); }
     std::optional<value_type> ToStdOptional() const { return IsValid ? std::make_optional(Value.Native()) : std::nullopt; }
     QVariant ToVariant() const { return IsValid ? QVariant(Value.Native()) : QVariant(); }
