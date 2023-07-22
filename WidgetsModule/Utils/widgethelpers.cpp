@@ -787,6 +787,40 @@ WidgetsLocationAttachment* WidgetWrapper::Location() const
     return InjectedWidget<WidgetsLocationAttachment>("a_location", [](QWidget*){ return nullptr; });
 }
 
+LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
+{
+    auto value = m_object->property("a_enable").value<SharedPointer<LocalPropertyBool>>();
+    if(value != nullptr) {
+        return *value;
+    }
+
+    auto* spinbox = qobject_cast<QAbstractSpinBox*>(m_object);
+    if(spinbox != nullptr) {
+        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [spinbox](QObject*, const LocalPropertyBool& visible){
+            spinbox->setReadOnly(!visible);
+            StyleUtils::UpdateStyle(spinbox);
+        }, !spinbox->isReadOnly());
+    }
+    auto* lineEdit = qobject_cast<QLineEdit*>(m_object);
+    if(lineEdit != nullptr) {
+        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [lineEdit](QObject*, const LocalPropertyBool& visible){
+            lineEdit->setReadOnly(!visible);
+            StyleUtils::UpdateStyle(lineEdit);
+        }, !lineEdit->isReadOnly());
+    }
+    auto* textEdit = qobject_cast<QTextEdit*>(m_object);
+    if(textEdit != nullptr) {
+        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [textEdit](QObject*, const LocalPropertyBool& visible){
+            textEdit->setReadOnly(!visible);
+            StyleUtils::UpdateStyle(textEdit);
+        }, !textEdit->isReadOnly());
+    }
+    auto* widget = GetWidget();
+    return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [widget](QObject*, const LocalPropertyBool& visible){
+        widget->setEnabled(visible);
+    }, widget->isEnabled());
+}
+
 void WidgetWrapper::Lowlight() const
 {
     StyleUtils::ApplyStyleProperty("w_highlighted", GetWidget(), false);
@@ -1426,14 +1460,6 @@ LocalPropertyBool& WidgetWrapper::WidgetVisibility() const
         auto* action = reinterpret_cast<QWidget*>(object);
         action->setVisible(visible);
     }, GetWidget()->isVisible());
-}
-
-LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
-{
-    return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [](QObject* object, const LocalPropertyBool& visible){
-        auto* action = reinterpret_cast<QWidget*>(object);
-        action->setEnabled(visible);
-    }, GetWidget()->isEnabled());
 }
 
 bool WidgetWrapper::HasParent(const QWidget* parent) const

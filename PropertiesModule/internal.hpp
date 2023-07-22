@@ -22,6 +22,8 @@
 #include "Models/modelsvacabulary.h"
 #include "Models/modelserrorscomponents.h"
 #include "Models/modelsserializer.h"
+#include "sharedsettings.h"
+#include "editingobject.h"
 #include "textconverters.h"
 
 #ifdef SHARED_LIB_ADD_UI

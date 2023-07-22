@@ -1,7 +1,7 @@
 #ifndef SHAREDSETTINGS_H
 #define SHAREDSETTINGS_H
 
-#include <PropertiesModule/internal.hpp>
+#include "localproperty.h"
 
 struct NetworkSettings
 {
@@ -32,6 +32,7 @@ struct NetworkSettings
 struct StyleSettings
 {
     StyleSettings();
+    ~StyleSettings();
 
     void InstallQSSReader(const QString& path, bool dynamic = true);
 
@@ -63,7 +64,9 @@ struct StyleSettings
     void Release();
 
 private:
+#ifdef WIDGETS_MODULE_LIB
     ScopedPointer<class QtQSSReader> m_qssReader;
+#endif
 };
 #endif
 

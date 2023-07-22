@@ -2,6 +2,10 @@
 
 #ifdef SHARED_LIB_ADD_UI
 #include <QApplication>
+#include <QDoubleSpinBox>
+#endif
+
+#ifdef WIDGETS_MODULE_LIB
 #include <WidgetsModule/internal.hpp>
 #endif
 
@@ -29,25 +33,37 @@ StyleSettings::StyleSettings()
     #endif   
 {
     ShadersPath.SetValidator([](const QString& path){ return path.isEmpty() ? ":/" : path; });
+#ifdef WIDGETS_MODULE_LIB
     WidgetsDialogsManager::GetInstance().ShadowColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowColor);
+#endif
     StylesQSSFile.OnChanged += { this, [this]{
         InstallQSSReader(StylesQSSFile);
     }};
 }
 
+StyleSettings::~StyleSettings()
+{
+
+}
+
 void StyleSettings::InstallQSSReader(const QString& path, bool dynamic)
 {
+#ifdef WIDGETS_MODULE_LIB
     if(m_qssReader == nullptr) {
         m_qssReader = new QtQSSReader();
     }
     m_qssReader->SetEnableObserver(dynamic);
     m_qssReader->Install(path);
+#endif
 }
 
 void StyleSettings::Release()
 {
+#ifdef WIDGETS_MODULE_LIB
     m_qssReader = nullptr;
+#endif
 }
+
 #endif
 
 void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties)
@@ -187,7 +203,7 @@ SharedSettings::SharedSettings()
 
 MetricsSettings::MetricsSettings()
 {
-#ifdef SHARED_LIB_ADD_UI
+#ifdef WIDGETS_MODULE_LIB
     WidgetsDialogsManager::GetInstance().ShadowBlurRadius.ConnectFrom(CONNECTION_DEBUG_LOCATION, ShadowBlurRadius);
 #endif
 }

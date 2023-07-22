@@ -495,13 +495,36 @@ public:
     }
 
     template<class DoubleBuffer>
-    void ConnectBuffer(const char* connectionInfo, DoubleBuffer& buffer)
+    void ConnectDoubleBuffer(const char* connectionInfo, DoubleBuffer& buffer)
     {
         OnCalculationRejected.Connect(connectionInfo, [&buffer]{
             buffer.EditData()->Clear();
         });
         buffer.EditData()->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
         buffer.Enabled = true;
+    }
+
+    template<class Buffer>
+    void InitializeByBuffer(const char* connectionInfo, Buffer& buffer, bool enable = true)
+    {
+        OnCalculationRejected += { this, [&buffer]{
+            buffer->Clear();
+        }};
+        Super::OnCalculated += { this, [&buffer](const auto& container){
+            buffer->Set(container);
+            buffer->IsValid.SetState(true);
+        }};
+        buffer->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
+        Enabled = enable;
+    }
+
+    template<class Buffer>
+    void ConnectBuffer(const char* connectionInfo, Buffer& buffer)
+    {
+        OnCalculationRejected.Connect(connectionInfo, [&buffer]{
+            buffer->Clear();
+        });
+        buffer->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
     }
 
     template<class T2>

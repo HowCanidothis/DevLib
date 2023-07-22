@@ -55,8 +55,6 @@
 #include "externalservice.h"
 #include "ImportExport/importexport.h"
 #include "registrymanager.h"
-#include "sharedsettings.h"
-#include "editingobject.h"
 #include "tokenizer.h"
 #include "wrappers.h"
 #include "exception.h"

@@ -1,6 +1,10 @@
 #ifndef BUILDERS_H
 #define BUILDERS_H
 
+#ifdef PROPERTIES_LIB
+#include <PropertiesModule/internal.hpp>
+#endif
+
 namespace lq
 {
 
@@ -367,6 +371,7 @@ public:
             return *this;
         }
 
+#ifdef PROPERTIES_LIB
         template<typename Enum, typename value_type = typename LocalPropertySequentialEnum<Enum>::value_type>
         const ParseFactoryBuilderObject& RegisterPropertyEnum(const Name& key,
                                       const FPropertyExtractor<LocalPropertySequentialEnum<Enum>,T2>& targetPropertyExtractor,
@@ -404,7 +409,7 @@ public:
             m_builder->RegisterMeasurementProperty<T2>(key, unit, targetPropertyExtractor, m_targetExtractor, extractor);
             return *this;
         }
-
+#endif
         const ParseFactoryBuilderObject& RegisterDouble(const Name& key,
                                       const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
                                       const typename Helper<std::optional<double>>::extractor_type& extractor = &Helper<std::optional<double>>::Extract) const
@@ -650,6 +655,16 @@ public:
         });
     }
 
+    template<class T2>
+    ParseFactoryBuilder& RegisterId(const Name& key,
+                                  const FPropertyExtractor<Name,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
+                                  const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
+    {
+        return RegisterField<Name>(key, targetPropertyExtractor, targetExtractor, extractor);
+    }
+
+#ifdef PROPERTIES_LIB
     template<typename Enum, typename T2, typename value_type = typename LocalPropertySequentialEnum<Enum>::value_type>
     ParseFactoryBuilder& RegisterPropertyEnum(const Name& key,
                                   const FPropertyExtractor<LocalPropertySequentialEnum<Enum>,T2>& targetPropertyExtractor,
@@ -676,42 +691,11 @@ public:
 
     template<class T2>
     ParseFactoryBuilder& RegisterId(const Name& key,
-                                  const FPropertyExtractor<Name,T2>& targetPropertyExtractor,
-                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
-                                  const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
-    {
-        return RegisterField<Name>(key, targetPropertyExtractor, targetExtractor, extractor);
-    }
-
-    template<class T2>
-    ParseFactoryBuilder& RegisterId(const Name& key,
                                   const FPropertyExtractor<LocalPropertyName,T2>& targetPropertyExtractor,
                                   const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
                                   const typename Helper<Name>::extractor_type& extractor = &Helper<Name>::Extract)
     {
         return RegisterProperty<LocalPropertyName>(key, targetPropertyExtractor, targetExtractor, extractor);
-    }
-
-    template<typename T, class T2>
-    ParseFactoryBuilder& RegisterField(const Name& key,
-                                  const FPropertyExtractor<T,T2>& targetPropertyExtractor,
-                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
-                                  const typename Helper<T>::extractor_type& extractor = &Helper<T>::Extract)
-    {
-        return Insert(key, [extractor, targetExtractor, targetPropertyExtractor](const typename Helper<void>::parse_type& in, Context& context){
-            auto* target = targetExtractor(context);
-            if(target == nullptr) {
-                return;
-            }
-            targetPropertyExtractor(*target) = extractor(in);
-        });
-    }
-
-    ParseFactoryBuilder& Insert(const Name& key, const FFunctor& extractor)
-    {
-        Q_ASSERT(!Super::contains(key));
-        Super::insert(key, extractor);
-        return *this;
     }
 
     template<class T2>
@@ -768,6 +752,28 @@ public:
             }
             targetPropertyExtractor(*target) = unit.FromUnitToBase(extractor(in));
         });
+    }
+#endif
+    template<typename T, class T2>
+    ParseFactoryBuilder& RegisterField(const Name& key,
+                                  const FPropertyExtractor<T,T2>& targetPropertyExtractor,
+                                  const FTargetExtractor<T2>& targetExtractor = &GlobalSelfGetterPointer<T2>,
+                                  const typename Helper<T>::extractor_type& extractor = &Helper<T>::Extract)
+    {
+        return Insert(key, [extractor, targetExtractor, targetPropertyExtractor](const typename Helper<void>::parse_type& in, Context& context){
+            auto* target = targetExtractor(context);
+            if(target == nullptr) {
+                return;
+            }
+            targetPropertyExtractor(*target) = extractor(in);
+        });
+    }
+
+    ParseFactoryBuilder& Insert(const Name& key, const FFunctor& extractor)
+    {
+        Q_ASSERT(!Super::contains(key));
+        Super::insert(key, extractor);
+        return *this;
     }
 
     ParseFactoryBuilder& Build(const std::function<void (ParseFactoryBuilder&)>& builder)

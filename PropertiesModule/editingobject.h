@@ -1,7 +1,7 @@
 #ifndef EDITINGOBJECT_H
 #define EDITINGOBJECT_H
 
-#include <PropertiesModule/internal.hpp>
+#include "localproperty.h"
 
 using EditingObjectPtr = SharedPointer<class EditingObject>;
 
