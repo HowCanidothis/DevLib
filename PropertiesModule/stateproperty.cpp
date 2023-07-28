@@ -82,3 +82,14 @@ void StateParameters::Reset()
 {
     m_isValid = false;
 }
+
+CapturedStateParameters::CapturedStateParameters(bool valid)
+    : Super(valid)
+    , m_used([this]{
+        IsActive = true;
+    }, [this]{
+        IsActive = false;
+    })
+{
+
+}
