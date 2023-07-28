@@ -74,6 +74,7 @@ public:
     LocalPropertyBool IsLocked;
     DispatcherConnectionsSafe Connections;
 
+    virtual SmartPointerWatcherPtr Capture() { return nullptr; }
 private:
     QVector<class IStateParameterBase*> m_parameters;
 
@@ -83,6 +84,18 @@ private:
     std::atomic_int m_counter;
     LocalPropertyBool m_isValid;
     FAction m_initializer;
+};
+
+class CapturedStateParameters : public StateParameters
+{
+    using Super = StateParameters;
+public:
+    CapturedStateParameters(bool valid = true);
+
+    LocalPropertyBool IsActive;
+    SmartPointerWatcherPtr Capture() override { return m_used.Capture(); }
+private:
+    SmartPointer m_used;
 };
 
 class IStateParameterBase
@@ -325,7 +338,10 @@ public:
         return m_parameter.InputValue;
     }
 
+    SmartPointerWatcherPtr Capture() { return m_captureHandler != nullptr ? m_captureHandler() : nullptr; }
+    void SetCaptureHandler(const std::function<SmartPointerWatcherPtr()>& handler){ m_captureHandler = handler; }
 private:
+    std::function<SmartPointerWatcherPtr()> m_captureHandler;
     StateParameterImmutableData<T> m_parameter;
 #ifdef QT_DEBUG
     DispatcherConnectionsSafe m_lockConnections;
@@ -354,7 +370,6 @@ public:
     SmartPointerWatcherPtr Capture() { return m_pointer.Capture(); }
 
 private:
-    StateProperty m_enabled;
     SmartPointer m_pointer;
 };
 
@@ -460,6 +475,18 @@ public:
             return handler(args...);
         });
         ConnectCombined(connectionInfo, args...);
+
+        auto container = SmartPointerWatchersCreate();
+        Enabled.ConnectAndCall(connectionInfo, [=](bool enable){
+            if(!enable){
+                container->clear();
+                return ;
+            }
+            (TryCaptureParameter(*container, args.get()), ...);
+        });
+    }
+    void TryCaptureParameter(SmartPointerWatchers& container, StateParameters* p){
+        container.append(p->Capture());
     }
 
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
