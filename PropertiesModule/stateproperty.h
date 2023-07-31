@@ -475,6 +475,11 @@ public:
             return handler(args...);
         });
         ConnectCombined(connectionInfo, args...);
+    }
+
+    template<typename ... Args, typename Function>
+    void SetCalculatorWithCaptureParams(const char* connectionInfo, const Function& handler, Args... args){
+        SetCalculatorWithParams(connectionInfo, handler, args...);
 
         auto container = SmartPointerWatchersCreate();
         Enabled.ConnectAndCall(connectionInfo, [=](bool enable){
@@ -482,11 +487,8 @@ public:
                 container->clear();
                 return ;
             }
-            (TryCaptureParameter(*container, args.get()), ...);
+            ([](SmartPointerWatchers& container, StateParameters* p){ container.append(p->Capture()); }(*container, args.get()), ...);
         });
-    }
-    void TryCaptureParameter(SmartPointerWatchers& container, StateParameters* p){
-        container.append(p->Capture());
     }
 
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
