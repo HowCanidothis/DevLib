@@ -32,6 +32,7 @@
 #include "MeasurementTypes/consistencyfactordeclarations.h"
 #include "MeasurementTypes/concentrationdeclaration.h"
 #include "MeasurementTypes/voltagedeclarations.h"
+#include "MeasurementTypes/momentofinertia.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -519,6 +520,11 @@ void MeasurementManager::Initialize()
             .AddUnit(&FlowConsistencyFactorUnits::FactorPascals  )
             .AddUnit(&FlowConsistencyFactorUnits::FactorPoundsPerSquareFeet  );
 
+    AddMeasurement(MeasurementMomentOfInertia::Value)
+            .AddUnit(&MomentOfInertiaUnits::KilogrammSqMeters  )
+            .AddUnit(&MomentOfInertiaUnits::PoundSqFoot  )
+            .AddUnit(&MomentOfInertiaUnits::PoundForceFootSqSecond  );
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
@@ -563,6 +569,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementConcentrationMud::NAME,       {ConcentrationUnits::PartsPerBillion.Id,     3})
             .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
+            .AddParameter(MeasurementMomentOfInertia::NAME,             {MomentOfInertiaUnits::KilogrammSqMeters.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
@@ -609,6 +616,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementConcentrationMud::NAME,       {ConcentrationUnits::PartsPerBillion.Id,     3})
             .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::MilliliterPerMilliliter.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
+            .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::PoundForceFootSqSecond.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2});
 
 
@@ -656,6 +664,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementConcentrationMud::NAME,       {ConcentrationUnits::KilogrammPerCubicMeters.Id,     3})
             .AddParameter(MeasurementConcentrationAlkalinity::NAME,       {ConcentrationUnits::KilogrammPerCubicMeters.Id,     3})
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
+            .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::PoundForceFootSqSecond.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{

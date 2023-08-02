@@ -33,6 +33,7 @@
 #include "MeasurementTypes/consistencyfactordeclarations.h"
 #include "MeasurementTypes/concentrationdeclaration.h"
 #include "MeasurementTypes/voltagedeclarations.h"
+#include "MeasurementTypes/momentofinertia.h"
 
 #include "measurementunitmanager.h"
 
