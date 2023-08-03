@@ -512,13 +512,17 @@ private:
     using TypeName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>;
 
-#define DECLARE_MODEL(ModelName) \
-    using ModelName##Ptr = SharedPointer<class ModelName>; \
+#define DECLARE_MODEL_TYPENAME(ModelName) \
+    using ModelName##Ptr = SharedPointer<ModelName>; \
     using ModelName##PtrInitialized = SharedPointerInitialized<ModelName>; \
     using ModelName##ImmutableModel = StateImmutableData<ModelName>; \
     using ModelName##ImmutableModelPtr = SharedPointer<StateImmutableData<ModelName>>; \
     using ModelName##StateParameter = StateParametersContainer<StateImmutableData<ModelName>>; \
     using ModelName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<ModelName>>; \
     using ModelName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<ModelName>>;
+
+#define DECLARE_MODEL(ModelName) \
+    class ModelName; \
+    DECLARE_MODEL_TYPENAME(ModelName)
 
 #endif // WRAPPERS_H

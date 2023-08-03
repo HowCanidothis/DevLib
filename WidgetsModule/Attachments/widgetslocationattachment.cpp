@@ -77,6 +77,7 @@ bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
     }
     case QEvent::Show:
         if(watched == m_target) {
+            updateParent(this, event);
             return updateTarget(this, event);
         } else if(watched == m_parent){
             updateParent(this, event);

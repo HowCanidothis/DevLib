@@ -14,7 +14,6 @@
 #include "MeasurementTypes/speeddeclarations.h"
 #include "MeasurementTypes/torquedeclarations.h"
 #include "MeasurementTypes/funnelviscositydeclarations.h"
-#include "MeasurementTypes/mudweightdeclaration.h"
 #include "MeasurementTypes/viscositydeclaration.h"
 #include "MeasurementTypes/temperaturedeclarations.h"
 #include "MeasurementTypes/densitydeclarations.h"

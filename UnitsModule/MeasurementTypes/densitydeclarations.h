@@ -15,5 +15,6 @@ namespace DensityUnits
 
 DECLARE_MEASUREMENT(Density)
 DECLARE_MEASUREMENT(SolidDensity)
+DECLARE_MEASUREMENT(MudWeight)
 
 #endif // DENSITYDECLARATIONS_H

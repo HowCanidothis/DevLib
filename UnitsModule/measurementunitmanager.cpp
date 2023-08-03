@@ -14,7 +14,6 @@
 #include "MeasurementTypes/torquedeclarations.h"
 #include "MeasurementTypes/funnelviscositydeclarations.h"
 #include "MeasurementTypes/percentsdeclarations.h"
-#include "MeasurementTypes/mudweightdeclaration.h"
 #include "MeasurementTypes/viscositydeclaration.h"
 #include "MeasurementTypes/temperaturedeclarations.h"
 #include "MeasurementTypes/densitydeclarations.h"
@@ -338,9 +337,9 @@ void MeasurementManager::Initialize()
             .AddUnit(&TorqueUnits::PoundFoot);
 
     AddMeasurement(MeasurementMudWeight::Value)
-            .AddUnit(&MudWeightUnits::PoundPerGallon      )
-            .AddUnit(&MudWeightUnits::PoundPerCubicFeet   )
-            .AddUnit(&MudWeightUnits::KilogramPerCubicMeter);
+            .AddUnit(&DensityUnits::PoundsPerGallon      )
+            .AddUnit(&DensityUnits::PoundsPerCubicFeet   )
+            .AddUnit(&DensityUnits::KilogramsPerCubicMeters);
 
     AddMeasurement(MeasurementViscosity::Value)
             .AddUnit(&ViscosityUnits::Centipoise       )
@@ -540,7 +539,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::PoundPerGallon.Id,            2})
+            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        0})
             .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::USfeetPerMinute.Id,                 2})
@@ -586,12 +585,12 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::PoundPerGallon.Id,            2})
+            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        0})
-            .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::USfeetPerMinute.Id,                   2})
-            .AddParameter(MeasurementAnnularVelocity::NAME,  {SpeedUnits::USfeetPerMinute.Id,               2})
-            .AddParameter(MeasurementROP::NAME,              {SpeedUnits::USfeetPerHour.Id,                 2})
+            .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::FeetPerMinute.Id,                   2})
+            .AddParameter(MeasurementAnnularVelocity::NAME,  {SpeedUnits::FeetPerMinute.Id,               2})
+            .AddParameter(MeasurementROP::NAME,              {SpeedUnits::FeetPerHour.Id,                 2})
             .AddParameter(MeasurementTemperature::NAME,       {TemperatureUnits::Fahrenheit.Id,              1})
             .AddParameter(MeasurementThermalExpansion::NAME, {ThermalExpansionUnits::PerDegreeFahrenheit.Id,2})
             .AddParameter(MeasurementTime::NAME,              {TimeUnits::Hours.Id,                          2})
@@ -633,7 +632,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Tonnes.Id,                         0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {MudWeightUnits::KilogramPerCubicMeter.Id,     2})
+            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::Bars.Id,                       0})
             .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::MetersPerSecond.Id,               2})
