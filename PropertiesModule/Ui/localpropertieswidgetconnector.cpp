@@ -11,7 +11,7 @@
 #include <QDateTimeEdit>
 #include <QMenu>
 #include <QPushButton>
-#include <QAbstractButton>>
+#include <QAbstractButton>
 
 #include <WidgetsModule/internal.hpp>
 

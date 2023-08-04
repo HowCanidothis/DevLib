@@ -373,7 +373,7 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
     QApplication::style()->drawControl(QStyle::CE_CheckBox,&checkboxstyle, painter, option.widget);
 }
 
-bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
+bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& , const QModelIndex& index)
 {
     if(index.flags().testFlag(Qt::ItemIsEditable)) {
         if(event->type() == QEvent::MouseButtonRelease){
@@ -393,7 +393,7 @@ DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
 
 }
 
-QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto widget = new WidgetsDatetimePopupPicker(parent);
     widget->GetLineEdit()->AutoResize = false;
@@ -450,7 +450,7 @@ void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* 
     model->setData(index, widget->GetDateTimeWidget()->CurrentDateTime.Native(), Qt::EditRole);
 }
 
-QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* ac = new QWidgetAction(parent);
     auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Time"));

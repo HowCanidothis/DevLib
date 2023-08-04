@@ -89,7 +89,6 @@ public:
             if(flags.TestFlagsAll(key)) {
                 auto oldResult = result;
                 auto validator = value->Validator;
-                const auto& cvalue = value;
                 auto ckey = key;
                 if(oldResult == nullptr) {
                     result = [it, validator](Output& result, const Input&... context){

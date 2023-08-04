@@ -310,8 +310,8 @@ public:
     TViewModelsEditTable(QObject* parent)
         : Super(parent)
         , CreateDataHandler ([this](qint32, const QVariant&, bool&){ insertRows(rowCount()-1, 1); })
-        , IsEditColumn      ([](qint32 column){ return true; })
-        , DataHandler       ([](qint32 , int role){ return QVariant(); })
+        , IsEditColumn      ([](qint32 ){ return true; })
+        , DataHandler       ([](qint32 , int ){ return QVariant(); })
         , IsEditable(true)
         , m_isEditable(true)
     {

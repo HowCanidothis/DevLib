@@ -92,7 +92,7 @@ SvgIconEngine::SvgIconEngine()
         generateSource();
     }).MakeSafe(m_connections);
 
-    auto resetCache = [this](QIcon::Mode mode) {
+    auto resetCache = [this](QIcon::Mode ) {
         m_clearCacheDelayed.Call(CONNECTION_DEBUG_LOCATION, [this]{
             d->Cache.clear();
         });

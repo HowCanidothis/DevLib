@@ -191,7 +191,7 @@ CommonDispatcher<qint32, qint32>& WidgetTableViewWrapper::OnCurrentIndexChanged(
     Q_ASSERT(qobject_cast<QTableView*>(w));
     return *Injected<CommonDispatcher<qint32, qint32>>("a_on_current_index_changed", [w]{
         auto* result = new CommonDispatcher<qint32, qint32>();
-        QObject::connect(w->selectionModel(), &QItemSelectionModel::currentChanged, [result](const QModelIndex& current, const QModelIndex& prev) {
+        QObject::connect(w->selectionModel(), &QItemSelectionModel::currentChanged, [result](const QModelIndex& current, const QModelIndex& ) {
             result->Invoke(current.row(), current.column());
         });
         return result;

@@ -259,7 +259,7 @@ struct DescImportExportTableImport
         , Converter(converter)
     {}
 
-    DescImportExportTableImport(DefaultTextType type)
+    DescImportExportTableImport(DefaultTextType )
         : Loader([](const ImportExportSourcePtr& source){
                 QTextStream stream(source->GetDevice());
                 QList<QString> data;
@@ -299,7 +299,7 @@ struct DescImportExportTableExport
         , Extractor(extractor)
     {
         if(Extractor == nullptr) {
-            Extractor = [role](const ImportExportSourcePtr& source, const T& model, const DescImportExportTableExport& params){
+            Extractor = [role](const ImportExportSourcePtr& source, const T& model, const DescImportExportTableExport& ){
                 QList<RowType> dataToExport;
                 int count = model->columnCount();
                 if(source->StandardProperties.IsExportHeader) {

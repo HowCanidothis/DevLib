@@ -20,7 +20,7 @@ SharedPointer<class QSettings> RegistryManager::ProductSettings(const QString& a
     return ::make_shared<QSettings>(QString("%1\\%2\\%3").arg(m_productsPath, QCoreApplication::organizationName(), appName), QSettings::NativeFormat);
 }
 
-bool RegistryManager::Initialize(const QStringList& arguments, bool withAdminRights)
+bool RegistryManager::Initialize(const QStringList& , bool withAdminRights)
 {
     if(!withAdminRights) {
         m_uninstallPath = "HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";

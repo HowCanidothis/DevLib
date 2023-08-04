@@ -40,7 +40,7 @@ bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QStri
     return res == 0;
 }
 
-void WidgetsDialogsManager::ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message)
+void WidgetsDialogsManager::ShowMessageBox(QtMsgType , const QString& title, const QString& message)
 {
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(title);
