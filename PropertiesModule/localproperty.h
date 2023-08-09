@@ -384,6 +384,8 @@ public:
 
     LocalPropertyLimitedDecimal& operator-=(const T& value) { Super::SetValue(Super::Native() - value); return *this; }
     LocalPropertyLimitedDecimal& operator+=(const T& value) { Super::SetValue(Super::Native() + value); return *this; }
+    LocalPropertyLimitedDecimal& operator/=(const T& value) { Super::SetValue(Super::Native() / value); return *this; }
+    LocalPropertyLimitedDecimal& operator*=(const T& value) { Super::SetValue(Super::Native() * value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { Super::SetValue(value); return *this; }
 
     const T& GetMin() const { return m_min; }
