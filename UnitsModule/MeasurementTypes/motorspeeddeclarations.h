@@ -5,9 +5,9 @@
 
 namespace MotorSpeedUnits
 {
+    DECLARE_MEASUREMENT_UNIT(RevolutionPerCubicMeter)
     DECLARE_MEASUREMENT_UNIT(RevolutionPerGallon)
     DECLARE_MEASUREMENT_UNIT(RevolutionPerLiter)
-    DECLARE_MEASUREMENT_UNIT(RevolutionPerCubicMeter)
 };
 
 DECLARE_MEASUREMENT(MotorSpeed)

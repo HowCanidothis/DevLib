@@ -3,8 +3,8 @@
 
 namespace SpecificHeatCapacityUnits
 {
-    IMPLEMENT_MEASUREMENT_UNIT(JouleKilogramCelsius, []{return QObject::tr("joule/kilogram/Celsius");}, []{ return QObject::tr("J/(kg*C°)"); }, 1.0);
-    IMPLEMENT_MEASUREMENT_UNIT(PoundFahrenheit, []{return QObject::tr("pound/Fahrenheit");}, []{ return QObject::tr("BTU/(lb*F)"); }, 4184.0);
-};
+    IMPLEMENT_MEASUREMENT_UNIT(JouleKilogramCelsius, TR(MeasurementTr::tr("joule/kilogram/Celsius")),   TR(MeasurementTr::tr("J/(kg*C°)")), 1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundFahrenheit,      TR(MeasurementTr::tr("pound/Fahrenheit")),         TR(MeasurementTr::tr("BTU/(lb*F)")), 4184.0)
+}
 
 IMPLEMENT_MEASUREMENT(SpecificHeatCapacity, TR(MeasurementTr::tr("Specific Heat Capacity")))

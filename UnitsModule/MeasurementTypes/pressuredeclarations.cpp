@@ -3,18 +3,18 @@
 
 namespace PressureUnits
 {
-    IMPLEMENT_MEASUREMENT_UNIT(Pascals, []{return QObject::tr("pascals");                      }, []{ return QObject::tr("Pa");        }, 1.0);
-    IMPLEMENT_MEASUREMENT_UNIT(Kilopascals, []{return QObject::tr("kilopascals");                  }, []{ return QObject::tr("kPa");       }, 1000.0);
-    IMPLEMENT_MEASUREMENT_UNIT(NewtonPerSquareMeter, []{return QObject::tr("newton/sq.meter");              }, []{ return QObject::tr("N/m2");      }, 1.0);
-    IMPLEMENT_MEASUREMENT_UNIT(Bars, []{return QObject::tr("bars");                         }, []{ return QObject::tr("bars");      }, 100000.0);
-    IMPLEMENT_MEASUREMENT_UNIT(Megapascals, []{return QObject::tr("megapascals");                  }, []{ return QObject::tr("MPa");       }, 1000000.0);
-    IMPLEMENT_MEASUREMENT_UNIT(Atmospheres, []{return QObject::tr("atmospheres");                  }, []{ return QObject::tr("atm");       }, 101325.0);
-    IMPLEMENT_MEASUREMENT_UNIT(KilogramPerSquareCentimeter, []{return QObject::tr("kilogram-forces/sq.centimeter");}, []{ return QObject::tr("kgf/cm2");   }, 98066.5);
-    IMPLEMENT_MEASUREMENT_UNIT(KilogramPerSquareMeter, []{return QObject::tr("kilogram-forces/sq.meter");     }, []{ return QObject::tr("kgf/m2");    }, 9.80665);
-    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInch, []{return QObject::tr("pounds-force/sq.inch");         }, []{ return QObject::tr("psi");       }, 6894.757);
-    IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInch, []{return QObject::tr("kilopounds-force/sq.inch");     }, []{ return QObject::tr("ksi");       }, 6894757);
-    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareFeet, []{return QObject::tr("pounds-force/sq.feet");         }, []{ return QObject::tr("lbf/ft2");   }, 47.880172);
-    IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet, []{return QObject::tr("pounds-force/100 sq.feet");     }, []{ return QObject::tr("lbf/100ft2");}, 0.47880172);
+    IMPLEMENT_MEASUREMENT_UNIT(Pascals,                     TR(MeasurementTr::tr("pascals")),                       TR(MeasurementTr::tr("Pa")),        1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Kilopascals,                 TR(MeasurementTr::tr("kilopascals")),                   TR(MeasurementTr::tr("kPa")),       1000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(NewtonPerSquareMeter,        TR(MeasurementTr::tr("newton/sq.meter")),               TR(MeasurementTr::tr("N/m2")),      1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Bars,                        TR(MeasurementTr::tr("bars")),                          TR(MeasurementTr::tr("bars")),      100000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Megapascals,                 TR(MeasurementTr::tr("megapascals")),                   TR(MeasurementTr::tr("MPa")),       1000000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Atmospheres,                 TR(MeasurementTr::tr("atmospheres")),                   TR(MeasurementTr::tr("atm")),       101325.0)
+    IMPLEMENT_MEASUREMENT_UNIT(KilogramPerSquareCentimeter, TR(MeasurementTr::tr("kilogram-forces/sq.centimeter")), TR(MeasurementTr::tr("kgf/cm2")),   98066.5)
+    IMPLEMENT_MEASUREMENT_UNIT(KilogramPerSquareMeter,      TR(MeasurementTr::tr("kilogram-forces/sq.meter")),      TR(MeasurementTr::tr("kgf/m2")),    9.80665)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInch,         TR(MeasurementTr::tr("pounds-force/sq.inch")),          TR(MeasurementTr::tr("psi")),       6894.757)
+    IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInch,     TR(MeasurementTr::tr("kilopounds-force/sq.inch")),      TR(MeasurementTr::tr("ksi")),       6894757)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareFeet,         TR(MeasurementTr::tr("pounds-force/sq.feet")),          TR(MeasurementTr::tr("lbf/ft2")),   47.880172)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet,      TR(MeasurementTr::tr("pounds-force/100 sq.feet")),      TR(MeasurementTr::tr("lbf/100ft2")),0.47880172)
 }
 
 IMPLEMENT_MEASUREMENT(Pressure, TR(MeasurementTr::tr("Pressure")))

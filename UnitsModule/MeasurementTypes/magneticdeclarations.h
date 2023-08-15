@@ -8,7 +8,7 @@ namespace FieldStrengthUnits
     DECLARE_MEASUREMENT_UNIT(NanoTeslas)
     DECLARE_MEASUREMENT_UNIT(MicroTeslas)
     DECLARE_MEASUREMENT_UNIT(Gauss)
-};
+}
 
 DECLARE_MEASUREMENT(MagneticField)
 

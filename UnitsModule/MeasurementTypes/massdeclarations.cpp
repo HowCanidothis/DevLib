@@ -4,11 +4,11 @@
 
 namespace MassUnits
 {
-    IMPLEMENT_MEASUREMENT_UNIT(Kilograms, []{return QObject::tr("kilograms"); }, []{ return QObject::tr("kg");  }, 1.0  );
-    IMPLEMENT_MEASUREMENT_UNIT(Grams, []{return QObject::tr("grams");     }, []{ return QObject::tr("g");   }, 0.001  );
-    IMPLEMENT_MEASUREMENT_UNIT(Tonnes, []{return QObject::tr("tonnes");    }, []{ return QObject::tr("t");   }, 1000.0 );
-    IMPLEMENT_MEASUREMENT_UNIT(Pounds, []{return QObject::tr("pounds");    }, []{ return QObject::tr("lbs"); }, 0.453592);
-    IMPLEMENT_MEASUREMENT_UNIT(Kilopounds, []{return QObject::tr("kilopounds");}, []{ return QObject::tr("klbs");}, 453.592);
+    IMPLEMENT_MEASUREMENT_UNIT(Kilograms,   TR(MeasurementTr::tr("kilograms")), TR(MeasurementTr::tr("kg")),    1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Grams,       TR(MeasurementTr::tr("grams")),     TR(MeasurementTr::tr("g")),     0.001)
+    IMPLEMENT_MEASUREMENT_UNIT(Tonnes,      TR(MeasurementTr::tr("tonnes")),    TR(MeasurementTr::tr("t")),     1000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(Pounds,      TR(MeasurementTr::tr("pounds")),    TR(MeasurementTr::tr("lbs")),   0.453592)
+    IMPLEMENT_MEASUREMENT_UNIT(Kilopounds,  TR(MeasurementTr::tr("kilopounds")),TR(MeasurementTr::tr("klbs")),  453.592)
 }
 
 IMPLEMENT_MEASUREMENT(Mass, TR(MeasurementTr::tr("Mass")))

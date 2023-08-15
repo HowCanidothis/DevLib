@@ -253,7 +253,7 @@ inline void ForeachFieldOfStruct(const Struct& data, const std::function<void (c
 }
 
 template<typename FFunction, class T, class T2, typename ... Args>
-bool Foreach(const FFunction& handler, const T& c1, const T2& c2, const Args&... args)
+bool Foreach(const FFunction& handler, T& c1, T2& c2, Args&... args)
 {
     qint32 minSize = std::numeric_limits<qint32>().max();
     adapters::Combine([&](const auto& t){
