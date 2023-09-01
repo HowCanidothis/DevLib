@@ -729,44 +729,32 @@ QStringList MeasurementManager::DefaultSystems()
 	return {UNIT_SYSTEM_API.AsString(), UNIT_SYSTEM_API_USFT.AsString(), UNIT_SYSTEM_SI.AsString()};
 }
 
-void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics)
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric)
 {
-    AttachToTranslatedString(string, translationHandler, metrics, string.Connections);
+    AttachToTranslatedString(string, translationHandler, metric, string.Connections);
 }
 
-void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, DispatcherConnectionsSafe& connections)
+void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric, DispatcherConnectionsSafe& connections)
 {
-    QSet<const Measurement*> uniqueMetrics;
-    for(const auto* metric : metrics) {
-        auto foundIt = uniqueMetrics.find(metric);
-        if(foundIt == uniqueMetrics.end()) {
-            string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, metric->CurrentUnitLabel.OnChanged).MakeSafe(connections);
-            uniqueMetrics.insert(metric);
-        }
-    }
-    string.SetTranslationHandler(generateTranslationHandler(translationHandler, metrics, connections));
+    string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, metric->CurrentUnitLabel.OnChanged).MakeSafe(connections);
+    string.SetTranslationHandler(generateTranslationHandler(translationHandler, metric, connections));
 }
 
-FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, const DispatcherConnectionsSafe& connections)
+FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const Measurement* measurement)
 {
 	Q_ASSERT(translationHandler != nullptr);
-    return [translationHandler, metrics, connections]{
+    return [translationHandler, measurement]{
         THREAD_ASSERT_IS_MAIN()
         thread_local static QRegExp regExp(MEASUREMENT_UN);
-        auto string = translationHandler();
         qint32 index = 0, stringIndex = 0;
-        auto it = metrics.begin();
         QString resultString;
-        while((index = regExp.indexIn(string, index)) != -1 && it != metrics.end()) {
+        while((index = regExp.indexIn(string, index)) != -1) {
             resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
-            const auto* metricSystem = *it;
-            resultString.append(metricSystem->CurrentUnitLabel);
-            it++;
+            resultString.append(measurement->CurrentUnitLabel);
             index += regExp.matchedLength();
             stringIndex = index;
         }
         resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
-
         return resultString;
     };
 }
