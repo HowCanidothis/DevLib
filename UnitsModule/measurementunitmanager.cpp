@@ -737,7 +737,7 @@ void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& str
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric, DispatcherConnectionsSafe& connections)
 {
     string.Retranslate.ConnectFrom(CONNECTION_DEBUG_LOCATION, metric->CurrentUnitLabel.OnChanged).MakeSafe(connections);
-    string.SetTranslationHandler(generateTranslationHandler(translationHandler, metric, connections));
+    string.SetTranslationHandler(generateTranslationHandler(translationHandler, metric));
 }
 
 FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(const FTranslationHandler& translationHandler, const Measurement* measurement)
@@ -747,7 +747,7 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
         THREAD_ASSERT_IS_MAIN()
         thread_local static QRegExp regExp(MEASUREMENT_UN);
         qint32 index = 0, stringIndex = 0;
-        QString resultString;
+        QString resultString, string = translationHandler();
         while((index = regExp.indexIn(string, index)) != -1) {
             resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
             resultString.append(measurement->CurrentUnitLabel);
