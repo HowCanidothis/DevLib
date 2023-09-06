@@ -149,11 +149,11 @@ private:
 class MeasurementTranslatedString
 {
 public:
-    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric);
-    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric, DispatcherConnectionsSafe& connections);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics);
+    static void AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, DispatcherConnectionsSafe& connections);
 
 private:
-    static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const Measurement* measurement);
+    static FTranslationHandler generateTranslationHandler(const FTranslationHandler& translationHandler, const QVector<const Measurement*>& metrics, const DispatcherConnectionsSafe& connections);
 };
 
 using MeasurementTranslatedStringPtr = SharedPointer<MeasurementTranslatedString>;
