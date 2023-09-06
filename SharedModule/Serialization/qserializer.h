@@ -357,7 +357,9 @@ struct Serializer<QSet<T>>
     {
         qint32 count = data.size();
         buffer << buffer.Attr("Size", count);
-        data.clear();
+        if(!buffer.GetSerializationMode().TestFlag(SerializationMode_Merge_Containers)) {
+            data.clear();
+        }
         if(count) {
             data.reserve(count);
             while(count--) {

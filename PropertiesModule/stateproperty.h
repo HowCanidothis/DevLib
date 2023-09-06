@@ -473,10 +473,10 @@ public:
     void SetCalculatorWithParams(const char* connectionInfo, const Function& handler, Args... args)
     {
         Q_ASSERT(m_stateParameters->isEmpty());
+        ConnectCombined(connectionInfo, args...);
         SetCalculatorBasedOnStateParameters([=]{
             return handler(args...);
         });
-        ConnectCombined(connectionInfo, args...);
     }
 
     template<typename ... Args, typename Function>

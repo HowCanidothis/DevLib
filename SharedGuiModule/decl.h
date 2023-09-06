@@ -346,6 +346,60 @@ Q_DECLARE_TYPEINFO(Vector3F, Q_PRIMITIVE_TYPE);
 typedef Vector3F Point3F;
 Q_DECLARE_METATYPE(Vector3F);
 
+class Vector3D
+{
+public:
+    Vector3D()
+        : m_x(0.0)
+        , m_y(0.0)
+        , m_z(0.0)
+    {}
+    Vector3D(double x, double y, double z)
+        : m_x(x)
+        , m_y(y)
+        , m_z(z)
+    {}
+
+    double& X() { return m_x; }
+    double X() const { return m_x; }
+
+    double& Y() { return m_y; }
+    double Y() const { return m_y; }
+
+    double& Z() { return m_z; }
+    double Z() const { return m_z; }
+
+    Vector3D operator-() const
+    {
+        return Vector3D(-m_x, -m_y, -m_z);
+    }
+
+    Vector3D operator-(const Vector3D& another) const
+    {
+        return Vector3D(m_x - another.m_x, m_y - another.m_y, m_z - another.m_z);
+    }
+
+    Vector3D operator+(const Vector3D& another) const
+    {
+        return Vector3D(m_x + another.m_x, m_y + another.m_y, m_z + another.m_z);
+    }
+
+    bool EqualTo(const Vector3D& another, double epsilon = std::numeric_limits<double>().epsilon()) const
+    {
+        return ::fuzzyCompare(another.X(), X(), epsilon) && ::fuzzyCompare(another.Y(), Y(), epsilon) && ::fuzzyCompare(another.Z(), Z(), epsilon);
+    }
+
+    bool operator==(const Vector3D& another) const
+    {
+        return EqualTo(another);
+    }
+
+    Vector3F To3F() const { return Vector3F(m_x, m_y, m_z); }
+
+private:
+    double m_x,m_y,m_z;
+};
+
 #pragma pack()
 
 class BoundingRect

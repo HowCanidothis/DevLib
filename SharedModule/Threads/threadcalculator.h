@@ -93,9 +93,6 @@ public:
                    const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
     {
         m_data->Handler([this, calculator, preparator, releaser]{
-            if(m_prevData != nullptr) {
-                m_prevData->Release();
-            }
             m_data->PreparatorHandler = preparator;
             m_data->CalculatorHandler = calculator;
             m_data->ReleaserHandler = releaser;
@@ -108,6 +105,10 @@ public:
                     return;
                 }
                 m_data->NeedRecalculate = false;
+            }
+
+            if(m_prevData != nullptr) {
+                m_prevData->Release();
             }
             
             m_data->Canceled = false;
