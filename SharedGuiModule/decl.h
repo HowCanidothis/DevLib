@@ -724,6 +724,7 @@ struct StatedVertex3F
     quint8 State;
 
     StatedVertex3F()
+        : State(0)
     {}
 
     StatedVertex3F(float x, float y, float z, quint8 state = 0)
