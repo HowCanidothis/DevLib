@@ -549,6 +549,27 @@ void WidgetTableViewWrapper::DebugJson() const
     dialog->show();
 }
 
+void WidgetTableViewWrapper::DebugSelect() const
+{
+    auto* tableView = GetWidget();
+    auto* viewModel = tableView->model();
+    if(viewModel == nullptr) {
+        return;
+    }
+    tableView->clearSelection();
+    auto* selectionModel = tableView->selectionModel();
+    qint32 countToSelect = 10;
+    auto rowCount = viewModel->rowCount();
+    auto selectEach = rowCount / 10;
+    qint32 currentRow = 0;
+    for(qint32 i(0); i < countToSelect; ++i) {
+        selectionModel->select(viewModel->index(currentRow % rowCount, 0), QItemSelectionModel::Select);
+        currentRow += selectEach;
+    }
+
+    selectionModel->select(viewModel->index(rowCount - 1, 0), QItemSelectionModel::Select);
+}
+
 bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHeaders) const
 {
     auto* tableView = GetWidget();
@@ -1607,6 +1628,7 @@ const MenuWrapper& MenuWrapper::AddDebugActions() const
 {
 #ifndef BUILD_MASTER
     AddGlobalTableAction(GlobalActionDebugJSONId);
+    AddGlobalTableAction(GlobalActionDebugSelectId);
 #endif
     return *this;
 }

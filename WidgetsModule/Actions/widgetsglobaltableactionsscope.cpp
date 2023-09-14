@@ -314,6 +314,11 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     result->AddHandler([]{ return tr("Debug JSON"); }, QKeySequence(), action, [table]{
         WidgetTableViewWrapper(table).DebugJson();
     }).SetVisible(true);
+
+    action = GetInstance().FindAction(GlobalActionDebugSelectId);
+    result->AddHandler([]{ return tr("Debug Select Random Rows"); }, QKeySequence(), action, [table]{
+        WidgetTableViewWrapper(table).DebugSelect();
+    }).SetVisible(true);
 #endif
 
     action = GetInstance().FindAction(GlobalActionCopyId);
@@ -402,6 +407,7 @@ WidgetsGlobalTableActionId::WidgetsGlobalTableActionId(const char* id, WidgetsGl
     }
 }
 
+IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugJSONId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
 IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyWithHeadersId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)

@@ -492,6 +492,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTableViewWrapper, QTableView)
     void DebugJson() const;
+    void DebugSelect() const;
     bool CopySelectedTableContentsToClipboard(bool includeHeaders = false) const;
     QList<int> SelectedRowsSorted() const;
     QList<int> SelectedColumnsSorted() const;
