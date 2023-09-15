@@ -1194,6 +1194,12 @@ const WidgetWrapper& WidgetWrapper::SetOnClicked(const FAction& action) const
     return *this;
 }
 
+const WidgetWrapper& WidgetWrapper::SetToolTip(const FTranslationHandler& toolTip) const
+{
+    WidgetToolTip()->SetTranslationHandler(toolTip);
+    return *this;
+}
+
 DispatcherConnection WidgetWrapper::ConnectEnablityFrom(const char* conInfo, QWidget* widget) const
 {
     return WidgetEnablity().ConnectFrom(conInfo, WidgetWrapper(widget).WidgetEnablity());

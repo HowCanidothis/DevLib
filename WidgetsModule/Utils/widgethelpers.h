@@ -218,6 +218,7 @@ public:
     LocalPropertyErrorsContainer& WidgetErrors(bool autoHighlight = true) const;
     Dispatcher& OnClicked() const;
     const WidgetWrapper& SetOnClicked(const FAction& action) const;
+    const WidgetWrapper& SetToolTip(const FTranslationHandler& toolTip) const;
 
     bool HasParent(const QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;

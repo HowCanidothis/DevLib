@@ -35,9 +35,9 @@ TopNotifierFrame::~TopNotifierFrame()
     delete ui;
 }
 
-TranslatedString& TopNotifierFrame::WidgetText()
+const TranslatedStringPtr& TopNotifierFrame::WidgetText()
 {
-    return *WidgetLabelWrapper(ui->Label).WidgetText();
+    return WidgetLabelWrapper(ui->Label).WidgetText();
 }
 
 LocalProperty<QuadTreeF::BoundingRect_Location>& TopNotifierFrame::WidgetLocation()
@@ -63,7 +63,7 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
     , m_internalErrors(false)
 {
     auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [frame, errors]{
-        frame->WidgetText().SetTranslationHandler([errors]{
+        frame->WidgetText()->SetTranslationHandler([errors]{
             StringBuilder message;
             for(const LocalPropertyErrorsContainerValue& error : *errors) {
                 switch(error.Type) {

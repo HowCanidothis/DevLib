@@ -18,7 +18,7 @@ public:
     explicit TopNotifierFrame(QWidget* parent);
     ~TopNotifierFrame();
 
-    TranslatedString& WidgetText();
+    const TranslatedStringPtr& WidgetText();
     LocalProperty<QuadTreeF::BoundingRect_Location>& WidgetLocation();
     LocalProperty<QPoint>& WidgetOffset();
 
