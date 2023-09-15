@@ -215,7 +215,6 @@ public:
     LocalPropertyBool& WidgetEnablity() const;
     LocalPropertyBool& WidgetCollapsing(Qt::Orientation orientation, qint32 initialWidth) const;
     TranslatedStringPtr WidgetToolTip() const;
-    LocalPropertyErrorsContainer& WidgetErrors(bool autoHighlight = true) const;
     Dispatcher& OnClicked() const;
     const WidgetWrapper& SetOnClicked(const FAction& action) const;
     const WidgetWrapper& SetToolTip(const FTranslationHandler& toolTip) const;

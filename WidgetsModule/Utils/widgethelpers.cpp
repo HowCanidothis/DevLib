@@ -1139,25 +1139,6 @@ TranslatedStringPtr WidgetWrapper::WidgetToolTip() const
     });
 }
 
-LocalPropertyErrorsContainer& WidgetWrapper::WidgetErrors(bool autoHighlight) const {
-    auto result = Injected<LocalPropertyErrorsContainer>("a_errors", []{
-        return new LocalPropertyErrorsContainer();
-    });
-    if(autoHighlight){
-        WidgetHighlighted().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QSet<LocalPropertyErrorsContainerValue>& errors){
-            if(errors.isEmpty()){
-                return (int)HighLightEnum::None;
-            }
-            for(const auto& error : errors){
-                if(error.Type == QtCriticalMsg && (error.Visible == nullptr || *error.Visible)) {
-                    return (int)HighLightEnum::Critical;
-                }
-            }
-            return (int)HighLightEnum::Warning;
-        }, *result);
-    }
-    return *result;
-}
 
 Dispatcher& WidgetWrapper::OnClicked() const
 {
