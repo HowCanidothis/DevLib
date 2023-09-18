@@ -14,24 +14,15 @@ public:
     using TextFromValueHandler = std::function<QString (const WidgetsSpinBoxWithCustomDisplay* spinBox, qint32)>;
     WidgetsSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
 
+    void Update();
+
     static const ValueFromTextHandler& GetDefaultValueFromTextHandler();
     static const TextFromValueHandler& GetDefaultTextFromValueHandler();
 
-    void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
-    {
-        m_textFromValueHandler = textFromValueHandler;
-        m_valueFromTextHandler = valueFromTextHandler;
-    }
+    void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler);
 
-    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
-    {
-        m_textFromValueHandler = textFromValueHandler;
-    }
-
-    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
-    {
-        m_valueFromTextHandler = valueFromTextHandler;
-    }
+    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler);
+    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler);
 
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
     void SetText(const QString& text);
@@ -55,24 +46,14 @@ public:
     using TextFromValueHandler = std::function<QString (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double)>;
     WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
 
+    void Update();
+
     static const ValueFromTextHandler& GetDefaultValueFromTextHandler();
     static const TextFromValueHandler& GetDefaultTextFromValueHandler();
 
-    void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
-    {
-        m_textFromValueHandler = textFromValueHandler;
-        m_valueFromTextHandler = valueFromTextHandler;
-    }
-
-    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
-    {
-        m_textFromValueHandler = textFromValueHandler;
-    }
-
-    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
-    {
-        m_valueFromTextHandler = valueFromTextHandler;
-    }
+    void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler);
+    void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler);
+    void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler);
 
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
     void MakeOptional();

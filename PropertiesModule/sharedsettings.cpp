@@ -170,9 +170,73 @@ QDate LanguageSettings::DateFromVariant(const QVariant& data)
     return data.toDate();
 }
 
-QDateTime LanguageSettings::DateTimeFromVariant(const QVariant& data)
+QString tryFixUpDateTime(const QString& input, const QString& format)
 {
-    return data.toDateTime();
+    if(format.size() == input.size()) {
+        return input;
+    }
+    QString result;
+
+    QString currentKey;
+    QString currentDigit;
+    auto inputIt = input.cbegin();
+    qint32 currentDigitLettersCount = 0;
+
+    auto update = [&]{
+        if(currentKey == "AP") {
+            while(inputIt != input.cend() && inputIt->isLetter()) {
+                currentDigit.append(*inputIt);
+                ++inputIt;
+            }
+            while(inputIt != input.cend() && !inputIt->isDigit()) {
+                ++inputIt;
+            }
+            if(currentDigit.isEmpty()) {
+                currentDigit = "AM";
+            }
+        } else {
+            while(inputIt != input.cend() && inputIt->isDigit()) {
+                currentDigit.append(*inputIt);
+                ++inputIt;
+            }
+            while(inputIt != input.cend() && !inputIt->isDigit()) {
+                ++inputIt;
+            }
+            auto adjustCount = currentDigitLettersCount - currentDigit.size();
+            while(--adjustCount >= 0) {
+                currentDigit.prepend('0');
+            }
+        }
+        currentDigitLettersCount = 0;
+        result.append(currentDigit);
+        currentDigit = QString();
+        currentKey = QString();
+    };
+
+    for(const auto& l : format) {
+        if(l.isLetter()) {
+            currentKey.append(l);
+            ++currentDigitLettersCount;
+        } else if(currentDigitLettersCount == 0) {
+            result.append(l);
+        } else {
+            update();
+            result.append(l);
+        }
+    }
+    update();
+
+    return result;
+}
+
+QDateTime LanguageSettings::DateTimeFromVariant(const QVariant& v)
+{
+    if(v.type() == QVariant::String) {
+        auto format = SharedSettings::GetInstance().LanguageSettings.DateTimeFormat.Native();
+        QLocale locale;
+        return locale.toDateTime(tryFixUpDateTime(v.toString(), format), format);
+    }
+    return v.toDateTime();
 }
 
 QString LanguageSettings::DateTimeToString(const QDateTime& dt)

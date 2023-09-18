@@ -92,8 +92,11 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
                 case Qt::Key_6:
                 case Qt::Key_7:
                 case Qt::Key_8:
+                case Qt::Key_Slash:
+                case Qt::Key_V:
+                case Qt::Key_C:
                 case Qt::Key_9: break;
-                case Qt::Key_Delete: DefaultDateTimeDelegate();
+                case Qt::Key_Delete:
                 default: return true;
                 }
             }

@@ -10,6 +10,13 @@ WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
 {}
 
+void WidgetsSpinBoxWithCustomDisplay::Update()
+{
+    if(!hasFocus()) {
+        setPrefix(prefix());
+    }
+}
+
 const WidgetsSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
 {
     static ValueFromTextHandler result = [](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> qint32 { return ::clamp(text.toInt(), spin->minimum(), spin->maximum()); };
@@ -20,6 +27,22 @@ const WidgetsSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsSpinBoxWithC
 {
     static TextFromValueHandler result = [](const WidgetsSpinBoxWithCustomDisplay*, qint32 value) -> QString { return QString::number(value); };
     return result;
+}
+
+void WidgetsSpinBoxWithCustomDisplay::SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
+{
+    m_textFromValueHandler = textFromValueHandler;
+    m_valueFromTextHandler = valueFromTextHandler;
+}
+
+void WidgetsSpinBoxWithCustomDisplay::SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
+{
+    m_textFromValueHandler = textFromValueHandler;
+}
+
+void WidgetsSpinBoxWithCustomDisplay::SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
+{
+    m_valueFromTextHandler = valueFromTextHandler;
 }
 
 QString WidgetsSpinBoxWithCustomDisplay::textFromValue(int val) const
@@ -52,9 +75,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
     });
 
     auto updateDisplay = [this]{
-        if(!hasFocus()) {
-            setPrefix(prefix());
-        }
+        Update();
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
     return result;
@@ -105,6 +126,13 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
 {}
 
+void WidgetsDoubleSpinBoxWithCustomDisplay::Update()
+{
+    if(!hasFocus()) {
+        setPrefix(prefix());
+    }
+}
+
 thread_local static QRegExp regExpFractial(R"(([-+])?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
@@ -144,6 +172,22 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsDouble
     return result;
 }
 
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler)
+{
+    m_textFromValueHandler = textFromValueHandler;
+    m_valueFromTextHandler = valueFromTextHandler;
+}
+
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler)
+{
+    m_textFromValueHandler = textFromValueHandler;
+}
+
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler)
+{
+    m_valueFromTextHandler = valueFromTextHandler;
+}
+
 DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)
 {
     setProperty(IsValidPropertyName, (size_t)valid);
@@ -168,9 +212,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
     });
 
     auto updateDisplay = [this]{
-        if(!hasFocus()) {
-            setPrefix(prefix());
-        }
+        Update();
     };
     auto result = valid->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updateDisplay);
     return result;
