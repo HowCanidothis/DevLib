@@ -232,7 +232,17 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
-bool IsInBounds(double value, double left, double right, double epsilon);
+bool IsInBounds(double value, double left, double right, double epsilon)
+{
+    if(fuzzyCompare(value, left, epsilon)) {
+        return true;
+    }
+    if(fuzzyCompare(value, right, epsilon)) {
+        return true;
+    }
+    auto minmax = std::minmax(left, right);
+    return value > minmax.first && value < minmax.second;
+}
 
 template <typename FHandler, typename T, typename ... Args>
 void Combine(const FHandler& handler, T& first, Args&... rest) {
