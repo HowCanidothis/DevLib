@@ -51,6 +51,7 @@ WidgetBuilder& WidgetBuilder::StartLayout(const WidgetBuilderLayoutParams& param
         toAdd = new QHBoxLayout(dummyWidget);
     }
 
+    toAdd->setMargin(params.Margin);
     toAdd->setSizeConstraint(params.SizeConstraint);
     m_addWidgetFunctors.last()(dummyWidget);
     m_addWidgetFunctors.append([toAdd](QWidget* w){ toAdd->addWidget(w); });

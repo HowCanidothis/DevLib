@@ -522,6 +522,13 @@ private:
 #endif
 };
 
+template<class T>
+class TViewModelsColumnComponentsStandardBuilder : public TViewModelsColumnComponentsBuilder<T>
+{
+    using Super = TViewModelsColumnComponentsBuilder<T>;
+public:
+    using Super::Super;
+};
 
 #define ViewModelsBuilderColumnUiReadOnly(column, header, getter, getterUi) \
     builder.AddColumn(column, []{ return header; }, \

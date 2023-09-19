@@ -167,6 +167,8 @@ struct TypeHelper<T*>
     const T& ToReference(const T*& value) { return *value; }
 };
 
+template<class T> class TViewModelsColumnComponentsStandardBuilder;
+
 template<class T>
 class TViewModelsTableBase : public ViewModelsTableBase
 {
@@ -192,6 +194,17 @@ public:
             return true;
         })
     {}
+
+    TViewModelsColumnComponentsStandardBuilder<T> Builder()
+    {
+        return TViewModelsColumnComponentsStandardBuilder<T>(this);
+    }
+
+    template<class T2>
+    TViewModelsColumnComponentsStandardBuilder<T2> Builder(const std::function<T2* ()>& getter)
+    {
+        return TViewModelsColumnComponentsStandardBuilder<T2>(this, getter);
+    }
 
     void SetCanDropMimeDataHandler(const FCanDropMimeDataHandler& handler)
     {

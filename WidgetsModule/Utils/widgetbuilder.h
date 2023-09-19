@@ -16,7 +16,7 @@ struct WidgetBuilderLayoutParams
     WidgetBuilderLayoutParams(Qt::Orientation orientation)
         : Orientation(orientation)
         , AddSpacerToTheEnd(false)
-        , Margin(0)
+        , Margin(9)
         , SizeConstraint(QLayout::SetDefaultConstraint)
     {}
 

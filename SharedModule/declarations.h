@@ -232,6 +232,8 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+bool IsInBounds(double value, double left, double right, double epsilon);
+
 template <typename FHandler, typename T, typename ... Args>
 void Combine(const FHandler& handler, T& first, Args&... rest) {
     handler(first);
