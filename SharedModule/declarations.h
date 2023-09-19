@@ -232,7 +232,7 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
-bool IsInBounds(double value, double left, double right, double epsilon)
+inline bool IsInBounds(double value, double left, double right, double epsilon)
 {
     if(fuzzyCompare(value, left, epsilon)) {
         return true;
