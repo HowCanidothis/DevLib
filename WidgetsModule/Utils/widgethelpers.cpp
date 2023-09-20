@@ -1092,7 +1092,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
     return *this;
 }
 
-const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher* updater, QScrollArea* area) const
+const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area) const
 {
     std::function<qint32 (QGroupBox*)> handler;
     if(area != nullptr) {
@@ -1112,7 +1112,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Disp
                                      });
                                  }
                              });
-    collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, *updater).MakeSafe(collapsingData->Connections);
+    collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
 

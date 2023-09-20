@@ -15,7 +15,7 @@ WidgetsAdjustableTableView::WidgetsAdjustableTableView(QWidget* parent)
     , m_contentsHeight(0)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
         if(event->type() == QEvent::Show || event->type() == QEvent::StyleChange) {

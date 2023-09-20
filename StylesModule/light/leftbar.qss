@@ -143,7 +143,7 @@ WidgetsStyleSettings {
     qproperty-selectionColor: black;
     qproperty-disabledColor: #9d9d9d;
     qproperty-secondaryColor: #9d9d9d;
-    qproperty-secondarySelectionColor: #9d9d9d;
+    qproperty-secondarySelectionColor: #3EA6FF;
     qproperty-secondaryDisabledColor: #cccccc;
     qproperty-enabledTableColor: white;
     qproperty-enabledTableTextColor: #414141;
