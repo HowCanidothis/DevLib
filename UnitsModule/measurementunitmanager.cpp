@@ -430,7 +430,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&FrequencyUnits::RevolutionPerSecond);
 
     AddMeasurement(MeasurementCutterDiameter::Value)
-            .AddUnit(&DistanceUnits::Milimeters);
+            .AddUnit(&DistanceUnits::Milimeters)
+            .AddUnit(&DistanceUnits::Inches);
 
     AddMeasurement(MeasurementPower::Value)
             .AddUnit(&PowerUnits::Watt)
@@ -542,7 +543,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     1})
             .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
-            .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::USFeets.Id,                 2})
+            .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Inches.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
             .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
@@ -589,7 +590,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFunnelViscosity::NAME,  {FunnelViscosityUnits::SecondsForQuart.Id,     2})
             .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::BarrelPerFoot.Id,       2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::OnePerThirtyTwoInches.Id,      0})
-            .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::USFeets.Id,                 2})
+            .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Inches.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
             .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
