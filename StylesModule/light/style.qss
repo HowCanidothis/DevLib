@@ -1032,10 +1032,6 @@ QAbstractButton[a_control="12"]:disabled
     background: transparent;
 }
 
-WPSCDrillCaseView {
-  qproperty-blockWeightColor: #aaaaaa;
-}
-
 QCalendarWidget QAbstractItemView {
     font: bold;
     background-color: #E0E0E0;
