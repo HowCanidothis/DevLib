@@ -13,8 +13,8 @@ namespace PressureUnits
     IMPLEMENT_MEASUREMENT_UNIT(KilogramPerSquareMeter,      TR(MeasurementTr::tr("kilogram-forces/sq.meter")),      TR(MeasurementTr::tr("kgf/m2")),    9.80665)
     IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInch,         TR(MeasurementTr::tr("pounds-force/sq.inch")),          TR(MeasurementTr::tr("psi")),       6894.757)
     IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInch,     TR(MeasurementTr::tr("kilopounds-force/sq.inch")),      TR(MeasurementTr::tr("ksi")),       6894757)
-    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareFeet,         TR(MeasurementTr::tr("pounds-force/sq.feet")),          TR(MeasurementTr::tr("lbf/ft2")),   47.880172)
-    IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet,      TR(MeasurementTr::tr("pounds-force/100 sq.feet")),      TR(MeasurementTr::tr("lbf/100ft2")),0.47880172)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareFeet,         TR(MeasurementTr::tr("pounds-force/sq.feet")),          TR(MeasurementTr::tr("lbf/ft2")),   47.8802589804)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet,      TR(MeasurementTr::tr("pounds-force/100 sq.feet")),      TR(MeasurementTr::tr("lbf/100ft2")),0.478802589804)
 }
 
 IMPLEMENT_MEASUREMENT(Pressure, TR(MeasurementTr::tr("Pressure")))
