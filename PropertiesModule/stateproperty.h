@@ -658,7 +658,7 @@ class StateImmutableData {
     using TPtr = SharedPointer<T>;
 public:
     using container_type = typename T::container_type;
-    StateImmutableData(const TPtr& data)
+    StateImmutableData(const TPtr& data = ::make_shared<T>())
         : m_lockCounter(0)
         , m_isDirty(false)
 #ifndef QT_NO_DEBUG
@@ -799,6 +799,19 @@ public:
 
 template<class T> using StateParametersImmutableData = StateParametersContainer<StateImmutableData<T>>;
 template<class T> using StateImmutableDataPtr = SharedPointer<StateImmutableData<T>>;
+
+template<class T>
+struct DefaultImmutableData
+{
+    static const StateImmutableDataPtr<T> Value;
+};
+
+#define IMPLEMENT_DEFAULT_IMMUTABLE_DATA(T) \
+const StateImmutableDataPtr<T> DefaultImmutableData<T>::Value = []{ \
+        auto result = ::make_shared<StateImmutableData<T>>(::make_shared<T>()); \
+        result->IsValid.SetState(true); \
+        return result; \
+}();
 
 template<class T, class T2, typename TPtr = SharedPointer<T>>
 SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)

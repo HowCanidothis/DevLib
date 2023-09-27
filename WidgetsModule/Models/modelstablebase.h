@@ -175,6 +175,7 @@ class TViewModelsTableBase : public ViewModelsTableBase
     using Super = ViewModelsTableBase;
 public:
     using FInsertHandler = std::function<bool (int row, int count)>;
+    using FRemoveHandler = std::function<bool (int row, int count)>;
     using FCanDropMimeDataHandler = std::function<bool (const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)>;
 
     TViewModelsTableBase(QObject* parent)
@@ -191,6 +192,15 @@ public:
             const auto& data = GetData();
             Q_ASSERT(data != nullptr);
             data->Insert(row > data->GetSize() ? data->GetSize() : row, count);
+            return true;
+        })
+        , m_removeHandler([this](qint32 row, qint32 count){
+            Q_ASSERT(GetData() != nullptr);
+            QSet<qint32> indexs;
+            while(count){
+                indexs.insert(row + --count);
+            }
+            GetData()->Remove(indexs);
             return true;
         })
     {}
@@ -214,6 +224,35 @@ public:
     void SetInsertionHandler(const FInsertHandler& insertHandler)
     {
         m_insertHandler = insertHandler;
+    }
+
+    void SetRemoveHandler(const FRemoveHandler& removeHandler)
+    {
+        m_removeHandler = removeHandler;
+    }
+
+    void SetEditModel(T* model)
+    {
+        m_insertHandler = [this, model](qint32 row, qint32 count){
+            const auto& data = GetData();
+            row -= (data->GetSize() - model->GetSize());
+            if(row < 0) {
+                return false;
+            }
+            Q_ASSERT(data != nullptr);
+            model->Insert(row > data->GetSize() ? data->GetSize() : row, count);
+            return true;
+        };
+        m_removeHandler = [this, model](qint32 row, qint32 count){
+            Q_ASSERT(GetData() != nullptr);
+            QSet<qint32> indexs;
+            row -= (GetData()->GetSize() - model->GetSize());
+            while(count){
+                indexs.insert(row + --count);
+            }
+            model->Remove(indexs);
+            return true;
+        };
     }
 
     void SetMimeDataHandlers(const std::function<QStringList ()>& mimeTypesHandler,
@@ -245,14 +284,8 @@ public:
         return m_insertHandler(row, count);
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
-	{
-        Q_ASSERT(GetData() != nullptr);
-		QSet<qint32> indexs;
-		while(count){
-            indexs.insert(row + --count);
-		}
-		GetData()->Remove(indexs);
-		return true;
+    {
+        return m_removeHandler(row, count);
 	}
 
     QStringList mimeTypes() const override
@@ -313,6 +346,7 @@ private:
     std::function<bool (const QMimeData*, Qt::DropAction, qint32, qint32, const QModelIndex&)> m_dropMimeDataHandler;
     FCanDropMimeDataHandler m_canDropMimeDataHandler;
     FInsertHandler m_insertHandler;
+    FRemoveHandler m_removeHandler;
 };
 
 template<typename T>
@@ -421,7 +455,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index = QModelIndex()) const override
     {
         if(!m_isEditable) {
-            return Super::flags(index);
+            return StandardNonEditableFlags();
         }
 
         if(!index.isValid()) {

@@ -38,6 +38,8 @@ public:
     void SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked);
     qint32 GetSize() const { return m_root->GetChilds().size(); }
 
+    bool HasIndex(qint32 index) const { return index >= 0 && index < m_root->GetChilds().size(); }
+
     const SharedPointer<ModelsTreeItemBase>& GetRootPtr() const { return m_root; }
 
     ModelsTreeItemBase* GetRoot() override { return m_root.get(); }

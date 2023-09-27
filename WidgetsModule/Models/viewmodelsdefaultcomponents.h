@@ -40,10 +40,12 @@ class TViewModelsColumnComponentsBuilder : TViewModelsColumnComponentsBuilderBas
     using Super = TViewModelsColumnComponentsBuilderBase;
 
 public:
+    using FModelModelGetter = std::function<Wrapper* ()>;
     using FModelGetter = std::function<QVariant (ConstValueType)>;
     using FModelSetter = std::function<FAction (const QVariant& data, ValueType)>;
+    using FExternalModelSetter = std::function<FAction (const QVariant& data, ValueType, ConstValueType)>;
 
-    TViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const std::function<Wrapper* ()>& modelGetter)
+    TViewModelsColumnComponentsBuilder(ViewModelsTableBase* viewModel, const FModelModelGetter& modelGetter)
         : Super(viewModel)
         , m_modelGetter(modelGetter)
         , m_currentColumn(-1)
@@ -131,20 +133,43 @@ public:
         editRoleComponent.GetterHandler = editRoleGetter;
 
         if(setter != nullptr) {
-            editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
-                const auto& viewModel = modelGetter();
-                if(viewModel == nullptr) {
-                    return false;
-                }
-                if(index.row() >= viewModel->GetSize()) {
-                    return false;
-                }
-                QVariant toSet;
-                if(data.toString() != DASH) {
-                    toSet = data;
-                }
-                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
-            };
+            if(m_editModelGetter != nullptr) {
+                const auto& editModelGetter = m_editModelGetter;
+                editRoleComponent.SetterHandler = [modelGetter, setter, column, editModelGetter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
+                    const auto& viewModel = modelGetter();
+                    if(viewModel == nullptr) {
+                        return false;
+                    }
+                    if(index.row() >= viewModel->GetSize()) {
+                        return false;
+                    }
+                    const auto& externalModel = editModelGetter();
+                    auto externalIndex = index.row() - (viewModel->GetSize() - externalModel->GetSize());
+                    if(!externalModel->HasIndex(externalIndex)) {
+                        return false;
+                    }
+                    QVariant toSet;
+                    if(data.toString() != DASH) {
+                        toSet = data;
+                    }
+                    return externalModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
+                };
+            } else {
+                editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
+                    const auto& viewModel = modelGetter();
+                    if(viewModel == nullptr) {
+                        return false;
+                    }
+                    if(index.row() >= viewModel->GetSize()) {
+                        return false;
+                    }
+                    QVariant toSet;
+                    if(data.toString() != DASH) {
+                        toSet = data;
+                    }
+                    return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
+                };
+            }
 
             m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); });
         } else {
@@ -331,6 +356,12 @@ public:
         });
     }
 
+    TViewModelsColumnComponentsBuilder& SetEditModel(const FModelModelGetter& getter)
+    {
+        m_editModelGetter = getter;
+        return *this;
+    }
+
 #ifdef UNITS_MODULE_LIB
     TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Measurement* measurement)
     {
@@ -341,6 +372,7 @@ public:
         return *this;
     }
 
+    using FDoubleOptGetterConst = std::function<std::optional<double>(ConstValueType)>;
     using FDoubleGetterConst = std::function<double(ConstValueType)>;
     using FDoubleSetter = std::function<void (ValueType, double)>;
     using FDoubleOptSetter = std::function<void (ValueType, const std::optional<double>&)>;
@@ -389,7 +421,7 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculableOpt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<double>(ConstValueType)>& getter, const FDoubleOptSetter& setter = nullptr)
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnCalculableOpt(qint32 column, const FTranslationHandler& header, const FDoubleOptGetterConst& getter, FDoubleOptSetter setter = nullptr)
     {
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
@@ -428,7 +460,7 @@ public:
             }
             return pMeasurement->FromBaseToUnit(dataValue.value());
         }).addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data){
-            m_viewModel->ColumnComponents.AddComponent(role, column, data);
+              m_viewModel->ColumnComponents.AddComponent(role, column, data);
         });
     }
 
@@ -514,7 +546,8 @@ private:
 
 #endif
 private:
-    std::function<Wrapper* ()> m_modelGetter;
+    FModelModelGetter m_editModelGetter;
+    FModelModelGetter m_modelGetter;
     qint32 m_currentColumn;
 #ifdef UNITS_MODULE_LIB
     const class Measurement* m_currentMeasurement;
