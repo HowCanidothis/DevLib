@@ -152,7 +152,7 @@ public:
                     if(data.toString() != DASH) {
                         toSet = data;
                     }
-                    return externalModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
+                    return externalModel->EditWithCheck(externalIndex, [&](ValueType value){ return setter(toSet, value); }, {column});
                 };
             } else {
                 editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
