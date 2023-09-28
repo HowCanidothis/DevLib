@@ -1081,7 +1081,3 @@ QAbstractButton[a_control="12"]:disabled
     image: url(":/qss_icons/rc/open-in-new-disable.svg");
     background: transparent;
 }
-
-WPSCDrillCaseView {
-  qproperty-blockWeightColor: #aaaaaa;
-}
