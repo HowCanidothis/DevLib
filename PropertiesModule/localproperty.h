@@ -356,8 +356,8 @@ public:
         if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
-            Super::SetValue(Super::m_value);
             OnMinMaxChanged();
+            Super::SetValue(Super::m_value);
         }
     }
 

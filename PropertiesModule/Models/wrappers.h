@@ -9,7 +9,8 @@ class ModelsWrapperBase
 {
 public:
     ModelsWrapperBase()
-        : m_inScope(false)
+        : IsValid(true)
+        , m_inScope(false)
     {
         OnAboutToBeReseted.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
         OnAboutToBeUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
@@ -39,6 +40,7 @@ public:
     CommonDispatcher<qint32, qint32> OnRowsInserted;
     Dispatcher OnAboutToBeDestroyed;
     Dispatcher OnChanged;
+    StateProperty IsValid;
     CommonDispatcher<QSet<qint32>> OnColumnsChanged;
     CommonDispatcher<qint32, qint32> OnAboutToChangeRows;
     CommonDispatcher<qint32, qint32, const QSet<qint32>&> OnRowsChanged;
@@ -401,38 +403,14 @@ public:
     {
         return OnChanged.Connect(locationInfo, action);
     }
+
+    Container Clone() const
+    {
+        return *this;
+    }
 };
 
 template<class T> using TModelsTableWrapperPtr = SharedPointer<TModelsTableWrapper<T>>;
-
-template<class Container>
-class TStatedModelsTableWrapper : public TModelsTableWrapper<Container>
-{
-    using Super = TModelsTableWrapper<Container>;
-public:
-    TStatedModelsTableWrapper()
-        : IsValid(true)
-    {}
-
-    void Swap(const SharedPointer<TStatedModelsTableWrapper>& data)
-    {
-        Super::Swap(*data);
-    }
-
-    void Swap(Container& data)
-    {
-        Super::Swap(data);
-    }
-
-    SharedPointer<TStatedModelsTableWrapper> Clone() const
-    {
-        auto result = ::make_shared<TStatedModelsTableWrapper>();
-        result->EditSilent() = *this;
-        return result;
-    }
-
-    StateProperty IsValid;
-};
 
 using ModelsTableWrapperPtr = SharedPointer<ModelsTableWrapper>;
 using ModelsTreeWrapperPtr = SharedPointer<ModelsTreeWrapper>;
@@ -503,7 +481,7 @@ private:
 
 #define DECLARE_MODEL_BY_TYPE(TypeName) \
     using TypeName##Container = QVector<TypeName>; \
-    using TypeName##Model = TStatedModelsTableWrapper<TypeName##Container>; \
+    using TypeName##Model = TModelsTableWrapper<TypeName##Container>; \
     using TypeName##ModelPtr = SharedPointer<TypeName##Model>; \
     using TypeName##ModelPtrInitialized = SharedPointerInitialized<TypeName##Model>; \
     using TypeName##ImmutableModel = StateImmutableData<TypeName##Model>; \

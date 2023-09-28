@@ -234,6 +234,7 @@ public:
     void SetEditModel(T* model)
     {
         m_insertHandler = [this, model](qint32 row, qint32 count){
+            Q_ASSERT(GetData() != nullptr);
             const auto& data = GetData();
             row -= (data->GetSize() - model->GetSize());
             if(row < 0) {

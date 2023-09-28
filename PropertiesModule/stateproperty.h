@@ -538,9 +538,9 @@ public:
     template<class Buffer>
     void InitializeByBuffer(const char* connectionInfo, Buffer& buffer, bool enable = true)
     {
-        OnCalculationRejected += { this, [&buffer]{
-            buffer->Clear();
-        }};
+//        OnCalculationRejected += { this, [&buffer]{
+//            buffer->Clear();
+//        }};
         Super::OnCalculated += { this, [&buffer](const auto& container){
             buffer->Set(container);
             buffer->IsValid.SetState(true);
@@ -552,9 +552,9 @@ public:
     template<class Buffer>
     void ConnectBuffer(const char* connectionInfo, Buffer& buffer)
     {
-        OnCalculationRejected.Connect(connectionInfo, [&buffer]{
-            buffer->Clear();
-        });
+//        OnCalculationRejected.Connect(connectionInfo, [&buffer]{
+//            buffer->Clear();
+//        });
         buffer->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
     }
 
@@ -658,6 +658,7 @@ class StateImmutableData {
     using TPtr = SharedPointer<T>;
 public:
     using container_type = typename T::container_type;
+    using FHandler = std::function<container_type ()>;
     StateImmutableData(const TPtr& data = ::make_shared<T>())
         : m_lockCounter(0)
         , m_isDirty(false)
@@ -688,14 +689,14 @@ public:
             m_data->IsValid.SetState(true);
         }};
 
-        m_calculator.OnCalculationRejected += { this, [this]{
-            if(m_lockCounter == 0) {
-    #ifndef QT_NO_DEBUG
-                guards::LambdaGuard guard([this]{ m_internalEditing = false; }, [this]{ m_internalEditing = true; });
-    #endif
-                m_data->Clear();
-            }
-        }};
+//        m_calculator.OnCalculationRejected += { this, [this]{
+//            if(m_lockCounter == 0) {
+//    #ifndef QT_NO_DEBUG
+//                guards::LambdaGuard guard([this]{ m_internalEditing = false; }, [this]{ m_internalEditing = true; });
+//    #endif
+//                m_data->Clear();
+//            }
+//        }};
 
         m_data = data;
 #ifndef QT_NO_DEBUG
@@ -735,23 +736,23 @@ public:
 
     void AttachSwap(const TPtr& data)
     {
-        AttachCopy(data, [data]{
-            return data;
+        AttachSource(data, [data]{
+            container_type result;
+            result.swap(const_cast<container_type&>(data->Native()));
+            return result;
         });
     }
 
-    void AttachCopy(const TPtr& externalData, const std::function<TPtr ()>& handler = nullptr)
+    void AttachCopy(const TPtr& externalData)
     {
-        AttachSource(externalData, handler);
+        if(externalData == nullptr) {
+            AttachSource(nullptr);
+            return;
+        }
+        AttachSource(externalData, [externalData]{ return externalData->Clone(); });
     }
 
-    void AttachCopy(const TPtr& externalData, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
-    {
-        AttachSource(connectorHandler, externalData == nullptr ? nullptr :
-                                                                               handler == nullptr ? [externalData]{ return externalData->Clone(); } : handler);
-    }
-
-    void AttachSource(const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+    void AttachSource(const std::function<void (StateCalculator<bool>&)>& connectorHandler, const FHandler& handler = nullptr)
     {
         m_calculator.Disconnect();
 //        Q_ASSERT(handler != nullptr);
@@ -768,9 +769,14 @@ public:
     }
 
     template<class ExternalData>
-    void AttachSource(const SharedPointer<ExternalData>& externalData, const std::function<TPtr ()>& handler = nullptr)
+    void AttachSource(const SharedPointer<ExternalData>& externalData, const FHandler& handler)
     {
-        AttachCopy(externalData, [externalData](StateCalculator<bool>& calculator){
+        if(externalData == nullptr) {
+            AttachSource(nullptr);
+            return;
+        }
+
+        AttachSource([externalData](StateCalculator<bool>& calculator){
             calculator.Connect(CONNECTION_DEBUG_LOCATION, externalData->IsValid)
                     .Connect(CONNECTION_DEBUG_LOCATION, externalData->OnChanged);
         }, handler);
@@ -784,7 +790,7 @@ public:
 
 protected:
     TPtr m_data;
-    std::function<TPtr ()> m_handler;
+    FHandler m_handler;
     StateCalculator<bool> m_calculator;
     mutable std::atomic_int m_lockCounter;
     mutable std::atomic_bool m_isDirty;
@@ -814,7 +820,7 @@ const StateImmutableDataPtr<T> DefaultImmutableData<T>::Value = []{ \
 }();
 
 template<class T, class T2, typename TPtr = SharedPointer<T>>
-SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const std::function<TPtr ()>& handler = nullptr)
+SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<void (StateCalculator<bool>&)>& connectorHandler, const typename StateImmutableData<T>::FHandler& handler = nullptr)
 {
     auto result = ::make_shared<StateParametersImmutableData<T>>();
     result->InputValue = ::make_shared<T>();
@@ -824,7 +830,7 @@ SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreat
 }
 
 template<class T, class T2, typename TPtr = SharedPointer<T>>
-SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const std::function<TPtr ()>& handler = nullptr)
+SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const typename StateImmutableData<T>::FHandler& handler = nullptr)
 {
     auto result = ::make_shared<StateParametersImmutableData<T>>();
     result->InputValue = ::make_shared<T>();
