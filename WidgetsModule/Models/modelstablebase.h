@@ -83,6 +83,7 @@ public:
     qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
+    void AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler);
 
     std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
     std::optional<QVariant> GetData(const QModelIndex& index, qint32 role) const;
@@ -127,12 +128,14 @@ public:
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
+    Qt::ItemFlags EditableFlags() const { return IsEditable ? StandardEditableFlags() : StandardNonEditableFlags(); }
     static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
     static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
 
     Dispatcher OnModelChanged;
 
     ViewModelsTableColumnComponents ColumnComponents;
+    LocalPropertyBool IsEditable;
 
 protected:
     ModelsIconsContext m_iconsContext;
@@ -360,7 +363,6 @@ public:
         , CreateDataHandler ([this](qint32, const QVariant&, bool&){ insertRows(rowCount()-1, 1); })
         , IsEditColumn      ([](qint32 ){ return true; })
         , DataHandler       ([](qint32 , int ){ return QVariant(); })
-        , IsEditable(true)
         , m_isEditable(true)
     {
         setProperty(WidgetProperties::ExtraFieldsCount, 1);
@@ -388,7 +390,6 @@ public:
     std::function<void(qint32, const QVariant&, bool&)> CreateDataHandler;
     std::function<bool(qint32)> IsEditColumn;
     std::function<QVariant(qint32, int)> DataHandler;
-    LocalPropertyBool IsEditable;
 
 public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override

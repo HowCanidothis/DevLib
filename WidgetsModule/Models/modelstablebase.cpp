@@ -100,6 +100,7 @@ void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
 
 ViewModelsTableBase::ViewModelsTableBase(QObject* parent)
     : Super(parent)
+    , IsEditable(true)
     , m_mostLeftColumnToUpdate(-1)
     , m_mostRightColumnToUpdate(-1)
 {
@@ -173,6 +174,9 @@ void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Dispa
 
 Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
 {
+    if(!IsEditable) {
+        return StandardNonEditableFlags();
+    }
     if(!index.isValid()) {
         return Qt::ItemIsDropEnabled;
     }
@@ -299,6 +303,13 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const Col
 void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler)
 {
     AddFlagsComponent(column, ColumnFlagsComponentData(handler));
+}
+
+void ViewModelsTableColumnComponents::AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler)
+{
+    for(auto column : columns) {
+        AddFlagsComponent(column, ColumnFlagsComponentData(handler));
+    }
 }
 
 std::optional<bool> ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QVariant& data, qint32 role)
