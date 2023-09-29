@@ -624,6 +624,7 @@ QTabBar::tab {
 
 QTabBar {
   qproperty-documentMode: true;
+  background: #3C3C3C;
 }
 
 QTabBar QToolButton::left-arrow:enabled {
@@ -643,7 +644,8 @@ QTabBar QToolButton::right-arrow:disabled {
 }
 
 QDockWidget {
-  border-radius: 4px;
+  border: none;
+  border-radius: 0px;
   titlebar-close-icon: url(":/qss_icons/rc/window_close.png");
   titlebar-normal-icon: url(":/qss_icons/rc/window_undock.png");
 }
@@ -654,30 +656,11 @@ QDockWidget::title {
   border: none;
 }
 
-QDockWidget::close-button {
-  border-radius: 4px;
+QDockWidget::close-button, QDockWidget::float-button {
   border: none;
-}
-
-QDockWidget::close-button:hover {
-  image: url(":/qss_icons/rc/window_close_focus.png");
-}
-
-QDockWidget::close-button:pressed {
-  image: url(":/qss_icons/rc/window_close_pressed.png");
-}
-
-QDockWidget::float-button {
-  border-radius: 4px;
-  border: none;
-}
-
-QDockWidget::float-button:hover {
-  image: url(":/qss_icons/rc/window_undock_focus.png");
-}
-
-QDockWidget::float-button:pressed {
-  image: url(":/qss_icons/rc/window_undock_pressed.png");
+  icon-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 QTreeView:branch:selected, QTreeView:branch:hover {
