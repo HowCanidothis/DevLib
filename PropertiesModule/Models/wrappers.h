@@ -10,6 +10,7 @@ class ModelsWrapperBase
 public:
     ModelsWrapperBase()
         : IsValid(true)
+        , m_resetViewModelOnReset(true)
         , m_inScope(false)
     {
         OnAboutToBeReset.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
@@ -57,6 +58,9 @@ protected:
         Q_ASSERT(m_inScope);
         m_inScope = false;
     }
+
+protected:
+    bool m_resetViewModelOnReset;
 
 private:
     bool m_inScope;
@@ -120,14 +124,26 @@ public:
 
     void Set(const Super& another)
     {
-        Change([&another](Super& data){ data = another; });
+        if(another.size() == GetSize()) {
+            m_resetViewModelOnReset = false;
+        }
+        OnAboutToBeReset();
+        EditSilent() = another;
+        OnReset();
+        m_resetViewModelOnReset = true;
+        OnChanged();
+        OnColumnsChanged({});
     }
 
     void Swap(Super& another)
     {
+        if(another.size() == GetSize()) {
+            m_resetViewModelOnReset = false;
+        }
         OnAboutToBeReset();
         Super::swap(another);
         OnReset();
+        m_resetViewModelOnReset = true;
         OnChanged();
         OnColumnsChanged({});
     }

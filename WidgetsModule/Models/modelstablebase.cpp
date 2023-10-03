@@ -8,11 +8,19 @@ void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
 
-    OnAboutToBeReset += { model, [model]{
-        model->beginResetModel();
+    OnAboutToBeReset += { model, [this, model]{
+        if(m_resetViewModelOnReset) {
+            model->beginResetModel();
+        } else {
+            emit model->layoutAboutToBeChanged();
+        }
     }};
-    OnReset += { model, [model]{
-        model->endResetModel();
+    OnReset += { model, [this, model]{
+        if(m_resetViewModelOnReset) {
+            model->endResetModel();
+        } else {
+            emit model->layoutChanged();
+        }
     }};
     OnAboutToBeUpdated += { model, [model]{
         emit model->layoutAboutToBeChanged();

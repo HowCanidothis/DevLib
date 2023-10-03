@@ -749,7 +749,7 @@ public:
             AttachSource(nullptr);
             return;
         }
-        AttachSource(externalData, [externalData]{ return externalData->Clone(); });
+        AttachSource<T>(externalData, [externalData]{ return externalData->Clone(); });
     }
 
     void AttachSource(const std::function<void (StateCalculator<bool>&)>& connectorHandler, const FHandler& handler = nullptr)
