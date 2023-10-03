@@ -133,43 +133,20 @@ public:
         editRoleComponent.GetterHandler = editRoleGetter;
 
         if(setter != nullptr) {
-            if(m_editModelGetter != nullptr) {
-                const auto& editModelGetter = m_editModelGetter;
-                editRoleComponent.SetterHandler = [modelGetter, setter, column, editModelGetter](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
-                    const auto& viewModel = modelGetter();
-                    if(viewModel == nullptr) {
-                        return false;
-                    }
-                    if(index.row() >= viewModel->GetSize()) {
-                        return false;
-                    }
-                    const auto& externalModel = editModelGetter();
-                    auto externalIndex = index.row() - (viewModel->GetSize() - externalModel->GetSize());
-                    if(!externalModel->HasIndex(externalIndex)) {
-                        return false;
-                    }
-                    QVariant toSet;
-                    if(data.toString() != DASH) {
-                        toSet = data;
-                    }
-                    return externalModel->EditWithCheck(externalIndex, [&](ValueType value){ return setter(toSet, value); }, {column});
-                };
-            } else {
-                editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
-                    const auto& viewModel = modelGetter();
-                    if(viewModel == nullptr) {
-                        return false;
-                    }
-                    if(index.row() >= viewModel->GetSize()) {
-                        return false;
-                    }
-                    QVariant toSet;
-                    if(data.toString() != DASH) {
-                        toSet = data;
-                    }
-                    return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
-                };
-            }
+            editRoleComponent.SetterHandler = [modelGetter, setter, column](const QModelIndex& index, const QVariant& data) -> std::optional<bool> {
+                const auto& viewModel = modelGetter();
+                if(viewModel == nullptr) {
+                    return false;
+                }
+                if(index.row() >= viewModel->GetSize()) {
+                    return false;
+                }
+                QVariant toSet;
+                if(data.toString() != DASH) {
+                    toSet = data;
+                }
+                return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
+            };
 
             m_viewModel->ColumnComponents.AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags(); });
         } else {
@@ -356,12 +333,6 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& SetEditModel(const FModelModelGetter& getter)
-    {
-        m_editModelGetter = getter;
-        return *this;
-    }
-
 #ifdef UNITS_MODULE_LIB
     TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Measurement* measurement)
     {
@@ -546,7 +517,6 @@ private:
 
 #endif
 private:
-    FModelModelGetter m_editModelGetter;
     FModelModelGetter m_modelGetter;
     qint32 m_currentColumn;
 #ifdef UNITS_MODULE_LIB

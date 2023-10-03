@@ -233,32 +233,6 @@ public:
     {
         m_removeHandler = removeHandler;
     }
-
-    void SetEditModel(T* model)
-    {
-        m_insertHandler = [this, model](qint32 row, qint32 count){
-            Q_ASSERT(GetData() != nullptr);
-            const auto& data = GetData();
-            row -= (data->GetSize() - model->GetSize());
-            if(row < 0) {
-                return false;
-            }
-            Q_ASSERT(data != nullptr);
-            model->Insert(row > data->GetSize() ? data->GetSize() : row, count);
-            return true;
-        };
-        m_removeHandler = [this, model](qint32 row, qint32 count){
-            Q_ASSERT(GetData() != nullptr);
-            QSet<qint32> indexs;
-            row -= (GetData()->GetSize() - model->GetSize());
-            while(count){
-                indexs.insert(row + --count);
-            }
-            model->Remove(indexs);
-            return true;
-        };
-    }
-
     void SetMimeDataHandlers(const std::function<QStringList ()>& mimeTypesHandler,
                              const std::function<QMimeData* (const QModelIndexList&)>& mimeDataHandler,
                              const std::function<bool (const QMimeData*, Qt::DropAction, qint32, qint32, const QModelIndex&)>& dropMimeDataHandler
@@ -285,10 +259,18 @@ public:
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
+        if(!IsEditable) {
+            return false;
+        }
+
         return m_insertHandler(row, count);
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
     {
+        if(!IsEditable) {
+            return false;
+        }
+
         return m_removeHandler(row, count);
 	}
 
@@ -351,6 +333,57 @@ private:
     FCanDropMimeDataHandler m_canDropMimeDataHandler;
     FInsertHandler m_insertHandler;
     FRemoveHandler m_removeHandler;
+};
+
+
+class ViewModelsVerticalCompoundTable : public QAbstractTableModel
+{
+    using Super = QAbstractTableModel;
+public:
+    ViewModelsVerticalCompoundTable(QObject* parent);
+
+    void SetModels(const QVector<ViewModelsTableBase*>& models);
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+    QVariant data(const QModelIndex& index, qint32 role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
+
+    qint32 columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    qint32 rowCount(const QModelIndex& index = QModelIndex()) const override;
+
+    bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override;
+    bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override;
+
+    QStringList mimeTypes() const override;
+
+    QMimeData* mimeData(const QModelIndexList& indices) const override;
+
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action,
+                         int row, int column,
+                         const QModelIndex& parent) const;
+
+    bool dropMimeData(const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& parent) override;
+
+private:
+    template<class Range>
+    qint32 totalSizeOf(const Range& range) const
+    {
+        qint32 result(0);
+        for(auto count : range) {
+            result += count;
+        }
+        return result;
+    }
+
+    bool indexToSourceIndex(const QModelIndex& modelIndex, const std::function<void (const QModelIndex&, ViewModelsTableBase*)>& handler) const;
+
+private:
+    QtLambdaConnections m_connections;
+    QVector<ViewModelsTableBase*> m_models;
+    QVector<qint32> m_modelsRows;
+    qint32 m_rowsCount;
 };
 
 template<typename T>
@@ -438,7 +471,7 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
     {
         if(!m_isEditable) {
-            return Super::setData(index, value, role);
+            return false;
         }
 
         if(!index.isValid()){
@@ -472,7 +505,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
     {
         if(!m_isEditable) {
-            return Super::removeRows(row, count, parent);
+            return false;
         }
 
         if(row + count >= rowCount()){
@@ -487,7 +520,7 @@ public:
     bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override
     {
         if(!m_isEditable) {
-            return Super::insertRows(row, count, parent);
+            return false;
         }
 
         auto existsCount = rowCount();
@@ -741,16 +774,16 @@ public:
         return result;
     }
 
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const override 
-	{
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override
+    {
         auto componentsResult = Super::ColumnComponents.GetHeaderData(section, role);
         if(componentsResult.has_value()) {
             return componentsResult.value();
         }
 
-		return ModelsTableBaseDecorator<Wrapper>::GetHeaderData(section, orientation, role);
-	}
-	
+        return ModelsTableBaseDecorator<Wrapper>::GetHeaderData(section, orientation, role);
+    }
+
     Qt::ItemFlags flags(const QModelIndex& index) const override
     {
         if(!index.isValid()) {
@@ -877,7 +910,7 @@ public:
         }
         return result;
     }
-    
+
     template<class T, qint32 Column>
     iterator<T, Column> FindEqualOrGreater(const T& value) const
     {

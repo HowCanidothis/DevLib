@@ -8,10 +8,10 @@ void ModelsWrapperBase::ConnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
 
-    OnAboutToBeReseted += { model, [model]{
+    OnAboutToBeReset += { model, [model]{
         model->beginResetModel();
     }};
-    OnReseted += { model, [model]{
+    OnReset += { model, [model]{
         model->endResetModel();
     }};
     OnAboutToBeUpdated += { model, [model]{
@@ -34,8 +34,8 @@ void ModelsWrapperBase::DisconnectModel(QAbstractItemModel* qmodel)
 {
     auto* model = ModelsAbstractItemModel::Wrap(qmodel);
 
-    OnAboutToBeReseted -= model;
-    OnReseted -= model;
+    OnAboutToBeReset -= model;
+    OnReset -= model;
     OnAboutToBeUpdated -= model;
     OnUpdated -= model;
     OnRowsRemoved -= model;
@@ -208,6 +208,10 @@ QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const
 
 bool ViewModelsTableBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)
 {
+    if(!IsEditable) {
+        return false;
+    }
+
     if(!index.isValid()) {
         return false;
     }
@@ -436,4 +440,217 @@ ViewModelsTableColumnComponents::ColumnFlagsComponentData::ColumnFlagsComponentD
     : GetFlagsHandler(handler)
 {
 
+}
+
+template<>
+qint32 ViewModelsVerticalCompoundTable::totalSizeOf<adapters::Range<QVector<qint32*>::const_iterator>>(const adapters::Range<QVector<qint32*>::const_iterator>& range) const
+{
+    qint32 result(0);
+    for(auto count : range) {
+        result += *count;
+    }
+    return result;
+}
+
+
+ViewModelsVerticalCompoundTable::ViewModelsVerticalCompoundTable(QObject* parent)
+    : Super(parent)
+{}
+
+void ViewModelsVerticalCompoundTable::SetModels(const QVector<ViewModelsTableBase*>& models)
+{
+    m_connections.Clear();
+    beginResetModel();
+
+    m_models = models;
+    m_modelsRows.resize(models.size());
+    qint32 modelIndex = 0;
+    QVector<qint32*> currentRowsOffsets;
+    for(ViewModelsTableBase* model : models) {
+        currentRowsOffsets.append(&m_modelsRows[modelIndex]);
+        *currentRowsOffsets.last() = model->rowCount();
+        auto watcher = ::make_shared<QVector<qint32*>>(currentRowsOffsets);
+        m_connections.connect(model, &QAbstractTableModel::layoutAboutToBeChanged, this, [this]{
+            emit layoutAboutToBeChanged();
+        });
+        m_connections.connect(model, &QAbstractTableModel::layoutChanged, this, [this]{
+            emit layoutChanged();
+        });
+        m_connections.connect(model, &QAbstractTableModel::rowsAboutToBeInserted, this, [this, watcher](const QModelIndex&, int first, int last){
+            auto sizeBefore = totalSizeOf(adapters::withoutLast(::make_const(*watcher)));
+            beginInsertRows(QModelIndex(), sizeBefore + first, sizeBefore + last);
+        });
+        m_connections.connect(model, &QAbstractTableModel::rowsInserted, this, [this, watcher](const QModelIndex&, int first, int last){
+            auto inserted = last - first + 1;
+            *watcher->last() += inserted;
+            m_rowsCount += inserted;
+            endInsertRows();
+        });
+        m_connections.connect(model, &QAbstractTableModel::rowsAboutToBeRemoved, this, [this, watcher](const QModelIndex&, int first, int last){
+            auto sizeBefore = totalSizeOf(adapters::withoutLast(::make_const(*watcher)));
+            beginRemoveRows(QModelIndex(), sizeBefore + first, sizeBefore + last);
+        });
+        m_connections.connect(model, &QAbstractTableModel::rowsRemoved, this, [this](const QModelIndex&, int first, int last){
+            m_rowsCount -= last - first + 1;
+            endRemoveRows();
+        });
+        m_connections.connect(model, &QAbstractTableModel::modelAboutToBeReset, this, [this]{
+            beginResetModel();
+        });
+        m_connections.connect(model, &QAbstractTableModel::modelReset, this, [this, model, watcher]{
+            *watcher->last() = model->rowCount();
+            m_rowsCount = totalSizeOf(m_modelsRows);
+            endResetModel();
+        });
+        ++modelIndex;
+    }
+
+    m_rowsCount = totalSizeOf(m_modelsRows);
+
+    endResetModel();
+}
+
+Qt::ItemFlags ViewModelsVerticalCompoundTable::flags(const QModelIndex& index) const
+{
+    Qt::ItemFlags result;
+    indexToSourceIndex(index, [&](const QModelIndex& i, ViewModelsTableBase* model) {
+        result = model->flags(i);
+    });
+    return result;
+}
+
+bool ViewModelsVerticalCompoundTable::setData(const QModelIndex& index, const QVariant& data, qint32 role)
+{
+    bool result;
+    indexToSourceIndex(index, [&](const QModelIndex& i, ViewModelsTableBase* model) {
+        result = model->setData(i, data, role);
+    });
+    return result;
+}
+
+qint32 ViewModelsVerticalCompoundTable::columnCount(const QModelIndex& parent) const
+{
+    if(m_models.isEmpty()) {
+        return 0;
+    }
+    return m_models.first()->columnCount(parent);
+}
+
+qint32 ViewModelsVerticalCompoundTable::rowCount(const QModelIndex& index) const
+{
+    return m_rowsCount;
+}
+
+bool ViewModelsVerticalCompoundTable::insertRows(int row, int count, const QModelIndex&)
+{
+    if(row < 0 || count <= 0) {
+        return false;
+    }
+
+    qint32 anchor;
+    qint32 rowsCounter = 0;
+    adapters::Foreach([&](qint32 rows, ViewModelsTableBase* viewModel) {
+        if(count == 0) {
+            return;
+        }
+        rowsCounter += rows;
+        if(rowsCounter > row) {
+            anchor = row - rowsCounter + rows;
+            viewModel->insertRows(anchor, count);
+            count = 0;
+        }
+    }, m_modelsRows, m_models);
+}
+
+bool ViewModelsVerticalCompoundTable::removeRows(int row, int count, const QModelIndex&)
+{
+    if(count == 0) {
+        return false;
+    }
+    qint32 anchor;
+    qint32 rowsCounter = 0;
+    adapters::Foreach([&](qint32 rows, ViewModelsTableBase* viewModel) {
+        if(count == 0) {
+            return;
+        }
+        rowsCounter += rows;
+        if(rowsCounter > row) {
+            anchor = std::max(row - rowsCounter + rows, 0);
+            auto maxToRemove = rows - anchor;
+            auto delta = count - maxToRemove;
+            if(delta <= 0) {
+                viewModel->removeRows(anchor, count);
+                count = 0;
+            } else {
+                viewModel->removeRows(anchor, maxToRemove);
+                count = delta;
+            }
+        }
+    }, m_modelsRows, m_models);
+    return count == 0;
+}
+
+QVariant ViewModelsVerticalCompoundTable::data(const QModelIndex& index, qint32 role) const
+{
+    QVariant result;
+    indexToSourceIndex(index, [&](const QModelIndex& i, ViewModelsTableBase*) {
+        result = i.data(role);
+    });
+    return result;
+}
+
+QVariant ViewModelsVerticalCompoundTable::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if(m_models.isEmpty()) {
+        return QVariant();
+    }
+    return m_models.first()->headerData(section, orientation, role);
+}
+
+QStringList ViewModelsVerticalCompoundTable::mimeTypes() const
+{
+    return QStringList(); // TODO
+}
+
+QMimeData* ViewModelsVerticalCompoundTable::mimeData(const QModelIndexList& indices) const
+{
+    return nullptr; // TODO
+}
+
+bool ViewModelsVerticalCompoundTable::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
+{
+    return false; // TODO
+}
+
+bool ViewModelsVerticalCompoundTable::dropMimeData(const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& parent)
+{
+    return false; // TODO
+}
+
+bool ViewModelsVerticalCompoundTable::indexToSourceIndex(const QModelIndex& modelIndex, const std::function<void (const QModelIndex&, ViewModelsTableBase*)>& handler) const
+{
+    if(!modelIndex.isValid()) {
+        return false;
+    }
+
+    auto row = modelIndex.row();
+    qint32 resultRow = -1;
+    qint32 rowsCounter = 0;
+    ViewModelsTableBase* model = nullptr;
+    adapters::Foreach([&](qint32 rows, ViewModelsTableBase* viewModel) {
+        if(model != nullptr) {
+            return;
+        }
+        rowsCounter += rows;
+        if(rowsCounter > row) {
+            resultRow = row - rowsCounter + rows;
+            model = viewModel;
+        }
+    }, m_modelsRows, m_models);
+
+    if(model != nullptr) {
+        handler(model->index(resultRow, modelIndex.column()), model);
+        return true;
+    }
+    return false;
 }

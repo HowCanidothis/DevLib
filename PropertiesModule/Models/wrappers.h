@@ -12,9 +12,9 @@ public:
         : IsValid(true)
         , m_inScope(false)
     {
-        OnAboutToBeReseted.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
+        OnAboutToBeReset.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
         OnAboutToBeUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testInScope(); });
-        OnReseted.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
+        OnReset.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
         OnUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
         OnRowsRemoved.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
         OnRowsInserted.Connect(CONNECTION_DEBUG_LOCATION, [this] (qint32, qint32) { testOutScope(); });
@@ -32,8 +32,8 @@ public:
 
     bool IsInScope() const { return m_inScope; }
 
-    Dispatcher OnAboutToBeReseted;
-    Dispatcher OnReseted;
+    Dispatcher OnAboutToBeReset;
+    Dispatcher OnReset;
     Dispatcher OnAboutToBeUpdated;
     Dispatcher OnUpdated;
     Dispatcher OnRowsRemoved;
@@ -125,9 +125,9 @@ public:
 
     void Swap(Super& another)
     {
-        OnAboutToBeReseted();
+        OnAboutToBeReset();
         Super::swap(another);
-        OnReseted();
+        OnReset();
         OnChanged();
         OnColumnsChanged({});
     }
@@ -136,9 +136,9 @@ public:
         if(Super::isEmpty()) {
             return;
         }
-        OnAboutToBeReseted();
+        OnAboutToBeReset();
         Super::clear();
-        OnReseted();
+        OnReset();
         OnChanged();
         OnColumnsChanged({});
     }
@@ -201,14 +201,14 @@ public:
         return std::lower_bound(begin(), end(), value, lessThan);
     }
 
-	void Insert(int index, int count, const value_type& part = value_type())
-	{
-		OnAboutToInsertRows(index, index + count - 1);
+    void Insert(int index, int count, const value_type& part = value_type())
+    {
+        OnAboutToInsertRows(index, index + count - 1);
         Super::insert(index, count, part);
         OnRowsInserted(index, count);
         OnChanged();
         OnColumnsChanged({});
-	}
+    }
 
     void Insert(int index, qint32 count, const FDataInitializer& dataInitializer)
     {
@@ -222,7 +222,7 @@ public:
         OnChanged();
         OnColumnsChanged({});
     }
-	
+
     void Insert(int index, const value_type& part)
     {
         OnAboutToInsertRows(index, index);
@@ -250,18 +250,18 @@ public:
 
     void Change(const std::function<void (Container&)>& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
-        OnAboutToBeReseted();
+        OnAboutToBeReset();
         handler(EditSilent());
-        OnReseted();
+        OnReset();
         OnChanged();
         OnColumnsChanged(affectedColumns);
     }
 
     void Change(const FAction& handler, const QSet<qint32>& affectedColumns = QSet<qint32>())
     {
-        OnAboutToBeReseted();
+        OnAboutToBeReset();
         handler();
-        OnReseted();
+        OnReset();
         OnChanged();
         OnColumnsChanged(affectedColumns);
     }
@@ -294,7 +294,7 @@ public:
             return;
         }
 
-        OnAboutToBeReseted();
+        OnAboutToBeReset();
         qint32 currentIndex = 0;
         auto endIt = std::remove_if(Super::begin(), Super::end(), [&currentIndex, &indexes](const value_type&){
             if(indexes.contains(currentIndex++)) {
@@ -303,7 +303,7 @@ public:
             return false;
         });
         Super::resize(std::distance(Super::begin(), endIt));
-        OnReseted();
+        OnReset();
         OnChanged();
         OnColumnsChanged({});
     }

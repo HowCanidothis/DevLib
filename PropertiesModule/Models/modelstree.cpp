@@ -117,9 +117,9 @@ ModelsTree::ModelsTree(const SharedPointer<ModelsTreeItemBase>& root)
 
 void ModelsTree::SetRoot(const ModelsTreeItemBasePtr& root)
 {
-    OnAboutToBeReseted();
+    OnAboutToBeReset();
     m_root = root;
-    OnReseted();
+    OnReset();
 }
 
 ModelsTree::value_type ModelsTree::At(qint32 index) const
@@ -129,9 +129,9 @@ ModelsTree::value_type ModelsTree::At(qint32 index) const
 
 void ModelsTree::Clear()
 {
-    OnAboutToBeReseted();
+    OnAboutToBeReset();
     m_root->m_childs.clear();
-    OnReseted();
+    OnReset();
 }
 
 void ModelsTree::Insert(qint32 before, qint32 count, const std::function<SharedPointer<ModelsTreeItemBase> ()>& itemCreator)
@@ -159,9 +159,9 @@ const ModelsTreeItemBasePtr& ModelsTree::Add(const ModelsTreeItemBasePtr& item, 
 
 void ModelsTree::Change(const std::function<void ()>& predicate)
 {
-    OnAboutToBeReseted();
+    OnAboutToBeReset();
     predicate();
-    OnReseted();
+    OnReset();
 }
 
 void ModelsTree::Remove(ModelsTreeItemBase* item)
