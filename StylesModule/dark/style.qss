@@ -542,15 +542,23 @@ QDockWidget {
 }
 
 QDockWidget::title {
-  background-color: #3C3C3C;
+  background-color: #252526;
 }
 
 QDockWidget::close-button {
-  background-color: #3C3C3C;
+  background-color: #252526;
+}
+
+QDockWidget::close-button:hover {
+    background-color: #3C3C3C;
 }
 
 QDockWidget::float-button {
-  background-color: #3C3C3C;
+  background-color: #252526;
+}
+
+QDockWidget::float-button:hover {
+    background-color: #3C3C3C;
 }
 
 QTableView {
