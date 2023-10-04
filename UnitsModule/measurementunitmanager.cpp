@@ -374,8 +374,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&DensityUnits::SpecificGravity);
 
     AddMeasurement(MeasurementWeightPerLength::Value)
+            .AddUnit(&WeightPerLengthUnits::NewtonPerMeter)
             .AddUnit(&WeightPerLengthUnits::KilogramPerMeter)
-            .AddUnit(&WeightPerLengthUnits::KilogramPerCantimeter)
             .AddUnit(&WeightPerLengthUnits::PoundPerFoot)
             .AddUnit(&WeightPerLengthUnits::PoundPerInch);
 
@@ -652,7 +652,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementTime::NAME,              {TimeUnits::Hours.Id,                          2})
             .AddParameter(MeasurementTorque::NAME,            {TorqueUnits::KilonewtonMeters.Id,             1})
             .AddParameter(MeasurementViscosity::NAME,         {ViscosityUnits::MilliPascalSecond.Id,         2})
-            .AddParameter(MeasurementWeightPerLength::NAME, {WeightPerLengthUnits::KilogramPerMeter.Id,    2})
+            .AddParameter(MeasurementWeightPerLength::NAME, {WeightPerLengthUnits::NewtonPerMeter.Id,    2})
             .AddParameter(MeasurementYieldPoint::NAME,       {PressureUnits::Pascals.Id,                    2})
             .AddParameter(MeasurementYieldStrength::NAME,    {PressureUnits::Kilopascals.Id,                2})
             .AddParameter(MeasurementYoungModulus::NAME,     {PressureUnits::Kilopascals.Id,                2})

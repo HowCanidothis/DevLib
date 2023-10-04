@@ -5,11 +5,11 @@
 
 namespace WeightPerLengthUnits
 {
+    DECLARE_MEASUREMENT_UNIT(NewtonPerMeter)
     DECLARE_MEASUREMENT_UNIT(KilogramPerMeter)
-    DECLARE_MEASUREMENT_UNIT(KilogramPerCantimeter)
     DECLARE_MEASUREMENT_UNIT(PoundPerFoot)
     DECLARE_MEASUREMENT_UNIT(PoundPerInch)
-};
+}
 
 DECLARE_MEASUREMENT(WeightPerLength)
 
