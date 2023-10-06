@@ -651,11 +651,14 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
             onActivated(index);
         });
         combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
-            onActivated(combo->model()->index(row, 0));
+            auto index = combo->model()->index(row, 0);
+            combo->setCurrentText(index.data().toString());
+            onActivated(index);
         });
     }
     combo->setModelColumn(column);
     combo->setCompleter(completer);
+
     DisconnectModel();
     return completer;
 }
@@ -682,6 +685,54 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::DisconnectModel() const
                combo, SLOT(_q_updateIndexBeforeChange()));
     QObject::disconnect(viewModel, SIGNAL(modelReset()),
                combo, SLOT(_q_modelReset()));
+    return *this;
+}
+
+const WidgetComboboxWrapper& WidgetComboboxWrapper::AddViewModelEndEditHints(const std::function<void (QAbstractItemDelegate::EndEditHint)>& handler) const
+{
+    auto* comboBox = GetWidget();
+    WidgetWrapper(comboBox->view()).AddEventFilter([handler, comboBox](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            auto* ke = static_cast<QKeyEvent*>(e);
+            switch(ke->key()) {
+            case Qt::Key_Up:
+                comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
+                return true;
+            case Qt::Key_Down:
+                comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
+                return true;
+            case Qt::Key_Tab:
+                handler(QAbstractItemDelegate::EditNextItem);
+                return true;
+            case Qt::Key_Backtab:
+                handler(QAbstractItemDelegate::EditPreviousItem);
+                return true;
+            default: break;
+            }
+        }
+        return false;
+    });
+    AddEventFilter([handler, comboBox](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            auto* ke = static_cast<QKeyEvent*>(e);
+            switch(ke->key()) {
+            case Qt::Key_Up:
+                comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
+                return true;
+            case Qt::Key_Down:
+                comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
+                return true;
+            case Qt::Key_Backtab:
+                handler(QAbstractItemDelegate::EditPreviousItem);
+                return true;
+            case Qt::Key_Tab:
+                handler(QAbstractItemDelegate::EditNextItem);
+                return true;
+            default: break;
+            }
+        }
+        return false;
+    });
     return *this;
 }
 

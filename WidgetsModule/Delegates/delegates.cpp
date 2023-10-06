@@ -33,12 +33,14 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     auto* model = m_getter();
     WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](const WidgetComboboxWrapper& wrapper){
         wrapper.CreateCompleter(model, [this, comboBox](const QModelIndex&){
-            if(comboBox->lineEdit() != nullptr) {
-                return;
-            }
             auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
             emit nonConstThis->commitData(comboBox);
             emit nonConstThis->closeEditor(comboBox);
+        });
+        wrapper.AddViewModelEndEditHints([this, comboBox](auto hints){
+            auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
+            emit nonConstThis->commitData(comboBox);
+            emit nonConstThis->closeEditor(comboBox, hints);
         });
         wrapper.BlockWheel();
     });
@@ -56,6 +58,7 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignCenter)
     , m_drawCombobox(false)
+    , m_drawRichText(false)
     , m_initializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
 {}
 
@@ -80,43 +83,7 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
     connect(comboBox, QOverload<qint32>::of(&QComboBox::activated), [commitData]{
         commitData(QAbstractItemDelegate::NoHint);
     });
-    WidgetWrapper(comboBox->view()).AddEventFilter([commitData, parent, comboBox](QObject*, QEvent* e){
-        if(e->type() == QEvent::KeyPress) {
-            auto* ke = static_cast<QKeyEvent*>(e);
-            if(ke->key() == Qt::Key_Tab) {
-                comboBox->setCurrentIndex(comboBox->view()->currentIndex().row());
-                if(ke->modifiers() & Qt::ShiftModifier) {
-                    commitData(QAbstractItemDelegate::EditPreviousItem);
-                } else {
-                    commitData(QAbstractItemDelegate::EditNextItem);
-                }
-                return true;
-            }
-        }
-        return false;
-    });
-    WidgetWrapper(comboBox).AddEventFilter([commitData, parent, comboBox](QObject*, QEvent* e){
-        if(e->type() == QEvent::KeyPress) {
-            auto* ke = static_cast<QKeyEvent*>(e);
-            switch(ke->key()) {
-            case Qt::Key_Up:
-                comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
-                return true;
-            case Qt::Key_Down:
-                comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
-                return true;
-            case Qt::Key_Tab:
-                if(ke->modifiers() & Qt::ShiftModifier) {
-                    commitData(QAbstractItemDelegate::EditPreviousItem);
-                } else {
-                    commitData(QAbstractItemDelegate::EditNextItem);
-                }
-                return true;
-            default: break;
-            }
-        }
-        return false;
-    });
+    WidgetComboboxWrapper(comboBox).AddViewModelEndEditHints(commitData);
     return comboBox;
 }
 

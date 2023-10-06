@@ -66,7 +66,7 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        CurrentDateTime = TimeShift.IsValid ? dateTime.toOffsetFromUtc(TimeShift.Value) : dateTime;
+        CurrentDateTime = TimeShift.IsValid ? QDateTime(dateTime.date(), dateTime.time(), Qt::OffsetFromUTC, TimeShift.Value) : dateTime;
     });
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){

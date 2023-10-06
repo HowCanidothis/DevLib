@@ -430,6 +430,7 @@ public:
     const WidgetComboboxWrapper& EnableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisableStandardItems(const QSet<qint32>& indices) const;
     const WidgetComboboxWrapper& DisconnectModel() const;
+    const WidgetComboboxWrapper& AddViewModelEndEditHints(const std::function<void (QAbstractItemDelegate::EndEditHint)>& handler) const;
     class QCompleter* CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column = 0) const;
 
     bool SetCurrentData(const QVariant& value, Qt::ItemDataRole role) const;
