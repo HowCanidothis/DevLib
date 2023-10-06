@@ -10,12 +10,17 @@ ThreadEvent::ThreadEvent(const FAction& handler, const AsyncResult& result)
 
 void ThreadEvent::call()
 {
-    try {
-        m_handler();
-        m_result.Resolve(true);
-    } catch (...) {
-        m_result.Resolve(false);
-    }
+    m_result.Resolve([&]{
+        try
+        {
+            m_handler();
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    });
 }
 
 ThreadHandler ThreadEventsContainer::CreateThreadHandler()
@@ -39,12 +44,7 @@ void TagThreadEvent::removeTag()
 
 void TagThreadEvent::call()
 {
-    try {
-        m_handler();
-        m_result.Resolve(true);
-    } catch (...) {
-        m_result.Resolve(false);
-    }
+    ThreadEvent::call();
 }
 
 ThreadEventsContainer::ThreadEventsContainer()
