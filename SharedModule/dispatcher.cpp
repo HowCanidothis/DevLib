@@ -1,5 +1,7 @@
 #include "dispatcher.h"
 
+#include <QThread>
+
 DispatcherConnectionSafe::DispatcherConnectionSafe()
 {
 

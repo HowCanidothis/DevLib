@@ -9,6 +9,7 @@
 #include "SharedModule/MemoryManager/memorymanager.h"
 #include "smartpointersadapters.h"
 #include "stack.h"
+#include "Threads/threadshandler.h"
 
 #define CONNECTION_DEBUG_LOCATION DEBUG_LOCATION
 
@@ -94,6 +95,7 @@ public:
 template<class T> class LocalProperty;
 template<class T> struct LocalPropertyOptional;
 
+
 template<typename ... Args>
 class CommonDispatcher
 {
@@ -117,6 +119,7 @@ public:
 
     virtual ~CommonDispatcher()
     {
+        THREAD_ASSERT_IS_MAIN();
         for(const auto& connection : m_safeConnections) {
             if(!connection.expired()) {
                 connection.lock()->disable();
@@ -126,7 +129,6 @@ public:
 
     void Reset()
     {
-        QMutexLocker lock(&m_mutex);
         m_connectionSubscribes.clear();
         m_subscribes.clear();
         for(const auto& connection : m_safeConnections) {
@@ -137,27 +139,14 @@ public:
         m_safeConnections.clear();
     }
 
-    bool IsEmpty() const
-    {
-        return m_subscribes.isEmpty();
-    }
-
     virtual void Invoke(Args... args) const
     {
-        QHash<Observer, FCommonDispatcherAction> subscribesCopy;
-        {
-            QMutexLocker locker(&m_mutex);
-            subscribesCopy = m_subscribes;
-        }
+        QHash<Observer, FCommonDispatcherAction> subscribesCopy = m_subscribes;
         for(const auto& subscribe : subscribesCopy)
         {
             subscribe(args...);
         }
-        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
-        {
-            QMutexLocker locker(&m_mutex);
-            connectionSubscribesCopy = m_connectionSubscribes;
-        }
+        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy = m_connectionSubscribes;
         for(const auto& connections : connectionSubscribesCopy)
         {
             connections(args...);
@@ -232,21 +221,18 @@ public:
 
     DispatcherConnection Connect(const char* locationInfo, const FCommonDispatcherAction& handler) const
     {
-        QMutexLocker lock(&m_mutex);
+        THREAD_ASSERT_IS_MAIN();
         auto id = m_lastId++;
         m_connectionSubscribes.insert(id, handler);
         return DispatcherConnection([this, id, locationInfo]{
             FCommonDispatcherAction subscribe;
-            QMutexLocker locker(&m_mutex);
-
             auto foundIt = m_connectionSubscribes.find(id);
             if(foundIt != m_connectionSubscribes.end()) {
                 subscribe = foundIt.value();
                 m_safeConnections.remove(id);
                 m_connectionSubscribes.remove(id);
             }
-        }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
-            QMutexLocker lock(&m_mutex);
+        }, [this, id, locationInfo, handler](const DispatcherConnectionSafePtr& connection){
             Q_ASSERT(!m_safeConnections.contains(id));
             m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
         });
@@ -261,7 +247,7 @@ public:
 
     const CommonDispatcher& operator+=(const ActionHandler& subscribeHandler) const
     {
-        QMutexLocker lock(&m_mutex);
+        THREAD_ASSERT_IS_MAIN();
         Q_ASSERT(!m_subscribes.contains(subscribeHandler.Key));
         m_subscribes.insert(subscribeHandler.Key, subscribeHandler.Handler);
         return *this;
@@ -269,22 +255,19 @@ public:
 
     const CommonDispatcher& operator-=(Observer key) const
     {
+        THREAD_ASSERT_IS_MAIN();
         FCommonDispatcherAction action;
-        {
-            QMutexLocker lock(&m_mutex);
-            {
-                auto foundIt = m_subscribes.find(key);
-                if(foundIt != m_subscribes.end()) {
-                    action = foundIt.value();
-                    m_subscribes.erase(foundIt);
-                }
+        auto foundIt = m_subscribes.find(key);
+            if(foundIt != m_subscribes.end()) {
+                action = foundIt.value();
+                m_subscribes.erase(foundIt);
             }
-        }
         return *this;
     }
 
     DispatcherConnection OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
+        THREAD_ASSERT_IS_MAIN();
         auto connections = DispatcherConnectionsSafeCreate();
         Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
             action(args...);
@@ -308,8 +291,7 @@ private:
     mutable QHash<qint32, std::weak_ptr<DispatcherConnectionSafe>> m_safeConnections;
     mutable QMap<qint32, FCommonDispatcherAction> m_connectionSubscribes;
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
-    mutable QMutex m_mutex;
-    mutable qint32 m_lastId;
+    mutable std::atomic_uint32_t m_lastId;
 };
 
 template<class T>

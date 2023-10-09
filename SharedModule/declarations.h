@@ -10,6 +10,11 @@
 #include "flags.h"
 #include "debugobjectinfo.h"
 
+#define THREAD_ASSERT_IS_THREAD(thread) Q_ASSERT(thread == QThread::currentThread());
+#define THREAD_ASSERT_IS_NOT_THREAD(thread) Q_ASSERT(thread != QThread::currentThread());
+#define THREAD_ASSERT_IS_MAIN() if(qApp != nullptr) { THREAD_ASSERT_IS_THREAD(qApp->thread()); }
+#define THREAD_ASSERT_IS_NOT_MAIN() if(qApp != nullptr) { THREAD_ASSERT_IS_NOT_THREAD(qApp->thread()); }
+
 template<class T>
 inline bool Equal(const T& v1, const T& v2) { return v1 == v2; }
 inline bool Equal(const double& v1, const double& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
