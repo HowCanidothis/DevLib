@@ -633,7 +633,7 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 }
 
 // NOTE. Model must be case insensitively sorted! Otherwise there'll be undefined completion behavior
-QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column) const
+QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column, QCompleter::ModelSorting sorting) const
 {
     auto* combo = GetWidget();
     combo->setModel(model);
@@ -643,7 +643,7 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
     completer->setCompletionColumn(column);
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setModelSorting(sorting);
     completer->setModel(model);
     if(onActivated != nullptr) {
         completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [onActivated](const QModelIndex& index){
@@ -695,10 +695,10 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::AddViewModelEndEditHints(con
             switch(ke->key()) {
             case Qt::Key_Up:
                 comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
-                return true;
+                return false;
             case Qt::Key_Down:
                 comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
-                return true;
+                return false;
             case Qt::Key_Tab:
                 handler(QAbstractItemDelegate::EditNextItem);
                 return true;
@@ -716,10 +716,10 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::AddViewModelEndEditHints(con
             switch(ke->key()) {
             case Qt::Key_Up:
                 comboBox->setCurrentIndex(quint32(comboBox->currentIndex() - 1) % comboBox->count());
-                return true;
+                return false;
             case Qt::Key_Down:
                 comboBox->setCurrentIndex((comboBox->currentIndex() + 1) % comboBox->count());
-                return true;
+                return false;
             case Qt::Key_Backtab:
                 handler(QAbstractItemDelegate::EditPreviousItem);
                 return true;

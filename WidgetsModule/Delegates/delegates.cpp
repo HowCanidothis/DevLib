@@ -39,7 +39,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
         };
         wrapper.CreateCompleter(model, [update](const QModelIndex&){
             update(QAbstractItemDelegate::NoHint);
-        });
+        }, 0, QCompleter::UnsortedModel);
         wrapper.AddViewModelEndEditHints(update);
         wrapper.BlockWheel();
     });
