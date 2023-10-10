@@ -456,6 +456,9 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
     auto selectedIndexes = GetWidget()->selectionModel()->selectedIndexes();
 
     for(const auto& index : selectedIndexes){
+        if(index.data(LastEditRowRole).toBool()) {
+            continue;
+        }
         set.insert(index.row());
     }
 
@@ -463,10 +466,6 @@ QSet<int> WidgetTableViewWrapper::SelectedRowsSet() const
     QAbstractItemModel* sourceModel = model;
     while(qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
         sourceModel = reinterpret_cast<QSortFilterProxyModel*>(model)->sourceModel();
-    }
-
-    if(sourceModel != model && sourceModel->property(WidgetProperties::ExtraFieldsCount) == 1) {
-        set.remove(model->rowCount() - 1);
     }
 
     return set;
