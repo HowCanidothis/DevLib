@@ -32,16 +32,15 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     QComboBox* comboBox = new QComboBox(parent);
     auto* model = m_getter();
     WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](const WidgetComboboxWrapper& wrapper){
-        wrapper.CreateCompleter(model, [this, comboBox](const QModelIndex&){
-            auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
-            emit nonConstThis->commitData(comboBox);
-            emit nonConstThis->closeEditor(comboBox);
-        });
-        wrapper.AddViewModelEndEditHints([this, comboBox](auto hints){
+        auto update = [this, comboBox](QAbstractItemDelegate::EndEditHint hints){
             auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
             emit nonConstThis->commitData(comboBox);
             emit nonConstThis->closeEditor(comboBox, hints);
+        };
+        wrapper.CreateCompleter(model, [update](const QModelIndex&){
+            update(QAbstractItemDelegate::NoHint);
         });
+        wrapper.AddViewModelEndEditHints(update);
         wrapper.BlockWheel();
     });
     return comboBox;
