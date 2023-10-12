@@ -25,7 +25,7 @@ QPushButton#BtnClose:hover {
 }
 
 QPushButton#BtnCloseMinor {
-    background: #F3F3F3;
+    background: transparent;
 }
 
 QPushButton#BtnCloseMinor:hover {
@@ -121,6 +121,11 @@ QTreeView#OffsetsTreeView {
 }
 
 TreeBar QFrame#Header {
+    background: #f3f3f3;
+    border-bottom: 1px solid #D2D2D2;
+}
+
+WPSCSimulationTitleBar {
     background: #f3f3f3;
     border-bottom: 1px solid #D2D2D2;
 }

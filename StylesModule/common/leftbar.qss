@@ -142,8 +142,7 @@ QPushButton#BtnCloseMinor {
     qproperty-text: "";
     image: url(":/MenuBar/close.svg");
     border-radius: none;
-    background: none;
-    padding: 7 5 6 5;
+    max-width: 30px;
     border: none;
 }
 
@@ -157,6 +156,15 @@ TreeBar QFrame#Header {
     border-radius: 0px;
     padding-right: 15px;
     padding-left: 15px;
+}
+
+WPSCSimulationTitleBar {
+    max-height: 32px;
+}
+
+WPSCSimulationTitleBar QLabel {
+    background: transparent;
+    margin-left: 15px;
 }
 
 TreeBar QLabel {    
