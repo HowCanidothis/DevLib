@@ -561,6 +561,14 @@ QDockWidget::float-button:hover {
     background-color: #3C3C3C;
 }
 
+WPSCDrillCaseView QTabBar::tab:top:selected {
+  background: #252526;
+}
+
+WPSCDrillCaseView QTabBar::tab:top:!selected {
+  background: #181818;
+}
+
 QTableView {
     qproperty-showGrid: 0;
 }
