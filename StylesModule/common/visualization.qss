@@ -12,8 +12,8 @@ VisualizationToolTipWidget QWidget{
 }
 
 VisualizationLegendWidget {
-    max-height: 60px;
-    min-height: 60px;
+    max-height: 40px;
+    min-height: 40px;
 }
 
 VisualizationLegendColorItemWidget {
