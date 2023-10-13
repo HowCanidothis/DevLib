@@ -385,7 +385,6 @@ public:
         , Enabled(false)
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
-        , m_stateParameters(::make_shared<QSet<SharedPointer<StateParameters>>>())
         , m_recalculateOnEnabled(recalculateOnEnabled)
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate);
@@ -455,7 +454,7 @@ public:
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.Reset(false);
-        m_stateParameters->clear();
+        m_stateParameters.clear();
         if(cancel) {
             Cancel();
         }
@@ -472,7 +471,7 @@ public:
     template<typename ... Args, typename Function>
     void SetCalculatorWithParams(const char* connectionInfo, const Function& handler, Args... args)
     {
-        Q_ASSERT(m_stateParameters->isEmpty());
+        Q_ASSERT(m_stateParameters.isEmpty());
         ConnectCombined(connectionInfo, args...);
         SetCalculatorBasedOnStateParameters([=]{
             return handler(args...);
@@ -497,12 +496,12 @@ public:
     {
         auto params = m_stateParameters;
         m_preparator = [params]{
-            for(const auto& parameters : *params) {
+            for(const auto& parameters : params) {
                 parameters->Lock();
             }
         };
         m_releaser = [params]{
-            for(const auto& parameters : *params) {
+            for(const auto& parameters : params) {
                 parameters->Unlock();
             }
 
@@ -589,7 +588,7 @@ public:
         Connect(connection, params->OnChanged);
         Connect(connection, params->m_isValid);
         Connect(connection, params->IsValid);
-        m_stateParameters->insert(params);
+        m_stateParameters.insert(params);
         return *this;
     }
 
@@ -648,7 +647,7 @@ private:
     mutable StatePropertyBoolCommutator m_dependenciesAreUpToDate;
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutatorWithDirect m_onChanged;
-    mutable SharedPointer<QSet<SharedPointer<StateParameters>>> m_stateParameters;
+    mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
     bool m_recalculateOnEnabled;
     ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
 };
@@ -787,6 +786,7 @@ public:
     }
 
     const TPtr& GetData() const { return m_data; }
+    qint32 GetLockCounter() const { return m_lockCounter; }
 
 protected:
     TPtr m_data;
