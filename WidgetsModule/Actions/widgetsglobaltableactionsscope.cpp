@@ -54,7 +54,7 @@ static QVector<QStringList> clipboardData()
     QVector<QStringList> ret;
 
     QClipboard* clipboard = qApp->clipboard();
-    auto rows = clipboard->text().split('\n');
+    auto rows = clipboard->text().split('\n', QString::SkipEmptyParts);
     for(const auto& row : rows){
         ret.append(row.split('\t'));
     }
