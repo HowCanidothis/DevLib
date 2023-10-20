@@ -249,19 +249,22 @@ class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidg
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:   
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter = nullptr);
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter = nullptr, bool reactive = true);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, bool reactive = true);
     template<class T>
-    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, QDoubleSpinBox* spin)
-        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
+    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, QDoubleSpinBox* spin, bool reactive = true)
+        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin, reactive)
     {}
 
     template<class T>
-    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
-        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
+    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin, bool reactive = true)
+        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin, reactive)
     {}
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
-    LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, bool reactive = true);
+    LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, bool reactive = true);
+
+private:
+    DelayedCallObject m_valueChanged;
 };
 
 class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase

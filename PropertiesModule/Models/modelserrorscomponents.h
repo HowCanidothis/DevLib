@@ -176,9 +176,9 @@ public:
     }
 
     template<typename... Dispatchers>
-    DispatcherConnections AddDependencies(const Dispatcher& first, Dispatchers&... dispatchers)
+    DispatcherConnections AddDependencies(const char* connectionInfo, const Dispatcher& first, Dispatchers&... dispatchers)
     {
-        return first.ConnectCombined(CONNECTION_DEBUG_LOCATION, [this]{ update(); }, dispatchers...);
+        return first.ConnectCombined(connectionInfo, [this]{ update(); }, dispatchers...);
     }
 
     void Initialize(const WrapperPtr& wrapper, const std::function<qint64& (T& data)>& flagsGetter =
