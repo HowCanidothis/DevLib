@@ -9,7 +9,6 @@
 #include "SharedModule/MemoryManager/memorymanager.h"
 #include "smartpointersadapters.h"
 #include "stack.h"
-#include "Threads/threadshandler.h"
 
 #define CONNECTION_DEBUG_LOCATION DEBUG_LOCATION
 
