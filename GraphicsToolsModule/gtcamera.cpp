@@ -332,8 +332,14 @@ void GtCamera::SetProjectionProperties(float angle, float _near, float _far)
 Point3F GtCamera::Unproject(float x, float y, float depth)
 {
     const Matrix4& inverted = GetWorldInverted();
-    Point4F coord(x / m_viewport.width() * 2.0 - 1.0,
-                    (m_viewport.height() -  y) / m_viewport.height() * 2.0 - 1.0,
+    auto w = m_viewport.width();
+    auto h = m_viewport.height();
+
+    if(fuzzyIsNull(w) || fuzzyIsNull(h)){
+        return Point3F();
+    }
+    Point4F coord(x / w * 2.0 - 1.0,
+                    (h -  y) / h * 2.0 - 1.0,
                     2.0 * depth - 1.0,
                     1.0
                     );
@@ -359,7 +365,7 @@ Point3F GtCamera::UnprojectPlane(float x, float y)
     Point3F unproj1 = Unproject(x, y, 1.f);
 
     Vector3F rayDirection = unproj1 - unproj0;
-    float dist = -unproj0.z() / rayDirection.z();
+    float dist = fuzzyIsNull(rayDirection.z()) ? 0.0 : -unproj0.z() / rayDirection.z();
     return unproj0 + rayDirection * dist;
 }
 
