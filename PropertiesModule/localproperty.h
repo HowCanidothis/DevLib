@@ -427,6 +427,16 @@ public:
         : Super((qint32)initial,(qint32)Enum::First,(qint32)Enum::Last)
     {}
 
+    void SetSilentWithValidators(const Enum& value)
+    {
+        Super::SetSilentWithValidators((qint32)value);
+    }
+
+    void SetSilentWithValidators(qint32 value)
+    {
+        Super::SetSilentWithValidators(value);
+    }
+
     void SetFromSilent(const value_type& value)
     {
         Super::SetFromSilent(value);
@@ -739,6 +749,7 @@ public:
         m_commutator += { this, [this]{
             Update();
         }};
+        adapters::ResetThread(m_commutator);
     }
 
     void Reset(bool invoke = true)
@@ -1180,6 +1191,45 @@ inline void LocalPropertySetFromVariant<LocalPropertyString>(LocalPropertyString
     property = handler(value.toString());
 }
 
+namespace adapters {
+
+inline Dispatcher& ToDispatcher(const LocalPropertyBoolCommutator& t2)
+{
+    return const_cast<Dispatcher&>(t2.AsProperty().OnChanged);
+}
+
+template<typename ... Args>
+CommonDispatcher<Args...>& ToDispatcher(const CommonDispatcher<Args...>& t2)
+{
+    return const_cast<CommonDispatcher<Args...>&>(t2);
+}
+
+template<class T2>
+Dispatcher& ToDispatcher(const LocalProperty<T2>& t2)
+{
+    return const_cast<Dispatcher&>(t2.OnChanged);
+}
+
+template<typename ... Args>
+void ResetThread(const Args&... args)
+{
+#ifdef QT_DEBUG
+    adapters::Combine([](auto& p){
+        ToDispatcher(p).ResetThread();
+    }, args...);
+#endif
+}
+
+template<typename ... Args>
+void SetThreadSafe(Args&... args)
+{
+    adapters::Combine([](auto& p){
+        ToDispatcher(p).SetAutoThreadSafe();
+    }, args...);
+}
+
+}
+
 template<class Property>
 struct LocalPropertyOptional
 {
@@ -1604,5 +1654,8 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
     connectProperty(pProperty, localProperty);
     return property;
 }
+
+
+
 
 #endif // LOCALPROPERTY_H

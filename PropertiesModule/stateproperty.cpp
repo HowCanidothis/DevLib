@@ -23,6 +23,7 @@ StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
 #endif
         }
     }};
+    adapters::ResetThread(m_commutator.OnDirectChanged);
 }
 
 void StatePropertyBoolCommutator::Update()
@@ -37,6 +38,7 @@ void StateParameters::Initialize()
         return;
     }
     m_initializer();
+    onInitialized();
     m_initializer = nullptr;
 }
 

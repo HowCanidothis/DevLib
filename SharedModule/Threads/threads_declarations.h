@@ -3,8 +3,8 @@
 
 #include "threadsbase.h"
 
-using ThreadHandlerNoThreadCheck = std::function<AsyncResult (const FAction& action)>;
 using ThreadHandler = std::function<AsyncResult (const FAction& action)>;
+using ThreadHandlerNoThreadCheck = std::function<AsyncResult (const FAction& action)>;
 
 const ThreadHandlerNoThreadCheck ThreadHandlerNoCheckMainLowPriority = [](const FAction& action) -> AsyncResult {
     if(QCoreApplication::instance() == nullptr) {

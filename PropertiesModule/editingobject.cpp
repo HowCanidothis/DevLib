@@ -6,6 +6,7 @@ EditingObject::EditingObject()
     , m_isDirty(false)
 {
     m_isDirty.ConnectFrom(CONNECTION_DEBUG_LOCATION, [this](bool forceDirty) { return forceDirty ? true : m_isDirty.Native(); }, ForceDirty);
+    adapters::ResetThread(ForceDirty, m_isDirty);
 }
 
 void EditingObject::SetParent(EditingObject* parent)

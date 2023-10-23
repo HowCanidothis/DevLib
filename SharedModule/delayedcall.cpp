@@ -8,6 +8,7 @@ DelayedCallObject::DelayedCallObject(const DelayedCallObjectParams& params)
     : m_params(params)
     , m_id(generateId())
 {
+    OnDeleted.SetAutoThreadSafe();
 }
 
 DelayedCallObject::~DelayedCallObject()

@@ -22,9 +22,8 @@ public:
 
     void SetRenderType(gRenderType renderType);
 
-    void Update();
-
 private:
+    void update();
     void updateParameters(OpenGLFunctions* f);
     QByteArray extractShader(const QString& fileName) const;
 

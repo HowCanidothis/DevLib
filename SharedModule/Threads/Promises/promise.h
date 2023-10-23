@@ -3,12 +3,11 @@
 
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QWaitCondition>
 
 #include <functional>
 #include <atomic>
 #include <set>
-#include <mutex>
-#include <condition_variable>
 
 #include "SharedModule/dispatcher.h"
 
@@ -31,7 +30,7 @@ private:
     std::atomic_bool m_isResolved;
     std::atomic_bool m_isCompleted;
     CommonDispatcher<qint8> onFinished;
-    std::mutex m_mutex;
+    QMutex m_mutex;
 };
 
 struct SafeCallData
@@ -106,8 +105,8 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     friend class FutureResult;
     std::atomic<qint8> m_result;
     std::atomic<int> m_promisesCounter;
-    std::condition_variable m_conditional;
-    std::mutex m_mutex;
+    QWaitCondition m_conditional;
+    QMutex m_mutex;
 
     void ref();
     void deref();

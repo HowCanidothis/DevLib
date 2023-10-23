@@ -69,7 +69,7 @@ GtShaderProgram::GtShaderProgram(GtRenderer* renderer)
     : m_renderer(renderer)
     , m_isValid(false)
 {
-
+    OnUpdated.SetManualThreadSafe(&m_mutex);
 }
 
 GtShaderProgram& GtShaderProgram::AddShader(ShaderType type, const QString& file)

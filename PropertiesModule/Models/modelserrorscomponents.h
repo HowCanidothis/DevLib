@@ -31,6 +31,7 @@ public:
         , m_updater(1000)
     {
         SkipErrorRows.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){ update(); });
+        adapters::ResetThread(SkipErrorRows);
     }
 
     LocalPropertyBool SkipErrorRows;

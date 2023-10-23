@@ -19,6 +19,7 @@ public:
         OnUpdated.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
         OnRowsRemoved.Connect(CONNECTION_DEBUG_LOCATION, [this] { testOutScope(); });
         OnRowsInserted.Connect(CONNECTION_DEBUG_LOCATION, [this] (qint32, qint32) { testOutScope(); });
+        adapters::ResetThread(OnAboutToBeReset, OnAboutToBeUpdated, OnReset, OnUpdated, OnRowsRemoved, OnRowsInserted);
     }
 
     virtual ~ModelsWrapperBase()
@@ -74,6 +75,8 @@ public:
     {
         OnAboutToInsertRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
         OnAboutToRemoveRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32, ModelsTreeItemBase*){ testInScope(); });
+
+        adapters::ResetThread(OnAboutToInsertRows, OnAboutToRemoveRows);
     }
 
 #ifdef SHARED_LIB_ADD_UI
@@ -97,6 +100,8 @@ public:
     {
         OnAboutToInsertRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32){ testInScope(); });
         OnAboutToRemoveRows.Connect(CONNECTION_DEBUG_LOCATION, [this](qint32,qint32){ testInScope(); });
+
+        adapters::ResetThread(OnAboutToInsertRows, OnAboutToRemoveRows);
     }
 
 #ifdef SHARED_LIB_ADD_UI

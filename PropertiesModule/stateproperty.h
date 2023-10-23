@@ -62,7 +62,7 @@ class StateParameters
 public:
     StateParameters(bool valid = true);
 
-    void Initialize();
+    virtual void Initialize() final;
     bool IsInitialized() { return m_initializer == nullptr; }
 
     void Lock();
@@ -75,6 +75,10 @@ public:
     DispatcherConnectionsSafe Connections;
 
     virtual SmartPointerWatcherPtr Capture() { return nullptr; }
+
+protected:
+    virtual void onInitialized() {}
+
 private:
     QVector<class IStateParameterBase*> m_parameters;
 
@@ -121,13 +125,14 @@ public:
         , InputValue(args...)
         , m_parameters(params)
     {
-        params->IsLocked.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [locker, unlocker, params]{
-            if(!params->IsLocked) {
+        params->IsLocked.Connect(CONNECTION_DEBUG_LOCATION, [locker, unlocker](bool locked){
+            if(!locked) {
                 unlocker();
             } else {
                 locker();
             }
         });
+        adapters::ResetThread(params->IsLocked);
     }
 
     bool IsInitialized() const override { return m_initializer == nullptr; }
@@ -286,6 +291,7 @@ public:
     void SetParameter(const T2& data)
     {
         m_parameter.InputValue = data;
+        adapters::ResetThread(GetProperty());
     }
 
     template<class T2>
@@ -299,6 +305,7 @@ public:
         GetProperty().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, []{
             Q_ASSERT(false);
         }).MakeSafe(m_lockConnections);
+        adapters::ResetThread(GetProperty());
 #endif
     }
 
@@ -422,6 +429,8 @@ public:
                 Valid.SetState(false);
             }
         }};
+
+        adapters::ResetThread(m_dependenciesAreUpToDate.AsProperty(), Enabled);
     }
 
     SmartPointerWatcherPtr Capture()
@@ -702,8 +711,11 @@ public:
         m_data->OnChanged += { this, [this]{
             Q_ASSERT(m_internalEditing);
         }};
+        m_data->OnChanged.ResetThread();
 #endif
         m_data->IsValid.ConnectFromStateProperty(CONNECTION_DEBUG_LOCATION, m_calculator.Valid);
+
+        adapters::ResetThread(m_data->IsValid, m_calculator.Valid, m_calculator.OnCalculated);
     }
 
     guards::LambdaGuardPtr CreateLocker()
@@ -879,6 +891,7 @@ public:
                 m_immutableData->AttachCopy(nullptr);
             }
         }};
+        adapters::ResetThread(Enabled);
     }
 
     void Reset()

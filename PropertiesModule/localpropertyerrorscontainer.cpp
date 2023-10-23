@@ -17,10 +17,11 @@ LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
         }
         HasErrors = false;
     }};
+    adapters::SetThreadSafe(OnChanged);
 
-    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        OnErrorsLabelsChanged();
-    }).MakeSafe(m_connections);
+//    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+//        OnErrorsLabelsChanged();
+//    }).MakeSafe(m_connections);
 }
 
 void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString& errorString, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)

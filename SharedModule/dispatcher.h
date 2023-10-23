@@ -114,12 +114,25 @@ public:
 
     CommonDispatcher()
         : m_lastId(0)
+        , m_lock([this](const char* ci){
+#ifdef QT_DEBUG
+            if(m_thread == -1) {
+                m_thread = (qint64)QThread::currentThreadId();
+                return;
+            }
+            if((qint64)QThread::currentThreadId() != m_thread) {
+                qDebug() << "Incorrect dispatcher usage at" << ci;
+            }
+#else
+            Q_UNUSED(ci);
+#endif
+    })
+        , m_unlock([]{})
     {
     }
 
     virtual ~CommonDispatcher()
     {
-        THREAD_ASSERT_IS_MAIN();
         for(const auto& connection : m_safeConnections) {
             if(!connection.expired()) {
                 connection.lock()->disable();
@@ -127,8 +140,41 @@ public:
         }
     }
 
+    void ResetThread() const
+    {
+#ifdef QT_DEBUG
+        m_thread = -1;
+#endif
+    }
+
+    void SetAutoThreadSafe()
+    {
+        auto mutex = ::make_shared<QMutex>();
+        auto* pMutex = mutex.get();
+        m_lock = [mutex](const char*) {
+            mutex->lock();
+        };
+        m_unlock = [pMutex]{
+            pMutex->unlock();
+        };
+    }
+
+    void SetManualThreadSafe(QMutex* mutex)
+    {
+        auto locked = ::make_shared<bool>(false);
+        m_lock = [mutex, locked](const char*) {
+            *locked = mutex->tryLock();
+        };
+        m_unlock = [mutex, locked]{
+            if(*locked) {
+                mutex->unlock();
+            }
+        };
+    }
+
     void Reset()
     {
+        lock(CONNECTION_DEBUG_LOCATION);
         m_connectionSubscribes.clear();
         m_subscribes.clear();
         for(const auto& connection : m_safeConnections) {
@@ -137,16 +183,27 @@ public:
             }
         }
         m_safeConnections.clear();
+        unlock();
     }
 
     virtual void Invoke(Args... args) const
     {
-        QHash<Observer, FCommonDispatcherAction> subscribesCopy = m_subscribes;
+        QHash<Observer, FCommonDispatcherAction> subscribesCopy;
+        {
+            lock(CONNECTION_DEBUG_LOCATION);
+            subscribesCopy = m_subscribes;
+            unlock();
+        }
         for(const auto& subscribe : subscribesCopy)
         {
             subscribe(args...);
         }
-        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy = m_connectionSubscribes;
+        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
+        {
+            lock(CONNECTION_DEBUG_LOCATION);
+            connectionSubscribesCopy = m_connectionSubscribes;
+            unlock();
+        }
         for(const auto& connections : connectionSubscribesCopy)
         {
             connections(args...);
@@ -221,10 +278,12 @@ public:
 
     DispatcherConnection Connect(const char* locationInfo, const FCommonDispatcherAction& handler) const
     {
-        THREAD_ASSERT_IS_MAIN();
+        lock(locationInfo);
         auto id = m_lastId++;
         m_connectionSubscribes.insert(id, handler);
+        unlock();
         return DispatcherConnection([this, id, locationInfo]{
+            lock(locationInfo);
             FCommonDispatcherAction subscribe;
             auto foundIt = m_connectionSubscribes.find(id);
             if(foundIt != m_connectionSubscribes.end()) {
@@ -232,9 +291,12 @@ public:
                 m_safeConnections.remove(id);
                 m_connectionSubscribes.remove(id);
             }
-        }, [this, id, locationInfo, handler](const DispatcherConnectionSafePtr& connection){
+            unlock();
+        }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
+            lock(locationInfo);
             Q_ASSERT(!m_safeConnections.contains(id));
             m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
+            unlock();
         });
     }
 
@@ -247,27 +309,30 @@ public:
 
     const CommonDispatcher& operator+=(const ActionHandler& subscribeHandler) const
     {
-        THREAD_ASSERT_IS_MAIN();
+        lock(CONNECTION_DEBUG_LOCATION);
         Q_ASSERT(!m_subscribes.contains(subscribeHandler.Key));
         m_subscribes.insert(subscribeHandler.Key, subscribeHandler.Handler);
+        unlock();
         return *this;
     }
 
     const CommonDispatcher& operator-=(Observer key) const
     {
-        THREAD_ASSERT_IS_MAIN();
         FCommonDispatcherAction action;
-        auto foundIt = m_subscribes.find(key);
+        lock(CONNECTION_DEBUG_LOCATION);
+        {
+            auto foundIt = m_subscribes.find(key);
             if(foundIt != m_subscribes.end()) {
                 action = foundIt.value();
                 m_subscribes.erase(foundIt);
             }
+        }
+        unlock();
         return *this;
     }
 
     DispatcherConnection OnFirstInvoke(const FCommonDispatcherAction& action) const
     {
-        THREAD_ASSERT_IS_MAIN();
         auto connections = DispatcherConnectionsSafeCreate();
         Connect(CONNECTION_DEBUG_LOCATION, [action, connections](Args... args){
             action(args...);
@@ -286,22 +351,35 @@ public:
 //        }).MakeSafe(*firstInvokeConnections, firstConnections, connections...);
 //    }
 
+    Q_DISABLE_COPY(CommonDispatcher)
+
+protected:
+    void lock(const char* connectionInfo) const { m_lock(connectionInfo); }
+    void unlock() const { m_unlock(); }
+
 private:
     friend class Connection;
     mutable QHash<qint32, std::weak_ptr<DispatcherConnectionSafe>> m_safeConnections;
     mutable QMap<qint32, FCommonDispatcherAction> m_connectionSubscribes;
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable std::atomic_uint32_t m_lastId;
+    std::function<void (const char*)> m_lock;
+    FAction m_unlock;
+
+#ifdef QT_DEBUG
+    mutable qint64 m_thread = -1;
+#endif
 };
 
-template<class T>
-class WithDispatchersConnections : public T
+template<class ... Args>
+class CommonDispatcherThreadSafe : public CommonDispatcher<Args...>
 {
-    using Super = T;
+    using Super = CommonDispatcher<Args...>;
 public:
-    using Super::Super;
-
-    DispatcherConnections ConnectionsUnsafe;
+    CommonDispatcherThreadSafe()
+    {
+        SetAutoThreadSafe();
+    }
 };
 
 using Dispatcher = CommonDispatcher<>;

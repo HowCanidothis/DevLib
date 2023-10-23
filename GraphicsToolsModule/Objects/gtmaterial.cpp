@@ -46,7 +46,7 @@ void GtMaterial::Draw(OpenGLFunctions* f)
         return;
     }
     if(m_isDirty) {
-        Update();
+        update();
     }
 
     updateParameters(f);
@@ -69,7 +69,7 @@ void GtMaterial::SetRenderType(gRenderType renderType)
     m_renderType = renderType;
 }
 
-void GtMaterial::Update()
+void GtMaterial::update()
 {
     gTexUnit unit = 0;
 

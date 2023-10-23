@@ -101,12 +101,7 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
               AddComponent<float>(3).
               AddComponent<float>(4);
 
-    Settings.Visible.Subscribe([this]{
-        Update([this]{
-            m_material.SetVisible(Settings.Visible);
-        });
-    });
-    Transform.SetSetterHandler(CreateThreadHandler());
+    MoveToThread(Settings.Visible, Transform);
 }
 
 GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
@@ -168,6 +163,10 @@ void GtTextDrawable::drawDepth(OpenGLFunctions* )
 void GtTextDrawable::onInitialize(OpenGLFunctions* f)
 {
     m_buffer->Initialize(f);
+
+    Settings.Visible.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](bool visible){
+        m_material.SetVisible(visible);
+    });
 }
 
 GtFont::GtFont(const Name& fontName, const QString& fntPath)
@@ -198,11 +197,7 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
               AddComponent<float>(2).
               AddComponent<float>(3);
 
-    Settings.Visible.Subscribe([this]{
-        Update([this]{
-            m_material.SetVisible(Settings.Visible);
-        });
-    });
+    MoveToThread(Settings.Visible);
 }
 
 GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font)
@@ -259,6 +254,9 @@ void GtTextScreenDrawable::drawDepth(OpenGLFunctions* )
 void GtTextScreenDrawable::onInitialize(OpenGLFunctions* f)
 {
     m_buffer->Initialize(f);
+    Settings.Visible.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](bool visible){
+        m_material.SetVisible(visible);
+    });
 }
 
 

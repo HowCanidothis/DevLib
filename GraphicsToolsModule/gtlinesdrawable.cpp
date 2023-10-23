@@ -3,6 +3,7 @@
 #include "Objects/gtmaterial.h"
 #include "Objects/gtmaterialparametermatrix.h"
 #include "gtmeshbase.h"
+#include "gtrenderer.h"
 
 GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram)
     : Super(renderer)
@@ -15,10 +16,7 @@ GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr&
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));
 
-    Points.SetSetterHandler(CreateThreadHandler());
-    Points.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_buffer->UpdateVertexArray(Points);
-    });
+    MoveToThread(Points);
 }
 
 void GtLinesDrawable::drawDepth(OpenGLFunctions*)
@@ -38,6 +36,10 @@ void GtLinesDrawable::draw(OpenGLFunctions* f)
 
 void GtLinesDrawable::onInitialize(OpenGLFunctions* f)
 {
+    Points.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+        m_buffer->UpdateVertexArray(Points);
+    });
+
     m_buffer->Initialize(f);
 }
 

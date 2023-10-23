@@ -7,16 +7,8 @@ GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
     , m_destroyed(::make_shared<std::atomic_bool>(false))
     , m_rendererDrawable(false)
 {
-}
-
-GtDrawableBase::~GtDrawableBase()
-{
-}
-
-ThreadHandler GtDrawableBase::CreateThreadHandler()
-{
     auto destroyed = m_destroyed;
-    return [this, destroyed](const FAction& action) -> AsyncResult {
+    m_threadHandler = [this, destroyed](const FAction& action) -> AsyncResult {
         if(*destroyed) {
             return AsyncError();
         }
@@ -29,17 +21,8 @@ ThreadHandler GtDrawableBase::CreateThreadHandler()
             });
         }
     };
-}
 
-void GtDrawableBase::delayedDraw(const FAction& draw)
-{
-    m_renderer->addDelayedDraw(draw);
-}
-
-ThreadHandlerNoThreadCheck GtDrawableBase::CreateThreadNoCheckHandler()
-{
-    auto destroyed = m_destroyed;
-    return [destroyed, this](const FAction& action) -> AsyncResult {
+    m_threadHandlerNoCheck = [this, destroyed](const FAction& action) -> AsyncResult {
         if(*destroyed) {
             return AsyncError();
         }
@@ -47,6 +30,15 @@ ThreadHandlerNoThreadCheck GtDrawableBase::CreateThreadNoCheckHandler()
             action();
         });
     };
+}
+
+GtDrawableBase::~GtDrawableBase()
+{
+}
+
+void GtDrawableBase::delayedDraw(const FAction& draw)
+{
+    m_renderer->addDelayedDraw(draw);
 }
 
 void GtDrawableBase::enableDepthTest()

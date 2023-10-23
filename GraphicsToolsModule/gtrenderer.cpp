@@ -38,7 +38,24 @@ void GtRenderer::construct()
 {
     m_queueNumber = 0;
     m_resourceSystem = ::make_shared<ResourcesSystem>();
-    m_standardMeshs = new GtStandardMeshs();    
+    m_standardMeshs = new GtStandardMeshs();
+
+    m_threadHandler = ([this](const FAction& action) -> AsyncResult {
+        if(QThread::currentThread() == this) {
+            action();
+            return AsyncSuccess();
+        } else {
+            return Asynch([action]{
+                action();
+            });
+        }
+    });
+
+    m_threadHandlerNoCheck = [this](const FAction& action) -> AsyncResult {
+        return Asynch([action]{
+            action();
+        });
+    };
 }
 
 void GtRenderer::enableDepthTest()
@@ -290,20 +307,6 @@ SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queu
     auto old = m_queueNumber;
     m_queueNumber = queueNumber;
     return ::make_shared<guards::LambdaGuard>([this, old]{ m_queueNumber = old; });
-}
-
-ThreadHandler GtRenderer::CreateThreadHandler()
-{
-    return [this](const FAction& action) -> AsyncResult {
-        if(QThread::currentThread() == this) {
-            action();
-            return AsyncSuccess();
-        } else {
-            return Asynch([action]{
-                action();
-            });
-        }
-    };
 }
 
 void GtRenderer::onDraw()

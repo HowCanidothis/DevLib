@@ -9,7 +9,7 @@ class GtEllipseLineDrawable : public GtDrawableBase
 public:
     GtEllipseLineDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram);
 
-    std::atomic_bool AutoUpdateTransform;
+    bool AutoUpdateTransform;
     LocalProperty<Vector3F> Up;
     LocalProperty<Vector3F> Normal;
     LocalProperty<Point3F> Position;

@@ -81,7 +81,17 @@ public:
     void Update(const std::function<void (OpenGLFunctions*)>& handler);
     const class GtStandardMeshs& GetStandardMeshs() const { return *m_standardMeshs; }
 
-    ThreadHandler CreateThreadHandler();
+    template<typename ... Args>
+    void MoveToThread(Args&... args)
+    {
+        adapters::Combine([&](auto& p) {
+            p.OnChanged.SetAutoThreadSafe();
+            p.SetSetterHandler(m_threadHandler);
+        }, args...);
+    }
+
+    ThreadHandler GetThreadHandler() const { return m_threadHandler; }
+    ThreadHandlerNoThreadCheck GetThreadHandlerNoCheck() const { return m_threadHandlerNoCheck; }
 
     //Point3F Project(const Point3F& position) const;
 
@@ -137,6 +147,8 @@ private:
     GtRenderProperties m_renderProperties;
     QVector<FAction> m_delayedDraws;
     std::atomic_bool m_updateRequested;
+    ThreadHandler m_threadHandler;
+    ThreadHandlerNoThreadCheck m_threadHandlerNoCheck;
 };
 
 #endif // GTRENDERER_H

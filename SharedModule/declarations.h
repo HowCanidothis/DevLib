@@ -258,6 +258,38 @@ void Combine(const FHandler& handler, T& first, Args&... rest) {
     }
 }
 
+template<class T>
+T& ToReference(T& t)
+{
+    return t;
+}
+
+template<class T>
+T& ToReference(SharedPointer<T>& tPtr)
+{
+    return *tPtr;
+}
+
+template<class T>
+T& ToReference(ScopedPointer<T>& tPtr)
+{
+    return *tPtr;
+}
+
+template<class T>
+T& ToReference(T*& t)
+{
+    return *t;
+}
+
+template<typename ... Args>
+void Initialize(Args&... args)
+{
+    Combine([](auto& p){
+        ToReference(p).Initialize();
+    }, args...);
+}
+
 template<class IteratorType, class Struct>
 inline void ForeachFieldOfStruct(const Struct& data, const std::function<void (const IteratorType&)>& handler) {
     auto size = sizeof(data);

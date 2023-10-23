@@ -19,6 +19,7 @@ InterruptorData::InterruptorData()
     : m_interupted(false)
     , m_parentData(nullptr)
 {
+    OnInterrupted.SetAutoThreadSafe();
 }
 
 InterruptorData::~InterruptorData()

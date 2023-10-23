@@ -127,7 +127,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_controllers(controllersContainer)
     , m_renderTime(0)    
     , m_cameraAnimationEngine(renderer, m_camera.get())
-    , m_resize(DelayedCallObjectParams(100, renderer->CreateThreadHandler()))
+    , m_resize(DelayedCallObjectParams(100, renderer->GetThreadHandlerNoCheck()))
     , m_dirty(true)
     , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
 {
@@ -142,8 +142,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
         m_renderer->RemoveController(this);
     }).MakeSafe(m_connections);
 
-    auto threadHandler = m_renderer->CreateThreadHandler();
-    SpaceColor.SetSetterHandler(threadHandler);
+    m_renderer->MoveToThread(SpaceColor);
 }
 
 bool GtRendererController::isDirtyReset()
