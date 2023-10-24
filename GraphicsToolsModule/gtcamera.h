@@ -19,6 +19,7 @@ protected:
         State_NoRPE = 0x20,
         State_PredictionMode = 0x40,
         State_FrameChanged = 0x80,
+        State_ConstantZ = 0x100,
 
         State_NeedUpdateProjection = State_ChangedProjection | State_ChangedWorld,
         State_NeedUpdateView = State_ChangedView | State_ChangedWorld,
@@ -118,6 +119,7 @@ public:
     void SetIsometricScale(const Point2F& scale);
     void SetIsometricExtraScale(const Point2F& extraScale);
     void AddIsometricExtraScale(const Point2F& extraScale);
+    void InitializeIsometric();
     void SetIsometric(bool flag);
     void Resize(qint32 width, qint32 height);
     void SetProjectionProperties(float m_angle, float near, float far);

@@ -115,7 +115,7 @@ public:
         : m_lastId(0)
         , m_lock([this](const char* ci){
 #ifdef QT_DEBUG
-            if(m_thread == -1) {
+            if(m_thread == 0) {
                 m_thread = (qint64)QThread::currentThreadId();
                 return;
             }
@@ -139,10 +139,10 @@ public:
         }
     }
 
-    void ResetThread() const
+    void ResetThread(qint64 threadId = 0) const
     {
 #ifdef QT_DEBUG
-        m_thread = -1;
+        m_thread = threadId;
 #endif
     }
 
@@ -188,20 +188,16 @@ public:
     virtual void Invoke(Args... args) const
     {
         QHash<Observer, FCommonDispatcherAction> subscribesCopy;
+        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
         {
             lock(CONNECTION_DEBUG_LOCATION);
             subscribesCopy = m_subscribes;
+            connectionSubscribesCopy = m_connectionSubscribes;
             unlock();
         }
         for(const auto& subscribe : subscribesCopy)
         {
             subscribe(args...);
-        }
-        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
-        {
-            lock(CONNECTION_DEBUG_LOCATION);
-            connectionSubscribesCopy = m_connectionSubscribes;
-            unlock();
         }
         for(const auto& connections : connectionSubscribesCopy)
         {
@@ -366,7 +362,7 @@ private:
     FAction m_unlock;
 
 #ifdef QT_DEBUG
-    mutable qint64 m_thread = -1;
+    mutable qint64 m_thread = 0;
 #endif
 };
 

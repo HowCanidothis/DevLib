@@ -136,7 +136,11 @@ void GtCamera::MoveFocused(const Point2F& screenPosition)
     if(m_focus != nullptr) {
         auto newPoint = unprojectFocused(screenPosition);
         const auto& oldPoint = m_focus->GetScenePoint();
+        auto z = m_eye.z();
         m_eye += (oldPoint - newPoint);
+        if(m_state.TestFlag(State_ConstantZ)) {
+            m_eye.setZ(z);
+        }
         m_state.AddFlag(State_NeedUpdateView);
     }
 }
@@ -196,7 +200,11 @@ void GtCamera::Zoom(bool closer)
         }
         m_isometricScale = isometricScale;
         auto focusPoint = m_focus->GetScenePoint();
+        auto z = m_eye.z();
         m_eye = focusPoint - ray.normalized() * distance;
+        if(m_state.TestFlag(State_ConstantZ)) {
+            m_eye.setZ(z);
+        }
 
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
@@ -306,6 +314,12 @@ void GtCamera::SetIsometricScale(const Point2F& scale) {
     m_isometricScale = scale;
     m_state.RemoveFlag(State_AutoIsometricScaling);
     m_state.AddFlag(State_NeedUpdateProjection);
+}
+
+void GtCamera::InitializeIsometric()
+{
+    SetIsometric(true);
+    m_state.AddFlag(State_ConstantZ);
 }
 
 void GtCamera::SetIsometric(bool flag)
