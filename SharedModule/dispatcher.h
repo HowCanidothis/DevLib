@@ -3,6 +3,7 @@
 
 #include <QHash>
 #include <QMutex>
+#include <QQueue>
 
 #include <functional>
 
@@ -132,9 +133,9 @@ public:
 
     virtual ~CommonDispatcher()
     {
-        for(const auto& connection : m_safeConnections) {
-            if(!connection.expired()) {
-                connection.lock()->disable();
+        for(Connection& connection : m_connections) {
+            if(!connection.SafeConnection.expired()) {
+                connection.SafeConnection.lock()->disable();
             }
         }
     }
@@ -174,25 +175,24 @@ public:
     void Reset()
     {
         lock(CONNECTION_DEBUG_LOCATION);
-        m_connectionSubscribes.clear();
         m_subscribes.clear();
-        for(const auto& connection : m_safeConnections) {
-            if(!connection.expired()) {
-                connection.lock()->disable();
+        for(Connection& connection : m_connections) {
+            if(!connection.SafeConnection.expired()) {
+                connection.SafeConnection.lock()->disable();
             }
         }
-        m_safeConnections.clear();
+        m_connections.clear();
         unlock();
     }
 
     virtual void Invoke(Args... args) const
     {
         QHash<Observer, FCommonDispatcherAction> subscribesCopy;
-        QMap<qint32, ConnectionSubscribe> connectionSubscribesCopy;
+        QVector<Connection> connectionSubscribesCopy;
         {
             lock(CONNECTION_DEBUG_LOCATION);
             subscribesCopy = m_subscribes;
-            connectionSubscribesCopy = m_connectionSubscribes;
+            connectionSubscribesCopy = m_connections;
             unlock();
         }
         for(const auto& subscribe : subscribesCopy)
@@ -201,7 +201,7 @@ public:
         }
         for(const auto& connections : connectionSubscribesCopy)
         {
-            connections(args...);
+            connections.ConnectionHandler(args...);
         }
     }
 
@@ -274,23 +274,27 @@ public:
     DispatcherConnection Connect(const char* locationInfo, const FCommonDispatcherAction& handler) const
     {
         lock(locationInfo);
-        auto id = m_lastId++;
-        m_connectionSubscribes.insert(id, handler);
+        qint32 id;
+        if(!m_freeConnections.isEmpty()) {
+            id = m_freeConnections.dequeue();
+            m_connections[id].ConnectionHandler = handler;
+        } else {
+            id = m_connections.size();
+            m_connections.append(Connection(handler));
+        }
         unlock();
         return DispatcherConnection([this, id, locationInfo]{
             lock(locationInfo);
-            FCommonDispatcherAction subscribe;
-            auto foundIt = m_connectionSubscribes.find(id);
-            if(foundIt != m_connectionSubscribes.end()) {
-                subscribe = foundIt.value();
-                m_safeConnections.remove(id);
-                m_connectionSubscribes.remove(id);
-            }
+            auto& connection = m_connections[id];
+            auto handler = connection.ConnectionHandler;
+            Q_UNUSED(handler);
+            connection.ConnectionHandler = [](Args...){};
+            connection.SafeConnection.reset();
+            m_freeConnections.enqueue(id);
             unlock();
         }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
             lock(locationInfo);
-            Q_ASSERT(!m_safeConnections.contains(id));
-            m_safeConnections.insert(id, std::weak_ptr<DispatcherConnectionSafe>(connection));
+            m_connections[id].SafeConnection = std::weak_ptr<DispatcherConnectionSafe>(connection);
             unlock();
         });
     }
@@ -354,8 +358,17 @@ protected:
 
 private:
     friend class Connection;
-    mutable QHash<qint32, std::weak_ptr<DispatcherConnectionSafe>> m_safeConnections;
-    mutable QMap<qint32, FCommonDispatcherAction> m_connectionSubscribes;
+    struct Connection {
+        std::weak_ptr<DispatcherConnectionSafe> SafeConnection;
+        FCommonDispatcherAction ConnectionHandler;
+
+        Connection(const FCommonDispatcherAction& connection)
+            : ConnectionHandler(connection)
+        {}
+        Connection(){}
+    };
+    mutable QVector<Connection> m_connections;
+    mutable QQueue<qint32> m_freeConnections;
     mutable QHash<Observer, FCommonDispatcherAction> m_subscribes;
     mutable std::atomic_uint32_t m_lastId;
     std::function<void (const char*)> m_lock;
