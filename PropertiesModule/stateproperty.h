@@ -711,11 +711,11 @@ public:
         m_data->OnChanged += { this, [this]{
             Q_ASSERT(m_internalEditing);
         }};
-        m_data->OnChanged.ResetThread();
 #endif
         m_data->IsValid.ConnectFromStateProperty(CONNECTION_DEBUG_LOCATION, m_calculator.Valid);
 
-        adapters::ResetThread(m_data->IsValid, m_calculator.Valid, m_calculator.OnCalculated);
+        adapters::SetThreadSafe(m_data->IsValid, m_data->OnChanged);
+        adapters::ResetThread(m_calculator.Valid, m_calculator.OnCalculated);
     }
 
     guards::LambdaGuardPtr CreateLocker()

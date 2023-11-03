@@ -24,6 +24,13 @@ public:
         ptr = nullptr;
         ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[pPtr]{ delete pPtr; });
     }
+    template<class T>
+    static void FreeAtMainThreadAwait(SharedPointer<T>& ptr)
+    {
+        auto* pPtr = new SharedPointer<T>(ptr);
+        ptr = nullptr;
+        ThreadsBase::DoMainAwait(CONNECTION_DEBUG_LOCATION,[pPtr]{ delete pPtr; });
+    }
     static void DoMain(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoMainAwait(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static void DoQThreadWorker(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);

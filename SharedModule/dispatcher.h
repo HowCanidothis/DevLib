@@ -149,6 +149,11 @@ public:
 
     void SetAutoThreadSafe()
     {
+#ifdef QT_DEBUG
+        m_thread = 0;
+        Q_ASSERT(!m_multithread);
+        m_multithread = true;
+#endif
         auto mutex = ::make_shared<QMutex>();
         auto* pMutex = mutex.get();
         m_lock = [mutex](const char*) {
@@ -161,6 +166,11 @@ public:
 
     void SetManualThreadSafe(QMutex* mutex)
     {
+#ifdef QT_DEBUG
+        m_thread = 0;
+        Q_ASSERT(!m_multithread);
+        m_multithread = true;
+#endif
         auto locked = ::make_shared<bool>(false);
         m_lock = [mutex, locked](const char*) {
             *locked = mutex->tryLock();
@@ -376,6 +386,7 @@ private:
 
 #ifdef QT_DEBUG
     mutable qint64 m_thread = 0;
+    bool m_multithread = false;
 #endif
 };
 
