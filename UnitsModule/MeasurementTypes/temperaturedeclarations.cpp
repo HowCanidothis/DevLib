@@ -14,10 +14,10 @@ namespace TemperaturePerDistanceUnits
 {
     IMPLEMENT_MEASUREMENT_UNIT(CelsiusPerMeter,         TR(MeasurementTr::tr("Celsius Per Meter")),       TR(MeasurementTr::tr("C°/m")),    1.0)
     IMPLEMENT_MEASUREMENT_UNIT(CelsiusPerFeet,          TR(MeasurementTr::tr("Celsius Per Feet")),        TR(MeasurementTr::tr("C°/ft")),   METERS_TO_FEETS_MULTIPLIER)
-    IMPLEMENT_MEASUREMENT_UNIT(CelsiusPer100Feet,       TR(MeasurementTr::tr("Celsius Per 100 Feet")),    TR(MeasurementTr::tr("C°/100ft")),METERS_TO_FEETS_MULTIPLIER/100)
-    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPerMeter,      TR(MeasurementTr::tr("Fahrenheit Per Meter")),    TR(MeasurementTr::tr("F/m")),     5.0/9)
-    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPerFeet,       TR(MeasurementTr::tr("Fahrenheit Per Feet")),     TR(MeasurementTr::tr("F/ft")),    METERS_TO_FEETS_MULTIPLIER*5/9)
-    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPer100Feet,    TR(MeasurementTr::tr("Fahrenheit Per 100 Feet")), TR(MeasurementTr::tr("F/100ft")), METERS_TO_FEETS_MULTIPLIER/100*5/9)
+    IMPLEMENT_MEASUREMENT_UNIT(CelsiusPer100Feet,       TR(MeasurementTr::tr("Celsius Per 100 Feet")),    TR(MeasurementTr::tr("C°/100ft")),METERS_TO_FEETS_MULTIPLIER / 100.0)
+    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPerMeter,      TR(MeasurementTr::tr("Fahrenheit Per Meter")),    TR(MeasurementTr::tr("F/m")),     5.0 / 9.0)
+    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPerFeet,       TR(MeasurementTr::tr("Fahrenheit Per Feet")),     TR(MeasurementTr::tr("F/ft")),    METERS_TO_FEETS_MULTIPLIER * 5.0 / 9.0)
+    IMPLEMENT_MEASUREMENT_UNIT(FahrenheitPer100Feet,    TR(MeasurementTr::tr("Fahrenheit Per 100 Feet")), TR(MeasurementTr::tr("F/100ft")), METERS_TO_FEETS_MULTIPLIER / 100.0 * 5.0 / 9.0)
 }
 
 IMPLEMENT_MEASUREMENT(Temperature, TR(MeasurementTr::tr("Temperature")))
