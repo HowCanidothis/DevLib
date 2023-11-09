@@ -167,9 +167,13 @@ void GtRenderer::AddController(const GtRendererControllerPtr& controller)
     } else {
         m_controllers.insert(controller.get(), controller);
     }
+
+    OnAboutToBeDestroyed.Connect(CONNECTION_DEBUG_LOCATION, [this, controller]{
+        RemoveController(controller);
+    }).MakeSafe(controller->m_connections);
 }
 
-void GtRenderer::RemoveController(GtRendererController* controller)
+void GtRenderer::RemoveController(const GtRendererControllerPtr& controller)
 {
     if(IsRunning()) {
         Asynch([this, controller]{
@@ -178,12 +182,12 @@ void GtRenderer::RemoveController(GtRendererController* controller)
                     drawable->Destroy();
                 }
             }
-            controller->m_renderPath = nullptr;
-            m_controllers.remove(controller);
+            controller->onDestroy();
+            m_controllers.remove(controller.get());
+            ThreadsBase::FreeAtMainThread(controller);
         });
-        ProcessEvents();
     } else {
-        m_controllers.remove(controller);
+        m_controllers.remove(controller.get());
     }
 }
 

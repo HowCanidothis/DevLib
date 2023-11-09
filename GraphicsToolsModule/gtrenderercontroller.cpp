@@ -138,10 +138,6 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     m_camera->SetProjectionProperties(45.f, 1.0f, 100000.f);
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
 
-    m_renderer->OnAboutToBeDestroyed.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_renderer->RemoveController(this);
-    }).MakeSafe(m_connections);
-
     m_renderer->MoveToThread(SpaceColor);
 }
 
@@ -327,6 +323,7 @@ void GtRendererController::onInitialize()
 
 void GtRendererController::onDestroy()
 {
+    m_connections.clear();
     m_renderPath = nullptr;
     m_depthFbo = nullptr;
     m_fbo = nullptr;

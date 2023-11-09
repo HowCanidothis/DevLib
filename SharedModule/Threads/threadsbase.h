@@ -18,6 +18,12 @@ public:
     static bool IsTerminated();
     static AsyncResult DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     template<class T>
+    static void FreeAtMainThread(const SharedPointer<T>& ptr)
+    {
+        auto* pPtr = new SharedPointer<T>(ptr);
+        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[pPtr]{ delete pPtr; });
+    }
+    template<class T>
     static void FreeAtMainThread(SharedPointer<T>& ptr)
     {
         auto* pPtr = new SharedPointer<T>(ptr);

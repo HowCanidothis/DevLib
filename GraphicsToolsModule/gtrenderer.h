@@ -44,7 +44,7 @@ public:
     void CreateTexture(const Name& textureName, const QString& fileName);
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
-    void RemoveController(GtRendererController* controller);
+    void RemoveController(const GtRendererControllerPtr& controller);
 
     SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
 
