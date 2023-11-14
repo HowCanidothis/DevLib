@@ -167,7 +167,7 @@ public:
                 args...)
         , m_setter([this](const value_type& value){
                     Q_ASSERT(!Super::m_parameters->IsLocked);
-                    Super::InputValue.SetFromSilent(value);
+                    Super::InputValue.SetSilent(value);
                 })
     {
         Super::m_initializer = [this]{

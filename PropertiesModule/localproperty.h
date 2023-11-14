@@ -169,7 +169,19 @@ public:
         m_setterHandler = handler;
     }
 
-    bool SetValue(const T& value)
+    void SetValue(const T& value)
+    {
+        m_setterHandler([value, this]{
+            auto validatedValue = m_validator(value);
+            validate(validatedValue);
+            if(NotEqual(validatedValue, m_value)) {
+                m_value = validatedValue;
+                Invoke();
+            }
+        });
+    }
+
+    bool TrySetValue(const T& value)
     {
         auto validatedValue = m_validator(value);
         validate(validatedValue);
@@ -192,9 +204,9 @@ public:
 
     void SetValueForceInvoke(const T& value)
     {
-        auto validatedValue = m_validator(value);
-        validate(validatedValue);
-        m_setterHandler([validatedValue, this]{
+        m_setterHandler([value, this]{
+            auto validatedValue = m_validator(value);
+            validate(validatedValue);
             m_value = validatedValue;
             Invoke();
         });
@@ -305,7 +317,7 @@ public:
     const T& Native() const { return m_value; }
     Dispatcher& GetDispatcher() const { return OnChanged; }
 
-    void SetFromSilent(const T& another)
+    void SetSilent(const T& another)
     {
         m_value = another;
     }
@@ -437,12 +449,12 @@ public:
         Super::SetSilentWithValidators(value);
     }
 
-    void SetFromSilent(const value_type& value)
+    void SetSilent(const value_type& value)
     {
-        Super::SetFromSilent(value);
+        Super::SetSilent(value);
     }
 
-    void SetFromSilent(const Enum& another)
+    void SetSilent(const Enum& another)
     {
         Super::m_value = (qint32)another;
     }
@@ -1257,13 +1269,13 @@ struct LocalPropertyOptional
         });
     }
 
-    void SetFromSilent(const LocalPropertyOptional<Property>& another)
+    void SetSilent(const LocalPropertyOptional<Property>& another)
     {
         Value.EditSilent() = another.Value.Native();
         IsValid.EditSilent() = another.IsValid.Native();
     }
 
-    void SetFromSilent(const value_type& value)
+    void SetSilent(const value_type& value)
     {
         Value.EditSilent() = value;
         IsValid.EditSilent() = true;

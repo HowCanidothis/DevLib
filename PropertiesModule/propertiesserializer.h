@@ -396,7 +396,7 @@ struct Serializer<StateParameterProperty<T>>
     {
         buffer << data.InputValue;
         if(!buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
-            data.m_immutableValue.SetFromSilent(data.InputValue);
+            data.m_immutableValue.SetSilent(data.InputValue);
         }
     }
 };
@@ -417,7 +417,7 @@ struct SerializerXml<StateParameterProperty<T>>
         buffer << object.Mutate(object.Value.InputValue);
         auto& data = object.Value;
         if(!buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
-            data.m_immutableValue.SetFromSilent(data.InputValue);
+            data.m_immutableValue.SetSilent(data.InputValue);
         }
     }
 };
