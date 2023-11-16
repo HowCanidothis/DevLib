@@ -1458,11 +1458,12 @@ void WidgetWrapper::HideAnimated(int duration) const
     animation->setProperty(WidgetAppearanceAnimationIsHidePropertyName, true);
     animation->setEasingCurve(QEasingCurve::OutBack);
     animation->start();
-    animation->connect(animation.get(), &QPropertyAnimation::stateChanged, [widget](QAbstractAnimation::State newState, QAbstractAnimation::State){
+    auto connection = animation->connect(animation.get(), &QPropertyAnimation::stateChanged, [widget](QAbstractAnimation::State newState, QAbstractAnimation::State){
         if(newState == QAbstractAnimation::Stopped) {
             WidgetWrapper(widget).WidgetVisibility() = false;
         }
     });
+    widget->connect(widget, &QWidget::destroyed, [connection]{ QObject::disconnect(connection); });
     visible = true;
 }
 
