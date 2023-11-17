@@ -80,6 +80,8 @@ public:
     static AsyncResult CallDelayed(const char* connectionInfo, DelayedCallObject* object, const FAction& action);
     static AsyncResult CallDelayed(const char* connectionInfo, const Name& key, const FAction& action, const DelayedCallObjectParams& params = DelayedCallObjectParams());
 
+    static void Terminate();
+
 private:
     static QMutex* mutex();
     static QHash<qint32, DelayedCallPtr>& cachedCalls();

@@ -120,10 +120,17 @@ AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, const Na
     return CallDelayed(connectionInfo, target.get(), action);
 }
 
+static bool TERMINATED = false;
+
+void DelayedCallManager::Terminate()
+{
+    TERMINATED = true;
+}
+
 AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, DelayedCallObject* object, const FAction& action)
 {
     static thread_local bool locked = false;
-    if(locked) {
+    if(locked || TERMINATED) {
         return AsyncError();
     }
     QMutexLocker locker(mutex());
