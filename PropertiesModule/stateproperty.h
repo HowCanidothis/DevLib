@@ -209,6 +209,8 @@ private:
     std::function<void (const value_type&)> m_setter;
 };
 
+template<class T> class StateParametersContainer;
+
 template<class T>
 class StateParameterImmutableData : public StateParameterBase<LocalPropertySharedPtr<T>>
 {
@@ -244,6 +246,7 @@ public:
     }
 
 private:
+    friend class StateParametersContainer<T>;
     SharedPointer<T> m_lockedModel;
     LocalPropertyBool m_modelIsValid;
     DispatcherConnectionsSafe m_modelConnections;
@@ -309,14 +312,15 @@ public:
 #endif
     }
 
-    const TPtr& GetImmutableData() const
+    const TPtr& GetLockedImmutableData() const
     {
-        return m_parameter.InputValue;
+        THREAD_ASSERT_IS_NOT_MAIN()
+        return m_parameter.m_lockedModel;
     }
 
-    const container_type& GetImmutable() const
+    const container_type& GetLockedImmutable() const
     {
-        return GetImmutableData()->GetData()->Native();
+        return GetLockedImmutableData()->GetData()->Native();
     }
 
     template<typename ... Dispatchers>
@@ -345,6 +349,17 @@ public:
     LocalPropertySharedPtr<T>& GetProperty()
     {
         return m_parameter.InputValue;
+    }
+
+    const TPtr& GetInputData() const
+    {
+        THREAD_ASSERT_IS_MAIN()
+        return m_parameter.InputValue;
+    }
+
+    const container_type& GetInput() const
+    {
+        return GetInputData()->GetData()->Native();
     }
 
     SmartPointerWatcherPtr Capture() { return m_captureHandler != nullptr ? m_captureHandler() : nullptr; }

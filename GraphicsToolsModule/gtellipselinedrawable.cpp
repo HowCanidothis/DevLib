@@ -80,3 +80,8 @@ void GtEllipseLineDrawable::onInitialize(OpenGLFunctions* f)
 void GtEllipseLineDrawable::onDestroy(OpenGLFunctions*)
 {
 }
+
+void GtEllipseLineDrawable::onAboutToDestroy()
+{
+
+}

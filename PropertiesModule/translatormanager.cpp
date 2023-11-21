@@ -5,6 +5,7 @@ TranslatorManager::TranslatorManager()
     OnLanguageChanged += { this, [this]{
         m_names.clear();
     } };
+    OnLanguageChanged.SetAutoThreadSafe();
 }
 
 TranslatorManager& TranslatorManager::GetInstance()

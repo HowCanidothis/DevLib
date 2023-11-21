@@ -169,6 +169,10 @@ void GtTextDrawable::onInitialize(OpenGLFunctions* f)
     });
 }
 
+void GtTextDrawable::onAboutToDestroy()
+{
+}
+
 GtFont::GtFont(const Name& fontName, const QString& fntPath)
     : m_name(fontName)
 {
@@ -259,6 +263,9 @@ void GtTextScreenDrawable::onInitialize(OpenGLFunctions* f)
     });
 }
 
+void GtTextScreenDrawable::onAboutToDestroy()
+{
+}
 
 DispatcherConnections GtTextDrawableSettings::ConnectFrom(const char* location, const GtTextDrawableSettings& another)
 {

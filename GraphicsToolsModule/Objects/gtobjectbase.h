@@ -21,6 +21,9 @@ public:
     GtDrawableBase(class GtRenderer* renderer);
     ~GtDrawableBase();
 
+    DispatcherConnectionsSafe Connections;
+
+    void AboutToDestroy();
     AsyncResult Destroy();
     AsyncResult Update(const std::function<void (OpenGLFunctions*)>& f);
     AsyncResult Update(const FAction& f);
@@ -60,6 +63,7 @@ protected:
     void initialize(class GtRenderer* renderer);
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
+    virtual void onAboutToDestroy() = 0;
 
     void delayedDraw(const FAction& draw);
     void enableDepthTest();
@@ -76,6 +80,7 @@ protected:
 
 inline void GtDrawableDeleter::operator()(GtDrawableBase* obj)
 {
+    obj->AboutToDestroy();
     obj->Destroy();
 }
 

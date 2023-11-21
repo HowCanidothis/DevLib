@@ -29,6 +29,7 @@ protected:
     void draw(OpenGLFunctions* f) override;
     void onInitialize(OpenGLFunctions* f) override;
     void onDestroy(OpenGLFunctions*) override;
+    void onAboutToDestroy() override;
 
 private:
     DelayedCallObject m_recompute;

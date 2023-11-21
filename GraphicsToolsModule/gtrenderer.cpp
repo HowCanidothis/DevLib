@@ -56,6 +56,8 @@ void GtRenderer::construct()
             action();
         });
     };
+
+    OnAboutToBeDestroyed.SetAutoThreadSafe();
 }
 
 void GtRenderer::enableDepthTest()

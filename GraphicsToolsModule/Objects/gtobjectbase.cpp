@@ -36,6 +36,13 @@ GtDrawableBase::~GtDrawableBase()
 {
 }
 
+void GtDrawableBase::AboutToDestroy()
+{
+    THREAD_ASSERT_IS_MAIN()
+    Connections.clear();
+    onAboutToDestroy();
+}
+
 void GtDrawableBase::delayedDraw(const FAction& draw)
 {
     m_renderer->addDelayedDraw(draw);

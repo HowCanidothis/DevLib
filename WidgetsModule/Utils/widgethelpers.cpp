@@ -1403,7 +1403,7 @@ void WidgetWrapper::ShowAnimated(int duration, double opacity) const
         prevAnimation->stop();
     }
 
-    auto& visible = WidgetWrapper(widget).WidgetVisibility();
+    auto& visible = WidgetVisibility();
     if(visible) {
         return;
     }
@@ -1437,7 +1437,7 @@ void WidgetWrapper::HideAnimated(int duration) const
         prevAnimation->stop();
     }
 
-    auto& visible = WidgetWrapper(widget).WidgetVisibility();
+    auto& visible = WidgetVisibility();
     if(!visible) {
         return;
     }

@@ -153,7 +153,6 @@ public:
 
     GtTextDrawableSettings Settings;
     LocalProperty<QMatrix4x4> Transform;
-    DispatcherConnectionsSafe Connections;
 
 private:
     GtMaterial m_material;
@@ -167,6 +166,7 @@ protected:
     void draw(OpenGLFunctions* f) override;
     void onInitialize(OpenGLFunctions* f) override;
     void onDestroy(OpenGLFunctions* ) override {}
+    void onAboutToDestroy();
 };
 
 class GtTextScreenDrawable : public GtDrawableBase
@@ -212,7 +212,6 @@ public:
     GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font);
 
     GtTextDrawableSettings Settings;
-    DispatcherConnectionsSafe Connections;
 
     void DisplayText(const QVector<TextInfo>& texts);
 
@@ -228,6 +227,7 @@ protected:
     void draw(OpenGLFunctions* f) override;
     void onInitialize(OpenGLFunctions* f) override;
     void onDestroy(OpenGLFunctions* ) override {}
+    void onAboutToDestroy();
 };
 
 #endif // GTTEXTDRAWABLE_H

@@ -21,6 +21,7 @@ protected:
     void draw(OpenGLFunctions* f) override;
     void onInitialize(OpenGLFunctions* f) override;
     void onDestroy(OpenGLFunctions* f) override;
+    void onAboutToDestroy() override {}
 
 private:
     GtMeshBufferPtr m_buffer;
