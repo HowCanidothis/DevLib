@@ -351,7 +351,8 @@ public:
     TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); }, const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         return addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data) {
-            Q_ASSERT(m_viewModel->ColumnComponents.SetComponent(role, column, 0, data));
+            bool installedComponent = m_viewModel->ColumnComponents.SetComponent(role, column, 0, data);
+            Q_ASSERT(installedComponent);
         }, min, max);
     }
 

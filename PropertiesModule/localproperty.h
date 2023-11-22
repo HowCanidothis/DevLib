@@ -195,6 +195,15 @@ public:
         return false;
     }
 
+    void Set(const T& value, bool silent)
+    {
+        if(silent) {
+            SetSilentWithValidators(value);
+        } else {
+            SetValue(value);
+        }
+    }
+
     void SetSilentWithValidators(const T& value)
     {
         auto validatedValue = m_validator(value);
