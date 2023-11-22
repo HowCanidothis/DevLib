@@ -38,11 +38,13 @@ void GtRendererBase::run()
 
     if(!m_context->isValid()) {
         qCCritical(LC_UI) << "Unable to initialize opengl context";
+        m_isValid = false;
         return;
     }
 
     if(!m_surface->isValid()) {
         qCCritical(LC_UI) << "Unable to create offscreen surface";
+        m_isValid = false;
         return;
     }
 
