@@ -50,6 +50,7 @@ void TagThreadEvent::call()
 ThreadEventsContainer::ThreadEventsContainer()
     : m_isPaused(false)
     , m_interupted(false)
+    , m_disabled(false)
 {
 
 }
@@ -63,9 +64,22 @@ void ThreadEventsContainer::Continue()
     m_eventsPaused.wakeAll();
 }
 
+void ThreadEventsContainer::Disable()
+{
+    {
+        QMutexLocker locker(&m_eventsMutex);
+        m_disabled = true;
+    }
+    clearEvents();
+}
+
 AsyncResult ThreadEventsContainer::Asynch(const Name& tag, const FAction& handler)
 {
     QMutexLocker locker(&m_eventsMutex);
+    if(m_disabled) {
+        return AsyncError();
+    }
+
     AsyncResult result;
 
     auto find = m_tagEventsMap.find(tag);
@@ -99,6 +113,9 @@ void ThreadEventsContainer::Pause(const FOnPause& onPause)
 AsyncResult ThreadEventsContainer::Asynch(const FAction& handler)
 {
     QMutexLocker locker(&m_eventsMutex);
+    if(m_disabled) {
+        return AsyncError();
+    }
     AsyncResult result;
     m_events.push(new ThreadEvent(handler, result));
     return result;
@@ -125,6 +142,7 @@ void ThreadEventsContainer::ProcessEvents()
 
 void ThreadEventsContainer::callEvents()
 {
+    Q_ASSERT(!m_disabled);
     while(!m_interupted && !m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {
@@ -141,6 +159,7 @@ void ThreadEventsContainer::callEvents()
 
 void ThreadEventsContainer::callPauseableEvents()
 {
+    Q_ASSERT(!m_disabled);
     while(!m_interupted && !m_events.empty()) {
         ScopedPointer<ThreadEvent> event;
         {

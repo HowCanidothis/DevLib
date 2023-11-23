@@ -213,6 +213,10 @@ DDFooter[DDReferenceMode="1"] QMenuBar {
     font-size: 12px;
     background: #D32F2F;
 }
+DDFooter[DDReferenceMode="2"] QMenuBar {
+    font-size: 12px;
+    background: green;
+}
 DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
     background: #3ea6ff;
@@ -221,13 +225,19 @@ DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
     background: #D32F2F;
 }
-
+DDFooter[DDReferenceMode="2"] QMenu::item{
+    font-size: 12px;
+    background: #69C2D3;
+}
 DDFooter[DDReferenceMode="0"] QMenu::item::selected{
     background: #1F8AD2;
 }
 
 DDFooter[DDReferenceMode="1"] QMenu::item::selected{
     background: #d93f3f;
+}
+DDFooter[DDReferenceMode="2"] QMenu::item::selected{
+    background: #69C2D3;
 }
 
 DDFooter QMenuBar::item {
@@ -240,21 +250,49 @@ DDFooter[DDReferenceMode="0"] QMenuBar::item::selected {
     background: #1F8AD2;
 } 
 
-DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
-    background: #d93f3f;
-}
-
 DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
     background: #3ea6ff;
 } 
 
+DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
+    background: #d93f3f;
+}
+
 DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
     background: #D32F2F;
-} 
+}
+
+DDFooter[DDReferenceMode="2"] QMenuBar::item::selected {
+    background: #84C9D8;
+}
+
+DDFooter[DDReferenceMode="2"] QMenuBar::item::pressed:disabled {
+    background: #69C2D3;
+}
 
 QFrame#MainFooter QLabel#FooterProgressBarLabel{
     font-size: 8px;
     qproperty-alignment: 'AlignVCenter | AlignLeft';
+}
+
+QFrame[ApplicationMode="1"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="2"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="3"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="4"] QWidget{
+    background: transparent;
+    color: white;
 }
 
 QFrame[ApplicationMode="1"]{
@@ -268,40 +306,17 @@ QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
 QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
     background: #D32F2F;
 }
+QFrame[ApplicationMode="2"][DDReferenceMode="2"]{
+    background: #69C2D3;
+}
 
 QFrame[ApplicationMode="3"]{
     background: #A66428;
 }
 
-QFrame[ApplicationMode="1"] QWidget{
-    background: #7B1FA2;
-    color: white;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="0"] QWidget{
-    background: #3ea6ff;
-    color: white;
-}
-
-QFrame[ApplicationMode="2"][DDReferenceMode="1"] QWidget{
-    background: #D32F2F;
-    color: white;
-}
-
-QFrame[ApplicationMode="3"] QWidget{
-    background: #A66428;
-    color: white;
-}
-
 QFrame[ApplicationMode="4"]{
     background: #004D40;
 }
-
-QFrame[ApplicationMode="4"] QWidget{
-    background: #004D40;
-    color: white;
-}
-
 
 WidgetsEditingObjectSaveCancelButtons {
     padding: 10px 20px 10px 20px;

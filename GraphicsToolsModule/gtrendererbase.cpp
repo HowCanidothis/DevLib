@@ -29,8 +29,12 @@ GtRendererBase::~GtRendererBase()
 
 void GtRendererBase::run()
 {
+    guards::LambdaGuard guard([this]{
+        m_isValid = false;
+        Disable();
+    });
     if(m_shareRenderer != nullptr) {
-        while(!m_shareRenderer->m_isInitialized && m_shareRenderer->m_isValid);
+        while(!m_shareRenderer->m_isInitialized && m_shareRenderer->m_isValid) QThread::msleep(500);
         if(!m_shareRenderer->m_isValid) {
             return;
         }
@@ -38,13 +42,11 @@ void GtRendererBase::run()
 
     if(!m_context->isValid()) {
         qCCritical(LC_UI) << "Unable to initialize opengl context";
-        m_isValid = false;
         return;
     }
 
     if(!m_surface->isValid()) {
         qCCritical(LC_UI) << "Unable to create offscreen surface";
-        m_isValid = false;
         return;
     }
 
@@ -52,7 +54,6 @@ void GtRendererBase::run()
 
     m_context->makeCurrent(m_surface.get());
     if(!onInitialize()) {
-        m_isValid = false;
         return;
     }
 

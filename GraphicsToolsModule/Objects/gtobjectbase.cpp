@@ -60,6 +60,10 @@ void GtDrawableBase::disableDepthTest()
 
 AsyncResult GtDrawableBase::Destroy()
 {
+    if(m_renderer->IsDisabled()) {
+        delete this;
+        return AsyncError();
+    }
     auto result = Update([this](OpenGLFunctions* f){
         onDestroy(f);
     });

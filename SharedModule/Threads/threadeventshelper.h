@@ -49,6 +49,9 @@ public:
 
     void Pause(const FOnPause& onPause);
     void Continue();
+    void Disable();
+
+    bool IsDisabled() const { return m_disabled; }
 
     AsyncResult Asynch(const Name& tag, const FAction& handler);
     AsyncResult Asynch(const FAction& handler);
@@ -70,6 +73,7 @@ private:
     std::atomic_bool m_isPaused;
     std::atomic_bool m_interupted;
     FOnPause m_onPause;
+    bool m_disabled;
 
     QHash<Name,ThreadEvent*> m_tagEventsMap;
 };
