@@ -107,59 +107,59 @@ void WidgetsDateTimeWidget::showEvent(QShowEvent* event)
     Super::showEvent(event);
 }
 
-DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDate* modelProperty)
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationInfo, LocalPropertyDate* modelProperty)
 {
     DispatcherConnections ret;
     auto storedDate = ::make_shared<QDate>();
-    ret += Store.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, storedDate]{
+    ret += Store.Connect(locationInfo, [modelProperty, storedDate]{
         *storedDate = *modelProperty;
     });
-    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime,
+    ret += modelProperty->ConnectBoth(locationInfo,CurrentDateTime,
                               [](const QDate& time){ return QDateTime(time, QTime()); },
                               [](const QDateTime& time){ return time.date(); });
-    ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, storedDate]{
+    ret += Reset.Connect(locationInfo, [this, storedDate]{
         CurrentDateTime = QDateTime(*storedDate, QTime());
     });
-    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(locationInfo, [this, modelProperty]{
         CurrentDateTime.SetMinMax(QDateTime(modelProperty->GetMin(), QTime()), QDateTime(modelProperty->GetMax(), QTime()));
     });
 
     auto connections = DispatcherConnectionsSafeCreate();
-    ret += OnAboutToShow.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty, connections]{
+    ret += OnAboutToShow.Connect(locationInfo, [this, modelProperty, connections, locationInfo]{
         connections->clear();
         auto initialDate = modelProperty->Native();
         if(!initialDate.isValid()) initialDate = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(initialDate.year(), initialDate.month());
-        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [initialDate](const QDate& t){
+        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDate](const QDate& t){
             return initialDate != t;
         }, *modelProperty).MakeSafe(*connections);
     });
     return ret;
 }
 
-DispatcherConnections WidgetsDateTimeWidget::ConnectModel(LocalPropertyDateTime* modelProperty)
+DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationInfo, LocalPropertyDateTime* modelProperty)
 {
     DispatcherConnections ret;
     auto storedDate = ::make_shared<QDateTime>();
-    ret += Store.Connect(CONNECTION_DEBUG_LOCATION, [modelProperty, storedDate]{
+    ret += Store.Connect(locationInfo, [modelProperty, storedDate]{
         *storedDate = *modelProperty;
     });
-    ret += modelProperty->ConnectBoth(CONNECTION_DEBUG_LOCATION, CurrentDateTime);
-    ret += Reset.Connect(CONNECTION_DEBUG_LOCATION, [this, storedDate]{
+    ret += modelProperty->ConnectBoth(locationInfo, CurrentDateTime);
+    ret += Reset.Connect(locationInfo, [this, storedDate]{
         CurrentDateTime = *storedDate;
     });
-    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, modelProperty]{
+    ret += modelProperty->OnMinMaxChanged.ConnectAndCall(locationInfo, [this, modelProperty]{
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     });
 
     auto connections = DispatcherConnectionsSafeCreate();
-    ret += OnAboutToShow.Connect(CONNECTION_DEBUG_LOCATION, [this, modelProperty, connections]{
+    ret += OnAboutToShow.Connect(locationInfo, [this, locationInfo, modelProperty, connections]{
         connections->clear();
         auto initialDateTime = modelProperty->Native();
         auto date = initialDateTime.date();
         if(!date.isValid()) date = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(date.year(), date.month());
-        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [initialDateTime](const QDateTime& dt){
+        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDateTime](const QDateTime& dt){
             return initialDateTime != dt;
         }, *modelProperty).MakeSafe(*connections);
     });

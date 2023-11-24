@@ -13,6 +13,8 @@ MainWindow {
     qproperty-iconBHAColor: #955A23;
     qproperty-iconInventoryColor: #7D4C1E;
     qproperty-iconShippingColor: #663E18;
+    qproperty-iconPersonnelColor: #663E18;
+    qproperty-iconTicketsColor: #663E18;
 
     qproperty-iconCalendarColor: #F3F3F3;
     qproperty-iconNetworkOnlineColor: #22b14c;

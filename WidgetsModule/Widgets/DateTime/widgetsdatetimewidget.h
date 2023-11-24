@@ -21,8 +21,8 @@ public:
     explicit WidgetsDateTimeWidget(QWidget *parent = nullptr);
     ~WidgetsDateTimeWidget() override;
 	
-    DispatcherConnections ConnectModel(LocalPropertyDateTime* modelProperty);
-    DispatcherConnections ConnectModel(LocalPropertyDate* modelProperty);
+    DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyDateTime* modelProperty);
+    DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyDate* modelProperty);
 
     LocalPropertyInt Mode;
     LocalPropertyBool NowEnabled;

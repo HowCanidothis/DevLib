@@ -508,7 +508,7 @@ public:
             return false;
         }
 
-        if(row + count >= rowCount()){
+        if(row + count >= TViewModelsEditTable<T>::rowCount()){
             count = Super::rowCount() - row;
         }
         if(count <= 0){
@@ -523,7 +523,7 @@ public:
             return false;
         }
 
-        auto existsCount = rowCount();
+        auto existsCount = TViewModelsEditTable<T>::rowCount();
         if(row >= existsCount){
             row = existsCount - 1;
         }
