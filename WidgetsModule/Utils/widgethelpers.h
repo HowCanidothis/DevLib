@@ -204,6 +204,7 @@ public:
     const WidgetWrapper& AddModalProgressBar(const Name& processId = Name()) const;
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
+    const WidgetWrapper& AddTestHandler(const FAction& testHandler) const;
 
     const WidgetWrapper& BlockWheel() const;
     const WidgetWrapper& FixUp() const;

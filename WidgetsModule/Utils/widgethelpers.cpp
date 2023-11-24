@@ -1831,6 +1831,23 @@ const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<
     return *this;
 }
 
+const WidgetWrapper& WidgetWrapper::AddTestHandler(const FAction& testHandler) const
+{
+#ifndef BUILD_MASTER///for test
+    WidgetWrapper(GetWidget()).AddEventFilter([testHandler](QObject*, QEvent* event){
+        if(event->type() == QEvent::KeyPress) {
+            auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
+            if(keyEvent->key() == Qt::Key_T && keyEvent->modifiers().testFlag(Qt::ControlModifier)) {
+                testHandler();
+                return true;
+            }
+        }
+        return false;
+    });
+#endif
+    return *this;
+}
+
 WidgetSpinBoxWrapper::WidgetSpinBoxWrapper(QSpinBox* widget)
     : Super(widget)
 {}
