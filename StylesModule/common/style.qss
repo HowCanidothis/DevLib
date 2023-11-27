@@ -297,6 +297,10 @@ QMenu::right-arrow {
   width: 12px;
 }
 
+QMenu[style="alt"]::right-arrow {
+  image: url(":/qss_icons/rc/arrow_right_alt.png");
+}
+
 QAbstractItemView QLineEdit {
   padding: 2px;
 }

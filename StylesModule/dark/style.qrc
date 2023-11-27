@@ -241,6 +241,7 @@
         <file>rc/open-in-new.svg</file>
         <file>rc/open-in-new-disable.svg</file>
         <file>rc/open-in-new-hover.svg</file>
+        <file>rc/arrow_right_alt.png</file>
     </qresource>
     <qresource prefix="/qdarkstyle">
         <file>style.qss</file>
