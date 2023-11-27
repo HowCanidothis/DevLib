@@ -88,8 +88,7 @@ void CloudService::processReply(QNetworkReply* reply, const CloudServiceRequestP
 }*/
 
 CloudServiceParams::CloudServiceParams()
-    : Url("https://dev-stand-api.aidriller.com/api")
-    , DefaultContentType("application/json")
+    : DefaultContentType("application/json")
 {
 
 }
