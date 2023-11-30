@@ -217,3 +217,11 @@ QWidget[ActionWidget="true"]:hover {
 QPushButton[ActionWidget="true"]:checked {
     color: #3EA6FF;
 }
+
+QLabel[ActionWidget="true"] {
+    background: transparent;
+}
+
+QLabel[ActionWidget="true"]:hover {
+    background: transparent;
+}

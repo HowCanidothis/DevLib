@@ -1763,7 +1763,7 @@ ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& co
 
 ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const
 {
-    auto* widget = new QWidget();
+    auto* widget = new QFrame();
     auto* layout = new QHBoxLayout();
     layout->setContentsMargins(6,3,6,3);
     widget->setLayout(layout);
@@ -1777,7 +1777,8 @@ ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, c
         handler(value);
     });
     auto* action = new QWidgetAction(GetWidget());
-    spinBox->setProperty(WidgetProperties::ActionWidget, true);
+    label->setProperty(WidgetProperties::ActionWidget, true);
+    widget->setProperty(WidgetProperties::ActionWidget, true);
     action->setDefaultWidget(widget);
     GetWidget()->addAction(action);
     return action;
