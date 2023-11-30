@@ -60,8 +60,9 @@ void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
                 auto unitValue = m_metricSystem->FromBaseToUnit(source);
                 return qIsInf(unitValue) ? source : unitValue;
             };
-            Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));
+            Value.SetMinMax(std::numeric_limits<double>().lowest(), std::numeric_limits<double>().max());
             Value = convertValue(baseValueProperty->Native());
+            Value.SetMinMax(convertValue(baseValueProperty->GetMin()), convertValue(baseValueProperty->GetMax()));
         };
         baseValueProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, updateMinMax).MakeSafe(m_connections);
         updateMinMax();

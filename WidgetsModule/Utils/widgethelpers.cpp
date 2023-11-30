@@ -1141,7 +1141,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
     return *this;
 }
 
-const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area) const
+const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area, qint32 delay) const
 {
     std::function<qint32 (QGroupBox*)> handler;
     if(area != nullptr) {
@@ -1160,7 +1160,7 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Disp
                                          widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
                                      });
                                  }
-                             });
+                             }, delay);
     collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
@@ -1248,6 +1248,19 @@ DispatcherConnection WidgetWrapper::ConnectEnablityTo(const char* conInfo, QWidg
 DispatcherConnection WidgetWrapper::ConnectVisibilityTo(const char* conInfo, QWidget* widget) const
 {
     return WidgetWrapper(widget).WidgetVisibility().ConnectFrom(conInfo, WidgetVisibility());
+}
+
+DispatcherConnections WidgetWrapper::ConnectVisibilityToInt(const char* debugLocation, const LocalPropertyInt& mode, const QVector<QWidget*>& widgets)
+{
+    qint32 i(0);
+    DispatcherConnections result;
+    for(auto* widget : widgets) {
+        result += WidgetWrapper(widget).WidgetVisibility().ConnectFrom(debugLocation, [i](auto mode) {
+            return mode == i;
+        }, mode);
+        ++i;
+    }
+    return result;
 }
 
 DispatcherConnections WidgetWrapper::CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const

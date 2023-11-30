@@ -12,6 +12,7 @@ class InterruptorData
     std::atomic_bool m_interupted;
     InterruptorData* m_parentData;
 
+    void reset();
     void interrupt();
     void setParent(InterruptorData* data);
 
@@ -27,6 +28,7 @@ public:
     Interruptor();
 
     void SetParent(const Interruptor& another);
+    void Reset();
     void Interrupt() const;
     void Interrupt(qint32 msecs) const;
 

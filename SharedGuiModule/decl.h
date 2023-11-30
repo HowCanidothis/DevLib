@@ -407,8 +407,13 @@ class BoundingRect
     Point2F m_left;
     Point2F m_right;
 public:
+    enum UnknownPoints{
+        FromUnknownPoints
+    };
+
     BoundingRect() {}
     BoundingRect(const Point2F& left, const Point2F& right) : m_left(left), m_right(right) {}
+    BoundingRect(const Point2F& left, const Point2F& right, UnknownPoints);
 
     float Left() const { return m_left.x(); }
     float Top() const { return m_left.y(); }
@@ -432,12 +437,7 @@ public:
 
     bool IsInf() const { return qIsInf(m_left.x()) || qIsInf(m_left.y()) || qIsInf(m_right.x()) || qIsInf(m_right.y()); }
 
-    bool Intersects(const BoundingRect& other) const
-    {
-        return !(m_right.X() < other.m_left.X() || m_left.X() > other.m_right.X() ||
-                 m_right.Y() < other.m_left.Y() || m_left.Y() > other.m_right.Y()
-                 );
-    }
+    bool Intersects(const BoundingRect& other) const;
 
     BoundingRect& Unite(const BoundingRect& another)
     {

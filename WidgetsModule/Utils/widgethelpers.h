@@ -11,8 +11,8 @@ struct WidgetWrapperInjectedCommutatorData
     DispatchersCommutator Commutator;
     DispatcherConnectionsSafe Connections;
 
-    WidgetWrapperInjectedCommutatorData()
-        : Commutator(1000)
+    WidgetWrapperInjectedCommutatorData(qint32 delay = 1000)
+        : Commutator(delay)
     {}
 };
 
@@ -84,10 +84,10 @@ public:
         return value;
     }
 
-    SharedPointer<WidgetWrapperInjectedCommutatorData> InjectedCommutator(const char* propertyName, const std::function<void (QObject* w)>& handler = nullptr) const
+    SharedPointer<WidgetWrapperInjectedCommutatorData> InjectedCommutator(const char* propertyName, const std::function<void (QObject* w)>& handler = nullptr, qint32 delay = 1000) const
     {
         return Injected<WidgetWrapperInjectedCommutatorData>(propertyName, [&]() -> WidgetWrapperInjectedCommutatorData* {
-            auto* result = new WidgetWrapperInjectedCommutatorData();
+            auto* result = new WidgetWrapperInjectedCommutatorData(delay);
             auto* widget = m_object;
             result->Commutator.Connect(CONNECTION_DEBUG_LOCATION, [handler, widget]{
                  handler(widget);
@@ -178,6 +178,7 @@ public:
     DispatcherConnection ConnectEnablityTo(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityTo(const char* conInfo, QWidget* widget) const;
 
+    static DispatcherConnections ConnectVisibilityToInt(const char* debugLocation, const LocalPropertyInt& mode, const QVector<QWidget*>& widgets);
     DispatcherConnections CreateVisibilityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     DispatcherConnections CreateEnablityRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<Dispatcher*>& dispatchers, const QVector<QWidget*>& additionalWidgets) const;
     template<typename ... Dispatchers>
@@ -451,7 +452,7 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxWrapper, QGroupBox)
     LocalPropertyBool& WidgetChecked() const;
     const WidgetGroupboxWrapper& AddCollapsing() const;
-    const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr) const;
+    const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr, qint32 delay = 1000) const;
 };
 
 class LocalPropertyDoubleDisplay : public LocalPropertyDouble

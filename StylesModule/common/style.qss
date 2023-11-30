@@ -626,6 +626,14 @@ QTabBar::tab {
   border: none;
 }
 
+QTabBar::close-button {
+  border-image: url(:/MenuBar/close.svg);
+}
+
+QTabBar::close-button:hover {
+  border-image: url(:/MenuBar/close-hover.svg);
+}
+
 QTabBar {
   qproperty-documentMode: true;
   background: #3C3C3C;

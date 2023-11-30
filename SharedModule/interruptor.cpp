@@ -2,6 +2,11 @@
 
 #include "Process/processbase.h"
 
+void InterruptorData::reset()
+{
+    m_interupted = false;
+}
+
 void InterruptorData::interrupt()
 {
     m_interupted = true;
@@ -34,6 +39,11 @@ Interruptor::Interruptor()
 {}
 
 void Interruptor::SetParent(const Interruptor& another) { m_data->setParent(another.m_data.get());  }
+
+void Interruptor::Reset()
+{
+    m_data->reset();
+}
 
 void Interruptor::Interrupt() const { m_data->interrupt(); }
 

@@ -520,7 +520,6 @@ void GtCamera::adjustIsometricScale()
 void GtCamera::calculateIsometricCoef()
 {
     m_isometricScale = Point2F(1.f,1.f);
-    m_isometricExtraScale = Point2F(1.f, 1.f);
     m_isometricCoef = Point2F();
     auto size = predicateVisibleSizeOnZ(m_viewport, 10000.f, false);
     auto isometricSize = predicateVisibleSizeOnZ(m_viewport, 10000.f, true);

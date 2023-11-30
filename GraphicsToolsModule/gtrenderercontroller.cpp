@@ -181,7 +181,7 @@ void GtRendererController::ClearQueue(qint32 queueNumber)
     m_renderer->Asynch([this, queueNumber]{
         auto foundIt = m_drawables.find(queueNumber);
         if(foundIt != m_drawables.end()) {
-            for(auto* drawable : foundIt.value()) {
+            for(auto* drawable : ::make_const(foundIt.value())) {
                 drawable->Destroy();
             }
             m_drawables.erase(foundIt);
@@ -191,12 +191,7 @@ void GtRendererController::ClearQueue(qint32 queueNumber)
 
 void GtRendererController::calculateVisibleSize()
 {
-    Point3F p[3];
-    p[0] = m_camera->UnprojectPlane(0.f, 0.f);
-    p[1] = m_camera->UnprojectPlane(0.f, m_camera->GetViewport().height());
-    p[2] = m_camera->UnprojectPlane(m_camera->GetViewport().width(), 0.f);
-
-    m_visibleSize = SizeF((p[2] - p[0]).length(), (p[1] - p[0]).length());
+    m_visibleSize = m_camera->CalculateVisibleSize();
 }
 
 void GtRendererController::SetRenderProperties(const GtRenderProperties& renderProperties)
@@ -333,6 +328,9 @@ void GtRendererController::onDestroy()
 void GtRendererController::Resize(qint32 w, qint32 h)
 {
     m_resize.Call(CONNECTION_DEBUG_LOCATION, [this, w, h]{
+        if(m_renderer == nullptr) {
+            return;
+        }
         m_renderPath->Resize(w, h, m_renderer->m_surfaceFormat.samples());
         GtFramebufferFormat depthFboFormat;
         depthFboFormat.SetDepthAttachment(GtFramebufferFormat::Texture);

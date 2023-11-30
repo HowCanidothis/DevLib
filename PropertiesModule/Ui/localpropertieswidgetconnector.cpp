@@ -227,10 +227,10 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     }
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, bool reactive)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
     : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, [property](double value){
         property->Value = value;
-    }, reactive)
+    })
 {
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
@@ -241,15 +241,15 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, bool reactive)
-    : LocalPropertiesDoubleSpinBoxConnector(property, spinBox, [](double){}, reactive)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(property, spinBox, [](double){})
 {
     property->Precision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
         spinBox->setDecimals(property->Precision);
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter, bool reactive)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
                 auto precision = epsilon(spinBox->decimals() + 1);
                 if(qIsNaN(*property)) {
@@ -270,7 +270,6 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                 property->SetValue(spinBox->value());
             }
     )
-    , m_valueChanged(250)
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
@@ -280,18 +279,12 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
     
-    if(reactive){
-        m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
-            m_propertySetter();
-        });
-    } else {
-        m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
-            m_valueChanged.Call(CONNECTION_DEBUG_LOCATION, m_propertySetter);
-        });
-    }
+    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
+        m_propertySetter();
+    });
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox, bool reactive)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
     : Super([spinBox, property](){
                 float precision = epsilon(spinBox->decimals());
                 if(qIsNaN(*property)) {
@@ -308,7 +301,6 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                   *property = spinBox->value();
             }
     )
-    , m_valueChanged(250)
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
@@ -318,15 +310,9 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 
-    if(reactive){
-        m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
-            m_propertySetter();
-        });
-    } else {
-        m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
-            m_valueChanged.Call(CONNECTION_DEBUG_LOCATION, m_propertySetter);
-        });
-    }
+    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
+        m_propertySetter();
+    });
 }
 
 LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, QSpinBox* spinBox)

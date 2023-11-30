@@ -19,14 +19,7 @@ struct GtTextDrawableSettings
     LocalPropertyBool UseDirectionCorrection;
     LocalPropertyBool Visible;
 
-    GtTextDrawableSettings()
-        : Scale(0.13f)
-        , Color(QColor(Qt::white))
-        , BorderWidth(0.2f)
-        , Contrast(3.0)
-        , UseDirectionCorrection(true)
-        , Visible(true)
-    {}
+    GtTextDrawableSettings();
 
     DispatcherConnections ConnectFrom(const char* location, const GtTextDrawableSettings& another);
 };

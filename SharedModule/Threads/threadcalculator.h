@@ -114,6 +114,7 @@ public:
             m_data->Canceled = false;
             m_data->Calculating = true;
             m_data->PreparatorHandler();
+            OnAboutToCalculate();
             onPreRecalculate();
             
             auto currentData = m_prevData = ::make_shared<CurrentData>(m_data);
@@ -151,6 +152,7 @@ public:
         m_data->Destroyed = true;
     }
 
+    Dispatcher OnAboutToCalculate;
     CommonDispatcher<const T&> OnCalculated;
 
 protected:

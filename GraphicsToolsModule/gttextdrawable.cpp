@@ -267,6 +267,15 @@ void GtTextScreenDrawable::onAboutToDestroy()
 {
 }
 
+GtTextDrawableSettings::GtTextDrawableSettings()
+    : Scale(0.1f)
+    , Color(QColor(Qt::white))
+    , BorderWidth(0.2f)
+    , Contrast(3.0)
+    , UseDirectionCorrection(true)
+    , Visible(true)
+{}
+
 DispatcherConnections GtTextDrawableSettings::ConnectFrom(const char* location, const GtTextDrawableSettings& another)
 {
     DispatcherConnections result;

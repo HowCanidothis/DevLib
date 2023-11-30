@@ -415,6 +415,9 @@ public:
             THREAD_ASSERT_IS_MAIN();
             if(Enabled) {
                 m_onChanged.OnDirectChanged += { this, [this]{
+                    if(m_interruptor != nullptr) {
+                        m_interruptor->Interrupt();
+                    }
                     if(!Valid) {
                         return;
                     }
@@ -446,6 +449,17 @@ public:
         }};
 
         adapters::ResetThread(m_dependenciesAreUpToDate.AsProperty(), Enabled);
+    }
+
+    Interruptor GetInterruptor()
+    {
+        if(m_interruptor == nullptr) {
+            m_interruptor = new Interruptor();
+            OnAboutToCalculate.Connect(CONNECTION_DEBUG_LOCATION, [this] {
+                m_interruptor->Reset();
+            });
+        }
+        return *m_interruptor;
     }
 
     SmartPointerWatcherPtr Capture()
@@ -674,6 +688,7 @@ private:
     mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
     bool m_recalculateOnEnabled;
     ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
+    ScopedPointer<Interruptor> m_interruptor;
 };
 
 template<class T>
