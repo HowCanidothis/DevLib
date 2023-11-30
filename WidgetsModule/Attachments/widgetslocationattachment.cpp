@@ -25,9 +25,14 @@ WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const Desc
         m_componentPlacer->Initialize();
 
         m_componentPlacer->ResultPosition.Connect(CONNECTION_DEBUG_LOCATION, [this, relativeWidget](const auto& position){
-            auto* parent = m_target->parentWidget();
-            m_target->move(relativeWidget->mapTo(parent, position));
-            m_target->raise();
+            if(m_target->windowFlags().testFlag(Qt::Popup)) {
+                m_target->move(relativeWidget->mapToGlobal(position));
+            } else {
+                auto* parent = m_target->parentWidget();
+                m_target->move(relativeWidget->mapTo(parent, position));
+                m_target->raise();
+            }
+
         }).MakeSafe(m_componentPlacerConnections);
 
         m_qtConnections.connect(relativeWidget, &QWidget::destroyed, [this]{

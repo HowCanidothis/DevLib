@@ -12,6 +12,7 @@
 #include "stack.h"
 
 #define CONNECTION_DEBUG_LOCATION DEBUG_LOCATION
+#define CDL CONNECTION_DEBUG_LOCATION
 
 class DispatcherConnection;
 using DispatcherConnectionSafePtr = SharedPointer<class DispatcherConnectionSafe>;

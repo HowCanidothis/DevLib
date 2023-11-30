@@ -1777,6 +1777,7 @@ ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, c
         handler(value);
     });
     auto* action = new QWidgetAction(GetWidget());
+    spinBox->setProperty(WidgetProperties::ActionWidget, true);
     action->setDefaultWidget(widget);
     GetWidget()->addAction(action);
     return action;

@@ -409,3 +409,14 @@ TreeBar QTreeView {
 QTableView {
     qproperty-iconSize: 24px 24px;
 }
+
+QWidget[ActionWidget="true"] {
+    border-radius: 0px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+QPushButton[ActionWidget="true"] {
+    text-align: left;
+}
+

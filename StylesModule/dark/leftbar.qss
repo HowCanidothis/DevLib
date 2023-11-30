@@ -204,3 +204,16 @@ MenuBarMovePane[a_type="dialog"] QPushButton#BtnMaximize {
 MenuBarMovePane[a_type="dialog"] QPushButton#BtnClose {
     background: #181818;
 }
+
+QWidget[ActionWidget="true"] {
+    background: #3C3C3C;
+    color: white;
+}
+
+QWidget[ActionWidget="true"]:hover {
+    background: #505050;
+}
+
+QPushButton[ActionWidget="true"]:checked {
+    color: #3EA6FF;
+}

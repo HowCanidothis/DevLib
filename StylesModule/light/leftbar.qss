@@ -166,3 +166,11 @@ BHACatalogWidget QListView::item {
 WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
     background: #EEEEEE;
 }
+
+QWidget[ActionWidget="true"] {
+    color: #414141;
+}
+
+QPushButton[ActionWidget="true"]:checked {
+    color: #3EA6FF;
+}
