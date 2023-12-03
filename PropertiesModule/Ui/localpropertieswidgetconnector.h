@@ -103,6 +103,7 @@ public:
     LocalPropertiesLabelConnector(StateParameterProperty<T>* property, class QLabel* label)
         : LocalPropertiesLabelConnector(&property->InputValue, label)
     {}
+    LocalPropertiesLabelConnector(LocalPropertyString* property, class ElidedLabel* label);
     LocalPropertiesLabelConnector(LocalPropertyString* property, QLabel* label);
     template<class T>
     LocalPropertiesLabelConnector(LocalPropertySequentialEnum<T>* property, QLabel* label)

@@ -59,6 +59,7 @@
 #include "Widgets/DateTime/widgetstimepicker.h"
 #include "Widgets/DateTime/widgetstimewidget.h"
 #include "Widgets/DateTime/widgetscalendarwidget.h"
+#include "Widgets/elidedlabel.h"
 //#include "Widgets/widgetsfloatingtoolbar.h"
 
 #include "Dialogs/widgetsimporttabledialog.h"

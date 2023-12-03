@@ -53,6 +53,8 @@
 #include "WidgetsModule/Attachments/tableviewwidgetattachment.h"
 #include "WidgetsModule/Attachments/widgetslocationattachment.h"
 
+#include "WidgetsModule/Widgets/elidedlabel.h"
+
 #include "WidgetsModule/Utils/iconsmanager.h"
 
 #include "WidgetsModule/Utils/styleutils.h"
@@ -2104,4 +2106,18 @@ WidgetScrollAreaWrapper& WidgetScrollAreaWrapper::AddScrollByWheel(Qt::Orientati
     });
 
     return *this;
+}
+
+WidgetElidedLabelWrapper::WidgetElidedLabelWrapper(ElidedLabel* label)
+    : WidgetWrapper(label)
+{
+
+}
+
+TranslatedStringPtr WidgetElidedLabelWrapper::WidgetText() const
+{
+    auto* label = GetWidget();
+    return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const TranslatedString& text){
+        label->setText(text.Native());
+    });
 }

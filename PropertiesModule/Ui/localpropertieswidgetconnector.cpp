@@ -151,10 +151,20 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
 
 }
 
+LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, ElidedLabel* label)
+    : Super([label, property]{
+        label->setText(*property);
+    }, []{})
+{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+}
+
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, class QLabel* label)
     : Super([label, property]{
-    label->setText(*property);
-}, []{})
+        label->setText(*property);
+    }, []{})
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();

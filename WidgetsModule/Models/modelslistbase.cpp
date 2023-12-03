@@ -25,6 +25,7 @@ void ModelsStandardListModel::fillContainerWithEnum(container_type& container, c
         const auto& label = names.at(i);
         data.insert(Qt::DisplayRole, label);
         data.insert(Qt::EditRole, label);
+        data.insert(Qt::ToolTipRole, label);
         data.insert(IdRole, i);
         container.append(data);
     }

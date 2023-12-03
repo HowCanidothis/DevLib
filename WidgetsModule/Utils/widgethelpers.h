@@ -489,6 +489,17 @@ public:
     CommonDispatcher<const Name&>& OnLinkActivated() const;
 };
 
+class WidgetElidedLabelWrapper : public WidgetWrapper
+{
+public:
+    WidgetElidedLabelWrapper(class ElidedLabel* label);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetElidedLabelWrapper, ElidedLabel)
+    DECLARE_WIDGET_WRAPPER_ADD_TEXT(WidgetElidedLabelWrapper)
+
+    TranslatedStringPtr WidgetText() const;
+};
+
 class WidgetTableViewWrapper : public WidgetWrapper
 {
 public:

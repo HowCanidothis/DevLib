@@ -75,6 +75,18 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
     AddTranslationConnector<LocalPropertiesCheckBoxConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox);
+    AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
+}
+
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox);
+    AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
+}
+
 #endif
 
 void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
