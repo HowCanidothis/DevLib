@@ -8,6 +8,7 @@
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 #include "WidgetsModule/Delegates/delegates.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 #include "notifywidget.h"
 #include "notifymanager.h"
@@ -82,6 +83,15 @@ public:
     NotifyConsoleViewModel(QObject* parent)
         : Super(parent)
     {
+        m_roleHorizontalHeaderDataHandlers.insert(Qt::DisplayRole, [](qint32 column) -> QVariant {
+            switch(column) {
+            case C_CheckBox: return tr("Issue Visibility");
+            case C_Time: return tr("Issue Time");
+            case C_Description: return tr("Issue Description");
+            default: break;
+            }
+            return QVariant();
+        });
     }
 
     // QAbstractItemModel interface
@@ -228,6 +238,11 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     auto* filterModel = new ConsoleSortFilterViewModel(this);
     filterModel->setSourceModel(viewModel);
     ui->TableIssues->setModel(filterModel);
+
+    WidgetTableViewWrapper(ui->TableIssues).InitializeHorizontal()->hide();
+    auto handlers = WidgetsGlobalTableActionsScope::AddDefaultHandlers(ui->TableIssues);
+    handlers->IsReadOnly = true;
+    handlers->ShowAll();
 
     ui->TableIssues->setItemDelegateForColumn(NotifyConsoleViewModel::C_CheckBox, new DelegatesCheckBox(ui->TableIssues));
     ui->TableIssues->setItemDelegateForColumn(NotifyConsoleViewModel::C_Description, new RichTextItemDelegate(ui->TableIssues));

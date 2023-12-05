@@ -54,6 +54,7 @@ QCheckBox {
   outline: none;
   padding-top: 4px;
   padding-bottom: 4px;
+  margin-left: -5px;
 }
 
 QCheckBox:focus {

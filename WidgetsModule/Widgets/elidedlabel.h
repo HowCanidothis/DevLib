@@ -67,12 +67,14 @@ class ElidedLabel : public QFrame
 public:
     explicit ElidedLabel(QWidget *parent = 0);
 
+    void setAlignment(Qt::Alignment alignment);
     void setText(const QString &text);
     const QString & text() const { return content; }
     bool isElided() const { return elided; }
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    QSize minimumSizeHint() const override;
 
 signals:
     void elisionChanged(bool elided);
@@ -80,6 +82,7 @@ signals:
 private:
     bool elided;
     QString content;
+    Qt::Alignment m_alignment;
 };
 //! [0]
 
