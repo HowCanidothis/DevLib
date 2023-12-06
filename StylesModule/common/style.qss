@@ -55,6 +55,12 @@ QCheckBox {
   padding-top: 4px;
   padding-bottom: 4px;
   margin-left: -5px;
+  margin-right: 0px;
+}
+
+/* to align checkbox if it's text is empty*/
+QCheckBox[CBAlignToRight="true"] { 
+  margin-right: -5px;
 }
 
 QCheckBox:focus {
