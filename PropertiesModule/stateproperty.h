@@ -451,6 +451,13 @@ public:
         adapters::ResetThread(m_dependenciesAreUpToDate.AsProperty(), Enabled);
     }
 
+    ~StateCalculator()
+    {
+        if(m_interruptor != nullptr) {
+            m_interruptor->Interrupt();
+        }
+    }
+
     Interruptor GetInterruptor()
     {
         if(m_interruptor == nullptr) {

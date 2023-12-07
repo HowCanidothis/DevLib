@@ -551,7 +551,6 @@ WPSCDrillCaseView QTabBar::tab:top:!selected {
 }
 
 QTreeView,
-QListView,
 QTableView,
 QColumnView {
   background: transparent;
@@ -620,6 +619,14 @@ QTableView::item:!selected:hover,
 QColumnView::item:!selected:hover {
   color: #3ea6ff;
   background: #EAF5FF;
+}
+
+QListView {
+    background: #F3F3F3;
+}
+
+QListView:hover {
+    background: #F3F3F3;
 }
 
 QTableCornerButton::section {
