@@ -955,7 +955,7 @@ QAbstractButton[a_control="6"]:hover{
 
 QAbstractButton[a_control="7"]{  /* Tab */
     border-radius: 0px;
-    color: #3EA6FF;
+    color: #848484;
     background: transparent;
     border: none;
 }
@@ -966,6 +966,7 @@ QAbstractButton[a_control="7"]:hover{
 }
 
 QAbstractButton[a_control="7"]:checked{
+    color: #3EA6FF;
     border-bottom: 2px solid #3EA6FF;
 }
 
