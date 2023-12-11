@@ -253,7 +253,7 @@ struct SerializerXml<QImage>
 class SerializerXmlBufferBase
 {
 public:
-    SerializerXmlBufferBase()
+    SerializerXmlBufferBase(bool isReading)
         : m_mode(SerializationMode_Default)
         , m_version(-1)
     {}
@@ -264,6 +264,9 @@ public:
     const SerializationModes& GetSerializationMode() const { return m_mode; }
 
     qint32 GetVersion() const { return m_version; }
+
+    bool IsReading() const { return m_isReading; }
+    bool IsWriting() const { return !IsReading(); }
 
     template<class T>
     SerializerXmlObject<T> Attr(const QString& name, T& value)
@@ -287,6 +290,7 @@ public:
 protected:
     SerializationModes m_mode;
     qint32 m_version;
+    bool m_isReading;
 };
 
 struct SerializerXmlVersion
@@ -336,9 +340,11 @@ struct SerializerXmlVersion
 
 class SerializerXmlWriteBuffer : public SerializerXmlBufferBase
 {
+    using Super = SerializerXmlBufferBase;
 public:
     SerializerXmlWriteBuffer(QXmlStreamWriter* writer)
-        : m_writer(writer)
+        : Super(false)
+        , m_writer(writer)
         , m_currentContext(&m_context)
     {}
 
@@ -401,9 +407,11 @@ private:
 
 class SerializerXmlReadBuffer : public SerializerXmlBufferBase
 {
+    using Super = SerializerXmlBufferBase;
 public:
     SerializerXmlReadBuffer(QXmlStreamReader* reader)
-        : m_reader(reader)
+        : Super(true)
+        , m_reader(reader)
     {}
 
     SerializerXmlVersion ReadVersion(const QChar& separator = ';')

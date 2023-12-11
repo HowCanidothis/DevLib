@@ -27,10 +27,11 @@ template<class Stream>
 class SerializerBufferBase
 {
 public:
-    SerializerBufferBase(Stream* stream)
+    SerializerBufferBase(Stream* stream, bool isReading)
         : m_stream(stream)
         , m_version(-1)
         , m_mode(SerializationMode_Default)
+        , m_isReading(isReading)
     {
     }
 
@@ -49,6 +50,8 @@ public:
     int32_t GetVersion() const { return m_version; }
     bool IsValid() const { return m_stream->device() && m_stream->device()->isOpen(); }
 
+    bool IsReading() const { return m_isReading; }
+    bool IsWriting() const { return !IsReading(); }
     QIODevice* GetDevice() const { return m_stream->device(); }
     Stream& GetStream() { return *m_stream; }
 
@@ -62,6 +65,7 @@ protected:
     ScopedPointer<Stream> m_stream;
     int32_t m_version;
     SerializationModes m_mode;
+    bool m_isReading;
 };
 
 #pragma pack(1)
@@ -122,11 +126,11 @@ class TSerializerWriteBuffer : public SerializerBufferBase<Stream>
     using Super = SerializerBufferBase<Stream>;
 public:
     TSerializerWriteBuffer(QIODevice* device)
-        : Super(new Stream(device))
+        : Super(new Stream(device), false)
     {}
 
     TSerializerWriteBuffer(QByteArray* array, QIODevice::OpenMode openMode)
-        : Super(new Stream(array, openMode))
+        : Super(new Stream(array, openMode), false)
     {}
 
     ~TSerializerWriteBuffer()
@@ -162,11 +166,11 @@ class TSerializerReadBuffer : public SerializerBufferBase<Stream>
     using Super = SerializerBufferBase<Stream>;
 public:
     TSerializerReadBuffer(QIODevice* device)
-        : Super(new Stream(device))
+        : Super(new Stream(device), true)
     {}
 
     TSerializerReadBuffer(const QByteArray& array)
-        : Super(new Stream(array))
+        : Super(new Stream(array), true)
     {}
 
     SerializerVersion ReadVersion()
