@@ -198,8 +198,7 @@ public:
     operator T&() { THREAD_ASSERT_IS_MAIN(); return Super::InputValue; }
     const T& GetImmutableProperty() const { return m_immutableValue; }
     auto GetImmutable() const { return m_immutableValue.Native(); }
-    template<typename T2>
-    T2 GetImmutable(const T2& v) const { return m_immutableValue.ValueOr(v); }
+    value_type GetImmutable(const value_type& v) const { return m_immutableValue.ValueOr(v); }
 
 private:
     template<class T2> friend struct Serializer;
