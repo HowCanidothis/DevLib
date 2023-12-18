@@ -87,6 +87,18 @@ public:
 
 using AsyncResult = Promise;
 
+class AsyncSafeResult
+{
+public:
+    ~AsyncSafeResult();
+
+    void Release();
+    AsyncSafeResult& operator=(const AsyncResult& res);
+
+private:
+    AsyncResult m_current;
+};
+
 class AsyncError : public AsyncResult
 {
 public:

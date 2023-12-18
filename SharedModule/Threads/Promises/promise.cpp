@@ -257,3 +257,20 @@ AsyncResult FutureResult::ToAsyncResult() const
     });
     return result;
 }
+
+AsyncSafeResult::~AsyncSafeResult()
+{
+    Release();
+}
+
+void AsyncSafeResult::Release()
+{
+    m_current.Resolve(false);
+}
+
+AsyncSafeResult& AsyncSafeResult::operator=(const AsyncResult& res)
+{
+    Release();
+    m_current = res;
+    return *this;
+}
