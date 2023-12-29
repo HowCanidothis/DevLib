@@ -358,8 +358,13 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
 
 void LocalPropertiesWidgetConnectorsContainer::Clear()
 {
+    auto old = ForceDisabled.Native();
+    if(old) {
+        ForceDisabled = false;
+    }
     m_connectors.Clear();
     onClear();
+    ForceDisabled = old;
 }
 
 LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo)
