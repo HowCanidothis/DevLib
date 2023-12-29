@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <PropertiesModule/internal.hpp>
+
 namespace Ui {
 class WidgetsDatePopupPicker;
 }
@@ -19,6 +21,8 @@ public:
 
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;
+
+    LocalPropertyBool ForceDisabled;
 
 private:
     Ui::WidgetsDatePopupPicker *ui;

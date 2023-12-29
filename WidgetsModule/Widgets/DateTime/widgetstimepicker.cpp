@@ -3,7 +3,7 @@
 
 #include <QLabel>
 #include <QMouseEvent>
-#include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
     : Super(parent)

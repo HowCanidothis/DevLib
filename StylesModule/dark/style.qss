@@ -14,6 +14,14 @@ QWidget:disabled {
   selection-color: #787878;
 }
 
+QWidget[ForceDisabled="true"] {
+  background-color: #181818;
+  color: #787878;
+  selection-background-color: #14506E;
+  selection-color: #787878;
+  border: 1px solid red;
+}
+
 QWidget[readOnly="true"] {
   background-color: #181818;
   color: #787878;

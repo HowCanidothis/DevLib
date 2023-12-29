@@ -15,7 +15,9 @@
 
 #include <WidgetsModule/internal.hpp>
 
-LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter)
+#include "styleutils.h"
+
+LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w)
     : m_widgetSetter([this, widgetSetter](){
         if(!m_ignorePropertyChange) {
             guards::LambdaGuard guard([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
@@ -24,6 +26,11 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
     })
     , m_propertySetter([this, propertySetter, widgetSetter]{
         if(!m_ignoreWidgetChange) {
+            if(ForceDisabled) {
+                guards::LambdaGuard guard2([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
+                widgetSetter();
+                return;
+            }
             guards::LambdaGuard guard([this]{ m_ignorePropertyChange = false; }, [this] { m_ignorePropertyChange = true; } );
             propertySetter();
             guards::LambdaGuard guard2([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
@@ -34,6 +41,12 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const Set
     , m_ignoreWidgetChange(false)
 {
     m_widgetSetter();
+
+    if(w != nullptr) {
+        ForceDisabled.Connect(CDL, [w](bool forceDisabled) {
+            StyleUtils::ApplyStyleProperty(WidgetProperties::ForceDisabled, w, forceDisabled);
+        }).MakeSafe(m_dispatcherConnections);
+    }
 }
 
 LocalPropertiesMenuLabelConnector::LocalPropertiesMenuLabelConnector(LocalPropertyString* property, QMenu* menu)
@@ -52,10 +65,10 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
             },
             [property, checkBox]{
                 *property = checkBox->isChecked();
-            }
+            }, checkBox
     )
 {
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
@@ -90,7 +103,7 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
             },
             [lineEdit, property](){
                *property = lineEdit->text();
-            }
+            }, lineEdit
     ), m_textChanged(250)
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -110,20 +123,20 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
     }
 }
 
-LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, QPushButton* button)
-    : Super([]{}, [dispatcher]{ dispatcher->Invoke(); })
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, QAbstractButton* button)
+    : Super([]{}, [dispatcher]{ dispatcher->Invoke(); }, button)
 {
     m_connections.connect(button, &QPushButton::clicked, [this](){
         m_propertySetter();
     });
 }
 
-LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button)
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QAbstractButton* button)
     : Super([button,checkedProperty]{
                 button->setChecked(*checkedProperty);
             }, [button,checkedProperty]{
                 *checkedProperty = button->isChecked();
-            })
+            }, button)
 {
     Q_ASSERT(button->isCheckable());
 
@@ -134,21 +147,6 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     m_connections.connect(button, &QPushButton::clicked, [this](){
         m_propertySetter();
     });
-}
-
-template <typename T1, typename T2>
-QVector<T2> mutate(const QVector<T1>& source){
-    QVector<T2> result; result.reserve(source.size());
-    for(const auto& value : source){
-        result.append(value);
-    }
-    return result;
-}
-
-LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
-    : LocalPropertiesPushButtonConnector(property, mutate<QPushButton*, QAbstractButton*>(buttons))
-{
-
 }
 
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, ElidedLabel* label)
@@ -178,7 +176,7 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }, [textEdit, property]{
     *property = textEdit->toPlainText();
-}), m_textChanged(250)
+}, textEdit), m_textChanged(250)
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
@@ -235,6 +233,12 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     if(*property >= 0 && *property < buttons.size()) {
         WidgetAbstractButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
     }
+
+    ForceDisabled.Connect(CDL, [buttons](bool forceDisabled) {
+        for(auto* w : buttons) {
+            StyleUtils::ApplyStyleProperty(WidgetProperties::ForceDisabled, w, forceDisabled);
+        }
+    }).MakeSafe(m_dispatcherConnections);
 }
 
 LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
@@ -278,7 +282,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                     return;
                 }
                 property->SetValue(spinBox->value());
-            }
+            }, spinBox
     )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -309,7 +313,7 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             },
             [spinBox, property](){
                   *property = spinBox->value();
-            }
+            }, spinBox
     )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -336,7 +340,7 @@ LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIn
             },
             [spinBox, property](){
                 *property = spinBox->value();
-            }
+            }, spinBox
     )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -357,6 +361,14 @@ void LocalPropertiesWidgetConnectorsContainer::Clear()
     m_connectors.Clear();
     onClear();
 }
+
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo)
+    : LocalPropertiesComboBoxConnector(property, combo, IdRole)
+{}
+
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo)
+    : LocalPropertiesComboBoxConnector(property, combo, [](const QModelIndex& index) { return index.row(); })
+{}
 
 void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
 {
@@ -384,60 +396,32 @@ QModelIndex LocalPropertiesComboBoxConnector::currentIndex(QComboBox* combobox)
     return combobox->model()->index(combobox->currentIndex(), 0);
 }
 
-LocalPropertiesRadioButtonsConnector::LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<QRadioButton*>& buttons)
-    : Super([property, buttons]{
-                buttons[*property]->setChecked(true);
-                qint32 i(0); // In case if we don't use a GroupBox
-                for(auto* button : buttons) {
-                    if(i != *property && button->isChecked()) {
-                        button->setChecked(false);
-                    }
-                    i++;
-                }
+LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
+    : Super([dateTime, property](){
+                dateTime->CurrentDate = property->Native();
             },
-            [property, this]{
-                *property = m_currentIndex;
-            }
+            [dateTime, property](){
+                *property = dateTime->CurrentDate.Native();
+            }, dateTime
     )
-    , m_currentIndex(*property)
 {
-    Q_ASSERT(!buttons.IsEmpty());
-
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+    property->OnChanged.Connect(CDL, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
-
-    qint32 i = 0;
-    for(auto* button : buttons) {
-        m_connections.connect(button, &QRadioButton::clicked, [this, i]{
-            m_currentIndex = i;
-            m_propertySetter();
-        });
-        i++;
-    }
-}
-
-LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
-    : Super([](){},
-            [](){}
-    )
-{
-    property->ConnectBoth(CONNECTION_DEBUG_LOCATION, dateTime->CurrentDate, [](const QDate& dt){ return dt; }, [](const QDate& dt){ return dt; }).MakeSafe(m_dispatcherConnections);
+    dateTime->CurrentDate.OnChanged.Connect(CDL, [this] {
+        m_propertySetter();
+    }).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDate.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
 
-DispatcherConnections connectDateTime(LocalPropertyDateTime* property, WidgetsDateTimeEdit* widgetDateTime, LocalPropertyDoubleOptional* timeShift)
+DispatcherConnections connectDateTime(const FAction& widgetSetter, const FAction& propertySetter, LocalPropertyDateTime* property, WidgetsDateTimeEdit* widgetDateTime, LocalPropertyDoubleOptional* timeShift)
 {
     DispatcherConnections result;
-    result += property->ConnectBoth(CONNECTION_DEBUG_LOCATION, widgetDateTime->CurrentDateTime, [](const QDateTime& dt){
-        return dt;
-    },
-    [](const QDateTime& dt){
-        return dt;
-    });
+    result += property->OnChanged.Connect(CDL, widgetSetter);
+    result += widgetDateTime->CurrentDateTime.OnChanged.Connect(CDL, propertySetter);
     if(timeShift != nullptr) {
         result += widgetDateTime->TimeShift.ConnectFrom(CONNECTION_DEBUG_LOCATION, *timeShift);
     }
@@ -445,11 +429,15 @@ DispatcherConnections connectDateTime(LocalPropertyDateTime* property, WidgetsDa
 }
 
 LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
-    : Super([](){},
-            [](){}
+    : Super([dateTime, property](){
+                dateTime->CurrentDateTime = property->Native();
+            },
+            [dateTime, property](){
+                *property = dateTime->CurrentDateTime.Native();
+            }, dateTime
     )
 {
-    connectDateTime(property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
+    connectDateTime(m_widgetSetter, m_propertySetter, property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
@@ -457,11 +445,15 @@ LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime
 }
 
 LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
-    : Super([](){},
-            [](){}
+    : Super([dateTime, property](){
+                dateTime->CurrentDateTime = property->Native();
+            },
+            [dateTime, property](){
+                *property = dateTime->CurrentDateTime.Native();
+            }, dateTime
     )
 {
-    connectDateTime(property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
+    connectDateTime(m_widgetSetter, m_propertySetter, property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());

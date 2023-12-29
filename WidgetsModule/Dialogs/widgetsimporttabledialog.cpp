@@ -16,9 +16,9 @@ WidgetsImportTableDialog::WidgetsImportTableDialog(QWidget *parent)
         ui->BtnInsert->setEnabled(true);
         ui->BtnReplace->setEnabled(true);
     });
-    WidgetPushButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Cancel);
-    WidgetPushButtonWrapper(ui->BtnInsert).SetControl(ButtonRole::Add);
-    WidgetPushButtonWrapper(ui->BtnReplace).SetControl(ButtonRole::Reset);
+    WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Cancel);
+    WidgetAbstractButtonWrapper(ui->BtnInsert).SetControl(ButtonRole::Add);
+    WidgetAbstractButtonWrapper(ui->BtnReplace).SetControl(ButtonRole::Reset);
 }
 
 WidgetsImportTableDialog::~WidgetsImportTableDialog()

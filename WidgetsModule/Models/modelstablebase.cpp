@@ -182,7 +182,7 @@ void ViewModelsTableBase::AttachDependence(const char* locationInfo, const Dispa
 
 Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
 {
-    if(!IsEditable) {
+    if(!IsEnabled()) {
         return StandardNonEditableFlags();
     }
     if(!index.isValid()) {
@@ -216,7 +216,7 @@ QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const
 
 bool ViewModelsTableBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)
 {
-    if(!IsEditable) {
+    if(!IsEnabled()) {
         return false;
     }
 

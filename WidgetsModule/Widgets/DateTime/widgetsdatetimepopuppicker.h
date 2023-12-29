@@ -25,6 +25,8 @@ public:
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;
 
+    LocalPropertyBool ForceDisabled;
+
 private:
     Ui::WidgetsDatetimePopupPicker *ui;
     WidgetsDateTimeWidget* m_editor;

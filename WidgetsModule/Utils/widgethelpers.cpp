@@ -57,7 +57,7 @@
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
-#include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 #include "WidgetsModule/Delegates/delegates.h"
 #include <UnitsModule/internal.hpp>
 
@@ -414,18 +414,6 @@ Dispatcher& WidgetAbstractButtonWrapper::OnClicked() const
         widget->connect(widget, &QAbstractButton::clicked, [result]{ result->Invoke(); });
         return result;
     });
-}
-
-WidgetPushButtonWrapper::WidgetPushButtonWrapper(QPushButton* button)
-    : Super(button)
-{
-
-}
-
-WidgetToolButtonWrapper::WidgetToolButtonWrapper(QToolButton* button)
-    : Super(button)
-{
-
 }
 
 Dispatcher& ActionWrapper::OnClicked() const
@@ -1959,6 +1947,10 @@ LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
                                            });
         property->SetSetterHandler(ThreadHandlerMain);
         widget->connect(widget, &QCheckBox::stateChanged, [widget, property](qint32 state){
+            if(widget->property(WidgetProperties::ForceDisabled).toBool()) {
+                widget->setCheckState(*property ? Qt::Checked : Qt::Unchecked);
+                return;
+            }
             *property = state;
         });
         return property;

@@ -13,6 +13,13 @@ QWidget:disabled {
   selection-color: #ffffff;
 }
 
+QWidget[ForceDisabled="true"] {
+  background-color: #ffffff;
+  color: #787878;
+  selection-background-color: #3ea6ff;
+  selection-color: #ffffff;
+}
+
 QWidget[readOnly="true"] {
   background-color: #ffffff;
   color: #787878;

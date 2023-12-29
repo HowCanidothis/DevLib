@@ -43,7 +43,7 @@ public:
 
     class WidgetsDoubleSpinBoxWithCustomDisplay* AddDoubleSpinBox(const FTranslationHandler& label = TR_NONE);
     class WidgetsSpinBoxWithCustomDisplay* AddSpinBox(const FTranslationHandler& label = TR_NONE);
-    WidgetPushButtonWrapper AddButton(const FTranslationHandler& label = TR_NONE);
+    WidgetAbstractButtonWrapper AddButton(const FTranslationHandler& label = TR_NONE);
     WidgetComboboxWrapper AddCombobox(const FTranslationHandler& label = TR_NONE);
     WidgetLineEditWrapper AddLineEdit(const FTranslationHandler& label = TR_NONE);
     WidgetLabelWrapper AddLabel(const FTranslationHandler& label = TR_NONE);

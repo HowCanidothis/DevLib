@@ -63,6 +63,9 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
     lineEdit()->setPlaceholderText(DASH);
 
     SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(property(WidgetProperties::ForceDisabled).toBool()) {
+            return spin->value();
+        }
         if(text.isEmpty()) {
             *valid = false;
             return value();
@@ -201,6 +204,9 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
     lineEdit()->setPlaceholderText(DASH);
 
     SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+        if(property(WidgetProperties::ForceDisabled).toBool()) {
+            return spin->value();
+        }
         if(text.isEmpty()) {
             *valid = false;
             return value();

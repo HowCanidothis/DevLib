@@ -89,7 +89,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         ui->calendarWidget->setLocale(SharedSettings::GetInstance().LanguageSettings.ApplicationLocale);
     }).MakeSafe(m_connections);
 
-    WidgetPushButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
+    WidgetAbstractButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){
         return mode == DateTime;
     }, Mode);
@@ -130,7 +130,7 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationIn
         auto initialDate = modelProperty->Native();
         if(!initialDate.isValid()) initialDate = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(initialDate.year(), initialDate.month());
-        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDate](const QDate& t){
+        WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDate](const QDate& t){
             return initialDate != t;
         }, *modelProperty).MakeSafe(*connections);
     });
@@ -159,7 +159,7 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationIn
         auto date = initialDateTime.date();
         if(!date.isValid()) date = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(date.year(), date.month());
-        WidgetPushButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDateTime](const QDateTime& dt){
+        WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDateTime](const QDateTime& dt){
             return initialDateTime != dt;
         }, *modelProperty).MakeSafe(*connections);
     });

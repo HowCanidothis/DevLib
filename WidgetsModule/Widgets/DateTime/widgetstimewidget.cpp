@@ -2,7 +2,7 @@
 #include "ui_widgetstimewidget.h"
 
 #include "widgetstimepicker.h"
-#include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 class TimeConverter

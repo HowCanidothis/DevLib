@@ -14,8 +14,8 @@ WidgetsInputDialog::WidgetsInputDialog(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle(QString());
 
-    WidgetPushButtonWrapper(ui->BtnOk).SetControl(ButtonRole::Save).SetOnClicked([this]{ accept(); });
-    WidgetPushButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Cancel).SetOnClicked([this]{
+    WidgetAbstractButtonWrapper(ui->BtnOk).SetControl(ButtonRole::Save).SetOnClicked([this]{ accept(); });
+    WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Cancel).SetOnClicked([this]{
         for(const auto& reset : m_resets) {
             reset();
         }

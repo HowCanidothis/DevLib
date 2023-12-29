@@ -3,7 +3,7 @@
 #include <QKeyEvent>
 #include <QCalendarWidget>
 
-#include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
@@ -37,11 +37,12 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
     }).MakeSafe(m_connections);
 
     CurrentDateTime.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QDateTime& dt){
-        if(m_recursionBlock) {
+        QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;
+        if(m_recursionBlock && this->dateTime() == dateTime) {
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;
+
         setDateTime(dateTime);
         if(CurrentDateTime.IsRealTime()) { // To update display value
             setDisplayFormat(displayFormat());

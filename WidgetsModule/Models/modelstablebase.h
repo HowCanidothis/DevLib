@@ -128,7 +128,7 @@ public:
 
     const ModelsIconsContext& GetIconsContext() const { return m_iconsContext; }
 
-    Qt::ItemFlags EditableFlags() const { return IsEditable ? StandardEditableFlags() : StandardNonEditableFlags(); }
+    Qt::ItemFlags EditableFlags() const { return IsEnabled() ? StandardEditableFlags() : StandardNonEditableFlags(); }
     static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
     static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
 
@@ -136,6 +136,9 @@ public:
 
     ViewModelsTableColumnComponents ColumnComponents;
     LocalPropertyBool IsEditable;
+    LocalPropertyBool ForceDisabled;
+
+    bool IsEnabled() const  { return IsEditable && !ForceDisabled; }
 
 protected:
     ModelsIconsContext m_iconsContext;
@@ -259,7 +262,7 @@ public:
     }
     bool insertRows(int row, int count, const QModelIndex& = QModelIndex()) override
 	{
-        if(!IsEditable) {
+        if(!IsEnabled()) {
             return false;
         }
 
@@ -267,7 +270,7 @@ public:
 	}
     bool removeRows(int row, int count, const QModelIndex& = QModelIndex()) override
     {
-        if(!IsEditable) {
+        if(!IsEnabled()) {
             return false;
         }
 
@@ -400,24 +403,31 @@ public:
     {
         setProperty(WidgetProperties::ExtraFieldsCount, 1);
 
-        IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool editable){
+        IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){
             if(GetData() == nullptr) {
-                m_isEditable = editable;
+                beginResetModel();
+                m_isEditable = IsEnabled();
+                setProperty(WidgetProperties::ExtraFieldsCount, m_isEditable);
+                endResetModel();
                 return;
             }
             auto rows = Super::rowCount();
-            if(editable) {
+            auto changed = IsEnabled() != m_isEditable;
+            if(!changed) {
+                return;
+            }
+            if(IsEnabled()) {
                 beginInsertRows(QModelIndex(), rows, rows);
-                m_isEditable = editable;
+                m_isEditable = true;
                 setProperty(WidgetProperties::ExtraFieldsCount, 1);
                 endInsertRows();
             } else {
                 beginRemoveRows(QModelIndex(), rows, rows);
-                m_isEditable = editable;
+                m_isEditable = false;
                 setProperty(WidgetProperties::ExtraFieldsCount, 0);
                 endRemoveRows();
             }
-        });
+        }, ForceDisabled);
     }
 
     std::function<void(qint32, const QVariant&, bool&)> CreateDataHandler;

@@ -11,5 +11,6 @@
 #include "propertiesdialog.h"
 #include "propertieswindow.h"
 #include "localpropertypalette.h"
+#include "styleutils.h"
 
 #endif // INTERNAL_HPP

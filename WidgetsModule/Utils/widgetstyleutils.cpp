@@ -1,4 +1,4 @@
-#include "styleutils.h"
+#include "widgetstyleutils.h"
 
 #include <QStyle>
 #include <QLayout>
@@ -35,31 +35,6 @@ public:
 
     static StyleAdjusterAttachment& GetInstance() { static StyleAdjusterAttachment result; return result; }
 };
-
-StyleUtils::StyleUtils()
-{
-
-}
-
-void StyleUtils::UpdateStyle(class QWidget* target, bool recursive)
-{
-    auto* style = target->style();
-    style->unpolish(target);
-    style->polish(target);
-    if(recursive) {
-        WidgetWrapper(target).ForeachChildWidget([](const WidgetWrapper& widget){
-            auto* style = widget->style();
-            style->unpolish(widget);
-            style->polish(widget);
-        });
-    }
-}
-
-void StyleUtils::ApplyStyleProperty(const char* propertyName, QWidget* target, const QVariant& value, bool recursive)
-{
-    target->setProperty(propertyName, value);
-    UpdateStyle(target, recursive);
-}
 
 Q_DECLARE_METATYPE(SharedPointer<QSet<QWidget*>>)
 

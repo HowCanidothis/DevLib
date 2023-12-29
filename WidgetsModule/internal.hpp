@@ -39,7 +39,7 @@
 #include "Layouts/flowwidget.h"
 
 #include "Utils/iconsmanager.h"
-#include "Utils/styleutils.h"
+#include "Utils/widgetstyleutils.h"
 #include "Utils/widgetsstylesettings.h"
 #include "Utils/widgetbuilder.h"
 

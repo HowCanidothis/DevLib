@@ -4,7 +4,7 @@
 #include <QResizeEvent>
 
 #include "WidgetsModule/Components/componentplacer.h"
-#include "WidgetsModule/Utils/styleutils.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const DescWidgetsLocationAttachmentParams& params)
     : Super(target)

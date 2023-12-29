@@ -21,6 +21,8 @@ public:
     void Clear();
     bool IsEmpty() const { return m_connectors.IsEmpty(); }
 
+    LocalPropertyBool ForceDisabled;
+
 protected:
     virtual void onClear() {}
 
@@ -32,22 +34,23 @@ template<class T, typename ... Args>
 T* LocalPropertiesWidgetConnectorsContainer::AddConnector(Args... args)
 {
     auto* connector = new T(args...);
+    connector->ForceDisabled.ConnectFrom(CDL, ForceDisabled).MakeSafe(connector->m_dispatcherConnections);
     m_connectors.Append(connector);
     return connector;
 }
 
 class _Export LocalPropertiesWidgetConnectorBase : public QObject
 {
-    using Setter = std::function<void ()>;
 public:
-    LocalPropertiesWidgetConnectorBase(const Setter& widgetSetter, const Setter& propertySetter);
+    LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w = nullptr);
 
-    void Update() { m_widgetSetter(); }
+    LocalPropertyBool ForceDisabled;
 
 protected:
+    friend class LocalPropertiesWidgetConnectorsContainer;
     friend class ChangeGuard;
-    Setter m_widgetSetter;
-    Setter m_propertySetter;
+    FAction m_widgetSetter;
+    FAction m_propertySetter;
     QtLambdaConnections m_connections;
     DispatcherConnectionsSafe m_dispatcherConnections;
     bool m_ignorePropertyChange;
@@ -58,10 +61,9 @@ class _Export LocalPropertiesPushButtonConnector : public LocalPropertiesWidgetC
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QPushButton* button);
-    LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QPushButton* button);
-    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons);
-    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<class QAbstractButton*>& buttons);
+    LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QAbstractButton* button);
+    LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QAbstractButton* button);
+    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QAbstractButton*>& buttons);
 
 private:
     qint32 m_currentIndex;
@@ -164,16 +166,12 @@ class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetCon
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo)
-        : LocalPropertiesComboBoxConnector(property, combo, IdRole)
-    {}
+    LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo);
     template<class Enum>
     LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, QComboBox* combo)
         : LocalPropertiesComboBoxConnector(property, combo, IdRole)
     {}
-    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo)
-        : LocalPropertiesComboBoxConnector(property, combo, [](const QModelIndex& index) { return index.row(); })
-    {}
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo);
     template<class T, typename value_type = typename T::value_type>
     LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox)
@@ -197,7 +195,7 @@ public:
                 },
                 [property, comboBox, getter]{
                     *property = getter(currentIndex(comboBox));
-                }
+                }, comboBox
         )
     {
         property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
@@ -263,17 +261,6 @@ public:
     {}
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
     LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
-};
-
-class _Export LocalPropertiesRadioButtonsConnector : public LocalPropertiesWidgetConnectorBase
-{
-    Q_OBJECT
-    using Super = LocalPropertiesWidgetConnectorBase;
-public:
-    LocalPropertiesRadioButtonsConnector(LocalPropertyInt* property, const Stack<class QRadioButton*>& buttons);
-
-private:
-    qint32 m_currentIndex;
 };
 
 class _Export LocalPropertiesTextEditConnector : public LocalPropertiesWidgetConnectorBase

@@ -327,21 +327,7 @@ public:
     const WidgetAbstractButtonWrapper& SetIcon(const Name& iconId) const;
 };
 
-class WidgetPushButtonWrapper : public WidgetAbstractButtonWrapper
-{
-    using Super = WidgetAbstractButtonWrapper;
-public:    
-    WidgetPushButtonWrapper(class QPushButton* button);
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetPushButtonWrapper, QPushButton)
-};
-
-class WidgetToolButtonWrapper : public WidgetAbstractButtonWrapper
-{
-    using Super = WidgetAbstractButtonWrapper;
-public:
-    WidgetToolButtonWrapper(class QToolButton* button);
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetToolButtonWrapper, QToolButton)
-};
+using WidgetPushButtonWrapper = WidgetAbstractButtonWrapper;
 
 class WidgetLineEditWrapper : public WidgetWrapper
 {

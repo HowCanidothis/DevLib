@@ -142,9 +142,9 @@ WidgetLineEditWrapper WidgetBuilder::AddLineEdit(const FTranslationHandler& labe
     return AddWidget<QLineEdit>(label).Cast<WidgetLineEditWrapper>();
 }
 
-WidgetPushButtonWrapper WidgetBuilder::AddButton(const FTranslationHandler& label)
+WidgetAbstractButtonWrapper WidgetBuilder::AddButton(const FTranslationHandler& label)
 {
-    auto btn = AddWidget<QPushButton>(label).Cast<WidgetPushButtonWrapper>();
+    auto btn = AddWidget<QPushButton>(label).Cast<WidgetAbstractButtonWrapper>();
     if(m_usedDefaultDelegate) {
         btn.WidgetText()->SetTranslationHandler(label);
     }

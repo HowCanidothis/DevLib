@@ -11,8 +11,8 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
     setProperty(WidgetProperties::Footer, true);
     setFocusPolicy(Qt::NoFocus);
 
-    WidgetPushButtonWrapper(ui->BtnSave).SetControl(ButtonRole::Save);
-    WidgetPushButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Reset);
+    WidgetAbstractButtonWrapper(ui->BtnSave).SetControl(ButtonRole::Save);
+    WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Reset);
 
     auto connections = DispatcherConnectionsSafeCreate();
     Object.Connect(CONNECTION_DEBUG_LOCATION, [this, connections](const EditingObject* o){
@@ -27,7 +27,7 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
             setVisible(o->IsDirty() && WidgetWrapper(this).HasParent(widget));
         }, const_cast<EditingObject*>(o)->OnDirtyChanged()).MakeSafe(*connections);
 
-        WidgetPushButtonWrapper(ui->BtnSave).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool e){
+        WidgetAbstractButtonWrapper(ui->BtnSave).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool e){
             return !e;
         }, o->HasErrors.HasErrors).MakeSafe(*connections);
     });
