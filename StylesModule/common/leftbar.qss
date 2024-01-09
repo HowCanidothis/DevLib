@@ -422,5 +422,6 @@ QPushButton[ActionWidget="true"] {
 
 WPSCSettingsView QListView {
     font-size: 16px;
+    qproperty-spacing: 5;
 }
 
