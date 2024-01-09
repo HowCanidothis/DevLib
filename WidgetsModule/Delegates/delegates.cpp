@@ -271,6 +271,41 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
     m_editHandler = handler;
 }
 
+
+QString DelegatesDate::displayText(const QVariant& value, const QLocale& locale) const {
+    return value.toString();
+}
+
+QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto* editor = new QDateEdit(parent);
+    OnEditorAboutToBeShown(editor, index);
+    connect(editor,&QDateEdit::dateChanged, [this, index](const QDate& date){
+        OnEditorValueChanged(date, index);
+    });
+    return editor;
+}
+
+void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) const
+{
+    const QDate& date = index.model()->data(index, Qt::EditRole).toDate();
+
+    QDateEdit* dt = qobject_cast<QDateEdit*>(editor);
+    Q_ASSERT(dt != nullptr);
+    dt->setDate(date);
+}
+
+void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    QDateEdit* dt = static_cast<QDateEdit*>(editor);
+    model->setData(index, dt->date(), Qt::EditRole);
+}
+
+void DelegatesDate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    editor->setGeometry(option.rect);
+}
+
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
 {

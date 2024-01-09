@@ -7,7 +7,7 @@ namespace SpecificHeatCapacityUnits
 {
     DECLARE_MEASUREMENT_UNIT(JouleKilogramCelsius)
     DECLARE_MEASUREMENT_UNIT(PoundFahrenheit)
-};
+}
 
 DECLARE_MEASUREMENT(SpecificHeatCapacity)
 
