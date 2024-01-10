@@ -58,8 +58,9 @@
 #include <QtWidgets/QWidget>
 
 //! [0]
-class ElidedLabel : public QFrame
+class ElidedLabel : public QWidget
 {
+    using Super = QWidget;
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(bool isElided READ isElided)

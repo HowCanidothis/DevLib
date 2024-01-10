@@ -56,9 +56,9 @@
 
 //! [0]
 ElidedLabel::ElidedLabel(QWidget *parent)
-    : QFrame(parent)
+    : Super(parent)
     , elided(false)
-    , m_alignment(Qt::AlignLeft)
+    , m_alignment(Qt::AlignLeft | Qt::AlignVCenter)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 }
@@ -74,6 +74,7 @@ void ElidedLabel::setAlignment(Qt::Alignment alignment)
 void ElidedLabel::setText(const QString &newText)
 {
     content = newText;
+    setToolTip(content);
     update();
 }
 //! [1]
@@ -81,7 +82,7 @@ void ElidedLabel::setText(const QString &newText)
 //! [2]
 void ElidedLabel::paintEvent(QPaintEvent *event)
 {
-    QFrame::paintEvent(event);
+    Super::paintEvent(event);
 
     QPainter painter(this);
     QFontMetrics fontMetrics = painter.fontMetrics();
@@ -90,7 +91,7 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
     int lineSpacing = fontMetrics.lineSpacing();
     int y = 0;
 
-    if(m_alignment != Qt::AlignLeft) {
+    if(m_alignment != (Qt::AlignLeft | Qt::AlignVCenter)) {
         painter.drawText(rect(), content, QTextOption(m_alignment));
     } else {
         QTextLayout textLayout(content, painter.font());
@@ -112,7 +113,7 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
             } else {
                 QString lastLine = content.mid(line.textStart());
                 QString elidedLastLine = fontMetrics.elidedText(lastLine, Qt::ElideRight, width());
-                painter.drawText(QPoint(0, y + fontMetrics.ascent()), elidedLastLine);
+                painter.drawText(rect(), elidedLastLine, QTextOption(m_alignment));
                 line = textLayout.createLine();
                 didElide = line.isValid();
                 break;
