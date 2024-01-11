@@ -133,6 +133,17 @@ public:
         return *m_data.insert(objectId, LocalPropertyPaletteObject(&m_storeTypes));
     }
 
+    LocalPropertyPaletteObject& AddObjectIfNotExists(const Name& objectId, const std::function<void (LocalPropertyPaletteObject&)>& initializer)
+    {
+        const auto& found = FindObject(objectId);
+        if(found.IsEmpty()) {
+            LocalPropertyPaletteObject res(&m_storeTypes);
+            initializer(res);
+            return *m_data.insert(objectId, res);
+        }
+        return const_cast<LocalPropertyPaletteObject&>(found);
+    }
+
     const LocalPropertyPaletteObject& FindObject(const Name& objectId) const;
 
 private:
