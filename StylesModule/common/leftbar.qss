@@ -420,7 +420,7 @@ QPushButton[ActionWidget="true"] {
     text-align: left;
 }
 
-WPSCSettingsView QListView {
+QListView#SettingsCatalogList {
     font-size: 16px;
     qproperty-spacing: 5;
 }
