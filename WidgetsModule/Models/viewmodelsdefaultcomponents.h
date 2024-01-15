@@ -237,6 +237,18 @@ public:
             };
         });
     }
+    TViewModelsColumnComponentsBuilder& AddDatePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDate& (ValueType)>& getter, bool readOnly = false){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            LocalPropertyDate& property = getter(data);
+            return property.Native().isValid() ? DateToString(property.Native()) : QVariant("-");
+        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                LocalPropertyDate& property = getter(data);
+                property = DateFromVariant(value);
+            };
+        });
+    }
     TViewModelsColumnComponentsBuilder& AddStringPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyString& (ValueType)>& getter, bool readOnly = false){
         return AddPropertyColumn<QString>(column, header, getter, readOnly);
     }
