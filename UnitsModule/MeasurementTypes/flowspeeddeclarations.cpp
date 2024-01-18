@@ -5,9 +5,9 @@
 namespace FlowSpeedUnits
 {
     IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerSecond,    TR(MeasurementTr::tr("cubic meters per second")),   TR(MeasurementTr::tr("m3/s")),      1.0)
-    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerMinute,    TR(MeasurementTr::tr("cubic meters per minute")),   TR(MeasurementTr::tr("m3/min")),    0.0166667)
-    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerHour,      TR(MeasurementTr::tr("cubic meters per hour")),     TR(MeasurementTr::tr("m3/hr")),     0.00027778)
-    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerDay,       TR(MeasurementTr::tr("cubic meters per day")),      TR(MeasurementTr::tr("m3/day")),    0.00001157)
+    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerMinute,    TR(MeasurementTr::tr("cubic meters per minute")),   TR(MeasurementTr::tr("m3/min")),    1.0/60)
+    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerHour,      TR(MeasurementTr::tr("cubic meters per hour")),     TR(MeasurementTr::tr("m3/hr")),     1.0/3600)
+    IMPLEMENT_MEASUREMENT_UNIT(CubicMetersPerDay,       TR(MeasurementTr::tr("cubic meters per day")),      TR(MeasurementTr::tr("m3/day")),    1.0/3600/24)
     IMPLEMENT_MEASUREMENT_UNIT(LitersPerSecond,         TR(MeasurementTr::tr("liters per second")),         TR(MeasurementTr::tr("l/s")),       0.001)
     IMPLEMENT_MEASUREMENT_UNIT(LitersPerMinute,         TR(MeasurementTr::tr("liters per minute")),         TR(MeasurementTr::tr("l/min")),     0.00001667)
     IMPLEMENT_MEASUREMENT_UNIT(GallonsPerMinute,        TR(MeasurementTr::tr("gallons per minute")),        TR(MeasurementTr::tr("gpm")),       0.0000630902)

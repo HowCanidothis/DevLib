@@ -464,6 +464,11 @@ public:
             OnAboutToCalculate.Connect(CONNECTION_DEBUG_LOCATION, [this] {
                 m_interruptor->Reset();
             });
+            Enabled.Connect(CDL, [this](bool enable){
+                if(!enable){
+                    m_interruptor->Interrupt();
+                }
+            });
         }
         return *m_interruptor;
     }
