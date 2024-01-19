@@ -430,7 +430,9 @@ public:
                     DEBUG_PRINT_INFO_ACTION(this,
                         qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
                     );
-
+                    if(m_interruptor != nullptr) {
+                        m_interruptor->Interrupt();
+                    }
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator, m_releaser);
                     } else {
