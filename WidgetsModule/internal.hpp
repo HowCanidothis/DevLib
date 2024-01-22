@@ -42,6 +42,7 @@
 #include "Utils/widgetstyleutils.h"
 #include "Utils/widgetsstylesettings.h"
 #include "Utils/widgetbuilder.h"
+#include "Utils/widgethelpers.h"
 
 #include "Delegates/delegates.h"
 
@@ -60,6 +61,7 @@
 #include "Widgets/DateTime/widgetstimewidget.h"
 #include "Widgets/DateTime/widgetscalendarwidget.h"
 #include "Widgets/elidedlabel.h"
+#include "Widgets/widgetscolorpicker.h"
 //#include "Widgets/widgetsfloatingtoolbar.h"
 
 #include "Dialogs/widgetsimporttabledialog.h"

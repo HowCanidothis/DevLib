@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QAbstractButton>
+#include <QFileDialog>
 
 #include <WidgetsModule/internal.hpp>
 
@@ -149,6 +150,55 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
+LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, QAbstractButton* browse, QAbstractButton* clear)
+    : Super([property, label]{
+        auto image = property->Native();
+        label->setProperty("a_image", image);
+        label->setPixmap(QPixmap::fromImage(image.scaled(label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    }, [property, label]{
+        *property = label->property("a_image").value<QImage>();
+    }, label)
+{
+    if(browse != nullptr) {
+        WidgetPushButtonWrapper w(browse);
+        w.OnClicked().Connect(CDL, [this, property, label]{
+        QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
+        fileDialog.setFileMode(QFileDialog::ExistingFile);
+        if(fileDialog.exec() != QDialog::Accepted) return;
+
+        auto selectedUrls = fileDialog.selectedUrls();
+        auto path = selectedUrls.first().toLocalFile();
+        QImage loadedImage;
+
+        if (!loadedImage.load(path)){
+            qCWarning(LC_UI) << "Can't load image " << path;
+            return;
+        }
+        label->setProperty("a_image", loadedImage);
+        m_propertySetter();
+        }).MakeSafe(m_dispatcherConnections);
+    }
+
+    SharedPointer<EventFilterObject> ef(WidgetWrapper(label).AddEventFilter([this](QObject*, QEvent* event) -> bool {
+        if(event->type() == QEvent::Resize) {
+            m_widgetSetter();
+        }
+        return false;
+    }));
+
+    property->OnChanged.Connect(CDL, [this, ef]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    if(clear != nullptr) {
+        WidgetPushButtonWrapper w(clear);
+        w.OnClicked().Connect(CDL, [this, label]{
+            label->setProperty("a_image", QImage());
+            m_propertySetter();
+        }).MakeSafe(m_dispatcherConnections);
+    }
+}
+
 LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* property, ElidedLabel* label)
     : Super([label, property]{
         label->setText(*property);
@@ -238,6 +288,22 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
         for(auto* w : buttons) {
             StyleUtils::ApplyStyleProperty(WidgetProperties::ForceDisabled, w, forceDisabled);
         }
+    }).MakeSafe(m_dispatcherConnections);
+}
+
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyColor* property, WidgetsColorPicker* button)
+    : Super([button, property]{
+        button->Color = property->Native();
+    }, [property, button]{
+        *property = button->Color.Native();
+    }, button)
+{
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    button->Color.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_propertySetter();
     }).MakeSafe(m_dispatcherConnections);
 }
 

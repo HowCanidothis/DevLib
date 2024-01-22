@@ -64,6 +64,7 @@ public:
     LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QAbstractButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QAbstractButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QAbstractButton*>& buttons);
+    LocalPropertiesPushButtonConnector(LocalPropertyColor* property, class WidgetsColorPicker* button);
 
 private:
     qint32 m_currentIndex;
@@ -105,6 +106,7 @@ public:
     LocalPropertiesLabelConnector(StateParameterProperty<T>* property, class QLabel* label)
         : LocalPropertiesLabelConnector(&property->InputValue, label)
     {}
+    LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, QAbstractButton* browse = nullptr, QAbstractButton* clear = nullptr);
     LocalPropertiesLabelConnector(LocalPropertyString* property, class ElidedLabel* label);
     LocalPropertiesLabelConnector(LocalPropertyString* property, QLabel* label);
     template<class T>
