@@ -102,11 +102,38 @@ class _Export LocalPropertiesLabelConnector : public LocalPropertiesWidgetConnec
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
+    struct ImageConnectorParams
+    {
+        QAbstractButton* BrowseButton = nullptr;
+        QAbstractButton* ClearButton = nullptr;
+        QString ForceDefaultDir;
+
+        ImageConnectorParams& SetBrowseButton(QAbstractButton* browse)
+        {
+            BrowseButton = browse;
+            return *this;
+        }
+
+        ImageConnectorParams& SetClearButton(QAbstractButton* clear)
+        {
+            ClearButton = clear;
+            return *this;
+        }
+
+        ImageConnectorParams& SetForceDefaultBrowseDir(const QString& dir)
+        {
+            ForceDefaultDir = dir;
+            return *this;
+        }
+
+    };
+
     template<class T>
     LocalPropertiesLabelConnector(StateParameterProperty<T>* property, class QLabel* label)
         : LocalPropertiesLabelConnector(&property->InputValue, label)
     {}
-    LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, QAbstractButton* browse = nullptr, QAbstractButton* clear = nullptr);
+
+    LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, const ImageConnectorParams& params);
     LocalPropertiesLabelConnector(LocalPropertyString* property, class ElidedLabel* label);
     LocalPropertiesLabelConnector(LocalPropertyString* property, QLabel* label);
     template<class T>

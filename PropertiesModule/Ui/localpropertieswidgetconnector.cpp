@@ -150,7 +150,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
-LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, QAbstractButton* browse, QAbstractButton* clear)
+LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, const ImageConnectorParams& params)
     : Super([property, label]{
         auto image = property->Native();
         label->setProperty("a_image", image);
@@ -159,23 +159,26 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImag
         *property = label->property("a_image").value<QImage>();
     }, label)
 {
-    if(browse != nullptr) {
-        WidgetPushButtonWrapper w(browse);
-        w.OnClicked().Connect(CDL, [this, property, label]{
-        QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
-        fileDialog.setFileMode(QFileDialog::ExistingFile);
-        if(fileDialog.exec() != QDialog::Accepted) return;
+    if(params.BrowseButton != nullptr) {
+        WidgetPushButtonWrapper w(params.BrowseButton);
+        w.OnClicked().Connect(CDL, [this, property, label, params]{
+            QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
+            if(!params.ForceDefaultDir.isEmpty()) {
+                fileDialog.setDirectory(params.ForceDefaultDir);
+            }
+            fileDialog.setFileMode(QFileDialog::ExistingFile);
+            if(fileDialog.exec() != QDialog::Accepted) return;
 
-        auto selectedUrls = fileDialog.selectedUrls();
-        auto path = selectedUrls.first().toLocalFile();
-        QImage loadedImage;
+            auto selectedUrls = fileDialog.selectedUrls();
+            auto path = selectedUrls.first().toLocalFile();
+            QImage loadedImage;
 
-        if (!loadedImage.load(path)){
-            qCWarning(LC_UI) << "Can't load image " << path;
-            return;
-        }
-        label->setProperty("a_image", loadedImage);
-        m_propertySetter();
+            if (!loadedImage.load(path)){
+                qCWarning(LC_UI) << "Can't load image " << path;
+                return;
+            }
+            label->setProperty("a_image", loadedImage);
+            m_propertySetter();
         }).MakeSafe(m_dispatcherConnections);
     }
 
@@ -190,8 +193,8 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImag
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
-    if(clear != nullptr) {
-        WidgetPushButtonWrapper w(clear);
+    if(params.ClearButton != nullptr) {
+        WidgetPushButtonWrapper w(params.ClearButton);
         w.OnClicked().Connect(CDL, [this, label]{
             label->setProperty("a_image", QImage());
             m_propertySetter();
