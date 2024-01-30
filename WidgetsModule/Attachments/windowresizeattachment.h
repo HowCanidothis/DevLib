@@ -12,9 +12,6 @@ public:
     
     // QObject interface
 public:
-    bool eventFilter(QObject* watched, QEvent* event);
-    
-private:
     enum Location
     {
         Location_Default = 0x0,
@@ -29,9 +26,36 @@ private:
         Location_TopRight = Location_Right | Location_Top
     };
 
+    bool eventFilter(QObject* watched, QEvent* event);
+    static Location FindLocation(const QRectF& rect, const QPointF& pos, qint32 border);
+    template<class T>
+    static void InstallCursorFromLocation(T* w, Location location)
+    {
+        switch (location) {
+        case Location_Top:
+        case Location_Bottom:
+            w->setCursor(Qt::SizeVerCursor);
+            break;
+        case Location_Left:
+        case Location_Right:
+            w->setCursor(Qt::SizeHorCursor);
+            break;
+        case Location_TopRight:
+        case Location_BottomLeft:
+            w->setCursor(Qt::SizeBDiagCursor);
+            break;
+        case Location_BottomRight:
+        case Location_TopLeft:
+            w->setCursor(Qt::SizeFDiagCursor);
+            break;
+        default:
+            w->unsetCursor();
+            break;
+        }
+    }
+
 private:
     void resize(QWindow* window, const QPoint& pos, Location location);
-    void installCursorFromLocation(QWindow* window, Location location);
     Location findLocation(QWindow* window, const QPoint& pos);
     static WindowResizeAttachment& instance();
 

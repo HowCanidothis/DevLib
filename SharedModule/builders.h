@@ -813,6 +813,29 @@ public:
         }
         return *this;
     }
+
+    const ParseFactoryBuilder& ParseCSV(QTextStream& csv, Context& context, const FAction& onLineRed) const
+    {
+        ContainerBuilder<QVector<Name>> b;
+        b.Append(csv.readLine().split(','), [](const QStringList::const_iterator& it) -> Name { return Name(*it); });
+        auto it = b.cbegin();
+        auto e = b.cend();
+        while(!csv.atEnd()) {
+            for(const QString& v : csv.readLine().split(',')) {
+                if(it == e) {
+                    break;
+                }
+                auto foundIt = find(*it);
+                if(foundIt != cend()) {
+                    foundIt.value()(QStringRef(&v), context);
+                }
+                ++it;
+            }
+            it = b.cbegin();
+            onLineRed();
+        }
+        return *this;
+    }
 };
 
 template<typename Key, class ... Context>

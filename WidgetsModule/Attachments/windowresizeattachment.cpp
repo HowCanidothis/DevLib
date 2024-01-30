@@ -25,40 +25,32 @@ WindowResizeAttachment::Location WindowResizeAttachment::findLocation(QWindow* w
     }
     auto rect = window->frameGeometry();
 
-    qint32 location = Location_Default;
-    location |= abs(pos.x() - rect.left()) <= m_borderWidth ? Location_Left : Location_Default;
-    location |= abs(rect.right() - pos.x()) <= m_borderWidth ? Location_Right : Location_Default;
-    location |= abs(pos.y() - rect.top()) <= m_borderWidth ? Location_Top : Location_Default;
-    location |= abs(rect.bottom() - pos.y()) <= m_borderWidth ? Location_Bottom : Location_Default;
-
-    auto result = (Location)location;
-    return result;
+    return FindLocation(rect, pos, m_borderWidth);
 }
 
-void WindowResizeAttachment::installCursorFromLocation(QWindow* window, Location location)
+WindowResizeAttachment::Location WindowResizeAttachment::FindLocation(const QRectF& rect, const QPointF& pos, qint32 border)
 {
-    switch (location) {
-    case Location_Top:
-    case Location_Bottom:
-        window->setCursor(Qt::SizeVerCursor);
-        break;
-    case Location_Left:
-    case Location_Right:
-        window->setCursor(Qt::SizeHorCursor);
-        break;
-    case Location_TopRight:
-    case Location_BottomLeft:
-        window->setCursor(Qt::SizeBDiagCursor);
-        break;
-    case Location_BottomRight:
-    case Location_TopLeft:
-        window->setCursor(Qt::SizeFDiagCursor);
-        break;
-    default:
-        window->unsetCursor();
-        break;
+    qint32 location = Location_Default;
+    auto leftDist = abs(pos.x() - rect.left());
+    auto rightDist = abs(rect.right() - pos.x());
+    auto leftPrior = leftDist <= rightDist;
+    auto topDist = abs(pos.y() - rect.top());
+    auto bottomDist = abs(rect.bottom() - pos.y());
+    auto topPrior = topDist <= bottomDist;
+    if(leftPrior) {
+        location |= leftDist <= border ? Location_Left : Location_Default;
+    } else {
+        location |= rightDist <= border ? Location_Right : Location_Default;
     }
+    if(topPrior) {
+        location |= topDist <= border ? Location_Top : Location_Default;
+    } else {
+        location |= bottomDist <= border ? Location_Bottom : Location_Default;
+    }
+    return (Location)location;
 }
+
+
 
 void WindowResizeAttachment::resize(QWindow* window, const QPoint& screenPos, Location location)
 {
@@ -149,7 +141,7 @@ bool WindowResizeAttachment::eventFilter(QObject* watched, QEvent* event)
             if(location != Location_Default) {
                 QHoverEvent leaveEvent(QHoverEvent::Leave, mouseMoveEvent->pos(), mouseMoveEvent->pos(), mouseMoveEvent->modifiers());
                 qApp->sendEvent(window, &leaveEvent);
-                installCursorFromLocation(window, location);
+                InstallCursorFromLocation(window, location);
                 m_previousMoveLocation = location;
                 return true;
             } else if(m_previousMoveLocation != Location_Default){
