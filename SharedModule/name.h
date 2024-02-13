@@ -110,25 +110,73 @@ public:
     }
 };
 
-template<class Enum>
+template<class T>
 class StringsMapper
 {
 public:
-    StringsMapper& Register(const Name& name, Enum value)
+    StringsMapper& RegisterCaseSensitive(const QString& name, const T& value)
     {
-        m_strToEnum.insert(name, (qint64)value);
-        m_enumToStr.insert((qint64)value, name);
+        m_strToEnum.insert(Name(name.toLower()), value);
+        m_enumToStr.insert(value, Name(name));
+        return *this;
+    }
+
+    StringsMapper& Register(const Name& name, const T& value)
+    {
+        m_strToEnum.insert(name, value);
+        m_enumToStr.insert(value, name);
+        return *this;
+    }
+
+    const Name& GetKeyOf(const T& value) const
+    {
+        static Name defaultResult;
+        auto foundIt = m_enumToStr.find(value);
+        if(foundIt != m_enumToStr.end()) {
+            return foundIt.value();
+        }
+        return defaultResult;
+    }
+
+    const T& GetValueOf(const QString& string, const T& defValue) const
+    {
+        return GetValueOf(Name(string.toLower()), defValue);
+    }
+
+    const T& GetValueOf(const Name& name, const T& defValue) const
+    {
+        auto foundIt = m_strToEnum.find(name);
+        if(foundIt != m_strToEnum.end()) {
+            return foundIt.value();
+        }
+        return defValue;
+    }
+
+private:
+    QHash<Name, T> m_strToEnum;
+    QHash<T, Name> m_enumToStr;
+};
+
+template<class Enum>
+class StringsToEnumMapper : public StringsMapper<qint64>
+{
+    using Super = StringsMapper<qint64>;
+public:
+    StringsToEnumMapper& RegisterCaseSensitive(const QString& name, Enum value)
+    {
+        Super::RegisterCaseSensitive(name, (qint64)value);
+        return *this;
+    }
+
+    StringsToEnumMapper& Register(const Name& name, Enum value)
+    {
+        Super::Register(name, (qint64)value);
         return *this;
     }
 
     const Name& GetStringOf(Enum value) const
     {
-        static Name defaultResult;
-        auto foundIt = m_enumToStr.find((qint64)value);
-        if(foundIt != m_enumToStr.end()) {
-            return foundIt.value();
-        }
-        return defaultResult;
+        return Super::GetKeyOf((qint64)value);
     }
 
     Enum GetEnumOf(const QString& string) const
@@ -138,19 +186,11 @@ public:
 
     Enum GetEnumOf(const Name& name) const
     {
-        auto foundIt = m_strToEnum.find(name);
-        if(foundIt != m_strToEnum.end()) {
-            return (Enum)foundIt.value();
-        }
-        return (Enum)-1;
+        return (Enum)GetValueOf(name, -1);
     }
 
     template<class T>
-    StringsMapper<T>& Converted() { return reinterpret_cast<StringsMapper<T>&>(*this); }
-
-private:
-    QHash<Name, qint64> m_strToEnum;
-    QHash<qint64, Name> m_enumToStr;
+    StringsToEnumMapper<T>& Converted() { return reinterpret_cast<StringsToEnumMapper<T>&>(*this); }
 };
 
 #ifdef QT_DEBUG

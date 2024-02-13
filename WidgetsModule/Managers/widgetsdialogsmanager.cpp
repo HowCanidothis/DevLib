@@ -184,7 +184,7 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
             if(fcontains != scontains) {
                 return fcontains;
             }
-            return f < s;
+            return f.size() < s.size();
         });
     }
     fileDialog.setNameFilters(filters);
@@ -195,7 +195,6 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
         fileDialog.setAcceptMode(QFileDialog::AcceptSave);
     }
     fileDialog.selectFile(params.FileName);
-    fileDialog.setDefaultSuffix(params.DefaultSuffix);
 
     if(fileDialog.exec() == QDialog::Rejected) {
         return {};

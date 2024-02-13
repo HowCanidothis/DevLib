@@ -253,22 +253,23 @@ public:
         return AddPropertyColumn<QString>(column, header, getter, readOnly);
     }
 
-    struct TimeParams
+    template<class T>
+    struct DateTimeParams
     {
-        using FGetter = std::function<LocalPropertyDateTime& (ValueType)>;
+        using FGetter = std::function<T& (ValueType)>;
 
-        TimeParams(const FGetter& getter)
+        DateTimeParams(const FGetter& getter)
             : TimeShift(nullptr)
             , IsReadOnly(false)
             , Getter(getter)
         {}
 
-        TimeParams& SetTimeShift(const double* timeShift)
+        DateTimeParams& SetTimeShift(const double* timeShift)
         {
             TimeShift = timeShift;
             return *this;
         }
-        TimeParams& SetReadOnly(bool readOnly)
+        DateTimeParams& SetReadOnly(bool readOnly)
         {
             IsReadOnly = readOnly;
             return *this;
@@ -279,7 +280,8 @@ public:
         FGetter Getter;
     };
 
-    TimeParams CreateTimeParams(const typename TimeParams::FGetter& getter) { return TimeParams(getter); }
+    DateTimeParams<LocalPropertyDateTime> CreateDateTimePropertyParams(const typename DateTimeParams<LocalPropertyDateTime>::FGetter& getter) { return DateTimeParams<LocalPropertyDateTime>(getter); }
+    DateTimeParams<QDateTime> CreateDateTimeParams(const typename DateTimeParams<QDateTime>::FGetter& getter) { return DateTimeParams<QDateTime>(getter); }
 
     TViewModelsColumnComponentsBuilder& AddTimeColumn(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
@@ -293,7 +295,7 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const TimeParams& params){
+    TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<LocalPropertyDateTime>& params){
         return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             if(params.TimeShift != nullptr) {
@@ -317,7 +319,35 @@ public:
             return params.Getter(data).Native().time();
         });
     }
-    TViewModelsColumnComponentsBuilder& AddDateTimePropertyColumn(qint32 column, const FTranslationHandler& header, const TimeParams& params){
+    TViewModelsColumnComponentsBuilder& AddDateTimeColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<QDateTime>& params){
+        return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(params.TimeShift != nullptr) {
+                auto dateTime = params.Getter(data);
+                return DateTimeToString(dateTime.toOffsetFromUtc(*params.TimeShift));
+            }
+            return DateTimeToString(params.Getter(data));
+        }, params.IsReadOnly ? FModelSetter() : [params](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                if(params.TimeShift != nullptr) {
+                    auto& property = params.Getter(data);
+                    auto inputDateTime = DateTimeFromVariant(value);
+                    property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *params.TimeShift);
+                    return;
+                }
+                params.Getter(data) = DateTimeFromVariant(value);
+        };
+        }, [params](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(params.TimeShift != nullptr) {
+                auto dateTime = params.Getter(data);
+                return dateTime.toOffsetFromUtc(*params.TimeShift);
+            }
+            return params.Getter(data);
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddDateTimePropertyColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<LocalPropertyDateTime>& params){
         return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             if(params.TimeShift != nullptr) {
