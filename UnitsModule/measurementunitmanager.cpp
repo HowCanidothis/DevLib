@@ -299,6 +299,7 @@ void MeasurementManager::Initialize()
 
     AddMeasurement(MeasurementSpecificHeatCapacity::Value)
             .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramCelsius)
+            .AddUnit(&SpecificHeatCapacityUnits::JouleKilogramKelvin)
             .AddUnit(&SpecificHeatCapacityUnits::PoundFahrenheit);
 
     AddMeasurement(MeasurementMass::Value)
