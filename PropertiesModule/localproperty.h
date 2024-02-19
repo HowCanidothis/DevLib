@@ -512,8 +512,8 @@ public:
         : Super(initial)
     {}
 
-    bool operator!=(const T* another) const { return Super::m_value != another; }
-    bool operator==(const T* another) const { return Super::m_value == another; }
+    bool operator!=(T* another) const { return Super::m_value != another; }
+    bool operator==(T* another) const { return Super::m_value == another; }
     LocalPropertyPtr& operator=(T* value) { Super::SetValue(value); return *this; }
     operator const T*() const { return Super::m_value; }
     const T* operator->() const { return Super::m_value; }
