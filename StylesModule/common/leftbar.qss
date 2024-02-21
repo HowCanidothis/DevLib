@@ -425,12 +425,7 @@ QListView#SettingsCatalogList {
     qproperty-spacing: 5;
 }
 
-QPushButton[FormationMarker="true"] {
-    color: #ff9500;
-    background: transparent
-}
-
-QPushButton[FormationMarker="true"]:hover {
+QWidget[FormationMarker="true"] {
     color: #ff9500;
     background: transparent
 }
