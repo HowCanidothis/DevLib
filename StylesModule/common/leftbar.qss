@@ -429,3 +429,7 @@ QWidget[FormationMarker="true"] {
     color: #ff9500;
     background: transparent
 }
+
+QWidget#WidgetsTVRAWidget {
+    background: transparent;
+}

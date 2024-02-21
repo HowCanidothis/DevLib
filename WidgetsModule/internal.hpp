@@ -32,6 +32,7 @@
 #include "Attachments/widgetsactivetableattachment.h"
 #include "Attachments/windowresizeattachment.h"
 #include "Attachments/widgetslocationattachment.h"
+#include "Attachments/widgetstableviewrowattachment.h"
 
 #include "Components/componentplacer.h"
 

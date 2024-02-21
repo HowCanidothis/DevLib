@@ -233,8 +233,6 @@
         <file>rc/table-large.svg</file>
         <file>rc/chevron-up.svg</file>
         <file>rc/delete.svg</file>
-        <file>rc/delete-hover.svg</file>
-        <file>rc/delete-light.svg</file>
         <file>rc/reset-zoom.svg</file>
         <file>rc/table_edit.svg</file>
         <file>rc/table.svg</file>
