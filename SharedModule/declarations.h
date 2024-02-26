@@ -36,6 +36,8 @@ enum AdditionalStandardRoles {
 
 const auto FInverseBool = [](bool b) { return !b; };
 const auto FDirectBool = [](bool b) { return b; };
+const auto FDirectBoolToInt = [](bool b) -> qint32 { return b ? 0xffffffff : 0; };
+const auto FInverseBoolToInt = [](bool b) -> qint32 { return !b ? 0xffffffff : 0; };
 const auto FIdleAction = []{};
 using FAction = std::function<void ()>;
 using FTranslationHandler = std::function<QString ()>;

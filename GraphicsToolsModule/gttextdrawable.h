@@ -17,7 +17,7 @@ struct GtTextDrawableSettings
     LocalPropertyFloat BorderWidth;
     LocalPropertyFloat Contrast;
     LocalPropertyBool UseDirectionCorrection;
-    LocalPropertyBool Visible;
+    LocalPropertyInt Visible;
 
     GtTextDrawableSettings();
 

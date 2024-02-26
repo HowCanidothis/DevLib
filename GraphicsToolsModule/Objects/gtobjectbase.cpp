@@ -36,6 +36,11 @@ GtDrawableBase::~GtDrawableBase()
 {
 }
 
+bool GtDrawableBase::isVisibleFromMask(qint32 mask) const
+{
+    return m_renderer->m_currentVisibilityMask & mask;
+}
+
 void GtDrawableBase::AboutToDestroy()
 {
     THREAD_ASSERT_IS_MAIN()

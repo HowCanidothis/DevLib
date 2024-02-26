@@ -68,6 +68,13 @@ protected:
     void delayedDraw(const FAction& draw);
     void enableDepthTest();
     void disableDepthTest();
+    bool isVisibleFromMask(qint32 mask) const;
+    template<typename ... Args>
+    auto isVisibleFromMasks(const Args&... masks) const
+    {
+        return std::make_tuple((isVisibleFromMask(masks))...);
+    }
+
     const GtRenderProperties& getRenderProperties() const;
 
 protected:

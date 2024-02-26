@@ -191,6 +191,7 @@ public:
     void RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable);
     void ClearQueue(qint32 queueNumber);
 
+    void SetVisibilityMask(qint32 mask);
     void SetRenderPath(const GtRenderPathPtr& renderPath);
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
@@ -254,6 +255,7 @@ private:
     DelayedCallObject m_resize;
     bool m_dirty;
     GtRenderPathPtr m_renderPath;
+    qint32 m_visibilityMask;
 };
 
 #endif // GTRENDERERCONTROLLER_H

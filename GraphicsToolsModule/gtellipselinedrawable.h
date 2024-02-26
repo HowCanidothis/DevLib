@@ -17,7 +17,7 @@ public:
     LocalProperty<SizeF> Radius;
     LocalProperty<QMatrix4x4> Transform;
     LocalPropertyFloat Width;
-    LocalPropertyBool Visible;
+    LocalPropertyInt Visible;
 
 private:
     GtMeshBufferPtr m_buffer;

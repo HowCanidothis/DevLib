@@ -12,7 +12,7 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
     , AutoUpdateTransform(true)
     , Color(QColor(Qt::white))
     , Width(1.f)
-    , Visible(true)
+    , Visible(0xffffffff)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Point3F, QOpenGLBuffer::StaticDraw))
     , m_material(::make_scoped<GtMaterial>(GL_LINE_LOOP, shaderProgram))
     , m_recompute(DelayedCallObjectParams(0, GetThreadHandlerNoCheck()))
@@ -31,7 +31,7 @@ void GtEllipseLineDrawable::drawDepth(OpenGLFunctions*)
 
 void GtEllipseLineDrawable::draw(OpenGLFunctions* f)
 {
-    if(!Visible) {
+    if(!isVisibleFromMask(Visible)) {
         return;
     }
 

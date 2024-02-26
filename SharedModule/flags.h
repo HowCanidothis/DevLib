@@ -110,6 +110,20 @@ public:
         }
     }
 
+    void ToString(QString& str) const
+    {
+        ValueType it = 1;
+        while(it != 0) {
+            str += ((_value & it) != 0) ? "1" : "0";
+            it <<= 1;
+        }
+    }
+
+    QString ToString() const
+    {
+        QString res; ToString(res); return res;
+    }
+
     Flags& ChangeFromBoolean(bool flag, ValueType flags)
     {
         FlagsHelpers<ValueType>::ChangeFromBoolean(flag, _value, flags);

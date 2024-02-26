@@ -66,7 +66,6 @@ using FCurrentChanged = SharedPointer<CommonDispatcher<qint32,qint32>>;
 Q_DECLARE_METATYPE(SharedPointer<bool>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const QString&>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyString>)
-Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 Q_DECLARE_METATYPE(SharedPointer<DelayedCallObject>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)

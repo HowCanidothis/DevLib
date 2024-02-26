@@ -149,6 +149,7 @@ private:
     std::atomic_bool m_updateRequested;
     ThreadHandler m_threadHandler;
     ThreadHandlerNoThreadCheck m_threadHandlerNoCheck;
+    qint32 m_currentVisibilityMask;
 };
 
 #endif // GTRENDERER_H

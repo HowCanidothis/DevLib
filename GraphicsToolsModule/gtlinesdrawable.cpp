@@ -7,6 +7,7 @@
 
 GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram)
     : Super(renderer)
+    , Visible(0xffffffff)
     , Width(1.f)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Point3F, QOpenGLBuffer::StaticDraw))
     , m_material(::make_scoped<GtMaterial>(GL_LINES, shaderProgram))
@@ -25,7 +26,7 @@ void GtLinesDrawable::drawDepth(OpenGLFunctions*)
 
 void GtLinesDrawable::draw(OpenGLFunctions* f)
 {
-    if(!Visible) {
+    if(!isVisibleFromMask(Visible)) {
         return;
     }
 

@@ -5,6 +5,10 @@ LocalPropertyPaletteDataData::LocalPropertyPaletteDataData(const QVariant& value
 {
     switch(m_type)
     {
+    case Int: m_value = QVariant::fromValue(::make_shared<LocalPropertyInt>(value.toInt()));
+        m_fromStringHandler = [this](const QString& value){ *AsInt() = TextConverter<qint32>::FromText(value); };
+        m_toStringHandler = [this]{ return TextConverter<qint32>::ToText(*AsInt(), TextConverterContext()); };
+        break;
     case Boolean: m_value = QVariant::fromValue(::make_shared<LocalPropertyBool>(value.toBool()));
         m_fromStringHandler = [this](const QString& value){ *AsBool() = TextConverter<bool>::FromText(value); };
         m_toStringHandler = [this]{ return TextConverter<bool>::ToText(*AsBool(), TextConverterContext()); };
@@ -22,6 +26,12 @@ LocalPropertyPaletteDataData::LocalPropertyPaletteDataData(const QVariant& value
         m_toStringHandler = TR_NONE;
         break;
     }
+}
+
+SharedPointer<LocalPropertyInt> LocalPropertyPaletteDataData::AsInt() const
+{
+    Q_ASSERT(m_type == Int);
+    return m_value.value<SharedPointer<LocalPropertyInt>>();
 }
 
 SharedPointer<LocalPropertyBool> LocalPropertyPaletteDataData::AsBool() const
@@ -58,6 +68,11 @@ LocalPropertyPaletteObject::LocalPropertyPaletteObject(QHash<Name, std::pair<Loc
     }
 }
 
+SharedPointer<LocalPropertyInt> LocalPropertyPaletteObject::AsInt(const Name& key) const
+{
+    return m_data->value(key).GetData()->AsInt();
+}
+
 SharedPointer<LocalPropertyBool> LocalPropertyPaletteObject::AsBool(const Name& key) const
 {
     return m_data->value(key).GetData()->AsBool();
@@ -86,7 +101,7 @@ const LocalPropertyPaletteObject& LocalPropertyPalette::FindObject(const Name& o
 LocalPropertyPaletteBuilder::LocalPropertyPaletteBuilder(bool)
 {
     AddColor(LOCALPROPERTY_PALETTE_COLOR, QColor()).
-    AddBool(LOCALPROPERTY_PALETTE_VISIBILITY, true).
+    AddInt(LOCALPROPERTY_PALETTE_VISIBILITY, 0xffffffff).
     AddDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH, 4.0).
     AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 4.0);
 }
@@ -104,6 +119,12 @@ LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddBool(const Name& ke
 LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddColor(const Name& key, const QColor& defaultValue)
 {
     m_result.insert(key, { LocalPropertyPaletteDataData::Color, defaultValue });
+    return *this;
+}
+
+LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddInt(const Name& key, qint32 defaultValue)
+{
+    m_result.insert(key, { LocalPropertyPaletteDataData::Int, defaultValue });
     return *this;
 }
 

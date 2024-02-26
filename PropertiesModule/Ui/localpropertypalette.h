@@ -5,6 +5,7 @@
 
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyColor>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyDouble>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyInt>)
 
 DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_COLOR)
 DECLARE_GLOBAL_NAME(LOCALPROPERTY_PALETTE_LINE_WIDTH)
@@ -18,10 +19,12 @@ struct LocalPropertyPaletteDataData
         Unknown,
         Boolean,
         Color,
-        Double
+        Double,
+        Int
     };
 
     LocalPropertyPaletteDataData(const QVariant& value, SupportedType type);
+    SharedPointer<LocalPropertyInt> AsInt() const;
     SharedPointer<LocalPropertyBool> AsBool() const;
     SharedPointer<LocalPropertyDouble> AsDouble() const;
     SharedPointer<LocalPropertyColor> AsColor() const;
@@ -88,11 +91,12 @@ public:
 
     bool IsEmpty() const { return m_data == nullptr ? true : m_data->isEmpty(); }
 
+    SharedPointer<LocalPropertyInt> AsInt(const Name& key) const;
     SharedPointer<LocalPropertyBool> AsBool(const Name& key) const;
     SharedPointer<LocalPropertyDouble> AsDouble(const Name& key) const;
     SharedPointer<LocalPropertyColor> AsColor(const Name& key) const;
 
-    SharedPointer<LocalPropertyBool> AsVisibility() const { return AsBool(LOCALPROPERTY_PALETTE_VISIBILITY); }
+    SharedPointer<LocalPropertyInt> AsVisibility() const { return AsInt(LOCALPROPERTY_PALETTE_VISIBILITY); }
     SharedPointer<LocalPropertyDouble> AsLineWidth() const { return AsDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH); }
     SharedPointer<LocalPropertyColor> AsPaletteColor() const { return AsColor(LOCALPROPERTY_PALETTE_COLOR); }
     SharedPointer<LocalPropertyDouble> AsPointSize() const { return AsDouble(LOCALPROPERTY_PALETTE_POINT_SIZE); }
@@ -114,6 +118,7 @@ struct LocalPropertyPaletteBuilder
     LocalPropertyPaletteBuilder& AddDouble(const Name& key, double defaultValue);
     LocalPropertyPaletteBuilder& AddBool(const Name& key, bool defaultValue);
     LocalPropertyPaletteBuilder& AddColor(const Name& key, const QColor& defaultValue);
+    LocalPropertyPaletteBuilder& AddInt(const Name& key, qint32 defaultValue);
 
     const QHash<Name, std::pair<LocalPropertyPaletteDataData::SupportedType, QVariant>>& GetResult() const { return m_result; }
 

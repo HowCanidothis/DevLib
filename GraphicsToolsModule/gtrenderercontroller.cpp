@@ -130,6 +130,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_resize(DelayedCallObjectParams(100, renderer->GetThreadHandlerNoCheck()))
     , m_dirty(true)
     , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
+    , m_visibilityMask(0xffffffff)
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -187,6 +188,11 @@ void GtRendererController::ClearQueue(qint32 queueNumber)
             m_drawables.erase(foundIt);
         }
     });
+}
+
+void GtRendererController::SetVisibilityMask(qint32 mask)
+{
+    m_visibilityMask = mask;
 }
 
 void GtRendererController::calculateVisibleSize()

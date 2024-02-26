@@ -209,11 +209,13 @@ struct Serializer<LocalPropertyPalette>
         buffer << buffer.Sect("Count", count);
         for(auto it(data.begin()), e(data.end()); it != e; ++it) {
             buffer.OpenSection("Object");
-            buffer << buffer.Sect("Name", const_cast<Name&>(it.key()));
+            const Name& key = it.key();
+            buffer << buffer.Sect("Name", const_cast<Name&>(key));
             count = it.value().m_data->size();
             buffer << buffer.Sect("Count", count);
             for(auto objectIt(it.value().m_data->begin()), objectE(it.value().m_data->end()); objectIt != objectE; ++objectIt) {
-                buffer << buffer.Sect("Name", const_cast<Name&>(objectIt.key()));
+                const Name& okey = objectIt.key();
+                buffer << buffer.Sect("Name", const_cast<Name&>(okey));
                 QString toString = objectIt->GetData()->ToString();
                 buffer << buffer.Sect("Value", toString);
             }

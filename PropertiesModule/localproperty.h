@@ -409,6 +409,11 @@ public:
     LocalPropertyLimitedDecimal& operator*=(const T& value) { Super::SetValue(Super::Native() * value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { Super::SetValue(value); return *this; }
 
+    typename T operator&(const T& value) const { return m_value & value; }
+    typename T operator^(const T& value) const { return m_value ^ value; }
+    typename T operator|(const T& value) const { return m_value | value; }
+    typename T operator~() const { return ~m_value; }
+
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
 
@@ -754,6 +759,169 @@ public:
 };
 
 template<class DispatcherType>
+class LocalPropertyIntCommutatorBase
+{
+public:
+    enum Mode
+    {
+        And,
+        Or
+    };
+
+    LocalPropertyIntCommutatorBase(Mode defaultState = Or, const DelayedCallObjectParams& params = DelayedCallObjectParams())
+        : m_commutator(params)
+    {
+        if(defaultState == Or) {
+            m_defaultState = 0;
+            m_operation = [](qint32 v1, qint32 v2) { return v1 | v2; };
+        } else {
+            m_defaultState = 0xffffffff;
+            m_operation = [](qint32 v1, qint32 v2) { return v1 & v2; };
+        }
+        m_commutator += { this, [this]{
+            Update();
+        }};
+        adapters::ResetThread(m_commutator);
+    }
+
+    void Reset(bool invoke = true)
+    {
+        m_handlers.clear();
+        if(invoke) {
+            m_property = m_defaultState;
+        }
+    }
+    void Update()
+    {
+        m_property = value();
+    }
+    template<typename Function, typename ... Args>
+    DispatcherConnections ConnectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
+    {
+        auto result = connectFromProperties(locationInfo, handler, args...);
+        m_commutator.Invoke();
+        return result;
+    }
+    template<typename ... Args>
+    DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyInt& another, const Args& ... args) {
+        auto result = connectFrom(locationInfo, another, args...);
+        m_commutator.Invoke();
+        return result;
+    }
+    DispatcherConnections ConnectFrom(const char* locationInfo, const QVector<const LocalPropertyInt*>& properties){
+        auto result = connectFrom(locationInfo, properties);
+        m_commutator.Invoke();
+        return result;
+    }
+    template<typename ... Args>
+    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<qint32()>& thisEvaluator, const Args&... args)
+    {
+        auto result = connectFromDispatchers(locationInfo, thisEvaluator, args...);
+        m_commutator.Invoke();
+        return result;
+    }
+    DispatcherConnections ConnectFromDispatchers(const char* locationInfo, const std::function<qint32()>& thisEvaluator, const QVector<Dispatcher*>& dispatchers);
+
+    template<typename ... Dispatchers>
+    DispatcherConnections Connect(const char* connectionInfo, const std::function<void (const bool&)>& handler, Dispatchers&... dispatchers) const
+    {
+        return m_property.Connect(connectionInfo, handler, dispatchers...);
+    }
+
+    template<typename ... Dispatchers>
+    DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void (const bool&)>& handler, Dispatchers&... dispatchers) const
+    {
+        return m_property.ConnectAndCall(connectionInfo, handler, dispatchers...);
+    }
+    DispatcherConnection ConnectAction(const char* locationInfo, const FAction& action) const
+    {
+        return m_property.ConnectAction(locationInfo, action);
+    }
+
+    bool operator!() const { return !m_property; }
+    //bool operator<(const bool& value) const { return Super::operator <(value); }
+    bool operator!=(const bool& value) const { return m_property != value; }
+    bool operator==(const bool& value) const { return m_property == value; }
+    operator qint32() const { return m_property; }
+
+    qint32 Native() const { return m_property; }
+    operator const LocalPropertyInt&() const { return m_property; }
+    operator const LocalProperty<qint32>&() const { return m_property; }
+
+    const LocalPropertyInt& AsProperty() const { return m_property; }
+    Flags<qint32, Mode> AsFlags() const { return Flags<qint32, Mode>(m_property); }
+
+    QString ToString() const
+    {
+        QString result;
+        for(const auto& handler : m_handlers) {
+            Flags<qint32, Mode> f(handler());
+            f.ToString(result);
+            result += " ";
+        }
+        return result;
+    }
+
+protected:
+    template<typename Function, typename ... Args>
+    DispatcherConnections connectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
+    {
+        DispatcherConnections result;
+        m_handlers.append([this, locationInfo, handler, &args...]{
+            return handler(args.Native()...);
+        });
+        adapters::Combine([&](const auto& property){
+            result += m_commutator.ConnectFrom(locationInfo, property);
+        }, args...);
+        return result;
+    }
+
+    template<typename ... Args>
+    DispatcherConnections connectFrom(const char* locationInfo, const LocalPropertyInt& another, const Args& ... args) {
+        DispatcherConnections result;
+        adapters::Combine([&](const LocalPropertyInt& p){
+            result += connectFromProperties(locationInfo, [](qint32 i) { return i; }, p);
+        }, another, args...);
+        return result;
+    }
+    DispatcherConnections connectFrom(const char* locationInfo, const QVector<const LocalPropertyInt*>& properties){
+        DispatcherConnections result;
+        for(const auto* property : properties){
+            result += connectFromProperties(locationInfo, [](qint32 i) { return i; }, *property);
+        }
+        return result;
+    }
+    template<typename ... Args>
+    DispatcherConnections connectFromDispatchers(const char* locationInfo, const std::function<qint32()>& thisEvaluator, const Args&... args)
+    {
+        DispatcherConnections result;
+        m_handlers.append(thisEvaluator);
+        adapters::Combine([&](const auto& property){
+            result += m_commutator.ConnectFrom(locationInfo, property);
+        }, args...);
+        return result;
+    }
+
+    qint32 value() const
+    {
+        qint32 result = m_defaultState;
+        for(const auto& handler : ::make_const(m_handlers)) {
+            result = m_operation(result, handler());
+        }
+        return result;
+    }
+
+protected:
+    LocalPropertyInt m_property;
+    DispatcherType m_commutator;
+    QVector<std::function<qint32()>> m_handlers;
+    qint32 m_defaultState;
+    std::function<qint32 (qint32, qint32)> m_operation;
+};
+
+using LocalPropertyIntCommutator = LocalPropertyIntCommutatorBase<DispatchersCommutator>;
+
+template<class DispatcherType>
 class LocalPropertyBoolCommutatorBase
 {
 public:
@@ -777,7 +945,7 @@ public:
     {
         m_handlers.clear();
         if(invoke) {
-            m_property = false;
+            m_property = m_defaultState;
         }
     }
     void Update()
@@ -1215,6 +1383,11 @@ inline void LocalPropertySetFromVariant<LocalPropertyString>(LocalPropertyString
 namespace adapters {
 
 inline Dispatcher& ToDispatcher(const LocalPropertyBoolCommutator& t2)
+{
+    return const_cast<Dispatcher&>(t2.AsProperty().OnChanged);
+}
+
+inline Dispatcher& ToDispatcher(const LocalPropertyIntCommutator& t2)
 {
     return const_cast<Dispatcher&>(t2.AsProperty().OnChanged);
 }

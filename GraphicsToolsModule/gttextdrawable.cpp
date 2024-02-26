@@ -152,6 +152,9 @@ void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)
 
 void GtTextDrawable::draw(OpenGLFunctions* f)
 {
+    if(!isVisibleFromMask(Settings.Visible)) {
+        return;
+    }
     m_material.Draw(f);
     f->glPointSize(10.f); // TODO. ?
 }
@@ -247,6 +250,9 @@ void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
 
 void GtTextScreenDrawable::draw(OpenGLFunctions* f)
 {
+    if(!isVisibleFromMask(Settings.Visible)) {
+        return;
+    }
     m_material.Draw(f);
     f->glPointSize(10.f);
 }
@@ -258,9 +264,6 @@ void GtTextScreenDrawable::drawDepth(OpenGLFunctions* )
 void GtTextScreenDrawable::onInitialize(OpenGLFunctions* f)
 {
     m_buffer->Initialize(f);
-    Settings.Visible.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](bool visible){
-        m_material.SetVisible(visible);
-    });
 }
 
 void GtTextScreenDrawable::onAboutToDestroy()
@@ -273,7 +276,7 @@ GtTextDrawableSettings::GtTextDrawableSettings()
     , BorderWidth(0.2f)
     , Contrast(3.0)
     , UseDirectionCorrection(true)
-    , Visible(true)
+    , Visible(0xffffffff)
 {}
 
 DispatcherConnections GtTextDrawableSettings::ConnectFrom(const char* location, const GtTextDrawableSettings& another)

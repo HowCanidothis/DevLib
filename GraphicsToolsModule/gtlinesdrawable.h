@@ -12,7 +12,7 @@ public:
     LocalPropertyVector<Point3F> Points;
     LocalPropertyColor Color;
     LocalProperty<QMatrix4x4> Transform;
-    LocalPropertyBool Visible;
+    LocalPropertyInt Visible;
     LocalPropertyFloat Width;
 
     // GtDrawableBase interface
