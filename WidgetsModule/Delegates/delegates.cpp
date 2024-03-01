@@ -327,8 +327,8 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
     QRect checkbox_rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator,&checkboxstyle, option.widget);
     
     checkboxstyle.rect = option.rect;
-    checkboxstyle.rect.setLeft(option.rect.x() - checkbox_rect.x() +
-                                 option.rect.width()/2 - checkbox_rect.width()/2);
+    checkboxstyle.rect.setLeft(option.rect.x());/* - checkbox_rect.x() +
+                                 option.rect.width()/2 - checkbox_rect.width()/2);*/
 
     if(value.toBool()) {
         checkboxstyle.state = QStyle::State_On|QStyle::State_Enabled;
@@ -351,6 +351,11 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
         }
     }
     return false;
+}
+
+QString DelegatesCheckBox::displayText(const QVariant& value, const QLocale& locale) const
+{
+    return "";
 }
 
 DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
