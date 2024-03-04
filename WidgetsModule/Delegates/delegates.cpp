@@ -355,7 +355,7 @@ bool DelegatesCheckBox::editorEvent(QEvent* event, QAbstractItemModel* model, co
 
 QString DelegatesCheckBox::displayText(const QVariant& value, const QLocale& locale) const
 {
-    return "";
+    return QString();
 }
 
 DelegatesDateTimePicker::DelegatesDateTimePicker(QObject* parent)
