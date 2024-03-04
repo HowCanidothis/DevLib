@@ -2,6 +2,7 @@
 #define WIDGETSSPINBOXWITHCUSTOMDISPLAY_H
 
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 
 #include <PropertiesModule/internal.hpp>
 

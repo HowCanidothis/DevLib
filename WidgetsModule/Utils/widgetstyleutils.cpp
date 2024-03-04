@@ -16,15 +16,19 @@ public:
         case QEvent::StyleChange:
         case QEvent::Show:
         case QEvent::LayoutRequest: {
-            auto prefSize = watched->property("use_preffered_size");
-            if(!prefSize.isNull()) {
-                auto* widget = reinterpret_cast<QWidget*>(watched);
-                Q_ASSERT(widget->parentWidget() != nullptr);
-                auto toSize = prefSize.toSize();
-                widget->resize(std::min(toSize.width(), widget->parentWidget()->width()), std::min(toSize.height(), widget->parentWidget()->height()));
-            } else {
-                reinterpret_cast<QWidget*>(watched)->adjustSize();
-            }
+            auto* widget = reinterpret_cast<QWidget*>(watched);
+            WidgetWrapper(widget).InjectedCommutator("a_adjustSizeUpdate", [widget](QObject*) {
+                auto prefSize = widget->property("use_preffered_size");
+                if(!prefSize.isNull()) {
+                    if(widget->parentWidget() == nullptr) {
+                        return;
+                    }
+                    auto toSize = prefSize.toSize();
+                    widget->resize(std::min(toSize.width(), widget->parentWidget()->width()), std::min(toSize.height(), widget->parentWidget()->height()));
+                } else {
+                    widget->adjustSize();
+                }
+            }, 0)->Commutator.Invoke();
         }
             break;
         default:

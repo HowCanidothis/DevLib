@@ -2,8 +2,8 @@
 #include <QHashFunctions>
 
 #ifdef QT_DEBUG
-#define ADD_NAME DebugNameManager::GetInstanceCanBeNull().addName(AsString());
-#define REMOVE_NAME DebugNameManager::GetInstanceCanBeNull().removeName(AsString());
+#define ADD_NAME if(DebugNameManager::IsInitialized()) DebugNameManager::GetInstance().addName(AsString());
+#define REMOVE_NAME if(DebugNameManager::IsInitialized()) DebugNameManager::GetInstance().removeName(AsString());
 
 DebugNameManager::DebugNameManager()
 {

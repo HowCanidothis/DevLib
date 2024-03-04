@@ -63,6 +63,9 @@
 #include "Widgets/DateTime/widgetscalendarwidget.h"
 #include "Widgets/elidedlabel.h"
 #include "Widgets/widgetscolorpicker.h"
+#include "Widgets/widgetspicturepicker.h"
+#include "Widgets/Layouts/internal.hpp"
+
 //#include "Widgets/widgetsfloatingtoolbar.h"
 
 #include "Dialogs/widgetsimporttabledialog.h"

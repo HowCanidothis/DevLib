@@ -295,6 +295,7 @@ enum class ButtonRole
     GroupHeader = 10,
     Group = 11,
     Open = 12,
+    IconWithText = 13
 };
 
 class WidgetScrollAreaWrapper : public WidgetWrapper

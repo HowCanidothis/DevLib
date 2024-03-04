@@ -171,7 +171,7 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::TextFromValueHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultTextFromValueHandler()
 {
-    static TextFromValueHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return LanguageSettings::DoubleToString(value, spinBox->decimals()); };
+    static TextFromValueHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double value) -> QString { return SharedSettings::IsInitialized() ? LanguageSettings::DoubleToString(value, spinBox->decimals()) : QString::number(value, 'f', spinBox->decimals()); };
     return result;
 }
 

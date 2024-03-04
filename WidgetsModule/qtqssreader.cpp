@@ -49,8 +49,15 @@ QString QtQSSReader::ReadAll()
     QFile file(fi.absoluteFilePath());
     if(file.open(QFile::ReadOnly)) {
         QString importsFile = file.readAll();
+        thread_local static QRegExp rePal(R"((@c[\d\w_\.]+):([^;]+))");
         thread_local static QRegExp re("@import url\\(\"([^\\)]*)\"\\);");
         qint32 pos(0);
+        QHash<Name, QString> colors;
+        while ((pos = rePal.indexIn(importsFile,pos)) != -1) {
+            colors.insert(Name(rePal.cap(1)), rePal.cap(2));
+            pos += rePal.matchedLength();
+        }
+        pos = 0;
         while ((pos = re.indexIn(importsFile,pos)) != -1) {
             QString qssFileName = re.cap(1);
             QFile qssFile(fi.absolutePath() + "/" + qssFileName);
@@ -60,7 +67,20 @@ QString QtQSSReader::ReadAll()
                         Install(_fileName);
                     });
                 }
-                result += qssFile.readAll();
+                thread_local static QRegExp reColors(R"((@c[\d\w_\.]+))");
+                auto fileContent = qssFile.readAll();
+                qint32 current = 0, prev = 0;
+                while((current = reColors.indexIn(fileContent,current)) != -1) {
+                    for(const auto& sym : adapters::range(fileContent, prev, current - prev)) {
+                        result += sym;
+                    }
+                    result += colors.value(Name(reColors.cap(1)), "#00000000");
+                    current += reColors.matchedLength();
+                    prev = current;
+                }
+                for(const auto& sym : adapters::range(fileContent, prev, fileContent.size() - prev)) {
+                    result += sym;
+                }
             } else {
                 qCWarning(LC_SYSTEM) << "No such file" << qssFileName;
             }
@@ -68,6 +88,10 @@ QString QtQSSReader::ReadAll()
         }
     } else {
         qCWarning(LC_SYSTEM) << file.errorString() << fi.absoluteFilePath();
+    }
+    QFile test("C:/Work/temp/test.txt");
+    if(test.open(QFile::WriteOnly)) {
+        test.write(result.toUtf8());
     }
     return result;
 }

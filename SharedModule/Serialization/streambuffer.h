@@ -139,7 +139,7 @@ public:
 
     SerializerHashSumWriter<TSerializerWriteBuffer> WriteVersion(const SerializerVersion& version)
     {
-        Q_ASSERT(IsValid());
+        Q_ASSERT(Super::IsValid());
         SerializerHashSumWriter<TSerializerWriteBuffer> result(this);
         *this << version;
         Super::m_version = version.Version;
@@ -176,10 +176,10 @@ public:
     SerializerVersion ReadVersion()
     {
         SerializerVersion result;
-        if(GetDevice() == nullptr) {
+        if(Super::GetDevice() == nullptr) {
             return result;
         }
-        if(GetDevice()->bytesAvailable() < sizeof(SerializerVersion)) {
+        if(Super::GetDevice()->bytesAvailable() < sizeof(SerializerVersion)) {
             return result;
         }
         *this << result;

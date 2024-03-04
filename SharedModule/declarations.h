@@ -577,11 +577,6 @@ public:
         return *m_instance;
     }
 
-    static T& GetInstanceCanBeNull()
-    {
-        return *m_instance;
-    }
-
 private:
     static T* m_instance;
 };
