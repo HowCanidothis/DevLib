@@ -2,7 +2,7 @@
 #include "ui_widgetslineeditlayout.h"
 
 WidgetsLineEditLayout::WidgetsLineEditLayout(QWidget* parent)
-    : QWidget(parent)
+    : Super(parent)
     , ui(new Ui::WidgetsLineEditLayout)
 {
     ui->setupUi(this);

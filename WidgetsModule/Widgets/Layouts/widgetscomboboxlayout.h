@@ -1,7 +1,7 @@
 #ifndef WIDGETSCOMBOBOXLAYOUT_H
 #define WIDGETSCOMBOBOXLAYOUT_H
 
-#include <QWidget>
+#include <QFrame>
 
 namespace Ui {
 class WidgetsComboBoxLayout;
@@ -9,10 +9,11 @@ class WidgetsComboBoxLayout;
 
 class QLabel;
 class QComboBox;
-class WidgetsComboBoxLayout : public QWidget
+class WidgetsComboBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    using Super = QFrame;
 
 public:
     explicit WidgetsComboBoxLayout(QWidget *parent = nullptr);

@@ -2,7 +2,7 @@
 #include "ui_widgetsspinboxlayout.h"
 
 WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
-    : QWidget(parent)
+    : Super(parent)
     , ui(new Ui::WidgetsSpinBoxLayout)
 {
     ui->setupUi(this);

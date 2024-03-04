@@ -1,7 +1,7 @@
 #ifndef WIDGETSDOUBLESPINBOXLAYOUT_H
 #define WIDGETSDOUBLESPINBOXLAYOUT_H
 
-#include <QWidget>
+#include <QFrame>
 
 namespace Ui {
 class WidgetsDoubleSpinBoxLayout;
@@ -10,11 +10,12 @@ class WidgetsDoubleSpinBoxLayout;
 class QLabel;
 class QLineEdit;
 class WidgetsDoubleSpinBoxWithCustomDisplay;
-class WidgetsDoubleSpinBoxLayout : public QWidget
+class WidgetsDoubleSpinBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(bool measurement READ measurement WRITE setMeasurement)
+    using Super = QFrame;
 
 public:
     explicit WidgetsDoubleSpinBoxLayout(QWidget *parent = nullptr);

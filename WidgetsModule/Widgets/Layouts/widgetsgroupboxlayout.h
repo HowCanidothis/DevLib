@@ -1,16 +1,18 @@
 #ifndef WIDGETSGROUPBOXLAYOUT_H
 #define WIDGETSGROUPBOXLAYOUT_H
 
-#include <QWidget>
+#include <QFrame>
 
 namespace Ui {
 class WidgetsGroupBoxLayout;
 }
 
-class WidgetsGroupBoxLayout : public QWidget
+class WidgetsGroupBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    using Super = QFrame;
+
 public:
     explicit WidgetsGroupBoxLayout(QWidget *parent = nullptr);
     ~WidgetsGroupBoxLayout();

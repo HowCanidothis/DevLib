@@ -1,7 +1,7 @@
 #ifndef WIDGETSLINEEDITLAYOUT_H
 #define WIDGETSLINEEDITLAYOUT_H
 
-#include <QWidget>
+#include <QFrame>
 
 namespace Ui {
 class WidgetsLineEditLayout;
@@ -9,11 +9,12 @@ class WidgetsLineEditLayout;
 
 class QLabel;
 class QLineEdit;
-class WidgetsLineEditLayout : public QWidget
+class WidgetsLineEditLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString placeHolder READ placeHolder WRITE setPlaceHolder)
+    using Super = QFrame;
 
 public:
     explicit WidgetsLineEditLayout(QWidget *parent = nullptr);

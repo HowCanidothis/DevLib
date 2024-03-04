@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>WidgetsLineEditLayout</class>
- <widget class="QWidget" name="WidgetsLineEditLayout">
+ <widget class="QFrame" name="WidgetsLineEditLayout">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>68</height>
+    <width>270</width>
+    <height>43</height>
    </rect>
   </property>
   <property name="windowTitle">

@@ -2,7 +2,7 @@
 #include "ui_widgetscomboboxlayout.h"
 
 WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
-    : QWidget(parent)
+    : Super(parent)
     , ui(new Ui::WidgetsComboBoxLayout)
 {
     ui->setupUi(this);

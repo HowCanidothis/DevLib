@@ -1,7 +1,7 @@
 #ifndef WIDGETSSPINBOXLAYOUT_H
 #define WIDGETSSPINBOXLAYOUT_H
 
-#include <QWidget>
+#include <QFrame>
 
 namespace Ui {
 class WidgetsSpinBoxLayout;
@@ -9,10 +9,11 @@ class WidgetsSpinBoxLayout;
 
 class QLabel;
 class QSpinBox;
-class WidgetsSpinBoxLayout : public QWidget
+class WidgetsSpinBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    using Super = QFrame;
 
 public:
     explicit WidgetsSpinBoxLayout(QWidget *parent = nullptr);

@@ -2,7 +2,7 @@
 #include "ui_widgetsdoublespinboxlayout.h"
 
 WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent) :
-    QWidget(parent),
+    Super(parent),
     ui(new Ui::WidgetsDoubleSpinBoxLayout)
 {
     ui->setupUi(this);

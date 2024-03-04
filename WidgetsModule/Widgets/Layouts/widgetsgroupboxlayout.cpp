@@ -1,11 +1,24 @@
 #include "widgetsgroupboxlayout.h"
 #include "ui_widgetsgroupboxlayout.h"
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent) :
-    QWidget(parent),
+    Super(parent),
     ui(new Ui::WidgetsGroupBoxLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->groupBar).AddEventFilter([this](QObject*, QEvent* e) {
+        switch (e->type()) {
+        case QEvent::HoverEnter:
+        case QEvent::HoverLeave:
+            qApp->sendEvent(ui->groupIcon, e);
+            break;
+        default:
+            break;
+        }
+        return false;
+    });
 }
 
 WidgetsGroupBoxLayout::~WidgetsGroupBoxLayout()
@@ -28,10 +41,10 @@ bool WidgetsGroupBoxLayout::setWidget(QWidget* widget)
 
 QString WidgetsGroupBoxLayout::title() const
 {
-    return ui->pushButton->text();
+    return ui->groupBar->text();
 }
 
 void WidgetsGroupBoxLayout::setTitle(const QString& title)
 {
-    ui->pushButton->setText(title);
+    ui->groupBar->setText(title);
 }
