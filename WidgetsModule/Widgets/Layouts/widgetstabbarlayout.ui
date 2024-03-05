@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WidgetsGroupBoxLayout</class>
- <widget class="QFrame" name="WidgetsGroupBoxLayout">
+ <class>WidgetsTabBarLayout</class>
+ <widget class="QFrame" name="WidgetsTabBarLayout">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>345</width>
+    <height>243</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Frame</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -30,24 +30,14 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QPushButton" name="groupBar">
-     <property name="text">
-      <string/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
      </property>
-     <property name="MinorTitle" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
+    </layout>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
+    <widget class="QStackedWidget" name="stackedWidget"/>
    </item>
   </layout>
  </widget>

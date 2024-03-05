@@ -10,7 +10,7 @@ NotifyButton::NotifyButton(QWidget* parent)
     , NotificationsCount(0, 0, 99)
     , m_label(new QLabel(parent))
 {
-    NotificationsCountString.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 count){
+    NotificationsCountString.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 count) -> QString {
         if(count > 0) {
             if(count < 99) {
                 return QString::number(count);

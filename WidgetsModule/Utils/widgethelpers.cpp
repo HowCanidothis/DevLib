@@ -54,6 +54,7 @@
 #include "WidgetsModule/Attachments/widgetslocationattachment.h"
 
 #include "WidgetsModule/Widgets/elidedlabel.h"
+#include "WidgetsModule/Widgets/Layouts/widgetsgroupboxlayout.h"
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
@@ -741,6 +742,74 @@ LocalPropertyBool& WidgetGroupboxWrapper::WidgetChecked() const
         });
         return property;
     });
+}
+
+WidgetGroupboxLayoutWrapper::WidgetGroupboxLayoutWrapper(WidgetsGroupBoxLayout* groupBox)
+    : WidgetWrapper(groupBox)
+{
+
+}
+
+LocalPropertyBool& WidgetGroupboxLayoutWrapper::WidgetChecked() const
+{
+    return GetWidget()->Opened;
+}
+
+const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsing() const
+{
+    auto* widget = GetWidget();
+    auto update = [widget](bool visible){
+        auto animation = WidgetWrapper(widget).Injected<QPropertyAnimation>("a_collapsing_animation", [&]{
+            return new QPropertyAnimation(widget, "maximumSize");
+        });
+        animation->stop();
+
+        auto fullSize = QSize(widget->maximumWidth(), widget->sizeHint().height());
+        auto minSize = QSize(widget->maximumWidth(), 36);
+        animation->setDuration(200);
+        animation->setStartValue(!visible ? fullSize : minSize);
+        animation->setEndValue(visible ? fullSize : minSize);
+        animation->start();
+    };
+    widget->Opened.Connect(CDL, update);
+    AddEventFilter([update, widget](QObject*, QEvent* e) {
+        switch(e->type()) {
+        case QEvent::ShowToParent:
+        case QEvent::StyleChange:
+        //case QEvent::LayoutRequest:
+            update(widget->Opened);
+            break;
+        default:
+            break;
+        }
+
+        return false;
+    });
+    return *this;
+}
+
+const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area, qint32 delay) const
+{
+    std::function<qint32 (WidgetsGroupBoxLayout*)> handler;
+    if(area != nullptr) {
+        handler = [area](WidgetsGroupBoxLayout* w) -> qint32 {
+            auto wMargins = w->contentsMargins();
+            auto lMargins = w->layout()->contentsMargins();
+            return wMargins.top() + wMargins.bottom() + lMargins.top() + lMargins.bottom() + area->widget()->sizeHint().height();
+        };
+    } else {
+        handler = [](WidgetsGroupBoxLayout* w) -> qint32 { return w->sizeHint().height(); };
+    }
+    auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
+                                 auto* widget = reinterpret_cast<WidgetsGroupBoxLayout*>(w);
+                                 if(widget->Opened) {
+                                     ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, handler]{
+                                         widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
+                                     });
+                                 }
+                             }, delay);
+    collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
+    return *this;
 }
 
 WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)

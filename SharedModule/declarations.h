@@ -383,6 +383,11 @@ Range<It> range(Container& container, qint32 startIndex, qint32 count) {
     return Range<It>(container.begin() + startIndex, container.begin() + startIndex + count);
 }
 
+template<typename Container, typename It = typename Container::const_iterator>
+Range<It> range(Container& container, qint32 startIndex) {
+    return Range<It>(container.begin() + startIndex, container.begin() + startIndex + container.size() - startIndex);
+}
+
 }
 
 template <class T>

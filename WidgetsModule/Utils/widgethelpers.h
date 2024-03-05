@@ -442,6 +442,17 @@ public:
     const WidgetGroupboxWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr, qint32 delay = 1000) const;
 };
 
+class WidgetGroupboxLayoutWrapper : public WidgetWrapper
+{
+public:
+    WidgetGroupboxLayoutWrapper(class WidgetsGroupBoxLayout* groupBox);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetGroupboxLayoutWrapper, WidgetsGroupBoxLayout)
+    LocalPropertyBool& WidgetChecked() const;
+    const WidgetGroupboxLayoutWrapper& AddCollapsing() const;
+    const WidgetGroupboxLayoutWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr, qint32 delay = 1000) const;
+};
+
 class LocalPropertyDoubleDisplay : public LocalPropertyDouble
 {
     using Super = LocalPropertyDouble;

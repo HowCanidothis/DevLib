@@ -1,24 +1,21 @@
 #include "widgetsgroupboxlayout.h"
 #include "ui_widgetsgroupboxlayout.h"
 
-#include "WidgetsModule/Utils/widgethelpers.h"
+#include <QLabel>
 
-WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent) :
-    Super(parent),
-    ui(new Ui::WidgetsGroupBoxLayout)
+#include <PropertiesModule/Ui/internal.hpp>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
+
+WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent)
+    : Super(parent)
+    , Opened(true)
+    , ui(new Ui::WidgetsGroupBoxLayout)
+    , m_icon(nullptr)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->groupBar).AddEventFilter([this](QObject*, QEvent* e) {
-        switch (e->type()) {
-        case QEvent::HoverEnter:
-        case QEvent::HoverLeave:
-            qApp->sendEvent(ui->groupIcon, e);
-            break;
-        default:
-            break;
-        }
-        return false;
-    });
+    ui->groupBar->hide();
 }
 
 WidgetsGroupBoxLayout::~WidgetsGroupBoxLayout()
@@ -36,7 +33,50 @@ bool WidgetsGroupBoxLayout::setWidget(QWidget* widget)
     delete ui->widget;
     ui->verticalLayout->addWidget(widget);
     ui->widget = widget;
+    ui->widget->setProperty("a_contentWidget", true);
     return true;
+}
+
+bool WidgetsGroupBoxLayout::collapsable() const
+{
+    return m_icon != nullptr;
+}
+
+void WidgetsGroupBoxLayout::setCollapsable(bool collapsable)
+{
+    if(collapsable) {
+        if(m_icon == nullptr) {
+            m_icon = new QLabel(ui->groupBar);
+            m_icon->setObjectName("groupIcon");
+            m_icon->setAttribute(Qt::WA_TransparentForMouseEvents);
+            Opened.ConnectAndCall(CDL, [this](bool opened) {
+                StyleUtils::ApplyStyleProperty("a_opened", m_icon, opened);
+            });
+            WidgetWrapper(m_icon).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleRight));
+            WidgetGroupboxLayoutWrapper(this).AddCollapsing();
+            auto updateChecked = [this]{
+                Opened = !Opened;
+            };
+            WidgetAbstractButtonWrapper(ui->groupBar).SetOnClicked(updateChecked);
+        }
+        m_icon->show();
+    } else if(m_icon != nullptr){
+        m_icon->hide();
+    }
+}
+
+qint32 WidgetsGroupBoxLayout::gap() const
+{
+    return ui->verticalLayout->spacing();
+}
+
+void WidgetsGroupBoxLayout::setGap(qint32 gap)
+{
+    if(ui->widget->layout() != nullptr) {
+        ui->widget->layout()->setSpacing(gap);
+    }
+    ui->verticalLayout->setSpacing(gap);
+
 }
 
 QString WidgetsGroupBoxLayout::title() const
@@ -47,4 +87,8 @@ QString WidgetsGroupBoxLayout::title() const
 void WidgetsGroupBoxLayout::setTitle(const QString& title)
 {
     ui->groupBar->setText(title);
+    ui->groupBar->setVisible(!title.isEmpty());
+    if(title.isEmpty()) {
+        return;
+    }
 }

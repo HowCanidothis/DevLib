@@ -6,5 +6,6 @@
 #include "widgetsgroupboxlayout.h"
 #include "widgetslineeditlayout.h"
 #include "widgetsspinboxlayout.h"
+#include "widgetstabbarlayout.h"
 
 #endif
