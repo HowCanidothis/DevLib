@@ -3,6 +3,8 @@
 
 #include <QFrame>
 
+#include <PropertiesModule/internal.hpp>
+
 namespace Ui {
 class WidgetsTabBarLayout;
 }
@@ -10,10 +12,10 @@ class WidgetsTabBarLayout;
 class WidgetsTabBarLayout : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(qint32 currentIndex READ currentIndex WRITE setCurrentIndex)
+    Q_PROPERTY(qint32 currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)
     Q_PROPERTY(qint32 gap READ gap WRITE setGap)
     Q_PROPERTY(qint32 buttonsGap READ buttonsGap WRITE setButtonsGap)
-    Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY pageTitleChanged)
 
 public:
     explicit WidgetsTabBarLayout(QWidget *parent = nullptr);
@@ -22,12 +24,16 @@ public:
     class QStackedWidget* widget() const;
     const QVector<class QPushButton*>& buttons() const;
 
-    qint32 buttonsGap() const;
     qint32 currentIndex() const;
+    qint32 buttonsGap() const;
     qint32 gap() const;
     QString title() const;
 
     void setGap(qint32 gap);
+
+signals:
+    void pageTitleChanged(const QString&);
+    void currentIndexChanged(qint32);
 
 public slots:
     void setButtonsGap(qint32 gap);
@@ -35,11 +41,12 @@ public slots:
     void addPage(QWidget *page);
     void insertPage(int index, QWidget *page);
     void removePage(int index);
-    void setCurrentIndex(int index);
+    void setCurrentIndex(qint32 index);
 
 private:
     Ui::WidgetsTabBarLayout *ui;
     QVector<QPushButton*> m_buttons;
+    LocalPropertyInt m_currentIndex;
 };
 
 #endif // WIDGETSTABBARLAYOUT_H

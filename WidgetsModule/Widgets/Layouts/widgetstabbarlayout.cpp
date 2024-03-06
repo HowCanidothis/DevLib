@@ -9,6 +9,21 @@ WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent) :
     ui(new Ui::WidgetsTabBarLayout)
 {
     ui->setupUi(this);
+
+    m_currentIndex.Connect(CDL, [this](qint32 index){
+        qint32 cindex = ui->stackedWidget->currentIndex();
+        if(index >= 0 && index < m_buttons.size()) {
+            WidgetAbstractButtonWrapper(m_buttons.at(index)).SetChecked(true);
+        }
+        if(cindex == index) {
+            return;
+        }
+        if(cindex >= 0 && cindex < m_buttons.size()) {
+            WidgetAbstractButtonWrapper(m_buttons.at(cindex)).SetChecked(false);
+        }
+        ui->stackedWidget->setCurrentIndex(index);
+        emit currentIndexChanged(index);
+    });
 }
 
 WidgetsTabBarLayout::~WidgetsTabBarLayout()
@@ -26,14 +41,14 @@ const QVector<QPushButton*>& WidgetsTabBarLayout::buttons() const
     return m_buttons;
 }
 
+qint32 WidgetsTabBarLayout::currentIndex() const
+{
+    return m_currentIndex;
+}
+
 qint32 WidgetsTabBarLayout::buttonsGap() const
 {
     return ui->horizontalLayout->spacing();
-}
-
-qint32 WidgetsTabBarLayout::currentIndex() const
-{
-    return ui->stackedWidget->currentIndex();
 }
 
 qint32 WidgetsTabBarLayout::gap() const
@@ -43,7 +58,7 @@ qint32 WidgetsTabBarLayout::gap() const
 
 QString WidgetsTabBarLayout::title() const
 {
-    qint32 cindex = currentIndex();
+    qint32 cindex = m_currentIndex.Native();
     if(cindex >= 0 && cindex < m_buttons.size()) {
         return m_buttons.at(cindex)->text();
     }
@@ -68,46 +83,52 @@ void WidgetsTabBarLayout::setButtonsGap(qint32 gap)
 
 void WidgetsTabBarLayout::setTitle(const QString& text)
 {
-    qint32 cindex = currentIndex();
-    if(cindex >= 0 && cindex < m_buttons.size()) {
-        m_buttons.at(cindex)->setText(text);
+    auto* widget = ui->stackedWidget->currentWidget();
+    if(widget != nullptr) {
+        widget->setWindowTitle(text);
+        emit windowTitleChanged(text);
     }
 }
 
 void WidgetsTabBarLayout::addPage(QWidget* page)
 {
-    auto* b = new QPushButton();
-    b->setCheckable(true);
-    b->setObjectName("__qt__passive_button_" + QString::number(m_buttons.size()));
-    b->setProperty("a_page", QVariant::fromValue(page));
-    WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
-        setCurrentIndex(m_buttons.indexOf(b));
-    });
-    m_buttons.append(b);
-    ui->horizontalLayout->addWidget(b);
-    ui->stackedWidget->addWidget(page);
-
-    setCurrentIndex(m_buttons.size() - 1);
+    insertPage(m_buttons.size(), page);
 }
 
 void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 {
     auto* b = new QPushButton();
     b->setCheckable(true);
+#ifdef QT_PLUGIN
     b->setObjectName("__qt__passive_button_" + QString::number(index));
+#else
+    b->setObjectName(QString::number(index));
+#endif
     b->setProperty("a_page", QVariant::fromValue(page));
-    WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
-        setCurrentIndex(m_buttons.indexOf(b));
+    b->setText(page->windowTitle());
+
+    connect(page, &QWidget::windowTitleChanged, [this, b](const QString& title){
+        if(b->text() == title) {
+            return;
+        }
+        b->setText(title);
+        emit pageTitleChanged(title);
     });
+
+    WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
+        m_currentIndex = m_buttons.indexOf(b);
+    }).SetControl(ButtonRole::Tab);
     m_buttons.insert(index, b);
     ui->horizontalLayout->insertWidget(index, b);
     ui->stackedWidget->insertWidget(index, page);
-
-    setCurrentIndex(index);
-
+    if(index == m_currentIndex) {
+        m_currentIndex.Invoke();
+    }
+#ifdef QT_PLUGIN
     for(auto* b : adapters::range(m_buttons, index + 1)) {
         b->setObjectName("__qt__passive_button_" + QString::number(++index));
     }
+#endif
 }
 
 void WidgetsTabBarLayout::removePage(int index)
@@ -116,20 +137,14 @@ void WidgetsTabBarLayout::removePage(int index)
     auto* w = b->property("a_page").value<QWidget*>();
     ui->stackedWidget->removeWidget(w);
     delete b;
+#ifdef QT_PLUGIN
     for(auto* b : adapters::range(m_buttons, index)) {
         b->setObjectName("__qt__passive_button_" + QString::number(++index));
     }
-    setCurrentIndex(currentIndex());
+#endif
 }
 
-void WidgetsTabBarLayout::setCurrentIndex(int index)
+void WidgetsTabBarLayout::setCurrentIndex(qint32 index)
 {
-    qint32 cindex = currentIndex();
-    if(cindex >= 0 && cindex < m_buttons.size()) {
-        WidgetAbstractButtonWrapper(m_buttons.at(cindex)).SetChecked(false);
-    }
-    if(index >= 0 && index < m_buttons.size()) {
-        WidgetAbstractButtonWrapper(m_buttons.at(index)).SetChecked(true);
-    }
-    ui->stackedWidget->setCurrentIndex(index);
+    m_currentIndex = index;
 }
