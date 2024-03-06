@@ -40,6 +40,7 @@ public slots:
 private:
     Ui::WidgetsGroupBoxLayout *ui;
     class QLabel* m_icon;
+    bool m_collapsable;
 };
 
 #endif // WIDGETSGROUPBOXLAYOUT_H

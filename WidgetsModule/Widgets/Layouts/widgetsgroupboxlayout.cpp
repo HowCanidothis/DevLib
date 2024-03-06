@@ -13,6 +13,7 @@ WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent)
     , Opened(true)
     , ui(new Ui::WidgetsGroupBoxLayout)
     , m_icon(nullptr)
+    , m_collapsable(false)
 {
     ui->setupUi(this);
     ui->groupBar->hide();
@@ -39,11 +40,12 @@ bool WidgetsGroupBoxLayout::setWidget(QWidget* widget)
 
 bool WidgetsGroupBoxLayout::collapsable() const
 {
-    return m_icon != nullptr;
+    return m_collapsable;
 }
 
 void WidgetsGroupBoxLayout::setCollapsable(bool collapsable)
 {
+    m_collapsable = collapsable;
     if(collapsable) {
         if(m_icon == nullptr) {
             m_icon = new QLabel(ui->groupBar);

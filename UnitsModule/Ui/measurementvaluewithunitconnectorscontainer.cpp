@@ -29,6 +29,16 @@ void MeasurementDoubleSpinBoxWrapper::SetMaximum(double max, double offset)
     m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
 }
 
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxLayout* spinBox, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox->spinBox(), spinBox->lineEdit(), translationHandler, labelUpdaters);
+}
+
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, WidgetsDoubleSpinBoxLayout* spinBox, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+{
+    AddConnector(measurement, property, spinBox->spinBox(), spinBox->lineEdit(), translationHandler, labelUpdaters);
+}
+
 void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
 {
     AddConnector(measurement, &property->DisplayValue, spinBox);
