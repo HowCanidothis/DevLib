@@ -116,9 +116,10 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
     });
 
     WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
-        m_currentIndex = m_buttons.indexOf(b);
+        m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
     }).SetControl(ButtonRole::Tab);
     m_buttons.insert(index, b);
+    page->setProperty("a_is_page", true);
     ui->horizontalLayout->insertWidget(index, b);
     ui->stackedWidget->insertWidget(index, page);
     if(index == m_currentIndex) {

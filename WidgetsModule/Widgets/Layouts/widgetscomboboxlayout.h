@@ -19,8 +19,8 @@ public:
     explicit WidgetsComboBoxLayout(QWidget *parent = nullptr);
     ~WidgetsComboBoxLayout();
 
-    QLabel* label();
-    QComboBox* comboBox();
+    QLabel* label() const;
+    QComboBox* comboBox() const;
 
     QString title() const;
 

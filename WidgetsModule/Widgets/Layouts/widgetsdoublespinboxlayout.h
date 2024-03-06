@@ -21,10 +21,9 @@ public:
     explicit WidgetsDoubleSpinBoxLayout(QWidget *parent = nullptr);
     ~WidgetsDoubleSpinBoxLayout();
 
-    QLabel* label();
-    QLineEdit* lineEdit();
-    WidgetsDoubleSpinBoxWithCustomDisplay* spinBox();
-
+    QLabel* label() const;
+    QLineEdit* lineEdit() const;
+    WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
     QString title() const;
     bool measurement() const;
 

@@ -334,6 +334,7 @@ class WidgetLineEditWrapper : public WidgetWrapper
 {
 public:
     WidgetLineEditWrapper(class QLineEdit* lineEdit);
+    WidgetLineEditWrapper(class WidgetsLineEditLayout* lay);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
@@ -379,6 +380,7 @@ class WidgetComboboxWrapper : public WidgetWrapper
 {
 public:
     WidgetComboboxWrapper(class QComboBox* combobox);
+    WidgetComboboxWrapper(class WidgetsComboBoxLayout* combobox);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     template<class Enum, typename ... Dispatchers>
@@ -559,6 +561,7 @@ class WidgetDoubleSpinBoxWrapper : public WidgetWrapper
     using Super = WidgetWrapper;
 public:
     WidgetDoubleSpinBoxWrapper(class QDoubleSpinBox* widget);
+    WidgetDoubleSpinBoxWrapper(class WidgetsDoubleSpinBoxLayout* widget);
 
     template<typename ... Dispatchers>
     DispatcherConnections CreateReadOnlyRule(const char* debugLocation, const std::function<bool ()>& handler, const QVector<QWidget*>& additionalWidgets, Dispatchers&... dispatchers) const
@@ -577,6 +580,7 @@ class WidgetSpinBoxWrapper : public WidgetWrapper
     using Super = WidgetWrapper;
 public:
     WidgetSpinBoxWrapper(class QSpinBox* widget);
+    WidgetSpinBoxWrapper(class WidgetsSpinBoxLayout* widget);
 
     LocalPropertyInt& WidgetValue() const;
     LocalPropertyBool& WidgetReadOnly() const;

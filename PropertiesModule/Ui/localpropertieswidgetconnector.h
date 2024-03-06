@@ -191,47 +191,55 @@ public:
 protected:
 };
 
+struct LocalPropertiesComboBoxConnectorExtractor
+{
+    LocalPropertiesComboBoxConnectorExtractor(class WidgetsComboBoxLayout* l);
+    LocalPropertiesComboBoxConnectorExtractor(QComboBox* c);
+
+    QComboBox* ComboBox;
+};
+
 class _Export LocalPropertiesComboBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo);
+    LocalPropertiesComboBoxConnector(LocalPropertyName* property, const LocalPropertiesComboBoxConnectorExtractor& combo);
     template<class Enum>
-    LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, QComboBox* combo)
+    LocalPropertiesComboBoxConnector(LocalPropertySequentialEnum<Enum>* property, const LocalPropertiesComboBoxConnectorExtractor& combo)
         : LocalPropertiesComboBoxConnector(property, combo, IdRole)
     {}
-    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo);
+    LocalPropertiesComboBoxConnector(LocalPropertyInt* property, const LocalPropertiesComboBoxConnectorExtractor& combo);
     template<class T, typename value_type = typename T::value_type>
-    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox)
+    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox)
     {}
     template<class T, typename value_type = typename T::value_type>
-    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox, qint32 role)
+    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox, qint32 role)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, role)
     {}
     template<class T, typename value_type = typename T::value_type>
-    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, QComboBox* comboBox, const std::function<value_type (const QModelIndex&)>& getter)
+    LocalPropertiesComboBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox, const std::function<value_type (const QModelIndex&)>& getter)
         : LocalPropertiesComboBoxConnector(&property->InputValue, comboBox, getter)
     {}
     template<class T>
-    LocalPropertiesComboBoxConnector(T* property, QComboBox* comboBox, qint32 role)
+    LocalPropertiesComboBoxConnector(T* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox, qint32 role)
         : LocalPropertiesComboBoxConnector(property, comboBox, [role](const QModelIndex& index) -> typename T::value_type { return index.data(role).value<typename T::value_type>(); })
     {}
     template<class T>
-    LocalPropertiesComboBoxConnector(T* property, QComboBox* comboBox, const std::function<typename T::value_type (const QModelIndex&)>& getter)
+    LocalPropertiesComboBoxConnector(T* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox, const std::function<typename T::value_type (const QModelIndex&)>& getter)
         : Super([property, comboBox, getter]{
-                    setCurrentIndex(comboBox, [property, getter](const QModelIndex& index) -> bool { return property->operator==(getter(index)); });
+                    setCurrentIndex(comboBox.ComboBox, [property, getter](const QModelIndex& index) -> bool { return property->operator==(getter(index)); });
                 },
                 [property, comboBox, getter]{
-                    *property = getter(currentIndex(comboBox));
-                }, comboBox
+                    *property = getter(currentIndex(comboBox.ComboBox));
+                }, comboBox.ComboBox
         )
     {
         property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
             m_widgetSetter();
         }).MakeSafe(m_dispatcherConnections);
 
-        connectComboBox(comboBox);
+        connectComboBox(comboBox.ComboBox);
     }
 
 private:
@@ -245,6 +253,7 @@ class _Export LocalPropertiesLineEditConnector : public LocalPropertiesWidgetCon
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
      LocalPropertiesLineEditConnector(LocalProperty<QString>* property, class QLineEdit* lineEdit, bool reactive = true);
+     LocalPropertiesLineEditConnector(LocalProperty<QString>* property, class WidgetsLineEditLayout* lineEdit, bool reactive = true);
 
      template<class T>
      LocalPropertiesLineEditConnector(StateParameterProperty<T>* property, class QLineEdit* lineEdit, bool reactive = true)
@@ -253,6 +262,14 @@ public:
 
  private:
      DelayedCallObject m_textChanged;
+};
+
+struct LocalPropertiesSpinBoxConnectorExtractor
+{
+    LocalPropertiesSpinBoxConnectorExtractor(class WidgetsSpinBoxLayout* l);
+    LocalPropertiesSpinBoxConnectorExtractor(class WidgetsSpinBoxWithCustomDisplay* s);
+
+    WidgetsSpinBoxWithCustomDisplay* SpinBox;
 };
 
 class _Export LocalPropertiesSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
@@ -266,30 +283,35 @@ public:
     {}
 
     template<class T>
-    LocalPropertiesSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
+    LocalPropertiesSpinBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesSpinBoxConnectorExtractor& spin)
         : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
     {}
-    LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, class WidgetsSpinBoxWithCustomDisplay* spinBox);
+    LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, const LocalPropertiesSpinBoxConnectorExtractor& spinBox);
 
+};
+
+struct LocalPropertiesDoubleSpinBoxConnectorExtractor
+{
+    LocalPropertiesDoubleSpinBoxConnectorExtractor(class WidgetsDoubleSpinBoxLayout* l);
+    LocalPropertiesDoubleSpinBoxConnectorExtractor(class WidgetsDoubleSpinBoxWithCustomDisplay* s);
+
+    WidgetsDoubleSpinBoxWithCustomDisplay* SpinBox;
+    WidgetsDoubleSpinBoxWithCustomDisplay* operator->() const { return SpinBox; }
 };
 
 class _Export LocalPropertiesDoubleSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, class QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter = nullptr);
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox);
-    template<class T>
-    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, QDoubleSpinBox* spin)
-        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
-    {}
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, const std::function<void (double)>& propertySetter = nullptr);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox);
 
     template<class T>
-    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, WidgetsDoubleSpinBoxWithCustomDisplay* spin)
+    LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
         : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
     {}
-    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
-    LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox);
+    LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox);
 };
 
 class _Export LocalPropertiesTextEditConnector : public LocalPropertiesWidgetConnectorBase

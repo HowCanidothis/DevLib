@@ -20,8 +20,8 @@ public:
     explicit WidgetsLineEditLayout(QWidget *parent = nullptr);
     ~WidgetsLineEditLayout();
 
-    QLabel* label();
-    QLineEdit* lineEdit();
+    QLabel* label() const;
+    QLineEdit* lineEdit() const;
 
     QString title() const;
     QString placeHolder() const;

@@ -13,12 +13,12 @@ WidgetsSpinBoxLayout::~WidgetsSpinBoxLayout()
     delete ui;
 }
 
-QLabel* WidgetsSpinBoxLayout::label()
+QLabel* WidgetsSpinBoxLayout::label() const
 {
     return ui->label;
 }
 
-QSpinBox* WidgetsSpinBoxLayout::spinBox()
+WidgetsSpinBoxWithCustomDisplay* WidgetsSpinBoxLayout::spinBox() const
 {
     return ui->spinBox;
 }

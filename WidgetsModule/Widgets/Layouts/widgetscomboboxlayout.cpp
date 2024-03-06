@@ -13,12 +13,12 @@ WidgetsComboBoxLayout::~WidgetsComboBoxLayout()
     delete ui;
 }
 
-QLabel* WidgetsComboBoxLayout::label()
+QLabel* WidgetsComboBoxLayout::label() const
 {
     return ui->label;
 }
 
-QComboBox* WidgetsComboBoxLayout::comboBox()
+QComboBox* WidgetsComboBoxLayout::comboBox() const
 {
     return ui->comboBox;
 }

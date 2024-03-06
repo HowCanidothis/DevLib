@@ -13,7 +13,7 @@ WidgetsLineEditLayout::~WidgetsLineEditLayout()
     delete ui;
 }
 
-QLabel* WidgetsLineEditLayout::label()
+QLabel* WidgetsLineEditLayout::label() const
 {
     return ui->label;
 }
@@ -28,7 +28,7 @@ QString WidgetsLineEditLayout::placeHolder() const
     return ui->lineEdit->placeholderText();
 }
 
-QLineEdit* WidgetsLineEditLayout::lineEdit()
+QLineEdit* WidgetsLineEditLayout::lineEdit() const
 {
     return ui->lineEdit;
 }

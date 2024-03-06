@@ -816,6 +816,10 @@ WidgetComboboxWrapper::WidgetComboboxWrapper(QComboBox* combobox)
     : WidgetWrapper(combobox)
 {}
 
+WidgetComboboxWrapper::WidgetComboboxWrapper(WidgetsComboBoxLayout* combobox)
+    : WidgetComboboxWrapper(combobox->comboBox())
+{}
+
 DisabledColumnComponentData& WidgetComboboxWrapper::disabledColumnComponent() const
 {
     Q_ASSERT(qobject_cast<ViewModelsStandardListModel*>(GetWidget()->model()));
@@ -1394,6 +1398,12 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class QLineEdit* lineEdit)
 
 }
 
+WidgetLineEditWrapper::WidgetLineEditWrapper(class WidgetsLineEditLayout* lineEdit)
+    : WidgetLineEditWrapper(lineEdit->lineEdit())
+{
+
+}
+
 EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
     return new EventFilterObject(filter, m_object);
@@ -1925,6 +1935,11 @@ WidgetSpinBoxWrapper::WidgetSpinBoxWrapper(QSpinBox* widget)
     : Super(widget)
 {}
 
+WidgetSpinBoxWrapper::WidgetSpinBoxWrapper(WidgetsSpinBoxLayout* widget)
+    : Super(widget->spinBox())
+{}
+
+
 LocalPropertyInt& WidgetSpinBoxWrapper::WidgetValue() const
 {
     return *Injected<LocalPropertyInt>("a_value", [&]() -> LocalPropertyInt* {
@@ -1955,6 +1970,10 @@ LocalPropertyBool& WidgetSpinBoxWrapper::WidgetReadOnly() const {
 
 WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(QDoubleSpinBox* widget)
     : Super(widget)
+{}
+
+WidgetDoubleSpinBoxWrapper::WidgetDoubleSpinBoxWrapper(WidgetsDoubleSpinBoxLayout* widget)
+    : Super(widget->spinBox())
 {}
 
 LocalPropertyDouble& WidgetDoubleSpinBoxWrapper::WidgetValue() const

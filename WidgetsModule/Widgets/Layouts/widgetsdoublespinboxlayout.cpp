@@ -13,17 +13,17 @@ WidgetsDoubleSpinBoxLayout::~WidgetsDoubleSpinBoxLayout()
     delete ui;
 }
 
-QLabel* WidgetsDoubleSpinBoxLayout::label()
+QLabel* WidgetsDoubleSpinBoxLayout::label() const
 {
     return ui->label;
 }
 
-QLineEdit* WidgetsDoubleSpinBoxLayout::lineEdit()
+QLineEdit* WidgetsDoubleSpinBoxLayout::lineEdit() const
 {
     return ui->lineEdit;
 }
 
-WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox()
+WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox() const
 {
     return ui->doubleSpinBox;
 }

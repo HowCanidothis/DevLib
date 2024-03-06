@@ -8,7 +8,7 @@ class WidgetsSpinBoxLayout;
 }
 
 class QLabel;
-class QSpinBox;
+class WidgetsSpinBoxWithCustomDisplay;
 class WidgetsSpinBoxLayout : public QFrame
 {
     Q_OBJECT
@@ -19,8 +19,8 @@ public:
     explicit WidgetsSpinBoxLayout(QWidget *parent = nullptr);
     ~WidgetsSpinBoxLayout();
 
-    QLabel* label();
-    QSpinBox* spinBox();
+    QLabel* label() const;
+    WidgetsSpinBoxWithCustomDisplay* spinBox() const;
 
     QString title() const;
 

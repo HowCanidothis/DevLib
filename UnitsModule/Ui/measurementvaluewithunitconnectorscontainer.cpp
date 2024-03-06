@@ -4,7 +4,6 @@
 #include <QLineEdit>
 #include <QCheckBox>
 
-#ifdef WIDGETS_MODULE_LIB
 #include <WidgetsModule/internal.hpp>
 
 MeasurementDoubleSpinBoxWrapper::MeasurementDoubleSpinBoxWrapper(const Measurement* measurement, QDoubleSpinBox* spinBox)
@@ -30,72 +29,70 @@ void MeasurementDoubleSpinBoxWrapper::SetMaximum(double max, double offset)
     m_spinBox->setMaximum(m_baseToUnitConverter(max) + offset);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
 {
     AddConnector(measurement, &property->DisplayValue, spinBox);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, &property->DisplayValue, spinBox, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, &property->DisplayValue, spinBox, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, QDoubleSpinBox* spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesCheckBoxConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
 {
     AddConnector(measurement, &property->Value, spinBox);
     spinBox->MakeOptional(&property->IsValid).MakeSafe(m_connections);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLineEditConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesCheckBoxConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, ElidedLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-#endif
-
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
 {
     auto data = createPropertyData(measurement, property);
     auto* measurementProperty = &data->Property;
 
     auto updatePrecision = [measurementProperty, spinBox]{
-        QSignalBlocker blocker(spinBox);
+        QSignalBlocker blocker(spinBox.SpinBox);
         spinBox->setDecimals(measurementProperty->Precision);
         spinBox->setValue(measurementProperty->Value);
     };
@@ -104,19 +101,20 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
     AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox, nullptr);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLabel* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLabelConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QLineEdit* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesLineEditConnector>(measurement, label, translationHandler, labelUpdaters);
 }
 
-void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, QDoubleSpinBox* spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
+void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, QCheckBox* label, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
     AddConnector(measurement, property, spinBox);
     AddTranslationConnector<LocalPropertiesCheckBoxConnector>(measurement, label, translationHandler, labelUpdaters);

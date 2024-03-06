@@ -96,6 +96,10 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
     }).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, WidgetsLineEditLayout* lineEdit, bool reactive)
+    : LocalPropertiesLineEditConnector(property, lineEdit->lineEdit(), reactive)
+{}
+
 LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty<QString>* property, QLineEdit* lineEdit, bool reactive)
     : Super([lineEdit, property](){
                if(lineEdit->text() != *property) {
@@ -310,29 +314,29 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
-    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox, [property](double value){
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(&property->Value, spinBox.SpinBox, [property](double value){
         property->Value = value;
     })
 {
-    spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
+    spinBox.SpinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, WidgetsSpinBoxWithCustomDisplay* spinBox)
-    : LocalPropertiesSpinBoxConnector(&property->Value, spinBox)
+LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, const LocalPropertiesSpinBoxConnectorExtractor& spinBox)
+    : LocalPropertiesSpinBoxConnector(&property->Value, spinBox.SpinBox)
 {
-    spinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
+    spinBox.SpinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, WidgetsDoubleSpinBoxWithCustomDisplay* spinBox)
-    : LocalPropertiesDoubleSpinBoxConnector(property, spinBox, [](double){})
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
+    : LocalPropertiesDoubleSpinBoxConnector(property, spinBox.SpinBox, [](double){})
 {
     property->Precision.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
-        spinBox->setDecimals(property->Precision);
+        spinBox.SpinBox->setDecimals(property->Precision);
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, QDoubleSpinBox* spinBox, const std::function<void (double)>& propertySetter)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDouble* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox, const std::function<void (double)>& propertySetter)
     : Super([spinBox, property](){
                 auto precision = epsilon(spinBox->decimals() + 1);
                 if(qIsNaN(*property)) {
@@ -351,23 +355,23 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
                     return;
                 }
                 property->SetValue(spinBox->value());
-            }, spinBox
+            }, spinBox.SpinBox
     )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
-        QSignalBlocker blocker(spinBox);
+        QSignalBlocker blocker(spinBox.SpinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
-    
-    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
+
+    m_connections.connect(spinBox.SpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
 
-LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, QDoubleSpinBox* spinBox)
+LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(LocalPropertyFloat* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
     : Super([spinBox, property](){
                 float precision = epsilon(spinBox->decimals());
                 if(qIsNaN(*property)) {
@@ -382,18 +386,18 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
             },
             [spinBox, property](){
                   *property = spinBox->value();
-            }, spinBox
+            }, spinBox.SpinBox
     )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
-        QSignalBlocker blocker(spinBox);
+        QSignalBlocker blocker(spinBox.SpinBox);
         spinBox->setRange(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 
-    m_connections.connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
+    m_connections.connect(spinBox.SpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }
@@ -436,11 +440,11 @@ void LocalPropertiesWidgetConnectorsContainer::Clear()
     ForceDisabled = old;
 }
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyName* property, QComboBox* combo)
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyName* property, const LocalPropertiesComboBoxConnectorExtractor& combo)
     : LocalPropertiesComboBoxConnector(property, combo, IdRole)
 {}
 
-LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, QComboBox* combo)
+LocalPropertiesComboBoxConnector::LocalPropertiesComboBoxConnector(LocalPropertyInt* property, const LocalPropertiesComboBoxConnectorExtractor& combo)
     : LocalPropertiesComboBoxConnector(property, combo, [](const QModelIndex& index) { return index.row(); })
 {}
 
@@ -532,4 +536,36 @@ LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalProperty
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
+}
+
+LocalPropertiesComboBoxConnectorExtractor::LocalPropertiesComboBoxConnectorExtractor(WidgetsComboBoxLayout* l)
+    : ComboBox(l->comboBox())
+{}
+
+LocalPropertiesComboBoxConnectorExtractor::LocalPropertiesComboBoxConnectorExtractor(QComboBox* c)
+    : ComboBox(c)
+{}
+
+LocalPropertiesSpinBoxConnectorExtractor::LocalPropertiesSpinBoxConnectorExtractor(WidgetsSpinBoxLayout* l)
+    : LocalPropertiesSpinBoxConnectorExtractor(l->spinBox())
+{
+
+}
+
+LocalPropertiesSpinBoxConnectorExtractor::LocalPropertiesSpinBoxConnectorExtractor(WidgetsSpinBoxWithCustomDisplay* s)
+    : SpinBox(s)
+{
+
+}
+
+LocalPropertiesDoubleSpinBoxConnectorExtractor::LocalPropertiesDoubleSpinBoxConnectorExtractor(WidgetsDoubleSpinBoxLayout* l)
+    : LocalPropertiesDoubleSpinBoxConnectorExtractor(l->spinBox())
+{
+
+}
+
+LocalPropertiesDoubleSpinBoxConnectorExtractor::LocalPropertiesDoubleSpinBoxConnectorExtractor(WidgetsDoubleSpinBoxWithCustomDisplay* s)
+    : SpinBox(s)
+{
+
 }
