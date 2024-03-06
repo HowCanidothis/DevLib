@@ -1,9 +1,9 @@
 #include "widgetsdoublespinboxlayout.h"
 #include "ui_widgetsdoublespinboxlayout.h"
 
-WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent) :
-    Super(parent),
-    ui(new Ui::WidgetsDoubleSpinBoxLayout)
+WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
+    : Super(parent)
+    , ui(new Ui::WidgetsDoubleSpinBoxLayout)
 {
     ui->setupUi(this);
 }
@@ -21,6 +21,11 @@ QLabel* WidgetsDoubleSpinBoxLayout::label() const
 QLineEdit* WidgetsDoubleSpinBoxLayout::lineEdit() const
 {
     return ui->lineEdit;
+}
+
+QHBoxLayout* WidgetsDoubleSpinBoxLayout::layout() const
+{
+    return ui->horizontalLayout;
 }
 
 WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox() const

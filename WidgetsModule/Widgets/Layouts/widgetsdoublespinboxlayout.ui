@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
+    <width>320</width>
     <height>48</height>
    </rect>
   </property>
@@ -43,6 +43,12 @@
      </property>
      <item>
       <widget class="WidgetsDoubleSpinBoxWithCustomDisplay" name="doubleSpinBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -58,15 +64,18 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>40</width>
+         <width>58</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>58</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

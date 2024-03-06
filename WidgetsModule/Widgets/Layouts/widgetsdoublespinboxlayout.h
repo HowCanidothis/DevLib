@@ -9,6 +9,7 @@ class WidgetsDoubleSpinBoxLayout;
 
 class QLabel;
 class QLineEdit;
+class QHBoxLayout;
 class WidgetsDoubleSpinBoxWithCustomDisplay;
 class WidgetsDoubleSpinBoxLayout : public QFrame
 {
@@ -23,6 +24,7 @@ public:
 
     QLabel* label() const;
     QLineEdit* lineEdit() const;
+    QHBoxLayout* layout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
     QString title() const;
     bool measurement() const;
