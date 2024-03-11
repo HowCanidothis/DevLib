@@ -1,11 +1,14 @@
 #include "widgetsspinboxlayout.h"
 #include "ui_widgetsspinboxlayout.h"
 
+#include <WidgetsModule/internal.hpp>
+
 WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
     : Super(parent)
     , ui(new Ui::WidgetsSpinBoxLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->spinBox).ConnectFocus(ui->label);
 }
 
 WidgetsSpinBoxLayout::~WidgetsSpinBoxLayout()
@@ -31,4 +34,14 @@ QString WidgetsSpinBoxLayout::title() const
 void WidgetsSpinBoxLayout::setTitle(const QString& title)
 {
     ui->label->setText(title);
+}
+
+bool WidgetsSpinBoxLayout::readOnly() const
+{
+    return ui->spinBox->isReadOnly();
+}
+
+void WidgetsSpinBoxLayout::setReadOnly(bool readOnly)
+{
+    ui->spinBox->setReadOnly(readOnly);
 }

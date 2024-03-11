@@ -4,26 +4,63 @@
 #include <QPushButton>
 #include <WidgetsModule/internal.hpp>
 
-WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent) :
-    QFrame(parent),
-    ui(new Ui::WidgetsTabBarLayout)
+WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent)
+    : QFrame(parent)
+    , Opened(true)
+    , ui(new Ui::WidgetsTabBarLayout)
+    , m_prevIndex(-1)
+    , m_currentIndex(0)
+    , m_icon(nullptr)
+    , m_collapsable(false)
 {
     ui->setupUi(this);
 
     m_currentIndex.Connect(CDL, [this](qint32 index){
-        qint32 cindex = ui->stackedWidget->currentIndex();
+        qint32 cindex = m_prevIndex;
         if(index >= 0 && index < m_buttons.size()) {
             WidgetAbstractButtonWrapper(m_buttons.at(index)).SetChecked(true);
+            m_views.at(index)->show();
         }
+        m_prevIndex = index;
         if(cindex == index) {
             return;
         }
         if(cindex >= 0 && cindex < m_buttons.size()) {
             WidgetAbstractButtonWrapper(m_buttons.at(cindex)).SetChecked(false);
+            m_views.at(cindex)->hide();
         }
-        ui->stackedWidget->setCurrentIndex(index);
+        Opened = true;
         emit currentIndexChanged(index);
     });
+}
+
+bool WidgetsTabBarLayout::collapsable() const
+{
+    return m_collapsable;
+}
+
+void WidgetsTabBarLayout::setCollapsable(bool collapsable)
+{
+    m_collapsable = collapsable;
+    if(collapsable) {
+        if(m_icon == nullptr) {
+            m_icon = new QLabel();
+            ui->horizontalLayout->addWidget(m_icon);
+            m_icon->setObjectName("groupIcon");
+            Opened.ConnectAndCall(CDL, [this](bool opened) {
+                StyleUtils::ApplyStyleProperty("a_opened", m_icon, opened);
+            });
+            WidgetTabBarLayoutWrapper(this).AddCollapsing();
+            WidgetTabBarLayoutWrapper(this).AddCollapsingDispatcher(m_currentIndex.OnChanged);
+            auto updateChecked = [this]{
+                Opened = !Opened;
+            };
+            WidgetWrapper(m_icon).SetOnClicked(updateChecked);
+        }
+        m_icon->show();
+    } else if(m_icon != nullptr){
+        m_icon->hide();
+    }
 }
 
 WidgetsTabBarLayout::~WidgetsTabBarLayout()
@@ -31,14 +68,22 @@ WidgetsTabBarLayout::~WidgetsTabBarLayout()
     delete ui;
 }
 
-QStackedWidget* WidgetsTabBarLayout::widget() const
-{
-    return ui->stackedWidget;
-}
-
 const QVector<QPushButton*>& WidgetsTabBarLayout::buttons() const
 {
     return m_buttons;
+}
+
+QWidget* WidgetsTabBarLayout::widgetAt(qint32 index) const
+{
+    if(index >= 0 && index < m_views.size()) {
+        return m_views.at(index);
+    }
+    return nullptr;
+}
+
+QWidget* WidgetsTabBarLayout::currentWidget() const
+{
+    return widgetAt(m_currentIndex);
 }
 
 qint32 WidgetsTabBarLayout::currentIndex() const
@@ -67,8 +112,8 @@ QString WidgetsTabBarLayout::title() const
 
 void WidgetsTabBarLayout::setGap(qint32 gap)
 {
-    for(qint32 i(0); i < ui->stackedWidget->count(); ++i) {
-        auto* l = ui->stackedWidget->widget(i)->layout();
+    for(auto* w : m_views) {
+        auto* l = w->layout();
         if(l != nullptr) {
             l->setSpacing(gap);
         }
@@ -83,7 +128,7 @@ void WidgetsTabBarLayout::setButtonsGap(qint32 gap)
 
 void WidgetsTabBarLayout::setTitle(const QString& text)
 {
-    auto* widget = ui->stackedWidget->currentWidget();
+    auto* widget = currentWidget();
     if(widget != nullptr) {
         widget->setWindowTitle(text);
         emit windowTitleChanged(text);
@@ -121,7 +166,10 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
     m_buttons.insert(index, b);
     page->setProperty("a_is_page", true);
     ui->horizontalLayout->insertWidget(index, b);
-    ui->stackedWidget->insertWidget(index, page);
+    QVBoxLayout* l = reinterpret_cast<QVBoxLayout*>(ui->contentWidget->layout());
+    l->insertWidget(index, page);
+    m_views.insert(index, page);
+    page->hide();
     if(index == m_currentIndex) {
         m_currentIndex.Invoke();
     }
@@ -134,10 +182,8 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 
 void WidgetsTabBarLayout::removePage(int index)
 {
-    auto* b = m_buttons.takeAt(index);
-    auto* w = b->property("a_page").value<QWidget*>();
-    ui->stackedWidget->removeWidget(w);
-    delete b;
+    delete m_buttons.takeAt(index);
+    delete m_views.takeAt(index);
 #ifdef QT_PLUGIN
     for(auto* b : adapters::range(m_buttons, index)) {
         b->setObjectName("__qt__passive_button_" + QString::number(++index));

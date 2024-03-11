@@ -36,7 +36,7 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
 
 void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDouble* property, WidgetsDoubleSpinBoxLayout* spinBox, const FTranslationHandler& translationHandler, const QVector<Dispatcher*>& labelUpdaters)
 {
-    AddConnector(measurement, property, spinBox->spinBox(), spinBox->lineEdit(), translationHandler, labelUpdaters);
+    AddConnector(measurement, property, spinBox->spinBox(), spinBox->label(), translationHandler, labelUpdaters);
 }
 
 void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)

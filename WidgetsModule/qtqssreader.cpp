@@ -4,6 +4,7 @@
 #include <QFileInfo>
 
 #include <QApplication>
+#include <QRegularExpression>
 
 #include <SharedModule/External/external.hpp>
 
@@ -44,22 +45,57 @@ QString QtQSSReader::ReadAll()
         });
     }
 
-    QString result;
+    QByteArray result;
     QFileInfo fi(_fileName);
     QFile file(fi.absoluteFilePath());
     if(file.open(QFile::ReadOnly)) {
-        QString importsFile = file.readAll();
-        thread_local static QRegExp rePal(R"((@c[\d\w_\.]+):([^;]+))");
-        thread_local static QRegExp re("@import url\\(\"([^\\)]*)\"\\);");
-        qint32 pos(0);
+        QByteArray importsFile = file.readAll();
+        thread_local static QRegularExpression rePal(R"((@c[\d\w_\.]+):([^;]+))");
+        thread_local static QRegularExpression reResources(R"(@resource[\d\w_\.]*:([^;]+))");
+        thread_local static QRegularExpression re("@import url\\(\"([^\\)]*)\"\\);");
+        thread_local static QRegularExpression reColors(R"((@c[\d\w_\.]+))");
         QHash<Name, QString> colors;
-        while ((pos = rePal.indexIn(importsFile,pos)) != -1) {
-            colors.insert(Name(rePal.cap(1)), rePal.cap(2));
-            pos += rePal.matchedLength();
+        QRegularExpressionMatchIterator it;
+        importsFile.replace("@temp", SharedSettings::GetInstance().PathSettings.TempDir.absolutePath().toUtf8());
+        it = rePal.globalMatch(importsFile, 0);
+        while(it.hasNext()) {
+            auto next = it.next();
+            colors.insert(Name(next.captured(1)), next.captured(2));
         }
-        pos = 0;
-        while ((pos = re.indexIn(importsFile,pos)) != -1) {
-            QString qssFileName = re.cap(1);
+        auto applyConstants = [&colors](QByteArray& result, const QByteArray& fileContent) {
+            auto colorsIt = reColors.globalMatch(fileContent);
+            qint32 prev = 0;
+            while(colorsIt.hasNext()) {
+                auto match = colorsIt.next();
+                for(const auto& sym : adapters::range(fileContent, prev, match.capturedStart() - prev)) {
+                    result += sym;
+                }
+                result += colors.value(Name(match.captured(1)), "#00000000");
+                prev = match.capturedEnd();
+            }
+            for(const auto& sym : adapters::range(fileContent, prev, fileContent.size() - prev)) {
+                result += sym;
+            }
+            return result;
+        };
+        it = reResources.globalMatch(importsFile, 0);
+        while(it.hasNext()) {
+            QDir dir(it.next().captured(1));
+            for(const QString& s : dir.entryList()) {
+                auto newFileName = SharedSettings::GetInstance().PathSettings.TempDir.absoluteFilePath(s);
+                QFile templateFile(dir.absoluteFilePath(s));
+                QFile newFile(newFileName);
+                if(templateFile.open(QFile::ReadOnly) && newFile.open(QFile::WriteOnly)) {
+                    auto fileContent = templateFile.readAll();
+                    QByteArray newFileContent;
+                    applyConstants(newFileContent, fileContent);
+                    newFile.write(newFileContent);
+                }
+            }
+        }
+        it = re.globalMatch(importsFile, 0);
+        while (it.hasNext()) {
+            QString qssFileName = it.next().captured(1);
             QFile qssFile(fi.absolutePath() + "/" + qssFileName);
             if(qssFile.open(QFile::ReadOnly)) {
                 if(_observer) {
@@ -67,31 +103,18 @@ QString QtQSSReader::ReadAll()
                         Install(_fileName);
                     });
                 }
-                thread_local static QRegExp reColors(R"((@c[\d\w_\.]+))");
                 auto fileContent = qssFile.readAll();
-                qint32 current = 0, prev = 0;
-                while((current = reColors.indexIn(fileContent,current)) != -1) {
-                    for(const auto& sym : adapters::range(fileContent, prev, current - prev)) {
-                        result += sym;
-                    }
-                    result += colors.value(Name(reColors.cap(1)), "#00000000");
-                    current += reColors.matchedLength();
-                    prev = current;
-                }
-                for(const auto& sym : adapters::range(fileContent, prev, fileContent.size() - prev)) {
-                    result += sym;
-                }
+                applyConstants(result, fileContent);
             } else {
                 qCWarning(LC_SYSTEM) << "No such file" << qssFileName;
             }
-            pos += re.matchedLength();
         }
     } else {
         qCWarning(LC_SYSTEM) << file.errorString() << fi.absoluteFilePath();
     }
     QFile test("C:/Work/temp/test.txt");
     if(test.open(QFile::WriteOnly)) {
-        test.write(result.toUtf8());
+        test.write(result);
     }
     return result;
 }

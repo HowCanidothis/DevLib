@@ -755,15 +755,16 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
     return [translationHandler, measurement]{
         THREAD_ASSERT_IS_MAIN()
         thread_local static QRegExp regExp(MEASUREMENT_UN);
-        qint32 index = 0, stringIndex = 0;
+        qint32 index = 0;
         QString resultString, string = translationHandler();
-        while((index = regExp.indexIn(string, index)) != -1) {
-            resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
+        if((index = regExp.indexIn(string, index)) != -1) {
+            resultString.append(QStringView(string.begin(), string.begin() + index).toString());
             resultString.append(measurement->CurrentUnitLabel);
             index += regExp.matchedLength();
-            stringIndex = index;
+            resultString.append(QStringView(string.begin() + index, string.end()).toString());
+        } else {
+            resultString.append(string).append(' ').append('(').append(measurement->CurrentUnitLabel).append(')');
         }
-        resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
         return resultString;
     };
 }

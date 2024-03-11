@@ -172,6 +172,34 @@ public:
     QByteArray StoreGeometry() const;
     bool RestoreGeometry(const QByteArray& geometry) const;
 
+    template<typename ... Args>
+    EventFilterObject* ConnectFocus(Args... other) const
+    {
+        auto* widget = GetWidget();
+        return AddEventFilter([=](QObject*, QEvent* e) {
+            switch(e->type()) {
+            case QEvent::FocusIn:
+                if(!WidgetWrapper(widget).WidgetEnablity()) {
+                    return false;
+                }
+                adapters::Combine([](auto* w) {
+                    StyleUtils::ApplyStyleProperty("a_focus", w, true);
+                }, other...);
+            break;
+            case QEvent::FocusOut:
+                if(!WidgetWrapper(widget).WidgetEnablity()) {
+                    return false;
+                }
+                adapters::Combine([](auto* w) {
+                    StyleUtils::ApplyStyleProperty("a_focus", w, false);
+                }, other...);
+            break;
+            default: break;
+            }
+            return false;
+        });
+    }
+
     DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
 
@@ -453,6 +481,17 @@ public:
     LocalPropertyBool& WidgetChecked() const;
     const WidgetGroupboxLayoutWrapper& AddCollapsing() const;
     const WidgetGroupboxLayoutWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr, qint32 delay = 1000) const;
+};
+
+class WidgetTabBarLayoutWrapper : public WidgetWrapper
+{
+public:
+    WidgetTabBarLayoutWrapper(class WidgetsTabBarLayout* groupBox);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTabBarLayoutWrapper, WidgetsTabBarLayout)
+    //LocalPropertyBool& WidgetChecked() const;
+    const WidgetTabBarLayoutWrapper& AddCollapsing() const;
+    const WidgetTabBarLayoutWrapper& AddCollapsingDispatcher(Dispatcher& updater, class QScrollArea* area = nullptr, qint32 delay = 1000) const;
 };
 
 class LocalPropertyDoubleDisplay : public LocalPropertyDouble

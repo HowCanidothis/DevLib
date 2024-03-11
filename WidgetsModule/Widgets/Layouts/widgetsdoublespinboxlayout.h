@@ -15,7 +15,7 @@ class WidgetsDoubleSpinBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
-    Q_PROPERTY(bool measurement READ measurement WRITE setMeasurement)
+    Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     using Super = QFrame;
 
 public:
@@ -26,12 +26,12 @@ public:
     QLineEdit* lineEdit() const;
     QHBoxLayout* layout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
-    QString title() const;
-    bool measurement() const;
 
-public slots:
+    bool readOnly() const;
+    void setReadOnly(bool readOnly);
+
+    QString title() const;
     void setTitle(const QString& title);
-    void setMeasurement(const bool& measurement);
 
 private:
     Ui::WidgetsDoubleSpinBoxLayout *ui;

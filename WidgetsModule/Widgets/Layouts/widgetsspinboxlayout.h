@@ -13,6 +13,7 @@ class WidgetsSpinBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     using Super = QFrame;
 
 public:
@@ -23,9 +24,10 @@ public:
     WidgetsSpinBoxWithCustomDisplay* spinBox() const;
 
     QString title() const;
-
-public slots:
     void setTitle(const QString& title);
+
+    bool readOnly() const;
+    void setReadOnly(bool readOnly);
 
 private:
     Ui::WidgetsSpinBoxLayout *ui;

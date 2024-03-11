@@ -62,3 +62,20 @@ QWidget[RedCircleButton="true"] {
 QWidget[RedCircleButton="true"]:hover {
     background: #22ff3b30;
 }
+
+QFrame[Hueta="true"] {
+    background: #212121;
+    padding: 8px;
+}
+
+QLabel[cblbl="true"] {
+    margin: 0px;
+    padding: 0px;
+    margin-top: 4px;
+    margin-bottom: -8px;
+    background: transparent;
+}
+
+QFrame[Hueta="true"] QLineEdit{
+    min-height: 29px;
+}

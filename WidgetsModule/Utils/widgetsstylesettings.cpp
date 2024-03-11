@@ -18,6 +18,7 @@ WidgetsStyleSettings::WidgetsStyleSettings()
     , m_errorColor(SharedSettings::GetInstance().StyleSettings.ErrorColor)
     , m_warningLinkColor(SharedSettings::GetInstance().StyleSettings.WarningLinkColor)
     , m_warningColor(SharedSettings::GetInstance().StyleSettings.WarningColor)
+    , m_placeHolderColor(SharedSettings::GetInstance().StyleSettings.PlaceHolderColor)
     , m_showFocusMinFrame(SharedSettings::GetInstance().StyleSettings.ShowFocusMinFrame)
 {
     Q_ASSERT(m_instance == nullptr);

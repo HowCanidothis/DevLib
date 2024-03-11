@@ -29,6 +29,7 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(QColor warningColor MEMBER m_warningColor)
 
     Q_PROPERTY(qint32 showFocusMinFrame MEMBER m_showFocusMinFrame)
+    Q_PROPERTY(QColor placeHolderColor MEMBER m_placeHolderColor)
 
 public:
     WidgetsStyleSettings();
@@ -50,6 +51,7 @@ private:
     LocalPropertyColor& m_errorColor;
     LocalPropertyColor& m_warningLinkColor;
     LocalPropertyColor& m_warningColor;
+    LocalPropertyColor& m_placeHolderColor;
     LocalPropertyInt m_shadowBlurRadius;
 
     LocalPropertyInt& m_showFocusMinFrame;

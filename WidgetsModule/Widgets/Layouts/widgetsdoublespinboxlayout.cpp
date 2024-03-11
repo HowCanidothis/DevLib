@@ -1,16 +1,26 @@
 #include "widgetsdoublespinboxlayout.h"
 #include "ui_widgetsdoublespinboxlayout.h"
 
+#include <WidgetsModule/internal.hpp>
+#include <PropertiesModule/Ui/internal.hpp>
+
 WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     : Super(parent)
     , ui(new Ui::WidgetsDoubleSpinBoxLayout)
 {
     ui->setupUi(this);
+    ui->lineEdit->hide();
+    WidgetWrapper(ui->doubleSpinBox).ConnectFocus(ui->label);
 }
 
 WidgetsDoubleSpinBoxLayout::~WidgetsDoubleSpinBoxLayout()
 {
     delete ui;
+}
+
+bool WidgetsDoubleSpinBoxLayout::readOnly() const
+{
+    return ui->doubleSpinBox->isReadOnly();
 }
 
 QLabel* WidgetsDoubleSpinBoxLayout::label() const
@@ -38,17 +48,12 @@ QString WidgetsDoubleSpinBoxLayout::title() const
     return ui->label->text();
 }
 
-bool WidgetsDoubleSpinBoxLayout::measurement() const
-{
-    return ui->lineEdit->isVisible();
-}
-
 void WidgetsDoubleSpinBoxLayout::setTitle(const QString& title)
 {
     ui->label->setText(title);
 }
 
-void WidgetsDoubleSpinBoxLayout::setMeasurement(const bool& measurement)
+void WidgetsDoubleSpinBoxLayout::setReadOnly(bool readOnly)
 {
-    ui->lineEdit->setVisible(measurement);
+    ui->doubleSpinBox->setReadOnly(readOnly);
 }

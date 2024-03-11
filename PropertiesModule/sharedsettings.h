@@ -55,8 +55,14 @@ struct StyleSettings
     LocalPropertyColor WarningLinkColor;
     LocalPropertyColor ErrorColor;
     LocalPropertyColor WarningColor;
+    LocalPropertyColor PlaceHolderColor;
 
     LocalPropertyColor DefaultRedColor;
+    LocalPropertyColor DefaultBlueColor;
+    LocalPropertyColor DefaultGreenColor;
+    LocalPropertyColor DefaultOrangeColor;
+    LocalPropertyColor DefaultGrayColor;
+    LocalPropertyColor DefaultPurpleColor;
 
     LocalPropertyInt ShowFocusMinFrame;
     LocalPropertyFilePath ShadersPath;

@@ -58,8 +58,7 @@ public:
             if(label->text().isEmpty()) {
                 AddConnector<ConnectorType>(&const_cast<Measurement*>(measurement)->CurrentUnitLabel, label);
             } else {
-                auto text = label->text();
-                auto data = createTranslationData(measurement, TR(label->text().contains(MEASUREMENT_UN) ? label->text() : text,label, text), labelUpdaters);
+                auto data = createTranslationData(measurement, TR(label->text(), label), labelUpdaters);
                 AddConnector<ConnectorType>(&data->Translation, label);
             }
         } else {

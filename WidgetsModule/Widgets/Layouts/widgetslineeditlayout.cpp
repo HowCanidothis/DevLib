@@ -1,11 +1,14 @@
 #include "widgetslineeditlayout.h"
 #include "ui_widgetslineeditlayout.h"
 
+#include <WidgetsModule/internal.hpp>
+
 WidgetsLineEditLayout::WidgetsLineEditLayout(QWidget* parent)
     : Super(parent)
     , ui(new Ui::WidgetsLineEditLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->lineEdit).ConnectFocus(ui->label);
 }
 
 WidgetsLineEditLayout::~WidgetsLineEditLayout()
@@ -41,4 +44,14 @@ void WidgetsLineEditLayout::setTitle(const QString& title)
 void WidgetsLineEditLayout::setPlaceHolder(const QString& placeHolder)
 {
     ui->lineEdit->setPlaceholderText(placeHolder);
+}
+
+bool WidgetsLineEditLayout::readOnly() const
+{
+    return ui->lineEdit->isReadOnly();
+}
+
+void WidgetsLineEditLayout::setReadOnly(bool readOnly)
+{
+    ui->lineEdit->setReadOnly(readOnly);
 }
