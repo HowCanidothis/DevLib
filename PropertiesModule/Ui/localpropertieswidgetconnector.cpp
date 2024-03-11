@@ -252,6 +252,20 @@ LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty
     }
 }
 
+QVector<QAbstractButton*> convertPushButton(const QVector<QPushButton*>& buttons){
+    QVector<QAbstractButton*> res; res.reserve(buttons.size());
+    for(const auto& b : buttons){
+        res.append(b);
+    }
+    return res;
+}
+
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QPushButton*>& buttons)
+    : LocalPropertiesPushButtonConnector(property, convertPushButton(buttons))
+{
+
+}
+
 LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QAbstractButton*>& buttons)
     : Super([buttons, property]{
                 for(auto* button : buttons) {

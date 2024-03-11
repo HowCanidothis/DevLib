@@ -23,6 +23,11 @@ QComboBox* WidgetsComboBoxLayout::comboBox() const
     return ui->comboBox;
 }
 
+QHBoxLayout* WidgetsComboBoxLayout::layout() const
+{
+    return ui->horizontalLayout;
+}
+
 QString WidgetsComboBoxLayout::title() const
 {
     return ui->label->text();

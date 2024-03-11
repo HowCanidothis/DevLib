@@ -63,6 +63,7 @@ class _Export LocalPropertiesPushButtonConnector : public LocalPropertiesWidgetC
 public:
     LocalPropertiesPushButtonConnector(Dispatcher* dispatcher, class QAbstractButton* button);
     LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QAbstractButton* button);
+    LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<class QPushButton*>& buttons);
     LocalPropertiesPushButtonConnector(LocalPropertyInt* property, const QVector<QAbstractButton*>& buttons);
     LocalPropertiesPushButtonConnector(LocalPropertyColor* property, class WidgetsColorPicker* button);
 

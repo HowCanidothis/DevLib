@@ -9,6 +9,7 @@ class WidgetsComboBoxLayout;
 
 class QLabel;
 class QComboBox;
+class QHBoxLayout;
 class WidgetsComboBoxLayout : public QFrame
 {
     Q_OBJECT
@@ -21,6 +22,7 @@ public:
 
     QLabel* label() const;
     QComboBox* comboBox() const;
+    QHBoxLayout* layout() const;
 
     QString title() const;
 

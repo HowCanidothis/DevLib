@@ -12,8 +12,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
 {
 	ui->setupUi(this);
 	
-	auto style = ui->calendarWidget->weekdayTextFormat(Qt::DayOfWeek::Monday);
-	ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Saturday, style);
+    auto style = ui->calendarWidget->weekdayTextFormat(Qt::DayOfWeek::Monday);
+    ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Saturday, style);
     ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Sunday, style);
 	
     connect(ui->calendarWidget, &QCalendarWidget::clicked, [this](const QDate& date){
@@ -30,7 +30,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
             return;
         }
         CurrentDateTime = QDateTime(date, CurrentDateTime.Native().time());
-	});
+    });
 
     auto updateTimeRangeHandler = [this]{
         QDateTime dateTime, dateTimeMin, dateTimeMax;
@@ -62,7 +62,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     CurrentDateTime.SetAndSubscribe(updateTimeRangeHandler);
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [updateTimeRangeHandler]{
         updateTimeRangeHandler();
-	});
+    });
 	
     CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [this](const QDateTime& dt){
         if(TimeShift.IsValid) {
@@ -77,17 +77,19 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         return QDateTime(CurrentDateTime.IsRealTime() ? ui->calendarWidget->selectedDate() : CurrentDateTime.Native().date(), time);
     }, TimeShift);
 	
-	connect(ui->btnNow, &QPushButton::clicked, [this](bool){ 
+    connect(ui->btnNow, &QPushButton::clicked, [this](bool){
         CurrentDateTime = QDateTime();
         OnNowActivate();
-	});
-	connect(ui->btnApply, &QPushButton::clicked, [this](bool){
+    });
+    connect(ui->btnApply, &QPushButton::clicked, [this](bool){
         OnApplyActivate();
-	});
+    });
 
-    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
-        ui->calendarWidget->setLocale(SharedSettings::GetInstance().LanguageSettings.ApplicationLocale);
-    }).MakeSafe(m_connections);
+    if(SharedSettings::GetInstance().IsInitialized()){
+        SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
+            ui->calendarWidget->setLocale(SharedSettings::GetInstance().LanguageSettings.ApplicationLocale);
+        }).MakeSafe(m_connections);
+    }
 
     WidgetAbstractButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){

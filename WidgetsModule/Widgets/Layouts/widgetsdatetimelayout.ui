@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WidgetsComboBoxLayout</class>
- <widget class="QFrame" name="WidgetsComboBoxLayout">
+ <class>WidgetsDateTimeLayout</class>
+ <widget class="QFrame" name="WidgetsDateTimeLayout">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>74</width>
-    <height>45</height>
+    <width>138</width>
+    <height>44</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Frame</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>8</number>
-   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -34,23 +31,27 @@
      <property name="text">
       <string>TextLabel</string>
      </property>
-     <property name="a_label" stdset="0">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>4</number>
-     </property>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="WidgetsDateTimeEdit" name="dateTimeEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::NoButtons</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CalendarButton">
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
@@ -58,6 +59,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetsDateTimeEdit</class>
+   <extends>QDateTimeEdit</extends>
+   <header>WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

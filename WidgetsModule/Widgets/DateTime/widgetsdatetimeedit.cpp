@@ -18,23 +18,35 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
     m_recursionBlock = false;
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
-    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
-        setLocale(locale);
-        if(calendarWidget() != nullptr) {
-            calendarWidget()->setLocale(locale);
-        }
-        Resize();
-    }).MakeSafe(m_connections);
+    if(SharedSettings::IsInitialized()) {
+        SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
+            setLocale(locale);
+            if(calendarWidget() != nullptr) {
+                calendarWidget()->setLocale(locale);
+            }
+            Resize();
+        }).MakeSafe(m_connections);
 
-    std::function<const LocalPropertyString&(const LanguageSettings&)> DisplayFormat;
-    switch(type){
-    case QVariant::Time: DisplayFormat = &LanguageSettings::TimeFormat; break;
-    case QVariant::Date: DisplayFormat = &LanguageSettings::DateFormat; break;
-    default: DisplayFormat = &LanguageSettings::DateTimeFormat; break;
+        if(type == QVariant::DateTime) {
+            auto displayTextConnections = DispatcherConnectionsSafeCreate();
+            Mode.ConnectAndCall(CDL, [this, displayTextConnections](int mode){
+                displayTextConnections->clear();
+                LocalPropertyString* displayFormat;
+                switch(mode){
+                case 1/*WidgetsDateTimeWidget::Date*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateFormat; break;
+                case 2/*WidgetsDateTimeWidget::Time*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.TimeFormat; break;
+                default: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateTimeFormat; break;
+                }
+                displayFormat->ConnectAndCall(CDL, [this](const QString& format){
+                    setDisplayFormat(format);
+                }).MakeSafe(*displayTextConnections);
+            }).MakeSafe(m_connections);
+        } else {
+            SharedSettings::GetInstance().LanguageSettings.DateFormat.ConnectAndCall(CDL, [this](const QString& format){
+                setDisplayFormat(format);
+            }).MakeSafe(m_connections);
+        }
     }
-    DisplayFormat(SharedSettings::GetInstance().LanguageSettings).ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QString& format){
-        setDisplayFormat(format);
-    }).MakeSafe(m_connections);
 
     CurrentDateTime.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QDateTime& dt){
         QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;

@@ -15,7 +15,8 @@ class WidgetsDateTimeWidget : public QFrame
 public:
     enum Mode {
         DateTime,
-        Date
+        Date,
+        Time
     };
 
     explicit WidgetsDateTimeWidget(QWidget *parent = nullptr);

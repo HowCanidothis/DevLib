@@ -18,6 +18,7 @@ public:
     void Resize();
 
     LocalPropertyBool AutoResize;
+    LocalPropertyInt Mode;
 
     QDateTime dateTimeFromText(const QString &text) const override;
     QString textFromDateTime(const QDateTime &dt) const override;

@@ -7,5 +7,7 @@
 #include "widgetslineeditlayout.h"
 #include "widgetsspinboxlayout.h"
 #include "widgetstabbarlayout.h"
+#include "widgetsdatetimelayout.h"
+#include "widgetsfilterlayout.h"
 
 #endif
