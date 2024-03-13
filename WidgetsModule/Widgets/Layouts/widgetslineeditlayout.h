@@ -2,19 +2,21 @@
 #define WIDGETSLINEEDITLAYOUT_H
 
 #include <QFrame>
+#include <QLineEdit>
 
 namespace Ui {
 class WidgetsLineEditLayout;
 }
 
 class QLabel;
-class QLineEdit;
 class WidgetsLineEditLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString placeHolder READ placeHolder WRITE setPlaceHolder)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
+    Q_PROPERTY(QLineEdit::EchoMode echoMode READ echoMode WRITE setEchoMode)
+    using EchoMode = QLineEdit::EchoMode;
     using Super = QFrame;
 
 public:
@@ -33,6 +35,8 @@ public:
     bool readOnly() const;
     void setReadOnly(bool readOnly);
 
+    EchoMode echoMode() const;
+    void setEchoMode(EchoMode mode);
 private:
     Ui::WidgetsLineEditLayout *ui;
 };

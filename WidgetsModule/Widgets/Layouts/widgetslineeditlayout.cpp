@@ -55,3 +55,12 @@ void WidgetsLineEditLayout::setReadOnly(bool readOnly)
 {
     ui->lineEdit->setReadOnly(readOnly);
 }
+
+WidgetsLineEditLayout::EchoMode WidgetsLineEditLayout::echoMode() const
+{
+    return ui->lineEdit->echoMode();
+}
+
+void WidgetsLineEditLayout::setEchoMode(EchoMode mode){
+    ui->lineEdit->setEchoMode(mode);
+}

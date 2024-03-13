@@ -183,7 +183,7 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 void WidgetsTabBarLayout::removePage(int index)
 {
     delete m_buttons.takeAt(index);
-    delete m_views.takeAt(index);
+    m_views.takeAt(index);
 #ifdef QT_PLUGIN
     for(auto* b : adapters::range(m_buttons, index)) {
         b->setObjectName("__qt__passive_button_" + QString::number(++index));
@@ -194,4 +194,12 @@ void WidgetsTabBarLayout::removePage(int index)
 void WidgetsTabBarLayout::setCurrentIndex(qint32 index)
 {
     m_currentIndex = index;
+}
+
+void WidgetsTabBarLayout::SetIcons(const QVector<const Name*>& icons)
+{
+    Q_ASSERT(icons.size() == m_buttons.size());
+    adapters::Foreach([](QPushButton* button, const Name* icon){
+        WidgetPushButtonWrapper(button).SetIcon(*icon);
+    }, m_buttons, icons);
 }

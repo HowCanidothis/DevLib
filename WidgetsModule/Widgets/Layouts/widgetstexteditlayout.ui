@@ -1,28 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WidgetsLineEditLayout</class>
- <widget class="QFrame" name="WidgetsLineEditLayout">
+ <class>WidgetsTextEditLayout</class>
+ <widget class="QFrame" name="WidgetsTextEditLayout">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
-    <height>43</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Frame</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>8</number>
-   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -40,17 +31,10 @@
      <property name="text">
       <string>TextLabel</string>
      </property>
-     <property name="a_label" stdset="0">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+    <widget class="QTextEdit" name="textEdit"/>
    </item>
   </layout>
  </widget>

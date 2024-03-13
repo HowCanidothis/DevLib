@@ -226,6 +226,12 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
     }).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, WidgetsTextEditLayout* textEdit, SubmitType submitType)
+    : LocalPropertiesTextEditConnector(property, textEdit->textEdit(), submitType)
+{
+
+}
+
 LocalPropertiesTextEditConnector::LocalPropertiesTextEditConnector(LocalProperty<QString>* property, QTextEdit* textEdit, LocalPropertiesTextEditConnector::SubmitType submitType)
     : Super([textEdit, property](){
     if(textEdit->toPlainText() != *property){

@@ -37,3 +37,13 @@ void WidgetsComboBoxLayout::setTitle(const QString& title)
 {
     ui->label->setText(title);
 }
+
+bool WidgetsComboBoxLayout::editable() const
+{
+    return comboBox()->editable();
+}
+
+void WidgetsComboBoxLayout::setEditable(const bool& editable)
+{
+    comboBox()->setEditable(editable);
+}

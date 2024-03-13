@@ -36,6 +36,7 @@ public:
     void setCollapsable(bool collapsable);
 
     void setGap(qint32 gap);
+    void SetIcons(const QVector<const Name*>& icons);
 
     LocalPropertyBool Opened;
 
