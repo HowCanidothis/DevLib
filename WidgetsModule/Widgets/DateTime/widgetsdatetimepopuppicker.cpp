@@ -39,11 +39,15 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
         }
         OnCloseEditor();
     });
+    ui->dateTimeEdit->Mode.ConnectFrom(CDL, Mode);
+    m_editor->Mode.ConnectFrom(CDL, Mode);
     m_editor->OnNowActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     m_editor->OnApplyActivate.Connect(CONNECTION_DEBUG_LOCATION, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
     
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit, &TimeShift);
+#ifndef QT_PLUGIN
     WidgetAbstractButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::DateTimePicker).SetIcon("Calendar");
+#endif
 }
 
 WidgetsDatetimePopupPicker::~WidgetsDatetimePopupPicker()

@@ -326,19 +326,21 @@ private:
     DelayedCallObject m_textChanged;
 };
 
-class _Export LocalPropertiesDateConnector : public LocalPropertiesWidgetConnectorBase
+struct LocalPropertiesDateTimeConnectorExtractor
 {
-    using Super = LocalPropertiesWidgetConnectorBase;
-public:
-    LocalPropertiesDateConnector(LocalPropertyDate* property, class WidgetsDateEdit* dateTime);
-    LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime, LocalPropertyDoubleOptional* timeShift = nullptr);
+    LocalPropertiesDateTimeConnectorExtractor(class WidgetsDateTimeEdit* l);
+    LocalPropertiesDateTimeConnectorExtractor(class WidgetsDateTimeLayout* s);
+
+    WidgetsDateTimeEdit* DateTime;
+    WidgetsDateTimeEdit* operator->() const { return DateTime; }
 };
 
 class _Export LocalPropertiesDateTimeConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, class WidgetsDateTimeEdit* dateTime, LocalPropertyDoubleOptional* timeShift = nullptr);
+    LocalPropertiesDateTimeConnector(LocalPropertyDate* property, const LocalPropertiesDateTimeConnectorExtractor& dateTime);
+    LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, const LocalPropertiesDateTimeConnectorExtractor& dateTime, LocalPropertyDoubleOptional* timeShift = nullptr);
 };
 
 #endif // LOCALPROPERTIESWIDGETCONNECTOR_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>48</height>
+    <height>52</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,7 +116,7 @@
   <customwidget>
    <class>WidgetsDoubleSpinBoxWithCustomDisplay</class>
    <extends>QDoubleSpinBox</extends>
-   <header>WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h</header>
+   <header location="global">WidgetsModule/internal.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

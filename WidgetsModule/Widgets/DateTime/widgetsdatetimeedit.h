@@ -17,6 +17,8 @@ public:
     std::function<QDateTime ()> DefaultDateTimeDelegate = []{ return QDateTime(); };
     void Resize();
 
+    LocalPropertyDate& GetOrCreateDateProperty();
+
     LocalPropertyBool AutoResize;
     LocalPropertyInt Mode;
 
@@ -31,16 +33,7 @@ private:
     DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_call;
     bool m_recursionBlock;
-};
-
-class WidgetsDateEdit : public WidgetsDateTimeEdit
-{
-    Q_OBJECT
-    using Super = WidgetsDateTimeEdit;
-public:
-    WidgetsDateEdit(QWidget* parent = nullptr);
-
-    LocalPropertyDate CurrentDate;
+    ScopedPointer<LocalPropertyDate> m_dateProperty;
 };
 
 #endif // WIDGETSDATETIMEEDIT_H

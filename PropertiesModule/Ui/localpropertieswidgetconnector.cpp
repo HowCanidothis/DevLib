@@ -493,27 +493,6 @@ QModelIndex LocalPropertiesComboBoxConnector::currentIndex(QComboBox* combobox)
     return combobox->model()->index(combobox->currentIndex(), 0);
 }
 
-LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDate* property, WidgetsDateEdit* dateTime)
-    : Super([dateTime, property](){
-                dateTime->CurrentDate = property->Native();
-            },
-            [dateTime, property](){
-                *property = dateTime->CurrentDate.Native();
-            }, dateTime
-    )
-{
-    property->OnChanged.Connect(CDL, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-    dateTime->CurrentDate.OnChanged.Connect(CDL, [this] {
-        m_propertySetter();
-    }).MakeSafe(m_dispatcherConnections);
-
-    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
-        dateTime->CurrentDate.SetMinMax(property->GetMin(), property->GetMax());
-    }).MakeSafe(m_dispatcherConnections);
-}
-
 DispatcherConnections connectDateTime(const FAction& widgetSetter, const FAction& propertySetter, LocalPropertyDateTime* property, WidgetsDateTimeEdit* widgetDateTime, LocalPropertyDoubleOptional* timeShift)
 {
     DispatcherConnections result;
@@ -525,32 +504,37 @@ DispatcherConnections connectDateTime(const FAction& widgetSetter, const FAction
     return result;
 }
 
-LocalPropertiesDateConnector::LocalPropertiesDateConnector(LocalPropertyDateTime* property, WidgetsDateEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
+LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDate* property, const LocalPropertiesDateTimeConnectorExtractor& dateTime)
     : Super([dateTime, property](){
-                dateTime->CurrentDateTime = property->Native();
+                dateTime->GetOrCreateDateProperty() = property->Native();
             },
             [dateTime, property](){
-                *property = dateTime->CurrentDateTime.Native();
-            }, dateTime
+                *property = dateTime->GetOrCreateDateProperty().Native();
+            }, dateTime.DateTime
     )
 {
-    connectDateTime(m_widgetSetter, m_propertySetter, property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
+    property->OnChanged.Connect(CDL, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+    dateTime->GetOrCreateDateProperty().OnChanged.Connect(CDL, [this] {
+        m_propertySetter();
+    }).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
-        dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
+        dateTime->GetOrCreateDateProperty().SetMinMax(property->GetMin(), property->GetMax());
     }).MakeSafe(m_dispatcherConnections);
 }
 
-LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, WidgetsDateTimeEdit* dateTime, LocalPropertyDoubleOptional* timeShift)
+LocalPropertiesDateTimeConnector::LocalPropertiesDateTimeConnector(LocalPropertyDateTime* property, const LocalPropertiesDateTimeConnectorExtractor& dateTime, LocalPropertyDoubleOptional* timeShift)
     : Super([dateTime, property](){
                 dateTime->CurrentDateTime = property->Native();
             },
             [dateTime, property](){
                 *property = dateTime->CurrentDateTime.Native();
-            }, dateTime
+            }, dateTime.DateTime
     )
 {
-    connectDateTime(m_widgetSetter, m_propertySetter, property, dateTime, timeShift).MakeSafe(m_dispatcherConnections);
+    connectDateTime(m_widgetSetter, m_propertySetter, property, dateTime.DateTime, timeShift).MakeSafe(m_dispatcherConnections);
 
     property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [property, dateTime]{
         dateTime->CurrentDateTime.SetMinMax(property->GetMin(), property->GetMax());
@@ -585,6 +569,18 @@ LocalPropertiesDoubleSpinBoxConnectorExtractor::LocalPropertiesDoubleSpinBoxConn
 
 LocalPropertiesDoubleSpinBoxConnectorExtractor::LocalPropertiesDoubleSpinBoxConnectorExtractor(WidgetsDoubleSpinBoxWithCustomDisplay* s)
     : SpinBox(s)
+{
+
+}
+
+LocalPropertiesDateTimeConnectorExtractor::LocalPropertiesDateTimeConnectorExtractor(WidgetsDateTimeEdit* l)
+    : DateTime(l)
+{
+
+}
+
+LocalPropertiesDateTimeConnectorExtractor::LocalPropertiesDateTimeConnectorExtractor(WidgetsDateTimeLayout* s)
+    : LocalPropertiesDateTimeConnectorExtractor(s->dateTime()->GetLineEdit())
 {
 
 }

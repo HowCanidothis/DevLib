@@ -18,35 +18,29 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
     m_recursionBlock = false;
     setButtonSymbols(WidgetsDateTimeEdit::NoButtons);
 
-    if(SharedSettings::IsInitialized()) {
-        SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
-            setLocale(locale);
-            if(calendarWidget() != nullptr) {
-                calendarWidget()->setLocale(locale);
-            }
-            Resize();
-        }).MakeSafe(m_connections);
-
-        if(type == QVariant::DateTime) {
-            auto displayTextConnections = DispatcherConnectionsSafeCreate();
-            Mode.ConnectAndCall(CDL, [this, displayTextConnections](int mode){
-                displayTextConnections->clear();
-                LocalPropertyString* displayFormat;
-                switch(mode){
-                case 1/*WidgetsDateTimeWidget::Date*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateFormat; break;
-                case 2/*WidgetsDateTimeWidget::Time*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.TimeFormat; break;
-                default: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateTimeFormat; break;
-                }
-                displayFormat->ConnectAndCall(CDL, [this](const QString& format){
-                    setDisplayFormat(format);
-                }).MakeSafe(*displayTextConnections);
-            }).MakeSafe(m_connections);
-        } else {
-            SharedSettings::GetInstance().LanguageSettings.DateFormat.ConnectAndCall(CDL, [this](const QString& format){
-                setDisplayFormat(format);
-            }).MakeSafe(m_connections);
+#ifndef QT_PLUGIN
+    SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QLocale& locale){
+        setLocale(locale);
+        if(calendarWidget() != nullptr) {
+            calendarWidget()->setLocale(locale);
         }
-    }
+        Resize();
+    }).MakeSafe(m_connections);
+
+    auto displayTextConnections = DispatcherConnectionsSafeCreate();
+    Mode.ConnectAndCall(CDL, [this, displayTextConnections](int mode){
+        displayTextConnections->clear();
+        LocalPropertyString* displayFormat;
+        switch(mode){
+        case 1/*WidgetsDateTimeWidget::Date*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateFormat; break;
+        case 2/*WidgetsDateTimeWidget::Time*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.TimeFormat; break;
+        default: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateTimeFormat; break;
+        }
+        displayFormat->ConnectAndCall(CDL, [this](const QString& format){
+            setDisplayFormat(format);
+        }).MakeSafe(*displayTextConnections);
+    });
+#endif
 
     CurrentDateTime.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](const QDateTime& dt){
         QDateTime dateTime = TimeShift.IsValid ? dt.toOffsetFromUtc(TimeShift.Value) : dt;
@@ -151,27 +145,32 @@ void WidgetsDateTimeEdit::Resize()
     }
 }
 
-WidgetsDateEdit::WidgetsDateEdit(QWidget* parent)
-    : Super(QDate(2000,1,1), QVariant::Date, parent)
+LocalPropertyDate& WidgetsDateTimeEdit::GetOrCreateDateProperty()
 {
-    CurrentDate.ConnectBoth(CONNECTION_DEBUG_LOCATION,CurrentDateTime, [](const QDate& date){
+    if(m_dateProperty == nullptr) {
+        m_dateProperty = new LocalPropertyDate();
+        CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,*m_dateProperty, [](const QDateTime& dateTime){
+            if(!dateTime.isValid()) {
+                return QDate();
+            }
+            return dateTime.date();
+        }, [](const QDate& date){
         if(!date.isValid()) {
             return QDateTime();
         }
         return QDateTime(date, QTime(0,0));
-    }, [](const QDateTime& dateTime){
-        if(!dateTime.isValid()) {
-            return QDate();
-        }
-        return dateTime.date();
-    });
+        });
 
-    CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        CurrentDate.SetMinMax(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
-    });
+        m_dateProperty->SetMinMax(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
 
-    CurrentDate.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        CurrentDateTime.SetMinMax(CurrentDate.GetMin().isValid() ? QDateTime(CurrentDate.GetMin(), QTime(0,0)) : QDateTime(),
-                                  CurrentDate.GetMax().isValid() ? QDateTime(CurrentDate.GetMax(), QTime(0,0)) : QDateTime());
-    });
+        CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+            m_dateProperty->SetMinMax(CurrentDateTime.GetMin().date(), CurrentDateTime.GetMax().date());
+        });
+
+        m_dateProperty->OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+            CurrentDateTime.SetMinMax(m_dateProperty->GetMin().isValid() ? QDateTime(m_dateProperty->GetMin(), QTime(0,0)) : QDateTime(),
+                                      m_dateProperty->GetMax().isValid() ? QDateTime(m_dateProperty->GetMax(), QTime(0,0)) : QDateTime());
+        });
+    }
+    return *m_dateProperty;
 }

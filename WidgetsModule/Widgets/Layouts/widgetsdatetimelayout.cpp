@@ -15,36 +15,6 @@ WidgetsDateTimeLayout::WidgetsDateTimeLayout(QWidget *parent)
     , ui(new Ui::WidgetsDateTimeLayout)
 {
     ui->setupUi(this);
-
-    setFocusProxy(ui->dateTimeEdit);
-    WidgetPushButtonWrapper(ui->CalendarButton).WidgetVisibility().ConnectFrom(CDL, FInverseBool, ForceDisabled);
-    m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
-
-    auto* menu = MenuWrapper(ui->CalendarButton).AddPreventedFromClosingMenu(tr("DateTime"));
-    auto* ac = new QWidgetAction(parent);
-    m_editor = new WidgetsDateTimeWidget(parent);
-    m_editor->TimeShift.ConnectFrom(CDL, TimeShift);
-
-    ac->setDefaultWidget(m_editor);
-
-    menu->addAction(ac);
-    connect(ui->CalendarButton, &QPushButton::clicked, [menu, this](bool){
-        menu->setProperty("a_accept", false);
-        m_editor->Store();
-        menu->exec(ui->dateTimeEdit->mapToGlobal(ui->dateTimeEdit->geometry().bottomLeft()));
-        if(menu->property("a_accept").toBool()) {
-            OnDataCommit();
-        } else {
-            m_editor->Reset();
-        }
-        OnCloseEditor();
-    });
-    m_editor->OnNowActivate.Connect(CDL, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
-    m_editor->OnApplyActivate.Connect(CDL, [menu]{ menu->setProperty("a_accept", true); menu->close(); });
-
-    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit, &TimeShift);
-
-//    WidgetAbstractButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::DateTimePicker).SetIcon("Calendar");
 }
 
 WidgetsDateTimeLayout::~WidgetsDateTimeLayout()
@@ -57,14 +27,9 @@ QLabel* WidgetsDateTimeLayout::label() const
     return ui->label;
 }
 
-WidgetsDateTimeWidget* WidgetsDateTimeLayout::popUp() const
+WidgetsDatetimePopupPicker* WidgetsDateTimeLayout::dateTime() const
 {
-    return m_editor;
-}
-
-WidgetsDateTimeEdit* WidgetsDateTimeLayout::dateTime() const
-{
-    return ui->dateTimeEdit;
+    return ui->DateTimePicker;
 }
 
 QString WidgetsDateTimeLayout::title() const
@@ -74,7 +39,7 @@ QString WidgetsDateTimeLayout::title() const
 
 bool WidgetsDateTimeLayout::isDateTime() const
 {
-    return m_editor->Mode == WidgetsDateTimeWidget::DateTime;
+    return ui->DateTimePicker->Mode == WidgetsDateTimeWidget::DateTime;
 }
 
 void WidgetsDateTimeLayout::setTitle(const QString& title)
@@ -84,8 +49,6 @@ void WidgetsDateTimeLayout::setTitle(const QString& title)
 
 void WidgetsDateTimeLayout::setIsDateTime(const bool& dateTime)
 {
-    auto mode = dateTime ? WidgetsDateTimeWidget::DateTime : WidgetsDateTimeWidget::Date;
-    m_editor->Mode = mode;
-    ui->dateTimeEdit->Mode = mode;
+    ui->DateTimePicker->Mode = dateTime ? WidgetsDateTimeWidget::DateTime : WidgetsDateTimeWidget::Date;
 }
 

@@ -22,17 +22,10 @@ public:
     ~WidgetsDateTimeLayout();
 
     QLabel* label() const;
-    WidgetsDateTimeWidget* popUp() const;
-    WidgetsDateTimeEdit* dateTime() const;
+    class WidgetsDatetimePopupPicker* dateTime() const;
 
     QString title() const;
     bool isDateTime() const;
-
-    LocalPropertyBool ForceDisabled;
-    LocalPropertyDoubleOptional TimeShift;
-
-    Dispatcher OnCloseEditor;
-    Dispatcher OnDataCommit;
 
 public slots:
     void setTitle(const QString& title);
@@ -40,9 +33,6 @@ public slots:
 
 private:
     Ui::WidgetsDateTimeLayout *ui;
-    WidgetsDateTimeWidget* m_editor;
-    DispatcherConnectionsSafe m_connections;
-    LocalPropertiesWidgetConnectorsContainer m_connectors;
 };
 
 #endif // WIDGETSDATETIMELAYOUT_H

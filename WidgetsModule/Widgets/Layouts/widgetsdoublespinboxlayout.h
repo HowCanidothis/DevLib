@@ -55,7 +55,7 @@ private:
     };
 
     Ui::WidgetsDoubleSpinBoxLayout *ui;
-    SharedPointer<CheckBoxComponent> m_checkbox;
+    ScopedPointer<CheckBoxComponent> m_checkbox;
 };
 
 #endif // WIDGETSDOUBLESPINBOXLAYOUT_H
