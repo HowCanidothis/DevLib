@@ -271,18 +271,14 @@ struct LocalPropertiesSpinBoxConnectorExtractor
     LocalPropertiesSpinBoxConnectorExtractor(class WidgetsSpinBoxWithCustomDisplay* s);
 
     WidgetsSpinBoxWithCustomDisplay* SpinBox;
+    WidgetsSpinBoxWithCustomDisplay* operator->() const { return SpinBox; }
 };
 
 class _Export LocalPropertiesSpinBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;
 public:
-    LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, class QSpinBox* spinBox);
-    template<class T>
-    LocalPropertiesSpinBoxConnector(StateParameterProperty<T>* property, QSpinBox* spin)
-        : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)
-    {}
-
+    LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, const LocalPropertiesSpinBoxConnectorExtractor& spinBox);
     template<class T>
     LocalPropertiesSpinBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesSpinBoxConnectorExtractor& spin)
         : LocalPropertiesSpinBoxConnector(&property->InputValue, spin)

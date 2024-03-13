@@ -40,7 +40,7 @@ void WidgetsComboBoxLayout::setTitle(const QString& title)
 
 bool WidgetsComboBoxLayout::editable() const
 {
-    return comboBox()->editable();
+    return comboBox()->isEditable();
 }
 
 void WidgetsComboBoxLayout::setEditable(const bool& editable)

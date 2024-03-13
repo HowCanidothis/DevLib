@@ -763,7 +763,7 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
             index += regExp.matchedLength();
             resultString.append(QStringView(string.begin() + index, string.end()).toString());
         } else {
-            resultString.append(string).append(' ').append('(').append(measurement->CurrentUnitLabel).append(')');
+            Q_ASSERT(false);
         }
         return resultString;
     };

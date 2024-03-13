@@ -342,6 +342,32 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     spinBox.SpinBox->MakeOptional(&property->IsValid).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, const LocalPropertiesSpinBoxConnectorExtractor& spinBox)
+    : Super([spinBox, property](){
+                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
+                    spinBox->setRange(property->GetMin(), property->GetMax());
+                }
+                if(spinBox->value() != *property) {
+                    spinBox->setValue(*property);
+                }
+            },
+            [spinBox, property](){
+                *property = spinBox->value();
+            }, spinBox.SpinBox
+    )
+{
+    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
+        QSignalBlocker blocker(spinBox.SpinBox);
+        spinBox->setRange(property->GetMin(), property->GetMax());
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(spinBox.SpinBox, QOverload<qint32>::of(&QSpinBox::valueChanged), [this](){
+        m_propertySetter();
+    });
+}
 LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyIntOptional* property, const LocalPropertiesSpinBoxConnectorExtractor& spinBox)
     : LocalPropertiesSpinBoxConnector(&property->Value, spinBox.SpinBox)
 {
@@ -418,33 +444,6 @@ LocalPropertiesDoubleSpinBoxConnector::LocalPropertiesDoubleSpinBoxConnector(Loc
     }).MakeSafe(m_dispatcherConnections);
 
     m_connections.connect(spinBox.SpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](){
-        m_propertySetter();
-    });
-}
-
-LocalPropertiesSpinBoxConnector::LocalPropertiesSpinBoxConnector(LocalPropertyInt* property, QSpinBox* spinBox)
-    : Super([spinBox, property](){
-                if(spinBox->minimum() != property->GetMin() || spinBox->maximum() != property->GetMax()) {
-                    spinBox->setRange(property->GetMin(), property->GetMax());
-                }
-                if(spinBox->value() != *property) {
-                    spinBox->setValue(*property);
-                }
-            },
-            [spinBox, property](){
-                *property = spinBox->value();
-            }, spinBox
-    )
-{
-    property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        m_widgetSetter();
-    }).MakeSafe(m_dispatcherConnections);
-    property->OnMinMaxChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [spinBox, property]{
-        QSignalBlocker blocker(spinBox);
-        spinBox->setRange(property->GetMin(), property->GetMax());
-    }).MakeSafe(m_dispatcherConnections);
-    
-    m_connections.connect(spinBox, QOverload<qint32>::of(&QSpinBox::valueChanged), [this](){
         m_propertySetter();
     });
 }

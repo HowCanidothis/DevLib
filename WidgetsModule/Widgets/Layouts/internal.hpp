@@ -8,7 +8,6 @@
 #include "widgetsspinboxlayout.h"
 #include "widgetstabbarlayout.h"
 #include "widgetsdatetimelayout.h"
-#include "widgetsfilterlayout.h"
 #include "widgetstexteditlayout.h"
 
 #endif

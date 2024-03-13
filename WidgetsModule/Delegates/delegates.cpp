@@ -83,6 +83,9 @@ QWidget* DelegatesCombobox::createEditor(QWidget* parent, const QStyleOptionView
         commitData(QAbstractItemDelegate::NoHint);
     });
     WidgetComboboxWrapper(comboBox).AddViewModelEndEditHints(commitData);
+    WidgetWrapper(comboBox).InjectedCommutator("a_clickOnShow", [comboBox](QObject*){
+        WidgetWrapper(comboBox).Click();
+    }, 0)->Commutator.Invoke();
     return comboBox;
 }
 

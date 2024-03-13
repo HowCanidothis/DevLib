@@ -200,6 +200,15 @@ public:
         });
     }
 
+    template<typename ... Args>
+    void CreateFocusRule(Args... widgets)
+    {
+        auto* target = GetWidget();
+        adapters::Combine([&](auto* w) {
+            WidgetWrapper(w).ConnectFocus(target);
+        }, widgets...);
+    }
+
     DispatcherConnection ConnectEnablityFrom(const char* conInfo, QWidget* widget) const;
     DispatcherConnection ConnectVisibilityFrom(const char* conInfo, QWidget* widget) const;
 

@@ -249,9 +249,9 @@ QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon
         setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name());
     } else {
         switch (mode) {
-        case QIcon::Active: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.ActiveColor.Native().name()); break;
+        case QIcon::Active: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
         case QIcon::Disabled: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Native().name()); break;
-        case QIcon::Selected: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name()); break;
+        case QIcon::Selected: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
         default: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
         }
     }
@@ -349,7 +349,7 @@ IconsSvgIcon IconsManager::RegisterIcon(qint32 index, const QString& path)
 IconsSvgIcon IconsManager::RegisterIcon(const Name& id, const QString& path)
 {
     Q_ASSERT(!m_taggedIcons.contains(id));
-    IconsSvgIcon result(path);
+    IconsSvgIcon result(SharedSettings::GetInstance().PathSettings.TempDir.absoluteFilePath(path));
     m_taggedIcons.insert(id, result);
     return result;
 }
@@ -376,7 +376,7 @@ IconsSvgIcon IconsManager::RegisterIconWithSecondaryColorScheme(const Name& id, 
 
     icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
     icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryDisabledColor);
-    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
     icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
 
     return icon;

@@ -6,6 +6,10 @@
 
 #include <WidgetsModule/internal.hpp>
 
+namespace MeasurementProperties {
+IMPLEMENT_GLOBAL_CHAR_1(STWU)
+}
+
 MeasurementDoubleSpinBoxWrapper::MeasurementDoubleSpinBoxWrapper(const Measurement* measurement, QDoubleSpinBox* spinBox)
     : m_spinBox(spinBox)
 {

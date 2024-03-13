@@ -8,11 +8,12 @@
 WidgetsPicturePicker::WidgetsPicturePicker(QWidget* parent)
     : Super(parent)
 {
-    auto deleteButton = WidgetAbstractButtonWrapper(m_deleteButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText).SetIcon("DeleteIcon").SetVisible(false).SetText(TR(tr("Remove")));
-    auto addButton = WidgetAbstractButtonWrapper(m_addButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText).SetIcon("Plus");
+    auto deleteButton = WidgetAbstractButtonWrapper(m_deleteButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText).SetVisible(false).SetText(TR(tr("Remove")));
+    auto addButton = WidgetAbstractButtonWrapper(m_addButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText);
     deleteButton.LocateToParent(DescWidgetsLocationAttachmentParams());
+    addButton->setObjectName("AddButton");
+    deleteButton->setObjectName("DeleteButton");
     addButton.LocateToParent(DescWidgetsLocationAttachmentParams());
-    addButton->setObjectName("HUETA");
     addButton.WidgetVisibility().ConnectFrom(CDL, [](const QImage& image) {
         return image.isNull();
     }, Image);

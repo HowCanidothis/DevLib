@@ -7,6 +7,12 @@
 
 struct LocalPropertiesDoubleSpinBoxConnectorExtractor;
 
+namespace MeasurementProperties {
+
+DECLARE_GLOBAL_CHAR(STWU) // SourceTextWithUnits
+
+}
+
 class MeasurementDoubleSpinBoxWrapper
 {
 public:
@@ -58,7 +64,19 @@ public:
             if(label->text().isEmpty()) {
                 AddConnector<ConnectorType>(&const_cast<Measurement*>(measurement)->CurrentUnitLabel, label);
             } else {
-                auto data = createTranslationData(measurement, TR(label->text(), label), labelUpdaters);
+                auto text = label->text();
+                if(text.contains(MEASUREMENT_UN)) {
+                    label->setProperty(MeasurementProperties::STWU, text);
+                } else {
+                    auto prop = label->property(MeasurementProperties::STWU);
+                    if(prop.isNull()) {
+                        text.append(' ').append('(').append(MEASUREMENT_UN).append(')');
+                        label->setProperty(MeasurementProperties::STWU, text);
+                    } else {
+                        text = prop.toString();
+                    }
+                }
+                auto data = createTranslationData(measurement, TR(text, =), labelUpdaters);
                 AddConnector<ConnectorType>(&data->Translation, label);
             }
         } else {
