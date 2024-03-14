@@ -20,6 +20,7 @@ WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
 
 void WidgetsToolBar::SetTarget(QWidget* target, QuadTreeF::BoundingRect_Location location)
 {
+    WidgetWrapper(this).ConnectVisibilityFrom(CDL, target);
     WidgetWrapper(this).LocateToParent(DescWidgetsLocationAttachmentParams(location)
                                        .SetRelativeParent(target)
                                        .SetDelay(0));

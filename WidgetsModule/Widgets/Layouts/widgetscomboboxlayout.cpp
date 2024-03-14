@@ -1,11 +1,14 @@
 #include "widgetscomboboxlayout.h"
 #include "ui_widgetscomboboxlayout.h"
 
+#include <WidgetsModule/internal.hpp>
+
 WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
     : Super(parent)
     , ui(new Ui::WidgetsComboBoxLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->comboBox->view()).ConnectFocus(ui->label, ui->comboBox);
 }
 
 WidgetsComboBoxLayout::~WidgetsComboBoxLayout()

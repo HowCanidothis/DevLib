@@ -15,6 +15,8 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
 {
     ui->setupUi(this);
     setFocusProxy(ui->dateTimeEdit);
+
+    WidgetWrapper(ui->dateTimeEdit).ConnectFocus(this);
 //    ui->CalendarButton->setIcon(IconsManager::GetInstance().GetIcon("CalendarIcon"));
 
     WidgetPushButtonWrapper(ui->CalendarButton).WidgetVisibility().ConnectFrom(CDL, FInverseBool, ForceDisabled);

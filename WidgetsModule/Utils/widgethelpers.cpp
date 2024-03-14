@@ -767,7 +767,7 @@ const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsing() 
         auto fullSize = QSize(widget->maximumWidth(), widget->sizeHint().height());
         auto minSize = QSize(widget->maximumWidth(), 36);
         animation->setDuration(200);
-        animation->setStartValue(!visible ? fullSize : minSize);
+        animation->setStartValue(QSize(widget->maximumWidth(), widget->height()));
         animation->setEndValue(visible ? fullSize : minSize);
         animation->start();
     };
@@ -789,24 +789,10 @@ const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsing() 
 
 const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area, qint32 delay) const
 {
-    std::function<qint32 (WidgetsGroupBoxLayout*)> handler;
-    if(area != nullptr) {
-        handler = [area](WidgetsGroupBoxLayout* w) -> qint32 {
-            auto wMargins = w->contentsMargins();
-            auto lMargins = w->layout()->contentsMargins();
-            return wMargins.top() + wMargins.bottom() + lMargins.top() + lMargins.bottom() + area->widget()->sizeHint().height();
-        };
-    } else {
-        handler = [](WidgetsGroupBoxLayout* w) -> qint32 { return w->sizeHint().height(); };
-    }
-    auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
+    auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
                                  auto* widget = reinterpret_cast<WidgetsGroupBoxLayout*>(w);
-                                 if(widget->Opened) {
-                                     ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, handler]{
-                                         widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
-                                     });
-                                 }
-                             }, delay);
+                                 widget->Opened.Invoke();
+                             }, 100);
     collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
@@ -1191,37 +1177,32 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsing() const
         auto fullSize = QSize(widget->maximumWidth(), widget->sizeHint().height());
         auto minSize = QSize(widget->maximumWidth(), 24);
         animation->setDuration(200);
-        animation->setStartValue(!visible ? fullSize : minSize);
+        animation->setStartValue(QSize(widget->maximumWidth(), widget->height()));
         animation->setEndValue(visible ? fullSize : minSize);
         animation->start();
     };
-    QObject::connect(widget, &QGroupBox::toggled, update);
-    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, update]{
-        update(widget->isChecked());
+    WidgetChecked().Connect(CDL, update);
+    AddEventFilter([update, widget](QObject*, QEvent* e) {
+        switch(e->type()) {
+        case QEvent::ShowToParent:
+        case QEvent::StyleChange:
+            update(widget->isChecked());
+            break;
+        default:
+            break;
+        }
+
+        return false;
     });
     return *this;
 }
 
 const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area, qint32 delay) const
 {
-    std::function<qint32 (QGroupBox*)> handler;
-    if(area != nullptr) {
-        handler = [area](QGroupBox* w) -> qint32 {
-            auto wMargins = w->contentsMargins();
-            auto lMargins = w->layout()->contentsMargins();
-            return wMargins.top() + wMargins.bottom() + lMargins.top() + lMargins.bottom() + area->widget()->sizeHint().height();
-        };
-    } else {
-        handler = [](QGroupBox* w) -> qint32 { return w->sizeHint().height(); };
-    }
-    auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
+    auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
                                  auto* widget = reinterpret_cast<QGroupBox*>(w);
-                                 if(widget->isChecked()) {
-                                     ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, handler]{
-                                         widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
-                                     });
-                                 }
-                             }, delay);
+                                 WidgetGroupboxWrapper(widget).WidgetChecked().Invoke();
+                             }, 100);
     collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
@@ -2218,7 +2199,7 @@ const WidgetTabBarLayoutWrapper& WidgetTabBarLayoutWrapper::AddCollapsing() cons
         auto fullSize = QSize(widget->maximumWidth(), widget->sizeHint().height());
         auto minSize = QSize(widget->maximumWidth(), 40);
         animation->setDuration(200);
-        animation->setStartValue(!visible ? fullSize : minSize);
+        animation->setStartValue(QSize(widget->maximumWidth(), widget->height()));
         animation->setEndValue(visible ? fullSize : minSize);
         animation->start();
     };
@@ -2240,24 +2221,10 @@ const WidgetTabBarLayoutWrapper& WidgetTabBarLayoutWrapper::AddCollapsing() cons
 
 const WidgetTabBarLayoutWrapper& WidgetTabBarLayoutWrapper::AddCollapsingDispatcher(Dispatcher& updater, QScrollArea* area, qint32 delay) const
 {
-    std::function<qint32 (WidgetsTabBarLayout*)> handler;
-    if(area != nullptr) {
-        handler = [area](WidgetsTabBarLayout* w) -> qint32 {
-            auto wMargins = w->contentsMargins();
-            auto lMargins = w->layout()->contentsMargins();
-            return wMargins.top() + wMargins.bottom() + lMargins.top() + lMargins.bottom() + area->widget()->sizeHint().height();
-        };
-    } else {
-        handler = [](WidgetsTabBarLayout* w) -> qint32 { return w->sizeHint().height(); };
-    }
-    auto collapsingData = InjectedCommutator("a_collapsing", [handler](QObject* w) {
+    auto collapsingData = InjectedCommutator("a_collapsing", [](QObject* w) {
                                  auto* widget = reinterpret_cast<WidgetsTabBarLayout*>(w);
-                                 if(widget->Opened) {
-                                     ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, handler]{
-                                         widget->setMaximumSize(QSize(widget->maximumWidth(), handler(widget)));
-                                     });
-                                 }
-                             }, delay);
+                                 widget->Opened.Invoke();
+                             }, 100);
     collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
     return *this;
 }
