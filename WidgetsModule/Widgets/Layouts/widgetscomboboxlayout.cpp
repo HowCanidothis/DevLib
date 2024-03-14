@@ -21,6 +21,11 @@ QLabel* WidgetsComboBoxLayout::label() const
     return ui->label;
 }
 
+QLineEdit* WidgetsComboBoxLayout::lineEdit() const
+{
+    return ui->comboBox->lineEdit();
+}
+
 QComboBox* WidgetsComboBoxLayout::comboBox() const
 {
     return ui->comboBox;

@@ -22,6 +22,7 @@ public:
     ~WidgetsComboBoxLayout();
 
     QLabel* label() const;
+    QLineEdit* lineEdit() const;
     QComboBox* comboBox() const;
     QHBoxLayout* layout() const;
 
