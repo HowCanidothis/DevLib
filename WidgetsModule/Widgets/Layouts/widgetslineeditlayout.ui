@@ -48,7 +48,7 @@
    <item>
     <widget class="QLineEdit" name="lineEdit">
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>

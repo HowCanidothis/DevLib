@@ -1,0 +1,43 @@
+MainWindow {
+    qproperty-normalColor: @ctext.active;
+    qproperty-notifySelectedColor: @c.warning;
+    qproperty-commonWarningColor: @c.warning;
+    qproperty-commonErrorColor: @c.error;
+    qproperty-commonInfoColor: @c.success;
+
+    qproperty-addIconColor: #3EA6FF;
+    qproperty-iconPlanColor: #3ea6ff;
+    qproperty-iconPrototypeColor: #3ea6ff;
+    qproperty-iconSurveyColor: #ff3b30;
+    qproperty-iconWellboreColor: #ff3b30;
+    
+    qproperty-iconJobInformationColor: #F2933A;
+    qproperty-iconRunSummaryColor: #FBBA72;
+    qproperty-iconDailyReportColor: #EFA15A;
+    qproperty-iconSlideSheetColor: #E38741;
+    qproperty-iconMudReportColor: #D76D29;
+    qproperty-iconBHAColor: #D1601D;
+    qproperty-iconInventoryColor: #CA5310;
+    qproperty-iconShippingColor: #BB4D00;
+    qproperty-iconPersonnelColor: #B04303;
+    qproperty-iconTicketsColor: #A53906;
+
+    qproperty-iconCalendarColor: #F3F3F3;
+    qproperty-iconNetworkOnlineColor: #22b14c;
+    qproperty-iconNetworkOfflineColor: #ff3b30;
+
+    qproperty-iconScenarioColor: #009688;
+    qproperty-iconBHADEColor: #009688;
+    qproperty-iconSectionSummaryColor: #00897B;
+    qproperty-iconBHADEColor: #00796B;
+    qproperty-iconCaseColor: #00695C;
+
+    qproperty-visualizationTextColor: @ctext.active;
+    qproperty-visualizationTextBorderColor: @ctext.label;
+    qproperty-visualizationBackgroundColor: @cbg.1;
+    qproperty-visualizationBoxColor: #252526;
+    qproperty-visualizationAxisColor: #858585;
+    qproperty-visualizationFrameColor: #181818;
+    qproperty-visualizationFrameSelectionColor: #252526;
+    qproperty-visualizationAreaAlpha: 0.2;
+}

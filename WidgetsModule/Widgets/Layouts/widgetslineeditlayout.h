@@ -16,6 +16,7 @@ class WidgetsLineEditLayout : public QFrame
     Q_PROPERTY(QString placeHolder READ placeHolder WRITE setPlaceHolder)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(QLineEdit::EchoMode echoMode READ echoMode WRITE setEchoMode)
+    Q_PROPERTY(bool enableClearButton READ enableClearButton WRITE setEnableClearButton)
     using EchoMode = QLineEdit::EchoMode;
     using Super = QFrame;
 
@@ -31,6 +32,9 @@ public:
 
     QString placeHolder() const;    
     void setPlaceHolder(const QString& placeHolder);
+
+    bool enableClearButton() const;
+    void setEnableClearButton(bool enabled);
 
     bool readOnly() const;
     void setReadOnly(bool readOnly);

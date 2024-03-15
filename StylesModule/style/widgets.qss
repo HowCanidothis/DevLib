@@ -1,0 +1,136 @@
+QPushButton#AddButton {
+    qproperty-icon: url("@cPath/plus.svg");
+}
+
+QPushButton#AddButton:hover {
+    background: @cbg.3;
+}
+
+QPushButton#DeleteButton {
+    qproperty-icon: url("@cPath/delete.svg");
+}
+
+QPushButton#DeleteButton {
+    background: @cbg.3;
+}
+
+QPushButton#BtnMinimize {
+    qproperty-text: "";
+    image: url("@cPath/minimize.svg");
+    background: transparent;
+    border-radius: none;
+    border: none;
+    padding: 1 5 12 5;
+}
+
+QPushButton#BtnMinimize:hover {
+    border: none;
+    border-radius: none;
+    background: @cbg.hover;
+}
+
+QPushButton#BtnMaximize[windowMaximized="true"] {
+    padding: 9 5 8 5;
+    image: url("@cPath/detach-button.svg");
+}
+
+QPushButton#BtnMaximize[windowMaximized="false"] {
+    image: url("@cPath/square.svg");
+}
+
+QPushButton#BtnMaximize {
+    qproperty-text: "";
+    image: url("@cPath/square.svg");
+    border-radius: none;
+    background: transparent;
+    padding: 7 5 6 5;
+    border: none;
+}
+
+QPushButton#BtnMaximize:hover {
+    border: none;
+    border-radius: none;
+    background: @cbg.hover;
+}
+
+QPushButton#BtnClose {
+    qproperty-text: "";
+    image: url("@cPath/close.svg");
+    border-radius: none;
+    background: none;
+    padding: 7 5 6 5;
+    border: none;
+}
+
+QPushButton#BtnClose:hover {
+    border: none;
+    border-radius: none;
+    background: @c.error;
+    image: url("@cPath/close-hover.svg");
+}
+
+QPushButton#BtnCloseMinor {
+    qproperty-text: "";
+    image: url("@cPath/close.svg");
+    border-radius: none;
+    max-width: 30px;
+    border: none;
+    background: transparent;
+}
+
+QPushButton#BtnCloseMinor:hover {
+    border: none;
+    border-radius: none;
+}
+
+QPushButton#btnDrawer
+{
+    qproperty-text: "";
+    min-width: 20px;
+    min-height: 48px;
+    max-width: 20px;
+    max-height: 48px;
+    border: 1px solid @cbg.3;
+    padding: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    margin-left: 13px;
+    margin-right: 0px;
+    background: @cbg.2;
+}
+
+QPushButton#btnDrawer[isOpen=false]
+{
+    image: url("@cPath/chevron-left.svg");
+}
+
+QPushButton#btnDrawer[isOpen=true]
+{
+    image: url("@cPath/chevron-right.svg");
+}
+
+QPushButton#btnDrawerVertical
+{
+    qproperty-text: "";
+    min-width: 48px;
+    min-height: 20px;
+    max-width: 48px;
+    max-height: 20px;
+    padding: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border: 1px solid @cbg.3;
+    margin-top: 13px;
+    margin-bottom: 0px;
+    background: @cbg.2;
+}
+
+QPushButton#btnDrawerVertical[isOpen=false]
+{
+    image: url("@cPath/chevron-up.svg");
+}
+
+QPushButton#btnDrawerVertical[isOpen=true]
+{
+    image: url("@cPath/chevron-down.svg");
+}

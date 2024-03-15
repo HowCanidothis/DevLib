@@ -1,0 +1,407 @@
+LeftBar QPushButton[a_control="1"]{
+    qproperty-text: "";
+    qproperty-iconSize: 28px;
+    background: transparent;
+    max-width: 28px;
+    max-height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    margin: 5 0 10 0;
+    padding: 0 0 0 0;
+    border: none;
+}
+
+LeftBar {
+    padding: 20 0 0 0;
+    min-width: 48;
+}
+
+LeftBar QFrame {
+    background: white;
+    min-width: 0;
+    max-width: 0;
+}
+
+TreeBar QFrame#Header {
+    border: none;
+    border-radius: 0px;
+    padding-right: 15px;
+    padding-left: 15px;
+    background: @cbg.2;
+    border-bottom: 1px solid @cbg.3;
+}
+
+TreeBar QLabel {    
+    padding-top: 12px;
+    padding-bottom: 11px;
+}
+
+TreeBar QTreeView {
+    background: @cbg.2;
+}
+
+TreeBar QTreeView::item {
+    padding-right: 12px;
+}
+
+TreeBar QLabel#Title {
+    font-size: 12px;
+}
+
+WPSCSimulationTitleBar {
+    max-height: 32px;
+}
+
+WPSCSimulationTitleBar QLabel {
+    background: transparent;
+    margin-left: 15px;
+}
+
+MenuBar {
+    min-height: 28px;
+    max-height: 28px;
+    background: transparent;
+}
+
+MenuBar MenuBarMovePane QLabel#Icon {
+    min-width: 0px;
+    max-width: 0px;
+    padding: 0px;
+    image: none;
+}
+
+MenuBar QLabel#LogoIcon {
+    min-width: 28px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    image: url(@cPath/logo.svg);
+}
+
+MenuBar MenuBarMovePane {
+    border: none;
+    background: transparent;
+}
+
+MenuBarMovePane QLabel#Title {
+    background: transparent;
+}
+
+MenuBar QLabel#ExpiryTimeIcon {
+    color: #9d9d9d;
+    background: transparent;
+    max-height: 10px;
+    max-width: 10px;
+    min-height: 10px;
+    min-width: 10px;
+    margin-left: 50px;
+}
+
+MenuBar QLabel#ExpiryTimeDesc {
+    color: #9d9d9d;
+    background: transparent;
+    margin-left: 5px;
+}
+
+QFrame#MainFooter {
+    min-height: 22px;
+    max-height: 22px;
+    border-radius: 0px;
+    border: none;
+    padding: 0px 15px 0px 15px; 
+}
+
+DDFooter QLabel{
+    font-size: 12px;
+}
+
+DDFooter[DDReferenceMode="0"] QMenuBar {
+    font-size: 12px;
+    background: #3ea6ff;
+}
+DDFooter[DDReferenceMode="1"] QMenuBar {
+    font-size: 12px;
+    background: #D32F2F;
+}
+DDFooter[DDReferenceMode="2"] QMenuBar {
+    font-size: 12px;
+    background: green;
+}
+DDFooter[DDReferenceMode="0"] QMenu::item{
+    font-size: 12px;
+    background: #3ea6ff;
+}
+DDFooter[DDReferenceMode="1"] QMenu::item{
+    font-size: 12px;
+    background: #D32F2F;
+}
+DDFooter[DDReferenceMode="2"] QMenu::item{
+    font-size: 12px;
+    background: #69C2D3;
+}
+DDFooter[DDReferenceMode="0"] QMenu::item::selected{
+    background: #1F8AD2;
+}
+
+DDFooter[DDReferenceMode="1"] QMenu::item::selected{
+    background: #d93f3f;
+}
+DDFooter[DDReferenceMode="2"] QMenu::item::selected{
+    background: #69C2D3;
+}
+
+DDFooter QMenuBar::item {
+  color: white;
+  background: transparent;
+  padding: 3px 8px 0px 8px;
+}
+
+DDFooter[DDReferenceMode="0"] QMenuBar::item::selected {
+    background: #1F8AD2;
+} 
+
+DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
+    background: #3ea6ff;
+} 
+
+DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
+    background: #d93f3f;
+}
+
+DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
+    background: #D32F2F;
+}
+
+DDFooter[DDReferenceMode="2"] QMenuBar::item::selected {
+    background: #84C9D8;
+}
+
+DDFooter[DDReferenceMode="2"] QMenuBar::item::pressed:disabled {
+    background: #69C2D3;
+}
+
+QFrame#MainFooter QLabel#FooterProgressBarLabel{
+    font-size: 8px;
+    qproperty-alignment: 'AlignVCenter | AlignLeft';
+}
+
+QFrame[ApplicationMode="1"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="2"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="3"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="4"] QWidget{
+    background: transparent;
+    color: white;
+}
+
+QFrame[ApplicationMode="1"]{
+    background: #7B1FA2;
+}
+
+QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
+    background: #3ea6ff;
+}
+
+QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
+    background: #D32F2F;
+}
+QFrame[ApplicationMode="2"][DDReferenceMode="2"]{
+    background: #69C2D3;
+}
+
+QFrame[ApplicationMode="3"]{
+    background: #A66428;
+}
+
+QFrame[ApplicationMode="4"]{
+    background: #004D40;
+}
+
+WidgetsEditingObjectSaveCancelButtons {
+    background: transparent;
+    padding: 10px 20px 10px 20px;
+}
+
+OffsetView {
+    padding: 10px 10px 10px 10px;
+}
+
+WPSCLicenseDialog QLabel#State {
+    color: @c.error;
+}
+
+QLabel[PropertiesToolViewLabel="true"] {
+    font-weight: bold;
+}
+
+WPSCSpaceTreeView {
+    qproperty-iconOffset: 25;
+}
+
+WidgetsProjectsTreeView QPushButton#BtnActivateObject {
+    margin: 0px;
+    padding: 0px;
+    background: none;
+    border-radius: 10px;
+}
+
+QListView#SettingsCatalogList {
+    font-size: 16px;
+    qproperty-spacing: 5;
+}
+
+QWidget[FormationMarker="true"] {
+    color: #F2933A;
+    background: transparent
+}
+
+QWidget#WidgetsTVRAWidget {
+    background: transparent;
+}
+
+WPSCSectionSummaryView QTreeView:branch:!has-children:!has-siblings:adjoins-item
+{
+    border-image: none;
+}
+
+WPSCSectionSummaryView QTreeView::item
+{
+    min-height: 25px;
+}
+
+WPSCQPView QDoubleSpinBox{
+    margin-right: 6px;
+}
+
+WPSCQPView QLabel[tiny="true"] {
+    font-size: 12px;
+}
+
+WPSCQPView QDoubleSpinBox {
+    max-width: 100px;
+    min-width: 100px;
+}
+
+QWidget[BlueCircleButton="true"] {
+    border-radius: 10px;
+    max-width: 18px;
+    min-width: 18px;
+    max-height: 18px;
+    min-height: 18px;
+    padding: 2px;
+    margin: 5px;
+}
+
+QWidget[BlueCircleButton="true"]:hover {
+    background: #223ea6ff;
+}
+
+QWidget[GreenCircleButton="true"] {
+    border-radius: 10px;
+    max-width: 18px;
+    min-width: 18px;
+    max-height: 18px;
+    min-height: 18px;
+    padding: 2px;
+    margin: 5px;
+}
+
+QWidget[GreenCircleButton="true"]:hover {
+    background: #2242d552;
+}
+
+QWidget[RedCircleButton="true"] {
+    border-radius: 10px;
+    max-width: 18px;
+    min-width: 18px;
+    max-height: 18px;
+    min-height: 18px;
+    padding: 2px;
+    margin: 5px;
+}
+
+QWidget[RedCircleButton="true"]:hover {
+    background: #22ff3b30;
+}
+
+LeftBar QFrame {
+    background: @ctext.1;
+    min-width: 1;
+}
+
+LeftBar {
+    background: @cbg.1;
+}
+
+QFrame[Footer="true"]
+{
+    background: @cbg.1;
+}
+
+WPSCSimulationTitleBar {
+    background: @cbg.widget;
+    border-bottom: 1px solid @cbg.3;
+}
+
+QPushButton[DrawerControl="true"] {
+    min-height: 20px;
+    min-width: 20px;
+    max-height: 20px;
+    max-width: 20px;
+    background: none;
+    border:none;
+}
+
+BHACatalogWidget QListView::item {
+    height: 30px;
+}
+
+WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
+    background: #3C3C3C;
+}
+
+QWidget[ActionWidget="true"] {
+    background: #3C3C3C;
+    color: white;
+}
+
+QWidget[ActionWidget="true"]:hover {
+    background: #505050;
+}
+
+QPushButton[ActionWidget="true"]:checked {
+    color: #3EA6FF;
+}
+
+QLabel[ActionWidget="true"] {
+    background: transparent;
+}
+
+QLabel[ActionWidget="true"]:hover {
+    background: transparent;
+}
+
+WidgetsEditingObjectSaveCancelButtons QPushButton#BtnSave {
+    qproperty-icon: url(@cPath/save.svg);
+}
+
+WidgetsEditingObjectSaveCancelButtons QPushButton#BtnCancel {
+    qproperty-icon: url(@cPath/discard.svg);
+}
+
+OffsetView QProgressBar {
+    max-height: 3px;
+    border: none;
+}

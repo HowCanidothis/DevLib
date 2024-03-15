@@ -46,6 +46,16 @@ void WidgetsLineEditLayout::setPlaceHolder(const QString& placeHolder)
     ui->lineEdit->setPlaceholderText(placeHolder);
 }
 
+bool WidgetsLineEditLayout::enableClearButton() const
+{
+    return ui->lineEdit->isClearButtonEnabled();
+}
+
+void WidgetsLineEditLayout::setEnableClearButton(bool enabled)
+{
+    ui->lineEdit->setClearButtonEnabled(enabled);
+}
+
 bool WidgetsLineEditLayout::readOnly() const
 {
     return ui->lineEdit->isReadOnly();

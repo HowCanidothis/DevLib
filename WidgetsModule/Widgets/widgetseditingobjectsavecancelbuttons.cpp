@@ -11,8 +11,8 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
     setProperty(WidgetProperties::Footer, true);
     setFocusPolicy(Qt::NoFocus);
 
-    WidgetAbstractButtonWrapper(ui->BtnSave).SetControl(ButtonRole::Save);
-    WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::Reset);
+    WidgetAbstractButtonWrapper(ui->BtnSave).SetControl(ButtonRole::IconWithText);
+    WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::IconWithText);
 
     auto connections = DispatcherConnectionsSafeCreate();
     Object.Connect(CONNECTION_DEBUG_LOCATION, [this, connections](const EditingObject* o){

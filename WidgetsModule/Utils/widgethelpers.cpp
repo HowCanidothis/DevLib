@@ -98,15 +98,55 @@ bool EventFilterObject::eventFilter(QObject* watched, QEvent* e)
 const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() const
 {
     auto* edit = GetWidget();
-    auto invalidate = [edit]{
+    auto calcWidth = [edit] {
         QFontMetrics fm(edit->font());
         int pixelsWide = fm.width(edit->text());
-        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 20;
-        edit->setMinimumWidth(pixelsWide);
-        edit->setMaximumWidth(pixelsWide);
+        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 22;
+        return pixelsWide;
+    };
+    auto invalidate = [edit, calcWidth]{
+        auto res = calcWidth();
+        if(!edit->hasFocus()) {
+            edit->setMinimumWidth(res);
+            edit->setMaximumWidth(res);
+        }
+    };
+    auto animate = [edit, calcWidth](bool expand) {
+        auto animation = WidgetWrapper(edit).Injected<QPropertyAnimation>("a_collapsing_animation", [&]{
+            return new QPropertyAnimation(edit, "maximumSize");
+        });
+        auto width = calcWidth();
+        animation->stop();
+
+        auto fullSize = QSize(4000, edit->maximumHeight());
+        auto minSize = QSize(width, edit->maximumHeight());
+        animation->setDuration(200);
+        animation->setStartValue(QSize(edit->width(), edit->maximumHeight()));
+        animation->setEndValue(expand ? fullSize : minSize);
+        animation->start();
     };
     QObject::connect(edit, &QLineEdit::textChanged, invalidate);
-    invalidate();
+    WidgetWrapper(edit).AddEventFilter([edit, animate, invalidate](QObject*, QEvent* e) {
+        switch(e->type()) {
+        case QEvent::ShowToParent:
+        case QEvent::StyleChange:
+            invalidate();
+            break;
+        case QEvent::FocusIn:
+            if(!edit->isReadOnly()) {
+                animate(true);
+            }
+            break;
+        case QEvent::FocusOut:
+            if(!edit->isReadOnly()) {
+                animate(false);
+            }
+            break;
+        default: break;
+        }
+
+        return false;
+    });
     return *this;
 }
 

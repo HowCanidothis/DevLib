@@ -6,4 +6,3 @@ win32 {
 LIBS *= user32.lib
 }
 
-

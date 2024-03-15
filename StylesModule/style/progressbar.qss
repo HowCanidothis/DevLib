@@ -1,0 +1,26 @@
+MainProgressBar {
+    background: @cbg.1;
+    qproperty-windowOpacity: 0.8;
+}
+
+MainProgressBar QRoundProgressBar {
+    alternate-background-color: @ctext.1;
+    color: @ctext.active;
+    font-size: 12px;
+    qproperty-ringWidth: 12;
+    qproperty-ringSize: 70;
+}
+
+QWidget#FooterProgressBar{
+    max-height: 5px;
+    max-width: 40px;
+    border: none;
+}
+
+QProgressBar {
+  color: @ctext.label;
+}
+
+QProgressBar::chunk {
+  background-color: @ctext.active;
+}

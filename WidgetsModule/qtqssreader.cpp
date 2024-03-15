@@ -70,7 +70,13 @@ QString QtQSSReader::ReadAll()
                 for(const auto& sym : adapters::range(fileContent, prev, match.capturedStart() - prev)) {
                     result += sym;
                 }
-                result += colors.value(Name(match.captured(1)), "#00000000");
+                auto foundColorsIt = colors.constFind(Name(match.captured(1)));
+                if(foundColorsIt != colors.constEnd()) {
+                    result += foundColorsIt.value();
+                } else {
+                    qDebug() << QString("Can't find %1 color").arg(match.captured(1));
+                    result += "red";
+                }
                 prev = match.capturedEnd();
             }
             for(const auto& sym : adapters::range(fileContent, prev, fileContent.size() - prev)) {

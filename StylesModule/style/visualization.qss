@@ -1,0 +1,27 @@
+VisualizationToolTipWidget {
+    qproperty-opacity: 0.8;
+}
+
+VisualizationToolTipWidget QWidget{
+    font-size: 12px;
+}
+
+VisualizationLegendWidget {
+    max-height: 45px;
+    min-height: 45px;
+}
+
+VisualizationLegendWidget QLabel {
+    font-size: 8px;
+}
+
+VisualizationLegendWidget QLabel[a_selected="true"] {
+    color: @c.error;
+}
+
+VisualizationLegendColorItemWidget {
+    max-height: 2px;
+    min-height: 2px;
+    max-width: 15px;
+    min-width: 15px;
+}
