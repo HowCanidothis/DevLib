@@ -231,7 +231,6 @@ QFrame[ApplicationMode="4"]{
 
 WidgetsEditingObjectSaveCancelButtons {
     background: transparent;
-    padding: 10px 20px 10px 20px;
 }
 
 OffsetView {
