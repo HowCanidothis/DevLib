@@ -9,5 +9,6 @@
 #include "widgetstabbarlayout.h"
 #include "widgetsdatetimelayout.h"
 #include "widgetstexteditlayout.h"
+#include "widgetsheaderlayout.h"
 
 #endif
