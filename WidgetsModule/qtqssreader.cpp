@@ -21,14 +21,16 @@ QtQSSReader::~QtQSSReader()
 void QtQSSReader::SetEnableObserver(bool enable)
 {
     if(enable) {
-        _observer = new QtObserver(500, ThreadHandlerNoCheckMainLowPriority);
+        if(_observer == nullptr) {
+            _observer = new QtObserver(500, ThreadHandlerNoCheckMainLowPriority);
+        }
     } else {
         _observer = nullptr;
     }
 }
 
 void QtQSSReader::Install(const QString& mainQSSFile)
-{ 
+{
     _fileName = mainQSSFile;
 
     ((QApplication*)QApplication::instance())->setStyleSheet(ReadAll());
@@ -117,10 +119,6 @@ QString QtQSSReader::ReadAll()
         }
     } else {
         qCWarning(LC_SYSTEM) << file.errorString() << fi.absoluteFilePath();
-    }
-    QFile test("C:/Work/temp/test.txt");
-    if(test.open(QFile::WriteOnly)) {
-        test.write(result);
     }
     return result;
 }

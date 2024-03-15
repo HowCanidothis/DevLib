@@ -940,3 +940,113 @@ WidgetsDoubleSpinBoxLayout  QCheckBox{
     margin: 0px;
     padding: 0px;
 }
+
+QTextEdit {
+    border-radius: 4px;
+    border: 1px solid @cbr.normal;
+}
+
+QCalendarWidget QToolButton#qt_calendar_nextmonth {
+    qproperty-icon: url("@cPath/chevron-right.svg");
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth {
+    qproperty-icon: url("@cPath/chevron-left.svg");
+}
+
+WidgetsCalendarWidget
+{ 
+    qproperty-outOfRangeBorder: transparent;
+    qproperty-outOfRangeColor: @ctext.disabled;
+    qproperty-outOfRangeBackground: transparent;
+    qproperty-selectedDatesBackground: @ctext.1;
+}
+
+QCalendarWidget QAbstractItemView {
+    font: bold;
+    background-color: @cbg.1;
+    selection-background-color: @cbg.hover1;
+    alternate-background-color: transparent;
+    selection-color: @ctext.1;
+}
+
+QCalendarWidget QAbstractItemView:disabled 
+{ 
+    color: @ctext.label;
+}
+
+WidgetsTimePicker {
+    qproperty-clockColor: @cbg.2;
+    qproperty-arrowColor: @ctext.1;
+    qproperty-arrowWidth: 2;
+}
+
+WidgetsTimePicker QLabel[active="true"] {
+  color: @ctext.1;
+  background-color: @cbg.hover1;
+  font: 14px;
+}
+
+WidgetsTimePicker QLabel[active="false"] {
+  background-color: transparent;
+}
+
+WidgetsTimeWidget QSpinBox {
+    font: 20px;
+    max-height: 24px;
+    max-width: 40px;
+    padding: 0px;
+    selection-background-color: transparent;
+}
+
+WidgetsTimeWidget QSpinBox::up-button {
+    width: 0px;
+}
+
+WidgetsTimeWidget QSpinBox::down-button {
+    width: 0px;
+}
+
+WidgetsTimeWidget QLabel[splitter] {
+    background-color: transparent;
+    font: bold 20px;
+}
+
+WidgetsTimeWidget QPushButton {
+    background-color: transparent;
+    border: none;
+}
+
+WidgetsTimeWidget QPushButton:pressed:hover {
+    border: none;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="true"] {
+    color: yellow;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="true"] {
+    background-color: transparent;
+    font-size: 12px;
+    border: none;
+}
+
+WidgetsTimeWidget QPushButton[highlighted="false"] {
+    background-color: transparent;
+    font-size: 10px;
+    border: none;
+}
+
+WidgetsTimePicker {
+    qproperty-labelSize: 26;
+}
+
+WidgetsTimePicker QLabel {
+    font: bold;
+    border-radius: 13px;
+}
+
+WidgetsDateTimeWidget {
+    padding: 6px;
+    background: @cbg.1;
+}

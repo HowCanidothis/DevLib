@@ -349,7 +349,7 @@ IconsSvgIcon IconsManager::RegisterIcon(qint32 index, const QString& path)
 IconsSvgIcon IconsManager::RegisterIcon(const Name& id, const QString& path)
 {
     Q_ASSERT(!m_taggedIcons.contains(id));
-    IconsSvgIcon result(SharedSettings::GetInstance().PathSettings.TempDir.absoluteFilePath(path));
+    IconsSvgIcon result(path);
     m_taggedIcons.insert(id, result);
     return result;
 }

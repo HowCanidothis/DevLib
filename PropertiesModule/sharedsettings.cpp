@@ -22,8 +22,7 @@ NetworkSettings::NetworkSettings()
 #ifdef SHARED_LIB_ADD_UI
 
 StyleSettings::StyleSettings()
-    : StylesQSSFile(":/dark.qss")
-    , DisabledTableCellColor("#d4d4d4")
+    : DisabledTableCellColor("#d4d4d4")
     , EnabledTableCellColor(Qt::white)
     , DefaultRedColor("#ff3b30")
     , DefaultBlueColor("#3EA6FF")

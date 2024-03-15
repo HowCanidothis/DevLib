@@ -1,5 +1,9 @@
 #include "widgetscalendarwidget.h"
 
+#include <QTextCharFormat>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 WidgetsCalendarWidget::WidgetsCalendarWidget(QWidget* parent)
     : Super(parent)
     , m_outOfRangeColor(QColor(Qt::transparent))
@@ -14,6 +18,11 @@ WidgetsCalendarWidget::WidgetsCalendarWidget(QWidget* parent)
     m_outOfRangeBorder.Subscribe(updateHandler);
     m_selectedDatesBackground.Subscribe(updateHandler);
     SelectedDates.Subscribe(updateHandler);
+
+    QTextCharFormat fmt;
+    fmt.setForeground(QBrush(SharedSettings::GetInstance().StyleSettings.DefaultRedColor));
+    setHeaderTextFormat(fmt);
+    setVerticalHeaderFormat(NoVerticalHeader);
 }
 
 void WidgetsCalendarWidget::paintCell(QPainter* painter, const QRect& rect, const QDate& date) const

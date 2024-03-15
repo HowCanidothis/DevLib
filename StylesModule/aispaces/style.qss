@@ -276,9 +276,14 @@ WPSCSectionSummaryView QTreeView:branch:!has-children:!has-siblings:adjoins-item
     border-image: none;
 }
 
+WPSCSectionSummaryView QTableView {
+    background: @cbg.1;
+}
+
 WPSCSectionSummaryView QTreeView::item
 {
-    min-height: 25px;
+    min-height: 30px;
+    background: @cbg.hover1;
 }
 
 WPSCQPView QDoubleSpinBox{
@@ -404,4 +409,27 @@ WidgetsEditingObjectSaveCancelButtons QPushButton#BtnCancel {
 OffsetView QProgressBar {
     max-height: 3px;
     border: none;
+}
+
+QPushButton#PropertiesToolBarButton {
+    color: @ctext.active;
+    background: @cbg.widget;
+    text-align: left;
+    padding: 10px 0px 10px 0px;
+    border: none;
+    border-radius: 0px;
+}
+
+QPushButton#PropertiesToolBarButton:hover {
+    background: @cbg.hover;
+}
+
+BHAHeaderView {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+PropertiesToolView {
+    padding-right: 8px;
+    padding-left: 8px;
 }

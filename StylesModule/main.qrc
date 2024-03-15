@@ -56,5 +56,6 @@
         <file>style/res/table_edit.svg</file>
         <file>style/res/eye-off.svg</file>
         <file>style/res/eye.svg</file>
+        <file>style/progressbar.qss</file>
     </qresource>
 </RCC>
