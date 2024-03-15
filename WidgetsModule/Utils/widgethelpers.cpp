@@ -101,7 +101,7 @@ const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() co
     auto invalidate = [edit]{
         QFontMetrics fm(edit->font());
         int pixelsWide = fm.width(edit->text());
-        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 8;
+        pixelsWide += edit->contentsMargins().left() + edit->contentsMargins().right() + 20;
         edit->setMinimumWidth(pixelsWide);
         edit->setMaximumWidth(pixelsWide);
     };

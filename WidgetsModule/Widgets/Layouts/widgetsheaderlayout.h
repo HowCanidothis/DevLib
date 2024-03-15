@@ -7,11 +7,15 @@ namespace Ui {
 class WidgetsHeaderLayout;
 }
 
+class QLabel;
+class QLineEdit;
 class WidgetsHeaderLayout : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QString value READ value WRITE setValue)
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(bool hasValue READ hasValue WRITE setHasValue)
     Q_PROPERTY(bool hasPrefix READ hasPrefix WRITE setHasPrefix)
     Q_PROPERTY(bool readOnlyPrefix READ readOnlyPrefix WRITE setReadOnlyPrefix)
 
@@ -19,18 +23,23 @@ public:
     explicit WidgetsHeaderLayout(QWidget *parent = nullptr);
     ~WidgetsHeaderLayout();
 
+    QLabel* titleEdit() const;
     QLineEdit* prefixEdit() const;
-    QLineEdit* titleEdit() const;
+    QLineEdit* valueEdit() const;
 
-    QString prefix() const;
     QString title() const;
+    QString prefix() const;
+    QString value() const;
 
+    bool hasValue() const;
     bool hasPrefix() const;
     bool readOnlyPrefix() const;
 
 public slots:
     void setTitle(const QString& title);
     void setPrefix(const QString& prefix);
+    void setValue(const QString& value);
+    void setHasValue(bool value);
     void setHasPrefix(bool prefic);
     void setReadOnlyPrefix(bool readOnly);
 

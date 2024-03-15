@@ -9,7 +9,7 @@ WidgetsHeaderLayout::WidgetsHeaderLayout(QWidget *parent)
 {
     ui->setupUi(this);
     WidgetLineEditWrapper(ui->prefix).SetDynamicSizeAdjusting().WidgetReadOnly() = true;
-    WidgetLineEditWrapper(ui->lineEdit).SetDynamicSizeAdjusting();
+    WidgetLineEditWrapper(ui->value).SetDynamicSizeAdjusting();
 }
 
 WidgetsHeaderLayout::~WidgetsHeaderLayout()
@@ -17,14 +17,25 @@ WidgetsHeaderLayout::~WidgetsHeaderLayout()
     delete ui;
 }
 
+QLabel* WidgetsHeaderLayout::titleEdit() const
+{
+    return ui->title;
+}
+
 QLineEdit* WidgetsHeaderLayout::prefixEdit() const
 {
     return ui->prefix;
 }
 
-QLineEdit* WidgetsHeaderLayout::titleEdit() const
+QLineEdit* WidgetsHeaderLayout::valueEdit() const
 {
-    return ui->lineEdit;
+    return ui->value;
+}
+
+
+QString WidgetsHeaderLayout::title() const
+{
+    return titleEdit()->text();
 }
 
 QString WidgetsHeaderLayout::prefix() const
@@ -32,9 +43,14 @@ QString WidgetsHeaderLayout::prefix() const
     return prefixEdit()->text();
 }
 
-QString WidgetsHeaderLayout::title() const
+QString WidgetsHeaderLayout::value() const
 {
-    return titleEdit()->text();
+    return valueEdit()->text();
+}
+
+bool WidgetsHeaderLayout::hasValue() const
+{
+    return valueEdit()->isVisible();
 }
 
 bool WidgetsHeaderLayout::hasPrefix() const
@@ -55,6 +71,17 @@ void WidgetsHeaderLayout::setTitle(const QString& title)
 void WidgetsHeaderLayout::setPrefix(const QString& prefix)
 {
     prefixEdit()->setText(prefix);
+}
+
+void WidgetsHeaderLayout::setValue(const QString& value)
+{
+    valueEdit()->setText(value);
+}
+
+
+void WidgetsHeaderLayout::setHasValue(bool value)
+{
+    valueEdit()->setVisible(value);
 }
 
 void WidgetsHeaderLayout::setHasPrefix(bool prefic)
