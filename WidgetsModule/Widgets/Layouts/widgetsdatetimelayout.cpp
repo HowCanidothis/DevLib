@@ -16,6 +16,7 @@ WidgetsDateTimeLayout::WidgetsDateTimeLayout(QWidget *parent)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->DateTimePicker->GetLineEdit()).ConnectFocus(ui->label);
+    setFocusProxy(ui->DateTimePicker);
 }
 
 WidgetsDateTimeLayout::~WidgetsDateTimeLayout()

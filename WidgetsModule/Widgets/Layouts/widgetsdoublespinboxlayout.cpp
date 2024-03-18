@@ -3,8 +3,10 @@
 
 #include <QCheckBox>
 
-#include <WidgetsModule/internal.hpp>
 #include <PropertiesModule/Ui/internal.hpp>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     : Super(parent)
@@ -14,6 +16,7 @@ WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     ui->setupUi(this);
     ui->lineEdit->hide();
     WidgetWrapper(ui->doubleSpinBox).ConnectFocus(ui->label);
+    setFocusProxy(ui->doubleSpinBox);
 }
 
 WidgetsDoubleSpinBoxLayout::~WidgetsDoubleSpinBoxLayout()

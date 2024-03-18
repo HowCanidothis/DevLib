@@ -57,5 +57,6 @@
         <file>style/res/eye-off.svg</file>
         <file>style/res/eye.svg</file>
         <file>style/progressbar.qss</file>
+        <file>style/res/refresh.svg</file>
     </qresource>
 </RCC>

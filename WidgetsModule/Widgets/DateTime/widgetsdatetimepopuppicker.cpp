@@ -47,7 +47,7 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&m_editor->CurrentDateTime, ui->dateTimeEdit, &TimeShift);
 #ifndef QT_PLUGIN
-    WidgetAbstractButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::DateTimePicker).SetIcon("Calendar");
+    WidgetAbstractButtonWrapper(ui->CalendarButton).SetControl(ButtonRole::Icon).SetIcon("Calendar");
 #endif
 }
 

@@ -1,7 +1,8 @@
 #include "widgetslineeditlayout.h"
 #include "ui_widgetslineeditlayout.h"
 
-#include <WidgetsModule/internal.hpp>
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsLineEditLayout::WidgetsLineEditLayout(QWidget* parent)
     : Super(parent)
@@ -9,6 +10,7 @@ WidgetsLineEditLayout::WidgetsLineEditLayout(QWidget* parent)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->lineEdit).ConnectFocus(ui->label);
+    setFocusProxy(ui->lineEdit);
 }
 
 WidgetsLineEditLayout::~WidgetsLineEditLayout()

@@ -1,7 +1,8 @@
 #include "widgetscomboboxlayout.h"
 #include "ui_widgetscomboboxlayout.h"
 
-#include <WidgetsModule/internal.hpp>
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
     : Super(parent)
@@ -9,6 +10,7 @@ WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->comboBox->view()).ConnectFocus(ui->label, ui->comboBox);
+    setFocusProxy(ui->comboBox);
 }
 
 WidgetsComboBoxLayout::~WidgetsComboBoxLayout()

@@ -2,7 +2,9 @@
 #include "ui_widgetsspinboxlayout.h"
 
 #include <QCheckBox>
-#include <WidgetsModule/internal.hpp>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
     : Super(parent)
@@ -11,6 +13,7 @@ WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->spinBox).ConnectFocus(ui->label);
+    setFocusProxy(ui->spinBox);
 }
 
 WidgetsSpinBoxLayout::~WidgetsSpinBoxLayout()

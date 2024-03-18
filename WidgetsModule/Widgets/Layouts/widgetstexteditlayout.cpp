@@ -1,11 +1,16 @@
 #include "widgetstexteditlayout.h"
 #include "ui_widgetstexteditlayout.h"
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
+
 WidgetsTextEditLayout::WidgetsTextEditLayout(QWidget *parent)
     : QFrame(parent)
     , ui(new Ui::WidgetsTextEditLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->textEdit).ConnectFocus(ui->label);
+    setFocusProxy(ui->textEdit);
 }
 
 WidgetsTextEditLayout::~WidgetsTextEditLayout()

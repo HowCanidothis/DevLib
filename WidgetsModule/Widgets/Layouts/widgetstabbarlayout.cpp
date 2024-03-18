@@ -2,7 +2,10 @@
 #include "ui_widgetstabbarlayout.h"
 
 #include <QPushButton>
-#include <WidgetsModule/internal.hpp>
+#include <QLabel>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent)
     : QFrame(parent)

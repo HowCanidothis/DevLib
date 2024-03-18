@@ -327,11 +327,7 @@ enum class ButtonRole
     AddIcon = 5,
     Add = 6,
     Tab = 7,
-    DateTimePicker = 8,
     FloatingButton = 9,
-    GroupHeader = 10,
-    Group = 11,
-    Open = 12,
     IconWithText = 13
 };
 

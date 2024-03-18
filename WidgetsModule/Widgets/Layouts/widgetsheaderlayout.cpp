@@ -1,7 +1,8 @@
 #include "widgetsheaderlayout.h"
 #include "ui_widgetsheaderlayout.h"
 
-#include <WidgetsModule/internal.hpp>
+#include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Utils/widgetstyleutils.h"
 
 WidgetsHeaderLayout::WidgetsHeaderLayout(QWidget *parent)
     : QFrame(parent)
@@ -10,6 +11,7 @@ WidgetsHeaderLayout::WidgetsHeaderLayout(QWidget *parent)
     ui->setupUi(this);
     WidgetLineEditWrapper(ui->prefix).SetDynamicSizeAdjusting().WidgetReadOnly() = true;
     WidgetLineEditWrapper(ui->value).SetDynamicSizeAdjusting();
+    setFocusProxy(ui->value);
 }
 
 WidgetsHeaderLayout::~WidgetsHeaderLayout()
