@@ -38,6 +38,9 @@ public:
     bool checked() const;
     void setChecked(bool checked);
 
+    bool checkable() const;
+    void setCheckable(bool checked);
+
 private:
     void ensureCheckable();
 
