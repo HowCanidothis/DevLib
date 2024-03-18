@@ -15,6 +15,7 @@ class WidgetsTextEditLayout : public QFrame
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString placeHolder READ placeHolder WRITE setPlaceHolder)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     using Super = QFrame;
 public:
     explicit WidgetsTextEditLayout(QWidget *parent = nullptr);
@@ -31,6 +32,9 @@ public:
 
     bool readOnly() const;
     void setReadOnly(bool readOnly);
+
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
 
 private:
     Ui::WidgetsTextEditLayout *ui;

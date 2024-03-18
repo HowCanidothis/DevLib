@@ -1831,7 +1831,12 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
 ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const
 {
     static QPixmap pixmap(10,10);
-    auto colorAction = AddAction(title, [handler, color](QAction* action){
+    auto* btn = new QPushButton();
+    pixmap.fill(color);
+    btn->setIcon(pixmap);
+    btn->setText(title);
+
+    QObject::connect(btn, &QPushButton::clicked, [handler, color, btn] {
         WidgetColorDialogWrapper dialog(WidgetsDialogsManager::GetInstance().GetOrCreateDialog<QColorDialog>("ColorDialog", []{
             return WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow()))
                    .SetDefaultLabels();
@@ -1841,20 +1846,23 @@ ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& co
         if(dialog->result() == QDialog::Accepted) {
             auto result = dialog->currentColor();
             pixmap.fill(result);
-            action->setIcon(pixmap);
+            btn->setIcon(pixmap);
             handler(result);
         }
     });
-    pixmap.fill(color);
-    colorAction->setIcon(pixmap);
-    return colorAction;
+
+    auto* action = new QWidgetAction(GetWidget());
+    btn->setProperty(WidgetProperties::ActionWidget, true);
+    action->setDefaultWidget(btn);
+    GetWidget()->addAction(action);
+    return action;
 }
 
 ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const
 {
     auto* widget = new QFrame();
     auto* layout = new QHBoxLayout();
-    layout->setContentsMargins(6,3,6,3);
+    layout->setContentsMargins(0,0,0,0);
     widget->setLayout(layout);
     auto* label = new QLabel(title);
     auto* spinBox = new QDoubleSpinBox;
@@ -1866,7 +1874,6 @@ ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, c
         handler(value);
     });
     auto* action = new QWidgetAction(GetWidget());
-    label->setProperty(WidgetProperties::ActionWidget, true);
     widget->setProperty(WidgetProperties::ActionWidget, true);
     action->setDefaultWidget(widget);
     GetWidget()->addAction(action);

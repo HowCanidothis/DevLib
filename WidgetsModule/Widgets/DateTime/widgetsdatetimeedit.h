@@ -8,6 +8,7 @@
 class WidgetsDateTimeEdit : public QDateTimeEdit
 {
     Q_OBJECT
+    Q_PROPERTY(qint32 dateMode READ dateMode WRITE setDateMode)
     using Super = QDateTimeEdit;
 public:
     WidgetsDateTimeEdit(QWidget* parent = nullptr);
@@ -16,6 +17,9 @@ public:
     LocalPropertyDateTime CurrentDateTime;
     std::function<QDateTime ()> DefaultDateTimeDelegate = []{ return QDateTime(); };
     void Resize();
+
+    qint32 dateMode() const { return Mode; }
+    void setDateMode(qint32 mode) { Mode = mode; }
 
     LocalPropertyDate& GetOrCreateDateProperty();
 

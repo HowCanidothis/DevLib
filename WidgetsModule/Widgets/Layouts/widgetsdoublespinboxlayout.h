@@ -20,6 +20,7 @@ class WidgetsDoubleSpinBoxLayout : public QFrame
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(bool checkable READ checkable WRITE setCheckable)
     Q_PROPERTY(bool checked READ checked WRITE setChecked)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     using Super = QFrame;
 
 public:
@@ -31,6 +32,9 @@ public:
     QLineEdit* lineEdit() const;
     QHBoxLayout* layout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
+
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
 
     bool readOnly() const;
     void setReadOnly(bool readOnly);

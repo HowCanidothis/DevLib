@@ -14,6 +14,7 @@ class WidgetsSpinBoxLayout : public QFrame
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool checkable READ checkable WRITE setCheckable)
     Q_PROPERTY(bool checked READ checked WRITE setChecked)
     using Super = QFrame;
@@ -32,10 +33,11 @@ public:
     bool readOnly() const;
     void setReadOnly(bool readOnly);
 
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
     bool checked() const;
     void setChecked(bool checked);
-    bool checkable() const;
-    void setCheckable(bool checkable);
+
 private:
     void ensureCheckable();
 

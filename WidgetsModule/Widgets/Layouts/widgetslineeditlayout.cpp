@@ -16,6 +16,22 @@ WidgetsLineEditLayout::~WidgetsLineEditLayout()
     delete ui;
 }
 
+Qt::Orientation WidgetsLineEditLayout::orientation() const
+{
+    return ui->verticalLayout->direction() == QBoxLayout::TopToBottom ? Qt::Vertical : Qt::Horizontal;
+}
+
+void WidgetsLineEditLayout::setOrientation(Qt::Orientation orientation)
+{
+    if(this->orientation() != orientation) {
+        if(orientation == Qt::Vertical) {
+            ui->verticalLayout->setDirection(QBoxLayout::TopToBottom);
+        } else {
+            ui->verticalLayout->setDirection(QBoxLayout::LeftToRight);
+        }
+    }
+}
+
 QLabel* WidgetsLineEditLayout::label() const
 {
     return ui->label;

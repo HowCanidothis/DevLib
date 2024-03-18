@@ -831,7 +831,7 @@ QMenu::separator {
 
 QMenu::icon {
     margin: 0px;
-    padding-left: 8px;
+    left: 8px;
 }
 
 QMenu::item {
@@ -839,7 +839,6 @@ QMenu::item {
     padding: 8px 24px 8px 24px;
     background-color: @cbg.3;
     border: none;
-    /* Reserve space for selection border */
 }
 
 QMenu::item:selected {
@@ -854,7 +853,7 @@ QMenu::item:!enabled {
 QMenu::indicator {
     width: 12px;
     height: 12px;
-    padding-left: 6px;
+    padding-left: 8px;
 }
 
 QMenu::indicator:non-exclusive:unchecked {
@@ -870,6 +869,29 @@ QMenu::right-arrow {
     image: url("@cPath/arrow-right.svg");
     height: 16px;
     width: 16px;
+}
+
+QWidget[ActionWidget="true"] {
+    background: transparent;
+    border-radius: 0px;
+    color: @ctext.active;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 4px 8px 3px 8px;
+}
+
+QAbstractButton[ActionWidget="true"]:hover {
+    background: @cbg.hover;
+}
+
+QPushButton[ActionWidget="true"] {
+    text-align: left;
+    min-height: 30px;
+    color: @ctext.active;
+}
+
+QPushButton[ActionWidget="true"]:checked {
+    color: @ctext.1;
 }
 
 WidgetsTabBarLayout {
@@ -924,16 +946,6 @@ QFrame[Footer="true"] QDoubleSpinBox
 QFrame[Footer="true"] QSpinBox
 {
     font-size: 12px;
-}
-
-QWidget[ActionWidget="true"] {
-    border-radius: 0px;
-    font-size: 14px;
-    font-weight: normal;
-}
-
-QPushButton[ActionWidget="true"] {
-    text-align: left;
 }
 
 WidgetsDoubleSpinBoxLayout  QCheckBox{
@@ -1050,3 +1062,60 @@ WidgetsDateTimeWidget {
     padding: 6px;
     background: @cbg.1;
 }
+
+QDockWidget {
+    border-radius: 0px;
+    titlebar-close-icon: url("@cPath/close.svg");
+    titlebar-normal-icon: url("@cPath/detach-button.svg");
+    outline: 1px solid @cbg.2;
+    background: @cbg.1;
+    border: none;
+}
+
+QDockWidget::title {
+  border: none;
+}
+
+QDockWidget::close-button, QDockWidget::float-button {
+    border: none;
+    icon-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+QTabBar::tab {
+  padding: 5px 20px 5px 20px;
+  margin: 0px;
+  border: none;
+}
+
+QTabBar::close-button {
+  border-image: url(@cPath/close.svg);
+}
+
+QTabBar::close-button:hover {
+  border-image: url(@cPath/close-hover.svg);
+}
+
+QTabBar {
+  qproperty-documentMode: true;
+  background: @cbg.1;
+  qproperty-drawBase: 0;
+}
+
+QTabBar::tab:top:!selected {
+  background: @cbg.3;
+}
+
+QTabBar::tab:top:selected {
+  background: @cbg.2;
+}
+
+QDockWidget {
+    border: 1px solid red;
+}
+
+QDockWidget::title {
+    border: 1px solid red;
+}
+

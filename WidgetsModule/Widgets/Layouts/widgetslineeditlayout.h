@@ -17,6 +17,7 @@ class WidgetsLineEditLayout : public QFrame
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(QLineEdit::EchoMode echoMode READ echoMode WRITE setEchoMode)
     Q_PROPERTY(bool enableClearButton READ enableClearButton WRITE setEnableClearButton)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     using EchoMode = QLineEdit::EchoMode;
     using Super = QFrame;
 
@@ -35,6 +36,9 @@ public:
 
     bool enableClearButton() const;
     void setEnableClearButton(bool enabled);
+
+    Qt::Orientation orientation() const;
+    void setOrientation(Qt::Orientation orientation);
 
     bool readOnly() const;
     void setReadOnly(bool readOnly);

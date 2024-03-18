@@ -7,7 +7,7 @@
 @cbg.hover: rgba(255, 255, 255, 0.08);
 @cbg.disabled: rgba(255, 255, 255, 0.12);
 @cbr.normal: rgba(255, 255, 255, 0.24);
-@cbr.hover: rgba(255,255,255,1);
+@cbr.hover: rgb(255,255,255);
 @ctext.disabled: rgb(120,120,120);
 @ctext.label: rgb(200,200,200);
 @ctext.1: rgb(62, 166, 255);
@@ -17,7 +17,7 @@
 @c.success: rgb(76,175,80);
 @cPath:@temp;
 @cIcon.f1:white;
-@cIcon.f1O:0.7;
+@cIcon.hover:rgb(200,200,200);
 @resource.1::/style/res;
 @resource.2::/aispaces/res;
 @import url("style/style.qss");

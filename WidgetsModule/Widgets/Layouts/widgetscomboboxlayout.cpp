@@ -16,6 +16,22 @@ WidgetsComboBoxLayout::~WidgetsComboBoxLayout()
     delete ui;
 }
 
+Qt::Orientation WidgetsComboBoxLayout::orientation() const
+{
+    return ui->verticalLayout->direction() == QBoxLayout::TopToBottom ? Qt::Vertical : Qt::Horizontal;
+}
+
+void WidgetsComboBoxLayout::setOrientation(Qt::Orientation orientation)
+{
+    if(this->orientation() != orientation) {
+        if(orientation == Qt::Vertical) {
+            ui->verticalLayout->setDirection(QBoxLayout::TopToBottom);
+        } else {
+            ui->verticalLayout->setDirection(QBoxLayout::LeftToRight);
+        }
+    }
+}
+
 QLabel* WidgetsComboBoxLayout::label() const
 {
     return ui->label;

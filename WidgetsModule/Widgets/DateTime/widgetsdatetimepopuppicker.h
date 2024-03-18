@@ -12,6 +12,7 @@ class WidgetsDatetimePopupPicker;
 class WidgetsDatetimePopupPicker : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY(qint32 dateMode READ dateMode WRITE setDateMode)
     using Super = QFrame;
 public:
     explicit WidgetsDatetimePopupPicker(QWidget *parent = nullptr);
@@ -19,6 +20,9 @@ public:
 
     class WidgetsDateTimeWidget* GetDateTimeWidget() const { return m_editor; }
     class WidgetsDateTimeEdit* GetLineEdit() const;
+
+    qint32 dateMode() const { return Mode; }
+    void setDateMode(qint32 mode) { Mode = mode; }
 
     LocalPropertyDoubleOptional TimeShift;
 

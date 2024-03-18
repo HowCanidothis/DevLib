@@ -25,6 +25,8 @@ public:
     DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyDateTime* modelProperty);
     DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyDate* modelProperty);
 
+    class WidgetsCalendarWidget* GetCalendar() const;
+
     LocalPropertyInt Mode;
     LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;

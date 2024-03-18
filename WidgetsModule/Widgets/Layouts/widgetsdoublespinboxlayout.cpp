@@ -46,6 +46,22 @@ WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox() con
     return ui->doubleSpinBox;
 }
 
+Qt::Orientation WidgetsDoubleSpinBoxLayout::orientation() const
+{
+    return ui->verticalLayout->direction() == QBoxLayout::TopToBottom ? Qt::Vertical : Qt::Horizontal;
+}
+
+void WidgetsDoubleSpinBoxLayout::setOrientation(Qt::Orientation orientation)
+{
+    if(this->orientation() != orientation) {
+        if(orientation == Qt::Vertical) {
+            ui->verticalLayout->setDirection(QBoxLayout::TopToBottom);
+        } else {
+            ui->verticalLayout->setDirection(QBoxLayout::LeftToRight);
+        }
+    }
+}
+
 QString WidgetsDoubleSpinBoxLayout::title() const
 {
     return ui->label->text();

@@ -139,6 +139,11 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationIn
     return ret;
 }
 
+WidgetsCalendarWidget* WidgetsDateTimeWidget::GetCalendar() const
+{
+    return ui->calendarWidget;
+}
+
 DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationInfo, LocalPropertyDateTime* modelProperty)
 {
     DispatcherConnections ret;
