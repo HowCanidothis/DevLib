@@ -85,11 +85,11 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         OnApplyActivate();
     });
 
-    if(SharedSettings::GetInstance().IsInitialized()){
+#ifndef QT_PLUGIN
         SharedSettings::GetInstance().LanguageSettings.ApplicationLocale.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
             ui->calendarWidget->setLocale(SharedSettings::GetInstance().LanguageSettings.ApplicationLocale);
         }).MakeSafe(m_connections);
-    }
+#endif
 
     WidgetAbstractButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){

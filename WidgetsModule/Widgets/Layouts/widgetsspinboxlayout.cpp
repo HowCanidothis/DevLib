@@ -1,11 +1,13 @@
 #include "widgetsspinboxlayout.h"
 #include "ui_widgetsspinboxlayout.h"
 
+#include <QCheckBox>
 #include <WidgetsModule/internal.hpp>
 
 WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
     : Super(parent)
     , ui(new Ui::WidgetsSpinBoxLayout)
+    , m_checkbox(nullptr)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->spinBox).ConnectFocus(ui->label);
@@ -44,4 +46,52 @@ bool WidgetsSpinBoxLayout::readOnly() const
 void WidgetsSpinBoxLayout::setReadOnly(bool readOnly)
 {
     ui->spinBox->setReadOnly(readOnly);
+}
+
+void WidgetsSpinBoxLayout::ensureCheckable()
+{
+    if(m_checkbox == nullptr) {
+        m_checkbox = new CheckBoxComponent();
+        ui->horizontalLayout->insertWidget(0, m_checkbox->Checkbox);
+        WidgetWrapper(ui->spinBox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
+    }
+}
+
+bool WidgetsSpinBoxLayout::checked() const
+{
+    if(m_checkbox == nullptr) {
+        return false;
+    }
+    return m_checkbox->Checkbox->isChecked();
+}
+
+void WidgetsSpinBoxLayout::setChecked(bool checked)
+{
+    ensureCheckable();
+    m_checkbox->Checkbox->setChecked(checked);
+}
+
+bool WidgetsSpinBoxLayout::checkable() const
+{
+    return m_checkbox != nullptr;
+}
+
+void WidgetsSpinBoxLayout::setCheckable(bool checkable)
+{
+    if(checkable) {
+        ensureCheckable();
+    } else if(m_checkbox != nullptr){
+        m_checkbox->Detach();
+        m_checkbox = nullptr;
+    }
+}
+
+WidgetsSpinBoxLayout::CheckBoxComponent::CheckBoxComponent()
+    : Checkbox(new QCheckBox())
+{
+}
+
+void WidgetsSpinBoxLayout::CheckBoxComponent::Detach()
+{
+    delete Checkbox;
 }

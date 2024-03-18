@@ -20,7 +20,9 @@ WidgetsCalendarWidget::WidgetsCalendarWidget(QWidget* parent)
     SelectedDates.Subscribe(updateHandler);
 
     QTextCharFormat fmt;
+#ifndef QT_PLUGIN
     fmt.setForeground(QBrush(SharedSettings::GetInstance().StyleSettings.DefaultRedColor));
+#endif
     setHeaderTextFormat(fmt);
     setVerticalHeaderFormat(NoVerticalHeader);
 }
