@@ -52,12 +52,12 @@ QString WidgetsHeaderLayout::value() const
 
 bool WidgetsHeaderLayout::hasValue() const
 {
-    return valueEdit()->isVisible();
+    return valueEdit()->isVisibleTo(this);
 }
 
 bool WidgetsHeaderLayout::hasPrefix() const
 {
-    return prefixEdit()->isVisible();
+    return prefixEdit()->isVisibleTo(this);
 }
 
 bool WidgetsHeaderLayout::readOnlyPrefix() const

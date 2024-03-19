@@ -60,3 +60,7 @@ WidgetsDateTimeEdit* WidgetsDatetimePopupPicker::GetLineEdit() const
 {
     return ui->dateTimeEdit;
 }
+
+QPushButton* WidgetsDatetimePopupPicker::GetCalendarButton() const {
+    return ui->CalendarButton;
+}

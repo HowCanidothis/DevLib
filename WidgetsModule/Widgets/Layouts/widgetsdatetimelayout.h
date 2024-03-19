@@ -15,6 +15,7 @@ class WidgetsDateTimeLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(bool isDateTime READ isDateTime WRITE setIsDateTime)
     using Super = QFrame;
 public:
@@ -26,6 +27,9 @@ public:
 
     QString title() const;
     bool isDateTime() const;
+
+    bool readOnly() const;
+    void setReadOnly(bool readOnly);
 
 public slots:
     void setTitle(const QString& title);

@@ -10,6 +10,7 @@
 
 WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     : Super(parent)
+    , Disable(false)
     , ui(new Ui::WidgetsDoubleSpinBoxLayout)
     , m_checkbox(nullptr)
 {
@@ -80,7 +81,9 @@ void WidgetsDoubleSpinBoxLayout::ensureCheckable()
     if(m_checkbox == nullptr) {
         m_checkbox = new CheckBoxComponent();
         ui->horizontalLayout_2->insertWidget(0, m_checkbox->Checkbox);
-        WidgetWrapper(ui->doubleSpinBox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
+        WidgetWrapper(ui->doubleSpinBox).WidgetEnablity().ConnectFrom(CDL, [](bool disable, bool check){
+            return !disable && check;
+        }, Disable, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
     }
 }
 
@@ -127,3 +130,14 @@ void WidgetsDoubleSpinBoxLayout::CheckBoxComponent::Detach()
 {
     delete Checkbox;
 }
+
+bool WidgetsDoubleSpinBoxLayout::disable() const
+{
+    return Disable;
+}
+
+void WidgetsDoubleSpinBoxLayout::setDisable(bool disable){
+    Disable = disable;
+}
+
+

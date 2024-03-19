@@ -17,6 +17,7 @@ class WidgetsDoubleSpinBoxLayout : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(bool disable READ disable WRITE setDisable)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(bool checkable READ checkable WRITE setCheckable)
     Q_PROPERTY(bool checked READ checked WRITE setChecked)
@@ -47,6 +48,10 @@ public:
     QString title() const;
     void setTitle(const QString& title);
 
+    bool disable() const;
+    void setDisable(bool disable);
+
+    LocalPropertyBool Disable;
 private:
     void ensureCheckable();
 

@@ -20,6 +20,7 @@ public:
 
     class WidgetsDateTimeWidget* GetDateTimeWidget() const { return m_editor; }
     class WidgetsDateTimeEdit* GetLineEdit() const;
+    class QPushButton* GetCalendarButton() const;
 
     qint32 dateMode() const { return Mode; }
     void setDateMode(qint32 mode) { Mode = mode; }

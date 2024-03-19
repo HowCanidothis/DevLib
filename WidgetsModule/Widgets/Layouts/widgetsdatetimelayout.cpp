@@ -54,3 +54,13 @@ void WidgetsDateTimeLayout::setIsDateTime(const bool& dateTime)
     ui->DateTimePicker->Mode = dateTime ? WidgetsDateTimeWidget::DateTime : WidgetsDateTimeWidget::Date;
 }
 
+bool WidgetsDateTimeLayout::readOnly() const
+{
+    return ui->DateTimePicker->GetLineEdit()->isReadOnly();
+}
+
+void WidgetsDateTimeLayout::setReadOnly(bool readOnly)
+{
+    ui->DateTimePicker->GetCalendarButton()->setEnabled(!readOnly);
+    ui->DateTimePicker->GetLineEdit()->setReadOnly(readOnly);
+}
