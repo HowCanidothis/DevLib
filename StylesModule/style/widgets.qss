@@ -139,3 +139,7 @@ QFrame#WidgetsTVRAWidget {
     margin: 0px;
     padding: 0px;
 }
+
+QWidget#ThemesSpacer {
+    background: transparent;
+}
