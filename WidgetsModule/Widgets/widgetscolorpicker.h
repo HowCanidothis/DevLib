@@ -12,7 +12,7 @@ class WidgetsColorPicker;
 class WidgetsColorPicker : public QWidget
 {
     Q_OBJECT
-
+    Q_PROPERTY(QSize borderRadius MEMBER m_borderRadius)
 public:
     explicit WidgetsColorPicker(QWidget *parent = nullptr);
     ~WidgetsColorPicker();
@@ -25,6 +25,7 @@ private:
 
 private:
     Ui::WidgetsColorPicker *ui;
+    QSize m_borderRadius;
 };
 
 #endif // WIDGETSCOLORPICKER_H

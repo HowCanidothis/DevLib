@@ -68,7 +68,7 @@ private:
     QString m_shadersPath;
     ArrayPointers<Shader> m_shaders;
     ScopedPointer<QtObserver> m_shadersWatcher;
-    QMutex m_mutex;
+    SharedPointer<QMutex> m_mutex;
     bool m_isValid;
 
 };

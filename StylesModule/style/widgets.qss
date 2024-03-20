@@ -3,14 +3,14 @@ QPushButton#AddButton {
 }
 
 QPushButton#AddButton:hover {
-    background: @cbg.3;
+    background: @cbg.hover;
 }
 
 QPushButton#DeleteButton {
     qproperty-icon: url("@cPath/delete.svg");
 }
 
-QPushButton#DeleteButton {
+QPushButton#DeleteButton:hover {
     background: @cbg.3;
 }
 
@@ -63,8 +63,6 @@ QPushButton#BtnClose {
 }
 
 QPushButton#BtnClose:hover {
-    border: none;
-    border-radius: none;
     background: @c.error;
     image: url("@cPath/close-hover.svg");
 }
@@ -79,8 +77,7 @@ QPushButton#BtnCloseMinor {
 }
 
 QPushButton#BtnCloseMinor:hover {
-    border: none;
-    border-radius: none;
+    image: url("@cPath/close-hover.svg");
 }
 
 QPushButton#btnDrawer
@@ -133,4 +130,12 @@ QPushButton#btnDrawerVertical[isOpen=false]
 QPushButton#btnDrawerVertical[isOpen=true]
 {
     image: url("@cPath/chevron-down.svg");
+}
+
+QFrame#WidgetsTVRAWidget {
+    background: @cbg.1;
+    border-radius: 4px;
+    border: 1px solid @cbr.normal;
+    margin: 0px;
+    padding: 0px;
 }

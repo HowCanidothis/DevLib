@@ -67,9 +67,10 @@ GtSharedShaderManager& GtSharedShaderManager::GetInstance()
 
 GtShaderProgram::GtShaderProgram(GtRenderer* renderer)
     : m_renderer(renderer)
+    , m_mutex(::make_shared<QMutex>())
     , m_isValid(false)
 {
-    OnUpdated.SetManualThreadSafe(&m_mutex);
+    OnUpdated.SetAutoThreadSafe(m_mutex);
 }
 
 GtShaderProgram& GtShaderProgram::AddShader(ShaderType type, const QString& file)
@@ -107,7 +108,7 @@ QByteArray GtShaderProgram::extractShader(const QString& fileName) const
 
 bool GtShaderProgram::Bind()
 {
-    m_mutex.lock();
+    m_mutex->lock();
     if(IsValid()) {
         m_shaderProgram->bind();
         return true;
@@ -118,12 +119,12 @@ bool GtShaderProgram::Bind()
 void GtShaderProgram::Release()
 {
     m_shaderProgram->release();
-    m_mutex.unlock();
+    m_mutex->unlock();
 }
 
 void GtShaderProgram::Update()
 {
-    QMutexLocker locker(&m_mutex);
+    QMutexLocker locker(m_mutex.get());
     m_isValid = false;
     m_shaderProgram = new QOpenGLShaderProgram();
     {

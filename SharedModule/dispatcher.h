@@ -17,31 +17,20 @@
 class DispatcherConnection;
 using DispatcherConnectionSafePtr = SharedPointer<class DispatcherConnectionSafe>;
 
-class DispatcherConnectionSafe
-{
-    using Super = FAction;
-public:
-    DispatcherConnectionSafe();
-    DispatcherConnectionSafe(const FAction& disconnector);
-    ~DispatcherConnectionSafe();
-
-    void Disconnect();
-
-private:
-    template<typename... Args> friend class CommonDispatcher;
-    template<typename... Args> friend class LocalDispatcher; // TODO. Must be removed
-    void disable();
-
-private:
-    FAction m_disconnector;
-};
-
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
 inline SharedPointer<DispatcherConnectionsSafe> DispatcherConnectionsSafeCreate()
 {
     return ::make_shared<DispatcherConnectionsSafe>();
 }
+
+struct DispatcherGuard
+{
+    SharedPointer<QMutex> Mutex;
+    bool Destroyed = false;
+};
+
+using DispatcherGuardPtr = SharedPointer<DispatcherGuard>;
 
 class DispatcherConnection
 {
@@ -51,10 +40,10 @@ class DispatcherConnection
     template<typename ... Args> friend class CommonDispatcher;
     template<typename... Args> friend class LocalDispatcher; // TODO. Must be removed
     FAction m_disconnector;
-    FDispatcherRegistrator m_registrator;
+    DispatcherGuardPtr m_guard;
 
-    DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator);
-    void disconnect() const;
+    DispatcherConnection(const DispatcherGuardPtr& guard, const FAction& disconnector);
+    void disconnect();
 public:
     DispatcherConnection(const FAction& disconnector);
     DispatcherConnection();
@@ -66,11 +55,25 @@ public:
     {
         auto connection = MakeSafe();
         adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
-            connections.append(::make_shared<DispatcherConnectionSafe>([connection]{
+            connections.append(::make_shared<DispatcherConnectionSafe>(DispatcherConnection([connection]{
                 connection->Disconnect();
-            }));
+            })));
         }, connections...);
     }
+};
+
+class DispatcherConnectionSafe
+{
+    using Super = FAction;
+public:
+    DispatcherConnectionSafe();
+    DispatcherConnectionSafe(const DispatcherConnection& disconnector);
+    ~DispatcherConnectionSafe();
+
+    void Disconnect();
+
+private:
+    DispatcherConnection m_connection;
 };
 
 class DispatcherConnections : public QVector<DispatcherConnection>
@@ -129,16 +132,13 @@ public:
 #endif
     })
         , m_unlock([]{})
+        , m_guard(::make_shared<DispatcherGuard>())
     {
     }
 
     virtual ~CommonDispatcher()
     {
-        for(Connection& connection : m_connections) {
-            if(!connection.SafeConnection.expired()) {
-                connection.SafeConnection.lock()->disable();
-            }
-        }
+        reset();
     }
 
     void ResetThread(qint64 threadId = 0) const
@@ -148,6 +148,26 @@ public:
 #endif
     }
 
+    void SetAutoThreadSafe(const SharedPointer<QMutex>& mutex)
+    {
+#ifdef QT_DEBUG
+        m_thread = 0;
+        Q_ASSERT(!m_multithread);
+        m_multithread = true;
+#endif
+        m_guard->Mutex = mutex;
+        auto* pMutex = mutex.get();
+        auto locked = ::make_shared<bool>(false);
+        m_lock = [pMutex, locked](const char*) {
+            *locked = pMutex->tryLock();
+        };
+        m_unlock = [pMutex, locked]{
+            if(*locked) {
+                pMutex->unlock();
+            }
+        };
+    }
+
     void SetAutoThreadSafe()
     {
 #ifdef QT_DEBUG
@@ -155,45 +175,14 @@ public:
         Q_ASSERT(!m_multithread);
         m_multithread = true;
 #endif
-        auto mutex = ::make_shared<QMutex>();
-        auto* pMutex = mutex.get();
-        m_lock = [mutex](const char*) {
-            mutex->lock();
+        m_guard->Mutex = ::make_shared<QMutex>();
+        auto* pMutex = m_guard->Mutex.get();
+        m_lock = [pMutex](const char*) {
+            pMutex->lock();
         };
         m_unlock = [pMutex]{
             pMutex->unlock();
         };
-    }
-
-    void SetManualThreadSafe(QMutex* mutex)
-    {
-#ifdef QT_DEBUG
-        m_thread = 0;
-        Q_ASSERT(!m_multithread);
-        m_multithread = true;
-#endif
-        auto locked = ::make_shared<bool>(false);
-        m_lock = [mutex, locked](const char*) {
-            *locked = mutex->tryLock();
-        };
-        m_unlock = [mutex, locked]{
-            if(*locked) {
-                mutex->unlock();
-            }
-        };
-    }
-
-    void Reset()
-    {
-        lock(CONNECTION_DEBUG_LOCATION);
-        m_subscribes.clear();
-        for(Connection& connection : m_connections) {
-            if(!connection.SafeConnection.expired()) {
-                connection.SafeConnection.lock()->disable();
-            }
-        }
-        m_connections.clear();
-        unlock();
     }
 
     virtual void Invoke(Args... args) const
@@ -294,19 +283,12 @@ public:
             m_connections.append(Connection(handler));
         }
         unlock();
-        return DispatcherConnection([this, id, locationInfo]{
-            lock(locationInfo);
+        return DispatcherConnection(m_guard, [this, id, locationInfo]{
             auto& connection = m_connections[id];
             auto handler = connection.ConnectionHandler;
             Q_UNUSED(handler);
             connection.ConnectionHandler = [](Args...){};
-            connection.SafeConnection.reset();
             m_freeConnections.enqueue(id);
-            unlock();
-        }, [this, id, locationInfo](const DispatcherConnectionSafePtr& connection){
-            lock(locationInfo);
-            m_connections[id].SafeConnection = std::weak_ptr<DispatcherConnectionSafe>(connection);
-            unlock();
         });
     }
 
@@ -348,7 +330,7 @@ public:
             action(args...);
             connections->clear();
         }).MakeSafe(*connections);
-        return DispatcherConnection([connections]{ connections->clear(); }, [](const DispatcherConnectionSafePtr& ){ });
+        return DispatcherConnection([connections]{ connections->clear(); });
     }
 
 //    template<typename ... SafeConnections>
@@ -364,13 +346,20 @@ public:
     Q_DISABLE_COPY(CommonDispatcher)
 
 protected:
+    friend class PromiseData;
+    friend class FutureResultData;
     void lock(const char* connectionInfo) const { m_lock(connectionInfo); }
     void unlock() const { m_unlock(); }
+    void reset()
+    {
+        lock(CONNECTION_DEBUG_LOCATION);
+        m_guard->Destroyed = true;
+        unlock();
+    }
 
 private:
     friend class Connection;
     struct Connection {
-        std::weak_ptr<DispatcherConnectionSafe> SafeConnection;
         FCommonDispatcherAction ConnectionHandler;
 
         Connection(const FCommonDispatcherAction& connection)
@@ -384,6 +373,7 @@ private:
     mutable std::atomic_uint32_t m_lastId;
     std::function<void (const char*)> m_lock;
     FAction m_unlock;
+    DispatcherGuardPtr m_guard;
 
 #ifdef QT_DEBUG
     mutable qint64 m_thread = 0;

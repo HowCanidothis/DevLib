@@ -8,10 +8,10 @@ QWidget {
 }
 
 QWidget[readOnly="true"] {
-  background-color: transparent;
-  color: @ctext.label;
-  selection-background-color: @ctext.1;
-  selection-color: @ctext.label;
+    background-color: transparent;
+    color: @ctext.label;
+    selection-background-color: @cbg.hover;
+    selection-color: @ctext.label;
 }
 
 QFrame {
@@ -27,6 +27,7 @@ QAbstractButton {
     color: @ctext.1;
     background: transparent;
     border-radius: 4px;
+    outline: 0;
 }
 
 QAbstractButton:hover {
@@ -74,11 +75,6 @@ QLineEdit{
     selection-color: @ctext.active;
 }
 
-QLineEdit[readOnly="true"] {
-    selection-background-color: @cbg.hover;
-    selection-color: @ctext.label;
-}
-
 QLineEdit[readOnly="false"]:hover {
     border: 1px solid @cbr.hover;
 }
@@ -121,11 +117,6 @@ QDoubleSpinBox {
     selection-color: @ctext.active;
 }
 
-QDoubleSpinBox[readOnly="true"] {
-    selection-background-color: @cbg.hover;
-    selection-color: @ctext.label;
-}
-
 QDoubleSpinBox[readOnly="false"]:hover {
     border: 1px solid @cbr.hover;
 }
@@ -141,11 +132,6 @@ QSpinBox {
     color: @ctext.active;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
-}
-
-QSpinBox[readOnly="true"] {
-    selection-background-color: @cbg.hover;
-    selection-color: @ctext.label;
 }
 
 QSpinBox[readOnly="false"]:hover {
@@ -460,7 +446,7 @@ QColumnView {
     margin: 0px;
     padding: 0px;
     outline: none;
-    background: transparent;
+    background: @cbg.1;
 }
 
 QTreeView {
@@ -497,7 +483,7 @@ QTableView {
 QListView::item,
 QTableView::item,
 QColumnView::item {
-    background: @cbg.1;
+    background: transparent;
 }
 
 QTableView::item {
@@ -908,6 +894,14 @@ QTextEdit {
     border: 1px solid @cbr.normal;
 }
 
+QTextEdit[readOnly="false"] {
+    background: @cbg.1;
+}
+
+QTextEdit[readOnly="false"]:focus {
+    border: 1px solid @ctext.1;
+}
+
 QCalendarWidget QToolButton#qt_calendar_nextmonth {
     qproperty-icon: url("@cPath/chevron-right.svg");
 }
@@ -1055,9 +1049,26 @@ QTabBar {
 }
 
 QTabBar::tab:top:!selected {
-    background: @cbg.3;
+    background: @cbg.1;
+}
+
+QTabBar::tab:top:!selected:hover {
+    background: @cbg.hover;
 }
 
 QTabBar::tab:top:selected {
     background: @cbg.2;
+}
+
+QScrollArea > QWidget > QWidget{
+    background: transparent;
+}
+
+WidgetsColorPicker {
+    min-height: 28px;
+    qproperty-borderRadius: 4px 4px;
+}
+
+WidgetsPicturePicker {
+    min-width: 100px;
 }

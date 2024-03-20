@@ -9,8 +9,9 @@ PromiseData::PromiseData()
     : m_result(false)
     , m_isResolved(false)
     , m_isCompleted(false)
+    , m_mutex(::make_shared<QMutex>())
 {
-    onFinished.SetManualThreadSafe(&m_mutex);
+    onFinished.SetAutoThreadSafe(m_mutex);
 }
 
 PromiseData::~PromiseData()
@@ -32,7 +33,7 @@ void PromiseData::resolve(const std::function<qint8 ()>& handler)
     }
 
     {
-        QMutexLocker lock(&m_mutex);
+        QMutexLocker lock(m_mutex.get());
         if(m_isResolved) {
             return;
         }
@@ -40,17 +41,17 @@ void PromiseData::resolve(const std::function<qint8 ()>& handler)
     }
     qint8 value = handler();
     {
-        QMutexLocker lock(&m_mutex);
+        QMutexLocker lock(m_mutex.get());
         m_result = value;
         onFinished(value);
         m_isCompleted = true;
-        onFinished.Reset();
+        onFinished.reset();
     }
 }
 
 DispatcherConnection PromiseData::then(const FCallback& handler)
 {
-    QMutexLocker lock(&m_mutex);
+    QMutexLocker lock(m_mutex.get());
     if(m_isCompleted) {
         handler(m_result);
         return DispatcherConnection();
@@ -60,8 +61,8 @@ DispatcherConnection PromiseData::then(const FCallback& handler)
 
 void PromiseData::mute()
 {
-    QMutexLocker lock(&m_mutex);
-    onFinished.Reset();
+    QMutexLocker lock(m_mutex.get());
+    onFinished.reset();
 }
 
 Promise::Promise()
@@ -143,10 +144,10 @@ void FutureResultData::deref()
     m_promisesCounter--;
 
     if(isFinished()) {
-        QMutexLocker lock(&m_mutex);
+        QMutexLocker lock(m_mutex.get());
         onFinished();
         m_conditional.notify_one();
-        onFinished.Reset();
+        onFinished.reset();
     }
 }
 
@@ -175,7 +176,7 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
     if(isFinished()) {
         action(getResult());
     } else {
-        QMutexLocker lock(&m_mutex);
+        QMutexLocker lock(m_mutex.get());
         onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action]{
             action(m_result);
         });
@@ -189,9 +190,9 @@ void FutureResultData::wait()
             qApp->processEvents();
         }
     } else {
-        QMutexLocker lock(&m_mutex);
+        QMutexLocker lock(m_mutex.get());
         while(!isFinished()) {
-            m_conditional.wait(&m_mutex);
+            m_conditional.wait(m_mutex.get());
         }
     }
 }
@@ -199,8 +200,9 @@ void FutureResultData::wait()
 FutureResultData::FutureResultData()
     : m_result(0)
     , m_promisesCounter(0)
+    , m_mutex(::make_shared<QMutex>())
 {
-    onFinished.SetManualThreadSafe(&m_mutex);
+    onFinished.SetAutoThreadSafe(m_mutex);
 }
 
 FutureResultData::~FutureResultData()

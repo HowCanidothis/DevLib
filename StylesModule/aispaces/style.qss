@@ -225,10 +225,6 @@ WPSCLicenseDialog QLabel#State {
     color: @c.error;
 }
 
-QLabel[PropertiesToolViewLabel="true"] {
-    font-weight: bold;
-}
-
 WPSCSpaceTreeView {
     qproperty-iconOffset: 25;
 }
@@ -240,18 +236,9 @@ WidgetsProjectsTreeView QPushButton#BtnActivateObject {
     border-radius: 10px;
 }
 
-QListView#SettingsCatalogList {
-    font-size: 16px;
-    qproperty-spacing: 5;
-}
-
 QWidget[FormationMarker="true"] {
     color: #F2933A;
     background: transparent
-}
-
-QWidget#WidgetsTVRAWidget {
-    background: transparent;
 }
 
 WPSCSectionSummaryView QTreeView:branch:!has-children:!has-siblings:adjoins-item
@@ -269,19 +256,6 @@ WPSCSectionSummaryView QTreeView::item
     background: @cbg.hover1;
 }
 
-WPSCQPView QDoubleSpinBox{
-    margin-right: 6px;
-}
-
-WPSCQPView QLabel[tiny="true"] {
-    font-size: 12px;
-}
-
-WPSCQPView QDoubleSpinBox {
-    max-width: 100px;
-    min-width: 100px;
-}
-
 QWidget[BlueCircleButton="true"] {
     border-radius: 10px;
     max-width: 18px;
@@ -289,7 +263,7 @@ QWidget[BlueCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 5px;
+    margin: 3px 5px 3px 5px;
 }
 
 QWidget[BlueCircleButton="true"]:hover {
@@ -303,7 +277,7 @@ QWidget[GreenCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 5px;
+    margin: 3px 5px 3px 5px;
 }
 
 QWidget[GreenCircleButton="true"]:hover {
@@ -317,7 +291,7 @@ QWidget[RedCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 5px;
+    margin: 3px 5px 3px 5px;
 }
 
 QWidget[RedCircleButton="true"]:hover {
@@ -386,6 +360,21 @@ QPushButton#PropertiesToolBarButton:hover {
     background: @cbg.hover;
 }
 
+PropertiesToolFolderView QPushButton#BtnAddStab {
+    color: @ctext.active;
+    background: @cbg.widget;
+    text-align: left;
+    padding: 10px 0px 10px 0px;
+    qproperty-iconSize: 20px 20px;
+    border: none;
+    border-radius: 0px;
+    qproperty-icon: url(@cPath/plus-hover.svg);
+}
+
+PropertiesToolFolderView QPushButton#BtnAddStab:hover {
+    background: @cbg.hover;
+}
+
 BHAHeaderView {
     padding-left: 8px;
     padding-right: 8px;
@@ -394,6 +383,10 @@ BHAHeaderView {
 PropertiesToolView {
     padding-right: 8px;
     padding-left: 8px;
+}
+
+PropertiesToolFolderView {
+    qproperty-buttonOffset: 10px 8px;
 }
 
 WPSCSimulationTitleBar {
@@ -430,4 +423,12 @@ QListView#SettingsCatalogList {
 
 QPushButton#ResetButton {
     image: url("@cPath/refresh.svg");
+}
+
+QWidget[coloredDrawer="true"]{
+    background: @cbg.widget;
+}
+
+QWidget#widgetheader {
+    min-height: 51px;
 }

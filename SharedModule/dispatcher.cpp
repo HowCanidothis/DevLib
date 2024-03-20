@@ -7,8 +7,8 @@ DispatcherConnectionSafe::DispatcherConnectionSafe()
 
 }
 
-DispatcherConnectionSafe::DispatcherConnectionSafe(const FAction& disconnector)
-    : m_disconnector(disconnector)
+DispatcherConnectionSafe::DispatcherConnectionSafe(const DispatcherConnection& connection)
+    : m_connection(connection)
 {
 }
 
@@ -19,48 +19,52 @@ DispatcherConnectionSafe::~DispatcherConnectionSafe()
 
 void DispatcherConnectionSafe::Disconnect()
 {
-    if(m_disconnector != nullptr) {
+    m_connection.disconnect();
+}
+
+DispatcherConnection::DispatcherConnection(const DispatcherGuardPtr& guard, const FAction& disconnector)
+    : m_disconnector(disconnector)
+    , m_guard(guard)
+{}
+
+DispatcherConnection::DispatcherConnection()
+    : m_disconnector([]{})
+{}
+
+void DispatcherConnection::disconnect()
+{
+    if(m_disconnector == nullptr) {
+        return;
+    }
+    if(m_guard == nullptr) {
+        if(m_disconnector != nullptr) {
+            m_disconnector();
+            m_disconnector = nullptr;
+        }
+        return;
+    }
+
+    if(m_guard->Mutex != nullptr) {
+        QMutexLocker locker(m_guard->Mutex.get());
+        if(!m_guard->Destroyed) {
+            m_disconnector();
+            m_disconnector = nullptr;
+        }
+    } else if(!m_guard->Destroyed) {
         m_disconnector();
         m_disconnector = nullptr;
     }
 }
 
-void DispatcherConnectionSafe::disable()
-{
-    m_disconnector = nullptr;
-}
-
-DispatcherConnection::DispatcherConnection(const FAction& disconnector, const FDispatcherRegistrator& registrator)
-    : m_disconnector(disconnector)
-    , m_registrator(registrator)
-{}
-
-DispatcherConnection::DispatcherConnection()
-    : m_disconnector([]{})
-    , m_registrator([](const DispatcherConnectionSafePtr&){})
-{}
-
-void DispatcherConnection::disconnect() const
-{
-    if(m_disconnector != nullptr) {
-        m_disconnector();
-    }
-}
-
 DispatcherConnection::DispatcherConnection(const FAction& disconnector)
     : m_disconnector(disconnector)
-    , m_registrator([](const DispatcherConnectionSafePtr&){})
 {
 
 }
 
 DispatcherConnectionSafePtr DispatcherConnection::MakeSafe()
 {
-    Q_ASSERT(m_registrator != nullptr);
-    auto result = ::make_shared<DispatcherConnectionSafe>(m_disconnector);
-    m_registrator(result);
-    m_registrator = nullptr;
-    return result;
+    return ::make_shared<DispatcherConnectionSafe>(*this);
 }
 
 void DispatcherConnections::MakeSafe(DispatcherConnectionsSafe& safeConnections)

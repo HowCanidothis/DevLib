@@ -327,11 +327,8 @@ void DelegatesCheckBox::paint(QPainter* painter, const QStyleOptionViewItem& opt
         return;
     }
     QStyleOptionButton checkboxstyle;
-    QRect checkbox_rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator,&checkboxstyle, option.widget);
     
-    checkboxstyle.rect = option.rect;
-    checkboxstyle.rect.setLeft(option.rect.x());/* - checkbox_rect.x() +
-                                 option.rect.width()/2 - checkbox_rect.width()/2);*/
+    checkboxstyle.rect = option.rect.adjusted(2,1,-1,-1);
 
     if(value.toBool()) {
         checkboxstyle.state = QStyle::State_On|QStyle::State_Enabled;

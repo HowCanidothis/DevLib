@@ -22,9 +22,12 @@ WidgetsColorPicker::WidgetsColorPicker(QWidget *parent) :
 void WidgetsColorPicker::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    path.addRoundedRect(rect(), m_borderRadius.width(), m_borderRadius.height());
     painter.setPen(Color);
-    painter.fillRect(rect(), Color);
-    painter.drawRect(rect());
+    painter.fillPath(path, Color.Native());
+    painter.drawPath(path);
 }
 
 WidgetsColorPicker::~WidgetsColorPicker()

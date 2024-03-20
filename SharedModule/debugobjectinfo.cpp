@@ -18,7 +18,7 @@ void DebugObjectManager::create(const char* location, const void* object, const 
 #ifdef QT_DEBUG
     QVector<DispatcherConnectionSafePtr> result;
     auto keyObject = reinterpret_cast<size_t>(object);
-    safeConnections += ::make_shared<DispatcherConnectionSafe>([keyObject]{
+    safeConnections += ::make_shared<DispatcherConnectionSafe>(DispatcherConnection([keyObject]{
         QMutexLocker locker(&m_mutex);
         auto foundIt = debugInfo().find(keyObject);
         if(foundIt != debugInfo().end()) {
@@ -27,7 +27,7 @@ void DebugObjectManager::create(const char* location, const void* object, const 
             }
             debugInfo().erase(foundIt);
         }
-    });
+    }));
     auto& value = debugInfo()[keyObject];
     value.Location = location;
     value.ObjectName = name;

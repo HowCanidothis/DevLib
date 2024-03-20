@@ -29,8 +29,8 @@ private:
     qint8 m_result;
     std::atomic_bool m_isResolved;
     std::atomic_bool m_isCompleted;
+    SharedPointer<QMutex> m_mutex;
     CommonDispatcher<qint8> onFinished;
-    QMutex m_mutex;
 };
 
 struct SafeCallData
@@ -118,7 +118,8 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     std::atomic<qint8> m_result;
     std::atomic<int> m_promisesCounter;
     QWaitCondition m_conditional;
-    QMutex m_mutex;
+    SharedPointer<QMutex> m_mutex;
+    Dispatcher onFinished;
 
     void ref();
     void deref();
@@ -132,8 +133,6 @@ class FutureResultData ATTACH_MEMORY_SPY(FutureResultData)
     void then(const std::function<void (qint8)>& action);
 
     void wait();
-
-    Dispatcher onFinished;
 
 public:
     FutureResultData();
