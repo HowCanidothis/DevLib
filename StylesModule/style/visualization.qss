@@ -1,5 +1,6 @@
 VisualizationToolTipWidget {
-    qproperty-opacity: 0.8;
+    qproperty-opacity: 0.9;
+    background: @cbg.1;
 }
 
 VisualizationToolTipWidget QWidget{
@@ -12,7 +13,7 @@ VisualizationLegendWidget {
 }
 
 VisualizationLegendWidget QLabel {
-    font-size: 8px;
+    font-size: 10px;
 }
 
 VisualizationLegendWidget QLabel[a_selected="true"] {
