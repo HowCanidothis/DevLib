@@ -263,7 +263,7 @@ QWidget[BlueCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 3px 5px 3px 5px;
+    margin: 0px 5px 0px 5px;
 }
 
 QWidget[BlueCircleButton="true"]:hover {
@@ -277,7 +277,7 @@ QWidget[GreenCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 3px 5px 3px 5px;
+    margin: 0px 5px 0px 5px;
 }
 
 QWidget[GreenCircleButton="true"]:hover {
@@ -291,7 +291,7 @@ QWidget[RedCircleButton="true"] {
     max-height: 18px;
     min-height: 18px;
     padding: 2px;
-    margin: 3px 5px 3px 5px;
+    margin: 0px 5px 0px 5px;
 }
 
 QWidget[RedCircleButton="true"]:hover {

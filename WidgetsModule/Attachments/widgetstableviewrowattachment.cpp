@@ -53,7 +53,7 @@ void WidgetsTableViewRowAttachment::Attach(QTableView* v)
         m_pane->show();
         QRect rect = v->visualRect(index);
         auto left = v->viewport()->width() - m_pane->width();
-        m_pane->move(left, rect.top());
+        m_pane->move(left, rect.top() + (rect.height() - m_pane->height()) / 2);
         CurrentRow = index.row();
         m_target = v;
     });

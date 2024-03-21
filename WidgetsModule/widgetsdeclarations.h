@@ -47,16 +47,19 @@ struct DescWidgetsLocationAttachmentParams
         : Location(location)
         , Delay(0)
         , RelativeParent(nullptr)
+        , FullParentSize(true)
     {}
 
     QuadTreeF::BoundingRect_Location Location;
     qint32 Delay;
     QWidget* RelativeParent;
     QPoint Offset;
+    bool FullParentSize;
 
     DescWidgetsLocationAttachmentParams& SetOffset(const QPoint& offset) { Offset = offset; return *this; }
     DescWidgetsLocationAttachmentParams& SetDelay(qint32 delay) { Delay = delay; return *this; }
     DescWidgetsLocationAttachmentParams& SetRelativeParent(QWidget* parent) { RelativeParent = parent; return *this; }
+    DescWidgetsLocationAttachmentParams& DisableFullParentSize() { FullParentSize = false; return *this; }
 };
 
 struct DescCustomDialogParams

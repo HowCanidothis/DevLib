@@ -25,6 +25,7 @@ private:
     QWidget* m_parent;
     DispatcherConnectionsSafe m_componentPlacerConnections;
     QtLambdaConnections m_qtConnections;
+    bool m_fullParentSize;
 };
 
 #endif // WIDGETSLOCATIONATTACHMENT_H

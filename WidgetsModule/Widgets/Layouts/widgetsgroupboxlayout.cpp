@@ -17,6 +17,7 @@ WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent)
 {
     ui->setupUi(this);
     ui->groupBar->hide();
+    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CDL, Opened).MakeSafe(WidgetWrapper(ui->widget).WidgetConnections());
 }
 
 WidgetsGroupBoxLayout::~WidgetsGroupBoxLayout()
@@ -35,6 +36,7 @@ bool WidgetsGroupBoxLayout::setWidget(QWidget* widget)
     ui->verticalLayout->addWidget(widget);
     ui->widget = widget;
     ui->widget->setProperty("a_contentWidget", true);
+    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CDL, Opened).MakeSafe(WidgetWrapper(ui->widget).WidgetConnections());
     return true;
 }
 

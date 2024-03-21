@@ -58,5 +58,6 @@
         <file>style/res/eye.svg</file>
         <file>style/progressbar.qss</file>
         <file>style/res/refresh.svg</file>
+        <file>aispaces_light.qss</file>
     </qresource>
 </RCC>
