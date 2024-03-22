@@ -722,18 +722,21 @@ struct StatedVertex3F
 {
     Point3F Position;
     quint8 State;
+    quint8 Transparency;
 
     StatedVertex3F()
         : State(0)
+        , Transparency(255)
     {}
 
-    StatedVertex3F(float x, float y, float z, quint8 state = 0)
+    StatedVertex3F(float x, float y, float z, quint8 state = 0, quint8 transparency = 255)
         : Position(x,y,z)
         , State(state)
+        , Transparency(transparency)
     {}
 
-    StatedVertex3F(const Point3F& point, quint8 state = 0)
-        : StatedVertex3F(point.x(), point.y(), point.z(), state)
+    StatedVertex3F(const Point3F& point, quint8 state = 0, quint8 transparency = 255)
+        : StatedVertex3F(point.x(), point.y(), point.z(), state, transparency)
     {}
 
     bool operator==(const StatedVertex3F& another) const { return another.State == State && another.Position == Position; }

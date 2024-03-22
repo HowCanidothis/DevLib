@@ -103,6 +103,8 @@ void GtMeshBuffer::setVertexType(GtMeshBuffer::VertexType vertexType)
             f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(StatedVertex3F),nullptr);
             f->glEnableVertexAttribArray(1);
             f->glVertexAttribIPointer(1,1,GL_UNSIGNED_BYTE,sizeof(StatedVertex3F),(const void*)sizeof(Point3F));
+            f->glEnableVertexAttribArray(2);
+            f->glVertexAttribIPointer(2,1,GL_UNSIGNED_BYTE,sizeof(StatedVertex3F),(const void*)(sizeof(Point3F) + sizeof(quint8)));
         }; break;
     case VertexType_ColoredVertex2F:
         m_vaoBinder = [this](OpenGLFunctions* f) {

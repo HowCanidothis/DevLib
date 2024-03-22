@@ -96,7 +96,7 @@ QDateTimeEdit{
 WidgetsDatetimePopupPicker {
     border-radius: 4px;
     border: 1px solid @cbr.normal;
-    background: @cbg.1;
+    background: transparent;
     padding-right: 8px;
 }
 
@@ -106,6 +106,10 @@ WidgetsDatetimePopupPicker[a_focus="true"] {
 
 WidgetsDatetimePopupPicker WidgetsDateTimeEdit {
     border: none;
+}
+
+WidgetsDateTimeEdit[readOnly="true"] {
+    background-color: transparent;
 }
 
 QDoubleSpinBox {
@@ -222,6 +226,11 @@ WidgetsGroupBoxLayout {
 WidgetsGroupBoxLayout[collapsable="true"] QPushButton#groupBar:hover {
     background: @cbg.hover;
     border-radius: 4px;
+}
+
+WidgetsGroupBoxLayout WidgetsGroupBoxLayout {
+    background: transparent;
+    border: 1px solid @cbr.normal;
 }
 
 QWidget[a_is_page="true"] {
@@ -1071,4 +1080,9 @@ WidgetsColorPicker {
 
 WidgetsPicturePicker {
     min-width: 100px;
+}
+
+QWidget[w_showfocus="1"] {
+    border-bottom: 3px solid @ctext.1;
+    padding-bottom: -3px;
 }
