@@ -108,10 +108,6 @@ WidgetsDatetimePopupPicker WidgetsDateTimeEdit {
     border: none;
 }
 
-WidgetsDateTimeEdit[readOnly="true"] {
-    background-color: transparent;
-}
-
 QDoubleSpinBox {
     border: 1px solid @cbr.normal; 
     min-height: 28px;
