@@ -9,6 +9,7 @@ ControllersContainer::ControllersContainer(QObject* parent)
     , m_currentController(nullptr)
     , m_context(nullptr)
     , m_inputKeysModifiers(0)
+    , m_visibilityMask(0xffffffff)
 {
 
 }
@@ -16,6 +17,14 @@ ControllersContainer::ControllersContainer(QObject* parent)
 ControllersContainer::~ControllersContainer()
 {
 
+}
+
+void ControllersContainer::SetVisibilityMask(qint32 vm)
+{
+    m_visibilityMask = vm;
+    if(m_currentController != nullptr) {
+        m_currentController->m_visibilityMask = m_visibilityMask;
+    }
 }
 
 void ControllersContainer::SetCurrent(ControllerBase* controller) {

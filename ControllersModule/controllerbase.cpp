@@ -20,6 +20,7 @@ ControllerBase::ControllerBase(const Name& name, ControllersContainer* container
 
 void ControllerBase::SetCurrent()
 {
+    m_visibilityMask = m_container->GetVisibilityMask();
     m_container->SetCurrent(this);
 }
 

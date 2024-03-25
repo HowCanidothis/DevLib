@@ -255,7 +255,6 @@ private:
     DelayedCallObject m_resize;
     bool m_dirty;
     GtRenderPathPtr m_renderPath;
-    qint32 m_visibilityMask;
 };
 
 #endif // GTRENDERERCONTROLLER_H

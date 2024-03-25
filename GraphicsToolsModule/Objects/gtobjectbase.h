@@ -58,6 +58,7 @@ protected:
     friend class GtScene;
     friend class GtRenderer;
     friend class GtRendererController;
+    friend class GtRenderPath;
     virtual void drawDepth(OpenGLFunctions* f) { draw(f); }
     virtual void draw(OpenGLFunctions* f) = 0;
     void initialize(class GtRenderer* renderer);

@@ -27,12 +27,12 @@ WidgetsDialogsManager::WidgetsDialogsManager()
 
 }
 
-bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QString& text)
+bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QString& text, const QString& confirmActionText)
 {
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(tr("CONFIRM"), QMessageBox::YesRole);
+    auto* defaultButton = dialog.addButton(confirmActionText.isEmpty() ? tr("CONFIRM") : confirmActionText, QMessageBox::YesRole);
     dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);

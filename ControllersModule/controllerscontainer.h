@@ -26,12 +26,14 @@ public:
         }
     }
 
+    void SetVisibilityMask(qint32 vm);
     void SetCurrent(ControllerBase* controller);
     void SetCurrent(const Name& name);
     ControllerBase* GetCurrent() const { return m_currentController; }
     bool HasContext() const { return m_context != nullptr; }
     template<class T> T& GetContext() { Q_ASSERT(m_context != nullptr); return *static_cast<T*>(m_context); }
     template<class T> const T& GetContext() const { Q_ASSERT(m_context != nullptr); return *static_cast<T*>(m_context); }
+    qint32 GetVisibilityMask() const { return m_visibilityMask; }
 
     void Accept();
     void Cancel();
@@ -82,6 +84,7 @@ private:
     void* m_context;
     qint32 m_inputKeysModifiers;
     QSet<qint32> m_inputKeys;
+    qint32 m_visibilityMask;
 };
 
 #endif // CONTROLLERSCONTAINER_H

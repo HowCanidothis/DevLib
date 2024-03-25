@@ -10,12 +10,14 @@ public:
     virtual ~GtRenderPath();
 
     virtual void Initialize() = 0;
+    virtual void Render(const QMap<qint32, QVector<class GtDrawableBase*>>& scene) = 0;
     virtual void Render(class GtScene* scene, qint32 outputFBO) = 0;
     virtual void Resize(qint32 width, qint32 height, qint32 samples) = 0;
 
 protected:
     void disableDepthTest();
     void enableDepthTest();
+    void drawDrawable(GtDrawableBase* drawable);
 
 protected:
     GtRenderer* m_renderer;
@@ -29,6 +31,7 @@ public:
     GtDefaultRenderPath(GtRenderer* renderer);
 
     virtual void Initialize(){}
+    virtual void Render(const QMap<qint32, QVector<GtDrawableBase*>>& scene);
     virtual void Render(class GtScene* scene, qint32);
     virtual void Resize(qint32, qint32, qint32){}
 };

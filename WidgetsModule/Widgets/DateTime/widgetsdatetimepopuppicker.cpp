@@ -6,6 +6,8 @@
 #include <QWidgetAction>
 #include <QKeyEvent>
 
+#include <PropertiesModule/Ui/internal.hpp>
+
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "widgetsdatetimewidget.h"
 
@@ -18,6 +20,9 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
 
     WidgetWrapper(ui->dateTimeEdit).ConnectFocus(this);
 
+    WidgetWrapper(ui->dateTimeEdit).WidgetEnablity().ConnectAndCall(CDL, [this](bool enabled) {
+        StyleUtils::ApplyStyleProperty("readOnly", this, !enabled);
+    });
     WidgetPushButtonWrapper(ui->CalendarButton).WidgetVisibility().ConnectFrom(CDL, FInverseBool, ForceDisabled);
     m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
 

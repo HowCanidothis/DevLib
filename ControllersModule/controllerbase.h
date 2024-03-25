@@ -27,6 +27,7 @@ protected:
     Commands _commands;
     Name m_name;
     QString m_currentOperationName;
+    qint32 m_visibilityMask;
 
     StackPointers<ControllerBase> m_childControllers;
 public:
@@ -44,6 +45,7 @@ public:
 
     Commands* GetCommands() { return &_commands; }
     ControllerBase* GetParentController() const { return static_cast<ControllerBase*>(parent()); }
+    qint32 GetVisibilityMask() const { return m_visibilityMask; }
 
 public Q_SLOTS:
     void Undo(){ _commands.Undo(); }

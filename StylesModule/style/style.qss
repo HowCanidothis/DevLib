@@ -96,7 +96,7 @@ QDateTimeEdit{
 WidgetsDatetimePopupPicker {
     border-radius: 4px;
     border: 1px solid @cbr.normal;
-    background: transparent;
+    background: @cbg.1;
     padding-right: 8px;
 }
 
@@ -140,47 +140,6 @@ QSpinBox[readOnly="false"]:hover {
 
 QSpinBox[readOnly="false"]:focus {
     border: 1px solid @ctext.1;
-}
-
-QComboBox {
-    padding-left: 8px;
-    min-height: 28px;
-    border: 1px solid @cbr.normal;
-    border-radius: 4px;
-    color: @ctext.active;
-}
-
-QComboBox:disabled {
-    color: @ctext.disabled;
-}
-
-QComboBox:disabled {
-    background: transparent;
-}
-
-QComboBox::drop-down {
-  subcontrol-origin: padding;
-  subcontrol-position: top right;
-  width: 24px;
-  border-left: 1px solid @cbr.normal;
-}
-
-QComboBox::down-arrow {
-  image: url("@cPath/arrow-down.svg");
-  height: 16px;
-  width: 16px;
-}
-
-QComboBox::down-arrow:on, QComboBox::down-arrow:hover, QComboBox::down-arrow:focus {
-  image: url("@cPath/arrow-down.svg");
-}
-
-QComboBox[a_focus="true"] {
-    border: 1px solid @ctext.1;
-}
-
-QComboBox:hover:!open {
-    border: 1px solid @cbr.hover;
 }
 
 QWidget[a_contentWidget="true"]{
@@ -392,7 +351,7 @@ QTreeView:branch:!has-children:!has-siblings:adjoins-item {
 }
 
 QTreeView:branch:has-children:!has-siblings:closed, QTreeView:branch:closed:has-children:has-siblings {
-    border-image: url("@cPath/arrow-right.svg") 0 2 -4 0;
+    border-image: url("@cPath/arrow-right.svg") 0 4 -5 0;
 }
 
 QTreeView:branch:open:has-children:!has-siblings, QTreeView:branch:open:has-children:has-siblings {
@@ -400,7 +359,7 @@ QTreeView:branch:open:has-children:!has-siblings, QTreeView:branch:open:has-chil
 }
 
 QTreeView:branch:has-children:!has-siblings:closed:hover, QTreeView:branch:closed:has-children:has-siblings:hover {
-    border-image: url("@cPath/arrow-right.svg") 0 2 -4 0;
+    border-image: url("@cPath/arrow-right.svg") 0 4 -5 0;
 }
 
 QTreeView:branch:open:has-children:!has-siblings:hover, QTreeView:branch:open:has-children:has-siblings:hover {
@@ -1081,4 +1040,54 @@ WidgetsPicturePicker {
 QWidget[w_showfocus="1"] {
     border-bottom: 3px solid @ctext.1;
     padding-bottom: -3px;
+}
+
+QComboBox {
+    padding-left: 8px;
+    min-height: 28px;
+    border: 1px solid @cbr.normal;
+    border-radius: 4px;
+    color: @ctext.active;
+}
+
+QComboBox:disabled {
+    background: transparent;
+    color: @ctext.disabled;
+}
+
+QComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  width: 24px;
+  border-left: 1px solid @cbr.normal;
+}
+
+QComboBox::down-arrow {
+  image: url("@cPath/arrow-down.svg");
+  height: 16px;
+  width: 16px;
+}
+
+QComboBox::down-arrow:on, QComboBox::down-arrow:hover, QComboBox::down-arrow:focus {
+  image: url("@cPath/arrow-down.svg");
+}
+
+QComboBox[a_focus="true"] {
+    border: 1px solid @ctext.1;
+}
+
+QComboBox:hover:!open {
+    border: 1px solid @cbr.hover;
+}
+
+QComboBoxListView {
+    border-radius: 4px;
+    border-bottom: 1px solid @ctext.1;
+    border-right: 1px solid @ctext.1;
+    border-left: 1px solid @ctext.1;
+    color: @ctext.active;
+}
+
+QComboBoxListView:disabled{
+    color: @ctext.disabled;
 }

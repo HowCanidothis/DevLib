@@ -144,3 +144,11 @@ QFrame#WidgetsTVRAWidget {
 QWidget#ThemesSpacer {
     background: transparent;
 }
+
+TopNotifierFrame {
+    background: @cbg.selected;
+}
+
+TopNotifierFrame QLabel{
+    color: @c.error;
+}

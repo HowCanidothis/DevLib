@@ -130,7 +130,6 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_resize(DelayedCallObjectParams(100, renderer->GetThreadHandlerNoCheck()))
     , m_dirty(true)
     , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
-    , m_visibilityMask(0xffffffff)
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -192,7 +191,7 @@ void GtRendererController::ClearQueue(qint32 queueNumber)
 
 void GtRendererController::SetVisibilityMask(qint32 mask)
 {
-    m_visibilityMask = mask;
+    m_controllers->SetVisibilityMask(mask);
 }
 
 void GtRendererController::calculateVisibleSize()
@@ -295,11 +294,7 @@ void GtRendererController::setCurrentImage(QImage* image, double renderTime)
 
 void GtRendererController::draw(OpenGLFunctions* f)
 {
-    for(const auto& queue : m_drawables) {
-        for(auto* drawable : queue) {
-            drawable->draw(f);
-        }
-    }
+    m_renderPath->Render(m_drawables);
 }
 
 void GtRendererController::drawDepth(OpenGLFunctions* f)

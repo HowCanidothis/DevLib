@@ -432,3 +432,15 @@ QWidget[coloredDrawer="true"]{
 QWidget#widgetheader {
     min-height: 51px;
 }
+
+NotifierErrorsFrame {
+    background: @cbg.selected;
+}
+
+NotifierErrorsFrame QLabel{
+    color: @c.error;
+}
+
+NotifierErrorsFrame QWidget {
+    background: transparent;
+}

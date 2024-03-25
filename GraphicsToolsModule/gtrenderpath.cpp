@@ -4,6 +4,7 @@
 #include "gtrenderer.h"
 #include "Objects/gtmaterial.h"
 #include "gtmeshquad2D.h"
+#include "Objects/gtobjectbase.h"
 
 /*
 template<class T>
@@ -56,6 +57,15 @@ GtDefaultRenderPath::GtDefaultRenderPath(GtRenderer* renderer)
 
 }
 
+void GtDefaultRenderPath::Render(const QMap<qint32, QVector<GtDrawableBase*> >& scene)
+{
+    for(const auto& queue : scene) {
+        for(auto* drawable : queue) {
+            drawDrawable(drawable);
+        }
+    }
+}
+
 void GtDefaultRenderPath::Render(GtScene* scene, qint32)
 {
     scene->DrawAll(f);
@@ -74,6 +84,11 @@ void GtRenderPath::disableDepthTest()
 void GtRenderPath::enableDepthTest()
 {
     m_renderer->enableDepthTest();
+}
+
+void GtRenderPath::drawDrawable(GtDrawableBase* drawable)
+{
+    drawable->draw(f);
 }
 
 GtRenderPath::GtRenderPath(GtRenderer* f)

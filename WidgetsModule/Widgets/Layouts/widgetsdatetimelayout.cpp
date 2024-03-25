@@ -62,5 +62,5 @@ bool WidgetsDateTimeLayout::readOnly() const
 void WidgetsDateTimeLayout::setReadOnly(bool readOnly)
 {
     ui->DateTimePicker->GetCalendarButton()->setVisible(!readOnly);
-    ui->DateTimePicker->GetLineEdit()->setReadOnly(readOnly);
+    WidgetWrapper(ui->DateTimePicker->GetLineEdit()).WidgetEnablity() = !readOnly;
 }
