@@ -9,8 +9,8 @@ WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
     , ui(new Ui::WidgetsComboBoxLayout)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->comboBox->view()).ConnectFocus(ui->label, ui->comboBox);
-    setFocusProxy(ui->comboBox);
+    WidgetWrapper(ui->combobox->view()).ConnectFocus(ui->label, ui->combobox);
+    setFocusProxy(ui->combobox);
 }
 
 WidgetsComboBoxLayout::~WidgetsComboBoxLayout()
@@ -41,12 +41,12 @@ QLabel* WidgetsComboBoxLayout::label() const
 
 QLineEdit* WidgetsComboBoxLayout::lineEdit() const
 {
-    return ui->comboBox->lineEdit();
+    return ui->combobox->lineEdit();
 }
 
 QComboBox* WidgetsComboBoxLayout::comboBox() const
 {
-    return ui->comboBox;
+    return ui->combobox;
 }
 
 QHBoxLayout* WidgetsComboBoxLayout::layout() const

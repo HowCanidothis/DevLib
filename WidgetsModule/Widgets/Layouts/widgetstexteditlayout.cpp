@@ -9,8 +9,8 @@ WidgetsTextEditLayout::WidgetsTextEditLayout(QWidget *parent)
     , ui(new Ui::WidgetsTextEditLayout)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->textEdit).ConnectFocus(ui->label);
-    setFocusProxy(ui->textEdit);
+    WidgetWrapper(ui->lineedit).ConnectFocus(ui->label);
+    setFocusProxy(ui->lineedit);
 }
 
 WidgetsTextEditLayout::~WidgetsTextEditLayout()
@@ -46,12 +46,12 @@ QString WidgetsTextEditLayout::title() const
 
 QString WidgetsTextEditLayout::placeHolder() const
 {
-    return ui->textEdit->placeholderText();
+    return ui->lineedit->placeholderText();
 }
 
 QTextEdit* WidgetsTextEditLayout::textEdit() const
 {
-    return ui->textEdit;
+    return ui->lineedit;
 }
 
 void WidgetsTextEditLayout::setTitle(const QString& title)
@@ -61,15 +61,15 @@ void WidgetsTextEditLayout::setTitle(const QString& title)
 
 void WidgetsTextEditLayout::setPlaceHolder(const QString& placeHolder)
 {
-    ui->textEdit->setPlaceholderText(placeHolder);
+    ui->lineedit->setPlaceholderText(placeHolder);
 }
 
 bool WidgetsTextEditLayout::readOnly() const
 {
-    return ui->textEdit->isReadOnly();
+    return ui->lineedit->isReadOnly();
 }
 
 void WidgetsTextEditLayout::setReadOnly(bool readOnly)
 {
-    ui->textEdit->setReadOnly(readOnly);
+    ui->lineedit->setReadOnly(readOnly);
 }

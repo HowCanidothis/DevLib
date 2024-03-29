@@ -12,8 +12,8 @@ WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
     , m_checkbox(nullptr)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->spinBox).ConnectFocus(ui->label);
-    setFocusProxy(ui->spinBox);
+    WidgetWrapper(ui->spinbox).ConnectFocus(ui->label);
+    setFocusProxy(ui->spinbox);
 }
 
 WidgetsSpinBoxLayout::~WidgetsSpinBoxLayout()
@@ -45,7 +45,7 @@ QLabel* WidgetsSpinBoxLayout::label() const
 
 WidgetsSpinBoxWithCustomDisplay* WidgetsSpinBoxLayout::spinBox() const
 {
-    return ui->spinBox;
+    return ui->spinbox;
 }
 
 QString WidgetsSpinBoxLayout::title() const
@@ -60,12 +60,12 @@ void WidgetsSpinBoxLayout::setTitle(const QString& title)
 
 bool WidgetsSpinBoxLayout::readOnly() const
 {
-    return ui->spinBox->isReadOnly();
+    return ui->spinbox->isReadOnly();
 }
 
 void WidgetsSpinBoxLayout::setReadOnly(bool readOnly)
 {
-    ui->spinBox->setReadOnly(readOnly);
+    ui->spinbox->setReadOnly(readOnly);
 }
 
 void WidgetsSpinBoxLayout::ensureCheckable()
@@ -73,7 +73,7 @@ void WidgetsSpinBoxLayout::ensureCheckable()
     if(m_checkbox == nullptr) {
         m_checkbox = new CheckBoxComponent();
         ui->horizontalLayout->insertWidget(0, m_checkbox->Checkbox);
-        WidgetWrapper(ui->spinBox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
+        WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
     }
 }
 
@@ -109,6 +109,7 @@ void WidgetsSpinBoxLayout::setCheckable(bool checkable)
 WidgetsSpinBoxLayout::CheckBoxComponent::CheckBoxComponent()
     : Checkbox(new QCheckBox())
 {
+    Checkbox->setObjectName("checkbox");
 }
 
 void WidgetsSpinBoxLayout::CheckBoxComponent::Detach()

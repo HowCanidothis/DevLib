@@ -354,6 +354,8 @@ protected:
     {
         lock(CONNECTION_DEBUG_LOCATION);
         m_guard->Destroyed = true;
+        m_connections.clear();
+        m_subscribes.clear();
         unlock();
     }
 

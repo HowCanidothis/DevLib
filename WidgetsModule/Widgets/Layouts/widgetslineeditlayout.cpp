@@ -9,8 +9,8 @@ WidgetsLineEditLayout::WidgetsLineEditLayout(QWidget* parent)
     , ui(new Ui::WidgetsLineEditLayout)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->lineEdit).ConnectFocus(ui->label);
-    setFocusProxy(ui->lineEdit);
+    WidgetWrapper(ui->lineedit).ConnectFocus(ui->label);
+    setFocusProxy(ui->lineedit);
 }
 
 WidgetsLineEditLayout::~WidgetsLineEditLayout()
@@ -46,12 +46,12 @@ QString WidgetsLineEditLayout::title() const
 
 QString WidgetsLineEditLayout::placeHolder() const
 {
-    return ui->lineEdit->placeholderText();
+    return ui->lineedit->placeholderText();
 }
 
 QLineEdit* WidgetsLineEditLayout::lineEdit() const
 {
-    return ui->lineEdit;
+    return ui->lineedit;
 }
 
 void WidgetsLineEditLayout::setTitle(const QString& title)
@@ -61,34 +61,34 @@ void WidgetsLineEditLayout::setTitle(const QString& title)
 
 void WidgetsLineEditLayout::setPlaceHolder(const QString& placeHolder)
 {
-    ui->lineEdit->setPlaceholderText(placeHolder);
+    ui->lineedit->setPlaceholderText(placeHolder);
 }
 
 bool WidgetsLineEditLayout::enableClearButton() const
 {
-    return ui->lineEdit->isClearButtonEnabled();
+    return ui->lineedit->isClearButtonEnabled();
 }
 
 void WidgetsLineEditLayout::setEnableClearButton(bool enabled)
 {
-    ui->lineEdit->setClearButtonEnabled(enabled);
+    ui->lineedit->setClearButtonEnabled(enabled);
 }
 
 bool WidgetsLineEditLayout::readOnly() const
 {
-    return ui->lineEdit->isReadOnly();
+    return ui->lineedit->isReadOnly();
 }
 
 void WidgetsLineEditLayout::setReadOnly(bool readOnly)
 {
-    ui->lineEdit->setReadOnly(readOnly);
+    ui->lineedit->setReadOnly(readOnly);
 }
 
 WidgetsLineEditLayout::EchoMode WidgetsLineEditLayout::echoMode() const
 {
-    return ui->lineEdit->echoMode();
+    return ui->lineedit->echoMode();
 }
 
 void WidgetsLineEditLayout::setEchoMode(EchoMode mode){
-    ui->lineEdit->setEchoMode(mode);
+    ui->lineedit->setEchoMode(mode);
 }

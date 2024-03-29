@@ -57,7 +57,7 @@
     </layout>
    </item>
    <item>
-    <widget class="WidgetsSpinBoxWithCustomDisplay" name="spinBox">
+    <widget class="WidgetsSpinBoxWithCustomDisplay" name="spinbox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>

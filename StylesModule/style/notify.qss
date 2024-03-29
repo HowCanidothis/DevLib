@@ -1,3 +1,25 @@
+NotifyWidget#infonotify-background {
+    border: 1px solid @cbr.normal;
+    background: @c.success;
+    border-radius: 4px;
+}
+
+NotifyWidget QLabel{
+    color: @ctext.active;
+}
+
+NotifyWidget#errornotify-background {
+    border: 1px solid @cbr.normal;
+    background: @c.error;
+    border-radius: 4px;
+}
+
+NotifyWidget#warningnotify-background {
+    border: 1px solid @cbr.normal;
+    background: @c.warning;
+    border-radius: 4px;
+}
+
 NotifyWidget QPushButton {
     max-height: 24px;
     min-height: 24px;

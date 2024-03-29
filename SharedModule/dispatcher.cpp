@@ -20,6 +20,7 @@ DispatcherConnectionSafe::~DispatcherConnectionSafe()
 void DispatcherConnectionSafe::Disconnect()
 {
     m_connection.disconnect();
+    m_connection.m_disconnector = nullptr;
 }
 
 DispatcherConnection::DispatcherConnection(const DispatcherGuardPtr& guard, const FAction& disconnector)
@@ -39,8 +40,10 @@ void DispatcherConnection::disconnect()
     if(m_guard == nullptr) {
         if(m_disconnector != nullptr) {
             m_disconnector();
-            m_disconnector = nullptr;
         }
+        return;
+    }
+    if(m_guard->Destroyed) {
         return;
     }
 
@@ -48,11 +51,9 @@ void DispatcherConnection::disconnect()
         QMutexLocker locker(m_guard->Mutex.get());
         if(!m_guard->Destroyed) {
             m_disconnector();
-            m_disconnector = nullptr;
         }
-    } else if(!m_guard->Destroyed) {
+    } else {
         m_disconnector();
-        m_disconnector = nullptr;
     }
 }
 

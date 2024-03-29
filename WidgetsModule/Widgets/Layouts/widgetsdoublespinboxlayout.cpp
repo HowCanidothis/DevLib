@@ -15,9 +15,8 @@ WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     , m_checkbox(nullptr)
 {
     ui->setupUi(this);
-    ui->lineEdit->hide();
-    WidgetWrapper(ui->doubleSpinBox).ConnectFocus(ui->label);
-    setFocusProxy(ui->doubleSpinBox);
+    WidgetWrapper(ui->spinbox).ConnectFocus(ui->label);
+    setFocusProxy(ui->spinbox);
 }
 
 WidgetsDoubleSpinBoxLayout::~WidgetsDoubleSpinBoxLayout()
@@ -27,17 +26,12 @@ WidgetsDoubleSpinBoxLayout::~WidgetsDoubleSpinBoxLayout()
 
 bool WidgetsDoubleSpinBoxLayout::readOnly() const
 {
-    return ui->doubleSpinBox->isReadOnly();
+    return ui->spinbox->isReadOnly();
 }
 
 QLabel* WidgetsDoubleSpinBoxLayout::label() const
 {
     return ui->label;
-}
-
-QLineEdit* WidgetsDoubleSpinBoxLayout::lineEdit() const
-{
-    return ui->lineEdit;
 }
 
 QHBoxLayout* WidgetsDoubleSpinBoxLayout::layout() const
@@ -47,7 +41,7 @@ QHBoxLayout* WidgetsDoubleSpinBoxLayout::layout() const
 
 WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox() const
 {
-    return ui->doubleSpinBox;
+    return ui->spinbox;
 }
 
 Qt::Orientation WidgetsDoubleSpinBoxLayout::orientation() const
@@ -79,17 +73,27 @@ void WidgetsDoubleSpinBoxLayout::setTitle(const QString& title)
 void WidgetsDoubleSpinBoxLayout::ensureCheckable()
 {
     if(m_checkbox == nullptr) {
-        m_checkbox = new CheckBoxComponent();
-        ui->horizontalLayout_2->insertWidget(0, m_checkbox->Checkbox);
-        WidgetWrapper(ui->doubleSpinBox).WidgetEnablity().ConnectFrom(CDL, [](bool disable, bool check){
+        m_checkbox = new Component<QCheckBox>("checkbox");
+        auto& connections = WidgetWrapper(m_checkbox->Widget).WidgetConnections();
+        ui->horizontalLayout_2->insertWidget(0, m_checkbox->Widget);
+        WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, [](bool disable, bool check){
             return !disable && check;
-        }, Disable, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
+        }, Disable, WidgetCheckBoxWrapper(m_checkbox->Widget).WidgetChecked()).MakeSafe(connections);
+    }
+}
+
+void WidgetsDoubleSpinBoxLayout::ensureHasBox()
+{
+    if(m_lineEdit == nullptr) {
+        m_lineEdit = new Component<QLineEdit>("lineedit");
+        m_lineEdit->Widget->setReadOnly(true);
+        ui->horizontalLayout->insertWidget(1, m_lineEdit->Widget);
     }
 }
 
 void WidgetsDoubleSpinBoxLayout::setReadOnly(bool readOnly)
 {
-    ui->doubleSpinBox->setReadOnly(readOnly);
+    ui->spinbox->setReadOnly(readOnly);
 }
 
 bool WidgetsDoubleSpinBoxLayout::checked() const
@@ -97,13 +101,13 @@ bool WidgetsDoubleSpinBoxLayout::checked() const
     if(m_checkbox == nullptr) {
         return false;
     }
-    return m_checkbox->Checkbox->isChecked();
+    return m_checkbox->Widget->isChecked();
 }
 
 void WidgetsDoubleSpinBoxLayout::setChecked(bool checked)
 {
     ensureCheckable();
-    m_checkbox->Checkbox->setChecked(checked);
+    m_checkbox->Widget->setChecked(checked);
 }
 
 bool WidgetsDoubleSpinBoxLayout::checkable() const
@@ -121,14 +125,19 @@ void WidgetsDoubleSpinBoxLayout::setCheckable(bool checkable)
     }
 }
 
-WidgetsDoubleSpinBoxLayout::CheckBoxComponent::CheckBoxComponent()
-    : Checkbox(new QCheckBox())
+bool WidgetsDoubleSpinBoxLayout::hasBox() const
 {
+    return m_lineEdit != nullptr;
 }
 
-void WidgetsDoubleSpinBoxLayout::CheckBoxComponent::Detach()
+void WidgetsDoubleSpinBoxLayout::setHasBox(bool hasBox)
 {
-    delete Checkbox;
+    if(hasBox) {
+        ensureHasBox();
+    } else if(m_lineEdit != nullptr){
+        m_lineEdit->Detach();
+        m_lineEdit = nullptr;
+    }
 }
 
 bool WidgetsDoubleSpinBoxLayout::disable() const

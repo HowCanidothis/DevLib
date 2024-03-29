@@ -21,6 +21,7 @@ class WidgetsDoubleSpinBoxLayout : public QFrame
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(bool checkable READ checkable WRITE setCheckable)
     Q_PROPERTY(bool checked READ checked WRITE setChecked)
+    Q_PROPERTY(bool hasBox READ hasBox WRITE setHasBox)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     using Super = QFrame;
 
@@ -28,9 +29,9 @@ public:
     explicit WidgetsDoubleSpinBoxLayout(QWidget *parent = nullptr);
     ~WidgetsDoubleSpinBoxLayout();
 
-    class QCheckBox* checkBox() const { return m_checkbox == nullptr ? nullptr : m_checkbox->Checkbox; }
+    class QCheckBox* checkBox() const { return m_checkbox == nullptr ? nullptr : m_checkbox->Widget; }
     QLabel* label() const;
-    QLineEdit* lineEdit() const;
+    QLineEdit* lineEdit() const { return m_lineEdit == nullptr ? nullptr : m_lineEdit->Widget; }
     QHBoxLayout* layout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
 
@@ -44,6 +45,8 @@ public:
     void setChecked(bool checked);
     bool checkable() const;
     void setCheckable(bool checkable);
+    bool hasBox() const;
+    void setHasBox(bool hasBox);
 
     QString title() const;
     void setTitle(const QString& title);
@@ -54,17 +57,27 @@ public:
     LocalPropertyBool Disable;
 private:
     void ensureCheckable();
+    void ensureHasBox();
 
 private:
-    struct CheckBoxComponent {
-        QCheckBox* Checkbox;
+    template<class T>
+    struct Component {
+        T* Widget;
 
-        CheckBoxComponent();
-        void Detach();
+        Component(const QString& name)
+            : Widget(new T())
+        {
+            Widget->setObjectName(name);
+        }
+        void Detach()
+        {
+            delete Widget;
+        }
     };
 
     Ui::WidgetsDoubleSpinBoxLayout *ui;
-    ScopedPointer<CheckBoxComponent> m_checkbox;
+    ScopedPointer<Component<QCheckBox>> m_checkbox;
+    ScopedPointer<Component<QLineEdit>> m_lineEdit;
 };
 
 #endif // WIDGETSDOUBLESPINBOXLAYOUT_H
