@@ -48,7 +48,7 @@ ads--CDockWidgetTab QLabel#IconLabel
 
 ads--CDockWidgetTab[activeTab="false"]
 {
-    background: @cbg.disabled;
+    background: @cbg.widget;
 }
 
 ads--CDockWidgetTab[activeTab="true"]
@@ -73,7 +73,7 @@ ads--CDockAreaTabBar {
 }
 
 ads--CDockAreaTitleBar {
-    background: @cbg.widget;
+    background: @cbg.2;
     margin: 0px;
     padding: 0px;
 }

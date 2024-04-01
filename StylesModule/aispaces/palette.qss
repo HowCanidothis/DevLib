@@ -35,9 +35,9 @@ MainWindow {
     qproperty-visualizationTextColor: @ctext.active;
     qproperty-visualizationTextBorderColor: @ctext.label;
     qproperty-visualizationBackgroundColor: @cbg.1;
-    qproperty-visualizationBoxColor: #252526;
-    qproperty-visualizationAxisColor: #858585;
-    qproperty-visualizationFrameColor: #181818;
-    qproperty-visualizationFrameSelectionColor: #252526;
+    qproperty-visualizationBoxColor: @cbg.2;
+    qproperty-visualizationAxisColor: @ctext.disabled;
+    qproperty-visualizationFrameColor: @cbg.2;
+    qproperty-visualizationFrameSelectionColor: @cbg.hover;
     qproperty-visualizationAreaAlpha: 0.2;
 }

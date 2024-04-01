@@ -8,8 +8,8 @@ VisualizationToolTipWidget QWidget{
 }
 
 VisualizationLegendWidget {
-    max-height: 45px;
-    min-height: 45px;
+    max-height: 52px;
+    min-height: 52px;
 }
 
 VisualizationLegendWidget QLabel {

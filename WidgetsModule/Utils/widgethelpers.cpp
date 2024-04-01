@@ -999,6 +999,7 @@ const WidgetWrapper& WidgetWrapper::FixUp() const
     ForeachChildWidget([](const WidgetWrapper& w){
         auto* combobox = qobject_cast<QComboBox*>(w.GetWidget());
         if(combobox != nullptr) {
+            WidgetWrapper(combobox->view()).ConnectFocus(combobox);
             combobox->style()->polish(combobox);
         }
     });

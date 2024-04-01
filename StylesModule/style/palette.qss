@@ -2,11 +2,11 @@ WidgetsStyleSettings {
     qproperty-warningColor: @c.warning;
     qproperty-errorColor: @c.error;
     qproperty-normalColor: @ctext.label;
-    qproperty-disabledColor: @ctext.label;
+    qproperty-disabledColor: @ctext.disabled;
     qproperty-selectionColor: @ctext.active;
-    qproperty-secondaryColor: rgba(255, 255, 255, 0.7);
+    qproperty-secondaryColor: @ctext.label;
     qproperty-secondarySelectionColor: @ctext.1;
-    qproperty-secondaryDisabledColor: @ctext.label;
+    qproperty-secondaryDisabledColor: @ctext.disabled;
     qproperty-enabledTableColor: transparent;
     qproperty-enabledTableTextColor: @ctext.active;
     qproperty-disabledTableColor: @cbg.widget;

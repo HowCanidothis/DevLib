@@ -546,11 +546,12 @@ QAbstractButton::menu-indicator {
 
 QPushButton[a_control="1"]{  /* Icon */
     qproperty-text: "";
-    min-width: 18px;
-    min-height: 18px;
-    max-width: 18px;
-    max-height: 18px;
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
     background: transparent;
+    padding: 6px;
 }
 
 QPushButton[a_control="1"]:disabled {
@@ -562,17 +563,17 @@ QAbstractButton[a_control="1"]:hover{ /* Icon */
 }
 
 QAbstractButton[a_control="2"]{  /* Save */
-    color: white;
+    color: @ctext.active;
     background: @ctext.1;
 }
 
 QAbstractButton[a_control="2"]:hover{
-    color: white;
+    color: @ctext.active;
     background: @cbg.hover;
 }
 
 QAbstractButton[a_control="3"]{  /* Reset */
-    color: white;
+    color: @ctext.active;
     background: @c.error;
 }
 
@@ -581,7 +582,7 @@ QAbstractButton[a_control="3"]:hover{
 }
 
 QAbstractButton[a_control="4"]{  /* Cancel */
-    color: white;
+    color: @ctext.active;
     background: transparent;
 }
 
@@ -590,7 +591,7 @@ QAbstractButton[a_control="4"]:hover{
 }
 
 QAbstractButton[a_control="5"]{  /* AddIcon */
-    color: white;
+    color: @ctext.active;
     background: transparent;
 }
 
@@ -1000,10 +1001,6 @@ QTabBar::tab {
 
 QTabBar::close-button {
     border-image: url(@cPath/close.svg);
-}
-
-QTabBar::close-button:hover {
-    border-image: url(@cPath/close-hover.svg);
 }
 
 QTabBar {
