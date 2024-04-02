@@ -15,6 +15,7 @@
 @c.error: rgb(255,82,82);
 @c.warning: rgb(251,140,0);
 @c.success: rgb(76,175,80);
+@c.areaAlpha: 0.2;
 @cPath:@temp;
 @cIcon.f1:white;
 @cIcon.hover:rgb(200,200,200);

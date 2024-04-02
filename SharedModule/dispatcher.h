@@ -195,11 +195,11 @@ public:
             connectionSubscribesCopy = m_connections;
             unlock();
         }
-        for(const auto& subscribe : subscribesCopy)
+        for(const auto& subscribe : ::make_const(subscribesCopy))
         {
             subscribe(args...);
         }
-        for(const auto& connections : connectionSubscribesCopy)
+        for(const auto& connections : ::make_const(connectionSubscribesCopy))
         {
             connections.ConnectionHandler(args...);
         }
@@ -284,6 +284,9 @@ public:
         }
         unlock();
         return DispatcherConnection(m_guard, [this, id, locationInfo]{
+            if(!m_connections.isDetached()) {
+                m_connections = ::make_copy(m_connections);
+            }
             auto& connection = m_connections[id];
             auto handler = connection.ConnectionHandler;
             Q_UNUSED(handler);
