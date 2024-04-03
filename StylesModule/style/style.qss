@@ -1021,6 +1021,15 @@ QTabBar::tab:top:selected {
     background: @cbg.2;
 }
 
+QTabBar QToolButton {
+    background: @cbg.3;
+    border-radius: 0px;
+}
+
+QTabBar QToolButton:disabled {
+    background: @cbg.1;
+}
+
 QScrollArea > QWidget > QWidget{
     background: transparent;
 }
