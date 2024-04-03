@@ -193,7 +193,7 @@ Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
         return componentsResult.value() | Qt::ItemIsDragEnabled;
     }
 
-    return Super::flags(index) | Qt::ItemIsDragEnabled;
+    return StandardNonEditableFlags();
 }
 
 QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const

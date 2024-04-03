@@ -53,6 +53,10 @@ QLabel[a_focus="true"] {
     color: @ctext.1;
 }
 
+ElidedLabel[a_focus="true"] {
+    color: @ctext.1;
+}
+
 QLabel[Title="true"] {
     background: transparent;
     font-size: 24px;
