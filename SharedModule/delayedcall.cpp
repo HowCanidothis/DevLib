@@ -153,14 +153,18 @@ AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, DelayedC
         });
         delayedCall->SetResult(result);
         return delayedCall->GetResult();
-    } else if(object->m_params.DelayMsecs != 0) {
-        auto delayedCall = foundIt.value();
-        auto result = delayedCall->Invoke(object->m_params.Handler, [delayedCall, connectionInfo]{
-            delayedCall->Call();
-        }, object->m_params.DelayMsecs);
-        delayedCall->SetResult(result);
+    } else {
+        foundIt.value()->SetAction(action);
+        if(object->m_params.DelayMsecs != 0) {
+            auto delayedCall = foundIt.value();
+            locker.unlock(); // dead lock preventing
+            auto result = delayedCall->Invoke(object->m_params.Handler, [delayedCall, connectionInfo]{
+                delayedCall->Call();
+            }, object->m_params.DelayMsecs);
+            delayedCall->SetResult(result);
+            return delayedCall->GetResult();
+        }
     }
-    foundIt.value()->SetAction(action);
     return foundIt.value()->GetResult();
 }
 
