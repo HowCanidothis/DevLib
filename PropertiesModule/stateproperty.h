@@ -185,7 +185,7 @@ public:
                 }
             };
             Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
-            Super::m_parameters->OnChanged.Invoke();
+            handler();
         };
     }
 
