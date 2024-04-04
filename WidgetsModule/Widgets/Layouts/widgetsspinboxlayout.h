@@ -3,6 +3,8 @@
 
 #include <QFrame>
 
+#include "widgetslayoutcomponent.h"
+
 namespace Ui {
 class WidgetsSpinBoxLayout;
 }
@@ -23,7 +25,7 @@ public:
     explicit WidgetsSpinBoxLayout(QWidget *parent = nullptr);
     ~WidgetsSpinBoxLayout();
 
-    class QCheckBox* checkBox() const { return m_checkbox == nullptr ? nullptr : m_checkbox->Checkbox; }
+    class QCheckBox* checkBox() const { return m_checkbox == nullptr ? nullptr : m_checkbox->Widget; }
     QLabel* label() const;
     WidgetsSpinBoxWithCustomDisplay* spinBox() const;
 
@@ -45,14 +47,8 @@ private:
     void ensureCheckable();
 
 private:
-    struct CheckBoxComponent {
-        QCheckBox* Checkbox;
-
-        CheckBoxComponent();
-        void Detach();
-    };
     Ui::WidgetsSpinBoxLayout *ui;
-    ScopedPointer<CheckBoxComponent> m_checkbox;
+    ScopedPointer<WidgetsLayoutComponent<QCheckBox>> m_checkbox;
 };
 
 #endif // WIDGETSSPINBOXLAYOUT_H

@@ -46,6 +46,7 @@
 #include "WidgetsModule/Managers/widgetsstandardtableheadermanager.h"
 
 #include "WidgetsModule/ProgressBars/mainprogressbar.h"
+#include "WidgetsModule/ProgressBars/progressbar.h"
 
 #include "WidgetsModule/TableViews/Header/widgetsresizableheaderattachment.h"
 
@@ -2264,5 +2265,21 @@ const WidgetTabBarLayoutWrapper& WidgetTabBarLayoutWrapper::AddCollapsingDispatc
                                  widget->Opened.Invoke();
                              }, 100);
     collapsingData->Commutator.ConnectFrom(CONNECTION_DEBUG_LOCATION, updater).MakeSafe(collapsingData->Connections);
+    return *this;
+}
+
+WidgetProgressBarWrapper::WidgetProgressBarWrapper(QProgressBar* button)
+    : Super(button)
+{
+
+}
+
+WidgetProgressBarWrapper& WidgetProgressBarWrapper::SetId(const Name& processId)
+{
+    new ProgressBar(processId, GetWidget());
+#ifdef QT_DEBUG
+    Q_ASSERT(!GetWidget()->property("a_progressBar").toBool());
+    GetWidget()->setProperty("a_progressBar", true);
+#endif
     return *this;
 }

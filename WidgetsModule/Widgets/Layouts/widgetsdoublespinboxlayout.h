@@ -5,6 +5,8 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "widgetslayoutcomponent.h"
+
 namespace Ui {
 class WidgetsDoubleSpinBoxLayout;
 }
@@ -60,24 +62,9 @@ private:
     void ensureHasBox();
 
 private:
-    template<class T>
-    struct Component {
-        T* Widget;
-
-        Component(const QString& name)
-            : Widget(new T())
-        {
-            Widget->setObjectName(name);
-        }
-        void Detach()
-        {
-            delete Widget;
-        }
-    };
-
     Ui::WidgetsDoubleSpinBoxLayout *ui;
-    ScopedPointer<Component<QCheckBox>> m_checkbox;
-    ScopedPointer<Component<QLineEdit>> m_lineEdit;
+    ScopedPointer<WidgetsLayoutComponent<QCheckBox>> m_checkbox;
+    ScopedPointer<WidgetsLayoutComponent<QLineEdit>> m_lineEdit;
 };
 
 #endif // WIDGETSDOUBLESPINBOXLAYOUT_H

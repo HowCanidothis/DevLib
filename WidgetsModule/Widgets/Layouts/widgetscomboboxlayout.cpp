@@ -1,6 +1,8 @@
 #include "widgetscomboboxlayout.h"
 #include "ui_widgetscomboboxlayout.h"
 
+#include <QPushButton>
+
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Utils/widgetstyleutils.h"
 
@@ -52,6 +54,20 @@ QComboBox* WidgetsComboBoxLayout::comboBox() const
 QHBoxLayout* WidgetsComboBoxLayout::layout() const
 {
     return ui->horizontalLayout;
+}
+
+void WidgetsComboBoxLayout::setHasButton(bool has)
+{
+    if(has) {
+        if(m_button == nullptr) {
+            m_button = new WidgetsLayoutComponent<QPushButton>("button");
+            WidgetAbstractButtonWrapper(m_button->Widget).SetControl(ButtonRole::Icon);
+            ui->horizontalLayout_2->insertWidget(0, m_button->Widget);
+        }
+    } else if(m_button != nullptr){
+        m_button->Detach();
+        m_button = nullptr;
+    }
 }
 
 QString WidgetsComboBoxLayout::title() const

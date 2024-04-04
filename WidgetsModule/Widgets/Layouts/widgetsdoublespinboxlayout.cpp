@@ -73,7 +73,7 @@ void WidgetsDoubleSpinBoxLayout::setTitle(const QString& title)
 void WidgetsDoubleSpinBoxLayout::ensureCheckable()
 {
     if(m_checkbox == nullptr) {
-        m_checkbox = new Component<QCheckBox>("checkbox");
+        m_checkbox = new WidgetsLayoutComponent<QCheckBox>("checkbox");
         auto& connections = WidgetWrapper(m_checkbox->Widget).WidgetConnections();
         ui->horizontalLayout_2->insertWidget(0, m_checkbox->Widget);
         WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, [](bool disable, bool check){
@@ -85,7 +85,7 @@ void WidgetsDoubleSpinBoxLayout::ensureCheckable()
 void WidgetsDoubleSpinBoxLayout::ensureHasBox()
 {
     if(m_lineEdit == nullptr) {
-        m_lineEdit = new Component<QLineEdit>("lineedit");
+        m_lineEdit = new WidgetsLayoutComponent<QLineEdit>("lineedit");
         m_lineEdit->Widget->setReadOnly(true);
         ui->horizontalLayout->insertWidget(1, m_lineEdit->Widget);
     }

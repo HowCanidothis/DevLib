@@ -75,14 +75,14 @@ void StateParameters::Unlock()
     --m_counter;
     IsLocked = m_counter != 0;
     if(!IsLocked) {
-        m_isValid = true;
+        m_isValid.SetState(true);
     }
     Q_ASSERT(m_counter >= 0);
 }
 
 void StateParameters::Reset()
 {
-    m_isValid = false;
+    m_isValid.SetState(false);
 }
 
 CapturedStateParameters::CapturedStateParameters(bool valid)

@@ -342,6 +342,17 @@ public:
     WidgetScrollAreaWrapper& AddScrollByWheel(Qt::Orientation orientation);
 };
 
+class WidgetProgressBarWrapper : public WidgetWrapper
+{
+    using Super = WidgetWrapper;
+public:
+    WidgetProgressBarWrapper(class QProgressBar* button);
+
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetProgressBarWrapper, QProgressBar)
+
+    WidgetProgressBarWrapper& SetId(const Name& processId);
+};
+
 class WidgetAbstractButtonWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;

@@ -71,9 +71,9 @@ void WidgetsSpinBoxLayout::setReadOnly(bool readOnly)
 void WidgetsSpinBoxLayout::ensureCheckable()
 {
     if(m_checkbox == nullptr) {
-        m_checkbox = new CheckBoxComponent();
-        ui->horizontalLayout->insertWidget(0, m_checkbox->Checkbox);
-        WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Checkbox).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Checkbox).WidgetConnections());
+        m_checkbox = new WidgetsLayoutComponent<QCheckBox>("checkbox");
+        ui->horizontalLayout->insertWidget(0, m_checkbox->Widget);
+        WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, WidgetCheckBoxWrapper(m_checkbox->Widget).WidgetChecked()).MakeSafe(WidgetWrapper(m_checkbox->Widget).WidgetConnections());
     }
 }
 
@@ -82,13 +82,13 @@ bool WidgetsSpinBoxLayout::checked() const
     if(m_checkbox == nullptr) {
         return false;
     }
-    return m_checkbox->Checkbox->isChecked();
+    return m_checkbox->Widget->isChecked();
 }
 
 void WidgetsSpinBoxLayout::setChecked(bool checked)
 {
     ensureCheckable();
-    m_checkbox->Checkbox->setChecked(checked);
+    m_checkbox->Widget->setChecked(checked);
 }
 
 bool WidgetsSpinBoxLayout::checkable() const
@@ -104,15 +104,4 @@ void WidgetsSpinBoxLayout::setCheckable(bool checkable)
         m_checkbox->Detach();
         m_checkbox = nullptr;
     }
-}
-
-WidgetsSpinBoxLayout::CheckBoxComponent::CheckBoxComponent()
-    : Checkbox(new QCheckBox())
-{
-    Checkbox->setObjectName("checkbox");
-}
-
-void WidgetsSpinBoxLayout::CheckBoxComponent::Detach()
-{
-    delete Checkbox;
 }

@@ -42,7 +42,7 @@ MainProgressBar::MainProgressBar(const Name& processId, QWidget* parent, Qt::Win
     }).MakeSafe(m_connections);
 
     WidgetWrapper(parentWidget()).AddEventFilter([this](QObject*, QEvent* e){
-        if(e->type() == QEvent::Resize) {
+        if(e->type() == QEvent::Resize || e->type() == QEvent::Show) {
             auto* resizeEvent = reinterpret_cast<QResizeEvent*>(e);
             resize(resizeEvent->size());
             raise();

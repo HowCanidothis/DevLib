@@ -86,7 +86,7 @@ private:
     friend class IStateParameterBase;
     template<class T> friend class StateCalculator;
     std::atomic_int m_counter;
-    LocalPropertyBool m_isValid;
+    StateProperty m_isValid;
     FAction m_initializer;
 };
 
@@ -132,7 +132,8 @@ public:
                 locker();
             }
         });
-        adapters::ResetThread(params->IsLocked);
+        params->OnChanged.ConnectFrom(CDL, InputValue.OnChanged);
+        adapters::ResetThread(params->IsLocked, InputValue.OnChanged);
     }
 
     bool IsInitialized() const override { return m_initializer == nullptr; }
@@ -180,12 +181,10 @@ public:
             auto handler = [this]{
                 if(Super::m_parameters->IsLocked) {
                     Super::m_parameters->Reset();
-                } else {
-                    Super::m_parameters->OnChanged.Invoke();
                 }
             };
             Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
-            handler();
+            Super::m_parameters->OnChanged.Invoke();
         };
     }
 
