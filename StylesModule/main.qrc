@@ -59,5 +59,6 @@
         <file>style/progressbar.qss</file>
         <file>style/res/refresh.svg</file>
         <file>aispaces_light.qss</file>
+        <file>style/res/open-in-new.svg</file>
     </qresource>
 </RCC>

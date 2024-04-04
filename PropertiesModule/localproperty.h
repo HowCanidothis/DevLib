@@ -1382,34 +1382,47 @@ inline void LocalPropertySetFromVariant<LocalPropertyString>(LocalPropertyString
 
 namespace adapters {
 
-inline Dispatcher& ToDispatcher(const LocalPropertyBoolCommutator& t2)
+inline void ForEachDispatcher(const LocalPropertyBoolCommutator& t2, const std::function<void (Dispatcher& d)>& handler)
 {
-    return const_cast<Dispatcher&>(t2.AsProperty().OnChanged);
+    handler(const_cast<Dispatcher&>(t2.AsProperty().OnChanged));
 }
 
-inline Dispatcher& ToDispatcher(const LocalPropertyIntCommutator& t2)
+inline void ForEachDispatcher(const LocalPropertyIntCommutator& t2, const std::function<void (Dispatcher& d)>& handler)
 {
-    return const_cast<Dispatcher&>(t2.AsProperty().OnChanged);
+    handler(const_cast<Dispatcher&>(t2.AsProperty().OnChanged));
 }
 
-template<typename ... Args>
-CommonDispatcher<Args...>& ToDispatcher(const CommonDispatcher<Args...>& t2)
+inline void ForEachDispatcher(const Dispatcher& t2, const std::function<void (Dispatcher& d)>& handler)
 {
-    return const_cast<CommonDispatcher<Args...>&>(t2);
+    handler(const_cast<Dispatcher&>(t2));
+}
+
+template<typename Function, typename ... Args>
+void ForEachDispatcher(const CommonDispatcher<Args...>& t2, const Function& handler)
+{
+    handler(const_cast<CommonDispatcher<Args...>&>(t2));
 }
 
 template<class T2>
-Dispatcher& ToDispatcher(const LocalProperty<T2>& t2)
+void ForEachDispatcher(const LocalProperty<T2>& t2, const std::function<void (Dispatcher& d)>& handler)
 {
-    return const_cast<Dispatcher&>(t2.OnChanged);
+    handler(const_cast<Dispatcher&>(t2.OnChanged));
 }
+
+template<class T2>
+void ForEachDispatcher(const LocalPropertyOptional<T2>& t2, const std::function<void (Dispatcher& d)>& handler)
+{
+    handler(const_cast<Dispatcher&>(t2.Value.OnChanged));
+    handler(const_cast<Dispatcher&>(t2.IsValid.OnChanged));
+}
+
 
 template<typename ... Args>
 void ResetThread(const Args&... args)
 {
 #ifdef QT_DEBUG
     adapters::Combine([](auto& p){
-        ToDispatcher(p).ResetThread();
+        ForEachDispatcher(p, [](auto& d){ d.ResetThread(); });
     }, args...);
 #endif
 }
@@ -1418,7 +1431,7 @@ template<typename ... Args>
 void SetThreadSafe(Args&... args)
 {
     adapters::Combine([](auto& p){
-        ToDispatcher(p).SetAutoThreadSafe();
+        ForEachDispatcher(p, [](auto& d){ d.SetAutoThreadSafe(); });
     }, args...);
 }
 

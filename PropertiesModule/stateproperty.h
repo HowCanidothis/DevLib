@@ -132,8 +132,7 @@ public:
                 locker();
             }
         });
-        params->OnChanged.ConnectFrom(CDL, InputValue.OnChanged);
-        adapters::ResetThread(params->IsLocked, InputValue.OnChanged);
+        adapters::ResetThread(params->IsLocked);
     }
 
     bool IsInitialized() const override { return m_initializer == nullptr; }
@@ -181,6 +180,8 @@ public:
             auto handler = [this]{
                 if(Super::m_parameters->IsLocked) {
                     Super::m_parameters->Reset();
+                } else {
+                    Super::m_parameters->OnChanged.Invoke();
                 }
             };
             Super::InputValue.ConnectAction(CONNECTION_DEBUG_LOCATION, handler);
