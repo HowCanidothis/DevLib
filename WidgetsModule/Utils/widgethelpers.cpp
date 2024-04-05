@@ -955,24 +955,34 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 
     auto* spinbox = qobject_cast<QAbstractSpinBox*>(m_object);
     if(spinbox != nullptr) {
-        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [spinbox](QObject*, const LocalPropertyBool& visible){
-            spinbox->setReadOnly(!visible);
-            StyleUtils::UpdateStyle(spinbox);
-        }, !spinbox->isReadOnly());
+        return *Injected<LocalPropertyBool>("a_enable", [spinbox]{
+            auto* result = new LocalPropertyBool();
+            auto* doubleSpinBox = qobject_cast<QDoubleSpinBox*>(spinbox);
+            if(doubleSpinBox) {
+                WidgetDoubleSpinBoxWrapper(doubleSpinBox).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
+            }
+            auto* spinBox = qobject_cast<QSpinBox*>(spinbox);
+            if(spinBox) {
+                WidgetSpinBoxWrapper(spinBox).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
+            }
+            return result;
+        });
     }
     auto* lineEdit = qobject_cast<QLineEdit*>(m_object);
     if(lineEdit != nullptr) {
-        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [lineEdit](QObject*, const LocalPropertyBool& visible){
-            lineEdit->setReadOnly(!visible);
-            StyleUtils::UpdateStyle(lineEdit);
-        }, !lineEdit->isReadOnly());
+        return *Injected<LocalPropertyBool>("a_enable", [lineEdit]{
+            auto* result = new LocalPropertyBool();
+            WidgetLineEditWrapper(lineEdit).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
+            return result;
+        });
     }
     auto* textEdit = qobject_cast<QTextEdit*>(m_object);
     if(textEdit != nullptr) {
-        return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [textEdit](QObject*, const LocalPropertyBool& visible){
-            textEdit->setReadOnly(!visible);
-            StyleUtils::UpdateStyle(textEdit);
-        }, !textEdit->isReadOnly());
+        return *Injected<LocalPropertyBool>("a_enable", [textEdit]{
+            auto* result = new LocalPropertyBool();
+            WidgetTextEditWrapper(textEdit).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
+            return result;
+        });
     }
     auto* widget = GetWidget();
     return *GetOrCreateProperty<LocalPropertyBool>("a_enable", [widget](QObject*, const LocalPropertyBool& visible){

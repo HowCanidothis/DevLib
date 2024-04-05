@@ -26,6 +26,7 @@ struct GtControllersContext
     class QOpenGLFramebufferObject* FrameBuffer;
     class GtDepthBuffer* DepthBuffer;
     Point2I LastScreenPoint;
+    Point3F LastWorldPoint;
 };
 
 using GtShaderProgramPtr = SharedPointer<class GtShaderProgram>;

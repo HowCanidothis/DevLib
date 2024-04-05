@@ -24,9 +24,6 @@ public:
 
 protected:
     Point2I resolutional(const Point2I& p) const;
-
-protected:
-    Vector3F m_lastWorldPosition;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H

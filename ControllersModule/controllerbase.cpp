@@ -46,6 +46,13 @@ void ControllerBase::setCurrent(const Name& controller)
     m_container->SetCurrent(controller);
 }
 
+void ControllerBase::setParentAsCurrent()
+{
+    if(auto parentController = GetParentController()) {
+        m_container->SetCurrent(parentController);
+    }
+}
+
 void ControllerBase::setControllersContainer(ControllersContainer* container)
 {
     Q_ASSERT(m_container == nullptr);

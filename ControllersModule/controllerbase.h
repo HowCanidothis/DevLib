@@ -57,6 +57,7 @@ protected:
     void contextChanged();
     bool isCurrent() const;
     void setCurrent(const Name& controller);
+    void setParentAsCurrent();
     void setControllersContainer(ControllersContainer* container);
     template<class T> const T& context() const { return m_container->GetContext<T>(); }
     template<class T> T& context() { return m_container->GetContext<T>(); }

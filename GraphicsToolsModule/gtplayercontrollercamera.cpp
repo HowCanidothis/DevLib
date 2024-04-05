@@ -28,7 +28,7 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
         break;
     }
     ctx().LastScreenPoint = resolutional_screen_pos;
-    m_lastWorldPosition = ctx().Camera->Unproject(resolutional_screen_pos.x(), resolutional_screen_pos.y(), depth);
+    ctx().LastWorldPoint = ctx().Camera->Unproject(resolutional_screen_pos.x(), resolutional_screen_pos.y(), depth);
     return true;
 }
 
