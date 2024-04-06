@@ -60,5 +60,7 @@
         <file>style/res/refresh.svg</file>
         <file>aispaces_light.qss</file>
         <file>style/res/open-in-new.svg</file>
+        <file>style/res/help-circle.svg</file>
+        <file>style/res/dots-vertical.svg</file>
     </qresource>
 </RCC>
