@@ -5,6 +5,8 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
+
 #ifdef UNITS_MODULE_LIB
 #include <UnitsModule/internal.hpp>
     using WidgetsInputDialogConnectors = MeasurementWidgetConnectors;

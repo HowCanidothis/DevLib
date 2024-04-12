@@ -129,7 +129,7 @@ public:
         : Super(new Stream(device), false)
     {}
 
-    TSerializerWriteBuffer(QByteArray* array, QIODevice::OpenMode openMode)
+    TSerializerWriteBuffer(QByteArray* array, qint32 openMode)
         : Super(new Stream(array, openMode), false)
     {}
 

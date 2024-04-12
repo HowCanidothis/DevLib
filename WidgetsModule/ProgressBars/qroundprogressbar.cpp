@@ -1,6 +1,7 @@
 #include "QRoundProgressBar.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QTimer>
 #include <qmath.h>
 
@@ -92,7 +93,7 @@ void QRoundProgressBar::paintEvent(QPaintEvent *)
 
     QColor baseColor = palette().base().color();
     QColor valueColor = palette().alternateBase().color();
-    p.setBrush(palette().background().color());
+    p.setBrush(palette().base().color());
     p.drawRect(QRect(0,0,width(), height()));
 
     p.setBrush(Qt::NoBrush);
@@ -107,7 +108,7 @@ void QRoundProgressBar::paintEvent(QPaintEvent *)
         p.setPen(QPen(valueColor, weight, Qt::SolidLine, Qt::FlatCap));
         drawRing(p, outerRect, arcStep);
 
-        p.setPen(palette().foreground().color());
+        p.setPen(palette().text().color());
         p.save();
         p.drawText(innerTopRect, Qt::AlignCenter, QString::number(qint32(float(Value) / max * 100.f)) + "%");
         p.restore();

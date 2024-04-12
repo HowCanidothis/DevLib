@@ -31,10 +31,10 @@ public:
         if(index.isValid()) {
             return 0;
         }
-        if(GetData() == nullptr) {
+        if(this->GetData() == nullptr) {
             return 0;
         }
-        return m_countExtractor(GetData());
+        return m_countExtractor(this->GetData());
     }
 
     int columnCount(const QModelIndex& index = QModelIndex()) const override
@@ -47,11 +47,11 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const override
     {
-        if(!index.isValid() || GetData() == nullptr) {
+        if(!index.isValid() || this->GetData() == nullptr) {
             return QVariant();
         }
 
-        return m_extractor(GetData(), index, role);
+        return m_extractor(this->GetData(), index, role);
     }
 
 private:

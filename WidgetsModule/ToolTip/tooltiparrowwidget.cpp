@@ -34,8 +34,8 @@ void ToolTipArrowWidget::paintEvent(QPaintEvent* )
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(palette().background().color());
-    painter.setBrush(palette().background().color());
+    painter.setPen(palette().base().color());
+    painter.setBrush(palette().base().color());
     painter.drawPolygon(m_polygon);
 }
 

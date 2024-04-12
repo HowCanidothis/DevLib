@@ -8,9 +8,9 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QPushButton>
-#include <QDesktopWidget>
 #include <QSettings>
 #include <QInputDialog>
+#include <QScreen>
 
 #include <PropertiesModule/internal.hpp>
 
@@ -132,18 +132,19 @@ void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogPara
 
 void WidgetsDialogsManager::ShowPropertiesDialog(const PropertiesScopeName& scope, const DescShowDialogParams& params)
 {
-    auto* dialog = GetOrCreateDialog<PropertiesDialog>(scope, [this, scope]{
-        return new PropertiesDialog(scope, GetParentWindow());
-    }, scope);
-    dialog->Initialize([]{});
-    dialog->GetView<PropertiesView>()->expandAll();
-    ShowDialog(dialog, params);
+// TODO. MGN
+//    auto* dialog = GetOrCreateDialog<PropertiesDialog>(scope, [this, scope]{
+//            return new PropertiesDialog(scope, GetParentWindow());
+//        }, scope);
+//    dialog->Initialize([]{});
+//    dialog->GetView<PropertiesView>()->expandAll();
+//    ShowDialog(dialog, params);
 }
 
 void WidgetsDialogsManager::ResizeDialogToDefaults(QWidget* dialog)
 {
-    auto* desktop = QApplication::desktop();
-    auto size = desktop->screenGeometry(dialog);
+    auto* screen = dialog->screen();
+    auto size = screen->geometry();
     dialog->resize(2 * size.width() / 3, 2 * size.height() / 3);
 }
 
@@ -227,6 +228,28 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
     return result;
 }
 
+void WidgetsDialogsManager::initDialog(QWidget* result, const Name& restoreGeometryName)
+{
+    if(result->parentWidget() == nullptr) {
+        result->setParent(GetParentWindow(), result->windowFlags());
+    }
+    OnDialogCreated(result);
+    if(!restoreGeometryName.IsNull()) {
+        QSettings geometriesSettings;
+        auto geometry = geometriesSettings.value("Geometries/" + restoreGeometryName.AsString()).toByteArray();
+        if(!geometry.isEmpty()) {
+            result->restoreGeometry(geometry);
+        }
+        WidgetWrapper(result).AddEventFilter([result, restoreGeometryName](QObject*, QEvent* event){
+            if(event->type() == QEvent::Hide) {
+                QSettings geometriesSettings;
+                geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), result->saveGeometry());
+            }
+            return false;
+        });
+    }
+}
+
 void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, const QString& movePaneId)
 {
     if(widget->layout() == nullptr) {
@@ -240,7 +263,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     }
 
     auto* vboxla = new QBoxLayout(QBoxLayout::TopToBottom);
-    vboxla->setMargin(0);
+    vboxla->setContentsMargins(QMargins());
     vboxla->setSpacing(0);
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
@@ -268,7 +291,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     vboxla->addWidget(newWidget);
     widget->setLayout(vboxla);
 
-    widget->window()->layout()->setMargin(10);
+    widget->window()->layout()->setContentsMargins(10, 10, 10, 10); // TODO. MGN
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
@@ -294,7 +317,7 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
     widget->setGraphicsEffect(shadow);
     widget->window()->setAttribute(Qt::WA_TranslucentBackground);
     if(applyMargins) {
-        widget->window()->layout()->setMargin(10);
+        widget->window()->layout()->setContentsMargins(10, 10, 10, 10);
     }
 
     DispatcherConnectionsSafe connections;

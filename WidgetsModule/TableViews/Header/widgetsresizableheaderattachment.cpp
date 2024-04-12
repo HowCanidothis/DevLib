@@ -57,7 +57,8 @@ QSize WidgetsResizableHeaderAttachment::sectionSizeFromContents(int logicalIndex
 {
     if(model() != nullptr && model()->rowCount() != 0) {
         auto headerText = model()->headerData(logicalIndex, orientation(), Qt::DisplayRole).toString();
-        auto options = viewOptions();
+        QStyleOptionViewItem options;
+        initViewItemOption(&options);
         auto metrics = QFontMetrics(options.font);
         int margin = style()->pixelMetric(QStyle::PM_HeaderMargin, &options, this);
         margin += style()->pixelMetric(QStyle::PM_HeaderGripMargin, &options, this);

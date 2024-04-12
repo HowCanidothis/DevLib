@@ -14,9 +14,13 @@
 #include <QAbstractButton>
 #include <QFileDialog>
 
-#include <WidgetsModule/internal.hpp>
-
-#include "styleutils.h"
+#include <WidgetsModule/Widgets/Layouts/internal.hpp>
+#include "WidgetsModule/Widgets/elidedlabel.h"
+#include "WidgetsModule/Widgets/widgetscolorpicker.h"
+#include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
+#include "WidgetsModule/Widgets/widgetspicturepicker.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsdatetimepopuppicker.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h"
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w)
     : m_widgetSetter([this, widgetSetter](){
@@ -282,7 +286,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
                         checked.Invoke();
                     }
                 }
-                if(*property >= 0 && *property < buttons.size()) {
+                if(*property >= 0 && *property < (qint32)buttons.size()) {
                     WidgetAbstractButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
                 }
             }, [this, property]{
@@ -307,7 +311,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
         wrapper.WidgetChecked() = false;
         ++i;
     }
-    if(*property >= 0 && *property < buttons.size()) {
+    if(*property >= 0 && *property < (qint32)buttons.size()) {
         WidgetAbstractButtonWrapper(buttons.at(*property)).WidgetChecked() = true;
     }
 

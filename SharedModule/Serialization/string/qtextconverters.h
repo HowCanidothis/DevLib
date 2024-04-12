@@ -2,6 +2,7 @@
 #define QSTRINGCONVERTERS_H
 
 #include <QUrl>
+#include <QRegularExpression>
 #ifdef QT_GUI_LIB
 #include <QColor>
 #include <QMatrix4x4>
@@ -23,7 +24,7 @@ struct TextConverter<std::optional<T>>
         return string.isEmpty() ? std::nullopt : std::make_optional(TextConverter<T>::FromText(string));
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.isEmpty() ? std::nullopt : std::make_optional(TextConverter<T>::FromText(string));
     }
@@ -121,12 +122,12 @@ struct TextConverter<QList<T>>
 
     static value_type FromText(const QString& string)
     {
-        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
-        qint32 pos = 0;
+        thread_local static QRegularExpression regExp(R"(\(([^\)]+)\))");
         value_type result;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            result.append(TextConverter<T>::FromText(regExp.cap(1)));
-            pos += regExp.matchedLength();
+        auto it = regExp.globalMatch(string, 0);
+        while(it.hasNext()) {
+            auto next = it.next();
+            result.append(TextConverter<T>::FromText(next.captured(1)));
         }
         return result;
     }
@@ -146,7 +147,7 @@ struct TextConverter<QString>
         return string;
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toString();
     }
@@ -196,7 +197,7 @@ struct TextConverter<qint32>
         return string.toDouble();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toDouble();
     }
@@ -216,7 +217,7 @@ struct TextConverter<qint64>
         return string.toDouble();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toDouble();
     }
@@ -236,7 +237,7 @@ struct TextConverter<size_t>
         return string.toDouble();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toDouble();
     }
@@ -256,7 +257,7 @@ struct TextConverter<double>
         return string.toDouble();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toDouble();
     }
@@ -275,7 +276,7 @@ struct TextConverter<float>
         return string.toFloat();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toDouble();
     }
@@ -294,7 +295,7 @@ struct TextConverter<bool>
         return string.toInt();
     }
 
-    static value_type FromText(const QStringRef& string)
+    static value_type FromText(const QStringView& string)
     {
         return string.toInt();
     }
@@ -336,15 +337,16 @@ struct TextConverter<QMatrix4x4>
 
     static value_type FromText(const QString& string)
     {
-        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
-        qint32 pos = 0;
+        thread_local static QRegularExpression regExp(R"(\(([^\)]+)\))");
         float values[16];
+
         qint32 index = 0;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            values[index] = TextConverter<float>::FromText(regExp.cap(1));
-            pos += regExp.matchedLength();
+        auto it = regExp.globalMatch(string);
+        while(it.hasNext()) {
+            values[index] = TextConverter<float>::FromText(it.next().captured(1));
             index++;
         }
+
         auto result = QMatrix4x4(values);
         result.optimize();
         return result;
@@ -384,12 +386,13 @@ struct TextConverter<QHash<Key, Value>>
 
     static value_type FromText(const QString& string)
     {
-        thread_local static QRegExp regExp(R"(\{\(([^\|]+)\)\|\(([^\}]*)\)\})");
-        qint32 pos = 0;
+        thread_local static QRegularExpression regExp(R"(\{\(([^\|]+)\)\|\(([^\}]*)\)\})");
         value_type result;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            result.insert(TextConverter<Key>::FromText(regExp.cap(1)), TextConverter<Value>::FromText(regExp.cap(2)));
-            pos += regExp.matchedLength();
+
+        auto it = regExp.globalMatch(string);
+        while(it.hasNext()) {
+            auto n = it.next();
+            result.insert(TextConverter<Key>::FromText(n.captured(1)), TextConverter<Value>::FromText(n.captured(2)));
         }
 
         return result;
@@ -411,14 +414,13 @@ struct TextConverter<QSet<Key>>
 
     static value_type FromText(const QString& string)
     {
-        thread_local static QRegExp regExp(R"(\(([^\)]+)\))");
-        qint32 pos = 0;
+        thread_local static QRegularExpression regExp(R"(\(([^\)]+)\))");
         value_type result;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            result.insert(TextConverter<Key>::FromText(regExp.cap(1)));
-            pos += regExp.matchedLength();
-        }
 
+        auto it = regExp.globalMatch(string);
+        while(it.hasNext()) {
+            result.insert(TextConverter<Key>::FromText(it.next().captured(1)));
+        }
         return result;
     }
 };
@@ -434,13 +436,13 @@ struct TextConverter<QPoint>
 
     static value_type FromText(const QString& string)
     {
-        thread_local static QRegExp regExp(R"(\(([^,]+),([^\)]+)\))");
-        qint32 pos = 0;
+        thread_local static QRegularExpression regExp(R"(\(([^,]+),([^\)]+)\))");
         value_type result;
-        while((pos = regExp.indexIn(string, pos)) != -1) {
-            result.setX(TextConverter<qint32>::FromText(regExp.cap(1)));
-            result.setY(TextConverter<qint32>::FromText(regExp.cap(2)));
-            pos += regExp.matchedLength();
+        auto it = regExp.globalMatch(string);
+        while(it.hasNext()) {
+            auto n = it.next();
+            result.setX(TextConverter<qint32>::FromText(n.captured(1)));
+            result.setY(TextConverter<qint32>::FromText(n.captured(2)));
         }
 
         return result;

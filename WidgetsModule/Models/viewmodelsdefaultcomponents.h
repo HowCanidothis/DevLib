@@ -245,7 +245,7 @@ public:
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 LocalPropertyDate& property = getter(data);
-                property = DateFromVariant(value);
+                property = LanguageSettings::DateFromVariant(value);
             };
         });
     }
@@ -288,7 +288,7 @@ public:
             ValueType data = const_cast<ValueType>(constData);
             return TimeToString(getter(data));
         }, [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = TimeFromVariant(value); };
+            return [&]{ getter(data) = LanguageSettings::TimeFromVariant(value); };
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return getter(data);
@@ -306,10 +306,10 @@ public:
             return [&]{
                 auto& property = params.Getter(data);
                 if(params.TimeShift != nullptr) {
-                    property = QDateTime(property.Native().date(), TimeFromVariant(value), Qt::OffsetFromUTC, *params.TimeShift);
+                    property = QDateTime(property.Native().date(), LanguageSettings::TimeFromVariant(value), Qt::OffsetFromUTC, *params.TimeShift);
                     return;
                 }
-                property = QDateTime(property.Native().date(), TimeFromVariant(value));
+                property = QDateTime(property.Native().date(), LanguageSettings::TimeFromVariant(value));
             };
         }, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -331,11 +331,11 @@ public:
             return [&]{
                 if(params.TimeShift != nullptr) {
                     auto& property = params.Getter(data);
-                    auto inputDateTime = DateTimeFromVariant(value);
+                    auto inputDateTime = LanguageSettings::DateTimeFromVariant(value);
                     property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *params.TimeShift);
                     return;
                 }
-                params.Getter(data) = DateTimeFromVariant(value);
+                params.Getter(data) = LanguageSettings::DateTimeFromVariant(value);
         };
         }, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -359,11 +359,11 @@ public:
             return [&]{
                 if(params.TimeShift != nullptr) {
                     auto& property = params.Getter(data);
-                    auto inputDateTime = DateTimeFromVariant(value);
+                    auto inputDateTime = LanguageSettings::DateTimeFromVariant(value);
                     property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *params.TimeShift);
                     return;
                 }
-                params.Getter(data) = DateTimeFromVariant(value);
+                params.Getter(data) = LanguageSettings::DateTimeFromVariant(value);
         };
         }, [params](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);

@@ -150,7 +150,7 @@ void SvgIconEngine::generateSource()
         QFile file(d->FilePath);
         if(file.open(QFile::ReadOnly)) {
             auto parseResult = d->Source.setContent(file.readAll());
-            d->IsValid = parseResult;
+            d->IsValid = (bool)parseResult;
             return;
         }
     }

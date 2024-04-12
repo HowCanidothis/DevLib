@@ -15,7 +15,8 @@
 #define CDL CONNECTION_DEBUG_LOCATION
 
 class DispatcherConnection;
-using DispatcherConnectionSafePtr = SharedPointer<class DispatcherConnectionSafe>;
+class DispatcherConnectionSafe;
+using DispatcherConnectionSafePtr = SharedPointer<DispatcherConnectionSafe>;
 
 using DispatcherConnectionsSafe = QVector<DispatcherConnectionSafePtr>;
 
@@ -51,15 +52,7 @@ public:
     DispatcherConnectionSafePtr MakeSafe();
 
     template<typename ... SafeConnections>
-    void MakeSafe(SafeConnections&... connections)
-    {
-        auto connection = MakeSafe();
-        adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
-            connections.append(::make_shared<DispatcherConnectionSafe>(DispatcherConnection([connection]{
-                connection->Disconnect();
-            })));
-        }, connections...);
-    }
+    void MakeSafe(SafeConnections&... connections);
 };
 
 class DispatcherConnectionSafe
@@ -75,6 +68,17 @@ public:
 private:
     DispatcherConnection m_connection;
 };
+
+template<typename ... SafeConnections>
+inline void DispatcherConnection::MakeSafe(SafeConnections&... connections)
+{
+    auto connection = MakeSafe();
+    adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
+        connections.append(::make_shared<DispatcherConnectionSafe>(DispatcherConnection([connection]{
+            connection->Disconnect();
+        })));
+    }, connections...);
+}
 
 class DispatcherConnections : public QVector<DispatcherConnection>
 {
@@ -393,7 +397,7 @@ class CommonDispatcherThreadSafe : public CommonDispatcher<Args...>
 public:
     CommonDispatcherThreadSafe()
     {
-        SetAutoThreadSafe();
+        Super::SetAutoThreadSafe();
     }
 };
 

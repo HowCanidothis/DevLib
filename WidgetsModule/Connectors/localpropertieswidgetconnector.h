@@ -1,10 +1,11 @@
 #ifndef LOCALPROPERTIESWIDGETCONNECTOR_H
 #define LOCALPROPERTIESWIDGETCONNECTOR_H
 
-#include <SharedModule/internal.hpp>
-#include <SharedModule/External/external.hpp>
+#include <QLabel>
 
-#include "PropertiesModule/localproperty.h"
+#include <PropertiesModule/internal.hpp>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 class LocalPropertiesWidgetConnectorBase;
 class WidgetsDoubleSpinBoxWithCustomDisplay;
@@ -88,9 +89,9 @@ public:
         }, []{})
     {
         qint32 value = (qint32)T::First;
-        MenuWrapper MenuWrapper(menu);
+        MenuWrapper menuWrapper(menu);
         for(const auto& name : property->GetNames()) {
-            auto action = MenuWrapper.AddAction(name, [property, value]{
+            auto action = menuWrapper.AddAction(name, [property, value]{
                 *property = (T)value;
             });
             actionsRules(action, value);
@@ -305,7 +306,7 @@ public:
 
     template<class T>
     LocalPropertiesDoubleSpinBoxConnector(StateParameterProperty<T>* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox)
-        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spin)
+        : LocalPropertiesDoubleSpinBoxConnector(&property->InputValue, spinBox)
     {}
     LocalPropertiesDoubleSpinBoxConnector(LocalPropertyDoubleOptional* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox);
     LocalPropertiesDoubleSpinBoxConnector(class LocalPropertyDoubleDisplay* property, const LocalPropertiesDoubleSpinBoxConnectorExtractor& spinBox);

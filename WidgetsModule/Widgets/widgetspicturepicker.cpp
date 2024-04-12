@@ -25,7 +25,7 @@ void WidgetsPicturePicker::Initialize(LocalPropertiesWidgetConnectorsContainer& 
     connectors.AddConnector<LocalPropertiesLabelConnector>(&Image, this, LocalPropertiesLabelConnector::ImageConnectorParams().SetBrowseButton(m_addButton).SetClearButton(m_deleteButton).SetForceDefaultBrowseDir(forceDefaultDir));
 }
 
-void WidgetsPicturePicker::enterEvent(QEvent*)
+void WidgetsPicturePicker::enterEvent(QEnterEvent*)
 {
     m_deleteButton->setVisible(!Image.Native().isNull());
 }

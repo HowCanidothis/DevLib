@@ -1,5 +1,7 @@
 #include "xmlserializer.h"
 
+#include <QRegularExpression>
+
 static const Name VersionPropertyName("Version");
 static const Name FormatPropertyName("Format");
 static const Name CategoryPropertyName("Category");
@@ -35,11 +37,12 @@ QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another)
 void SerializerXmlVersion::DataContainer::FromString(const QString& string, const QChar& separator)
 {
     clear();
-    QRegExp regExp(QString(R"(\s?([^\=]+)\=([^%1]+)%1)").arg(separator));
-    qint32 pos = 0;
-    while((pos = regExp.indexIn(string, pos)) != -1) {
-        insert(Name(regExp.cap(1)), Name(regExp.cap(2)));
-        pos += regExp.matchedLength();
+    QRegularExpression regExp(QString(R"(\s?([^\=]+)\=([^%1]+)%1)").arg(separator));
+
+    auto it = regExp.globalMatch(string);
+    while(it.hasNext()) {
+        auto n = it.next();
+        insert(Name(n.captured(1)), Name(n.captured(2)));
     }
 }
 

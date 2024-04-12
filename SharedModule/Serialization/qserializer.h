@@ -4,8 +4,11 @@
 #include <QString>
 #include <QDateTime>
 #include <QVector>
+#include <QSize>
+#include <QMatrix4x4>
 
 #include <QDataStream>
+#include <QIODevice>
 
 #include <optional>
 

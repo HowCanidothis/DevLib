@@ -5,8 +5,8 @@ uint qHash(const FTSObjectRow& row, uint seed=0)
     return qHashBits(&row, sizeof(FTSObjectRow) - sizeof(double), seed);
 }
 
-thread_local static QRegExp m_digitsRegexp(R"((\d+))");
-thread_local static QRegExp m_nonDigitsLettersSpacesRegexp(R"([\(\)\[\]\"\"])");
+thread_local static QRegularExpression m_digitsRegexp(R"((\d+))");
+thread_local static QRegularExpression m_nonDigitsLettersSpacesRegexp(R"([\(\)\[\]\"\"])");
 
 FTSDictionary::FTSDictionary()
 {
@@ -117,10 +117,10 @@ bool FTSDictionary::parseString(const QString &string, const std::function<void 
     }
     auto lowerString = string.toLower();
 
-    qint32 index = 0;
-    while((index = m_digitsRegexp.indexIn(lowerString, index)) != -1) {
-        onStringPartSplited(Name(m_digitsRegexp.cap(1)), 1.f + float(m_digitsRegexp.cap(1).length()) / string.size());
-        index += m_digitsRegexp.matchedLength();
+    auto it = m_digitsRegexp.globalMatch(lowerString);
+    while(it.hasNext()) {
+        auto n = it.next();
+        onStringPartSplited(Name(n.captured(1)), 1.f + float(n.captured(1).length()) / string.size());
     }
 
     lowerString.remove(m_nonDigitsLettersSpacesRegexp);

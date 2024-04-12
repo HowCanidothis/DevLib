@@ -27,7 +27,7 @@ WidgetsCalendarWidget::WidgetsCalendarWidget(QWidget* parent)
     setVerticalHeaderFormat(NoVerticalHeader);
 }
 
-void WidgetsCalendarWidget::paintCell(QPainter* painter, const QRect& rect, const QDate& date) const
+void WidgetsCalendarWidget::paintCell(QPainter* painter, const QRect& rect, QDate date) const
 {
     if(m_outOfRangeBackground == Qt::transparent && m_outOfRangeColor == Qt::transparent && m_outOfRangeBorder == Qt::transparent) {
         Super::paintCell(painter, rect, date);

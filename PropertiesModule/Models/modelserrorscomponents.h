@@ -46,40 +46,8 @@ public:
         return value.StateError & ErrorFilter & errorFlags;
     }
 
-    /// deprecated
-    template<class T2>
-    QVariant WarningIcon(const T2& value, qint64 errorFlags, const struct ModelsIconsContext& iconsContext) const
-    {
-        return HasError(value, errorFlags) ? QVariant(iconsContext.WarningIcon) : QVariant();
-    }
-
-    /// deprecated
-    template<class T2>
-    QVariant ErrorIcon(const T2& value, qint64 errorFlags, const ModelsIconsContext& iconsContext) const
-    {
-        return HasError(value, errorFlags) ? QVariant(iconsContext.ErrorIcon) : QVariant();
-    }
-
-    /// deprecated
-    template<class T2>
-    QVariant ErrorIcon(const T2& value, const QVector<std::pair<qint64, QtMsgType>>& sequence, const ModelsIconsContext& iconsContext) const
-    {
-        for(const auto& [error, type] : sequence) {
-            if(HasError(value, error)) {
-                switch(type) {
-                case QtCriticalMsg: return iconsContext.ErrorIcon;
-                case QtWarningMsg: return iconsContext.WarningIcon;
-                case QtInfoMsg: return iconsContext.InfoIcon;
-                default: break;
-                }
-                return QVariant();
-            }
-        }
-        return QString();
-    }
-
-    template<class T2>
-    QVariant ErrorIcon(const T2& value, const QVector<qint64>& sequence, const struct ModelsIconsContext& iconsContext) const
+    template<class T2, class ModelsIconsContext>
+    QVariant ErrorIcon(const T2& value, const QVector<qint64>& sequence, const ModelsIconsContext& iconsContext) const
     {
         for(const auto& error : sequence) {
             if(HasError(value, error)) {

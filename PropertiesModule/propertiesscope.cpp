@@ -103,7 +103,6 @@ bool PropertiesScope::Load(const QString& fileName)
         return false;
     }
     QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
 
     const auto& tree = m_properties;
 
@@ -130,7 +129,6 @@ void PropertiesScope::Save(const QString& fileName, bool clearFile)
     }
 
     QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
 
     for(auto* property : m_properties) {
         if(property->GetOptions().TestFlag(Property::Option_IsExportable)) {
@@ -144,7 +142,6 @@ void PropertiesScope::SaveSelected(const QString& fileName, const QVector<Name>&
     Q_ASSERT(!fileName.isEmpty());
 
     QSettings settings(fileName, QSettings::IniFormat);
-    settings.setIniCodec("utf-8");
 
     auto& container = m_properties;
 

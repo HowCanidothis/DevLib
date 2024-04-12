@@ -211,7 +211,7 @@ void VariantListModel::SetData(const QList<QString>& data, const QString& separa
         for(const auto& split : splited) {
             swapData.last().append(split);
         }
-        maxCount = std::max(maxCount, splited.size());
+        maxCount = std::max(maxCount, (qint32)splited.size());
 	}
     for(auto& data : swapData) {
         data.resize(maxCount);

@@ -507,24 +507,24 @@ QHeaderView::section::vertical {
     padding-right: 4px;
 }
 
-QHeaderView::down-arrow {
+QHeaderView::down-arrow:horizontal {
     background: transparent;
     border: none;
     height: 16px;
     width: 16px;
     padding-left: 2px;
     padding-right: 2px;
-    image: url("@cPath/arrow-down.svg");
+    border-image: url("@cPath/arrow-down.svg");
 }
 
-QHeaderView::up-arrow {
+QHeaderView::up-arrow:horizontal {
     background: transparent;
     border: none;
     height: 16px;
     width: 16px;
     padding-left: 2px;
     padding-right: 2px;
-    image: url("@cPath/arrow-up.svg");
+    border-image: url("@cPath/arrow-up.svg");
 }
 
 QHeaderView::section::horizontal:hover {

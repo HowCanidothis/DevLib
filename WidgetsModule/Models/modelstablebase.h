@@ -401,33 +401,33 @@ public:
         , DataHandler       ([](qint32 , int ){ return QVariant(); })
         , m_isEditable(true)
     {
-        setProperty(WidgetProperties::ExtraFieldsCount, 1);
+        this->setProperty(WidgetProperties::ExtraFieldsCount, 1);
 
-        IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){
-            if(GetData() == nullptr) {
-                beginResetModel();
-                m_isEditable = IsEnabled();
-                setProperty(WidgetProperties::ExtraFieldsCount, m_isEditable);
-                endResetModel();
+        this->IsEditable.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){
+            if(this->GetData() == nullptr) {
+                this->beginResetModel();
+                m_isEditable = this->IsEnabled();
+                this->setProperty(WidgetProperties::ExtraFieldsCount, m_isEditable);
+                this->endResetModel();
                 return;
             }
             auto rows = Super::rowCount();
-            auto changed = IsEnabled() != m_isEditable;
+            auto changed = this->IsEnabled() != m_isEditable;
             if(!changed) {
                 return;
             }
-            if(IsEnabled()) {
-                beginInsertRows(QModelIndex(), rows, rows);
+            if(this->IsEnabled()) {
+                this->beginInsertRows(QModelIndex(), rows, rows);
                 m_isEditable = true;
-                setProperty(WidgetProperties::ExtraFieldsCount, 1);
-                endInsertRows();
+                this->setProperty(WidgetProperties::ExtraFieldsCount, 1);
+                this->endInsertRows();
             } else {
-                beginRemoveRows(QModelIndex(), rows, rows);
+                this->beginRemoveRows(QModelIndex(), rows, rows);
                 m_isEditable = false;
-                setProperty(WidgetProperties::ExtraFieldsCount, 0);
-                endRemoveRows();
+                this->setProperty(WidgetProperties::ExtraFieldsCount, 0);
+                this->endRemoveRows();
             }
-        }, ForceDisabled);
+        }, this->ForceDisabled);
     }
 
     std::function<void(qint32, const QVariant&, bool&)> CreateDataHandler;
@@ -437,7 +437,7 @@ public:
 public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override
     {
-        if(GetData() == nullptr) {
+        if(this->GetData() == nullptr) {
             return 0;
         }
         if(!m_isEditable) {
@@ -453,7 +453,7 @@ public:
         if(!index.isValid()){
             return QVariant();
         }
-        if(isLastEditRow(index)){
+        if(this->isLastEditRow(index)){
             if(role == LastEditRowRole) {
                 return true;
             }
@@ -468,8 +468,8 @@ public:
                     result.setItalic(true);
                     return result;
                 }
-                case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
-                case Qt::DisplayRole: return tr("Add");
+                case Qt::ForegroundRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
+                case Qt::DisplayRole: return this->tr("Add");
                 default: break;
                 }
             }
@@ -487,7 +487,7 @@ public:
         if(!index.isValid()){
             return false;
         }
-        if(IsLastRow(index)){
+        if(this->IsLastRow(index)){
             bool ignoreSet = false;
             CreateDataHandler(index.column(), value, ignoreSet);
             if(ignoreSet) {
@@ -500,13 +500,13 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index = QModelIndex()) const override
     {
         if(!m_isEditable) {
-            return StandardNonEditableFlags();
+            return this->StandardNonEditableFlags();
         }
 
         if(!index.isValid()) {
             return Qt::ItemIsDropEnabled;
         }
-        if(IsLastRow(index)){
+        if(this->IsLastRow(index)){
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | (IsEditColumn(index.column()) ? Qt::ItemIsEditable : Qt::NoItemFlags);
         }
         return Super::flags(index);
@@ -748,7 +748,8 @@ public:
 
     qint32 columnCount(const QModelIndex&  = QModelIndex()) const override
     {
-        return std::max(Super::ColumnComponents.GetColumnCount(), (qint32)Wrapper::value_type::count);
+        return 0;
+        //return std::max(Super::ColumnComponents.GetColumnCount(), (qint32)Wrapper::value_type::count);
     }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {

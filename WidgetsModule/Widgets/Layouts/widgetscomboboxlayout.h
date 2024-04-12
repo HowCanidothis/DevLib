@@ -25,9 +25,9 @@ public:
     explicit WidgetsComboBoxLayout(QWidget *parent = nullptr);
     ~WidgetsComboBoxLayout();
 
-    QPushButton* button() const { return m_button == nullptr ? nullptr : m_button->Widget; }
+    class QPushButton* button() const { return m_button == nullptr ? nullptr : m_button->Widget; }
     QLabel* label() const;
-    QLineEdit* lineEdit() const;
+    class QLineEdit* lineEdit() const;
     QComboBox* comboBox() const;
     QHBoxLayout* layout() const;
 

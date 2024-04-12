@@ -42,13 +42,14 @@ defineTest(includeFiles) {
     absfilepath
 
     excludeUi {
+        message(excluding Ui folders)
         for(var, $$1) {
             firstFolder = $$section(var, /, 0, 0)
             !equals(firstFolder, "Ui") {
                 absfilepath += $$absolute_path($$var)
                 $$2 *= $$absfilepath
             } else {
-                #message(excluding $$var)
+                message(excluding $$var)
             }
         }
     } else {

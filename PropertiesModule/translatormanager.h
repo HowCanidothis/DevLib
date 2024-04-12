@@ -3,6 +3,7 @@
 
 #include "localproperty.h"
 #include "localpropertydeclarations.h"
+#include "Models/wrappers.h"
 
 class TranslatorManager
 {
@@ -134,6 +135,17 @@ protected:
     FTranslationHandler m_translationHandler;
     DelayedCallObject m_retranslate;
 };
+
+template<typename Enum>
+FAction LocalPropertySequentialEnum<Enum>::SetterFromString(const QString& value)
+{
+    auto index = TranslatorManager::GetInstance().GetEnumNames<Enum>().indexOf(value);
+    if(TranslatorManager::GetInstance().IsValid<Enum>(index)) {
+        SetValue(index);
+        return [this, index]{ SetValue(index); };
+    }
+    return nullptr;
+}
 
 Q_DECLARE_METATYPE(SharedPointer<TranslatedString>)
 

@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <cmath>
+#include <utility>
 
 #include "flags.h"
 #include "debugobjectinfo.h"
@@ -309,7 +310,7 @@ bool Foreach(const FFunction& handler, T& c1, T2& c2, Args&... args)
 {
     qint32 minSize = std::numeric_limits<qint32>().max();
     adapters::Combine([&](const auto& t){
-        minSize = std::min(t.size(), minSize);
+        minSize = std::min((qint32)t.size(), minSize);
     }, c1, c2, args...);
 
 
@@ -654,6 +655,15 @@ _Export Q_DECLARE_LOGGING_CATEGORY(LC_SYSTEM)
 #if !defined QT_NO_DEBUG || defined QT_PROFILE
 #define SHOW_HIDDEN_FUNCTIONALITY
 #endif
+
+namespace WidgetProperties {
+DECLARE_GLOBAL_CHAR(ForceDisabled)
+DECLARE_GLOBAL_CHAR(ExtraFieldsCount)
+DECLARE_GLOBAL_CHAR(InnerSplitter)
+DECLARE_GLOBAL_CHAR(Footer)
+DECLARE_GLOBAL_CHAR(InvertedModel)
+DECLARE_GLOBAL_CHAR(ActionWidget)
+}
 
 //========================================================DEBUG ONLY================================================
 

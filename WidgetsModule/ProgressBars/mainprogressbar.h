@@ -15,7 +15,7 @@ class MainProgressBar : public QFrame
     using Super = QFrame;
 
 public:
-    explicit MainProgressBar(const Name& processId, QWidget* parent = 0, Qt::WindowFlags windowFlags = 0);
+    explicit MainProgressBar(const Name& processId, QWidget* parent = 0, Qt::WindowFlags windowFlags = Qt::Widget);
     ~MainProgressBar();
 
 private:

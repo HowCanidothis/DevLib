@@ -15,7 +15,7 @@ TViewModelsColumnComponentsBuilderBase& TViewModelsColumnComponentsBuilderBase::
                                             }
                                             return disabledCellColor->Native();
                                          }));
-    m_viewModel->ColumnComponents.AddComponent(Qt::TextColorRole, -1, ViewModelsTableColumnComponents::ColumnComponentData()
+    m_viewModel->ColumnComponents.AddComponent(Qt::ForegroundRole, -1, ViewModelsTableColumnComponents::ColumnComponentData()
                                          .SetGetter([model, enabledTextColor, disabledTextColor](const QModelIndex& index) {
                                             if(model->flags(index).testFlag(Qt::ItemIsEditable)) {
                                                 return enabledTextColor->Native();

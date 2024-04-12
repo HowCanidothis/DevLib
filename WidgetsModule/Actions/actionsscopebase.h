@@ -14,7 +14,7 @@ public:
     virtual void CreateActions() = 0;
 
     const Latin1Name& GetName() const { return m_name; }
-    QAction* FindAction(const Latin1Name& actionName) const;
+    class QAction* FindAction(const Latin1Name& actionName) const;
     const Stack<QAction*>& GetActions() const { return m_actions; }
     QList<class QAction*> GetActionsQList() const;
 

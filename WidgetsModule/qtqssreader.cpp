@@ -74,7 +74,7 @@ QString QtQSSReader::ReadAll()
                 }
                 auto foundColorsIt = colors.constFind(Name(match.captured(1)));
                 if(foundColorsIt != colors.constEnd()) {
-                    result += foundColorsIt.value();
+                    result += foundColorsIt.value().toUtf8();
                 } else {
                     qDebug() << QString("Can't find %1 color").arg(match.captured(1));
                     result += "red";

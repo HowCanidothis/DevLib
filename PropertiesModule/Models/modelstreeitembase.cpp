@@ -19,7 +19,7 @@ ModelsTreeItemBase::~ModelsTreeItemBase()
 
 SharedPointer<ModelsTreeItemBase> ModelsTreeItemBase::FindByPath(const QString& path, const QString& separator) const
 {
-    auto steps = path.split(separator, QString::SkipEmptyParts);
+    auto steps = path.split(separator, Qt::SkipEmptyParts);
     auto* current = const_cast<ModelsTreeItemBase*>(this);
     for(const auto& step : steps) {
         bool found = false;

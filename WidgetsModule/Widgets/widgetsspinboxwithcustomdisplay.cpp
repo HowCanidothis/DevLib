@@ -99,7 +99,9 @@ qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
     return m_valueFromTextHandler(this, text);
 }
 
-thread_local static QRegExp regExpFloating(R"(\s*(\d+)[\.\,]?(\d*)\s*)");
+thread_local static QRegularExpression regExpFloating(R"(\s*(\d+)[\.\,]?(\d*)\s*)");
+thread_local static QRegularExpression regExpFloatingEM(QRegularExpression::anchoredPattern(regExpFloating.pattern()));
+
 
 QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
@@ -116,7 +118,7 @@ QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&
         inputCopy = input.mid(1);
     }
 
-    if(regExpFloating.exactMatch(inputCopy)) {
+    if(regExpFloatingEM.match(inputCopy).hasMatch()) {
         return QValidator::Acceptable;
     }
     return QValidator::Invalid;
@@ -136,30 +138,34 @@ void WidgetsDoubleSpinBoxWithCustomDisplay::Update()
     }
 }
 
-thread_local static QRegExp regExpFractial(R"(([-+])?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
+thread_local static QRegularExpression regExpFractial(R"(([-+])?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
 {
     static ValueFromTextHandler result = [](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         double value;
-        if(regExpFractial.indexIn(text) != -1 && !regExpFractial.cap(5).isEmpty()) {
-            auto fractial = regExpFractial.cap(5);
-            auto meaning = regExpFractial.cap(3);
-            auto main = regExpFractial.cap(2);
-            if(meaning.isEmpty()) {
-                auto fractialValue = fractial.toDouble();
-                value = main.toDouble() / (fuzzyIsNull(fractialValue) ? 1.0 : fractialValue);
+        auto m = regExpFractial.globalMatch(text);
+        if(m.hasNext()) {
+            auto n = m.next();
+            if(n.captured(5).isEmpty()) {
+                auto fractial = n.captured(5);
+                auto meaning = n.captured(3);
+                auto main = n.captured(2);
+                if(meaning.isEmpty()) {
+                    auto fractialValue = fractial.toDouble();
+                    value = main.toDouble() / (fuzzyIsNull(fractialValue) ? 1.0 : fractialValue);
+                } else {
+                    auto fractialValue = fractial.toDouble();
+                    value = main.toDouble() + (fuzzyIsNull(fractialValue) ? 0.0 : (meaning.toDouble() / fractialValue));
+                }
+                if(n.captured(1) == DASH) {
+                    value = -value;
+                }
             } else {
-                auto fractialValue = fractial.toDouble();
-                value = main.toDouble() + (fuzzyIsNull(fractialValue) ? 0.0 : (meaning.toDouble() / fractialValue));
-            }
-            if(regExpFractial.cap(1) == DASH) {
-                value = -value;
-            }
-        } else if(regExpFloating.indexIn(text) != -1){
-            value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
-            if(regExpFractial.cap(1) == DASH) {
-                value = -value;
+                value = QString("%1.%2").arg(n.captured(1), n.captured(2)).toDouble();
+                if(n.captured(1) == DASH) {
+                    value = -value;
+                }
             }
         } else {
             value = text.toDouble();
@@ -227,7 +233,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()
 {
     auto property = ::make_shared<LocalPropertyBool>(true);
-    setProperty("IsValidStorage", qVariantFromValue(property));
+    setProperty("IsValidStorage", QVariant::fromValue(property));
     MakeOptional(property.get());
 }
 
@@ -273,12 +279,13 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         inputCopy = input.mid(1);
     }
 
-    if(regExpFloating.exactMatch(inputCopy)) {
+    if(regExpFloatingEM.match(inputCopy).hasMatch()) {
         return QValidator::Acceptable;
     }
 
-    if(regExpFractial.indexIn(input) != -1) {
-        return regExpFractial.cap(5).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
+    auto it = regExpFractial.globalMatch(input);
+    if(it.hasNext()) {
+        return it.next().captured(5).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
     }
 
     return QValidator::Invalid;

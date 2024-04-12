@@ -11,7 +11,7 @@
 #include <QTableView>
 #include <QMenu>
 #include <QTextDocument>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QAbstractTextDocumentLayout>
 #include <SharedModule/internal.hpp>
 
@@ -439,13 +439,13 @@ QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionVi
 void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
 {
     auto* parentWidget = option.widget;
-    QDesktopWidget *desktop = QApplication::desktop();
+    auto* desktop = parentWidget->screen();
 
     auto* table = qobject_cast<QTableView*>(const_cast<QWidget*>(option.widget));
     if(table != nullptr) {
         parentWidget = table->viewport();
     }
-    auto screenSize = desktop->screenGeometry(parentWidget);
+    auto screenSize = desktop->geometry();
     auto mappedPos = parentWidget->mapToGlobal(option.rect.bottomLeft());
     auto editorHeight = editor->sizeHint().height();
     if((editorHeight + mappedPos.y()) > screenSize.height()) {

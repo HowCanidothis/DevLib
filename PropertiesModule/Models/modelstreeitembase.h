@@ -73,7 +73,7 @@ public:
     template<class T>
     SharedPointer<T> FindByPath(const QString& path, const QString& separator = ".") const
     {
-        auto foundIt = findByPath(path, separator);
+        auto foundIt = FindByPath(path, separator);
         return foundIt.Cast<T>();
     }
     SharedPointer<ModelsTreeItemBase> FindByPath(const QString& path, const QString& separator = ".") const;

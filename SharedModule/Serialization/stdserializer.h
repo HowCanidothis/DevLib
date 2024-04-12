@@ -164,7 +164,7 @@ struct Serializer<type> \
 DECL_PRIMITIVE_SERIALIZER(bool)
 DECL_PRIMITIVE_SERIALIZER(unsigned short)
 DECL_PRIMITIVE_SERIALIZER(int)
-#if !defined(__MINGW32__) && !defined(__GNUC__) // Mingw32 does not support unsigned int template specialization
+#if !defined(__MINGW32__) && !defined(__GNUC__) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0) // Mingw32 does not support unsigned int template specialization
 DECL_PRIMITIVE_SERIALIZER(unsigned int)
 #endif
 DECL_PRIMITIVE_SERIALIZER(long int)

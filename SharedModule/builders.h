@@ -104,7 +104,7 @@ public:
     template<class Selection, typename KeyType = typename T::key_type, typename THelper = typename lq::AdapterHelper<Selection>::Type>
     Iterators<T> SelectMap(const Selection& selection)
     {
-        return SelectMap(selection, lq::DefaultAdapter::For<KeyType, typename THelper>());
+        return SelectMap(selection, lq::DefaultAdapter::For<KeyType, THelper>());
     }
 
     const T* operator->() const { return m_target; }
@@ -290,57 +290,57 @@ template<typename Key, class ... Args> using ParseFactoryBuilderBase = QHash<Key
 template<class T>
 struct ParseFactoryBuilderTextHelper
 {
-    using parse_type = QStringRef;
-    using extractor_type = std::function<T (const QStringRef&)>;
+    using parse_type = QStringView;
+    using extractor_type = std::function<T (const QStringView&)>;
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<double>
 {
-    using extractor_type = std::function<double (const QStringRef&)>;
-    static double Extract(const QStringRef& ref) { return ref.toDouble(); }
+    using extractor_type = std::function<double (const QStringView&)>;
+    static double Extract(const QStringView& ref) { return ref.toDouble(); }
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<qint32>
 {
-    using extractor_type = std::function<qint32 (const QStringRef&)>;
-    static qint32 Extract(const QStringRef& ref) { return ref.toDouble(); }
+    using extractor_type = std::function<qint32 (const QStringView&)>;
+    static qint32 Extract(const QStringView& ref) { return ref.toDouble(); }
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<qint64>
 {
-    using extractor_type = std::function<qint64 (const QStringRef&)>;
-    static qint64 Extract(const QStringRef& ref) { return ref.toDouble(); }
+    using extractor_type = std::function<qint64 (const QStringView&)>;
+    static qint64 Extract(const QStringView& ref) { return ref.toDouble(); }
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<QString>
 {
-    using extractor_type = std::function<QString (const QStringRef&)>;
-    static QString Extract(const QStringRef& ref) { return ref.toString(); }
+    using extractor_type = std::function<QString (const QStringView&)>;
+    static QString Extract(const QStringView& ref) { return ref.toString(); }
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<bool>
 {
-    using extractor_type = std::function<bool (const QStringRef&)>;
-    static bool Extract(const QStringRef& ref) { return ref.toDouble(); }
+    using extractor_type = std::function<bool (const QStringView&)>;
+    static bool Extract(const QStringView& ref) { return ref.toDouble(); }
 };
 
 template<>
 struct ParseFactoryBuilderTextHelper<Name>
 {
-    using extractor_type = std::function<Name (const QStringRef&)>;
-    static Name Extract(const QStringRef& ref) { return Name(ref.toString()); }
+    using extractor_type = std::function<Name (const QStringView&)>;
+    static Name Extract(const QStringView& ref) { return Name(ref.toString()); }
 };
 
 template<typename T>
 struct ParseFactoryBuilderTextHelper<std::optional<T>>
 {
-    using extractor_type = std::function<std::optional<T> (const QStringRef&)>;
-    static std::optional<T> Extract(const QStringRef& ref) { return TextConverter<std::optional<T>>::FromText(ref); }
+    using extractor_type = std::function<std::optional<T> (const QStringView&)>;
+    static std::optional<T> Extract(const QStringView& ref) { return TextConverter<std::optional<T>>::FromText(ref); }
 };
 
 template<template<class T> typename Helper, class Context>
@@ -381,10 +381,10 @@ public:
             return *this;
         }
 
-        const ParseFactoryBuilderObject& Insert(const Name& key, const std::function<void (const QStringRef&, T2&)>& handler) const
+        const ParseFactoryBuilderObject& Insert(const Name& key, const std::function<void (const QStringView&, T2&)>& handler) const
         {
             auto extractor = m_targetExtractor;
-            m_builder->Insert(key, [extractor, handler](const QStringRef& ref, Context& context){
+            m_builder->Insert(key, [extractor, handler](const QStringView& ref, Context& context){
                 auto* target = extractor(context);
                 if(target == nullptr) {
                     return;
@@ -697,7 +697,8 @@ public:
     {
         return RegisterProperty<LocalPropertyName>(key, targetPropertyExtractor, targetExtractor, extractor);
     }
-
+#endif
+#ifdef UNITS_MODULE_LIB
     template<class T2>
     ParseFactoryBuilder& RegisterMeasurementOptional(const Name& key, const MeasurementUnit& unit,
                                   const FPropertyExtractor<std::optional<double>,T2>& targetPropertyExtractor,
@@ -806,8 +807,8 @@ public:
             auto attrName = Name(attribut.name().toString().toLower());
             const auto& attrValue = attribut.value();
 
-            auto foundIt = find(attrName);
-            if(foundIt != cend()) {
+            auto foundIt = Super::find(attrName);
+            if(foundIt != Super::cend()) {
                 foundIt.value()(attrValue, const_cast<Context&>(context));
             }
         }
@@ -825,9 +826,9 @@ public:
                 if(it == e) {
                     break;
                 }
-                auto foundIt = find(*it);
-                if(foundIt != cend()) {
-                    foundIt.value()(QStringRef(&v), context);
+                auto foundIt = Super::find(*it);
+                if(foundIt != Super::cend()) {
+                    foundIt.value()(QStringView(&v), context);
                 }
                 ++it;
             }

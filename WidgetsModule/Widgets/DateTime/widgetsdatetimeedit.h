@@ -30,9 +30,6 @@ public:
     QString textFromDateTime(const QDateTime &dt) const override;
     QValidator::State validate(QString&, int&) const override;
 
-protected:
-    WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent);
-
 private:
     DispatcherConnectionsSafe m_connections;
     DelayedCallObject m_call;

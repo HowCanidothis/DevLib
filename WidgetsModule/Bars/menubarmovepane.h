@@ -23,7 +23,7 @@ public:
     void SetWindow(QWidget* w);
 
     QString GetTitle() const;
-    QLabel* GetTitleWidget() const;
+    class QLabel* GetTitleWidget() const;
     void SetTitle(const QString& title);
     void MaximizeRestore();
 

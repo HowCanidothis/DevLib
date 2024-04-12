@@ -10,10 +10,10 @@
 #include <QVector4D>
 #include <QMatrix4x4>
 #include <QDateTime>
-#include <QOpenGLFunctions_4_5_Core>
 
 #if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
-typedef QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#include <QOpenGLFunctions>
+typedef QOpenGLFunctions OpenGLFunctions;
 #endif
 typedef QQuaternion Quaternion;
 typedef QPoint Point2I;
@@ -26,17 +26,22 @@ typedef QSize SizeI;
 typedef QRect RectI;
 
 template<class T> inline static void point2DFromString(T& point, const QString& string){
-    thread_local static QRegExp re(R"((\()?([^,]+),([^,\)]+)\)?)");
-    re.indexIn(string);
-    point.X() = re.cap(2).toDouble();
-    point.Y() = re.cap(3).toDouble();
+    thread_local static QRegularExpression re(R"((\()?([^,]+),([^,\)]+)\)?)");
+    auto m = re.match(string);
+    if(m.isValid()) {
+        point.X() = m.captured(2).toDouble();
+        point.Y() = m.captured(3).toDouble();
+    }
+
 }
 template<class T> inline static void point3DFromString(T& point, const QString& string){
-    thread_local static QRegExp re(R"((\()?([^,]+),([^,]+),([^,\)]+)\)?)");
-    re.indexIn(string);
-    point.X() = re.cap(2).toDouble();
-    point.Y() = re.cap(3).toDouble();
-    point.Z() = re.cap(4).toDouble();
+    thread_local static QRegularExpression re(R"((\()?([^,]+),([^,]+),([^,\)]+)\)?)");
+    auto m = re.match(string);
+    if(m.isValid()) {
+        point.X() = m.captured(2).toDouble();
+        point.Y() = m.captured(3).toDouble();
+        point.Z() = m.captured(4).toDouble();
+    }
 }
 
 template<class T> inline static QString point2DToString(const T& point){ return QString("(" + QString::number(point.X()) + "," + QString::number(point.Y()) + ")"); }

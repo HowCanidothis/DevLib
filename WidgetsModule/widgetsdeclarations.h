@@ -230,12 +230,4 @@ template<class Enum>
 ContainerBuilder<ViewModelsCategoriesContainer<Enum>> ViewModelsCategoriesContainerCreate() { return ContainerBuilder<ViewModelsCategoriesContainer<Enum>>(); }
 using ModelsStandardListModelContainer = QVector<QHash<qint32, QVariant>>;
 
-namespace WidgetProperties {
-DECLARE_GLOBAL_CHAR(ExtraFieldsCount)
-DECLARE_GLOBAL_CHAR(InnerSplitter)
-DECLARE_GLOBAL_CHAR(Footer)
-DECLARE_GLOBAL_CHAR(InvertedModel)
-DECLARE_GLOBAL_CHAR(ActionWidget)
-}
-
 #endif // WIDGETSDECLARATIONS_H

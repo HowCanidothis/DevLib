@@ -2,9 +2,12 @@
 #define WIDGETHELPERS_H
 
 #include <QCompleter>
+#include <QAbstractItemDelegate>
 #include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/widgetsdeclarations.h"
+#include "WidgetsModule/Models/modelslistbase.h"
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 struct WidgetWrapperInjectedCommutatorData
 {

@@ -23,7 +23,7 @@ WidgetBuilder::WidgetBuilder(QWidget* parent, qint32 margin)
         delete parent->layout();
     }
     auto* layout = new QVBoxLayout(parent);
-    layout->setMargin(margin);
+    layout->setContentsMargins(margin, margin, margin, margin);
     m_addWidgetFunctors.append([layout](QWidget* w){ layout->addWidget(w); });
 }
 
@@ -51,7 +51,7 @@ WidgetBuilder& WidgetBuilder::StartLayout(const WidgetBuilderLayoutParams& param
         toAdd = new QHBoxLayout(dummyWidget);
     }
 
-    toAdd->setMargin(params.Margin);
+    toAdd->setContentsMargins(params.Margin, params.Margin, params.Margin, params.Margin);
     toAdd->setSizeConstraint(params.SizeConstraint);
     m_addWidgetFunctors.last()(dummyWidget);
     m_addWidgetFunctors.append([toAdd](QWidget* w){ toAdd->addWidget(w); });

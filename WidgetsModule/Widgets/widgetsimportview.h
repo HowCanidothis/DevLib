@@ -5,6 +5,7 @@
 #include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/widgetsdeclarations.h"
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
 
 namespace Ui {
 class WidgetsImportView;

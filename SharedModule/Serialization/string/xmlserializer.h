@@ -1,12 +1,17 @@
 #ifndef XMLSERIALIZER_H
 #define XMLSERIALIZER_H
 
+#ifdef QT_GUI_LIB
+#include <QImage>
+#endif
+
 #include <QCoreApplication>
 #include <QXmlStreamReader>
 #include <QBuffer>
 
 #include "SharedModule/declarations.h"
 #include "SharedModule/Serialization/qserializer.h"
+
 
 enum class SerializerValueType
 {

@@ -5,6 +5,8 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
+
 class NotifyButton : public QPushButton
 {
     Q_OBJECT

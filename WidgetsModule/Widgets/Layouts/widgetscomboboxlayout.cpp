@@ -2,6 +2,7 @@
 #include "ui_widgetscomboboxlayout.h"
 
 #include <QPushButton>
+#include <QAbstractItemView>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Utils/widgetstyleutils.h"

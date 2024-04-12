@@ -461,7 +461,7 @@ public:
     {
         if(m_interruptor == nullptr) {
             m_interruptor = new Interruptor();
-            OnAboutToCalculate.Connect(CONNECTION_DEBUG_LOCATION, [this] {
+            Super::OnAboutToCalculate.Connect(CONNECTION_DEBUG_LOCATION, [this] {
                 m_interruptor->Reset();
             });
         }

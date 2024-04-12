@@ -138,7 +138,7 @@ void MenuBarMovePane::MaximizeRestore()
         auto* graphicsEffect = window()->graphicsEffect();
         if(graphicsEffect != nullptr) {
             graphicsEffect->setEnabled(true);
-            window()->layout()->setMargin(10);
+            window()->layout()->setContentsMargins(10, 10, 10, 10);
         }
         WidgetWrapper(window()).RestoreGeometry(m_windowGeometry);
         OnGeometryRestored(window());
@@ -146,7 +146,7 @@ void MenuBarMovePane::MaximizeRestore()
         auto* graphicsEffect = window()->graphicsEffect();
         if(graphicsEffect != nullptr) {
             graphicsEffect->setEnabled(false);
-            window()->layout()->setMargin(0);
+            window()->layout()->setContentsMargins(QMargins());
         }
         window()->showMaximized();
     }

@@ -6,8 +6,6 @@
 #include <QAction>
 #include <QTableView>
 
-#include <ActionsModule/internal.hpp>
-
 #include "WidgetsModule/Attachments/widgetsactivetableattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 
@@ -54,7 +52,7 @@ static QVector<QStringList> clipboardData()
     QVector<QStringList> ret;
 
     QClipboard* clipboard = qApp->clipboard();
-    auto rows = clipboard->text().split('\n', QString::SkipEmptyParts);
+    auto rows = clipboard->text().split('\n', Qt::SkipEmptyParts);
     for(const auto& row : rows){
         ret.append(row.split('\t'));
     }
@@ -312,7 +310,7 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetsGlobalTableActionsScope::AddDef
     Q_ASSERT(!assert || result->Handlers.isEmpty());
 
     auto action = GetInstance().FindAction(GlobalActionCopyWithHeadersId);
-    result->AddHandler([]{ return tr("Copy With Headers"); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), action, [table]{
+    result->AddHandler([]{ return tr("Copy With Headers"); }, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C), action, [table]{
         WidgetTableViewWrapper(table).CopySelectedTableContentsToClipboard(true);
     });
 #ifndef BUILD_MASTER

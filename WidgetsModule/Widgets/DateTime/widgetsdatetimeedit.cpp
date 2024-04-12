@@ -7,12 +7,7 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDateTimeEdit::WidgetsDateTimeEdit(QWidget* parent)
-    : WidgetsDateTimeEdit(QDateTime(), QVariant::DateTime, parent)
-{
-}
-
-WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type type, QWidget* parent)
-    : Super(date, type, parent)
+    : Super(QDateTime(), parent)
     , AutoResize(true)
 {
     m_recursionBlock = false;
@@ -136,7 +131,7 @@ void WidgetsDateTimeEdit::Resize()
             }
             QFontMetrics fm(font());
             auto t = text();
-            int pixelsWide = fm.width(t);
+            int pixelsWide = fm.horizontalAdvance(t);
             pixelsWide += contentsMargins().left() + contentsMargins().right() + 30;
             setMinimumWidth(pixelsWide);
         });

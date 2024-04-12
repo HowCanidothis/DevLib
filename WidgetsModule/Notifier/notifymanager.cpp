@@ -1,8 +1,10 @@
 ﻿
-#include <QDesktopWidget>
 #include <QPropertyAnimation>
 #include <QApplication>
 #include <QTimer>
+#include <QScreen>
+#include <QPainterPath>
+
 #include <SharedModule/internal.hpp>
 
 #include "notifywidget.h"
@@ -19,7 +21,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , ReservedHeight(300)
     , IsNotifactionsEnabled(true)
     , DefaultWindow(nullptr)
-    , m_freeHeight(QApplication::desktop()->availableGeometry().height() - ReservedHeight)
+    , m_freeHeight(qApp->primaryScreen()->availableGeometry().height() - ReservedHeight)
     , m_exceedData(::make_shared<NotifyData>(Warning, ""))
     , m_exceedCounter(0)
 {
@@ -82,14 +84,13 @@ NotifyManager& NotifyManager::GetInstance()
 
 void NotifyManager::rearrange()
 {
-    QDesktopWidget *desktop = QApplication::desktop();
     auto* focusWidget = qApp->focusWidget();
     focusWidget = focusWidget == nullptr ? DefaultWindow : focusWidget;
     QRect desktopRect;
     if(focusWidget == nullptr) {
-        desktopRect = desktop->screenGeometry(desktop->primaryScreen());
+        desktopRect = qApp->primaryScreen()->geometry();
     } else {
-        desktopRect = desktop->screenGeometry(focusWidget);
+        desktopRect = focusWidget->screen()->geometry();
     }
     QPoint bottomRignt = desktopRect.bottomRight();
 
@@ -133,8 +134,7 @@ void NotifyManager::showNext()
     notify->setFixedWidth(Width);
     //notify->setFixedHeight(Height);
 
-    QDesktopWidget* desktop = QApplication::desktop();
-    QRect desktopRect = desktop->screenGeometry(qApp->focusWidget());
+    QRect desktopRect = qApp->focusWidget()->screen()->geometry();
 
     notify->ShowGriant(DisplayTime, m_icons[data->Type]);
 

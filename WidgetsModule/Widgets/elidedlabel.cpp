@@ -133,6 +133,6 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
 QSize ElidedLabel::minimumSizeHint() const
 {
     auto fm = fontMetrics();
-    return QSize(fm.width("..."), fm.height());
+    return QSize(fm.horizontalAdvance("..."), fm.height());
 }
 //! [4]

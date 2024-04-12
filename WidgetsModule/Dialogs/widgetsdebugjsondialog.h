@@ -5,6 +5,8 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
+
 namespace Ui {
 class WidgetsDebugJsonDialog;
 }

@@ -27,7 +27,7 @@ class ShadowProgressBar : public QFrame
     };
 
 public:
-    explicit ShadowProgressBar(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit ShadowProgressBar(QWidget *parent = 0, Qt::WindowFlags flags = Qt::Widget);
     ~ShadowProgressBar();
 
     // QObject interface

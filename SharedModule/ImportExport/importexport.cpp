@@ -95,15 +95,16 @@ QString ImportExportSource::ParseExtension(const QString& path)
     QString fileName;
     qint32 index(0);
 
-    thread_local QRegExp m_parseExtension(R"([^\/\\]+)");
-    thread_local QRegExp m_parseExtensionEx(R"(([^\.]*)\.(.*))");
+    thread_local QRegularExpression m_parseExtension(R"([^\/\\]+)");
+    thread_local QRegularExpression m_parseExtensionEx(R"(([^\.]*)\.(.*))");
 
-    while((index = m_parseExtension.indexIn(path, index)) != -1) {
-        fileName = m_parseExtension.cap();
-        index += m_parseExtension.matchedLength();
+    auto it = m_parseExtension.globalMatch(path);
+    while(it.hasNext()) {
+        fileName = it.next().captured();
     }
-    if(m_parseExtensionEx.indexIn(fileName, 0) != -1) {
-        extension = m_parseExtensionEx.cap(2);
+    it = m_parseExtensionEx.globalMatch(fileName);
+    while(it.hasNext()) {
+        extension = it.next().captured(2);
     }
 
     return extension;

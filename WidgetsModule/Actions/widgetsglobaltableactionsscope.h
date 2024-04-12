@@ -1,9 +1,8 @@
 #ifndef WIDGETSGLOBALTABLEACTIONSSCOPE_H
 #define WIDGETSGLOBALTABLEACTIONSSCOPE_H
 
-#include <ActionsModule/internal.hpp>
-
 #include "WidgetsModule/widgetsdeclarations.h"
+#include "actionsscopebase.h"
 
 class WidgetsGlobalTableActionsScopeHandler
 {

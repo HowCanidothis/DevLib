@@ -8,10 +8,10 @@
 #include "property.h"
 #include "propertiesscope.h"
 
-const Name PropertiesSystem::Global = Name("GlobalScope");
-const Name PropertiesSystem::InitProperties = Name("InitPropertiesScope");
-const Name PropertiesSystem::Temp = Name("TempScope");
-const Name PropertiesSystem::Empty = Name("EmptyScope");
+const Name PropertiesSystem::Global("GlobalScope");
+const Name PropertiesSystem::InitProperties("InitPropertiesScope");
+const Name PropertiesSystem::Temp("TempScope");
+const Name PropertiesSystem::Empty("EmptyScope");
 
 PropertiesScope* PropertiesSystem::GetScope(const PropertiesScopeName& scope)
 {

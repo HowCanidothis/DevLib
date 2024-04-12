@@ -36,6 +36,8 @@
 
 #include "Components/componentplacer.h"
 
+#include "Connectors/localpropertieswidgetconnector.h"
+
 #include "Layouts/flowlayout.h"
 #include "Layouts/flowwidget.h"
 

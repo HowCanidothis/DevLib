@@ -20,7 +20,7 @@ public:
     LocalPropertySet<QDate> SelectedDates;
 
 private:
-    void paintCell(QPainter *painter, const QRect &rect, const QDate &date) const override;
+    void paintCell(QPainter *painter, const QRect &rect, QDate date) const override;
 
 private:
     LocalPropertyColor m_outOfRangeColor;

@@ -1,6 +1,7 @@
 #ifndef WIDGETSDIALOGSMANAGER_H
 #define WIDGETSDIALOGSMANAGER_H
 
+#include <QDialog>
 #include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/widgetsdeclarations.h"
@@ -31,24 +32,7 @@ public:
             return reinterpret_cast<T*>(foundIt.value());
         }
         auto* result = dialogCreator();
-        if(result->parentWidget() == nullptr) {
-            result->setParent(GetParentWindow(), result->windowFlags());
-        }
-        OnDialogCreated(result);
-        if(!restoreGeometryName.IsNull()) {
-            QSettings geometriesSettings;
-            auto geometry = geometriesSettings.value("Geometries/" + restoreGeometryName.AsString()).toByteArray();
-            if(!geometry.isEmpty()) {
-                result->restoreGeometry(geometry);
-            }
-            WidgetWrapper(result).AddEventFilter([result, restoreGeometryName](QObject*, QEvent* event){
-                if(event->type() == QEvent::Hide) {
-                    QSettings geometriesSettings;
-                    geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), result->saveGeometry());
-                }
-                return false;
-            });
-        }
+        initDialog(result, restoreGeometryName);
         m_taggedDialog.insert(tag, result);
         return result;
     }
@@ -78,6 +62,9 @@ public:
 
     CommonDispatcher<QWidget*> OnDialogCreated;
     static const char* CustomViewPropertyKey;
+
+private:
+    void initDialog(QWidget* w, const Name& restoreGeometryName);
 
 private:
     QHash<Name, QWidget*> m_taggedDialog;

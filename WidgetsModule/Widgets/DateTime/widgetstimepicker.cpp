@@ -132,7 +132,7 @@ void WidgetsTimePicker::drawTimeLine(QPainter* painter) const
 void WidgetsTimePicker::paintEvent(QPaintEvent* event)
 {
     Super::paintEvent(event);
-    QPainter p(this); p.setRenderHints( QPainter::HighQualityAntialiasing );
+    QPainter p(this); p.setRenderHints( QPainter::Antialiasing );
     drawTimeLine(&p);
 }
 

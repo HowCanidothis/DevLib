@@ -1,6 +1,8 @@
 #ifndef IMPORT_EXPORT_H
 #define IMPORT_EXPORT_H
 
+#include "SharedModule/declarations.h"
+#include "SharedModule/builders.h"
 
 struct DescImportExportSourceParams
 {
@@ -293,7 +295,6 @@ struct DescImportExportTableExport
     using FExtractor = std::function<QList<RowType> (const ImportExportSourcePtr& source, const T& value, const DescImportExportTableExport& params)>;
     FSaver Saver;
     FExtractor Extractor;
-
     DescImportExportTableExport(const FSaver& saver, const FExtractor& extractor, qint32 role)
         : Saver(saver)
         , Extractor(extractor)
@@ -369,7 +370,6 @@ public:
         device->close();
         return result;
     }
-
     template<class T>
     static AsyncResult ImportTable(const ImportExportSourcePtr& source, class QAbstractItemModel* model, const DescImportExportTableImport<T>& params)
     {
@@ -406,17 +406,17 @@ public:
             FutureResult future;
             bool result = false;
             future += ThreadHandlerMain([&result, &data, model, &source]{
-                WidgetsImportTableDialog dialog;
-                dialog.GetView()->Initialize(data, model, {});
-                dialog.exec();
-                result = dialog.result() != WidgetsImportTableDialog::IR_Canceled;
-                source->Properties.SetProperty("Mode", dialog.result());
+            // TODO. MGN
+//                WidgetsImportTableDialog dialog;
+//                dialog.GetView()->Initialize(data, model, {});
+//                dialog.exec();
+//                result = dialog.result() != WidgetsImportTableDialog::IR_Canceled;
+//                source->Properties.SetProperty("Mode", dialog.result());
             });
             future.Wait();
             return result;
         });
     }
-
     static AsyncResult StandardImportExportDevice(const ImportExportSourcePtr& source, QIODevice::OpenMode mode, bool multithread, const std::function<qint8 ()>& handler)
     {
         AsyncResult result;

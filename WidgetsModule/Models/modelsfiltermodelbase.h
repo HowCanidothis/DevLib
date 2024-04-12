@@ -2,8 +2,12 @@
 #define MODELSFILTERMODELBASE_H
 
 #include <QSortFilterProxyModel>
+#include <QTreeView>
+#include <QTableView>
 
 #include <PropertiesModule/internal.hpp>
+
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 class ViewModelsFilterModelBase : public QSortFilterProxyModel
 {
@@ -284,12 +288,12 @@ public:
         MenuWrapper MenuWrapper(table);
         MenuWrapper.AddAction(tr("Check Selected"), [this, table](QAction*){
             emit layoutAboutToBeChanged();
-            Select(table->selectionModel()->selectedIndexes());
+            this->Select(table->selectionModel()->selectedIndexes());
             emit layoutChanged();
         })->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Insert));
         MenuWrapper.AddAction(tr("Uncheck selected"), [this, table](QAction*){
             emit layoutAboutToBeChanged();
-            Deselect(table->selectionModel()->selectedIndexes());
+            this->Deselect(table->selectionModel()->selectedIndexes());
             emit layoutChanged();
         })->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Delete));
     }

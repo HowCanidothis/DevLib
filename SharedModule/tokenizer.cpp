@@ -17,16 +17,16 @@ Tokenizer::Tokens Tokenizer::CreateTokens(const ProcessFactory& factory)
         return R"(\[)" + iterator.key().AsString() + R"(\])";
     }).append(')');
 
-    QRegExp regExp(regExpPattern);
+    QRegularExpression regExp(regExpPattern);
 
-    auto pos = 0;
-    while((pos = regExp.indexIn(m_pattern, pos)) != -1) {
-        auto keyWord = regExp.cap(1);
+    auto it = regExp.globalMatch(m_pattern);
+    while(it.hasNext()) {
+        auto n = it.next();
+        auto keyWord = n.captured(1);
         TokenInfo token;
-        token.TokenName = Name(keyWord.midRef(1, keyWord.size() - 2).toString());
-        token.StartsAt = pos;
-        pos += regExp.matchedLength();
-        token.EndsAt = pos;
+        token.TokenName = Name(keyWord.mid(1, keyWord.size() - 2));
+        token.StartsAt = n.capturedStart();
+        token.EndsAt = n.capturedEnd();
 
         m_tokens.append(token);
     }
@@ -39,13 +39,13 @@ QString Tokenizer::Tokenize(const Tokens& tokens) const
     QString result;
     auto prevPos = 0;
     for(const auto& token : tokens) {
-        result += m_pattern.midRef(prevPos, token.StartsAt - prevPos);
+        result += QStringView(m_pattern).mid(prevPos, token.StartsAt - prevPos);
         if(token.ReplaceWith != nullptr) {
             result += token.ReplaceWith();
         }
         prevPos = token.EndsAt;
     }
-    result += m_pattern.midRef(prevPos, m_pattern.size() - prevPos);
+    result += QStringView(m_pattern).mid(prevPos, m_pattern.size() - prevPos);
     return result;
 }
 

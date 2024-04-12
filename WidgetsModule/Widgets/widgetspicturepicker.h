@@ -4,7 +4,8 @@
 #include <QLabel>
 
 #include <PropertiesModule/internal.hpp>
-#include <PropertiesModule/Ui/internal.hpp>
+
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
 
 class WidgetsPicturePicker : public QLabel
 {
@@ -19,7 +20,7 @@ public:
 
     // QWidget interface
 protected:
-    void enterEvent(QEvent* event) override;
+    void enterEvent(QEnterEvent* event) override;
     void leaveEvent(QEvent* event) override;
 
 private:

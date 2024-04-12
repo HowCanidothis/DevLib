@@ -6,6 +6,14 @@
 #include "property.h"
 #include "externalproperty.h"
 
+namespace adapters {
+template<typename ... Args>
+void ResetThread(const Args&... args);
+
+template<typename ... Args>
+void SetThreadSafe(Args&... args);
+}
+
 template<class value_type>
 struct LocalPropertyDescInitializationParams
 {
@@ -384,21 +392,21 @@ public:
 
     LocalPropertyLimitedDecimal& FlagRemove(const T& flags)
     {
-        T result = Native();
+        T result = Super::Native();
         *this = FlagsHelpers<T>::Add(result, flags);
         return *this;
     }
 
     LocalPropertyLimitedDecimal& FlagAdd(const T& flags)
     {
-        T result = Native();
+        T result = Super::Native();
         *this = FlagsHelpers<T>::Remove(result, flags);
         return *this;
     }
 
     LocalPropertyLimitedDecimal& FlagChange(bool add, const T& flags)
     {
-        T result = Native();
+        T result = Super::Native();
         *this = FlagsHelpers<T>::ChangeFromBoolean(add, result, flags);
         return *this;
     }
@@ -409,10 +417,10 @@ public:
     LocalPropertyLimitedDecimal& operator*=(const T& value) { Super::SetValue(Super::Native() * value); return *this; }
     LocalPropertyLimitedDecimal& operator=(const T& value) { Super::SetValue(value); return *this; }
 
-    typename T operator&(const T& value) const { return m_value & value; }
-    typename T operator^(const T& value) const { return m_value ^ value; }
-    typename T operator|(const T& value) const { return m_value | value; }
-    typename T operator~() const { return ~m_value; }
+    typename T operator&(const T& value) const { return Super::m_value & value; }
+    typename T operator^(const T& value) const { return Super::m_value ^ value; }
+    typename T operator|(const T& value) const { return Super::m_value | value; }
+    typename T operator~() const { return ~Super::m_value; }
 
     const T& GetMin() const { return m_min; }
     const T& GetMax() const { return m_max; }
@@ -473,15 +481,7 @@ public:
         Super::m_value = (qint32)another;
     }
 
-    FAction SetterFromString(const QString& value)
-    {
-        auto index = TranslatorManager::GetInstance().GetEnumNames<Enum>().indexOf(value);
-        if(TranslatorManager::GetInstance().IsValid<Enum>(index)) {
-            SetValue(index);
-            return [this, index]{ SetValue(index); };
-        }
-        return nullptr;
-    }
+    FAction SetterFromString(const QString& value);
     LocalPropertySequentialEnum& operator=(const QString& value)
     {
         auto setter = SetterFromString(value);

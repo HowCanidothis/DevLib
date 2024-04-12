@@ -6,6 +6,7 @@
 #include <PropertiesModule/internal.hpp>
 
 #include "notifydeclarations.h"
+#include "WidgetsModule/Connectors/localpropertieswidgetconnector.h"
 
 namespace Ui {
 class NotifyConsole;
