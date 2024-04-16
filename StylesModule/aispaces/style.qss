@@ -58,8 +58,8 @@ WPSCSimulationTitleBar QLabel {
 }
 
 MenuBar {
-    min-height: 28px;
-    max-height: 28px;
+    min-height: 30px;
+    max-height: 30px;
     background: transparent;
 }
 
