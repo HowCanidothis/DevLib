@@ -61,7 +61,10 @@
 
 #include "WidgetsModule/Utils/widgetstyleutils.h"
 #include "WidgetsModule/Delegates/delegates.h"
+
+#ifdef UNITS_MODULE_LIB
 #include <UnitsModule/internal.hpp>
+#endif
 
 using FCurrentChanged = SharedPointer<CommonDispatcher<qint32,qint32>>;
 

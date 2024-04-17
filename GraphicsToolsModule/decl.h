@@ -4,6 +4,11 @@
 #include <SharedModule/internal.hpp>
 #include <SharedGuiModule/internal.hpp>
 
+#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
+#include <QOpenGLFunctions_4_5_Core>
+typedef QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#endif
+
 namespace GtNames {
 DECLARE_GLOBAL_NAME(mvp);
 DECLARE_GLOBAL_NAME(screenSize)

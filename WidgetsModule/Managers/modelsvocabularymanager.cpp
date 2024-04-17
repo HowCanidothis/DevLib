@@ -1,5 +1,9 @@
 #include "modelsvocabularymanager.h"
+
+#ifdef UNITS_MODULE_LIB
 #include <UnitsModule/internal.hpp>
+#endif
+
 #include "WidgetsModule/Models/viewmodelvacabulary.h"
 #include "WidgetsModule/Models/modelsfiltermodelbase.h"
 

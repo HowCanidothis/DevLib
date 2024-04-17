@@ -1,3 +1,5 @@
+#include "measurementdeclarations.h"
+
 #include "measurementunitmanager.h"
 
 #include <QUuid>
@@ -50,8 +52,8 @@ Measurement::Measurement(const Name& key, const FTranslationHandler& label)
 {
     CurrentUnitId.Subscribe([this]{
         m_currentConnections.clear();
-        auto foundIt = m_metricUnits.find(CurrentUnitId);
-        if(foundIt != m_metricUnits.end()) {
+        auto foundIt = m_metricUnits.constFind(CurrentUnitId);
+        if(foundIt != m_metricUnits.constEnd()) {
             m_currentUnit = m_metricUnits[CurrentUnitId];
         } else {
             auto match = m_idsDictionary->Match(CurrentUnitId.Native().AsString());
@@ -60,7 +62,7 @@ Measurement::Measurement(const Name& key, const FTranslationHandler& label)
                 match.Sort();
                 offset = match.first().Row.Id;
             }
-            m_currentUnit = *(m_metricUnits.begin() + offset);
+            m_currentUnit = *(m_metricUnits.cbegin() + offset);
             CurrentUnitId.EditSilent() = m_currentUnit->Id;
         }
         CurrentUnitLabel.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_currentUnit->Label).MakeSafe(m_currentConnections);
@@ -754,16 +756,18 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
 	Q_ASSERT(translationHandler != nullptr);
     return [translationHandler, measurement]{
         THREAD_ASSERT_IS_MAIN()
-        thread_local static QRegExp regExp(MEASUREMENT_UN);
-        qint32 index = 0;
+        thread_local static QRegularExpression regExp(MEASUREMENT_UN);
         QString resultString, string = translationHandler();
-        if((index = regExp.indexIn(string, index)) != -1) {
-            resultString.append(QStringView(string.begin(), string.begin() + index).toString());
-            resultString.append(measurement->CurrentUnitLabel);
-            index += regExp.matchedLength();
-            resultString.append(QStringView(string.begin() + index, string.end()).toString());
-        } else if(!string.isEmpty()){
+        auto it = regExp.globalMatch(string);
+        if(!it.hasNext()) {
             Q_ASSERT(false);
+        }
+
+        while(it.hasNext()) {
+            auto n = it.next();
+            resultString.append(QStringView(string.cbegin(), string.cbegin() + n.capturedStart()).toString());
+            resultString.append(measurement->CurrentUnitLabel);
+            resultString.append(QStringView(string.cbegin() + n.capturedEnd(), string.cend()).toString());
         }
         return resultString;
     };

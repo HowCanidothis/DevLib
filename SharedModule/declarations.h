@@ -17,9 +17,9 @@
 #define THREAD_ASSERT_IS_NOT_MAIN() if(qApp != nullptr) { THREAD_ASSERT_IS_NOT_THREAD(qApp->thread()); }
 
 template<class T>
-inline bool Equal(const T& v1, const T& v2) { return v1 == v2; }
-inline bool Equal(const double& v1, const double& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
-inline bool Equal(const float& v1, const float& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
+bool Equal(const T& v1, const T& v2) { return v1 == v2; }
+bool Equal(const double& v1, const double& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
+bool Equal(const float& v1, const float& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
 
 template<class T>
 inline bool NotEqual(const T& v1, const T& v2) { return !Equal(v1, v2); }

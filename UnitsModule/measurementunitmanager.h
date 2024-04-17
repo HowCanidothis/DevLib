@@ -45,7 +45,7 @@ private:
     friend class MeasurementManager;
     
     WPSCUnitTableWrapperPtr m_wrapper;
-    QHash<Name, const MeasurementUnit*> m_metricUnits;
+    QMap<Name, const MeasurementUnit*> m_metricUnits;
     
     const MeasurementUnit* m_currentUnit;
     DispatcherConnectionsSafe m_currentConnections;

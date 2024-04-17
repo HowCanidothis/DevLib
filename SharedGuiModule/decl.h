@@ -11,10 +11,6 @@
 #include <QMatrix4x4>
 #include <QDateTime>
 
-#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
-#include <QOpenGLFunctions>
-typedef QOpenGLFunctions OpenGLFunctions;
-#endif
 typedef QQuaternion Quaternion;
 typedef QPoint Point2I;
 

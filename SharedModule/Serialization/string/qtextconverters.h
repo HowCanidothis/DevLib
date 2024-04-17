@@ -3,6 +3,7 @@
 
 #include <QUrl>
 #include <QRegularExpression>
+#include <QStringView>
 #ifdef QT_GUI_LIB
 #include <QColor>
 #include <QMatrix4x4>
