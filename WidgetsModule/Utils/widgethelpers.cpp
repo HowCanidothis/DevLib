@@ -55,7 +55,13 @@
 #include "WidgetsModule/Attachments/widgetslocationattachment.h"
 
 #include "WidgetsModule/Widgets/elidedlabel.h"
+#include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 #include "WidgetsModule/Widgets/Layouts/widgetsgroupboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetscomboboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetslineeditlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetstabbarlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetsdoublespinboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetsspinboxlayout.h"
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
@@ -380,6 +386,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
         }
     }
 
+#ifdef UNITS_MODULE_LIB
     if(params.UseMeasurementDelegates){
         auto* model = tableView->model();
         auto count = model->rowCount();
@@ -403,6 +410,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             }
         }
     }
+#endif
 
     tableView->setWordWrap(true);
     tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
