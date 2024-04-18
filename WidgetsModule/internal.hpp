@@ -4,6 +4,7 @@
 #if defined __cplusplus
 
 #include "Actions/widgetsglobaltableactionsscope.h"
+#include "Actions/actionsmanager.h"
 
 #include "Models/viewmodeltreebase.h"
 #include "Models/modelstablebase.h"

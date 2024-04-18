@@ -2,6 +2,7 @@
 #include <QDesktopWidget>
 #include <QPropertyAnimation>
 #include <QApplication>
+#include <QPainterPath>
 #include <QTimer>
 #include <SharedModule/internal.hpp>
 

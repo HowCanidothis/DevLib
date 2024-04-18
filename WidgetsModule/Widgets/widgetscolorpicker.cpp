@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QColorDialog>
 #include <QSettings>
+#include <QPainterPath>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"

@@ -6,8 +6,6 @@
 #include <QAction>
 #include <QTableView>
 
-#include <ActionsModule/internal.hpp>
-
 #include "WidgetsModule/Attachments/widgetsactivetableattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
 

@@ -29,18 +29,17 @@
 #include <QMenu>
 #include <QSettings>
 #include <QHBoxLayout>
-#include <ActionsModule/internal.hpp>
 
 #include <optional>
-
-#include <ActionsModule/internal.hpp>
 
 #include "WidgetsModule/Dialogs/widgetsdebugjsondialog.h"
 
 #include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
 #include "WidgetsModule/Models/modelslistbase.h"
 
+#include "WidgetsModule/Actions/actionsmanager.h"
 #include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
+
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 #include "WidgetsModule/Managers/widgetsfocusmanager.h"
 #include "WidgetsModule/Managers/widgetsstandardtableheadermanager.h"

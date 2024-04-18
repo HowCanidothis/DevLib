@@ -2,6 +2,8 @@
 
 #include <QPainter>
 #include <QTimer>
+#include <QPainterPath>
+
 #include <qmath.h>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
