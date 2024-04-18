@@ -6,7 +6,7 @@
 namespace TemperatureUnits
 {
     IMPLEMENT_MEASUREMENT_UNIT(Kelvin, TR(MeasurementTr::tr("Kelvin")), TR(MeasurementTr::tr("K")), 1.)
-    IMPLEMENT_MEASUREMENT_UNIT(Celsius, TR(MeasurementTr::tr("Celsius")), TR(MeasurementTr::tr("°C")), [](double c) {return c - 273.15; }, [](double k){return k + 273.15; })
+    IMPLEMENT_MEASUREMENT_UNIT(Celsius, TR(MeasurementTr::tr("Celsius")), TR(MeasurementTr::tr("°C")), [](double c) {return c + 273.15; }, [](double k){return k - 273.15; })
     IMPLEMENT_MEASUREMENT_UNIT(Fahrenheit, TR(MeasurementTr::tr("Fahrenheit")), TR(MeasurementTr::tr("°F")), [](double f){return (f - 32.0) * 5.0 / 9.0 + 273.15; }, [](double k){return (k - 273.15) * 9.0/5.0 + 32.0; })
 }
 
