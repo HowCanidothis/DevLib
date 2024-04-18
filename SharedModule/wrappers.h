@@ -84,7 +84,7 @@ public:
     const value_type& FindValue(const ComparisonTarget& id) const
     {
         auto foundIt = Find(id);
-        if(foundIt != m_container->cend() && Equal(*m_idGetter(*foundIt), id)) {
+        if(foundIt != m_container->cend() && Comparator<ComparisonTarget>::Equal(*m_idGetter(*foundIt), id)) {
             return *foundIt;
         }
         return Default<value_type>::Value;
@@ -93,7 +93,7 @@ public:
     void Foreach(const ComparisonTarget& id, const std::function<void (value_type&)>& handler)
     {
         auto firstElement = find(id);
-        while(firstElement != m_container->end() && Equal(*firstElement, id)) {
+        while(firstElement != m_container->end() && Comparator<ComparisonTarget>::Equal(*firstElement, id)) {
             handler(*firstElement);
             firstElement++;
         }
@@ -129,7 +129,7 @@ public:
         if(foundIt == m_container->cend()) {
             return foundIt;
         }
-        return Equal(*m_idGetter(*foundIt), id) ? foundIt : m_container->cend();
+        return Comparator<ComparisonTarget>::Equal(*m_idGetter(*foundIt), id) ? foundIt : m_container->cend();
     }
 
     const_iterator begin() const { return m_container->begin(); }

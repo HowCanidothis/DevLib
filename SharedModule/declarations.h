@@ -17,12 +17,35 @@
 #define THREAD_ASSERT_IS_NOT_MAIN() if(qApp != nullptr) { THREAD_ASSERT_IS_NOT_THREAD(qApp->thread()); }
 
 template<class T>
-bool Equal(const T& v1, const T& v2) { return v1 == v2; }
-bool Equal(const double& v1, const double& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
-bool Equal(const float& v1, const float& v2) { return (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2); }
+struct Comparator
+{
+    static bool Equal(const T& v1, const T& v2)
+    {
+        return v1 == v2;
+    }
+    static bool NotEqual(const T& v1, const T& v2)
+    {
+        return !Equal(v1,v2);
+    }
+};
 
-template<class T>
-inline bool NotEqual(const T& v1, const T& v2) { return !Equal(v1, v2); }
+#define DECLARE_COMPARATOR(className, comparator) \
+template<> \
+struct Comparator<className> \
+{ \
+    static bool Equal(const className& v1, const className& v2) \
+    { \
+        return comparator; \
+    } \
+    \
+    static bool NotEqual(const className& v1, const className& v2) \
+    { \
+        return !Equal(v1,v2); \
+    } \
+};
+
+DECLARE_COMPARATOR(double, (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2))
+DECLARE_COMPARATOR(float, (qIsNaN(v1) && qIsNaN(v2)) || qFuzzyCompare(v1, v2))
 
 enum AdditionalStandardRoles {
     ObjectRole = Qt::UserRole,

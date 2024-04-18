@@ -47,7 +47,7 @@ LocalPropertyDate::LocalPropertyDate(const QDate& value, const QDate& min, const
 
 void LocalPropertyDate::SetMinMax(const QDate& min, const QDate& max)
 {
-    if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
+    if(Comparator<QDate>::NotEqual(m_max, max) || Comparator<QDate>::NotEqual(m_min, min)) {
         m_min = min;
         m_max = max;
         SetValue(Super::m_value);
@@ -82,7 +82,7 @@ LocalPropertyTime::LocalPropertyTime(const QTime& value, const QTime& min, const
 
 void LocalPropertyTime::SetMinMax(const QTime& min, const QTime& max)
 {
-    if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
+    if(Comparator<QTime>::NotEqual(m_max, max) || Comparator<QTime>::NotEqual(m_min, min)) {
         m_min = min;
         m_max = max;
         SetValue(Super::m_value);
@@ -117,7 +117,7 @@ LocalPropertyDateTime::LocalPropertyDateTime(const QDateTime& value, const QDate
 
 void LocalPropertyDateTime::SetMinMax(const QDateTime& min, const QDateTime& max)
 {
-    if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
+    if(Comparator<QDateTime>::NotEqual(m_max, max) || Comparator<QDateTime>::NotEqual(m_min, min)) {
         m_min = min;
         m_max = max;
         SetValue(Super::m_value);

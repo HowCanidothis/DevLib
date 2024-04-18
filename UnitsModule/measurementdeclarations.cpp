@@ -40,11 +40,6 @@ double MeasurementUnit::FromBaseToUnit(double baseValue) const
     return m_baseToUnit(baseValue);
 }
 
-bool Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&)
-{
-    return false;
-}
-
 void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
 {
     m_connections.clear();

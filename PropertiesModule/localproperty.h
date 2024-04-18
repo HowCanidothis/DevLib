@@ -182,7 +182,7 @@ public:
         m_setterHandler([value, this]{
             auto validatedValue = m_validator(value);
             validate(validatedValue);
-            if(NotEqual(validatedValue, m_value)) {
+            if(Comparator<T>::NotEqual(validatedValue, m_value)) {
                 m_value = validatedValue;
                 Invoke();
             }
@@ -382,7 +382,7 @@ public:
 
     void SetMinMax(const T& min, const T& max)
     {
-        if(NotEqual(m_max, max) || NotEqual(m_min, min)) {
+        if(Comparator<T>::NotEqual(m_max, max) || Comparator<T>::NotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
             OnMinMaxChanged();

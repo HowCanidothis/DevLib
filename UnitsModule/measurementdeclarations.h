@@ -2,6 +2,7 @@
 #define MEASUREMENTDECLARATIONS_H
 
 #include <qmath.h>
+#include <SharedModule/internal.hpp>
 
 #define DECLARE_MEASUREMENT_UNIT(x) extern const MeasurementUnit x;
 #define IMPLEMENT_MEASUREMENT_UNIT(x, ...) const MeasurementUnit x(Name(QT_STRINGIFY(x)), __VA_ARGS__);
@@ -72,12 +73,11 @@ private:
     FTransform m_baseToUnit;
 };
 Q_DECLARE_METATYPE(const MeasurementUnit*)
+DECLARE_COMPARATOR(MeasurementUnit::FTransform, false)
 
 template<class T> class TModelsTableWrapper;
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
 using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
-
-bool Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
 
 class MeasurementProperty
 {
