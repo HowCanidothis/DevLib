@@ -13,3 +13,4 @@ namespace TimeUnits
 }
 
 IMPLEMENT_MEASUREMENT(Time, TR(MeasurementTr::tr("Time")))
+IMPLEMENT_MEASUREMENT(SSTime, TR(MeasurementTr::tr("Surge&Swab Time")))

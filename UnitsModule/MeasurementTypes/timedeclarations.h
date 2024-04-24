@@ -15,5 +15,6 @@ namespace TimeUnits
 };
 
 DECLARE_MEASUREMENT(Time)
+DECLARE_MEASUREMENT(SSTime)
 
 #endif // TIMEDECLARATIONS_H
