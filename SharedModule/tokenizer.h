@@ -1,6 +1,8 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
+#include "builders.h"
+
 class Tokenizer
 {
     using FReplaceWith = std::function<QString ()>;
@@ -16,6 +18,8 @@ public:
     using ProcessFactory = QHash<Name, FReplaceWith>;
 
     Tokenizer(const QString& pattern);
+
+    static Factory<Name, FReplaceWith> CreateFactory() { return Factory<Name, FReplaceWith>(); }
 
     Tokens CreateTokens(const ProcessFactory& factory);
     QString Tokenize(const Tokens& tokens) const;

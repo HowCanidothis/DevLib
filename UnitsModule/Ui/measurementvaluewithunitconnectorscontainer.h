@@ -3,8 +3,6 @@
 
 #include "UnitsModule/measurementunitmanager.h"
 
-#include <WidgetsModule/internal.hpp>
-
 struct LocalPropertiesDoubleSpinBoxConnectorExtractor;
 
 namespace MeasurementProperties {

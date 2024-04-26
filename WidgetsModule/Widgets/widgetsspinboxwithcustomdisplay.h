@@ -60,6 +60,7 @@ public:
     void MakeOptional();
 
     void SetText(const QString& text);
+    void SetValue(const std::optional<double>& val);
     bool IsValid() const;
 
 private:

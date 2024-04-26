@@ -55,6 +55,12 @@
 
 #include "WidgetsModule/Widgets/elidedlabel.h"
 #include "WidgetsModule/Widgets/Layouts/widgetsgroupboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetscomboboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetsdoublespinboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetslineeditlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetsspinboxlayout.h"
+#include "WidgetsModule/Widgets/Layouts/widgetstabbarlayout.h"
+#include "WidgetsModule/Widgets/widgetsspinboxwithcustomdisplay.h"
 
 #include "WidgetsModule/Utils/iconsmanager.h"
 
@@ -291,6 +297,12 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
         }
     }
 
+    if(params.UseStandardActionHandlers) {
+        auto handlers = WidgetTableViewWrapper(tableView).CreateDefaultActionHandlers();
+        handlers->IsReadOnly = false;
+        handlers->ShowAll();
+    }
+
 #ifdef UNITS_MODULE_LIB
     if(params.UseMeasurementDelegates){
         auto* model = tableView->model();
@@ -373,6 +385,12 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
             tableView->addAction(columnsAction->menuAction());
         }
+    }
+
+    if(params.UseStandardActionHandlers) {
+        auto handlers = WidgetTableViewWrapper(tableView).CreateDefaultActionHandlers();
+        handlers->IsReadOnly = false;
+        handlers->ShowAll();
     }
 
     if(params.UseMeasurementDelegates){
@@ -1721,6 +1739,20 @@ LocalPropertyBool& MenuWrapper::WidgetVisibility() const
     }, true);
 }
 
+QMenu* MenuWrapper::GetMenu() const
+{
+    return GetWidget();
+}
+
+#ifdef UNITS_MODULE_LIB
+ActionWrapper MenuWrapper::AddMeasurementAction(const Measurement* measurement, const QString& title, LocalPropertyDouble* value) const
+{
+    return AddDoubleAction(title, measurement->FromBaseToUnit(value->GetMin()), measurement->FromBaseToUnit(value->GetMax()), measurement->FromBaseToUnit(value->Native()), [value, measurement](const std::optional<double>& val){
+        *value = measurement->FromUnitToBase(val.value_or(0.0));
+    });
+}
+#endif
+
 ActionWrapper MenuWrapper::AddSeparator() const
 {
     QAction *action = new QAction(GetWidget());
@@ -1858,19 +1890,46 @@ ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& co
     return action;
 }
 
-ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const
+ActionWrapper MenuWrapper::AddDoubleAction(const QString& title, double min, double max, const std::optional<double>& value, const std::function<void (const std::optional<double>&)>& handler) const
 {
     auto* widget = new QFrame();
     auto* layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
     widget->setLayout(layout);
     auto* label = new QLabel(title);
-    auto* spinBox = new QDoubleSpinBox;
+    auto* spinBox = new WidgetsDoubleSpinBoxWithCustomDisplay();
+    spinBox->MakeOptional();
+    layout->addWidget(label);
+    layout->addWidget(spinBox);
+    spinBox->SetValue(value);
+    spinBox->setRange(min, max);
+    QObject::connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [spinBox, handler](double value) {
+        if(!spinBox->IsValid()) {
+            handler(std::nullopt);
+        } else {
+            handler(value);
+        }
+    });
+    auto* action = new QWidgetAction(GetWidget());
+    widget->setProperty(WidgetProperties::ActionWidget, true);
+    action->setDefaultWidget(widget);
+    GetWidget()->addAction(action);
+    return action;
+}
+
+ActionWrapper MenuWrapper::AddIntAction(const QString& title, qint32 value, const std::function<void (qint32)>& handler) const
+{
+    auto* widget = new QFrame();
+    auto* layout = new QHBoxLayout();
+    layout->setContentsMargins(0,0,0,0);
+    widget->setLayout(layout);
+    auto* label = new QLabel(title);
+    auto* spinBox = new WidgetsSpinBoxWithCustomDisplay;
     layout->addWidget(label);
     layout->addItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     layout->addWidget(spinBox);
     spinBox->setValue(value);
-    QObject::connect(spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [handler](double value) {
+    QObject::connect(spinBox, QOverload<qint32>::of(&WidgetsSpinBoxWithCustomDisplay::valueChanged), [handler](qint32 value) {
         handler(value);
     });
     auto* action = new QWidgetAction(GetWidget());

@@ -19,6 +19,7 @@ struct MeasurementTr
 namespace Measurement##name { \
 extern const Name NAME; \
 double FromBaseToUnit(double value);\
+QString FromBaseToUnitUi(double value, const QString& pattern); \
 QString FromBaseToUnitUi(double value);\
 double FromUnitToBase(double value);\
 QString CurrentUnitString(); \
@@ -31,6 +32,7 @@ namespace Measurement##name { \
 const Name NAME(QT_STRINGIFY(name)); \
 const SharedPointer<Measurement> Value = ::make_shared<Measurement>(NAME, translationHandler); \
 const Measurement* Get() { return Value.get(); } \
+QString FromBaseToUnitUi(double value, const QString& pattern) { return Get()->FromBaseToUnitUi(value, pattern); } \
 double FromBaseToUnit(double value) { return Get()->FromBaseToUnit(value); } \
 QString FromBaseToUnitUi(double value) { return Get()->FromBaseToUnitUi(value); } \
 double FromUnitToBase(double value) { return Get()->FromUnitToBase(value); } \
@@ -77,7 +79,8 @@ template<class T> class TModelsTableWrapper;
 using WPSCUnitTableWrapper = TModelsTableWrapper<QVector<const MeasurementUnit*>>;
 using WPSCUnitTableWrapperPtr = SharedPointer<WPSCUnitTableWrapper>;
 
-bool Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&);
+template<>
+inline bool Comparator::Equal(const MeasurementUnit::FTransform&, const MeasurementUnit::FTransform&){ return false; }
 
 class MeasurementProperty
 {

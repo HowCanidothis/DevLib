@@ -250,6 +250,11 @@ QString LanguageSettings::DateTimeToString(const QDateTime& dt)
     return settings.DateTimeToStringHandler.Native()(settings.ApplicationLocale, dt);
 }
 
+QString LanguageSettings::DateToString(const QDate& dt)
+{
+    return QLocale().toString(dt, SharedSettings::GetInstance().LanguageSettings.DateFormat.Native());
+}
+
 QString LanguageSettings::DoubleToString(double v, qint32 precision)
 {
     const auto& settings = SharedSettings::GetInstance().LanguageSettings;

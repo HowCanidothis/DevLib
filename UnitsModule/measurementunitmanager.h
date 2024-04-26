@@ -21,6 +21,7 @@ public:
     
     const MeasurementUnit* GetCurrentUnit() const { return m_currentUnit; }
     const WPSCUnitTableWrapperPtr& GetTableWrapper() const { return m_wrapper; }
+    QString FromBaseToUnitUi(double value, const QString& pattern) const;
     QString FromBaseToUnitUi(double value) const;
     const QString& CurrentUnitString() const { return CurrentUnitLabel; }
     

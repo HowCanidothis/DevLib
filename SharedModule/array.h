@@ -496,6 +496,11 @@ public:
         detachCopy();
         return _d->Last();
     }
+    bool HasIndex(qint32 index) const
+    {
+        return index >= 0 && index < Size();
+    }
+
     const_iterator Begin() const { return _d->First(); }
     const_iterator End() const { return _d->Last(); }
     const_iterator CBegin() const { return _d->First(); }

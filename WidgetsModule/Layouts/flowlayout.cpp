@@ -124,6 +124,10 @@ int FlowLayout::doLayout(const QRect& rect, bool testOnly) const
     int spaceY = VerticalSpacing();
 
     for(auto* item : m_itemList) {
+        lineHeight = qMax(lineHeight, item->sizeHint().height());
+    }
+
+    for(auto* item : m_itemList) {
         auto nextX = x + item->sizeHint().width() + spaceX;
         if(nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
             x = effectiveRect.x();
@@ -139,8 +143,6 @@ int FlowLayout::doLayout(const QRect& rect, bool testOnly) const
         row.ItemsWidth += item->sizeHint().width();
 
         x = nextX;
-
-        lineHeight = qMax(lineHeight, item->sizeHint().height());
     }
     if(!testOnly) {
         if(!rows.isEmpty()) {
@@ -165,10 +167,15 @@ int FlowLayout::doLayout(const QRect& rect, bool testOnly) const
             };
         }
 
+        qint32 adjustY = 0;
+        if(Alignment.Native() & Qt::AlignVCenter) {
+            adjustY = (effectiveRect.height() - (y + lineHeight)) / 2;
+        }
+
         for(const auto& row : rows) {
             x = initX(row);
             for(auto* item : row.Items) {
-                item->setGeometry(QRect(QPoint(x, row.Y), item->sizeHint()));
+                item->setGeometry(QRect(QPoint(x, row.Y + adjustY), item->sizeHint()));
                 x += item->sizeHint().width() + spaceX;
             }
         }

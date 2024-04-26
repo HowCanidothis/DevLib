@@ -105,6 +105,11 @@ double Measurement::FromBaseToUnit(double baseValue) const
     return m_currentUnit->FromBaseToUnit(baseValue);
 }
 
+QString Measurement::FromBaseToUnitUi(double value, const QString& pattern) const
+{
+    return pattern.arg(FromBaseToUnitUi(value), CurrentUnitLabel);
+}
+
 QString Measurement::FromBaseToUnitUi(double value) const
 {
     return LanguageSettings::DoubleToString(GetCurrentUnit()->GetBaseToUnitConverter()(value), CurrentPrecision);

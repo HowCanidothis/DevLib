@@ -110,11 +110,17 @@ struct DescTableViewParams
     };
 
     DescTableViewParams(const QSet<qint32>& ignoreColumns);
-    DescTableViewParams() : UseStandardActions(true), UseMeasurementDelegates(false) {}
+    DescTableViewParams() {}
 
     DescTableViewParams& SetUseStandardActions(bool use)
     {
         UseStandardActions = use;
+        return *this;
+    }
+
+    DescTableViewParams& CreateStandardActionHandlers()
+    {
+        UseStandardActionHandlers = true;
         return *this;
     }
 
@@ -198,8 +204,9 @@ struct DescTableViewParams
 
     QHash<qint32, ColumnParam> ColumnsParams;
     Latin1Name StateTag;
-    bool UseStandardActions;
-    bool UseMeasurementDelegates;
+    bool UseStandardActions = true;
+    bool UseMeasurementDelegates = false;
+    bool UseStandardActionHandlers = false;
 
     bool StretchLastSection = true;
     bool SectionsMovable = true;

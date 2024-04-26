@@ -699,7 +699,7 @@ public:
 
     LocalPropertyBool& WidgetVisibility() const;
 
-    QMenu* GetMenu() const { return GetWidget(); }
+    QMenu* GetMenu() const;
 
     template<class Property>
     ActionWrapper AddCheckboxAction(const QString& title, Property* value) const
@@ -718,14 +718,34 @@ public:
     template<class Property>
     ActionWrapper AddDoubleAction(const QString& title, Property* value) const
     {
-        return AddDoubleAction(title, *value, [value](double val){
+        return AddDoubleAction(title, value->GetMin(), value->GetMax(), *value, [value](const std::optional<double>& val){
+            *value = val.value_or(0.0);
+        });
+    }
+    template<class Property>
+    ActionWrapper AddDoubleAction(const QString& title, LocalPropertyOptional<Property>* value) const
+    {
+        return AddDoubleAction(title, value->Value.GetMin(), value->Value.GetMax(), value->Native(), [value](const std::optional<double>& val){
+            *value = val;
+        });
+    }
+
+#ifdef UNITS_MODULE_LIB
+    ActionWrapper AddMeasurementAction(const Measurement* measurement, const QString& title, LocalPropertyDouble* value) const;
+#endif
+
+    template<class Property>
+    ActionWrapper AddIntAction(const QString& title, Property* value) const
+    {
+        return AddIntAction(title, *value, [value](qint32 val){
             *value = val;
         });
     }
 
     ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
     ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
-    ActionWrapper AddDoubleAction(const QString& title, double value, const std::function<void (double value)>& handler) const;
+    ActionWrapper AddDoubleAction(const QString& title, double min, double max, const std::optional<double>& value, const std::function<void (const std::optional<double>&)>& handler) const;
+    ActionWrapper AddIntAction(const QString& title, qint32 value, const std::function<void (qint32 value)>& handler) const;
     ActionWrapper AddTableColumnsAction() const;
     ActionWrapper AddSeparator() const;
     class QMenu* AddPreventedFromClosingMenu(const QString& title) const;

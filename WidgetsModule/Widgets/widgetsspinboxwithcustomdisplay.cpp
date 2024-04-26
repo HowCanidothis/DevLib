@@ -136,6 +136,16 @@ void WidgetsDoubleSpinBoxWithCustomDisplay::Update()
     }
 }
 
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetValue(const std::optional<double>& val)
+{
+    auto value = property(IsValidPropertyName);
+    setValue(val.value_or(0.0));
+    if(!value.isValid()) {
+        return;
+    }
+    *((LocalPropertyBool*)value.toLongLong()) = val.has_value();
+}
+
 thread_local static QRegExp regExpFractial(R"(([-+])?(\d+)\s*(\d+)?\s*(\/)?\s*(\d+)?)");
 
 const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDoubleSpinBoxWithCustomDisplay::GetDefaultValueFromTextHandler()
@@ -227,18 +237,17 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 void WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional()
 {
     auto property = ::make_shared<LocalPropertyBool>(true);
-    setProperty("IsValidStorage", qVariantFromValue(property));
+    setProperty("IsValidStorage", QVariant::fromValue(property));
     MakeOptional(property.get());
 }
 
 void WidgetsDoubleSpinBoxWithCustomDisplay::SetText(const QString& text)
 {
-    auto value = property(IsValidPropertyName);
-    setValue(text.toDouble());
-    if(!value.isValid()) {
+    if(text.isEmpty()) {
+        SetValue(std::nullopt);
         return;
     }
-    *((LocalPropertyBool*)value.toLongLong()) = !text.isEmpty();
+    SetValue(text.toDouble());
 }
 
 bool WidgetsDoubleSpinBoxWithCustomDisplay::IsValid() const

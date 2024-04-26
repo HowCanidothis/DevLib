@@ -14,7 +14,7 @@ Tokenizer::Tokens Tokenizer::CreateTokens(const ProcessFactory& factory)
     }
 
     auto regExpPattern = StringBuilder("(").Join('|', factory, [](const auto& iterator){
-        return R"(\[)" + iterator.key().AsString() + R"(\])";
+        return iterator.key().AsString();
     }).append(')');
 
     QRegExp regExp(regExpPattern);
@@ -23,7 +23,7 @@ Tokenizer::Tokens Tokenizer::CreateTokens(const ProcessFactory& factory)
     while((pos = regExp.indexIn(m_pattern, pos)) != -1) {
         auto keyWord = regExp.cap(1);
         TokenInfo token;
-        token.TokenName = Name(keyWord.midRef(1, keyWord.size() - 2).toString());
+        token.TokenName = Name(keyWord);
         token.StartsAt = pos;
         pos += regExp.matchedLength();
         token.EndsAt = pos;

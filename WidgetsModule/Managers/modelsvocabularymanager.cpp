@@ -1,6 +1,7 @@
 #include "modelsvocabularymanager.h"
 #include <UnitsModule/internal.hpp>
 #include "WidgetsModule/Models/viewmodelvacabulary.h"
+#include "WidgetsModule/Models/modelslistbase.h"
 #include "WidgetsModule/Models/modelsfiltermodelbase.h"
 
 ModelsVocabularyManager::ModelsVocabularyManager()
