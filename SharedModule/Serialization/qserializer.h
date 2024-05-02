@@ -110,17 +110,18 @@ inline QByteArray SerializeToArrayVersioned(const SerializerVersion& version, co
 }
 
 template<class T>
-bool DeSerializeFromArrayVersioned(const SerializerVersion& version, const QByteArray& array, T& object, DescSerializationReadParams params = DescSerializationReadParams())
+std::pair<bool, SerializerVersion> DeSerializeFromArrayVersioned(const SerializerVersion& version, const QByteArray& array, T& object, DescSerializationReadParams params = DescSerializationReadParams())
 {
+    SerializerVersion currentVersion;
     params.InitHandler = [&](SerializerReadBuffer& buffer){
-        auto currentVersion = buffer.ReadVersion();
+        currentVersion = buffer.ReadVersion();
         auto result = version.CheckVersion(currentVersion, buffer.GetDevice()->size());
         if(result.isValid()) {
             return false;
         }
         return true;
     };
-    return DeSerializeFromArray(array, object, params);
+    return std::make_pair(DeSerializeFromArray(array, object, params), currentVersion);
 }
 
 template<>

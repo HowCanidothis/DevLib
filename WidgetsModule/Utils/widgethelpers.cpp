@@ -432,13 +432,26 @@ WidgetAbstractButtonWrapper::WidgetAbstractButtonWrapper(QAbstractButton* button
 
 LocalPropertyBool& WidgetAbstractButtonWrapper::WidgetChecked() const
 {
-    return *GetOrCreateProperty<QAbstractButton, LocalPropertyBool>("a_checked", [](QAbstractButton* action, const LocalPropertyBool& visible){
-        action->setChecked(visible);
-    }, [](QAbstractButton* btn, LocalPropertyBool* property){
-        *property = btn->isChecked();
-    }, &QAbstractButton::toggled, [](QAbstractButton* btn){
-        btn->setCheckable(true);
-    }, false);
+    auto* widget = GetWidget();
+    return *Injected<LocalPropertyBool>("a_checked", [&]() -> LocalPropertyBool* {
+        auto* property = new LocalPropertyBool(false);
+        widget->setCheckable(true);
+        property->ConnectAndCall(CONNECTION_DEBUG_LOCATION, [widget](bool value){
+                                               widget->setChecked(value);
+                                           });
+        property->SetSetterHandler(ThreadHandlerMain);
+        widget->connect(widget, &QAbstractButton::toggled, [widget, property](bool state){
+            if(widget->property(WidgetProperties::ForceDisabled).toBool()) {
+                widget->setChecked(*property);
+                return;
+            }
+            *property = state;
+            if(*property != state) {
+                widget->setChecked(*property);
+            }
+        });
+        return property;
+    });
 }
 
 const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetIcon(const Name& iconId) const
@@ -2126,6 +2139,9 @@ LocalPropertyBool& WidgetCheckBoxWrapper::WidgetChecked() const
                 return;
             }
             *property = state;
+            if(*property != (bool)state) {
+                widget->setCheckState(*property ? Qt::Checked : Qt::Unchecked);
+            }
         });
         return property;
     });
