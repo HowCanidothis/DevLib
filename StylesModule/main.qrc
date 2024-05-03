@@ -12,7 +12,6 @@
         <file>style/res/arrow-up.svg</file>
         <file>style/res/burger.svg</file>
         <file>style/res/checkbox-blank-outline.svg</file>
-        <file>style/res/checkbox-intermediate.svg</file>
         <file>style/res/chevron-down.svg</file>
         <file>style/res/chevron-left.svg</file>
         <file>style/res/chevron-right.svg</file>
@@ -38,7 +37,6 @@
         <file>aispaces/res/discard.svg</file>
         <file>aispaces/res/save.svg</file>
         <file>style/res/checkbox-blank-outline-disabled.svg</file>
-        <file>style/res/checkbox-intermediate-disabled.svg</file>
         <file>style/res/copy.svg</file>
         <file>style/res/editor.svg</file>
         <file>style/res/orderdown.svg</file>
@@ -62,5 +60,7 @@
         <file>style/res/open-in-new.svg</file>
         <file>style/res/help-circle.svg</file>
         <file>style/res/dots-vertical.svg</file>
+        <file>style/res/checkbox-checked.svg</file>
+        <file>style/res/checkbox-checked-disabled.svg</file>
     </qresource>
 </RCC>

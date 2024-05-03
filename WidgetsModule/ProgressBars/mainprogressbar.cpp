@@ -49,6 +49,13 @@ MainProgressBar::MainProgressBar(const Name& processId, QWidget* parent, Qt::Win
         }
         return false;
     });
+    WidgetWrapper(this).AddEventFilter([this, parent](QObject*, QEvent* e) {
+        if(e->type() == QEvent::ShowToParent || e->type() == QEvent::Show) {
+            resize(parent->size());
+            raise();
+        }
+        return false;
+    });
 }
 
 MainProgressBar::~MainProgressBar()
