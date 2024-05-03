@@ -446,6 +446,7 @@ struct Serializer<QVector<T>>
     {
         qint32 size;
         buffer << size;
+        type.clear();
         type.resize(size);
         for(T& value : type) {
             buffer << value;
