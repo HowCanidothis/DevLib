@@ -39,6 +39,11 @@ QHBoxLayout* WidgetsDoubleSpinBoxLayout::layout() const
     return ui->horizontalLayout;
 }
 
+QHBoxLayout* WidgetsDoubleSpinBoxLayout::headerLayout() const
+{
+    return ui->horizontalLayout_2;
+}
+
 WidgetsDoubleSpinBoxWithCustomDisplay* WidgetsDoubleSpinBoxLayout::spinBox() const
 {
     return ui->spinbox;

@@ -35,6 +35,7 @@ public:
     QLabel* label() const;
     QLineEdit* lineEdit() const { return m_lineEdit == nullptr ? nullptr : m_lineEdit->Widget; }
     QHBoxLayout* layout() const;
+    QHBoxLayout* headerLayout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
 
     Qt::Orientation orientation() const;
