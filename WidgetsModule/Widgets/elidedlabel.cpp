@@ -53,6 +53,7 @@
 #include <QPainter>
 #include <QTextLayout>
 #include <QDebug>
+#include <WidgetsModule/Utils/widgethelpers.h>
 
 //! [0]
 ElidedLabel::ElidedLabel(QWidget *parent)
@@ -74,7 +75,9 @@ void ElidedLabel::setAlignment(Qt::Alignment alignment)
 void ElidedLabel::setText(const QString &newText)
 {
     content = newText;
-    setToolTip(content);
+    if(WidgetWrapper(this).WidgetToolTip()->Native().isEmpty()){
+        setToolTip(content);
+    }
     update();
 }
 //! [1]
