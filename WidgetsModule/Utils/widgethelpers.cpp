@@ -1969,9 +1969,9 @@ public:
     }
 };
 
-QMenu* MenuWrapper::CreatePreventedFromClosingMenu(const QString& title)
+QMenu* MenuWrapper::CreatePreventedFromClosingMenu(const QString& title, QWidget* parent)
 {
-    return new PreventedFromClosingMenu(title);
+    return new PreventedFromClosingMenu(title, parent);
 }
 
 QMenu* MenuWrapper::AddPreventedFromClosingMenu(const QString& title) const

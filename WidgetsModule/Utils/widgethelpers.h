@@ -749,7 +749,7 @@ public:
     ActionWrapper AddTableColumnsAction() const;
     ActionWrapper AddSeparator() const;
     class QMenu* AddPreventedFromClosingMenu(const QString& title) const;
-    static QMenu* CreatePreventedFromClosingMenu(const QString& title);
+    static QMenu* CreatePreventedFromClosingMenu(const QString& title, QWidget* parent = nullptr);
     QMenu* AddMenu(const QString& label) const;
 
 private:
