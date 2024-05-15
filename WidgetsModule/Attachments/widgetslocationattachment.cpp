@@ -81,6 +81,7 @@ bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)
         }
         break;
     }
+    case QEvent::ShowToParent:
     case QEvent::Show:
         if(watched == m_target) {
             updateParent(this, event, m_fullParentSize);

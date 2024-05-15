@@ -1537,12 +1537,12 @@ void WidgetWrapper::ShowAnimated(int duration, double opacity) const
     }
 
     auto& visible = WidgetVisibility();
-    if(visible) {
+    auto prevEffect = qobject_cast<QGraphicsOpacityEffect*>(widget->graphicsEffect());
+    if(visible && fuzzyCompare(prevEffect->opacity(), opacity, 0.01)) {
         return;
     }
 
     auto prevOpacity = 0.0;
-    auto prevEffect = qobject_cast<QGraphicsOpacityEffect*>(widget->graphicsEffect());
     if(prevEffect != nullptr) {
         prevOpacity = prevEffect->opacity();
     }
