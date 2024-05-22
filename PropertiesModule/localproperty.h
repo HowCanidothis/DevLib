@@ -1640,6 +1640,7 @@ public:
     struct LocalPropertyPreviousValueData
     {
         value_type m_value;
+        value_type m_previous;
         Property* m_target;
         DispatcherConnectionSafePtr m_connection;
 
@@ -1648,16 +1649,17 @@ public:
         {
             m_connection = target->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
                 auto prev = m_value;
+                m_previous = prev;
                 m_value = *m_target;
                 OnChanged(*m_target, prev);
             }).MakeSafe();
-            m_value = *m_target;
+            m_value = m_previous = *m_target;
         }
 
         CommonDispatcher<const value_type& /*current*/, const value_type& /*previous*/> OnChanged;
 
         void Reset() { m_value = *m_target; }
-        const value_type& GetValue() const { return m_value; }
+        const value_type& GetValue() const { return m_previous; }
     };
 
     LocalPropertyPreviousValue(Property* target)

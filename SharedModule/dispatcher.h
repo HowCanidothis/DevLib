@@ -51,7 +51,7 @@ public:
     DispatcherConnectionSafePtr MakeSafe();
 
     template<typename ... SafeConnections>
-    void MakeSafe(SafeConnections&... connections)
+    DispatcherConnectionSafePtr MakeSafe(SafeConnections&... connections)
     {
         auto connection = MakeSafe();
         adapters::Combine([&connection](DispatcherConnectionsSafe& connections){
@@ -59,6 +59,7 @@ public:
                 connection->Disconnect();
             })));
         }, connections...);
+        return connection;
     }
 };
 

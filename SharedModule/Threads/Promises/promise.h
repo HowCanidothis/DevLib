@@ -23,6 +23,17 @@ private:
     void resolve(const std::function<qint8 ()>& handler);
     DispatcherConnection then(const FCallback& handler);
     void mute();
+    template<class ... Connections>
+    void makeSafe(Connections&... connections)
+    {
+        Q_ASSERT(m_connection == nullptr);
+        auto connection = DispatcherConnection([this]{
+            resolve(false);
+        }).MakeSafe(connections...);
+        m_connection = ::make_shared<DispatcherConnectionSafe>(DispatcherConnection([connection]{
+            connection->Disconnect();
+        }));
+    }
 
 private:
     friend class Promise;
@@ -31,6 +42,7 @@ private:
     std::atomic_bool m_isCompleted;
     SharedPointer<QMutex> m_mutex;
     CommonDispatcher<qint8> onFinished;
+    DispatcherConnectionSafePtr m_connection;
 };
 
 struct SafeCallData
@@ -80,6 +92,11 @@ public:
         return result;
     }
 
+    template<typename ... Connections>
+    void MakeSafe(Connections&... connections)
+    {
+        m_data->makeSafe(connections...);
+    }
     Promise MoveToMain(const std::function<qint8 (qint8)>& handler);
     qint8 Wait();
     bool Wait(qint32 msecs);

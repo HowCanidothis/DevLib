@@ -229,7 +229,9 @@ public:
     template<class T>
     LocalPropertiesComboBoxConnector(T* property, const LocalPropertiesComboBoxConnectorExtractor& comboBox, const std::function<typename T::value_type (const QModelIndex&)>& getter)
         : Super([property, comboBox, getter]{
-                    setCurrentIndex(comboBox.ComboBox, [property, getter](const QModelIndex& index) -> bool { return property->operator==(getter(index)); });
+                   setCurrentIndex(comboBox.ComboBox, [property, getter](const QModelIndex& index) -> bool {
+                        return property->operator==(getter(index));
+                   });
                 },
                 [property, comboBox, getter]{
                     *property = getter(currentIndex(comboBox.ComboBox));
