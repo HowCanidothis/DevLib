@@ -1873,6 +1873,12 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
     return *this;
 }
 
+const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetShowAlpha(bool show) const
+{
+    GetWidget()->setOption(QColorDialog::ShowAlphaChannel, show);
+    return *this;
+}
+
 ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const
 {
     static QPixmap pixmap(10,10);

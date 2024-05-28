@@ -1,6 +1,7 @@
 #include "propertiestoolview.h"
 
 #include <QGridLayout>
+#include <QTextEdit>
 #include <WidgetsModule/internal.hpp>
 
 struct PropertiesToolFolderViewButtonAttachment
@@ -147,6 +148,25 @@ PropertiesToolView::PropertiesToolView(QWidget* parent)
     m_layout->setContentsMargins(0,6,0,6); // TODO.
     m_layout->setSpacing(6);
     m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
+}
+
+LineData PropertiesToolView::AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter)
+{
+    auto binding = [this, propertyGetter](QWidget* w){
+        auto* property = propertyGetter();
+        if(property == nullptr) {
+            return;
+        }
+        auto* lineEdit = reinterpret_cast<WidgetsTextEditLayout*>(w);
+        m_connectors.AddConnector<LocalPropertiesTextEditConnector>(property, lineEdit->textEdit());
+    };
+
+    Q_ASSERT(!m_bindings.contains(propertyName));
+    auto* edit = new WidgetsTextEditLayout();
+    edit->setTitle(title());
+    auto lineData = AddData(propertyName, edit, nullptr);
+    m_bindings.insert(propertyName, { lineData, binding });
+    return lineData;
 }
 
 const LineData& PropertiesToolView::FindRow(const Name& propertyName) const

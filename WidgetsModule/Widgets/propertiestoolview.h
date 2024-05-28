@@ -211,6 +211,8 @@ public:
         });
     }
 
+    LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
+
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter)
     {
         return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter);
@@ -390,6 +392,10 @@ struct TPropertiesToolWrapper {
     }
     LineData AddStringProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString& (T*)>& propertyGetter){
         return AddProperty<LocalPropertyString>(propertyName, title, propertyGetter);
+    }
+    LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString& (T*)>& propertyGetter){
+        auto* property = &propertyGetter(m_object);
+        return Register(m_folder->AddTextProperty(propertyName, title, [property]{ return property; }));
     }
     LineData AddColorProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyColor& (T*)>& propertyGetter) {
         return AddProperty<LocalPropertyColor>(propertyName, title, propertyGetter);

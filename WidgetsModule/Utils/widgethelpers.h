@@ -652,6 +652,7 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetColorDialogWrapper, QColorDialog)
 
     const WidgetColorDialogWrapper& SetDefaultLabels() const;
+    const WidgetColorDialogWrapper& SetShowAlpha(bool show) const;
     void Show(const DescShowDialogParams& params) const;
 };
 

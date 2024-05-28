@@ -99,6 +99,11 @@ inline void SerializeCopyObject(const T& source, T& target, SerializationMode mo
     DeSerializeFromArray(array, target, mode);
 }
 
+template<class T>
+inline void SerializeCopyObject(const T& source, T& target, qint32 mode)
+{
+    SerializeCopyObject(source, target, (SerializationMode)mode);
+}
 
 template<class T>
 inline QByteArray SerializeToArrayVersioned(const SerializerVersion& version, const T& object, DescSerializationWriteParams params = DescSerializationWriteParams())
@@ -163,6 +168,88 @@ struct Serializer<QDate>
         qint64 julianDate;
         buffer << julianDate;
         data = QDate::fromJulianDay(julianDate);
+    }
+};
+
+template<>
+struct Serializer<QColor>
+{
+    using TypeName = QColor;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        qint32 r,g,b,a;
+        r = data.red();
+        g = data.green();
+        b = data.blue();
+        a = data.alpha();
+
+        buffer << buffer.Sect("R", r);
+        buffer << buffer.Sect("G", g);
+        buffer << buffer.Sect("B", b);
+        buffer << buffer.Sect("A", a);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        qint32 r,g,b,a;
+        buffer << buffer.Sect("R", r);
+        buffer << buffer.Sect("G", g);
+        buffer << buffer.Sect("B", b);
+        buffer << buffer.Sect("A", a);
+
+        data.setRed(r);
+        data.setGreen(g);
+        data.setBlue(b);
+        data.setAlpha(a);
+    }
+};
+
+template<>
+struct Serializer<QPointF>
+{
+    using TypeName = QPointF;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        auto x = data.x();
+        auto y = data.y();
+        buffer << buffer.Sect("X", x);
+        buffer << buffer.Sect("Y", y);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        buffer << buffer.Sect("X", data.rx());
+        buffer << buffer.Sect("Y", data.ry());
+    }
+};
+
+template<>
+struct Serializer<QRectF>
+{
+    using TypeName = QRectF;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        auto topLeft = data.topLeft();
+        auto br = data.bottomRight();
+        buffer << buffer.Sect("TopLeft", topLeft);
+        buffer << buffer.Sect("BottomRight", br);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        QPointF topLeft, br;
+        buffer << buffer.Sect("TopLeft", topLeft);
+        buffer << buffer.Sect("BottomRight", br);
+        data = QRectF(topLeft, br);
     }
 };
 

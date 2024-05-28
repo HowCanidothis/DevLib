@@ -170,6 +170,19 @@ bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QSt
     return res == 0;
 }
 
+bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& label, const QString& text)
+{
+    QMessageBox dialog(GetParentWindow());
+    dialog.setWindowTitle(label);
+    dialog.setText(text);
+    auto* defaultButton = dialog.addButton(tr("DELETE"), QMessageBox::DestructiveRole);
+    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
+    dialog.setDefaultButton(defaultButton);
+    OnDialogCreated(&dialog);
+    auto res = dialog.exec();
+    return res == 0;
+}
+
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){
     QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;
