@@ -28,15 +28,12 @@ void ControllerBase::Accept()
 {
     if(auto parentController = GetParentController()) {
         leaveEvent();
-        pushCommandsToParentController(parentController->GetCommands());
         parentController->enterEvent();
     }
 }
 
 void ControllerBase::Cancel()
 {
-    _commands.UndoAll();
-    _commands.Clear();
     leaveEvent();
 }
 
@@ -57,13 +54,6 @@ void ControllerBase::setControllersContainer(ControllersContainer* container)
 {
     Q_ASSERT(m_container == nullptr);
     m_container = container;
-}
-
-void ControllerBase::pushCommandsToParentController(Commands* upLvlCommands)
-{
-    if(!_commands.IsEmpty()) {
-        upLvlCommands->AddCommand(_commands.ToMacro(m_currentOperationName));
-    }
 }
 
 void ControllerBase::contextChanged()

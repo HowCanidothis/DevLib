@@ -446,3 +446,9 @@ NotifierErrorsFrame QLabel{
 NotifierErrorsFrame QWidget {
     background: transparent;
 }
+
+WallPlotRulerView {
+    font-family: "Arial";
+    font-size: 12px;
+    font-weight: bold;
+}

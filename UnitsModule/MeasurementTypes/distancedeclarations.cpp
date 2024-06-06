@@ -13,6 +13,7 @@ namespace DistanceUnits
     IMPLEMENT_MEASUREMENT_UNIT(Inches,      TR(MeasurementTr::tr("inches")),        TR(MeasurementTr::tr("in")),    1.0/12 / METERS_TO_FEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(Miles,       TR(MeasurementTr::tr("miles")),         TR(MeasurementTr::tr("miles")), 5280 / METERS_TO_FEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(OnePerThirtyTwoInches, TR(MeasurementTr::tr("1/32 inches")),TR(MeasurementTr::tr("1/32 in")), 1.0/384 / METERS_TO_FEETS_MULTIPLIER)
+    IMPLEMENT_MEASUREMENT_UNIT(Point, TR(MeasurementTr::tr("point")), TR(MeasurementTr::tr("pt")), 0.0003527778)
 }
 
 IMPLEMENT_MEASUREMENT(Distance, TR(MeasurementTr::tr("Distances")))

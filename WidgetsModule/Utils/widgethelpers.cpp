@@ -1456,6 +1456,11 @@ WidgetLineEditWrapper::WidgetLineEditWrapper(class WidgetsLineEditLayout* lineEd
 
 }
 
+DispatcherConnectionsSafe& ObjectWrapper::ObjectConnections() const
+{
+    return *Injected<DispatcherConnectionsSafe>("a_connections");
+}
+
 EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
     return new EventFilterObject(filter, m_object);
@@ -1635,7 +1640,7 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
 
 DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const
 {
-    return *Injected<DispatcherConnectionsSafe>("a_connections");
+    return ObjectConnections();
 }
 
 LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const

@@ -2,8 +2,7 @@
 #define INTERNAL_H
 
 #ifdef __cplusplus
-#include "commands.h"
-#include "commandsvisualcomponents.h"
+#include "operations.h"
 #endif
 
 #endif // INTERNAL_H

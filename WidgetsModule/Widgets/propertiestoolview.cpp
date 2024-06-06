@@ -33,6 +33,7 @@ PropertiesToolViewWrapper PropertiesToolFolderView::BeginFolder(const Name& fold
 {
     auto* widget = new PropertiesToolView();
     widget->ForceDisabled.ConnectFrom(CDL, ForceDisabled).MakeSafe(widget->m_connections);
+    OnAboutToBeChanged.ConnectFrom(CDL, widget->OnAboutToBeChanged);
     widget->Key = folderName;
     auto buttonWrapper = BeginFolder(folderName, title, BindingRules(widget, [widget]{ widget->Bind(); }, [widget]{ widget->ClearBindings(); }), index);
     WidgetPropertiesToolViewWrapper folderWrapper(widget);
@@ -148,6 +149,34 @@ PropertiesToolView::PropertiesToolView(QWidget* parent)
     m_layout->setContentsMargins(0,6,0,6); // TODO.
     m_layout->setSpacing(6);
     m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
+    OnAboutToBeChanged.ConnectFrom(CDL, m_connectors.OnAboutToBeChanged);
+}
+
+LineData PropertiesToolView::AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter)
+{
+    auto* cb = new QComboBox;
+    cb->setEditable(true);
+
+    return addProperty(propertyName, title, cb, [this, propertyGetter](QWidget* w){
+        auto* property = propertyGetter();
+        if(property == nullptr) {
+            return;
+        }
+        auto* comboBox = reinterpret_cast<QComboBox*>(w);
+        m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, comboBox->lineEdit());
+    });
+}
+
+LineData PropertiesToolView::AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool* ()>& propertyGetter)
+{
+    return addProperty(propertyName, title, new QCheckBox, [this, propertyGetter](QWidget* w){
+        auto* property = propertyGetter();
+        if(property == nullptr) {
+            return;
+        }
+        auto* checkBox = reinterpret_cast<QCheckBox*>(w);
+        m_connectors.AddConnector<LocalPropertiesCheckBoxConnector>(property, checkBox);
+    });
 }
 
 LineData PropertiesToolView::AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter)
@@ -167,6 +196,11 @@ LineData PropertiesToolView::AddTextProperty(const Name& propertyName, const FTr
     auto lineData = AddData(propertyName, edit, nullptr);
     m_bindings.insert(propertyName, { lineData, binding });
     return lineData;
+}
+
+LineData PropertiesToolView::AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter)
+{
+    return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter);
 }
 
 const LineData& PropertiesToolView::FindRow(const Name& propertyName) const

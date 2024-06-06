@@ -33,7 +33,6 @@ void ControllersContainer::SetCurrent(ControllerBase* controller) {
         ControllerBase* cp = findCommonParent(controller, m_currentController);
         ControllerBase* c = m_currentController;
         while(c != cp) {
-            c->ResetCommandsChain();
             c->Cancel();
             c = c->GetParentController();
         }
@@ -68,16 +67,6 @@ void ControllersContainer::Accept()
 void ControllersContainer::Cancel()
 {
     m_currentController->Cancel();
-}
-
-void ControllersContainer::Undo()
-{
-    m_currentController->Undo();
-}
-
-void ControllersContainer::Redo()
-{
-    m_currentController->Redo();
 }
 
 void ControllersContainer::Input()

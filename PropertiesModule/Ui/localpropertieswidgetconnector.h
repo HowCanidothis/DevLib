@@ -22,6 +22,7 @@ public:
     bool IsEmpty() const { return m_connectors.IsEmpty(); }
 
     LocalPropertyBool ForceDisabled;
+    Dispatcher OnAboutToBeChanged;
 
 protected:
     virtual void onClear() {}
@@ -35,6 +36,7 @@ T* LocalPropertiesWidgetConnectorsContainer::AddConnector(Args... args)
 {
     auto* connector = new T(args...);
     connector->ForceDisabled.ConnectFrom(CDL, ForceDisabled).MakeSafe(connector->m_dispatcherConnections);
+    OnAboutToBeChanged.ConnectFrom(CDL, connector->OnAboutToBeChanged);
     m_connectors.Append(connector);
     return connector;
 }
@@ -45,6 +47,7 @@ public:
     LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w = nullptr);
 
     LocalPropertyBool ForceDisabled;
+    Dispatcher OnAboutToBeChanged;
 
 protected:
     friend class LocalPropertiesWidgetConnectorsContainer;

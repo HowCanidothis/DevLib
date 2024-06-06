@@ -69,6 +69,7 @@ public:
         : m_object(object)
     {}
 
+    DispatcherConnectionsSafe& ObjectConnections() const;
     EventFilterObject* AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
 
     template<class T> const T& Cast() const { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((const T*)this); }

@@ -60,6 +60,7 @@
 #include "exception.h"
 #include "debugobjectinfo.h"
 #include "builders.h"
+#include "circularbuffer.h"
 //#include "errors.h"
 #endif
 

@@ -5,13 +5,6 @@
 
 #include "controllerscontainer.h"
 
-#ifdef VISUAL_COMMANDS
-#include "CommandsModule/commandsvisualcomponents.h"
-typedef CommandsContainerVisual Commands;
-#else
-#include "CommandsModule/commands.h"
-typedef CommandsContainer Commands;
-#endif
 class QMouseEvent;
 class QKeyEvent;
 class QWheelEvent;
@@ -24,7 +17,6 @@ class _Export ControllerBase : public QObject
 protected:
     ControllersContainer* m_container;
     ControllerBase* m_parentController;
-    Commands _commands;
     Name m_name;
     QString m_currentOperationName;
     qint32 m_visibilityMask;
@@ -36,20 +28,14 @@ public:
     {}
 
     void SetCurrent();
-    void ResetCommandsChain(){ _commands.Clear(); }
 
     void Accept();
     void Cancel();
     template<class T> T* As() { return (T*)this; }
     template<class T> const T* As() const { return (const T*)this; }
 
-    Commands* GetCommands() { return &_commands; }
     ControllerBase* GetParentController() const { return static_cast<ControllerBase*>(parent()); }
     qint32 GetVisibilityMask() const { return m_visibilityMask; }
-
-public Q_SLOTS:
-    void Undo(){ _commands.Undo(); }
-    void Redo(){ _commands.Redo(); }
 
 protected:
     friend class ControllersContainer;
@@ -75,8 +61,6 @@ protected:
 
     virtual void enterEvent() {}
     virtual void leaveEvent() {}
-
-    virtual void pushCommandsToParentController(Commands* upLvlCommands);
 
     virtual void onContextChanged() {}
 };

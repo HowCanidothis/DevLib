@@ -33,6 +33,7 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAc
                 return;
             }
             guards::LambdaGuard guard([this]{ m_ignorePropertyChange = false; }, [this] { m_ignorePropertyChange = true; } );
+            OnAboutToBeChanged();
             propertySetter();
             guards::LambdaGuard guard2([this]{ m_ignoreWidgetChange = false; }, [this] { m_ignoreWidgetChange = true; } );
             widgetSetter();

@@ -541,6 +541,33 @@ struct Serializer<QVector<T>>
     }
 };
 
+template<class T>
+struct Serializer<QList<T>>
+{
+    typedef QList<T> Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        qint32 size = type.size();
+        buffer << size;
+        for(const T& value : type) {
+            buffer << value;
+        }
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        qint32 size;
+        buffer << size;
+        type.clear();
+        while(size--) {
+            T value;
+            buffer << value;
+            type.append(value);
+        }
+    }
+};
+
 template<>
 struct Serializer<QByteArray>
 {

@@ -37,8 +37,6 @@ public:
 
     void Accept();
     void Cancel();
-    void Undo();
-    void Redo();
 
     void Input();
     void Draw(DrawEngineBase* );

@@ -81,6 +81,7 @@ public:
     void Release();
 
     LocalPropertyBool ForceDisabled;
+    Dispatcher OnAboutToBeChanged;
 
 private:
     class QVBoxLayout* m_layout;
@@ -124,21 +125,7 @@ public:
     PropertiesToolView(QWidget* parent = nullptr);
 
     Name Key;
-    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter)
-    {
-        auto* cb = new QComboBox;
-        cb->setEditable(true);
-
-        return addProperty(propertyName, title, cb, [this, propertyGetter](QWidget* w){
-            auto* property = propertyGetter();
-            if(property == nullptr) {
-                return;
-            }
-            auto* comboBox = reinterpret_cast<QComboBox*>(w);
-            m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, comboBox->lineEdit());
-        });
-    }
-
+    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
     template<class T>
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<T>* ()>& propertyGetter)
     {
@@ -179,17 +166,7 @@ public:
         });
     }
 
-    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool* ()>& propertyGetter)
-    {
-        return addProperty(propertyName, title, new QCheckBox, [this, propertyGetter](QWidget* w){
-            auto* property = propertyGetter();
-            if(property == nullptr) {
-                return;
-            }
-            auto* checkBox = reinterpret_cast<QCheckBox*>(w);
-            m_connectors.AddConnector<LocalPropertiesCheckBoxConnector>(property, checkBox);
-        });
-    }
+    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool* ()>& propertyGetter);
 
     template<class Property>
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& label, const std::function<Property* ()>& propertyGetter);
@@ -210,13 +187,8 @@ public:
             m_connectors.AddConnector(measurement, property, spinBox, FindRow(propertyName).Label, title, {});
         });
     }
-
     LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
-
-    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter)
-    {
-        return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter);
-    }
+    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter);
 
     const LineData& FindRow(const Name& propertyName) const;
 
@@ -228,6 +200,7 @@ public:
     void ClearBindings();
 
     LocalPropertyBool ForceDisabled;
+    Dispatcher OnAboutToBeChanged;
 
     mutable CommonDispatcher<const LineData&> OnPropertyAdded;
 

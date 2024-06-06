@@ -40,6 +40,13 @@ double MeasurementUnit::FromBaseToUnit(double baseValue) const
     return m_baseToUnit(baseValue);
 }
 
+MeasurementUnit::FTransform MeasurementUnit::CreateConverter(const MeasurementUnit& from, const MeasurementUnit& to)
+{
+    return [&from, &to](double v) {
+        return to.FromBaseToUnit(from.FromUnitToBase(v));
+    };
+}
+
 void MeasurementProperty::Connect(LocalPropertyDouble* baseValueProperty)
 {
     m_connections.clear();

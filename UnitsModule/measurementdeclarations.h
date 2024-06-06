@@ -65,6 +65,8 @@ public:
     FTransform GetUnitToBaseConverter() const { return m_unitToBase; }
     FTransform GetBaseToUnitConverter() const { return m_baseToUnit; }
 
+    static FTransform CreateConverter(const MeasurementUnit& from, const MeasurementUnit& to);
+
     const Name Id;
     mutable TranslatedString LabelFull;
     mutable TranslatedString Label;

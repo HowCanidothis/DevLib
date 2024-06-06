@@ -372,13 +372,15 @@ public:
         , m_max(max)
     {}
 
-    void SetMinMax(const T& min, const T& max)
+    void SetMinMax(const T& min, const T& max, bool correctValue = true)
     {
         if(Comparator::NotEqual(m_max, max) || Comparator::NotEqual(m_min, min)) {
             m_min = min;
             m_max = max;
             OnMinMaxChanged();
-            Super::SetValue(Super::m_value);
+            if(correctValue) {
+                Super::SetValue(Super::m_value);
+            }
         }
     }
 
