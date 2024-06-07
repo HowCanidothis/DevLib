@@ -493,15 +493,13 @@ public:
         m_onChanged.OnDirectChanged();
     }
 
-    void Disconnect(bool cancel = false)
+    void Disconnect()
     {
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
         m_dependenciesAreUpToDate.Reset(false);
         m_stateParameters.clear();
-        if(cancel) {
-            Cancel();
-        }
+        Cancel();
     }
 
     void SetCalculator(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
@@ -830,7 +828,7 @@ public:
     }
 
     void Disconnect() {
-        m_calculator.Disconnect(true);
+        m_calculator.Disconnect();
     }
 
     const TPtr& GetData() const { return m_data; }
