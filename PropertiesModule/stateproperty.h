@@ -552,14 +552,14 @@ public:
     }
 
     template<class DoubleBuffer>
-    void InitializeByDoubleBuffer(const char* connectionInfo, DoubleBuffer& buffer, bool enable = true)
+    void InitializeByDoubleBuffer(const char* connectionInfo, DoubleBuffer& buffer, bool enable = true, const std::function<bool (const typename DoubleBuffer::container_type&)>& validHandler = nullptr)
     {
         OnCalculationRejected += { this, [&buffer]{
             buffer.EditData()->Clear();
         }};
-        Super::OnCalculated += { this, [&buffer](const auto& container){
+        Super::OnCalculated += { this, [validHandler, &buffer](const auto& container){
             buffer.EditData()->Set(container);
-            buffer.EditData()->IsValid.SetState(true);
+            buffer.EditData()->IsValid.SetState(validHandler == nullptr ? true : validHandler(container));
         }};
         buffer.EditData()->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
         Enabled = enable;
@@ -904,6 +904,7 @@ class StateDoubleBufferData
 {
 public:
     using TPtr = SharedPointer<T>;
+    using container_type = typename T::container_type;
     StateDoubleBufferData(bool copy = false)
         : StateDoubleBufferData(::make_shared<T>(), ::make_shared<T>(), copy)
     {}
