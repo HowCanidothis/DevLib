@@ -1668,6 +1668,7 @@ public:
         : m_data(::make_shared<LocalPropertyPreviousValueData>(target))
     {}
 
+    void Reset() { m_data->Reset(); }
     const LocalPropertyPreviousValueData& GetData() const { return *m_data; }
     const value_type& Native() const { return m_data->GetValue(); }
     operator const value_type&() const { return m_data->GetValue(); }
