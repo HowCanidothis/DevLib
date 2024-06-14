@@ -16,7 +16,10 @@ GtView::GtView(QWidget* parent, Qt::WindowFlags flags)
 void GtView::paintEvent(QPaintEvent* )
 {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::HighQualityAntialiasing);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::black);
+    painter.drawRect(rect());
     painter.drawImage(rect(), m_controller->GetCurrentImage());
 #ifdef QT_DEBUG
     painter.drawText(QRect(0,0,100,200), QString::number(1000000000.0 / m_controller->GetRenderTime()));
