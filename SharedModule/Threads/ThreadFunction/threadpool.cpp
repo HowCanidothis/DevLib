@@ -22,8 +22,12 @@ bool ThreadPool::IsTerminated() const
     return m_threads.IsEmpty();
 }
 
+// Must be called on application close
 void ThreadPool::TerminateAll()
 {
+    for(Thread* t : m_threads) {
+        t->terminate();
+    }
     m_threads.Clear();
     m_freeThreads.clear();
 }
