@@ -398,7 +398,7 @@ struct TPropertiesToolWrapper {
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
         }
-        return Register(m_folder->AddDoubleProperty(propertyName, measurement, title, [property]{ return property; }));
+        return Register(m_folder->AddDoubleProperty(propertyName, measurement, titleUnit, [property]{ return property; }));
     }
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDouble&(T*)>& propertyGetter){
         auto property = &propertyGetter(m_object);
@@ -408,7 +408,7 @@ struct TPropertiesToolWrapper {
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
         }
-        return Register(m_folder->AddProperty<LocalPropertyDouble>(propertyName, measurement, title, [property]{ return property; }));
+        return Register(m_folder->AddProperty<LocalPropertyDouble>(propertyName, measurement, titleUnit, [property]{ return property; }));
     }
 //    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<StateParameterProperty<LocalPropertyDoubleOptional>&(T*)>& propertyGetter){
 //        return AddDoubleProperty(propertyName, title, measurement, [propertyGetter](T* o) -> LocalPropertyDoubleOptional& { return propertyGetter(o).InputValue; });
