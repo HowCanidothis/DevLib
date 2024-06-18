@@ -215,7 +215,8 @@ void PropertiesToolView::BeginGroup(const FTranslationHandler& header)
     int rowCount = m_layout->rowCount();
     auto* label = new QLabel(header());
     m_layout->addWidget(label, rowCount, 0, 1, 2);
-    label->setAlignment(Qt::AlignCenter);
+    label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    label->setProperty("MinorTitle", true);
 }
 
 LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTranslationHandler& title, Qt::Orientation orientation)

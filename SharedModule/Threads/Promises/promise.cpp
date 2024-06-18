@@ -176,10 +176,17 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
     if(isFinished()) {
         action(getResult());
     } else {
-        QMutexLocker lock(m_mutex.get());
-        onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action]{
-            action(m_result);
-        });
+        auto called = ::make_shared<std::atomic_bool>(false);
+        {
+            QMutexLocker lock(m_mutex.get());
+            onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action, called]{
+                *called = true;
+                action(m_result);
+            });
+        }
+        if(isFinished() && !*called) { // extra check if connected after getting result
+            action(getResult());
+        }
     }
 }
 

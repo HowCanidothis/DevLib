@@ -62,5 +62,6 @@
         <file>style/res/dots-vertical.svg</file>
         <file>style/res/checkbox-checked.svg</file>
         <file>style/res/checkbox-checked-disabled.svg</file>
+        <file>style/res/pagesetup.svg</file>
     </qresource>
 </RCC>
