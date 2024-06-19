@@ -35,18 +35,7 @@ class _Export QtInlineEventWithResult : public QtInlineEvent
 {
     using Super = QtInlineEvent;
 public:
-    QtInlineEventWithResult(const char* location, const FAction& function, const AsyncResult& result)
-        : Super(location, [location, function, result]{
-            result.Resolve([location, function]{
-                try {
-                    function();
-                    return true;
-                } catch (...) {
-                    return false;
-                }
-            });
-        })
-    {}
+    QtInlineEventWithResult(const char* location, const FAction& function, const AsyncResult& result);
 
     static AsyncResult Post(const char* location, const FAction& function, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Post(const char* location, const FAction& function, QObject* object, Qt::EventPriority priority = Qt::NormalEventPriority);

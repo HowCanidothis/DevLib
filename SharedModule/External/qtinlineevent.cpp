@@ -11,6 +11,19 @@ void QtInlineEvent::Post(const char* location, const FAction& function, QObject*
     QCoreApplication::postEvent(object, new QtInlineEvent(location, function), priority);
 }
 
+QtInlineEventWithResult::QtInlineEventWithResult(const char* location, const FAction& function, const AsyncResult& result)
+    : Super(location, [location, function, result]{
+        result.Resolve([location, function]{
+            try {
+                function();
+                return true;
+            } catch (...) {
+                return false;
+            }
+        });
+    })
+{}
+
 AsyncResult QtInlineEventWithResult::Post(const char* location, const FAction& function, Qt::EventPriority priority)
 {
     AsyncResult result;
