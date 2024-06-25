@@ -80,6 +80,7 @@ Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
 Q_DECLARE_METATYPE(FCurrentChanged)
+Q_DECLARE_METATYPE(SP<QVector<QWidget*>>)
 
 struct DisabledColumnComponentData
 {
@@ -1641,6 +1642,11 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
 DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const
 {
     return ObjectConnections();
+}
+
+QVector<QWidget*>& WidgetWrapper::WidgetTrueFocusWidgets() const
+{
+    return *Injected<QVector<QWidget*>>("a_trueFocusWidgets");
 }
 
 LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const

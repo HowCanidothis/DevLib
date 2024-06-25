@@ -58,7 +58,6 @@
 //! [0]
 ElidedLabel::ElidedLabel(QWidget *parent)
     : Super(parent)
-    , elided(false)
     , m_alignment(Qt::AlignLeft | Qt::AlignVCenter)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -90,15 +89,17 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QFontMetrics fontMetrics = painter.fontMetrics();
 
-    bool didElide = false;
     int lineSpacing = fontMetrics.lineSpacing();
     int y = 0;
+//    painter.setBrush(Qt::red);
+//    painter.drawRect(rect());
 
     if(m_alignment != (Qt::AlignLeft | Qt::AlignVCenter)) {
         painter.drawText(rect(), content, QTextOption(m_alignment));
     } else {
         QTextLayout textLayout(content, painter.font());
         textLayout.beginLayout();
+        QVector<QTextLine> textLines;
         forever {
             QTextLine line = textLayout.createLine();
 
@@ -106,35 +107,39 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
                 break;
 
             line.setLineWidth(width());
+            textLines.append(line);
+
             int nextLineY = y + lineSpacing;
 
             if (height() >= nextLineY + lineSpacing) {
-                line.draw(&painter, QPoint(0, y));
                 y = nextLineY;
-                //! [2]
-                //! [3]
             } else {
-                QString lastLine = content.mid(line.textStart());
-                QString elidedLastLine = fontMetrics.elidedText(lastLine, Qt::ElideRight, width());
-                painter.drawText(rect(), elidedLastLine, QTextOption(m_alignment));
-                line = textLayout.createLine();
-                didElide = line.isValid();
+                y = nextLineY;
                 break;
             }
         }
         textLayout.endLayout();
-    }
-    //! [3]
-
-    //! [4]
-    if (didElide != elided) {
-        elided = didElide;
-        emit elisionChanged(didElide);
+        auto diff = rect().height() - y;
+        if(diff > 0) {
+            y = diff / 2 - fontMetrics.height() / 4;
+        } else {
+            y = 0;
+        }
+        for(const QTextLine& line : textLines) {
+            int nextLineY = y + lineSpacing;
+            y = nextLineY;
+            QString lastLine = content.mid(line.textStart(), line.textLength());
+            QString elidedLastLine = fontMetrics.elidedText(lastLine, Qt::ElideRight, width());
+            painter.drawText(QPointF(0, y), elidedLastLine);
+        }
     }
 }
 
 QSize ElidedLabel::minimumSizeHint() const
 {
+    if(text().isEmpty()) {
+        return QSize();
+    }
     auto fm = fontMetrics();
     return QSize(fm.width("..."), fm.height());
 }

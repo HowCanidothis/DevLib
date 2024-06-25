@@ -251,6 +251,7 @@ public:
     const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
     DispatcherConnectionsSafe& WidgetConnections() const;
+    QVector<QWidget*>& WidgetTrueFocusWidgets() const;
     LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const;
     LocalPropertyBool& WidgetVisibility() const;
     LocalPropertyBool& WidgetEnablity() const;

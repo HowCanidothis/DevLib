@@ -127,7 +127,9 @@ WidgetsDoubleSpinBoxWithCustomDisplay::WidgetsDoubleSpinBoxWithCustomDisplay(QWi
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
     , m_valueFromTextHandler(GetDefaultValueFromTextHandler())
-{}
+{
+    setButtonSymbols(QAbstractSpinBox::NoButtons);
+}
 
 void WidgetsDoubleSpinBoxWithCustomDisplay::Update()
 {

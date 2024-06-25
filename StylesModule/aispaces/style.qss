@@ -377,6 +377,14 @@ PropertiesToolFolderView QPushButton#BtnAddStab:hover {
     background: @cbg.hover;
 }
 
+PropertiesToolFolderView ElidedLabel[HorizontalLabel="true"] {
+    min-height: 30px;
+}
+
+PropertiesToolFolderView QLabel[MinorTitle="true"] {
+    min-height: 35px;
+}
+
 BHAHeaderView {
     padding-left: 8px;
     padding-right: 8px;

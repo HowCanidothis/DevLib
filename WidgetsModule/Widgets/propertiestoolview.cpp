@@ -215,7 +215,7 @@ void PropertiesToolView::BeginGroup(const FTranslationHandler& header)
     int rowCount = m_layout->rowCount();
     auto* label = new QLabel(header());
     m_layout->addWidget(label, rowCount, 0, 1, 2);
-    label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    label->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
     label->setProperty("MinorTitle", true);
 }
 
@@ -236,7 +236,9 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
 
     switch(orientation){
     case Qt::Horizontal: {
+        header->setProperty("HorizontalLabel", true);
         widget->setFixedWidth(150);
+        header->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_layout->addWidget(header, rowCount, 0);
         m_layout->addWidget(widget, rowCount, 1);
         break;
@@ -252,7 +254,14 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     if(cb != nullptr) {
         fw = cb->view();
     }
-    WidgetWrapper(fw).ConnectFocus(header);
+    auto& widgets = WidgetWrapper(fw).WidgetTrueFocusWidgets();
+    if(widgets.isEmpty()) {
+        WidgetWrapper(fw).ConnectFocus(header);
+    } else {
+        for(auto* w : widgets) {
+            WidgetWrapper(w).ConnectFocus(header);
+        }
+    }
     OnPropertyAdded(result);
     return result;
 }
