@@ -26,7 +26,7 @@ void WidgetsColorPicker::paintEvent(QPaintEvent*)
     painter.setRenderHint(QPainter::Antialiasing);
     QPainterPath path;
     path.addRoundedRect(rect(), m_borderRadius.width(), m_borderRadius.height());
-    painter.setPen(Color);
+    painter.setPen(palette().text().color());
     painter.fillPath(path, Color.Native());
     painter.drawPath(path);
 }

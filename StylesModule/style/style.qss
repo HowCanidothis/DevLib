@@ -1040,6 +1040,8 @@ QScrollArea > QWidget > QWidget{
 
 WidgetsColorPicker {
     min-height: 28px;
+    color: @ctext.label;
+    max-height: 30px;
     qproperty-borderRadius: 4px 4px;
 }
 
