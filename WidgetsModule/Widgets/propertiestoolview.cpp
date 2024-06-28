@@ -238,7 +238,6 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     case Qt::Horizontal: {
         header->setProperty("HorizontalLabel", true);
         widget->setFixedWidth(150);
-        header->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_layout->addWidget(header, rowCount, 0);
         m_layout->addWidget(widget, rowCount, 1);
         break;
