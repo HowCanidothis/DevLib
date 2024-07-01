@@ -12,6 +12,7 @@ namespace TemperatureUnits
 
 namespace TemperaturePerDistanceUnits
 {
+    IMPLEMENT_MEASUREMENT_UNIT(KelvinPerMeter,          TR(MeasurementTr::tr("Kelvin Per Meter")),        TR(MeasurementTr::tr("K/m")),     1.0)
     IMPLEMENT_MEASUREMENT_UNIT(CelsiusPerMeter,         TR(MeasurementTr::tr("Celsius Per Meter")),       TR(MeasurementTr::tr("C°/m")),    1.0)
     IMPLEMENT_MEASUREMENT_UNIT(CelsiusPerFeet,          TR(MeasurementTr::tr("Celsius Per Feet")),        TR(MeasurementTr::tr("C°/ft")),   METERS_TO_FEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(CelsiusPer100Feet,       TR(MeasurementTr::tr("Celsius Per 100 Feet")),    TR(MeasurementTr::tr("C°/100ft")),METERS_TO_FEETS_MULTIPLIER / 100.0)
