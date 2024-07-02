@@ -11,6 +11,7 @@ Thread::Thread(ThreadPool* pool)
     , m_aboutToBeDestroyed(false)
 {
     Q_ASSERT(m_pool != nullptr);
+    OnFinished.SetAutoThreadSafe();
     start();
 }
 
