@@ -144,7 +144,7 @@ QWidget#ThemesSpacer {
 }
 
 TopNotifierFrame {
-    background: @cbg.selected;
+    background: @cbg.error;
 }
 
 TopNotifierFrame QLabel{
