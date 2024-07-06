@@ -38,7 +38,6 @@ class DispatcherConnection
 
     friend class DispatcherConnectionSafe;
     template<typename ... Args> friend class CommonDispatcher;
-    template<typename... Args> friend class LocalDispatcher; // TODO. Must be removed
     FAction m_disconnector;
     DispatcherGuardPtr m_guard;
 
