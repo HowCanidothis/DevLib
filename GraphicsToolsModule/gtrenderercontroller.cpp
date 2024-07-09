@@ -248,6 +248,15 @@ void GtRendererController::MouseReleaseEvent(QMouseEvent* event)
     });
 }
 
+void GtRendererController::MouseDoubleClickEvent(QMouseEvent *event)
+{
+    auto cevent = new QMouseEvent(*event);
+    m_renderer->Asynch([this, cevent]{
+        m_controllers->MouseDoubleClickEvent(cevent);
+        delete cevent;
+    });
+}
+
 void GtRendererController::WheelEvent(QWheelEvent* event)
 {
     auto cevent = new QWheelEvent(*event);
