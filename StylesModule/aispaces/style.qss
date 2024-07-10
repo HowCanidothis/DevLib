@@ -444,7 +444,7 @@ QWidget#widgetheader {
 }
 
 NotifierErrorsFrame {
-    background: @cbg.selected;
+    background: @cbg.error;
 }
 
 NotifierErrorsFrame QLabel{
