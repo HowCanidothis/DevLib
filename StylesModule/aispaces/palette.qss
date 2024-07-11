@@ -37,7 +37,7 @@ MainWindow {
     qproperty-visualizationBackgroundColor: @cbg.1;
     qproperty-visualizationBoxColor: @cbg.2;
     qproperty-visualizationAxisColor: @ctext.disabled;
-    qproperty-visualizationFrameColor: @cbg.2;
+    qproperty-visualizationFrameColor: @cbg.1;
     qproperty-visualizationFrameSelectionColor: @cbg.hover;
     qproperty-visualizationAreaAlpha: @c.areaAlpha;
 }
