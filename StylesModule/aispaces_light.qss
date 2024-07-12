@@ -2,6 +2,7 @@
 @cbg.2: #f5f5f7;
 @cbg.3: rgb(230,230,230);
 @cbg.selected: rgba(62, 166, 255, 0.24);
+@cbg.error: rgb(230,230,230);
 @cbg.widget: rgba(0, 0, 0, 0.03);
 @cbg.hover1: rgba(62, 166, 255, 0.08);
 @cbg.hover: rgb(238,238,238);
