@@ -34,6 +34,7 @@
 #include "MeasurementTypes/concentrationdeclaration.h"
 #include "MeasurementTypes/voltagedeclarations.h"
 #include "MeasurementTypes/momentofinertia.h"
+#include "MeasurementTypes/frictionfactordeclaration.h"
 
 #include "measurementunitmanager.h"
 
