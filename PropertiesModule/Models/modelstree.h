@@ -37,6 +37,7 @@ public:
     void SetCheckedRecursive(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked, const ModelsTreeItemBase::FilterFunc& filter);
     void SetChecked(qint64 key, ModelsTreeItemBase* item, Qt::CheckState checked);
     qint32 GetSize() const { return m_root->GetChilds().size(); }
+    bool IsEmpty() const { return GetSize() == 0; }
 
     bool HasIndex(qint32 index) const { return index >= 0 && index < m_root->GetChilds().size(); }
 
