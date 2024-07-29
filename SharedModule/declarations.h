@@ -422,11 +422,6 @@ inline T make_copy_if_not_detached(const T& container)
 template<typename Enum>
 struct EnumHelper
 {
-    static void ForEach(const std::function<void(const Enum&)>& handler){
-        for(qint64 i(static_cast<qint64>(Enum::First)), end(static_cast<qint64>(Enum::Last)); i<=end; ++i){
-            handler(static_cast<Enum>(i));
-        }
-    }
     template<typename T> static T Validate(qint64 value);
     static QStringList GetNames();
 };
