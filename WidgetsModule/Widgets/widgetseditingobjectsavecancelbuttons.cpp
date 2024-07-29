@@ -8,7 +8,6 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
     , ui(new Ui::WidgetsEditingObjectSaveCancelButtons)
 {
     ui->setupUi(this);
-    setProperty(WidgetProperties::Footer, true);
     setFocusPolicy(Qt::NoFocus);
 
     WidgetAbstractButtonWrapper(ui->BtnSave).SetControl(ButtonRole::IconWithText);
