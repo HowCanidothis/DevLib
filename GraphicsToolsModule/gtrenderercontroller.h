@@ -201,6 +201,7 @@ public:
     void MouseMoveEvent(class QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
     void MouseReleaseEvent(QMouseEvent* event);
+    void MouseDoubleClickEvent(QMouseEvent* event);
     void WheelEvent(class QWheelEvent* event);
     void KeyPressEvent(class QKeyEvent* event);
     void KeyReleaseEvent(QKeyEvent* event);

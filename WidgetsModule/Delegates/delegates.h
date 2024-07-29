@@ -95,6 +95,22 @@ protected:
 };
 
 //TODO ADD FORMAT
+class DelegatesDate : public QStyledItemDelegate
+{
+    using Super = QStyledItemDelegate;
+public:
+    using Super::Super;
+
+    QString displayText(const QVariant& value, const QLocale& locale) const override;
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+    CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
+    CommonDispatcher<QDate, const QModelIndex&> OnEditorValueChanged;
+};
+
 class DelegatesDateTime : public QStyledItemDelegate
 {
     Q_OBJECT
