@@ -6,7 +6,10 @@
 #include <QLineEdit>
 #include <QCheckBox>
 
+#ifdef UNITS_MODULE_LIB
 #include <UnitsModule/internal.hpp>
+#endif
+
 #include <WidgetsModule/internal.hpp>
 
 struct LineData;
@@ -171,6 +174,7 @@ public:
     template<class Property>
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& label, const std::function<Property* ()>& propertyGetter);
 
+#ifdef UNITS_MODULE_LIB
     template<class Property>
     LineData AddProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<Property* ()>& propertyGetter)
     {
@@ -187,8 +191,9 @@ public:
             m_connectors.AddConnector(measurement, property, spinBox, FindRow(propertyName).Label, title, {});
         });
     }
-    LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter);
+#endif
+    LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
 
     const LineData& FindRow(const Name& propertyName) const;
 
@@ -217,7 +222,11 @@ private:
 
     class QGridLayout* m_layout;
     QHash<Name, Binding> m_bindings;
+#ifdef UNITS_MODULE_LIB
     MeasurementWidgetConnectors m_connectors;
+#else
+    LocalPropertiesWidgetConnectorsContainer m_connectors;
+#endif
     DispatcherConnectionsSafe m_connections;
 };
 
@@ -390,6 +399,7 @@ struct TPropertiesToolWrapper {
     LineData AddDoubleProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyDouble&(T*)>& propertyGetter){
         return AddProperty<LocalPropertyDouble>(propertyName, title, propertyGetter);
     }
+#ifdef UNITS_MODULE_LIB
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional&(T*)>& propertyGetter){
         auto property = &propertyGetter(m_object);
         FTranslationHandler titleUnit;
@@ -413,7 +423,7 @@ struct TPropertiesToolWrapper {
 //    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<StateParameterProperty<LocalPropertyDoubleOptional>&(T*)>& propertyGetter){
 //        return AddDoubleProperty(propertyName, title, measurement, [propertyGetter](T* o) -> LocalPropertyDoubleOptional& { return propertyGetter(o).InputValue; });
 //    }
-
+#endif
     TPropertiesToolWrapper<T>& WrapVisible(const char* locationInfo, DispatcherConnectionsSafe& connections){
         return WrapVisible(locationInfo, &m_object->IsActive, connections);
     }
