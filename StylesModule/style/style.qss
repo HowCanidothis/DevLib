@@ -112,6 +112,31 @@ WidgetsDatetimePopupPicker WidgetsDateTimeEdit {
     border: none;
 }
 
+WidgetsSwitchLayout {
+    background: @cbg.1;
+    padding: 2px;
+    border-radius: 8px;
+}
+
+WidgetsSwitchLayout QPushButton {
+    padding: 2px 16px 2px 16px;
+    height: 24px;
+}
+
+WidgetsSwitchLayout QPushButton:checked {
+    color: @ctext.active;
+    background: @cbg.3;
+}
+
+WidgetsSwitchLayout QPushButton:!checked {
+    color: @ctext.label;
+    background: @cbg.1;
+}
+
+WidgetsSwitchLayout QPushButton:hover {
+    background: @cbg.hover;
+}
+
 QDoubleSpinBox {
     border: 1px solid @cbr.normal; 
     min-height: 28px;
@@ -687,7 +712,7 @@ QCheckBox {
 }
 
 QCheckBox:indicator {
-    background: @cbg.1;
+    background: transparent;
     image: url(@cPath/checkbox-blank-outline.svg);
 }
 

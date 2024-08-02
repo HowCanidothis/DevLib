@@ -158,6 +158,14 @@ public:
 
     int columnCount(const QModelIndex& index = QModelIndex()) const override;
 
+    static ViewModelsStandardListModel* CreateViewModel(const std::function<void (ModelsStandardListModelContainer& c)>& modelCreator, QObject* parent) {
+        auto model = ::make_shared<ModelsStandardListModel>();
+        modelCreator(model->EditSilent());
+        auto* viewModel = new ViewModelsStandardListModel(parent);
+        viewModel->SetData(model);
+        return viewModel;
+    };
+
     template<class Enum, typename ... Dispatchers>
     static ViewModelsStandardListModel* CreateEnumViewModel(QObject* parent, const std::function<void (ModelsStandardListModelContainer&)>& extraFieldsHandler = [](ModelsStandardListModelContainer&){}, Dispatchers&... dispatchers)
     {
