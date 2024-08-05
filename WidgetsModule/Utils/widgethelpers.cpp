@@ -1026,14 +1026,19 @@ void WidgetWrapper::Lowlight() const
     StyleUtils::ApplyStyleProperty("w_highlighted", GetWidget(), false);
 }
 
-const WidgetWrapper& WidgetWrapper::AddModalProgressBar(const Name& processId) const
+MainProgressBar* WidgetWrapper::AddModalProgressBar(const Name& processId) const
 {
-    new MainProgressBar(processId, GetWidget());
+    return AddModalProgressBar(QSet<Name>({processId}));
+}
+
+MainProgressBar* WidgetWrapper::AddModalProgressBar(const QSet<Name>& processIds) const
+{
+    auto* progressBar = new MainProgressBar(processIds, GetWidget());
 #ifdef QT_DEBUG
     Q_ASSERT(!GetWidget()->property("a_progressBar").toBool());
     GetWidget()->setProperty("a_progressBar", true);
 #endif
-    return *this;
+    return progressBar;
 }
 
 const WidgetWrapper& WidgetWrapper::FixUp() const

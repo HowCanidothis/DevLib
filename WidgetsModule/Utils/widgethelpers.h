@@ -151,6 +151,7 @@ protected:
     QObject* m_object;
 };
 
+class MainProgressBar;
 class WidgetWrapper : public ObjectWrapper
 {
     using Super = ObjectWrapper;
@@ -240,7 +241,9 @@ public:
     class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
     WidgetsLocationAttachment* Location() const;
 
-    const WidgetWrapper& AddModalProgressBar(const Name& processId = Name()) const;
+    MainProgressBar* AddModalProgressBar(const Name& processId = Name()) const;
+    MainProgressBar* AddModalProgressBar(const QSet<Name>& processIds) const;
+
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
     const WidgetWrapper& AddTestHandler(const FAction& testHandler) const;
