@@ -12,5 +12,5 @@ namespace ConcentrationUnits {
 }
 
 IMPLEMENT_MEASUREMENT(Concentration, TR(MeasurementTr::tr("Concentration")))
-IMPLEMENT_MEASUREMENT(ConcentrationMud, TR(MeasurementTr::tr("ConcentrationMud")))
+IMPLEMENT_MEASUREMENT(ConcentrationMud, TR(MeasurementTr::tr("Concentration Mud")))
 IMPLEMENT_MEASUREMENT(ConcentrationAlkalinity, TR(MeasurementTr::tr("Concentration Alkalinity")))
