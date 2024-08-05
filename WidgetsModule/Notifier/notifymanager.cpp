@@ -45,12 +45,13 @@ NotifyManager::~NotifyManager()
 
 void NotifyManager::Notify(NotifyManager::MessageType messageType, const QString& body)
 {
-    if(!IsNotifactionsEnabled) {
-        return;
-    }
     auto formatedBody = body;
     formatedBody.replace("\\n", "<br/>");
     auto data = ::make_shared<NotifyData>(messageType, formatedBody);
+    if(!IsNotifactionsEnabled) {
+        OnDataRecieved(data);
+        return;
+    }
 
     if(m_dataQueue.size() < 10) {
         m_exceedCounter = 0;

@@ -460,3 +460,33 @@ WallPlotRulerView {
     font-size: 12px;
     font-weight: bold;
 }
+
+QFrame#WellplanDrawer{
+    background: @cbg.1;
+}
+
+WPSProjectionSelector,
+WPSBackToPlanSelector,
+WPSHoldSelector,
+WPSSWellSelector,
+WPSJWellSelector,
+WPSDLSToTargetSelector,
+WPSWellplanTargetView {
+    background: @cbg.2;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+WPSWellplanView QPushButton#BtnNext {
+    qproperty-text: "";
+    border-image: url("@cPath/chevron-right.svg");
+    max-width: 6px;
+    max-height: 10px;
+}
+
+WPSWellplanView QPushButton#BtnPrevious {
+    qproperty-text: "";
+    border-image: url("@cPath/chevron-left.svg");
+    max-width: 6px;
+    max-height: 10px;
+}

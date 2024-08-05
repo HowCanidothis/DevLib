@@ -10,5 +10,6 @@
 #include "widgetsdatetimelayout.h"
 #include "widgetstexteditlayout.h"
 #include "widgetsheaderlayout.h"
+#include "widgetsswitchlayout.h"
 
 #endif

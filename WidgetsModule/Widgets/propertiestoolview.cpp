@@ -197,11 +197,12 @@ LineData PropertiesToolView::AddTextProperty(const Name& propertyName, const FTr
     m_bindings.insert(propertyName, { lineData, binding });
     return lineData;
 }
-
+#ifdef UNITS_MODULE_LIB
 LineData PropertiesToolView::AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter)
 {
     return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter);
 }
+#endif
 
 const LineData& PropertiesToolView::FindRow(const Name& propertyName) const
 {

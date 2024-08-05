@@ -79,6 +79,24 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
     }).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class WidgetsSwitchLayout* l)
+    : Super([l, property]{
+                l->IsOn = property->Native();
+            },
+            [property, l]{
+                *property = l->IsOn;
+            }
+    )
+{
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    l->IsOn.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_propertySetter();
+    }).MakeSafe(m_dispatcherConnections);
+}
+
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox)
     : Super([checkBox, property]{
                 WidgetCheckBoxWrapper(checkBox).WidgetText()->SetTranslationHandler(TR(property->Native(), property));
