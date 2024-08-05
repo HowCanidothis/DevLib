@@ -7,17 +7,18 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-MainProgressBar::MainProgressBar(const Name& processId, QWidget* parent, Qt::WindowFlags windowFlags)
+MainProgressBar::MainProgressBar(const QSet<Name>& processIds, QWidget* parent, Qt::WindowFlags windowFlags)
     : Super(parent, windowFlags)
     , ui(new Ui::MainProgressBar)
     , m_counter(0)
+    , m_processIds(processIds)
 {
     ui->setupUi(this);
 
     hide();
 
-    ProcessFactory::Instance().OnDeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this, processId](size_t, const DescProcessDeterminateValueState& value){
-        if(!processId.IsNull() && value.Id != processId) {
+    ProcessFactory::Instance().OnDeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this](size_t, const DescProcessDeterminateValueState& value){
+        if(!m_processIds.contains(value.Id)) {
             return;
         }
         setVisible(value.IsShouldStayVisible());
@@ -26,8 +27,8 @@ MainProgressBar::MainProgressBar(const Name& processId, QWidget* parent, Qt::Win
         ui->ProgressBar->Text = value.Title;
     }).MakeSafe(m_connections);
 
-    ProcessFactory::Instance().OnIndeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this, processId](size_t, const DescProcessValueState& value){
-        if(!processId.IsNull() && value.Id != processId) {
+    ProcessFactory::Instance().OnIndeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this](size_t, const DescProcessValueState& value){
+        if(!m_processIds.contains(value.Id)) {
             return;
         }
         bool visible = value.IsShouldStayVisible();
@@ -61,4 +62,9 @@ MainProgressBar::MainProgressBar(const Name& processId, QWidget* parent, Qt::Win
 MainProgressBar::~MainProgressBar()
 {
     delete ui;
+}
+
+void MainProgressBar::SetProcessIds(const QSet<Name>& processIds)
+{
+    m_processIds = processIds;
 }

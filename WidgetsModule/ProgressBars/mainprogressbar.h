@@ -4,6 +4,7 @@
 #include <QFrame>
 
 #include <SharedModule/internal.hpp>
+#include <PropertiesModule/internal.hpp>
 
 namespace Ui {
 class MainProgressBar;
@@ -15,13 +16,15 @@ class MainProgressBar : public QFrame
     using Super = QFrame;
 
 public:
-    explicit MainProgressBar(const Name& processId, QWidget* parent = 0, Qt::WindowFlags windowFlags = 0);
+    explicit MainProgressBar(const QSet<Name>& processIds = QSet<Name>(), QWidget* parent = 0, Qt::WindowFlags windowFlags = 0);
     ~MainProgressBar();
 
+    void SetProcessIds(const QSet<Name>& processIds);
 private:
     Ui::MainProgressBar *ui;
     DispatcherConnectionsSafe m_connections;
     qint32 m_counter;
+    QSet<Name> m_processIds;
 };
 
 #endif // MAINPROGRESSBAR_H
