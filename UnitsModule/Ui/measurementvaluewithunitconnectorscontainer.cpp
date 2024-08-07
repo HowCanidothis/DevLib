@@ -111,6 +111,11 @@ void MeasurementWidgetConnectors::AddConnector(const Measurement* measurement, L
         spinBox->setValue(measurementProperty->Value);
     };
 
+    data->Property.Step.ConnectAndCall(CDL, [spinBox](double step){
+        QSignalBlocker blocker(spinBox.SpinBox);
+        spinBox->setSingleStep(step);
+    }).MakeSafe(m_connections);
+
     data->Property.Precision.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, updatePrecision).MakeSafe(m_connections);
     AddConnector<LocalPropertiesDoubleSpinBoxConnector>(&data->Property.Value, spinBox, nullptr);
 }
