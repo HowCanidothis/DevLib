@@ -102,7 +102,7 @@ void WidgetsDoubleSpinBoxLayout::ensureHasBox()
 void WidgetsDoubleSpinBoxLayout::ensureRadioButton()
 {
     if(m_radiobutton == nullptr) {
-        m_radiobutton = new WidgetsLayoutComponent<QRadioButton>("radiobutton");
+        m_radiobutton = new WidgetsLayoutComponent<QRadioButton>("checkbox");
         ui->horizontalLayout_2->insertWidget(0, m_radiobutton->Widget);
     }
 }
