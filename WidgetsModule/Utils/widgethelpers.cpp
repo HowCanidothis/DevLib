@@ -2132,7 +2132,16 @@ void WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size) const
     auto index = GetWidget()->indexOf(widget);
     if(index != -1) {
         auto sizes = GetWidget()->sizes();
-        sizes[index] = size;
+        auto reduceCount = sizes.size() - 1;
+        auto delta = size - sizes[index];
+        delta /= reduceCount;
+        for(qint32 i(0); i < sizes.size(); ++i) {
+            if(index == i) {
+                sizes[i] = size;
+            } else {
+                sizes[i] -= delta;
+            }
+        }
         GetWidget()->setSizes(sizes);
     }
 }

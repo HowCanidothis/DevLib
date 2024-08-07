@@ -65,6 +65,9 @@ public:
     }
     bool TestFlagsAll(ValueType flags) const
     {
+        if(_value == 0) {
+            return _value == flags;
+        }
         return (_value & flags) == flags;
     }
     bool TestFlagsAtLeastOne(ValueType flags) const

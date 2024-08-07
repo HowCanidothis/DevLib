@@ -4,6 +4,8 @@
 #include "localproperty.h"
 #include "localpropertydeclarations.h"
 
+#define TM_TS(enumToString) \
+    TranslatorManager::ToString(enumToString)
 class TranslatorManager
 {
     TranslatorManager();

@@ -24,6 +24,16 @@ WidgetsSwitchLayout::WidgetsSwitchLayout(QWidget *parent) :
     WidgetAbstractButtonWrapper(ui->pushButton_2).WidgetText()->ConnectFrom(CDL, OnText);
 }
 
+QAbstractButton* WidgetsSwitchLayout::offButton() const
+{
+    return ui->pushButton;
+}
+
+QAbstractButton* WidgetsSwitchLayout::onButton() const
+{
+    return ui->pushButton_2;
+}
+
 WidgetsSwitchLayout::~WidgetsSwitchLayout()
 {
 }

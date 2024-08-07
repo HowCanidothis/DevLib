@@ -278,9 +278,12 @@ public:
         return Append(data, lq::DefaultAdapter::For<typename Super::value_type, typename Helper::Type>());
     }
 
-    ContainerBuilder& Append(const value_type& value)
+    template<class ... Args>
+    ContainerBuilder& Append(const value_type& value, const Args&... args)
     {
-        Super::operator+=(value);
+        adapters::Combine([&](const auto& v) {
+            Super::operator+=(v);
+        }, value, args...);
         return *this;
     }
 };

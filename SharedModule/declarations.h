@@ -267,6 +267,12 @@ void Combine(const FHandler& handler, T& first, Args&... rest) {
     }
 }
 
+template <typename FHandler>
+void Combine(const FHandler& handler)
+{
+
+}
+
 template<class T>
 T& ToReference(T& t)
 {

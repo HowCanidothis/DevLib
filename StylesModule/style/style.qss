@@ -120,7 +120,7 @@ WidgetsSwitchLayout {
 
 WidgetsSwitchLayout QPushButton {
     padding: 2px 16px 2px 16px;
-    height: 24px;
+    min-height: 18px;
 }
 
 WidgetsSwitchLayout QPushButton:checked {

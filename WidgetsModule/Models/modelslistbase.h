@@ -158,12 +158,19 @@ public:
 
     int columnCount(const QModelIndex& index = QModelIndex()) const override;
 
-    static ViewModelsStandardListModel* CreateViewModel(const std::function<void (ModelsStandardListModelContainer& c)>& modelCreator, QObject* parent) {
+    template<typename ... Dispatchers>
+    static std::pair<ViewModelsStandardListModel*, DispatcherConnections> CreateViewModel(const std::function<void (ModelsStandardListModelContainer& c)>& modelCreator, QObject* parent, Dispatchers&... dispatchers) {
+        DispatcherConnections connections;
         auto model = ::make_shared<ModelsStandardListModel>();
+        adapters::Combine([&connections, model, modelCreator](auto& d) {
+            connections += d.ConnectAction(CDL, [model, modelCreator]{
+                model->Change(modelCreator);
+            });
+        }, dispatchers...);
         modelCreator(model->EditSilent());
         auto* viewModel = new ViewModelsStandardListModel(parent);
         viewModel->SetData(model);
-        return viewModel;
+        return std::make_pair(viewModel, connections);
     };
 
     template<class Enum, typename ... Dispatchers>

@@ -30,6 +30,9 @@ public:
     bool readOnly() const;
     void setReadOnly(bool readOnly);
 
+    class QAbstractButton* offButton() const;
+    QAbstractButton* onButton() const;
+
     // QWidget interface
 protected:
     Ui::WidgetsSwitchLayout* ui;

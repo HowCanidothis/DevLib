@@ -2,6 +2,7 @@
 #include "ui_widgetsdoublespinboxlayout.h"
 
 #include <QCheckBox>
+#include <QRadioButton>
 
 #include <PropertiesModule/Ui/internal.hpp>
 
@@ -13,6 +14,8 @@ WidgetsDoubleSpinBoxLayout::WidgetsDoubleSpinBoxLayout(QWidget *parent)
     , Disable(false)
     , ui(new Ui::WidgetsDoubleSpinBoxLayout)
     , m_checkbox(nullptr)
+    , m_lineEdit(nullptr)
+    , m_radiobutton(nullptr)
 {
     ui->setupUi(this);
     WidgetWrapper(ui->spinbox).ConnectFocus(ui->label);
@@ -96,6 +99,14 @@ void WidgetsDoubleSpinBoxLayout::ensureHasBox()
     }
 }
 
+void WidgetsDoubleSpinBoxLayout::ensureRadioButton()
+{
+    if(m_radiobutton == nullptr) {
+        m_radiobutton = new WidgetsLayoutComponent<QRadioButton>("radiobutton");
+        ui->horizontalLayout_2->insertWidget(0, m_radiobutton->Widget);
+    }
+}
+
 void WidgetsDoubleSpinBoxLayout::setReadOnly(bool readOnly)
 {
     ui->spinbox->setReadOnly(readOnly);
@@ -142,6 +153,21 @@ void WidgetsDoubleSpinBoxLayout::setHasBox(bool hasBox)
     } else if(m_lineEdit != nullptr){
         m_lineEdit->Detach();
         m_lineEdit = nullptr;
+    }
+}
+
+bool WidgetsDoubleSpinBoxLayout::hasRadioButton() const
+{
+    return m_radiobutton != nullptr;
+}
+
+void WidgetsDoubleSpinBoxLayout::setHasRadioButton(bool hasRadioButton)
+{
+    if(hasRadioButton) {
+        ensureRadioButton();
+    } else if(m_radiobutton != nullptr) {
+        m_radiobutton->Detach();
+        m_radiobutton = nullptr;
     }
 }
 

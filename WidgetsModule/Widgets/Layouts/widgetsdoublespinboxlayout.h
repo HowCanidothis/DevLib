@@ -24,6 +24,7 @@ class WidgetsDoubleSpinBoxLayout : public QFrame
     Q_PROPERTY(bool checkable READ checkable WRITE setCheckable)
     Q_PROPERTY(bool checked READ checked WRITE setChecked)
     Q_PROPERTY(bool hasBox READ hasBox WRITE setHasBox)
+    Q_PROPERTY(bool hasRadioButton READ hasRadioButton WRITE setHasRadioButton)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     using Super = QFrame;
 
@@ -37,6 +38,7 @@ public:
     QHBoxLayout* layout() const;
     QHBoxLayout* headerLayout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;
+    class QRadioButton* radioButton() const { return m_radiobutton == nullptr ? nullptr : m_radiobutton->Widget; }
 
     Qt::Orientation orientation() const;
     void setOrientation(Qt::Orientation orientation);
@@ -50,6 +52,8 @@ public:
     void setCheckable(bool checkable);
     bool hasBox() const;
     void setHasBox(bool hasBox);
+    bool hasRadioButton() const;
+    void setHasRadioButton(bool hasRadioButton);
 
     QString title() const;
     void setTitle(const QString& title);
@@ -61,11 +65,13 @@ public:
 private:
     void ensureCheckable();
     void ensureHasBox();
+    void ensureRadioButton();
 
 private:
     Ui::WidgetsDoubleSpinBoxLayout *ui;
     ScopedPointer<WidgetsLayoutComponent<QCheckBox>> m_checkbox;
     ScopedPointer<WidgetsLayoutComponent<QLineEdit>> m_lineEdit;
+    ScopedPointer<WidgetsLayoutComponent<QRadioButton>> m_radiobutton;
 };
 
 #endif // WIDGETSDOUBLESPINBOXLAYOUT_H
