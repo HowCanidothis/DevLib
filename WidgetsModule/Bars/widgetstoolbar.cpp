@@ -40,7 +40,7 @@ QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSi
     });
     collapsed->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [collapsed, result]{
         result->setProperty("isOpen", collapsed->Native());
-        StyleUtils::UpdateStyle(result);
+        WidgetWrapper(result).UpdateStyle();
     });
     return result;
 }

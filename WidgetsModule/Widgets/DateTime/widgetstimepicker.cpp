@@ -3,7 +3,7 @@
 
 #include <QLabel>
 #include <QMouseEvent>
-#include "WidgetsModule/Utils/widgetstyleutils.h"
+#include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
     : Super(parent)
@@ -21,13 +21,13 @@ WidgetsTimePicker::WidgetsTimePicker(QWidget* parent)
     m_angle.OnChanged.ConnectAndCallCombined(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_activeLabel) {
             m_activeLabel->setProperty("active", false);
-            StyleUtils::UpdateStyle(m_activeLabel);
+            WidgetWrapper(m_activeLabel).UpdateStyle();
         }
         auto iter = m_labels.find(m_angle);
         if(iter != m_labels.end()){
             m_activeLabel = m_isOut ? iter.value().Out : iter.value().In;
             m_activeLabel->setProperty("active", true);
-            StyleUtils::UpdateStyle(m_activeLabel);
+            WidgetWrapper(m_activeLabel).UpdateStyle();
         } else {
             m_activeLabel = nullptr;
         }

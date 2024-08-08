@@ -54,7 +54,7 @@ void WidgetsGroupBoxLayout::setCollapsable(bool collapsable)
             m_icon->setObjectName("groupIcon");
             m_icon->setAttribute(Qt::WA_TransparentForMouseEvents);
             Opened.ConnectAndCall(CDL, [this](bool opened) {
-                StyleUtils::ApplyStyleProperty("a_opened", m_icon, opened);
+                WidgetWrapper(m_icon).ApplyStyleProperty("a_opened", opened);
             });
             WidgetWrapper(m_icon).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleRight));
             WidgetGroupboxLayoutWrapper(this).AddCollapsing();

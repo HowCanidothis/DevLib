@@ -878,7 +878,12 @@ QFrame[Footer="true"] QSpinBox
     font-size: 12px;
 }
 
-WidgetsDoubleSpinBoxLayout  QCheckBox{
+WidgetsDoubleSpinBoxLayout QCheckBox{
+    margin: 0px;
+    padding: 0px;
+}
+
+WidgetsDoubleSpinBoxLayout QRadioButton{
     margin: 0px;
     padding: 0px;
 }

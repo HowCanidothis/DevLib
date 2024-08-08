@@ -182,7 +182,7 @@ LocalPropertyBool& WidgetLineEditWrapper::WidgetReadOnly() const
     return *GetOrCreateProperty<LocalPropertyBool>("a_readonly", [](QObject* object, const LocalPropertyBool& readOnly){
         auto* line = reinterpret_cast<QLineEdit*>(object);
         line->setReadOnly(readOnly);
-        StyleUtils::UpdateStyle(line);
+        WidgetWrapper(line).UpdateStyle();
     }, GetWidget()->isReadOnly());
 }
 
@@ -464,7 +464,7 @@ const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetIcon(const Na
 const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetControl(ButtonRole i, bool update) const
 {
     if(update) {
-        StyleUtils::ApplyStyleProperty("a_control", GetWidget(), (qint32)i);
+        ApplyStyleProperty("a_control", (qint32)i);
     } else {
         GetWidget()->setProperty("a_control", (qint32)i);
     }
@@ -944,7 +944,7 @@ CommonDispatcher<qint32>& WidgetComboboxWrapper::OnActivated() const
 
 void WidgetWrapper::Highlight(qint32 unhightlightIn) const
 {
-    StyleUtils::ApplyStyleProperty("w_highlighted", GetWidget(), true);
+    ApplyStyleProperty("w_highlighted", true);
 
     if(unhightlightIn > 0) {
         auto wrapper = *this;
@@ -975,6 +975,32 @@ class WidgetsLocationAttachment* WidgetWrapper::LocateToParent(const DescWidgets
 WidgetsLocationAttachment* WidgetWrapper::Location() const
 {
     return InjectedWidget<WidgetsLocationAttachment>("a_location", [](QWidget*){ return nullptr; });
+}
+
+void WidgetWrapper::UpdateStyle(bool recursive) const
+{
+    auto* target = GetWidget();
+    auto updateStyle = [](QWidget* target) {
+        auto* style = target->style();
+        style->unpolish(target);
+        style->polish(target);
+        QEvent event(QEvent::StyleChange);
+        QApplication::sendEvent(target, &event);
+    };
+    updateStyle(target);
+
+    if(recursive) {
+        auto childWidgets = target->findChildren<QWidget*>();
+        for(auto* widget : childWidgets) {
+            updateStyle(widget);
+        }
+    }
+}
+
+void WidgetWrapper::ApplyStyleProperty(const char* propertyName, const QVariant& value, bool recursive) const
+{
+    GetWidget()->setProperty(propertyName, value);
+    UpdateStyle(recursive);
 }
 
 LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
@@ -1023,7 +1049,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 
 void WidgetWrapper::Lowlight() const
 {
-    StyleUtils::ApplyStyleProperty("w_highlighted", GetWidget(), false);
+    ApplyStyleProperty("w_highlighted", false);
 }
 
 MainProgressBar* WidgetWrapper::AddModalProgressBar(const Name& processId) const
@@ -1414,7 +1440,7 @@ DispatcherConnections WidgetWrapper::CreateEnablityRule(const char* debugLocatio
 
 void WidgetWrapper::ActivateWindow(int mode, qint32 delay) const
 {
-    StyleUtils::ApplyStyleProperty("w_showfocus", GetWidget(), mode);
+    ApplyStyleProperty("w_showfocus", mode);
     Q_ASSERT(delay > 0);
     auto wrapper = *this;
     auto valid = Injected<bool>("a_valid", [this]{
@@ -1426,7 +1452,7 @@ void WidgetWrapper::ActivateWindow(int mode, qint32 delay) const
         if(!*valid) {
             return;
         }
-        StyleUtils::ApplyStyleProperty("w_showfocus", wrapper.GetWidget(), 0);
+        wrapper.ApplyStyleProperty("w_showfocus", 0);
     });
 }
 
@@ -1657,7 +1683,7 @@ QVector<QWidget*>& WidgetWrapper::WidgetTrueFocusWidgets() const
 LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const
 {
     return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [](QObject* object, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
-        StyleUtils::ApplyStyleProperty("w_highlighted", reinterpret_cast<QWidget*>(object), highlighted.Value());
+        WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty("w_highlighted", highlighted.Value());
     }, HighLightEnum::None);
 }
 
@@ -2083,7 +2109,7 @@ LocalPropertyBool& WidgetSpinBoxWrapper::WidgetReadOnly() const {
         property->EditSilent() = widget->isReadOnly();
         property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
             widget->setReadOnly(*property);
-            StyleUtils::UpdateStyle(widget);
+            WidgetWrapper(widget).UpdateStyle();
         });
         property->SetSetterHandler(ThreadHandlerMain);
         return property;
@@ -2121,7 +2147,7 @@ LocalPropertyBool& WidgetDoubleSpinBoxWrapper::WidgetReadOnly() const
         property->EditSilent() = widget->isReadOnly();
         property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
             widget->setReadOnly(*property);
-            StyleUtils::UpdateStyle(widget);
+            WidgetWrapper(widget).UpdateStyle();
         });
         property->SetSetterHandler(ThreadHandlerMain);
         return property;
@@ -2279,7 +2305,7 @@ LocalPropertyBool& WidgetTextEditWrapper::WidgetReadOnly() const
         property->EditSilent() = widget->isReadOnly();
         property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [widget, property]{
             widget->setReadOnly(*property);
-            StyleUtils::UpdateStyle(widget);
+            WidgetWrapper(widget).UpdateStyle();
         });
         property->SetSetterHandler(ThreadHandlerMain);
         return property;

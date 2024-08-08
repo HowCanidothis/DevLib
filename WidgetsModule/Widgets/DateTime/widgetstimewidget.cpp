@@ -109,8 +109,8 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     Type.SetAndSubscribe([this]{
         ui->btnAM->setProperty("highlighted", Type == DayType::AM);
         ui->btnPM->setProperty("highlighted", Type == DayType::PM);
-        StyleUtils::UpdateStyle(ui->btnAM);
-        StyleUtils::UpdateStyle(ui->btnPM);
+        WidgetWrapper(ui->btnAM).UpdateStyle();
+        WidgetWrapper(ui->btnPM).UpdateStyle();
     });
 
     ui->timePicker->OnMouseReleased.Connect(CONNECTION_DEBUG_LOCATION, [this]{

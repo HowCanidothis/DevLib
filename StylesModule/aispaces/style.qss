@@ -477,6 +477,14 @@ WPSWellplanTargetView {
     border-radius: 8px;
 }
 
+QLabel[align_layout_label="true"] {
+    padding-left: 28px;
+}
+
+QLabel[align_layout_label="false"] {
+    padding-left: 0px;
+}
+
 WPSWellplanView QPushButton#BtnNext {
     qproperty-text: "";
     border-image: url("@cPath/chevron-right.svg");

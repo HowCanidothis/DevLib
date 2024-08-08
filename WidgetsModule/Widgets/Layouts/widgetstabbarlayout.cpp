@@ -51,7 +51,7 @@ void WidgetsTabBarLayout::setCollapsable(bool collapsable)
             ui->horizontalLayout->addWidget(m_icon);
             m_icon->setObjectName("groupIcon");
             Opened.ConnectAndCall(CDL, [this](bool opened) {
-                StyleUtils::ApplyStyleProperty("a_opened", m_icon, opened);
+                WidgetWrapper(m_icon).ApplyStyleProperty("a_opened", opened);
             });
             WidgetTabBarLayoutWrapper(this).AddCollapsing();
             WidgetTabBarLayoutWrapper(this).AddCollapsingDispatcher(m_currentIndex.OnChanged);

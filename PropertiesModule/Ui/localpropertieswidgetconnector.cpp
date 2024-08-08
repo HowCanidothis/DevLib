@@ -46,7 +46,7 @@ LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAc
 
     if(w != nullptr) {
         ForceDisabled.Connect(CDL, [w](bool forceDisabled) {
-            StyleUtils::ApplyStyleProperty(WidgetProperties::ForceDisabled, w, forceDisabled);
+            WidgetWrapper(w).ApplyStyleProperty(WidgetProperties::ForceDisabled, forceDisabled);
         }).MakeSafe(m_dispatcherConnections);
     }
 }
@@ -332,7 +332,7 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
 
     ForceDisabled.Connect(CDL, [buttons](bool forceDisabled) {
         for(auto* w : buttons) {
-            StyleUtils::ApplyStyleProperty(WidgetProperties::ForceDisabled, w, forceDisabled);
+            WidgetWrapper(w).ApplyStyleProperty(WidgetProperties::ForceDisabled, forceDisabled);
         }
     }).MakeSafe(m_dispatcherConnections);
 }

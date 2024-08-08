@@ -51,10 +51,10 @@ bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
     case QEvent::WindowStateChange: {
         auto* widget = window();
         if(widget->isMaximized()) {
-            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, true);
+            WidgetWrapper(ui->BtnMaximize).ApplyStyleProperty("windowMaximized", true);
         } else {
             m_windowGeometry = window()->saveGeometry();
-            StyleUtils::ApplyStyleProperty("windowMaximized", ui->BtnMaximize, false);
+            WidgetWrapper(ui->BtnMaximize).ApplyStyleProperty("windowMaximized", false);
         }
     } break;
     default: break;

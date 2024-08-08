@@ -185,7 +185,7 @@ public:
                     return false;
                 }
                 adapters::Combine([](auto* w) {
-                    StyleUtils::ApplyStyleProperty("a_focus", w, true);
+                    WidgetWrapper(w).ApplyStyleProperty("a_focus", true);
                 }, other...);
             break;
             case QEvent::FocusOut:
@@ -193,7 +193,7 @@ public:
                     return false;
                 }
                 adapters::Combine([](auto* w) {
-                    StyleUtils::ApplyStyleProperty("a_focus", w, false);
+                    WidgetWrapper(w).ApplyStyleProperty("a_focus", false);
                 }, other...);
             break;
             default: break;
@@ -240,6 +240,9 @@ public:
 
     class WidgetsLocationAttachment* LocateToParent(const DescWidgetsLocationAttachmentParams& params) const;
     WidgetsLocationAttachment* Location() const;
+
+    void UpdateStyle(bool recursive = false) const;
+    void ApplyStyleProperty(const char* propertyName, const QVariant& value, bool recursive = false) const;
 
     MainProgressBar* AddModalProgressBar(const Name& processId = Name()) const;
     MainProgressBar* AddModalProgressBar(const QSet<Name>& processIds) const;
