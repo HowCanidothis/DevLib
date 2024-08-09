@@ -79,7 +79,7 @@ public:
     }
     void DblRealloc()
     {
-        count_t reserv = Reserved();
+        count_t reserv = std::max(2, Reserved());
         if(reserv > 1000000) {
             Realloc(reserv += 5000000, 250000);
         }
