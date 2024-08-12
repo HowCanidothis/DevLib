@@ -845,11 +845,14 @@ const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsing() 
         animation->start();
     };
     widget->Opened.Connect(CDL, update);
-    AddEventFilter([update, widget](QObject*, QEvent* e) {
+    auto delayedUpdateCollapsing = DelayedCallObjectCreate(DelayedCallObjectParams());
+    AddEventFilter([update, widget, delayedUpdateCollapsing](QObject*, QEvent* e) {
         switch(e->type()) {
         case QEvent::ShowToParent:
         case QEvent::StyleChange:
-            update(widget->Opened);
+            delayedUpdateCollapsing->Call(CDL, [update, widget]{
+                update(widget->Opened);
+            });
             break;
         default:
             break;
@@ -2384,11 +2387,14 @@ const WidgetTabBarLayoutWrapper& WidgetTabBarLayoutWrapper::AddCollapsing() cons
         animation->start();
     };
     widget->Opened.Connect(CDL, update);
-    AddEventFilter([update, widget](QObject*, QEvent* e) {
+    auto delayedUpdateCollapsing = DelayedCallObjectCreate(DelayedCallObjectParams());
+    AddEventFilter([update, widget, delayedUpdateCollapsing](QObject*, QEvent* e) {
         switch(e->type()) {
         case QEvent::ShowToParent:
         case QEvent::StyleChange:
-            update(widget->Opened);
+            delayedUpdateCollapsing->Call(CDL, [update, widget]{
+                update(widget->Opened);
+            });
             break;
         default:
             break;
