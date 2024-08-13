@@ -2012,6 +2012,10 @@ public:
     void mouseReleaseEvent(QMouseEvent *e) override
     {
         QAction *action = activeAction();
+        QWidgetAction* wa = qobject_cast<QWidgetAction*>(action);
+        if(wa != nullptr) {
+            return;
+        }
         if (action && action->isEnabled()) {
             action->trigger();
         }
