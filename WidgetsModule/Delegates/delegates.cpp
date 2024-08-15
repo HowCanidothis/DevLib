@@ -10,6 +10,7 @@
 #include <QWidgetAction>
 #include <QTableView>
 #include <QMenu>
+#include <QColorDialog>
 #include <QTextDocument>
 #include <QDesktopWidget>
 #include <QAbstractTextDocumentLayout>
@@ -21,6 +22,7 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimewidget.h"
 #include "WidgetsModule/Widgets/DateTime/widgetstimewidget.h"
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h"
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
@@ -471,7 +473,7 @@ QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionVi
     return menu;
 }
 
-void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
+void adjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& option)
 {
     auto* parentWidget = option.widget;
     QDesktopWidget *desktop = QApplication::desktop();
@@ -482,11 +484,21 @@ void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOpti
     }
     auto screenSize = desktop->screenGeometry(parentWidget);
     auto mappedPos = parentWidget->mapToGlobal(option.rect.bottomLeft());
-    auto editorHeight = editor->sizeHint().height();
-    if((editorHeight + mappedPos.y()) > screenSize.height()) {
+    auto sh = editor->sizeHint();
+    auto editorHeight = sh.height();
+    auto editorWidth = sh.width();
+    if((editorHeight + mappedPos.y() + 100) > screenSize.height()) {
         mappedPos -= QPoint(0, editorHeight + option.rect.height());
     }
+    if((editorWidth + mappedPos.x()) > screenSize.width()) {
+        mappedPos -= QPoint(editorWidth - option.rect.width(), 0);
+    }
     editor->move(mappedPos);
+}
+
+void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
+{
+    adjustDialogEditorToCell(editor, option);
 }
 
 void DelegatesTimePicker::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
@@ -515,4 +527,52 @@ void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QP
         }
         currentDateTime.SetMinMax(*start, *stop);
     });
+}
+
+QString DelegatesColor::displayText(const QVariant&, const QLocale&) const
+{
+    return QString();
+}
+
+QWidget* DelegatesColor::createEditor(QWidget*, const QStyleOptionViewItem&, const QModelIndex& index) const
+{
+    auto dialog = WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow())).SetShowAlpha(true)
+                   .SetDefaultLabels();
+
+    dialog->setWindowFlag(Qt::FramelessWindowHint);
+    m_editor = dialog;
+    OnEditorAboutToBeShown(m_editor, index);
+
+    return m_editor;
+}
+
+void DelegatesColor::setEditorData(QWidget*, const QModelIndex& index) const
+{
+    m_editor->setCurrentColor(index.data(Qt::EditRole).value<QColor>());
+}
+
+void DelegatesColor::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    if(m_editor->result() == QDialog::Accepted) {
+        model->setData(index, m_editor->currentColor());
+    }
+}
+
+void DelegatesColor::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto value = index.data(Qt::EditRole);
+    if(value.isNull()) {
+        Super::paint(painter, option, index);
+        return;
+    }
+
+    Super::paint(painter, option, index);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(value.value<QColor>());
+    painter->drawRect(option.rect.adjusted(1,1,-1,-2));
+}
+
+void DelegatesColor::updateEditorGeometry(QWidget* w, const QStyleOptionViewItem& option, const QModelIndex&) const
+{
+    adjustDialogEditorToCell(w, option);
 }

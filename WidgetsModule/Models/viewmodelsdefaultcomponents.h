@@ -162,6 +162,10 @@ public:
         return AddColumn<QString>(column, header, getter);
     }
 
+    TViewModelsColumnComponentsBuilder& AddColorColumn(qint32 column, const FTranslationHandler& header, const std::function<QColor& (ValueType)>& getter) {
+        return AddColumn<QColor>(column, header, getter);
+    }
+
     template<typename T>
     TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<T& (ValueType)>& getter) {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {

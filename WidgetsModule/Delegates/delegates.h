@@ -111,6 +111,27 @@ public:
     CommonDispatcher<QDate, const QModelIndex&> OnEditorValueChanged;
 };
 
+class DelegatesColor : public QStyledItemDelegate
+{
+    Q_OBJECT
+    using Super = QStyledItemDelegate;
+public:
+    using Super::Super;
+
+    QString displayText(const QVariant& value, const QLocale& locale) const override;
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+    CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
+    CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
+
+private:
+    mutable class QColorDialog* m_editor;
+};
+
 class DelegatesDateTime : public QStyledItemDelegate
 {
     Q_OBJECT
