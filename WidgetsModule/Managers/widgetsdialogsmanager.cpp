@@ -239,7 +239,7 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
 
     return result;
 }
-
+#include <QResizeEvent>
 void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, const QString& movePaneId)
 {
     if(widget->layout() == nullptr) {
@@ -269,7 +269,6 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     layout->invalidate();
     widget->hide();
 
-
     if(!resizeable) {
         newWidget->setMinimumSize(widget->size() + QSize(20,20));
         layout->setSizeConstraint(QLayout::SetNoConstraint);
@@ -282,6 +281,16 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     widget->setLayout(vboxla);
 
     widget->window()->layout()->setMargin(10);
+
+    auto qtBugFixExtended = ::make_shared<bool>(false);
+    WidgetWrapper(widget).AddEventFilter([widget, pane, vboxla, qtBugFixExtended](QObject*, QEvent* e){
+        if(e->type() == QEvent::Show) {
+            QSize adjustment = *qtBugFixExtended ? QSize(-1,0) : QSize(1,0);
+            widget->resize(widget->size() + adjustment); // QtBugFix. Contents are not updated for frameless windows
+            *qtBugFixExtended = !*qtBugFixExtended;
+        }
+        return false;
+    });
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
