@@ -77,7 +77,12 @@ void StateParameters::Unlock()
     if(!IsLocked) {
         m_isValid.SetState(true);
     }
+#ifdef QT_DEBUG
+    if(m_counter < 0) {
+       DEBUG_PRINT_INFO(this);
+    }
     Q_ASSERT(m_counter >= 0);
+#endif
 }
 
 void StateParameters::Reset()

@@ -766,6 +766,9 @@ public:
     {
         THREAD_ASSERT_IS_MAIN();
         ++m_lockCounter;
+        DEBUG_PRINT_INFO_ACTION(this,
+            qDebug() << this << "Locked";
+        );
         Q_ASSERT(m_lockCounter >= 0);
     }
 
@@ -776,6 +779,9 @@ public:
             m_isDirty = false;
             m_calculator.RequestRecalculate();
         }
+        DEBUG_PRINT_INFO_ACTION(this,
+            qDebug() << this << "UnLocked";
+        );
         Q_ASSERT(m_lockCounter >= 0);
     }
 
