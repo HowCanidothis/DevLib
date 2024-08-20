@@ -200,6 +200,9 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImag
                 qCWarning(LC_UI) << "Can't load image " << path;
                 return;
             }
+            if(params.PathHandler != nullptr) {
+                params.PathHandler(path);
+            }
             label->setProperty("a_image", loadedImage);
             m_propertySetter();
         }).MakeSafe(m_dispatcherConnections);

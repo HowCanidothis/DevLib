@@ -16,6 +16,7 @@ public:
     void Initialize(LocalPropertiesWidgetConnectorsContainer& connectors, const FTranslationHandler& t = TR_NONE, const QString& forceDefaultDir = QString());
 
     LocalProperty<QImage> Image;
+    LocalPropertyString ImagePath;
 
     // QWidget interface
 protected:

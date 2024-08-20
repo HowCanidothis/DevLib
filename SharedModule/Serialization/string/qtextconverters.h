@@ -4,6 +4,8 @@
 #include <QUrl>
 #ifdef QT_GUI_LIB
 #include <QColor>
+#include <QBuffer>
+#include <QImage>
 #include <QMatrix4x4>
 #endif
 
@@ -199,6 +201,24 @@ struct TextConverter<qint32>
     static value_type FromText(const QStringRef& string)
     {
         return string.toDouble();
+    }
+};
+
+template<>
+struct TextConverter<QImage>
+{
+    using value_type = QImage;
+    static QString ToText(const value_type& value, const TextConverterContext& c)
+    {
+        QByteArray arr;
+        QBuffer buffer(&arr);
+        value.save(&buffer, c.ImageConversionExtension);
+        return arr.toBase64();
+    }
+
+    static value_type FromText(const QStringRef& string)
+    {
+        return QImage::fromData(QByteArray::fromBase64(string.toLatin1()));
     }
 };
 

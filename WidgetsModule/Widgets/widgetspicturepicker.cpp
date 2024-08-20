@@ -17,12 +17,21 @@ WidgetsPicturePicker::WidgetsPicturePicker(QWidget* parent)
     addButton.WidgetVisibility().ConnectFrom(CDL, [](const QImage& image) {
         return image.isNull();
     }, Image);
+    ImagePath.ConnectFrom(CDL, [this](const QImage& i) {
+        return i.isNull() ? QString() : ImagePath.Native();
+    }, Image);
 }
 
 void WidgetsPicturePicker::Initialize(LocalPropertiesWidgetConnectorsContainer& connectors, const FTranslationHandler& t, const QString& forceDefaultDir)
 {
     WidgetAbstractButtonWrapper(m_addButton).SetText(t);
-    connectors.AddConnector<LocalPropertiesLabelConnector>(&Image, this, LocalPropertiesLabelConnector::ImageConnectorParams().SetBrowseButton(m_addButton).SetClearButton(m_deleteButton).SetForceDefaultBrowseDir(forceDefaultDir));
+    connectors.AddConnector<LocalPropertiesLabelConnector>(&Image, this, LocalPropertiesLabelConnector::ImageConnectorParams()
+                                                           .SetBrowseButton(m_addButton)
+                                                           .SetClearButton(m_deleteButton)
+                                                           .SetForceDefaultBrowseDir(forceDefaultDir)
+                                                           .SetPathHandler([this](const QString& path){
+        ImagePath = path;
+    }));
 }
 
 void WidgetsPicturePicker::enterEvent(QEvent*)

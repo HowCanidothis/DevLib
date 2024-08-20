@@ -111,6 +111,13 @@ public:
         QAbstractButton* BrowseButton = nullptr;
         QAbstractButton* ClearButton = nullptr;
         QString ForceDefaultDir;
+        std::function<void (const QString&)> PathHandler;
+
+        ImageConnectorParams& SetPathHandler(const std::function<void (const QString&)>& pathHandler)
+        {
+            PathHandler = pathHandler;
+            return *this;
+        }
 
         ImageConnectorParams& SetBrowseButton(QAbstractButton* browse)
         {

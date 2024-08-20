@@ -1,6 +1,10 @@
 VisualizationToolTipWidget {
     qproperty-opacity: 0.9;
-    background: @cbg.1;
+    background: @cbg.3;
+}
+
+ToolTipArrowWidget {
+    background: @cbg.3;
 }
 
 VisualizationToolTipWidget QWidget{
