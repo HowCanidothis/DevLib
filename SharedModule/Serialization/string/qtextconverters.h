@@ -216,6 +216,11 @@ struct TextConverter<QImage>
         return arr.toBase64();
     }
 
+    static value_type FromText(const QString& string)
+    {
+        return QImage::fromData(QByteArray::fromBase64(string.toLatin1()));
+    }
+
     static value_type FromText(const QStringRef& string)
     {
         return QImage::fromData(QByteArray::fromBase64(string.toLatin1()));

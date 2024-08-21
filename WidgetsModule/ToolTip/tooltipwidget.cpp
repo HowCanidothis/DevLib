@@ -4,6 +4,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
+#include "WidgetsModule/Utils/widgethelpers.h"
+
 ToolTipWidget::ToolTipWidget(QWidget* parent)
     : Super(parent)
     , m_content(nullptr)
@@ -17,6 +19,13 @@ ToolTipWidget::ToolTipWidget(QWidget* parent)
     });
 
     setVisible(false);
+
+    WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* e){
+        if(e->type() == QEvent::ShowToParent || e->type() == QEvent::Show) {
+            raise();
+        }
+        return false;
+    });
 }
 
 ToolTipWidget::~ToolTipWidget()
@@ -56,7 +65,7 @@ void ToolTipWidget::SetTarget(const QPoint& target)
 
 void ToolTipWidget::updateLocation()
 {
-    QuadTreeF::BoundingRect targetRect(m_target.x(), m_target.y(), 0.f, 0.f);
+    QuadTreeF::BoundingRect targetRect(m_target.x(), m_target.y(), 0, 0);
     QuadTreeF::BoundingRect parentRect(parentWidget()->width() / 2, parentWidget()->height() / 2, parentWidget()->width(), parentWidget()->height());
 
     auto targetLocation = parentRect.locationOfOther(targetRect);
@@ -88,8 +97,28 @@ void ToolTipWidget::updateLocation()
     }
 }
 
-void ToolTipWidget::updateGeometry(const QRect& rect)
+void ToolTipWidget::updateGeometry(const QRect& irect)
 {
+    auto validateGeometry = [this](QRect& geometry) {
+        QRect pr(0,0, parentWidget()->width(), parentWidget()->height());
+        qint32 dx = 0, dy = 0;
+        if(pr.bottom() < geometry.bottom()) {
+            dy += pr.bottom() - geometry.bottom();
+        }
+        if(pr.top() > geometry.top()) {
+            dy -= geometry.top();
+        }
+        if(pr.left() > geometry.left()) {
+            dx -= geometry.left();
+        }
+        if(pr.right() < geometry.right()) {
+            dx += pr.right() - geometry.right();
+        }
+        geometry.adjust(dx, dy, dx, dy);
+    };
+
+    auto rect = irect;
+    validateGeometry(rect);
     m_animation = std::unique_ptr<QPropertyAnimation, std::function<void(QPropertyAnimation*)>>(new QPropertyAnimation(), [](QPropertyAnimation* ptr){
         ptr->deleteLater();
     });

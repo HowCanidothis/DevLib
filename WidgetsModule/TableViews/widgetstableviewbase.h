@@ -17,6 +17,7 @@ public:
 private:
     void commitData(QWidget *editor) override;
     void closeEditor(QWidget* editor, QAbstractItemDelegate::EndEditHint hint) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     QModelIndex m_editorIndex;

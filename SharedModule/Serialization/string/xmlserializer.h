@@ -89,6 +89,7 @@ SERIALIZER_XML_DECLARE_SIMPLE_TYPE(double)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(float)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(bool)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QString)
+SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QImage)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QByteArray)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(Name)
 SERIALIZER_XML_DECLARE_SIMPLE_TYPE(QDateTime)
@@ -219,34 +220,6 @@ struct SerializerXml<Id::Id>
     static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
         SerializerXml<Name>::Write(buffer, object.Mutate(static_cast<Name&>(object.Value)));
-    }
-};
-
-template<>
-struct SerializerXml<QImage>
-{
-    using Type = QImage;
-
-    template<class Buffer>
-    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        QByteArray array;
-        buffer << buffer.Attr("Data", array);
-        object.Value.fromData(array);
-        buffer.CloseSection();
-    }
-
-    template<class Buffer>
-    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
-    {
-        buffer.OpenSection(object.Name);
-        QByteArray array;
-        QBuffer arrayBuffer(&array);
-        arrayBuffer.open(QIODevice::WriteOnly);
-        object.Value.save(&arrayBuffer);
-        buffer << buffer.Attr("Data", array);
-        buffer.CloseSection();
     }
 };
 

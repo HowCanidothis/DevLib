@@ -1,6 +1,7 @@
 #include "widgetstableviewbase.h"
 
 #include <QHeaderView>
+#include <QKeyEvent>
 
 #include "WidgetsModule/widgetsdeclarations.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
@@ -144,5 +145,15 @@ void WidgetsTableViewBase::closeEditor(QWidget* editor, QAbstractItemDelegate::E
     };
 
     editItem(nextToSelect);
+}
+
+void WidgetsTableViewBase::keyPressEvent(QKeyEvent* event)
+{
+    if(event->key() == Qt::Key_Return) {
+        if(state() != EditingState) {
+            edit(currentIndex());
+        }
+    }
+    Super::keyPressEvent(event);
 }
 

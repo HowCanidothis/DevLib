@@ -420,7 +420,7 @@ public:
                     if(!Valid) {
                         return;
                     }
-                    Q_ASSERT(m_calculator && m_preparator && m_releaser);
+                    Q_ASSERT_X(m_calculator && m_preparator && m_releaser, __FUNCTION__, m_calculatorProblemLocation);
                     Valid.SetState(false);
                     Super::Cancel();
                 }};
@@ -430,6 +430,8 @@ public:
                     DEBUG_PRINT_INFO_ACTION(this,
                         qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
                     );
+
+                    Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
 
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator, m_releaser);
@@ -493,7 +495,17 @@ public:
         m_onChanged.OnDirectChanged();
     }
 
-    void Disconnect()
+    void Disconnect(const char* cdl, const std::function<T ()>& calculator = nullptr)
+    {
+        DisconnectWithoutCalculatorReset();
+#ifdef QT_DEBUG
+        m_calculatorProblemLocation = cdl;
+#endif
+        SetCalculator(calculator);
+    }
+
+    // Do not this function. It's legacy
+    void DisconnectWithoutCalculatorReset()
     {
         THREAD_ASSERT_IS_MAIN();
         m_connections.clear();
@@ -693,6 +705,9 @@ private:
     bool m_recalculateOnEnabled;
     ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
     ScopedPointer<Interruptor> m_interruptor;
+#ifdef QT_DEBUG
+    const char* m_calculatorProblemLocation = "initialization";
+#endif
 };
 
 template<class T>
@@ -805,7 +820,7 @@ public:
 
     void AttachSource(const std::function<void (StateCalculator<bool>&)>& connectorHandler, const FHandler& handler = nullptr)
     {
-        m_calculator.Disconnect();
+        m_calculator.Disconnect(CDL);
 //        Q_ASSERT(handler != nullptr);
         m_handler = handler;
         if(m_handler){
@@ -834,7 +849,7 @@ public:
     }
 
     void Disconnect() {
-        m_calculator.Disconnect();
+        m_calculator.Disconnect(CDL);
     }
 
     const TPtr& GetData() const { return m_data; }

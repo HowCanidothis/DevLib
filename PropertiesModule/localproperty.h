@@ -1018,6 +1018,11 @@ public:
         return result;
     }
 
+    bool IsEmpty() const
+    {
+        return m_handlers.isEmpty();
+    }
+
 protected:
     template<typename Function, typename ... Args>
     DispatcherConnections connectFromProperties(const char* locationInfo, const Function& handler, const Args& ... args)
