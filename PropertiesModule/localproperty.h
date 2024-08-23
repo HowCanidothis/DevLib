@@ -465,6 +465,14 @@ public:
         Super::SetSilentWithValidators(value);
     }
 
+    void SetSilentFromString(const QString& string)
+    {
+        auto index = TranslatorManager::GetInstance().GetEnumNames<Enum>().indexOf(string);
+        if(TranslatorManager::GetInstance().IsValid<Enum>(index)) {
+            Super::EditSilent() = index;
+        }
+    }
+
     void SetSilent(const value_type& value)
     {
         Super::SetSilent(value);

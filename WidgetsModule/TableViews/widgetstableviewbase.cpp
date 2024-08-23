@@ -149,7 +149,7 @@ void WidgetsTableViewBase::closeEditor(QWidget* editor, QAbstractItemDelegate::E
 
 void WidgetsTableViewBase::keyPressEvent(QKeyEvent* event)
 {
-    if(event->key() == Qt::Key_Return) {
+    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         if(state() != EditingState) {
             edit(currentIndex());
         }

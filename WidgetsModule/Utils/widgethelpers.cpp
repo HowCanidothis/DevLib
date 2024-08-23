@@ -709,12 +709,10 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
     completer->setModelSorting(sorting);
     completer->setModel(model);
     if(onActivated != nullptr) {
-        completer->connect(completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), [onActivated](const QModelIndex& index){
-            onActivated(index);
-        });
         combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
             auto index = combo->model()->index(row, 0);
             combo->setCurrentText(index.data().toString());
+            onActivated(combo->model()->index(row, 0));
         });
     }
     combo->setModelColumn(column);
