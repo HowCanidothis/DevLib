@@ -112,7 +112,7 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
 #ifdef Q_OS_WIN
         if (!m_isDrag){
             m_isDrag = true;
-            ::SendNotifyMessage(HWND(window()->winId()), WM_ENTERSIZEMOVE, NULL, NULL);
+            ::SendNotifyMessage(HWND(window()->winId()), WM_ENTERSIZEMOVE, SC_MOVE, NULL);
         }
 
         auto rect = window()->geometry();
@@ -157,7 +157,7 @@ void MenuBarMovePane::mouseReleaseEvent(QMouseEvent* event)
     Super::mouseReleaseEvent(event);
 #ifdef Q_OS_WIN
     if (m_isDrag) {
-        ::SendNotifyMessage(HWND(window()->winId()), WM_EXITSIZEMOVE, NULL, NULL);
+        ::SendNotifyMessage(HWND(window()->winId()), WM_EXITSIZEMOVE, SC_MOVE, NULL);
         m_isDrag = false;
     }
 #endif
