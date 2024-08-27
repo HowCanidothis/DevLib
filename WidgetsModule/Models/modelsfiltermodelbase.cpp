@@ -13,6 +13,9 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     Invalidate.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         InvalidateFilter();
     });
+
+    setSortCaseSensitivity(Qt::CaseInsensitive);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 void ViewModelsFilterModelBase::InvalidateFilter()

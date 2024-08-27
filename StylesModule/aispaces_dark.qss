@@ -19,6 +19,7 @@
 @c.areaAlpha: 0.2;
 @cPath:@temp;
 @cIcon.f1:white;
+@cIcon.1:rgb(62, 166, 255);
 @cIcon.hover:rgb(200,200,200);
 @resource.1::/style/res;
 @resource.2::/aispaces/res;

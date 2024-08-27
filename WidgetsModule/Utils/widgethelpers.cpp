@@ -836,7 +836,7 @@ const WidgetGroupboxLayoutWrapper& WidgetGroupboxLayoutWrapper::AddCollapsing() 
         animation->stop();
 
         auto fullSize = QSize(widget->maximumWidth(), widget->sizeHint().height());
-        auto minSize = QSize(widget->maximumWidth(), 36);
+        auto minSize = QSize(widget->maximumWidth(), 44);
         animation->setDuration(200);
         animation->setStartValue(QSize(widget->maximumWidth(), widget->height()));
         animation->setEndValue(visible ? fullSize : minSize);

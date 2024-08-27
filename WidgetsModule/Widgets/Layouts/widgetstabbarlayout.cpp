@@ -32,7 +32,9 @@ WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent)
             WidgetAbstractButtonWrapper(m_buttons.at(cindex)).SetChecked(false);
             m_views.at(cindex)->hide();
         }
-        Opened = true;
+        if(index != -1) {
+            Opened = true;
+        }
         emit currentIndexChanged(index);
     });
 }
@@ -52,11 +54,16 @@ void WidgetsTabBarLayout::setCollapsable(bool collapsable)
             m_icon->setObjectName("groupIcon");
             Opened.ConnectAndCall(CDL, [this](bool opened) {
                 WidgetWrapper(m_icon).ApplyStyleProperty("a_opened", opened);
+                if(!opened) {
+                    m_currentIndex = -1;
+                }
             });
             WidgetTabBarLayoutWrapper(this).AddCollapsing();
             WidgetTabBarLayoutWrapper(this).AddCollapsingDispatcher(m_currentIndex.OnChanged);
             auto updateChecked = [this]{
-                Opened = !Opened;
+                if(Opened) {
+                    Opened = false;
+                }
             };
             WidgetWrapper(m_icon).SetOnClicked(updateChecked);
         }

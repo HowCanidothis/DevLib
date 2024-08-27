@@ -34,7 +34,7 @@ public:
 
     class QCheckBox* checkBox() const { return m_checkbox == nullptr ? nullptr : m_checkbox->Widget; }
     QLabel* label() const;
-    QLineEdit* lineEdit() const { return m_lineEdit == nullptr ? nullptr : m_lineEdit->Widget; }
+    QLineEdit* box() const { return m_lineEdit == nullptr ? nullptr : m_lineEdit->Widget; }
     QHBoxLayout* layout() const;
     QHBoxLayout* headerLayout() const;
     WidgetsDoubleSpinBoxWithCustomDisplay* spinBox() const;

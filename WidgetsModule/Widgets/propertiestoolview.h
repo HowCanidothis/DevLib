@@ -153,7 +153,6 @@ public:
         auto* viewModel = new ViewModelsStandardListModel(filterModel);
         filterModel->setSourceModel(viewModel);
         filterModel->setDynamicSortFilter(true);
-        filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         cb->setModel(filterModel);
 
         return addProperty(propertyName, title, cb, [this, propertyGetter, modelGetter, viewModel, filterModel](QWidget* w){

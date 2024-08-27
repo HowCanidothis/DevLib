@@ -144,6 +144,8 @@ QDoubleSpinBox {
     color: @ctext.active;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
+    qproperty-alignment: "Qt::AlignLeft | Qt::AlignVCenter";
+    padding-left: 8px;
 }
 
 QDoubleSpinBox[readOnly="false"]:hover {
@@ -161,6 +163,7 @@ QSpinBox {
     color: @ctext.active;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
+    qproperty-alignment: "Qt::AlignLeft | Qt::AlignVCenter";
 }
 
 QSpinBox[readOnly="false"]:hover {
@@ -246,7 +249,7 @@ QScrollBar::sub-page:vertical {
 }
 
 QScrollBar:horizontal {
-    height: 4px;
+    height: 6px;
     margin: 0px 0px 0px 0px;
     border: none;
     background: transparent;
@@ -254,7 +257,7 @@ QScrollBar:horizontal {
 
 QScrollBar:vertical {
     border: none;
-    width: 4px;
+    width: 6px;
     margin: 0px;
     background: transparent;
 }
@@ -771,6 +774,10 @@ QMenu::item {
     border: none;
 }
 
+QMenu::item:checked {
+    color: @ctext.1;
+}
+
 QMenu::item:selected {
     background: @cbg.hover;
 }
@@ -781,17 +788,17 @@ QMenu::item:!enabled {
 }
 
 QMenu::indicator {
-    width: 12px;
-    height: 12px;
-    padding-left: 8px;
+    width: 0xpx;
+    height: 0px;
+    padding-left: 0px;
 }
 
 QMenu::indicator:non-exclusive:unchecked {
-    image: url("@cPath/checkbox-blank-outline.svg");
+    image: none;
 }
 
 QMenu::indicator:non-exclusive:checked {
-    image: url("@cPath/checkbox-checked.svg");
+    image: none;
 }
 
 QMenu::right-arrow {
@@ -886,6 +893,11 @@ WidgetsDoubleSpinBoxLayout QCheckBox{
 WidgetsDoubleSpinBoxLayout QRadioButton{
     margin: 0px;
     padding: 0px;
+}
+
+WidgetsDoubleSpinBoxLayout QLineEdit#lineedit,
+WidgetsSpinBoxLayout QLineEdit#lineedit {
+    max-width: 40px;
 }
 
 QTextEdit {
@@ -1085,7 +1097,7 @@ QWidget[w_showfocus="1"] {
 }
 
 QComboBox {
-    padding-left: 8px;
+    padding-left: 10px;
     min-height: 28px;
     border: 1px solid @cbr.normal;
     border-radius: 4px;

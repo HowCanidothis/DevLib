@@ -2,6 +2,7 @@
 #include "ui_widgetsspinboxlayout.h"
 
 #include <QCheckBox>
+#include <QLineEdit>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Utils/widgetstyleutils.h"
@@ -14,6 +15,35 @@ WidgetsSpinBoxLayout::WidgetsSpinBoxLayout(QWidget *parent)
     ui->setupUi(this);
     WidgetWrapper(ui->spinbox).ConnectFocus(ui->label);
     setFocusProxy(ui->spinbox);
+}
+
+QHBoxLayout* WidgetsSpinBoxLayout::layout() const
+{
+    return ui->horizontalLayout_2;
+}
+
+bool WidgetsSpinBoxLayout::hasBox() const
+{
+    return m_lineEdit != nullptr;
+}
+
+void WidgetsSpinBoxLayout::setHasBox(bool hasBox)
+{
+    if(hasBox) {
+        ensureHasBox();
+    } else if(m_lineEdit != nullptr){
+        m_lineEdit->Detach();
+        m_lineEdit = nullptr;
+    }
+}
+
+void WidgetsSpinBoxLayout::ensureHasBox()
+{
+    if(m_lineEdit == nullptr) {
+        m_lineEdit = new WidgetsLayoutComponent<QLineEdit>("lineedit");
+        m_lineEdit->Widget->setReadOnly(true);
+        ui->horizontalLayout_2->insertWidget(1, m_lineEdit->Widget);
+    }
 }
 
 WidgetsSpinBoxLayout::~WidgetsSpinBoxLayout()

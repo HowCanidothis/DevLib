@@ -283,7 +283,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     widget->window()->layout()->setMargin(10);
 
     auto qtBugFixExtended = ::make_shared<bool>(false);
-    WidgetWrapper(widget).AddEventFilter([widget, pane, vboxla, qtBugFixExtended](QObject*, QEvent* e){
+    WidgetWrapper(newWidget).AddEventFilter([widget, pane, vboxla, qtBugFixExtended](QObject*, QEvent* e){
         if(e->type() == QEvent::Show) {
             QSize adjustment = *qtBugFixExtended ? QSize(-1,0) : QSize(1,0);
             widget->resize(widget->size() + adjustment); // QtBugFix. Contents are not updated for frameless windows

@@ -30,7 +30,6 @@ const ModelsVocabularyManager::ViewModelDataPtr& ModelsVocabularyManager::Create
     Q_ASSERT(m_models.contains(modelName));
     auto data = ::make_shared<ViewModelData>();
     auto* sortModel = new ViewModelsFilterModelBase(nullptr);
-    sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     data->SortedModel = sortModel;
     const auto& model = m_models[modelName];
 
