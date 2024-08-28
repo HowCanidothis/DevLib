@@ -32,8 +32,8 @@ bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QStri
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(confirmActionText.isEmpty() ? tr("CONFIRM") : confirmActionText, QMessageBox::YesRole);
-    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
+    auto* defaultButton = dialog.addButton(confirmActionText.isEmpty() ? tr("Confirm") : confirmActionText, QMessageBox::YesRole);
+    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);
     auto res = dialog.exec();
@@ -45,7 +45,7 @@ void WidgetsDialogsManager::ShowMessageBox(QtMsgType , const QString& title, con
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(title);
     dialog.setText(message);
-    auto* defaultButton = dialog.addButton(tr("OK"), QMessageBox::YesRole);
+    auto* defaultButton = dialog.addButton(tr("Ok"), QMessageBox::YesRole);
     dialog.setDefaultButton(defaultButton);
     dialog.setModal(true);
     OnDialogCreated(&dialog);
@@ -162,8 +162,8 @@ bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QSt
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(tr("SAVE"), QMessageBox::YesRole);
-    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
+    auto* defaultButton = dialog.addButton(tr("Save"), QMessageBox::YesRole);
+    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);
     auto res = dialog.exec();
@@ -175,8 +175,8 @@ bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& label, const Q
     QMessageBox dialog(GetParentWindow());
     dialog.setWindowTitle(label);
     dialog.setText(text);
-    auto* defaultButton = dialog.addButton(tr("DELETE"), QMessageBox::DestructiveRole);
-    dialog.addButton(tr("CANCEL"), QMessageBox::NoRole);
+    auto* defaultButton = dialog.addButton(tr("Delete"), QMessageBox::DestructiveRole);
+    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
     OnDialogCreated(&dialog);
     auto res = dialog.exec();

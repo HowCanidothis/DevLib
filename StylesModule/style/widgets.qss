@@ -69,7 +69,7 @@ QPushButton#BtnClose:hover {
 QPushButton#BtnCloseMinor {
     qproperty-text: "";
     image: url("@cPath/close.svg");
-    max-width: 16px;
+    max-width: 12px;
     border: none;
     background: transparent;
 }

@@ -42,21 +42,21 @@
      <item>
       <widget class="QPushButton" name="BtnReplace">
        <property name="text">
-        <string>REPLACE</string>
+        <string>Replace</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="BtnInsert">
        <property name="text">
-        <string>INSERT</string>
+        <string>Insert</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="BtnCancel">
        <property name="text">
-        <string>CANCEL</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

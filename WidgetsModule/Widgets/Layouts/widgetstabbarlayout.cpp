@@ -161,6 +161,7 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 #endif
     b->setProperty("a_page", QVariant::fromValue(page));
     b->setText(page->windowTitle());
+    b->setProperty("a_tab_button", true);
 
     connect(page, &QWidget::windowTitleChanged, [this, b](const QString& title){
         if(b->text() == title) {

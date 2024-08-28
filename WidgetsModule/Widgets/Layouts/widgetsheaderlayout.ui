@@ -92,6 +92,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="separator">
+        <property name="text">
+         <string> </string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLineEdit" name="value">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">

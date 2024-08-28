@@ -9,9 +9,16 @@ WidgetsHeaderLayout::WidgetsHeaderLayout(QWidget *parent)
     , ui(new Ui::WidgetsHeaderLayout)
 {
     ui->setupUi(this);
-    WidgetLineEditWrapper(ui->prefix).SetDynamicSizeAdjusting().WidgetReadOnly() = true;
-    WidgetLineEditWrapper(ui->value).SetDynamicSizeAdjusting();
+    WidgetLineEditWrapper prefixWrapper(ui->prefix);
+    WidgetLineEditWrapper valueWrapper(ui->value);
+    prefixWrapper.SetDynamicSizeAdjusting().WidgetReadOnly() = true;
+    valueWrapper.SetDynamicSizeAdjusting();
     setFocusProxy(ui->value);
+    prefixWrapper.WidgetVisibility() = true;
+    valueWrapper.WidgetVisibility() = true;
+    WidgetWrapper(ui->separator).WidgetVisibility().ConnectFrom(CDL, [](bool v1, bool v2) {
+        return v1 && v2;
+    }, prefixWrapper.WidgetVisibility(), valueWrapper.WidgetVisibility());
 }
 
 WidgetsHeaderLayout::~WidgetsHeaderLayout()
@@ -83,12 +90,12 @@ void WidgetsHeaderLayout::setValue(const QString& value)
 
 void WidgetsHeaderLayout::setHasValue(bool value)
 {
-    valueEdit()->setVisible(value);
+    WidgetWrapper(valueEdit()).SetVisible(value);
 }
 
 void WidgetsHeaderLayout::setHasPrefix(bool prefic)
 {
-    prefixEdit()->setVisible(prefic);
+    WidgetWrapper(prefixEdit()).SetVisible(prefic);
 }
 
 void WidgetsHeaderLayout::setReadOnlyPrefix(bool readOnly)

@@ -44,14 +44,14 @@
      <item>
       <widget class="QPushButton" name="BtnOk">
        <property name="text">
-        <string>OK</string>
+        <string>Ok</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="BtnCancel">
        <property name="text">
-        <string>CANCEL</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

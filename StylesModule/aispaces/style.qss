@@ -440,7 +440,11 @@ QWidget[coloredDrawer="true"]{
 }
 
 QWidget#widgetheader {
-    min-height: 51px;
+    min-height: 42px;
+}
+
+QWidget#widgetheader QLabel{
+    margin-bottom: 6px;
 }
 
 NotifierErrorsFrame {
@@ -497,4 +501,19 @@ WPSWellplanView QPushButton#BtnPrevious {
     border-image: url("@cPath/chevron-left.svg");
     max-width: 6px;
     max-height: 10px;
+}
+
+WallPlot {
+    qproperty-backColor: @cbg.2;
+}
+
+QDockWidget QScrollBar:vertical,
+QDockWidget QScrollBar:horizontal,
+QDockWidget QTableView,
+QDockWidget QHeaderView::section,
+QDockWidget QHeaderView,
+QDockWidget VisualizationLegendWidget,
+QDockWidget VisualizationLegendItemWidget,
+QDockWidget QTableCornerButton::section {
+    background: @cbg.2;
 }

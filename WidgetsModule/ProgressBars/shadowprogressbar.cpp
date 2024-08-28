@@ -101,7 +101,7 @@ bool ShadowProgressBar::eventFilter(QObject* , QEvent* event)
 ShadowProgressBar::ProgressBarWithLabel::ProgressBarWithLabel()
 {
     setLayout(new QHBoxLayout());
-    layout()->addWidget(CancelButton = new QPushButton(tr("CANCEL")));
+    layout()->addWidget(CancelButton = new QPushButton(tr("Cancel")));
     layout()->addWidget(Label = new QLabel());
     layout()->addWidget(ProgressBar = new QProgressBar());
 

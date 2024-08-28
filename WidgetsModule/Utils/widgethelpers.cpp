@@ -1900,10 +1900,10 @@ WidgetColorDialogWrapper::WidgetColorDialogWrapper(class QColorDialog* dialog)
 const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() const
 {
     static const QVector<std::function<void (QPushButton*)>> buttonsDelegates {
-        [](QPushButton* btn) { btn->setText(QObject::tr("PICK SCREEN COLOR")); },
-        [](QPushButton* btn) { btn->setText(QObject::tr("ADD TO CUSTOM COLORS")); },
-        [](QPushButton* btn) { btn->setText(QObject::tr("APPLY")); },
-        [](QPushButton* btn) { btn->setText(QObject::tr("CANCEL")); }
+        [](QPushButton* btn) { btn->setText(QObject::tr("Pick screen color")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("Add to custom colors")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("Apply")); },
+        [](QPushButton* btn) { btn->setText(QObject::tr("Cancel")); }
     };
     auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
     ForeachChildWidget([&](const WidgetWrapper& widget) {

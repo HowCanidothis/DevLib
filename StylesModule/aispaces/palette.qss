@@ -38,6 +38,9 @@ MainWindow {
     qproperty-visualizationBoxColor: @cbg.2;
     qproperty-visualizationAxisColor: @ctext.disabled;
     qproperty-visualizationFrameColor: @cbg.1;
+    qproperty-visualizationAltAxisColor: @cbg.3;
+    qproperty-visualizationAltBackgroundColor: @cbg.2;
+    qproperty-visualizationAltTextColor: @ctext.disabled;
     qproperty-visualizationAltFrameColor: @cbg.2;
     qproperty-visualizationFrameSelectionColor: @cbg.hover;
     qproperty-visualizationAreaAlpha: @c.areaAlpha;

@@ -843,6 +843,10 @@ WidgetsTabBarLayout {
     border-radius: 8px;
 }
 
+QPushButton[a_tab_button="true"] {
+    text-align: left;
+}
+
 WidgetsTabBarLayout QLabel#groupIcon {
     margin: 8px;
 }
@@ -1070,6 +1074,7 @@ QTabBar::tab:top:!selected:hover {
 
 QTabBar::tab:top:selected {
     background: @cbg.2;
+    color: @ctext.active;
 }
 
 QTabBar QToolButton {
