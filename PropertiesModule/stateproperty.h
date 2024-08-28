@@ -432,6 +432,9 @@ public:
                     );
 
                     Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
+                    if(m_calculator == nullptr) {
+                        return;
+                    }
 
                     if(m_dependenciesAreUpToDate) {
                         Calculate(m_calculator, m_preparator, m_releaser);
@@ -676,7 +679,9 @@ public:
 protected:
     void onPreRecalculate() override
     {
-        OnCalculationRejected();
+        if(m_calculator != nullptr) {
+            OnCalculationRejected();
+        }
     }
     void onPostRecalculate() override
     {
@@ -684,7 +689,7 @@ protected:
     }
     bool acceptResult() override
     {
-        return m_dependenciesAreUpToDate;
+        return m_calculator != nullptr && m_dependenciesAreUpToDate;
     }
 
 private:
@@ -848,8 +853,8 @@ public:
         }, handler);
     }
 
-    void Disconnect() {
-        m_calculator.Disconnect(CDL);
+    void Disconnect(const char* location) {
+        m_calculator.Disconnect(location);
     }
 
     const TPtr& GetData() const { return m_data; }
