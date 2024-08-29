@@ -254,7 +254,7 @@ QScrollBar::sub-page:vertical {
 }
 
 QScrollBar:horizontal {
-    height: 6px;
+    height: 4px;
     margin: 0px 0px 0px 0px;
     border: none;
     background: transparent;

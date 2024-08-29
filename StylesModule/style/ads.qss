@@ -19,7 +19,8 @@ ads--CFloatingDockContainer {
 
 QScrollBar#ADSTabAreaHorizontalScrollBar
 {
-    background: transparent;
+    background: @cbg.alt;
+    height: 2px;
 }
 
 ads--CDockWidgetTab

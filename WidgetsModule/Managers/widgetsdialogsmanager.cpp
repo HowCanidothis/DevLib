@@ -252,45 +252,48 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
         resizeable = false;
     }
 
-    auto* vboxla = new QBoxLayout(QBoxLayout::TopToBottom);
-    vboxla->setMargin(0);
-    vboxla->setSpacing(0);
+    auto createNullLayout = []{
+        auto* result = new QVBoxLayout();
+        result->setMargin(0);
+        result->setSpacing(0);
+        return result;
+    };
+
+    QVBoxLayout* contentWithPaneWidgetLayout = createNullLayout();
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
         pane = new MenuBarMovePane(widget);
         pane->setProperty("a_type", movePaneId);
-        vboxla->addWidget(pane);
+        contentWithPaneWidgetLayout->addWidget(pane);
     }
+    QWidget* contentWithPaneWidget = new QWidget();
+    QWidget* contentWidget = new QWidget();
+    contentWithPaneWidgetLayout->addWidget(contentWidget);
+    contentWithPaneWidget->setLayout(contentWithPaneWidgetLayout);
+
+
     auto* layout = widget->layout();
-    widget->setWindowFlag(Qt::FramelessWindowHint);
-    AttachShadow(widget, false);
-    QWidget* newWidget = new QWidget();
+    widget->window()->setWindowFlag(Qt::FramelessWindowHint);
+    widget->window()->setAttribute(Qt::WA_TranslucentBackground);
+
     widget->show();
     layout->invalidate();
     widget->hide();
 
+    contentWidget->setLayout(layout);
+    AttachShadow(contentWithPaneWidget, false);
+
     if(!resizeable) {
-        newWidget->setMinimumSize(widget->size() + QSize(20,20));
+        contentWithPaneWidget->setMinimumSize(widget->sizeHint() + QSize(20,20));
         layout->setSizeConstraint(QLayout::SetNoConstraint);
     } else {
-        newWidget->setMinimumSize(widget->minimumSizeHint() + QSize(20,20));
+        contentWithPaneWidget->setMinimumSize(widget->minimumSizeHint() + QSize(20,20));
     }
-    newWidget->setLayout(layout);
-
-    vboxla->addWidget(newWidget);
-    widget->setLayout(vboxla);
+    auto* mainLayout = createNullLayout();
+    mainLayout->addWidget(contentWithPaneWidget);
+    widget->setLayout(mainLayout);
 
     widget->window()->layout()->setMargin(10);
-
-    auto qtBugFixExtended = ::make_shared<bool>(false);
-    WidgetWrapper(newWidget).AddEventFilter([widget, pane, vboxla, qtBugFixExtended](QObject*, QEvent* e){
-        if(e->type() == QEvent::Show) {
-            QSize adjustment = *qtBugFixExtended ? QSize(-1,0) : QSize(1,0);
-            widget->resize(widget->size() + adjustment); // QtBugFix. Contents are not updated for frameless windows
-            *qtBugFixExtended = !*qtBugFixExtended;
-        }
-        return false;
-    });
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
@@ -314,29 +317,13 @@ void WidgetsDialogsManager::AttachShadow(QWidget* widget, bool applyMargins)
     shadow->setBlurRadius(WidgetsDialogsManager::GetInstance().ShadowBlurRadius);
     shadow->setOffset(0);
     widget->setGraphicsEffect(shadow);
-    widget->window()->setAttribute(Qt::WA_TranslucentBackground);
-    if(applyMargins) {
-        widget->window()->layout()->setMargin(10);
-    }
 
-    DispatcherConnectionsSafe connections;
+    auto connections = WidgetWrapper(widget).WidgetConnections();
 
-    auto qtBugFix = [widget]{
-        auto widgetOldSize = widget->size();
-        widget->resize(widgetOldSize.width() - 1, widgetOldSize.height());
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[widget, widgetOldSize]{
-            widget->resize(widgetOldSize);
-        });
-    };
-
-    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [shadow, qtBugFix]{
-        shadow->setBlurRadius(WidgetsDialogsManager::GetInstance().ShadowBlurRadius);
-        qtBugFix();
+    WidgetsDialogsManager::GetInstance().ShadowBlurRadius.Connect(CDL, [shadow](auto radius){
+        shadow->setBlurRadius(radius);
     }).MakeSafe(connections);
-    WidgetsDialogsManager::GetInstance().ShadowColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [shadow, qtBugFix]{
-        shadow->setColor(WidgetsDialogsManager::GetInstance().ShadowColor);
-        qtBugFix();
+    WidgetsDialogsManager::GetInstance().ShadowColor.Connect(CDL, [shadow](const auto& color){
+        shadow->setColor(color);
     }).MakeSafe(connections);
-
-    QObject::connect(widget, &QWidget::destroyed, [connections]{});
 }

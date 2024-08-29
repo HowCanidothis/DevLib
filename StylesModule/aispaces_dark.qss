@@ -1,6 +1,7 @@
 @cbg.1: #181818;
 @cbg.2: rgb(33,33,33);
 @cbg.3: rgba(60, 60, 60, 1);
+@cbg.alt: rgb(39,39,39);
 @cbg.selected: rgba(62, 166, 255, 0.24);
 @cbg.error: rgb(33, 33, 33);
 @cbg.widget: rgba(255, 255, 255, 0.03);
