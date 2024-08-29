@@ -15,6 +15,7 @@ public:
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
+    qint32 ShowDialog(const QString& title, QWidget* view, QVector<std::pair<QString, qint32>>& buttons);
     bool ShowSaveCancelDialog(const QString& label, const QString& text);
     bool ShowDeleteCancelDialog(const QString& label, const QString& text);
     bool ShowOkCancelDialog(const QString& label, const QString& text, const QString& confirmActionText = QString());

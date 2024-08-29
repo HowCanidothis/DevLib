@@ -30,8 +30,8 @@ WidgetsDialogsManager::WidgetsDialogsManager()
 bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QString& text, const QString& confirmActionText)
 {
     QMessageBox dialog(GetParentWindow());
-    dialog.setWindowTitle(label);
-    dialog.setText(text);
+//    dialog.setWindowTitle(label);
+    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
     auto* defaultButton = dialog.addButton(confirmActionText.isEmpty() ? tr("Confirm") : confirmActionText, QMessageBox::YesRole);
     dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
@@ -40,11 +40,11 @@ bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QStri
     return res == 0;
 }
 
-void WidgetsDialogsManager::ShowMessageBox(QtMsgType , const QString& title, const QString& message)
+void WidgetsDialogsManager::ShowMessageBox(QtMsgType , const QString& title, const QString& text)
 {
     QMessageBox dialog(GetParentWindow());
-    dialog.setWindowTitle(title);
-    dialog.setText(message);
+//    dialog.setWindowTitle(title);
+    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(title, text));
     auto* defaultButton = dialog.addButton(tr("Ok"), QMessageBox::YesRole);
     dialog.setDefaultButton(defaultButton);
     dialog.setModal(true);
@@ -160,8 +160,8 @@ QWidget* WidgetsDialogsManager::GetParentWindow() const
 bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QString& text)
 {
     QMessageBox dialog(GetParentWindow());
-    dialog.setWindowTitle(label);
-    dialog.setText(text);
+//    dialog.setWindowTitle(label);
+    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
     auto* defaultButton = dialog.addButton(tr("Save"), QMessageBox::YesRole);
     dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);
@@ -173,8 +173,8 @@ bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QSt
 bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& label, const QString& text)
 {
     QMessageBox dialog(GetParentWindow());
-    dialog.setWindowTitle(label);
-    dialog.setText(text);
+//    dialog.setWindowTitle(label);
+    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
     auto* defaultButton = dialog.addButton(tr("Delete"), QMessageBox::DestructiveRole);
     dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
     dialog.setDefaultButton(defaultButton);

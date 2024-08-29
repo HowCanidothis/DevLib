@@ -477,7 +477,7 @@ QTableView::indicator:checked {
 }
 
 QTableView {
-    qproperty-iconSize: 24px 24px;
+    qproperty-iconSize: 18px;
     qproperty-showGrid: 0;
 }
 
