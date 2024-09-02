@@ -450,6 +450,10 @@ QColumnView {
     background: @cbg.1;
 }
 
+QListView {
+    background: @cbg.2;
+}
+
 QTreeView {
     qproperty-iconSize: 20px 20px;
     qproperty-indentation: 12;
@@ -487,6 +491,16 @@ QColumnView::item {
     background: transparent;
 }
 
+QListView::item:selected:!active,
+QTableView::item:selected:!active,
+QColumnView::item {
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid @cbg.disabled;
+}
+
 QTableView::item {
     border-bottom: 1px solid @cbg.disabled;
 }
@@ -520,6 +534,10 @@ QHeaderView {
     border-radius: 0px;
     background-color: @cbg.1;
     border: none;
+}
+
+QHeaderView[a_focus="true"]::section {
+    color: @ctext.1;
 }
 
 QHeaderView::section {
@@ -1154,4 +1172,9 @@ QComboBoxListView {
 
 QComboBoxListView:disabled{
     color: @ctext.disabled;
+}
+
+QLabel[DialogTitle="true"] {
+    font-size: 24px;
+    color: @ctext.active;
 }

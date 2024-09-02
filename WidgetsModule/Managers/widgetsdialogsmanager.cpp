@@ -11,15 +11,19 @@
 #include <QDesktopWidget>
 #include <QSettings>
 #include <QInputDialog>
+#include <QColorDialog>
 
 #include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/Bars/menubarmovepane.h"
 #include "WidgetsModule/Attachments/windowresizeattachment.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
-#include "WidgetsModule/Dialogs/widgetsinputdialog.h"
+#include "WidgetsModule/Dialogs/widgetsinputdialogview.h"
+#include "WidgetsModule/Dialogs/widgetsdialog.h"
 
 const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
+const char* WidgetsDialogsManager::FDialogHandlerPropertyName = "DialogHandler";
+const char* WidgetsDialogsManager::ResizeablePropertyName = "Resizeable";
 
 WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
@@ -27,93 +31,110 @@ WidgetsDialogsManager::WidgetsDialogsManager()
 
 }
 
-bool WidgetsDialogsManager::ShowOkCancelDialog(const QString& label, const QString& text, const QString& confirmActionText)
+WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams& params) const
 {
-    QMessageBox dialog(GetParentWindow());
-//    dialog.setWindowTitle(label);
-    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
-    auto* defaultButton = dialog.addButton(confirmActionText.isEmpty() ? tr("Confirm") : confirmActionText, QMessageBox::YesRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
-    dialog.setDefaultButton(defaultButton);
-    OnDialogCreated(&dialog);
-    auto res = dialog.exec();
-    return res == 0;
+    WidgetsDialog* dialog = new WidgetsDialog(GetParentWindow());
+    if(params.Title != nullptr) {
+        dialog->SetHeaderText(params.Title);
+    }
+    auto* view = params.View;
+    const auto& buttons = params.Buttons;
+    if(view != nullptr) {
+        dialog->SetContent(view);
+        auto handler = view->property("DialogHandler");
+        if(handler.isValid()) {
+            (*((FDialogHandler*)handler.toLongLong()))(dialog);
+        }
+    }
+    if(view->layout() == nullptr) {
+        dialog->layout()->setSizeConstraint(QLayout::SetFixedSize);
+    } else {
+        dialog->layout()->setSizeConstraint(view->layout()->sizeConstraint());
+    }
+    for(const auto& b : buttons) {
+        dialog->AddButton(b);
+    }
+    dialog->setProperty(ResizeablePropertyName, params.Resizeable);
+    dialog->Initialize(params.OnDone, params.OnInitialized);
+    return dialog;
 }
 
-void WidgetsDialogsManager::ShowMessageBox(QtMsgType , const QString& title, const QString& text)
+void WidgetsDialogsManager::ShowTextDialog(const QString& title, const QString& text) const
 {
-    QMessageBox dialog(GetParentWindow());
-//    dialog.setWindowTitle(title);
-    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(title, text));
-    auto* defaultButton = dialog.addButton(tr("Ok"), QMessageBox::YesRole);
-    dialog.setDefaultButton(defaultButton);
-    dialog.setModal(true);
-    OnDialogCreated(&dialog);
-    dialog.exec();
+    ShowTempDialog(DescCustomDialogParams().SetTitle(TR(title, =)).AddButton(WidgetsDialogsManagerDefaultButtons::CloseButton()).FillWithText(text));
 }
 
-QString WidgetsDialogsManager::GetText(const QString& title, const QString& text, bool* ok)
+bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& title, const QString& text)
+{
+    return WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams()
+                                                        .SetTitle(TR(title, =))
+                                                        .FillWithText(text)
+                                                        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                                                                   WidgetsDialogsManagerDefaultButtons::DeleteButton()));
+}
+
+qint32 WidgetsDialogsManager::ShowTempDialog(const DescCustomDialogParams& params, const DescShowDialogParams& showParams) const
+{
+    ScopedPointer<WidgetsDialog> dialog(createDialog(params));
+    OnDialogCreated(dialog.get());
+    DescShowDialogParams copy = showParams;
+    copy.SetModal(true);
+    return ShowDialog(dialog.get(), copy);
+}
+
+std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler& title, const QString& text)
 {
     LocalPropertyString v(text);
-    WidgetsInputDialog dialog(GetParentWindow());
-    dialog.AddLineText(title, &v);
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddLineText(title(), &v);
 
-    OnDialogCreated(&dialog);
-
-    const int ret = dialog.exec();
-    if (ok)
-        *ok = !!ret;
-    if (ret) {
-        return v;
-    } else {
-        return QString();
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Input Text:"))).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
     }
+
+    return v;
 }
 
-QDialog* WidgetsDialogsManager::GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator)
+std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool showAlpha)
 {
-    return GetOrCreateDialog<QDialog>(tag, [this, paramsCreator]{
-        auto params = paramsCreator();
-        auto* dialog = new QDialog(GetParentWindow());
-        auto* vlayout = new QVBoxLayout();
-        dialog->setLayout(vlayout);
-        vlayout->addWidget(params.View);
-        dialog->setProperty(CustomViewPropertyKey, (size_t)params.View);
-        if(!params.DefaultSpacing) {
-            vlayout->setContentsMargins(0,0,0,0);
-            vlayout->setSpacing(0);
-        }
-
-        if(params.Buttons.isEmpty()) {
-            return dialog;
-        }
-
-        auto* buttons = new QDialogButtonBox();
-        vlayout->addWidget(buttons);
-
-        QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
-        QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-        QObject::connect(dialog, &QDialog::rejected, params.OnRejected);
-        QObject::connect(dialog, &QDialog::accepted, params.OnAccepted);
-
-        qint32 index = 0;
-        for(const auto& buttonParams : params.Buttons) {
-            const auto& [role, text, inaction] = buttonParams;
-            FAction action = inaction;
-            auto* button = buttons->addButton(text, role);
-            if(index == params.DefaultButtonIndex) {
-                button->setDefault(true);
+    std::optional<QColor> result;
+    auto createParams = [&](const WidgetColorDialogWrapper& wrapper) {
+        wrapper->setCurrentColor(color);
+        return DescCustomDialogParams()
+        .SetTitle(TR(tr("Apply Color?")))
+        .SetView(wrapper.SetDefaultLabels().SetShowAlpha(showAlpha))
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+            WidgetsDialogsManagerDefaultButtons::ApplyButton())
+        .SetOnDone([&result, wrapper](qint32 r) {
+            if(r != 0) {
+                result = wrapper->currentColor();
             }
-            QObject::connect(button, &QPushButton::clicked, [action]{
-                action();
-            });
-            index++;
-        }
-        return dialog;
+        });
+    };
+    auto* dialog = GetOrCreateDialog("ColorDialog", [showAlpha, createParams]{
+        return createParams(new QColorDialog());
+    });
+    ShowDialog(dialog);
+
+    return result;
+}
+
+WidgetsDialog* WidgetsDialogsManager::GetOrCreateDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator)
+{
+    return GetOrCreateDialog<WidgetsDialog>(tag, [this, paramsCreator]{
+        return createDialog(paramsCreator());
     });
 }
 
-void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogParams& params)
+qint32 WidgetsDialogsManager::ShowDialog(WidgetsDialog* dialog, const DescShowDialogParams& params) const
 {
     dialog->setParent(GetParentWindow(), dialog->windowFlags());
 
@@ -123,24 +144,16 @@ void WidgetsDialogsManager::ShowDialog(QDialog* dialog, const DescShowDialogPara
 
     dialog->setModal(params.Modal);
 
+    qint32 result = -1;
     if(params.Modal) {
-        dialog->exec();
+        result = dialog->exec();
     } else {
         dialog->show();
     }
+    return result;
 }
 
-void WidgetsDialogsManager::ShowPropertiesDialog(const PropertiesScopeName& scope, const DescShowDialogParams& params)
-{
-    auto* dialog = GetOrCreateDialog<PropertiesDialog>(scope, [this, scope]{
-        return new PropertiesDialog(scope, GetParentWindow());
-    }, scope);
-    dialog->Initialize([]{});
-    dialog->GetView<PropertiesView>()->expandAll();
-    ShowDialog(dialog, params);
-}
-
-void WidgetsDialogsManager::ResizeDialogToDefaults(QWidget* dialog)
+void WidgetsDialogsManager::ResizeDialogToDefaults(QWidget* dialog) const
 {
     auto* desktop = QApplication::desktop();
     auto size = desktop->screenGeometry(dialog);
@@ -157,37 +170,11 @@ QWidget* WidgetsDialogsManager::GetParentWindow() const
     return qApp->activeWindow() == nullptr ? m_defaultParent : qApp->activeWindow();
 }
 
-bool WidgetsDialogsManager::ShowSaveCancelDialog(const QString& label, const QString& text)
-{
-    QMessageBox dialog(GetParentWindow());
-//    dialog.setWindowTitle(label);
-    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
-    auto* defaultButton = dialog.addButton(tr("Save"), QMessageBox::YesRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
-    dialog.setDefaultButton(defaultButton);
-    OnDialogCreated(&dialog);
-    auto res = dialog.exec();
-    return res == 0;
-}
-
-bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& label, const QString& text)
-{
-    QMessageBox dialog(GetParentWindow());
-//    dialog.setWindowTitle(label);
-    dialog.setText(QString(R"(<p style="font-size:24px;">%1</p>%2.)").arg(label, text));
-    auto* defaultButton = dialog.addButton(tr("Delete"), QMessageBox::DestructiveRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::NoRole);
-    dialog.setDefaultButton(defaultButton);
-    OnDialogCreated(&dialog);
-    auto res = dialog.exec();
-    return res == 0;
-}
-
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){
     QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;
     auto lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
-    QFileDialog fileDialog(GetParentWindow(), params.Label, lastSearchFolder);
+    QFileDialog fileDialog(GetParentWindow(), QString(), lastSearchFolder);
     OnDialogCreated(&fileDialog);
     auto filters = params.Filters;
     if(params.Mode == DescImportExportSourceParams::Save) {
@@ -239,18 +226,14 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
 
     return result;
 }
-#include <QResizeEvent>
+
 void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, const QString& movePaneId)
 {
     if(widget->layout() == nullptr) {
         return;
     }
 
-    bool resizeable = true;
-
-    if(widget->layout()->sizeConstraint() == QLayout::SetFixedSize || widget->layout()->sizeConstraint() == QLayout::SetNoConstraint) {
-        resizeable = false;
-    }
+    auto resizeable = widget->property(ResizeablePropertyName).toBool();
 
     auto createNullLayout = []{
         auto* result = new QVBoxLayout();
@@ -260,6 +243,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     };
 
     QVBoxLayout* contentWithPaneWidgetLayout = createNullLayout();
+    contentWithPaneWidgetLayout->setSizeConstraint(QLayout::SetMinimumSize);
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
         pane = new MenuBarMovePane(widget);
@@ -273,6 +257,9 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
 
 
     auto* layout = widget->layout();
+    auto cm = layout->contentsMargins();
+    cm.setTop(0);
+    layout->setContentsMargins(cm);
     widget->window()->setWindowFlag(Qt::FramelessWindowHint);
     widget->window()->setAttribute(Qt::WA_TranslucentBackground);
 
@@ -281,15 +268,18 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     widget->hide();
 
     contentWidget->setLayout(layout);
+    contentWidget->setProperty("her", true);
+    contentWithPaneWidget->setProperty("his", true);
     AttachShadow(contentWithPaneWidget, false);
 
     if(!resizeable) {
         contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20,20));
-        layout->setSizeConstraint(QLayout::SetNoConstraint);
     } else {
-        contentWithPaneWidget->setMinimumSize(widget->minimumSizeHint() + QSize(20,20));
+        contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20,20));
     }
     auto* mainLayout = createNullLayout();
+    contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    contentWithPaneWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     mainLayout->addWidget(contentWithPaneWidget);
     widget->setLayout(mainLayout);
 

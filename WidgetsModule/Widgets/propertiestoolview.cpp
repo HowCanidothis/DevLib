@@ -115,7 +115,9 @@ DispatcherConnection PropertiesToolFolderView::AddDeleteButton(const WidgetAbstr
     });
     return WidgetAbstractButtonWrapper(m_deleteButton).OnClicked().Connect(CDL, [this, onClicked, folder]{
         if(m_deleteButtonOverFolder == folder.GetWidget()) {
-            if(WidgetsDialogsManager::GetInstance().ShowOkCancelDialog(QString(), tr("Remove the Stabilizer?"))) {
+            if(WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Delete Stabilizer?")))
+            .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                        WidgetsDialogsManagerDefaultButtons::DiscardRoleButton(TR(tr("Delete")))))) {
                 onClicked();
             }
         }

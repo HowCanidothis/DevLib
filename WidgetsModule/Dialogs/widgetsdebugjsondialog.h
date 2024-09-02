@@ -9,7 +9,7 @@ namespace Ui {
 class WidgetsDebugJsonDialog;
 }
 
-class WidgetsDebugJsonDialog : public QWidget
+class WidgetsDebugJsonDialog : public QDialog
 {
     Q_OBJECT
 

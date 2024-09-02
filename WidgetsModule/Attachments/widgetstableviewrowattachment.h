@@ -3,6 +3,8 @@
 
 #include <SharedModule/internal.hpp>
 
+#include "WidgetsModule/widgetsdeclarations.h"
+
 class Latin1Name;
 class WidgetAbstractButtonWrapper;
 class QTableView;
@@ -15,7 +17,7 @@ public:
 
     void Attach(QTableView* v);
     bool SelectCurrentRow();
-    void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr);
+    void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerButtonStruct());
 
     qint32 CurrentRow;
 

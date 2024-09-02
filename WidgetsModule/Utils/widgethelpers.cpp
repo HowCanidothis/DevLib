@@ -254,20 +254,20 @@ const WidgetTableViewWrapper& WidgetTableViewWrapper::SetOnCurrentIndexChanged(c
     return *this;
 }
 
+void WidgetWrapper::RegisterDialogView(const DescCustomDialogParams& params)
+{
+
+}
+
 WidgetDialogWrapper::WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator)
-    : Super(WidgetsDialogsManager::GetInstance().GetOrCreateCustomDialog(id, paramsCreator))
+    : Super(WidgetsDialogsManager::GetInstance().GetOrCreateDialog(id, paramsCreator))
 {
 
 }
 
-void WidgetColorDialogWrapper::Show(const DescShowDialogParams& params) const
+qint32 WidgetDialogWrapper::Show(const DescShowDialogParams& params) const
 {
-    WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
-}
-
-void WidgetDialogWrapper::Show(const DescShowDialogParams& params) const
-{
-    WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
+    return WidgetsDialogsManager::GetInstance().ShowDialog(GetWidget(), params);
 }
 
 QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewParams& params) const
@@ -276,6 +276,10 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     auto* dragDropHeader = new WidgetsResizableHeaderAttachment(Qt::Horizontal, tableView, params);
     tableView->setHorizontalHeader(dragDropHeader);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    EventFilterObject* focusConnector = WidgetWrapper(tableView).ConnectFocus(dragDropHeader);
+    dragDropHeader->setFocusProxy(tableView);
+    dragDropHeader->connect(dragDropHeader, &QWidget::destroyed, [focusConnector]{ delete focusConnector; });
 
     auto* columnsAction = WidgetsResizableHeaderAttachment::CreateShowColumsMenu(dragDropHeader, params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
@@ -369,6 +373,9 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     verticalHeader->setDropIndicatorShown(params.DropIndicatorShown);
     verticalHeader->setSortIndicatorShown(params.SortIndicatorShown);
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+	EventFilterObject* focusConnector = WidgetWrapper(tableView).ConnectFocus(verticalHeader);
+    verticalHeader->connect(verticalHeader, &QWidget::destroyed, [focusConnector]{ delete focusConnector; });
 
     auto* columnsAction = WidgetsResizableHeaderAttachment::CreateShowColumsMenu(verticalHeader, params);
     tableView->setProperty("ColumnsAction", (size_t)columnsAction);
@@ -1902,8 +1909,8 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
     static const QVector<std::function<void (QPushButton*)>> buttonsDelegates {
         [](QPushButton* btn) { btn->setText(QObject::tr("Pick screen color")); },
         [](QPushButton* btn) { btn->setText(QObject::tr("Add to custom colors")); },
-        [](QPushButton* btn) { btn->setText(QObject::tr("Apply")); },
-        [](QPushButton* btn) { btn->setText(QObject::tr("Cancel")); }
+        [](QPushButton* btn) { delete btn; },
+        [](QPushButton* btn) { delete btn; }
     };
     auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
     ForeachChildWidget([&](const WidgetWrapper& widget) {
@@ -1931,17 +1938,11 @@ ActionWrapper MenuWrapper::AddColorAction(const QString& title, const QColor& co
     btn->setText(title);
 
     QObject::connect(btn, &QPushButton::clicked, [handler, color, btn] {
-        WidgetColorDialogWrapper dialog(WidgetsDialogsManager::GetInstance().GetOrCreateDialog<QColorDialog>("ColorDialog", []{
-            return WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow()))
-                   .SetDefaultLabels();
-        }, "ColorDialog"));
-        dialog->setCurrentColor(color);
-        dialog.Show(DescShowDialogParams());
-        if(dialog->result() == QDialog::Accepted) {
-            auto result = dialog->currentColor();
-            pixmap.fill(result);
+        auto result = WidgetsDialogsManager::GetInstance().GetColor(color, true);
+        if(result.has_value()) {
+            pixmap.fill(result.value());
             btn->setIcon(pixmap);
-            handler(result);
+            handler(result.value());
         }
     });
 

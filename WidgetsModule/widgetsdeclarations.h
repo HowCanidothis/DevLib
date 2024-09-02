@@ -62,26 +62,75 @@ struct DescWidgetsLocationAttachmentParams
     DescWidgetsLocationAttachmentParams& DisableFullParentSize() { FullParentSize = false; return *this; }
 };
 
+struct WidgetsDialogsManagerButtonStruct
+{
+    QDialogButtonBox::ButtonRole Role;
+    FTranslationHandler Text;
+
+    WidgetsDialogsManagerButtonStruct()
+    {}
+    WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text)
+        : Role(role)
+        , Text(text)
+    {}
+};
+
+struct WidgetsDialogsManagerDefaultButtons
+{
+    static WidgetsDialogsManagerButtonStruct ConfirmButton();
+    static WidgetsDialogsManagerButtonStruct CloseButton();
+    static WidgetsDialogsManagerButtonStruct ApplyButton();
+    static WidgetsDialogsManagerButtonStruct SaveButton();
+    static WidgetsDialogsManagerButtonStruct OkButton();
+    static WidgetsDialogsManagerButtonStruct CancelButton();
+    static WidgetsDialogsManagerButtonStruct DiscardButton();
+    static WidgetsDialogsManagerButtonStruct DeleteButton();
+    static WidgetsDialogsManagerButtonStruct ReplaceButton();
+    static WidgetsDialogsManagerButtonStruct MergeButton();
+    static WidgetsDialogsManagerButtonStruct InsertButton();
+    static WidgetsDialogsManagerButtonStruct SelectButton();
+
+    static WidgetsDialogsManagerButtonStruct SaveRoleButton(const FTranslationHandler& text);
+    static WidgetsDialogsManagerButtonStruct CancelRoleButton(const FTranslationHandler& text);
+    static WidgetsDialogsManagerButtonStruct DiscardRoleButton(const FTranslationHandler& text);
+    static WidgetsDialogsManagerButtonStruct ActionRoleButton(const FTranslationHandler& text);
+
+    Q_DECLARE_TR_FUNCTIONS(WidgetsDialogsManagerDefaultButtons)
+};
+
 struct DescCustomDialogParams
 {
-    QVector<std::tuple<QDialogButtonBox::ButtonRole, QString, FAction>> Buttons;
+    QVector<WidgetsDialogsManagerButtonStruct> Buttons;
     QWidget* View = nullptr;
     qint32 DefaultButtonIndex = 0;
     bool DefaultSpacing = true;
-    FAction OnRejected = []{};
-    FAction OnAccepted = []{};
+    FTranslationHandler Title;
+    std::function<void (const QVector<QAbstractButton*>&)> OnInitialized;
+    std::function<void (qint32)> OnDone;
+    bool Resizeable = false;
 
-    DescCustomDialogParams& SetOnRejected(const FAction& handler) { OnRejected = handler; return *this; }
-    DescCustomDialogParams& SetOnAccepted(const FAction& handler) { OnAccepted = handler; return *this; }
+    DescCustomDialogParams& SetResizeable(){ Resizeable = true; return *this; }
+    DescCustomDialogParams& SetOnDone(const std::function<void (qint32)>& onDone){ OnDone = onDone; return *this; }
+    DescCustomDialogParams& SetOnInitialized(const std::function<void (const QVector<QAbstractButton*>&)>& onInitialized) { OnInitialized = onInitialized; return *this; }
+    DescCustomDialogParams& SetTitle(const FTranslationHandler& title) { Title = title; return *this; }
     DescCustomDialogParams& FillWithText(const QString& text);
     DescCustomDialogParams& SetDefaultSpacing(bool defaultSpacing) { DefaultSpacing = defaultSpacing; return *this; }
-    DescCustomDialogParams& AddButton(QDialogButtonBox::ButtonRole role, const QString& text, const FAction& action = []{})
+    DescCustomDialogParams& AddButton(const WidgetsDialogsManagerButtonStruct& button)
     {
-        Buttons.append(std::make_tuple(role, text, action));
+        Buttons.append(button);
+        return *this;
+    }
+    template<typename ... Args>
+    DescCustomDialogParams& AddButtons(const Args&... buttons)
+    {
+        adapters::Combine([&](const auto& button){
+            AddButton(button);
+        }, buttons...);
         return *this;
     }
     DescCustomDialogParams& SetView(QWidget* view) { Q_ASSERT(View == nullptr); View = view; return *this; }
 };
+Q_DECLARE_METATYPE(DescCustomDialogParams)
 
 struct DescShowDialogParams
 {

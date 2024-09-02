@@ -35,8 +35,7 @@ public:
     LocalProperty<QLocale> Locale;
     LocalPropertySequentialEnum<LocaleType> ImportLocale;
     CommonDispatcher<qint32, qint32> OnMatchingChanged;
-    Dispatcher OnTransitionStarted;
-    Dispatcher OnTransited;
+    LocalPropertyBool IsInTransition;
 
     void Initialize(const QList<QString>& data, QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns = {});
     void Initialize(const QList<QVector<QVariant>>& data, QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns = {});

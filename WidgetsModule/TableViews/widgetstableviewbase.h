@@ -10,7 +10,7 @@ class WidgetsTableViewBase : public QTableView
     Q_OBJECT
     using Super = QTableView;
 public:
-    using Super::Super;
+    WidgetsTableViewBase(QWidget* parent = nullptr);
 
     void OverrideEditorEvent(const std::function<void (const FAction&)>& action);
 

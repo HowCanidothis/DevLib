@@ -10,6 +10,77 @@ IMPLEMENT_GLOBAL_CHAR_1(InvertedModel)
 IMPLEMENT_GLOBAL_CHAR_1(ActionWidget)
 }
 
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ReplaceButton()
+{
+    return SaveRoleButton(TR(tr("Replace")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::MergeButton()
+{
+    return SaveRoleButton(TR(tr("Merge")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::InsertButton()
+{
+    return SaveRoleButton(TR(tr("Insert")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::CloseButton()
+{
+    return SaveRoleButton(TR(tr("Close")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ApplyButton()
+{
+    return SaveRoleButton(TR(tr("Apply")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::SelectButton()
+{
+    return SaveRoleButton(TR(tr("Select")));
+}
+
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::SaveButton()
+{
+    return SaveRoleButton(TR(tr("Save")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ConfirmButton()
+{
+    return SaveRoleButton(TR(tr("Confirm")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::OkButton()
+{
+    return SaveRoleButton(TR(tr("Ok")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::CancelButton()
+{
+    return CancelRoleButton(TR(tr("Cancel")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::DiscardButton()
+{
+    return DiscardRoleButton(TR(tr("Discard")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::DeleteButton()
+{
+    return DiscardRoleButton(TR(tr("Delete")));
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::SaveRoleButton(const FTranslationHandler& text)
+{
+    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::YesRole, text);
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::CancelRoleButton(const FTranslationHandler& text)
+{
+    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::NoRole, text);
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::DiscardRoleButton(const FTranslationHandler& text)
+{
+    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::DestructiveRole, text);
+}
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ActionRoleButton(const FTranslationHandler& text)
+{
+    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ActionRole, text);
+}
+
 DescCustomDialogParams& DescCustomDialogParams::FillWithText(const QString& text)
 {
     Q_ASSERT(View == nullptr);

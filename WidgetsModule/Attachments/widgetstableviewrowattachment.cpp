@@ -8,11 +8,13 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
 
-void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText)
+void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
 {
-    button.SetOnClicked([this, action, dialogText]{
+    button.SetOnClicked([this, action, dialogText, confirmButton]{
         if(dialogText != nullptr) {
-            if(!WidgetsDialogsManager::GetInstance().ShowOkCancelDialog(QString(), dialogText())) {
+            if(!WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(dialogText)
+                                                                    .AddButton(confirmButton)
+                                                                    .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton()))) {
                 return;
             }
         }

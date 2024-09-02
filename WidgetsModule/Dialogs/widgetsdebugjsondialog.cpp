@@ -7,7 +7,7 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 
 WidgetsDebugJsonDialog::WidgetsDebugJsonDialog(QWidget *parent)
-    : QWidget(parent, Qt::Window)
+    : QDialog(parent, Qt::Window)
     , ui(new Ui::WidgetsDebugJsonDialog)
     , m_keyword("%1")
 {

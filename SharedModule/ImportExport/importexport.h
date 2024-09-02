@@ -406,11 +406,21 @@ public:
             FutureResult future;
             bool result = false;
             future += ThreadHandlerMain([&result, &data, model, &source]{
-                WidgetsImportTableDialog dialog;
-                dialog.GetView()->Initialize(data, model, {});
-                dialog.exec();
-                result = dialog.result() != WidgetsImportTableDialog::IR_Canceled;
-                source->Properties.SetProperty("Mode", dialog.result());
+                WidgetsImportView* view = new WidgetsImportView();
+                view->Initialize(data, model, {});
+                auto params = DescCustomDialogParams().SetTitle(TR(tr("Import Data")))
+                        .SetView(view)
+                        .SetResizeable()
+                        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                                    WidgetsDialogsManagerDefaultButtons::InsertButton(),
+                                    WidgetsDialogsManagerDefaultButtons::ReplaceButton())
+                        .SetOnInitialized([&](const QVector<QAbstractButton*>& buttons) {
+                    WidgetAbstractButtonWrapper(buttons[2]).CreateEnablityRule(CDL, [view]{
+                        return !view->IsInTransition;
+                    }, {buttons[1]}, view->IsInTransition);
+                });
+                auto result = WidgetsDialogsManager::GetInstance().ShowTempDialog(params, DescShowDialogParams().SetResizeToDefault(true));
+                source->Properties.SetProperty("Mode", result);
             });
             future.Wait();
             return result;

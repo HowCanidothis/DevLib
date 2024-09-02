@@ -29,76 +29,40 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="BtnFlip">
-       <property name="text">
-        <string>FLIP</string>
+      <widget class="WidgetsComboBoxLayout" name="cbLocale">
+       <property name="title">
+        <string>Locale</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbLocale">
-       <property name="text">
-        <string>Locale:</string>
+      <widget class="WidgetsComboBoxLayout" name="cbGroup">
+       <property name="title">
+        <string>Grouping symbol</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="cbLocale"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbGroupSeparator">
-       <property name="text">
-        <string>Grouping symbol:</string>
+      <widget class="WidgetsComboBoxLayout" name="cbDecimal">
+       <property name="title">
+        <string>Decimal separator</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="cbGroup"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbDecimal">
-       <property name="text">
-        <string>Decimal separator:</string>
+      <widget class="WidgetsLineEditLayout" name="leDateTime">
+       <property name="title">
+        <string>Date Time Format</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="cbDecimal"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbDateTime">
-       <property name="text">
-        <string>Date Time Format:</string>
+      <widget class="WidgetsLineEditLayout" name="lbDatePreview">
+       <property name="title">
+        <string>Example</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="leDateTime">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>300</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbDateTimeSample">
-       <property name="text">
-        <string>Example:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lbDatePreview">
-       <property name="text">
-        <string/>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -114,6 +78,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="BtnFlip">
+       <property name="text">
+        <string>Transpose</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="ShowPreview">
@@ -159,6 +130,16 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>WidgetsLineEditLayout</class>
+   <extends>QFrame</extends>
+   <header>WidgetsModule/internal.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>WidgetsComboBoxLayout</class>
+   <extends>QFrame</extends>
+   <header>WidgetsModule/internal.hpp</header>
+  </customwidget>
   <customwidget>
    <class>WidgetsTableViewBase</class>
    <extends>QTableView</extends>

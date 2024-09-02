@@ -1,5 +1,5 @@
-#ifndef WIDGETSINPUTDIALOG_H
-#define WIDGETSINPUTDIALOG_H
+#ifndef WIDGETSINPUTDIALOGVIEW_H
+#define WIDGETSINPUTDIALOGVIEW_H
 
 #include <QWidget>
 
@@ -13,16 +13,16 @@
 #endif
 
 namespace Ui {
-class WidgetsInputDialog;
+class WidgetsInputDialogView;
 }
 
-class WidgetsInputDialog : public QDialog
+class WidgetsInputDialogView : public QDialog
 {
     Q_OBJECT
     using Super = QDialog;
 public:
-    explicit WidgetsInputDialog(QWidget *parent = nullptr);
-    ~WidgetsInputDialog();
+    explicit WidgetsInputDialogView(QWidget *parent = nullptr);
+    ~WidgetsInputDialogView();
 
     LocalPropertyString Content;
 #ifdef UNITS_MODULE_LIB
@@ -30,6 +30,7 @@ public:
 #endif
     void AddDouble(const QString& label, LocalPropertyDouble* property);
     void AddLineText(const QString& label, LocalPropertyString* property);
+    void Reset();
 
 private:
     template<class T>
@@ -42,10 +43,10 @@ private:
     }
 
 private:
-    Ui::WidgetsInputDialog *ui;
+    Ui::WidgetsInputDialogView *ui;
     WidgetsInputDialogConnectors m_connectors;
     QVector<FAction> m_resets;
 
 };
 
-#endif // WIDGETSINPUTDIALOG_H
+#endif // WIDGETSINPUTDIALOGVIEW_H

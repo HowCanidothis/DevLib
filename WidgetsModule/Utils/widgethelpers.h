@@ -5,6 +5,7 @@
 #include <PropertiesModule/internal.hpp>
 
 #include "WidgetsModule/widgetsdeclarations.h"
+#include "WidgetsModule/Dialogs/widgetsdialog.h"
 
 struct WidgetWrapperInjectedCommutatorData
 {
@@ -173,6 +174,8 @@ public:
 
     QByteArray StoreGeometry() const;
     bool RestoreGeometry(const QByteArray& geometry) const;
+
+    void RegisterDialogView(const DescCustomDialogParams& params);
 
     template<typename ... Args>
     EventFilterObject* ConnectFocus(Args... other) const
@@ -661,7 +664,6 @@ public:
 
     const WidgetColorDialogWrapper& SetDefaultLabels() const;
     const WidgetColorDialogWrapper& SetShowAlpha(bool show) const;
-    void Show(const DescShowDialogParams& params) const;
 };
 
 class WidgetDialogWrapper : public WidgetWrapper
@@ -671,10 +673,10 @@ public:
     WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator);
 
     template<class T>
-    T* GetCustomView() const { return WidgetsDialogsManager::GetInstance().CustomDialogView<T>(GetWidget()); }
-    void Show(const DescShowDialogParams& params) const;
+    T* GetView() const { return GetWidget()->GetView(); }
+    qint32 Show(const DescShowDialogParams& params = DescShowDialogParams()) const;
 
-    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDialogWrapper, QDialog)
+    DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDialogWrapper, WidgetsDialog)
 };
 
 class WidgetHeaderViewWrapper : public WidgetWrapper

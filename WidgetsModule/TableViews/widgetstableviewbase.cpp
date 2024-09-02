@@ -11,6 +11,13 @@ using EditorEvent = std::function<void (const FAction&)>;
 using WidgetsTableViewBaseOverridenEditorEvent = SharedPointer<EditorEvent>;
 Q_DECLARE_METATYPE(WidgetsTableViewBaseOverridenEditorEvent)
 
+WidgetsTableViewBase::WidgetsTableViewBase(QWidget* parent)
+    : Super(parent)
+{
+    horizontalHeader()->setFocusProxy(this);
+    verticalHeader()->setFocusProxy(this);
+}
+
 void WidgetsTableViewBase::OverrideEditorEvent(const std::function<void (const FAction&)>& action)
 {
     setProperty(OverridenEditorEvent, QVariant::fromValue(::make_shared<EditorEvent>(action)));

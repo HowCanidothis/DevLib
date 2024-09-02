@@ -10,19 +10,28 @@ class WidgetsDialogsManager : public SingletoneGlobal<WidgetsDialogsManager>
     template<class T> friend class SingletoneGlobal;
     WidgetsDialogsManager();
 public:
+    static const char* FDialogHandlerPropertyName;
+    static const char* ResizeablePropertyName;
+    static const char* CustomViewPropertyKey;
+
+    using FDialogHandler = std::function<void (class WidgetsDialog*)>;
     QList<QString> AutomatedSourcePaths;
 
     void SetDefaultParentWindow(QWidget* window);
     QWidget* GetParentWindow() const;
 
-    qint32 ShowDialog(const QString& title, QWidget* view, QVector<std::pair<QString, qint32>>& buttons);
-    bool ShowSaveCancelDialog(const QString& label, const QString& text);
-    bool ShowDeleteCancelDialog(const QString& label, const QString& text);
-    bool ShowOkCancelDialog(const QString& label, const QString& text, const QString& confirmActionText = QString());
-    void ShowMessageBox(QtMsgType msgType, const QString& title, const QString& message);
-    QString GetText(const QString& title, const QString& text = QString(), bool* ok = nullptr);
+    bool ShowDeleteCancelDialog(const QString& title, const QString& text);
+    qint32 ShowTempDialog(const DescCustomDialogParams& params, const DescShowDialogParams& showParams = DescShowDialogParams()) const;
+    void ShowTextDialog(const QString& title, const QString& text) const;
+    std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString());
+    std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
+    QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
-    QDialog* GetOrCreateCustomDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
+    template<class T>
+    T* GetOrCreateDialog(const Name& tag, const Name& restoreGeometryName = Name())
+    {
+        return GetOrCreateDialog<T>(tag, [this]{ return new T(GetParentWindow()); }, restoreGeometryName);
+    }
 
     template<class T>
     T* GetOrCreateDialog(const Name& tag, const std::function<T* ()>& dialogCreator, const Name& restoreGeometryName = Name())
@@ -30,13 +39,14 @@ public:
         Q_ASSERT(!tag.IsNull());
         auto foundIt = m_taggedDialog.find(tag);
         if(foundIt != m_taggedDialog.end()) {
+            Q_ASSERT(qobject_cast<T*>(foundIt.value()));
             return reinterpret_cast<T*>(foundIt.value());
         }
         auto* result = dialogCreator();
+        OnDialogCreated(result);
         if(result->parentWidget() == nullptr) {
             result->setParent(GetParentWindow(), result->windowFlags());
         }
-        OnDialogCreated(result);
         if(!restoreGeometryName.IsNull()) {
             QSettings geometriesSettings;
             auto geometry = geometriesSettings.value("Geometries/" + restoreGeometryName.AsString()).toByteArray();
@@ -55,34 +65,23 @@ public:
         return result;
     }
 
-    template<class T>
-    T* GetOrCreateDialog(const Name& tag, const Name& restoreGeometryName = Name())
-    {
-        return GetOrCreateDialog<T>(tag, [this]{ return new T(GetParentWindow()); }, restoreGeometryName);
-    }
+    WidgetsDialog* GetOrCreateDialog(const Name& tag, const std::function<DescCustomDialogParams ()>& paramsCreator);
+    qint32 ShowDialog(WidgetsDialog* dialog, const DescShowDialogParams& params = DescShowDialogParams()) const;
 
-    template<class T>
-    T* CustomDialogView(QDialog* dialog) const
-    {
-        return (T*)(dialog->property(CustomViewPropertyKey).toLongLong());
-    }
-    void ShowDialog(QDialog* dialog, const DescShowDialogParams& params);
-    void ShowPropertiesDialog(const PropertiesScopeName& name, const DescShowDialogParams& params);
-
-    void ResizeDialogToDefaults(QWidget* dialog);
+    void ResizeDialogToDefaults(QWidget* dialog) const;
     void MakeFrameless(QWidget* widget, bool attachMovePane = true, const QString& movePaneId = QString());
     static void AttachShadow(class QWidget* w, bool applyMargins = true);
-
-    QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
     LocalPropertyDouble ShadowBlurRadius;
     LocalPropertyColor ShadowColor;
 
     CommonDispatcher<QWidget*> OnDialogCreated;
-    static const char* CustomViewPropertyKey;
 
 private:
-    QHash<Name, QWidget*> m_taggedDialog;
+    WidgetsDialog* createDialog(const DescCustomDialogParams& params) const;
+
+private:
+    QHash<Name, QDialog*> m_taggedDialog;
     QWidget* m_defaultParent;
 
     Q_DECLARE_TR_FUNCTIONS(WidgetsDialogsManager)

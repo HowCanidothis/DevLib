@@ -39,15 +39,9 @@ WidgetsColorPicker::~WidgetsColorPicker()
 void WidgetsColorPicker::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton) {
-        WidgetColorDialogWrapper dialog(WidgetsDialogsManager::GetInstance().GetOrCreateDialog<QColorDialog>("ColorDialog", []{
-            return WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow())).SetShowAlpha(true)
-                   .SetDefaultLabels();
-        }, "ColorDialog"));
-        dialog->setCurrentColor(Color);
-        dialog.Show(DescShowDialogParams());
-        if(dialog->result() == QDialog::Accepted) {
-            auto result = dialog->currentColor();
-            Color = result;
+        auto result = WidgetsDialogsManager::GetInstance().GetColor(Color);
+        if(result.has_value()) {
+            Color = result.value();
         }
     }
 }

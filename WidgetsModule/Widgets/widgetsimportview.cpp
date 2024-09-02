@@ -69,7 +69,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&DateTimeFormat, ui->leDateTime);
     m_connectors.AddConnector<LocalPropertiesCheckBoxConnector>(&ShowPreview, ui->ShowPreview);
 	
-    ShowPreview.Subscribe([this]{
+    ShowPreview.SetAndSubscribe([this]{
         ui->PreviewTable->setVisible(ShowPreview);
     });
 
@@ -89,7 +89,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
         DecimalSeparator = TranslatorManager::GetNames<DecimalKeyboardSeparator>().indexOf(Locale.Native().decimalPoint());
         DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : "dd.MM.yyyy H:mm";
 	});
-	DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
+    DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->lineEdit()->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
 	
     ui->SourceTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -130,18 +130,13 @@ WidgetsImportView::~WidgetsImportView()
 
 void WidgetsImportView::SetVisibilityMode(VisibilityFlags mode)
 {
-    ui->lbDecimal->setVisible(mode.TestFlag(VisibilityFlag_DecimalSeparator));
     ui->cbDecimal->setVisible(mode.TestFlag(VisibilityFlag_DecimalSeparator));
 
     ui->lbDatePreview->setVisible(mode.TestFlag(VisibilityFlag_Date));
-    ui->lbDateTime->setVisible(mode.TestFlag(VisibilityFlag_Date));
-    ui->lbDateTimeSample->setVisible(mode.TestFlag(VisibilityFlag_Date));
     ui->leDateTime->setVisible(mode.TestFlag(VisibilityFlag_Date));
 
-    ui->lbLocale->setVisible(mode.TestFlag(VisibilityFlag_Locale));
     ui->cbLocale->setVisible(mode.TestFlag(VisibilityFlag_Locale));
 
-    ui->lbGroupSeparator->setVisible(mode.TestFlag(VisibilityFlag_GroupSeparator));
     ui->cbGroup->setVisible(mode.TestFlag(VisibilityFlag_GroupSeparator));
 }
 
@@ -172,9 +167,9 @@ void WidgetsImportView::initializeMatching(QAbstractItemModel* targetModel, cons
 
     m_matchingAttachment->TransitionState.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         if(m_matchingAttachment->TransitionState) {
-            OnTransitionStarted();
+            IsInTransition = true;
         } else {
-            OnTransited();
+            IsInTransition = false;
         }
     });
 
