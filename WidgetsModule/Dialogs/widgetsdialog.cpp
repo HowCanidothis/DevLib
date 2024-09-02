@@ -22,14 +22,23 @@ WidgetsDialog::~WidgetsDialog()
 }
 
 void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler)
-{
-    for(const auto& button : m_buttons) {
-        ui->horizontalLayout->insertWidget(1, button);
+{    
+    for(auto* button : m_buttons) {
+        auto bRole = m_roles.value(button, ButtonRole::Save);
+        switch(bRole) {
+        case ButtonRole::Save: ui->horizontalLayout->addWidget(button);
+            break;
+        case ButtonRole::Cancel: ui->horizontalLayout->insertWidget(1, button);
+            break;
+        default: ui->horizontalLayout->insertWidget(0, button);
+            break;
+        }
     }
     if(handler != nullptr) {
         handler(m_buttons);
     }
     m_onDone = onDone;
+    m_roles.clear();
 }
 
 void WidgetsDialog::SetHeaderText(const FTranslationHandler& text)
@@ -41,18 +50,19 @@ void WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
 {
     auto* button = new QPushButton();
 
-    auto setRole = [](QAbstractButton* button, ButtonRole role) {
+    auto setRole = [this](QAbstractButton* button, ButtonRole role) {
          WidgetPushButtonWrapper((QPushButton*)button).SetControl(role, true);
+         m_roles.insert(button, role);
     };
 
     switch(b.Role) {
     case QDialogButtonBox::YesRole:
     case QDialogButtonBox::ApplyRole:
+    case QDialogButtonBox::ActionRole:;
     case QDialogButtonBox::AcceptRole: setRole(button, ButtonRole::Save); break;
     case QDialogButtonBox::ResetRole:
     case QDialogButtonBox::NoRole:
     case QDialogButtonBox::RejectRole: setRole(button, ButtonRole::Cancel); break;
-    case QDialogButtonBox::ActionRole: break;
     case QDialogButtonBox::DestructiveRole: setRole(button, ButtonRole::Reset); break;
     default: Q_ASSERT(false); break;
     }

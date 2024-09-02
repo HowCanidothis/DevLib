@@ -35,6 +35,7 @@ public slots:
 private:
     Ui::WidgetsDialog *ui;
     QVector<QAbstractButton*> m_buttons;
+    QHash<QAbstractButton*, ButtonRole> m_roles;
     std::function<void (qint32)> m_onDone;
     QWidget* m_content;
 };

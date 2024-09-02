@@ -328,20 +328,6 @@ protected:
     }
 };
 
-enum class ButtonRole
-{
-    Action,
-    Icon = 1,
-    Save = 2,
-    Reset = 3,
-    Cancel = 4,
-    AddIcon = 5,
-    Add = 6,
-    Tab = 7,
-    FloatingButton = 9,
-    IconWithText = 13
-};
-
 class WidgetScrollAreaWrapper : public WidgetWrapper
 {
     using Super = WidgetWrapper;
