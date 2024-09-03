@@ -60,14 +60,78 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
     ui->setupUi(this);
     ui->label->setProperty("splitter", true);
 
-    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Hours, ui->spHours);
+    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_hoursUI, ui->spHours);
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(&m_timeConverter->Minutes, ui->spMinutes);
 
+
     if(SharedSettings::IsInitialized()){
-        ui->timePicker->HourType.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](const QLocale& locale){
+        ui->timePicker->HourType.ConnectFrom(CDL, [](const QLocale& locale){
             return qint32(locale.language() == QLocale::English ? HourFormat::Hour12 : HourFormat::Hour24);
         }, SharedSettings::GetInstance().LanguageSettings.ApplicationLocale).MakeSafe(m_connections);
     }
+
+    auto formatConnections = DispatcherConnectionsSafeCreate();
+    ui->timePicker->HourType.ConnectAndCall(CDL, [this, formatConnections](int type){
+        formatConnections->clear();
+        auto isInternationFormat = type == (int)HourFormat::Hour24;
+
+        ui->btnAM->setVisible(!isInternationFormat);
+        ui->btnPM->setVisible(!isInternationFormat);
+
+        if(isInternationFormat) {
+            m_hoursUI.SetValidator([](qint32 value){
+                if(value >= 24) {
+                    return 0;
+                } else if(value < 0) {
+                    return 23;
+                }
+                return value;
+            });
+            m_timeConverter->Hours.ConnectBoth(CDL, m_hoursUI).MakeSafe(*formatConnections);
+        } else {
+            m_hoursUI.SetValidator([this](qint32 value){
+                if(value >= 12) {
+                    Type = Type.Native() == DayType::AM ? DayType::PM : DayType::AM;
+                    return 0;
+                } else if(value < 0) {
+                    Type = Type.Native() == DayType::AM ? DayType::PM : DayType::AM;
+                    return 11;
+                }
+                return value;
+            });
+            LocalPropertiesConnectBoth(CDL,  {&m_timeConverter->Hours.OnChanged}, [this]{
+                const auto& time = m_timeConverter->Hours.Native();
+                if(time < 12){
+                    Type = DayType::AM;
+                    m_hoursUI = time;
+                } else {
+                    Type = DayType::PM;
+                    m_hoursUI = time - 12;
+                }
+            }, {&m_hoursUI.OnChanged, &Type.OnChanged}, [this]{
+                m_timeConverter->Hours = m_hoursUI.Native() + (Type == DayType::AM ? 0 : 12);
+            }).MakeSafe(*formatConnections);
+        }
+    });
+
+    auto hourMinutesConnections = DispatcherConnectionsSafeCreate();
+    ui->timePicker->TypeClock.ConnectAndCall(CDL, [this, hourMinutesConnections](int typeClock){
+        hourMinutesConnections->clear();
+        switch(static_cast<ClockType>(typeClock)){
+        case ClockType::Hour:
+            m_hoursUI.ConnectBoth(CDL, ui->timePicker->CurrentTime).MakeSafe(*hourMinutesConnections); break;
+        case ClockType::Minutes:
+            m_timeConverter->Minutes.ConnectBoth(CDL, ui->timePicker->CurrentTime).MakeSafe(*hourMinutesConnections); break;
+        default: Q_ASSERT(false); break;
+        }
+    });
+
+    static auto DisplayFormat([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
+        return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
+    });
+
+    ui->spHours->SetTextFromValueHandler(DisplayFormat);
+    ui->spMinutes->SetTextFromValueHandler(DisplayFormat);
 
     WidgetWrapper(ui->spHours).AddEventFilter([this](QObject*, QEvent* e){
         if(e->type() == QEvent::FocusIn) {
@@ -82,80 +146,19 @@ WidgetsTimeWidget::WidgetsTimeWidget(QWidget *parent)
         }
         return false;
     });
-
-    ui->timePicker->HourType.SetAndSubscribe([this]{
-        auto isInternationFormat = ui->timePicker->HourType.Native() == HourFormat::Hour24;
-
-        ui->btnAM->setVisible(!isInternationFormat);
-        ui->btnPM->setVisible(!isInternationFormat);
-
-        if(!isInternationFormat){
-            ui->spHours->SetTextFromValueHandler([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
-                value -= value >= 12 ? 12 : 0;
-                return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
-            });
-        } else {
-            ui->spHours->SetTextFromValueHandler([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
-                return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
-            });
-        }
-    });
-    ui->spMinutes->SetTextFromValueHandler([](const WidgetsSpinBoxWithCustomDisplay*, qint32 value)->QString {
-        return QString("%1%2").arg(abs(value) < 10 ? "0" : "").arg(value);
-    });
-
-    connect(ui->btnAM, &QPushButton::pressed, [this](){ Type = DayType::AM; });
-    connect(ui->btnPM, &QPushButton::pressed, [this](){ Type = DayType::PM; });
-    Type.SetAndSubscribe([this]{
-        ui->btnAM->setProperty("highlighted", Type == DayType::AM);
-        ui->btnPM->setProperty("highlighted", Type == DayType::PM);
-        WidgetWrapper(ui->btnAM).UpdateStyle();
-        WidgetWrapper(ui->btnPM).UpdateStyle();
-    });
-
-    ui->timePicker->OnMouseReleased.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+    ui->timePicker->OnMouseReleased.Connect(CDL, [this]{
         if(ui->timePicker->TypeClock == ClockType::Hour) {
             ui->timePicker->TypeClock = ClockType::Minutes;
         }
     });
 
-    ui->timePicker->TypeClock.SetAndSubscribe([this]{
-        m_dayTypeConnections.clear();
-        m_hourTypeConnections.clear();
-
-        switch(ui->timePicker->TypeClock.Native()){
-        case ClockType::Hour:
-            ui->timePicker->HourType.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](int hourType){
-                m_hourTypeConnections.clear();
-                switch (static_cast<HourFormat>(hourType)) {
-                case HourFormat::Hour12: {
-                    LocalPropertiesConnectBoth(CONNECTION_DEBUG_LOCATION,  {&m_timeConverter->Hours.OnChanged}, [this]{
-                        const auto& time = m_timeConverter->Hours.Native();
-                        if(time < 12){
-                            Type = DayType::AM;
-                            ui->timePicker->CurrentTime = time;
-                        } else {
-                            Type = DayType::PM;
-                            ui->timePicker->CurrentTime = time - 12;
-                        }
-                    }, {&Type.OnChanged, &ui->timePicker->CurrentTime.OnChanged}, [this]{
-                        m_timeConverter->Hours = ui->timePicker->CurrentTime.Native() + (Type == DayType::AM ? 0 : 12);
-                    }).MakeSafe(m_hourTypeConnections);
-                    break;
-                }
-                case HourFormat::Hour24:
-                    m_timeConverter->Hours.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->timePicker->CurrentTime).MakeSafe(m_hourTypeConnections);
-                    break;
-                }
-            }).MakeSafe(m_dayTypeConnections);
-            break;
-        case ClockType::Minutes:
-            m_timeConverter->Minutes.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->timePicker->CurrentTime).MakeSafe(m_dayTypeConnections);
-            break;
-        case ClockType::Seconds: Q_ASSERT(false);
-//            m_timeConverter->Seconds.ConnectBoth(CONNECTION_DEBUG_LOCATION, ui->timePicker->CurrentTime).MakeSafe(m_dayTypeConnections);
-            break;
-        }
+    WidgetPushButtonWrapper(ui->btnAM).SetOnClicked([this]{ Type = DayType::AM; });
+    WidgetPushButtonWrapper(ui->btnPM).SetOnClicked([this]{ Type = DayType::PM; });
+    Type.SetAndSubscribe([this]{
+        ui->btnAM->setProperty("highlighted", Type == DayType::AM);
+        ui->btnPM->setProperty("highlighted", Type == DayType::PM);
+        WidgetWrapper(ui->btnAM).UpdateStyle();
+        WidgetWrapper(ui->btnPM).UpdateStyle();
     });
 }
 

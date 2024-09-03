@@ -39,11 +39,10 @@ private:
     Ui::WidgetsTimeWidget *ui;
 
     DispatcherConnectionsSafe m_connections;
-    DispatcherConnectionsSafe m_dayTypeConnections;
-    DispatcherConnectionsSafe m_hourTypeConnections;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
     ScopedPointer<class TimeConverter> m_timeConverter;
 
+    LocalPropertyInt m_hoursUI;
 public:
     LocalPropertyTime& CurrentTime;
 };
