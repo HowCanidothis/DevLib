@@ -11,7 +11,8 @@
 
 WidgetsColorPicker::WidgetsColorPicker(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::WidgetsColorPicker)
+    ui(new Ui::WidgetsColorPicker),
+    HasAlpha(false)
 {
     ui->setupUi(this);
 
@@ -39,7 +40,7 @@ WidgetsColorPicker::~WidgetsColorPicker()
 void WidgetsColorPicker::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton) {
-        auto result = WidgetsDialogsManager::GetInstance().GetColor(Color);
+        auto result = WidgetsDialogsManager::GetInstance().GetColor(Color, HasAlpha);
         if(result.has_value()) {
             Color = result.value();
         }

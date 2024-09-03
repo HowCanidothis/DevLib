@@ -28,6 +28,8 @@ public:
     void SetContent(QWidget* view);
     void AddButton(const WidgetsDialogsManagerButtonStruct& b);
 
+private:
+    void keyPressEvent(QKeyEvent* e) override;
     // QDialog interface
 public slots:
     void done(int) override;

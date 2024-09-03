@@ -104,39 +104,6 @@ SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(SharedPointer)
 SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(SharedPointerInitialized)
 SERIALIZER_XML_DECL_SMART_POINTER_SERIALIZER(ScopedPointer)
 
-template<class T>
-struct SerializerXml<QVector<T>>
-{
-    using Type = QVector<T>;
-
-    template<class Buffer>
-    static void Read(Buffer& reader, const SerializerXmlObject<Type>& object)
-    {
-        reader.OpenSection(object.Name);
-        qint32 count = 0;
-        reader << reader.Attr("Size", count);
-        object.Value.clear();
-        while(count--) {
-            T element;
-            reader << reader.Sect("element", element);
-            object.Value.append(element);
-        }
-        reader.CloseSection();
-    }
-
-    template<class Buffer>
-    static void Write(Buffer& writer, const SerializerXmlObject<Type>& object)
-    {
-        writer.OpenSection(object.Name);
-        qint32 count = object.Value.size();
-        writer << writer.Attr("Size", count);
-        for(auto& element : object.Value) {
-            writer << writer.Sect("element", element);
-        }
-        writer.CloseSection();
-    }
-};
-
 #define DECLARE_SERIALIZER_XML_TO_SERIALIZER(ObjectType) \
 template<> \
 struct SerializerXml<ObjectType> \
@@ -203,7 +170,11 @@ struct SerializerXml<ObjectType<T, T2>> \
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QMap)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QHash)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QVector)
+DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QList)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(std::optional)
+DECLARE_SERIALIZER_XML_TO_SERIALIZER(QRectF)
+DECLARE_SERIALIZER_XML_TO_SERIALIZER(QPointF)
 
 template<>
 struct SerializerXml<Id::Id>
@@ -628,6 +599,5 @@ struct SerializerXml<TargetType> \
         buffer << object.Mutate(reinterpret_cast<SourceType&>(object.Value)); \
     } \
 };
-
 
 #endif // XMLSERIALIZER_H

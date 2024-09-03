@@ -18,6 +18,7 @@ public:
     ~WidgetsColorPicker();
 
     LocalPropertyColor Color;
+    bool HasAlpha;
 
 private:
     void paintEvent(QPaintEvent*) override;

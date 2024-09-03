@@ -104,6 +104,20 @@ int PropertiesToolFolderView::Count() {
     return m_layout->count();
 }
 
+LineData PropertiesToolView::AddColorProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyColor* ()>& propertyGetter, bool hasAlpha)
+{
+    auto* cb = new WidgetsColorPicker();
+    cb->HasAlpha = hasAlpha;
+
+    return addProperty(propertyName, title, cb, [this, propertyGetter, cb](QWidget*){
+        auto* property = propertyGetter();
+        if(property == nullptr) {
+            return;
+        }
+        m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(property, cb);
+    });
+}
+
 DispatcherConnection PropertiesToolFolderView::AddDeleteButton(const WidgetAbstractButtonWrapper& folder, const FAction& onClicked)
 {
     folder.AddEventFilter([this, folder](QObject*, QEvent* e) {

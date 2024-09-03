@@ -523,20 +523,20 @@ struct Serializer<QVector<T>>
     static void Write(Buffer& buffer, const Type& type)
     {
         qint32 size = type.size();
-        buffer << size;
+        buffer << buffer.Attr("Size", size);
         for(const T& value : type) {
-            buffer << value;
+            buffer << buffer.Sect("element", const_cast<T&>(value));
         }
     }
     template<class Buffer>
     static void Read(Buffer& buffer, Type& type)
     {
         qint32 size;
-        buffer << size;
+        buffer << buffer.Attr("Size", size);
         type.clear();
         type.resize(size);
         for(T& value : type) {
-            buffer << value;
+            buffer << buffer.Sect("element", value);
         }
     }
 };
@@ -549,20 +549,20 @@ struct Serializer<QList<T>>
     static void Write(Buffer& buffer, const Type& type)
     {
         qint32 size = type.size();
-        buffer << size;
+        buffer << buffer.Attr("Size", size);
         for(const T& value : type) {
-            buffer << value;
+            buffer << buffer.Sect("element", const_cast<T&>(value));
         }
     }
     template<class Buffer>
     static void Read(Buffer& buffer, Type& type)
     {
         qint32 size;
-        buffer << size;
+        buffer << buffer.Attr("Size", size);
         type.clear();
         while(size--) {
             T value;
-            buffer << value;
+            buffer << buffer.Sect("element", value);
             type.append(value);
         }
     }

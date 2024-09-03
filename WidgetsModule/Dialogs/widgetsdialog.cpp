@@ -1,7 +1,8 @@
-#include "WidgetsDialog.h"
+#include "widgetsdialog.h"
 #include "ui_widgetsdialog.h"
 
 #include <QPushButton>
+#include <QKeyEvent>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
@@ -72,6 +73,34 @@ void WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
     WidgetAbstractButtonWrapper(button).SetOnClicked([this, index]{
         done(index);
     });
+    button->setDefault(true);
+}
+
+void WidgetsDialog::keyPressEvent(QKeyEvent *e)
+{
+    if (e->matches(QKeySequence::Cancel)) {
+        done(0);
+    } else if (!e->modifiers() || (e->modifiers() & Qt::KeypadModifier && e->key() == Qt::Key_Enter)) {
+        switch (e->key()) {
+        case Qt::Key_Enter:
+        case Qt::Key_Return: {
+            for (auto* btn : m_buttons) {
+                auto pb = qobject_cast<QPushButton*>(btn);
+                if (pb->isDefault() && pb->isVisible()) {
+                    if (pb->isEnabled())
+                        pb->click();
+                    return;
+                }
+            }
+        }
+        break;
+        default:
+            e->ignore();
+            return;
+        }
+    } else {
+        e->ignore();
+    }
 }
 
 void WidgetsDialog::SetContent(QWidget* view)
@@ -80,6 +109,15 @@ void WidgetsDialog::SetContent(QWidget* view)
     view->setSizePolicy(view->sizePolicy().horizontalPolicy(), QSizePolicy::Expanding);
     ui->verticalLayout->insertWidget(1, view);
     m_content = view;
+    WidgetWrapper(m_content).AddEventFilter([this](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress) {
+            event(e);
+            if(e->isAccepted()) {
+                return true;
+            }
+        }
+        return false;
+    });
 }
 
 void WidgetsDialog::done(int v)

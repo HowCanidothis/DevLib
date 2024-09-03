@@ -107,10 +107,9 @@ std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool 
 {
     std::optional<QColor> result;
     auto createParams = [&](const WidgetColorDialogWrapper& wrapper) {
-        wrapper->setCurrentColor(color);
         return DescCustomDialogParams()
         .SetTitle(TR(tr("Apply Color?")))
-        .SetView(wrapper.SetDefaultLabels().SetShowAlpha(showAlpha))
+        .SetView(wrapper.SetDefaultLabels())
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
             WidgetsDialogsManagerDefaultButtons::ApplyButton())
         .SetOnDone([&result, wrapper](qint32 r) {
@@ -122,6 +121,9 @@ std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool 
     auto* dialog = GetOrCreateDialog("ColorDialog", [showAlpha, createParams]{
         return createParams(new QColorDialog());
     });
+    auto* view = dialog->GetView<QColorDialog>();
+    view->setOption(QColorDialog::ShowAlphaChannel, showAlpha);
+    view->setCurrentColor(color);
     ShowDialog(dialog);
 
     return result;

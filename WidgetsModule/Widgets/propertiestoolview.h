@@ -168,6 +168,7 @@ public:
         });
     }
 
+    LineData AddColorProperty(const Name& propertyName, const FTranslationHandler& label, const std::function<LocalPropertyColor* ()>& propertyGetter, bool hasAlpha);
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool* ()>& propertyGetter);
 
     template<class Property>
@@ -228,20 +229,6 @@ private:
 #endif
     DispatcherConnectionsSafe m_connections;
 };
-
-template<>
-inline LineData PropertiesToolView::AddProperty<LocalPropertyColor>(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyColor* ()>& propertyGetter)
-{
-    auto* cb = new WidgetsColorPicker();
-
-    return addProperty(propertyName, title, cb, [this, propertyGetter, cb](QWidget*){
-        auto* property = propertyGetter();
-        if(property == nullptr) {
-            return;
-        }
-        m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(property, cb);
-    });
-}
 
 template<>
 inline LineData PropertiesToolView::AddProperty<LocalPropertyString>(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter)
@@ -378,8 +365,9 @@ struct TPropertiesToolWrapper {
         auto* property = &propertyGetter(m_object);
         return Register(m_folder->AddTextProperty(propertyName, title, [property]{ return property; }));
     }
-    LineData AddColorProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyColor& (T*)>& propertyGetter) {
-        return AddProperty<LocalPropertyColor>(propertyName, title, propertyGetter);
+    LineData AddColorProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyColor& (T*)>& propertyGetter, bool hasAlpha = true) {
+        auto* property = &propertyGetter(m_object);
+        return Register(m_folder->AddColorProperty(propertyName, title, [property]{ return property; }, hasAlpha));
     }
     template<class Enum>
     LineData AddEnumProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<Enum>& (T*)>& propertyGetter){
