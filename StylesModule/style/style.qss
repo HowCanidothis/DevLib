@@ -480,6 +480,11 @@ QTableView::indicator:checked {
     border-image: url("@cPath/checkbox-checked.svg");
 }
 
+QListView::item {
+    border: 1px solid transparent;
+}
+
+QListView,
 QTableView {
     qproperty-iconSize: 18px;
     qproperty-showGrid: 0;
@@ -491,7 +496,6 @@ QColumnView::item {
     background: transparent;
 }
 
-QListView::item:selected:!active,
 QTableView::item:selected:!active,
 QColumnView::item {
     background: none;
