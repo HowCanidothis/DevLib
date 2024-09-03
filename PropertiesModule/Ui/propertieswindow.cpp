@@ -53,8 +53,8 @@ void PropertiesWindow::on_actionLoad_triggered()
 
 void PropertiesWindow::on_actionNew_triggered()
 {
-    m_fileName = "";
-    setWindowTitle("");
+    m_fileName = QString();
+    setWindowTitle(QString());
 }
 
 void PropertiesWindow::load()

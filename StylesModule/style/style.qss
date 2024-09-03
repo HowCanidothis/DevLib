@@ -484,7 +484,10 @@ QListView::item {
     border: 1px solid transparent;
 }
 
-QListView,
+QListView {
+    qproperty-iconSize: 18px;
+}
+
 QTableView {
     qproperty-iconSize: 18px;
     qproperty-showGrid: 0;

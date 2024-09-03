@@ -55,7 +55,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
     , ui(new Ui::WidgetsImportView)
 {
 	ui->setupUi(this);
-	setWindowTitle("");
+    setWindowTitle(QString());
 	
 	auto* model = new VariantListModel(this);
     ui->SourceTable->setModel(model);
