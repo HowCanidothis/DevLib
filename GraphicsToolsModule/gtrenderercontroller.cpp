@@ -275,6 +275,15 @@ void GtRendererController::KeyPressEvent(QKeyEvent* event)
     });
 }
 
+void GtRendererController::LeaveEvent(QEvent* event)
+{
+    m_renderer->Asynch([this]{
+        if(m_controllers->GetCurrent()->GetParentController() != nullptr) {
+            m_controllers->SetCurrent(m_controllers->GetCurrent()->GetParentController());
+        }
+    });
+}
+
 void GtRendererController::KeyReleaseEvent(QKeyEvent* event)
 {
     auto cevent = new QKeyEvent(*event);

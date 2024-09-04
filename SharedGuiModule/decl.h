@@ -339,6 +339,8 @@ public:
     void FromString(const QString& v){ point3DFromString(*this,v); }
     QString ToString() const { return point3DToString(*this); }
 
+    static Vector3F FromColor(const QColor& color) { return Vector3F(color.redF(), color.greenF(), color.blueF()); }
+
 private:
     const QVector3D& toBase() const { return *this; }
 };

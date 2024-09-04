@@ -205,6 +205,7 @@ public:
     void WheelEvent(class QWheelEvent* event);
     void KeyPressEvent(class QKeyEvent* event);
     void KeyReleaseEvent(QKeyEvent* event);
+    void LeaveEvent(QEvent* event);
 
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;

@@ -22,7 +22,7 @@
 @cIcon.f1:white;
 @cIcon.1:rgb(62, 166, 255);
 @cIcon.hover:rgb(200,200,200);
-@resource.1:C:\Work\wps-client\libs\DevLib\StylesModule/style/res;
+@resource.1::/style/res;
 @resource.2::/aispaces/res;
 @import url("style/style.qss");
 @import url("style/ads.qss");

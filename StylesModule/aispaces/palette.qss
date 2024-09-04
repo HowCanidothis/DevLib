@@ -33,7 +33,7 @@ MainWindow {
     qproperty-iconCaseColor: #00695C;
 
     qproperty-visualizationTextColor: @ctext.active;
-    qproperty-visualizationTextBorderColor: @ctext.label;
+    qproperty-visualizationTextBorderColor: @cbg.1;
     qproperty-visualizationBackgroundColor: @cbg.1;
     qproperty-visualizationBoxColor: @cbg.2;
     qproperty-visualizationAxisColor: @ctext.disabled;

@@ -81,3 +81,8 @@ void GtView::keyReleaseEvent(QKeyEvent *event)
     m_controller->KeyReleaseEvent(event);
 }
 
+void GtView::leaveEvent(QEvent *event)
+{
+    m_controller->LeaveEvent(event);
+}
+
