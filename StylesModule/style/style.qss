@@ -167,6 +167,14 @@ QSpinBox {
     padding-left: 8px;
 }
 
+QSpinBox::up-button {
+    width: 0px;
+}
+
+QSpinBox::down-button {
+    width: 0px;
+}
+
 QSpinBox[readOnly="false"]:hover {
     border: 1px solid @cbr.hover;
 }
@@ -497,6 +505,7 @@ QListView::item,
 QTableView::item,
 QColumnView::item {
     background: transparent;
+    border: 1px solid transparent;
 }
 
 QTableView::item:selected:!active,
@@ -945,6 +954,26 @@ QTextEdit[readOnly="false"] {
 
 QTextEdit[readOnly="false"]:focus {
     border: 1px solid @ctext.1;
+}
+
+QPushButton#btnNext {
+    qproperty-text: "";
+    image: url("@cPath/chevron-right.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnPrevious {
+    qproperty-text: "";
+    image: url("@cPath/chevron-left.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
 }
 
 QCalendarWidget QToolButton#qt_calendar_nextmonth {

@@ -403,28 +403,6 @@ WPSCSimulationTitleBar {
     background: @cbg.2;
 }
 
-WPSCActiveDayComponent QPushButton#btnPrevDay
-{
-    image: url("@cPath/chevron-left.svg");
-    background: transparent;
-    qproperty-text: "";
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-}
-
-WPSCActiveDayComponent QPushButton#btnNextDay
-{
-    image: url("@cPath/chevron-right.svg");
-    background: transparent;
-    qproperty-text: "";
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-}
-
 QListView#SettingsCatalogList {
     font-size: 16px;
     qproperty-spacing: 5;
@@ -487,20 +465,6 @@ QLabel[align_layout_label="true"] {
 
 QLabel[align_layout_label="false"] {
     padding-left: 0px;
-}
-
-WPSWellplanView QPushButton#BtnNext {
-    qproperty-text: "";
-    border-image: url("@cPath/chevron-right.svg");
-    max-width: 6px;
-    max-height: 10px;
-}
-
-WPSWellplanView QPushButton#BtnPrevious {
-    qproperty-text: "";
-    border-image: url("@cPath/chevron-left.svg");
-    max-width: 6px;
-    max-height: 10px;
 }
 
 WallPlot {
