@@ -1,8 +1,6 @@
 #ifndef GTVIEW_H
 #define GTVIEW_H
 
-#include <QOpenGLWidget>
-
 #include "Objects/gtmaterialparametertexturebase.h"
 #include <SharedGuiModule/internal.hpp>
 
