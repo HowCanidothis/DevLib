@@ -63,5 +63,12 @@
         <file>style/res/checkbox-checked.svg</file>
         <file>style/res/checkbox-checked-disabled.svg</file>
         <file>style/res/pagesetup.svg</file>
+        <file>style/res/cut.svg</file>
+        <file>style/res/download.svg</file>
+        <file>style/res/paste.svg</file>
+        <file>style/res/open.svg</file>
+        <file>aispaces/res/addTo.svg</file>
+        <file>aispaces/res/failed.svg</file>
+        <file>style/res/content-copy.svg</file>
     </qresource>
 </RCC>

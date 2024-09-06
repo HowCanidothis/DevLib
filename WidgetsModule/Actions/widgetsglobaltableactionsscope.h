@@ -72,7 +72,7 @@ public:
 
 private:
     friend class WidgetsGlobalTableActionId;
-    QAction* registerAction(const Latin1Name& id, EnableIfMode mode = EIM_Default);
+    QAction* registerAction(const Latin1Name& id, EnableIfMode mode = EIM_Default, const Name& icon = Name());
     virtual void CreateActions(){}
 
 private:
@@ -84,18 +84,35 @@ class WidgetsGlobalTableActionId : public Latin1Name
 {
     using Super = Latin1Name;
 public:
-    WidgetsGlobalTableActionId(const char* id, WidgetsGlobalTableActionsScope::EnableIfMode mode);
+    WidgetsGlobalTableActionId(const char* id, WidgetsGlobalTableActionsScope::EnableIfMode mode, const Name& icon = Name());
 
 private:
+    struct ActionInfo {
+        Latin1Name Id;
+        WidgetsGlobalTableActionsScope::EnableIfMode Mode;
+        Name Icon;
+    };
     friend class WidgetsGlobalTableActionsScope;
-    static QVector<std::pair<Latin1Name, WidgetsGlobalTableActionsScope::EnableIfMode>> m_delayedRegistration;
+    static QVector<ActionInfo> m_delayedRegistration;
 };
+
+namespace ActionIcons {
+DECLARE_GLOBAL_NAME(NoIcon)
+DECLARE_GLOBAL_NAME(Open)
+DECLARE_GLOBAL_NAME(Clone)
+DECLARE_GLOBAL_NAME(Copy)
+DECLARE_GLOBAL_NAME(Cut)
+DECLARE_GLOBAL_NAME(Paste)
+DECLARE_GLOBAL_NAME(Delete)
+DECLARE_GLOBAL_NAME(Insert)
+DECLARE_GLOBAL_NAME(Download)
+}
 
 #define DECLARE_GLOBAL_ACTION(ActionId) \
     const extern WidgetsGlobalTableActionId ActionId;
 
-#define IMPLEMENT_GLOBAL_ACTION(ActionId, mode) \
-    const WidgetsGlobalTableActionId ActionId(#ActionId, mode);
+#define IMPLEMENT_GLOBAL_ACTION(ActionId, mode, icon) \
+    const WidgetsGlobalTableActionId ActionId(#ActionId, mode, icon);
 
 DECLARE_GLOBAL_ACTION(GlobalActionCopyId);
 DECLARE_GLOBAL_ACTION(GlobalActionCopyWithHeadersId);

@@ -64,8 +64,8 @@ WidgetsGlobalTableActionsScope::WidgetsGlobalTableActionsScope()
     , Singletone<WidgetsGlobalTableActionsScope>(this)
 {
     if(!WidgetsGlobalTableActionId::m_delayedRegistration.isEmpty()) {
-        for(const auto& [id, mode] : WidgetsGlobalTableActionId::m_delayedRegistration) {
-            registerAction(id, mode);
+        for(const auto& info : WidgetsGlobalTableActionId::m_delayedRegistration) {
+            registerAction(info.Id, info.Mode, info.Icon);
         }
 
         WidgetsGlobalTableActionId::m_delayedRegistration.clear();
@@ -111,7 +111,9 @@ WidgetsGlobalTableActionsScope::WidgetsGlobalTableActionsScope()
     WidgetsActiveTableViewAttachment::GetInstance()->ActiveTable.SetAndSubscribe(updateActiveTable);
 }
 
-QVector<std::pair<Latin1Name, WidgetsGlobalTableActionsScope::EnableIfMode>> WidgetsGlobalTableActionId::m_delayedRegistration;
+
+
+QVector<WidgetsGlobalTableActionId::ActionInfo> WidgetsGlobalTableActionId::m_delayedRegistration;
 
 FAction WidgetsGlobalTableActionsScope::CreateDefaultDeleteHandler(QTableView* table)
 {
@@ -201,7 +203,7 @@ QList<QString> WidgetsGlobalTableActionsScope::ClipboardRows()
     return ret;
 }
 
-QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, EnableIfMode mode)
+QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, EnableIfMode mode, const Name& icon)
 {
     Q_ASSERT(FindAction(id) == nullptr);
     auto* action = createAction(id, [this, id]{
@@ -216,6 +218,9 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
         }
         foundIt.value().m_data->Action();
     });
+    if(!icon.IsNull()){
+        ActionWrapper(action).SetIcon(icon);
+    }
     switch(mode)
     {
     case EIM_TableSelectionOnlyOne:
@@ -401,22 +406,34 @@ WidgetsGlobalTableActionsScopeHandler WidgetsGlobalTableActionsScopeHandlers::Fi
     return Handlers[action];
 }
 
-WidgetsGlobalTableActionId::WidgetsGlobalTableActionId(const char* id, WidgetsGlobalTableActionsScope::EnableIfMode mode)
+WidgetsGlobalTableActionId::WidgetsGlobalTableActionId(const char* id, WidgetsGlobalTableActionsScope::EnableIfMode mode, const Name& icon)
     : Super(id)
 {
     if(WidgetsGlobalTableActionsScope::IsInitialized()) {
-        WidgetsGlobalTableActionsScope::GetInstance().registerAction(*this, mode);
+        WidgetsGlobalTableActionsScope::GetInstance().registerAction(*this, mode, icon);
     } else {
-        m_delayedRegistration.append(std::make_pair(*this, mode));
+        m_delayedRegistration.append({*this, mode, icon});
     }
 }
 
-IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugJSONId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyWithHeadersId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionCutId, WidgetsGlobalTableActionsScope::EIM_TableHasSelectionAndIsEditable)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionPasteId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionDeleteId, WidgetsGlobalTableActionsScope::EIM_TableHasSelectionAndIsEditable)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionInsertId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable)
-IMPLEMENT_GLOBAL_ACTION(GlobalActionImportId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable)
+namespace ActionIcons {
+IMPLEMENT_GLOBAL(Name, NoIcon, "");
+IMPLEMENT_GLOBAL_NAME_1(Open)
+IMPLEMENT_GLOBAL_NAME_1(Clone)
+IMPLEMENT_GLOBAL_NAME_1(Copy)
+IMPLEMENT_GLOBAL_NAME_1(Cut)
+IMPLEMENT_GLOBAL_NAME_1(Paste)
+IMPLEMENT_GLOBAL_NAME_1(Delete)
+IMPLEMENT_GLOBAL_NAME_1(Insert)
+IMPLEMENT_GLOBAL_NAME_1(Download)
+}
+
+IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default, ActionIcons::NoIcon)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugJSONId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection, ActionIcons::NoIcon)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection, ActionIcons::Copy)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionCopyWithHeadersId, WidgetsGlobalTableActionsScope::EIM_TableHasSelection, ActionIcons::Copy)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionCutId, WidgetsGlobalTableActionsScope::EIM_TableHasSelectionAndIsEditable, ActionIcons::Cut)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionPasteId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable, ActionIcons::Paste)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionDeleteId, WidgetsGlobalTableActionsScope::EIM_TableHasSelectionAndIsEditable, ActionIcons::Delete)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionInsertId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable, ActionIcons::Insert)
+IMPLEMENT_GLOBAL_ACTION(GlobalActionImportId, WidgetsGlobalTableActionsScope::EIM_TableIsEditable, ActionIcons::Download)
