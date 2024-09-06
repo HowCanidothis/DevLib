@@ -375,6 +375,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     tableView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	EventFilterObject* focusConnector = WidgetWrapper(tableView).ConnectFocus(verticalHeader);
+    verticalHeader->setFocusProxy(tableView);
     verticalHeader->connect(verticalHeader, &QWidget::destroyed, [focusConnector]{ delete focusConnector; });
 
     auto* columnsAction = WidgetsResizableHeaderAttachment::CreateShowColumsMenu(verticalHeader, params);

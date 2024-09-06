@@ -34,6 +34,55 @@ struct ReferenceHelper<T*>
     using const_reference = const T*;
 };
 
+enum ViewModelsColorFormatingRuleInitialization
+{
+    MinOnly,
+    MaxOnly
+};
+
+template<class Property>
+struct TViewModelsColorFormatingRule
+{
+    using value_type = typename Property::value_type;
+    using Initializer = LocalPropertyDescInitializationParams<value_type>;
+
+    LocalPropertyBool Enabled;
+    LocalPropertyBool EnableMin;
+    LocalPropertyBool EnableMax;
+    LocalPropertyColor LessColor;
+    LocalPropertyColor GreaterColor;
+    LocalPropertyColor NormalColor;
+    Property Min;
+    Property Max;
+
+    DispatchersCommutator OnChanged;
+
+    TViewModelsColorFormatingRule(const Initializer& initializer, ViewModelsColorFormatingRuleInitialization initialization)
+        : TViewModelsColorFormatingRule(initialization == MinOnly ? initializer : Initializer(), initialization == MinOnly ? Initializer() : initializer)
+    {
+        if(initialization == MinOnly) {
+            EnableMax.EditSilent() = false;
+        } else {
+            EnableMin.EditSilent() = false;
+        }
+    }
+
+    TViewModelsColorFormatingRule(const Initializer& minInitializer, const Initializer& maxInitializer = Initializer())
+        : EnableMin(true)
+        , EnableMax(true)
+        , LessColor(SharedSettings::GetInstance().StyleSettings.DefaultRedColor.Native())
+        , GreaterColor(SharedSettings::GetInstance().StyleSettings.DefaultRedColor.Native())
+        , NormalColor(SharedSettings::GetInstance().StyleSettings.DefaultGreenColor.Native())
+        , Min(minInitializer)
+        , Max(maxInitializer)
+    {
+        OnChanged.ConnectFrom(CDL, Enabled, EnableMin, EnableMax, LessColor, GreaterColor, NormalColor, Min, Max);
+    }
+};
+
+using TViewModelsColorFormatingRuleDouble = TViewModelsColorFormatingRule<LocalPropertyDouble>;
+using TViewModelsColorFormatingRuleInt = TViewModelsColorFormatingRule<LocalPropertyInt>;
+
 template<class Wrapper, typename ValueType = typename ReferenceHelper<typename Wrapper::value_type>::reference, typename ConstValueType = typename ReferenceHelper<typename Wrapper::value_type>::const_reference>
 class TViewModelsColumnComponentsBuilder : TViewModelsColumnComponentsBuilderBase
 {
@@ -63,6 +112,43 @@ public:
 #ifdef UNITS_MODULE_LIB
         AttachDependencies();
 #endif
+    }   
+
+    template<class T>
+    TViewModelsColumnComponentsBuilder& SetTextColorFormatingRule(qint32 column, const TViewModelsColorFormatingRule<T>* rule)
+    {
+        auto* viewModel = m_viewModel;
+        m_viewModel->ColumnComponents.AddComponent(Qt::ForegroundRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([viewModel, rule](const QModelIndex& index) -> std::optional<QVariant> {
+            if(!rule->Enabled) {
+                return std::nullopt;
+            }
+            auto v = index.data(Qt::EditRole).toDouble();
+#ifdef UNITS_MODULE_LIB
+            auto* measurement = index.model()->headerData(index.column(), Qt::Horizontal, UnitRole).value<const Measurement*>();
+            if(measurement != nullptr) {
+                v = measurement->FromUnitToBase(v);
+            }
+#endif
+            if(rule->EnableMin && v < rule->Min) {
+                return rule->LessColor.Native();
+            }
+            if(rule->EnableMax && v > rule->Max) {
+                return rule->GreaterColor.Native();
+            }
+            return rule->NormalColor.Native();
+        }));
+        m_viewModel->AttachDependence(CDL, &rule->OnChanged, column, column);
+        return *this;
+    }
+
+    TViewModelsColumnComponentsBuilder& SetTextColorFormatingRule(qint32 column, const std::function<std::optional<QVariant>(ConstValueType)>& handler)
+    {
+        auto modelGetter = m_modelGetter;
+        m_viewModel->ColumnComponents.AddComponent(Qt::ForegroundRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([handler, modelGetter](const QModelIndex& index){
+            ConstValueType data = modelGetter()->At(index.row());
+            return handler(data);
+        }));
+        return *this;
     }
 
     TViewModelsColumnComponentsBuilder& AddDefaultColors()
