@@ -5,11 +5,11 @@ MainWindow {
     qproperty-commonErrorColor: @c.error;
     qproperty-commonInfoColor: @c.success;
 
-    qproperty-addIconColor: #3EA6FF;
-    qproperty-iconPlanColor: #3ea6ff;
-    qproperty-iconPrototypeColor: #3ea6ff;
-    qproperty-iconSurveyColor: #ff3b30;
-    qproperty-iconWellboreColor: #ff3b30;
+    qproperty-addIconColor: @cpal.plan;
+    qproperty-iconPlanColor: @cpal.plan;
+    qproperty-iconPrototypeColor: @cpal.plan;
+    qproperty-iconSurveyColor: @cpal.survey;
+    qproperty-iconWellboreColor: @cpal.survey;
     
     qproperty-iconJobInformationColor: #F2933A;
     qproperty-iconRunSummaryColor: #FBBA72;
@@ -24,7 +24,7 @@ MainWindow {
 
     qproperty-iconCalendarColor: #F3F3F3;
     qproperty-iconNetworkOnlineColor: #22b14c;
-    qproperty-iconNetworkOfflineColor: #ff3b30;
+    qproperty-iconNetworkOfflineColor: @cpal.survey;
 
     qproperty-iconScenarioColor: #009688;
     qproperty-iconBHADEColor: #009688;

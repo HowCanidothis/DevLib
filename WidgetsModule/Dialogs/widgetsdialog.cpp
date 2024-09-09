@@ -67,7 +67,9 @@ void WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
     case QDialogButtonBox::DestructiveRole: setRole(button, ButtonRole::Reset); break;
     default: Q_ASSERT(false); break;
     }
-    button->setText(b.Text());
+    if(b.Text != nullptr) {
+        button->setText(b.Text());
+    }
     auto index = m_buttons.size();
     m_buttons.append(button);
     WidgetAbstractButtonWrapper(button).SetOnClicked([this, index]{

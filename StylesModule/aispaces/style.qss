@@ -102,11 +102,11 @@ DDFooter QLabel{
 
 DDFooter[DDReferenceMode="0"] QMenuBar {
     font-size: 12px;
-    background: #3ea6ff;
+    background: @cpal.plan;
 }
 DDFooter[DDReferenceMode="1"] QMenuBar {
     font-size: 12px;
-    background: #D32F2F;
+    background: @c.error;
 }
 DDFooter[DDReferenceMode="2"] QMenuBar {
     font-size: 12px;
@@ -114,11 +114,11 @@ DDFooter[DDReferenceMode="2"] QMenuBar {
 }
 DDFooter[DDReferenceMode="0"] QMenu::item{
     font-size: 12px;
-    background: #3ea6ff;
+    background: @cpal.plan;
 }
 DDFooter[DDReferenceMode="1"] QMenu::item{
     font-size: 12px;
-    background: #D32F2F;
+    background: @c.error;
 }
 DDFooter[DDReferenceMode="2"] QMenu::item{
     font-size: 12px;
@@ -146,7 +146,7 @@ DDFooter[DDReferenceMode="0"] QMenuBar::item::selected {
 } 
 
 DDFooter[DDReferenceMode="0"] QMenuBar::item::pressed:disabled {
-    background: #3ea6ff;
+    background: @cpal.plan;
 } 
 
 DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
@@ -154,7 +154,7 @@ DDFooter[DDReferenceMode="1"] QMenuBar::item::selected {
 }
 
 DDFooter[DDReferenceMode="1"] QMenuBar::item::pressed:disabled {
-    background: #D32F2F;
+    background: @c.error;
 }
 
 DDFooter[DDReferenceMode="2"] QMenuBar::item::selected {
@@ -195,11 +195,11 @@ QFrame[ApplicationMode="1"]{
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="0"]{
-    background: #3ea6ff;
+    background: @cpal.plan;
 }
 
 QFrame[ApplicationMode="2"][DDReferenceMode="1"]{
-    background: #D32F2F;
+    background: @c.error;
 }
 QFrame[ApplicationMode="2"][DDReferenceMode="2"]{
     background: #69C2D3;
@@ -295,7 +295,7 @@ QWidget[RedCircleButton="true"] {
 }
 
 QWidget[RedCircleButton="true"]:hover {
-    background: #22ff3b30;
+    background: #22E01936;
 }
 
 LeftBar QFrame {

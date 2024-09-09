@@ -68,6 +68,7 @@ struct WidgetsDialogsManagerButtonStruct
     FTranslationHandler Text;
 
     WidgetsDialogsManagerButtonStruct()
+        : Role(QDialogButtonBox::RejectRole)
     {}
     WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text)
         : Role(role)

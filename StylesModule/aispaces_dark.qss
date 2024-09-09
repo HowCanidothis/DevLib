@@ -14,7 +14,9 @@
 @ctext.label: rgb(200,200,200);
 @ctext.1: rgb(62, 166, 255);
 @ctext.active: white;
-@c.error: rgb(255,82,82);
+@cpal.plan: #3ea6ff;
+@cpal.survey: #E01936;
+@c.error: #E01936;
 @c.warning: rgb(251,140,0);
 @c.success: rgb(76,175,80);
 @c.areaAlpha: 0.2;

@@ -45,6 +45,7 @@ struct TViewModelsColorFormatingRule
 {
     using value_type = typename Property::value_type;
     using Initializer = LocalPropertyDescInitializationParams<value_type>;
+    using FCompare = std::function<bool (value_type, value_type)>;
 
     LocalPropertyBool Enabled;
     LocalPropertyBool EnableMin;
@@ -80,8 +81,8 @@ struct TViewModelsColorFormatingRule
     }
 };
 
-using TViewModelsColorFormatingRuleDouble = TViewModelsColorFormatingRule<LocalPropertyDouble>;
-using TViewModelsColorFormatingRuleInt = TViewModelsColorFormatingRule<LocalPropertyInt>;
+using ViewModelsColorFormatingRuleDouble = TViewModelsColorFormatingRule<LocalPropertyDouble>;
+using ViewModelsColorFormatingRuleInt = TViewModelsColorFormatingRule<LocalPropertyInt>;
 
 template<class Wrapper, typename ValueType = typename ReferenceHelper<typename Wrapper::value_type>::reference, typename ConstValueType = typename ReferenceHelper<typename Wrapper::value_type>::const_reference>
 class TViewModelsColumnComponentsBuilder : TViewModelsColumnComponentsBuilderBase
@@ -114,11 +115,11 @@ public:
 #endif
     }   
 
-    template<class T>
-    TViewModelsColumnComponentsBuilder& SetTextColorFormatingRule(qint32 column, const TViewModelsColorFormatingRule<T>* rule)
+    template<class T, typename FCompare = typename TViewModelsColorFormatingRule<T>::FCompare>
+    TViewModelsColumnComponentsBuilder& SetTextColorFormatingRule(qint32 column, const TViewModelsColorFormatingRule<T>* rule, const FCompare& compare)
     {
         auto* viewModel = m_viewModel;
-        m_viewModel->ColumnComponents.AddComponent(Qt::ForegroundRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([viewModel, rule](const QModelIndex& index) -> std::optional<QVariant> {
+        m_viewModel->ColumnComponents.AddComponent(Qt::ForegroundRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([compare, viewModel, rule](const QModelIndex& index) -> std::optional<QVariant> {
             if(!rule->Enabled) {
                 return std::nullopt;
             }
@@ -129,11 +130,21 @@ public:
                 v = measurement->FromUnitToBase(v);
             }
 #endif
-            if(rule->EnableMin && v < rule->Min) {
-                return rule->LessColor.Native();
+            if(rule->EnableMin) {
+                if(compare(v, rule->Min)) {
+                   return rule->NormalColor.Native();
+                }
+                if(v < rule->Min) {
+                    return rule->LessColor.Native();
+                }
             }
-            if(rule->EnableMax && v > rule->Max) {
-                return rule->GreaterColor.Native();
+            if(rule->EnableMax) {
+                if(compare(rule->Max, v)) {
+                    return rule->NormalColor.Native();
+                }
+                if(v > rule->Max) {
+                    return rule->GreaterColor.Native();
+                }
             }
             return rule->NormalColor.Native();
         }));

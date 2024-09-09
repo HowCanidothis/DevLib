@@ -45,12 +45,13 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
         if(handler.isValid()) {
             (*((FDialogHandler*)handler.toLongLong()))(dialog);
         }
+        if(view->layout() == nullptr) {
+            dialog->layout()->setSizeConstraint(QLayout::SetFixedSize);
+        } else {
+            dialog->layout()->setSizeConstraint(view->layout()->sizeConstraint());
+        }
     }
-    if(view->layout() == nullptr) {
-        dialog->layout()->setSizeConstraint(QLayout::SetFixedSize);
-    } else {
-        dialog->layout()->setSizeConstraint(view->layout()->sizeConstraint());
-    }
+
     for(const auto& b : buttons) {
         dialog->AddButton(b);
     }

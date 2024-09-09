@@ -13,8 +13,8 @@ void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, cons
     button.SetOnClicked([this, action, dialogText, confirmButton]{
         if(dialogText != nullptr) {
             if(!WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(dialogText)
-                                                                    .AddButton(confirmButton)
-                                                                    .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton()))) {
+                                                                    .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())
+                                                                    .AddButton(confirmButton))) {
                 return;
             }
         }

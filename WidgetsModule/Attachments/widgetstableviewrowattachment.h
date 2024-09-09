@@ -17,7 +17,7 @@ public:
 
     void Attach(QTableView* v);
     bool SelectCurrentRow();
-    void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerButtonStruct());
+    void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerDefaultButtons::DiscardButton());
 
     qint32 CurrentRow;
 
