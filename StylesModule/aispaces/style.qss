@@ -417,6 +417,10 @@ QWidget[coloredDrawer="true"]{
     background: @cbg.widget;
 }
 
+QWidget[coloredDrawer="true"] QScrollBar{
+    background: @cbg.widget;
+}
+
 QWidget#widgetheader {
     min-height: 42px;
 }

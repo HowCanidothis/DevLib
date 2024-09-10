@@ -77,6 +77,13 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
 {
     const auto& stateName = params.StateTag;
     WidgetHeaderViewWrapper header(headerView);
+    QVector<std::pair<qint32, qint32>> fixedSizes;
+    for(auto it(params.ColumnsParams.begin()), e(params.ColumnsParams.end()); it != e; ++it) {
+         if(it.value().FixedSize != -1) {
+             fixedSizes.append(std::make_pair(it.key(), it.value().FixedSize));
+         }
+    }
+
     auto applyParams = [&]{
         Q_ASSERT(params.ColumnsParams.isEmpty() || header->count() != 0);
         for(auto it(params.ColumnsParams.begin()), e(params.ColumnsParams.end()); it != e; ++it) {
@@ -86,6 +93,23 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
              }
         }
     };
+
+    guards::LambdaGuard guard([&fixedSizes, headerView]{
+        if(!fixedSizes.isEmpty()) {
+            WidgetWrapper(headerView).AddEventFilter([fixedSizes, headerView](QObject*, QEvent* e) {
+                switch(e->type()) {
+                case QEvent::StyleChange:
+                case QEvent::Show:
+                    for(auto [logicalIndex, size] : fixedSizes) {
+                        headerView->resizeSection(logicalIndex, size);
+                        headerView->setSectionResizeMode(logicalIndex, QHeaderView::Fixed);
+                    } break;
+                default: break;
+                }
+                return false;
+            });
+        }
+    });
 
     if(stateName.IsNull()) {
         applyParams();
@@ -107,7 +131,7 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
 
     QObject::connect(headerView, &QHeaderView::destroyed, [this, headerView, stateName]{
         m_states[stateName].GetData()->Headers.remove(headerView);
-    });
+    });    
 
     foundIt.value().GetData()->Connect(headerView);
 }

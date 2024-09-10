@@ -634,7 +634,7 @@ QAbstractButton[a_control="1"]:hover{ /* Icon */
 }
 
 QAbstractButton[a_control="2"]{  /* Save */
-    color: @ctext.active;
+    color: white;
     background: @ctext.1;
 }
 
@@ -644,7 +644,7 @@ QAbstractButton[a_control="2"]:hover{
 }
 
 QAbstractButton[a_control="3"]{  /* Reset */
-    color: @ctext.active;
+    color: white;
     background: @c.error;
 }
 
@@ -664,6 +664,7 @@ QAbstractButton[a_control="4"]:hover{
 QAbstractButton[a_control="5"]{  /* AddIcon */
     color: @ctext.active;
     background: transparent;
+    text-align: left;
 }
 
 QAbstractButton[a_control="5"]:checked{
@@ -714,6 +715,7 @@ QAbstractButton:disabled {
 
 QAbstractButton[a_control="13"] { /*IconWithText*/
     color: @ctext.active;
+    text-align: left;
 }
 
 QAbstractButton[a_control="13"]:hover {
@@ -874,6 +876,9 @@ WidgetsTabBarLayout {
     padding: 0px;
     margin: 0px;
     background: @cbg.widget;
+}
+
+WidgetsTabBarLayout[coloredDrawer="false"] {
     border-radius: 8px;
 }
 

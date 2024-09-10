@@ -113,7 +113,7 @@ ProcessValue* ProcessFactory::createIndeterminate() const
 {
     return new ProcessValue([this](ProcessValue* value){
         auto state = value->GetState();
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [value, this, state]{
+        ThreadHandlerMain([value, this, state]{
             OnIndeterminate((size_t)value, state);
         });
     });
@@ -123,7 +123,7 @@ ProcessDeterminateValue* ProcessFactory::createDeterminate() const
 {
     return new ProcessDeterminateValue([this](ProcessValue* value){
         auto state = value->GetCommonState();
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION, [value, this, state]{
+        ThreadHandlerMain([value, this, state]{
             OnDeterminate((size_t)value, state);
         });
     });

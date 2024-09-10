@@ -164,6 +164,7 @@ struct DescTableViewParams
         bool Visible = true;
         bool CanBeHidden = true;
         qint32 ReplacePlaceTo = -1;
+        qint32 FixedSize = -1;
 
         ColumnParam& MoveTo(qint32 logicalIndex) { ReplacePlaceTo = logicalIndex; return *this; }
         ColumnParam& ShowAlways() { Visible = true; CanBeHidden = false; return *this; }
@@ -171,6 +172,7 @@ struct DescTableViewParams
         ColumnParam& Add() { Visible = true; CanBeHidden = true; return *this;  }
         ColumnParam& Hide() { Visible = false; return *this;  }
         ColumnParam& Remove() { Visible = false; CanBeHidden = false; return *this;  }
+        ColumnParam& SetFixedSize(qint32 size) { FixedSize = size; return *this; }
     };
 
     DescTableViewParams(const QSet<qint32>& ignoreColumns);

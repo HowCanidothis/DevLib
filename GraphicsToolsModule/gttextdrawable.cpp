@@ -274,7 +274,7 @@ GtTextDrawableSettings::GtTextDrawableSettings()
     : Scale(0.1f)
     , Color(QColor(Qt::white))
     , BorderWidth(0.2f)
-    , Contrast(3.0)
+    , Contrast(10.0)
     , UseDirectionCorrection(true)
     , Visible(0xffffffff)
 {}

@@ -132,8 +132,7 @@ QPushButton#btnDrawerVertical[isOpen=true]
 
 QFrame#WidgetsTVRAWidget {
     background: @cbg.1;
-    border-radius: 0px;
-    border: 1px solid @cbr.normal;
+    border: none;
     margin: 0px;
     padding: 0px;
     min-height: 28px;
