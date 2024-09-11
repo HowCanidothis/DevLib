@@ -878,10 +878,6 @@ WidgetsTabBarLayout {
     background: @cbg.widget;
 }
 
-WidgetsTabBarLayout[coloredDrawer="false"] {
-    border-radius: 8px;
-}
-
 QPushButton[a_tab_button="true"] {
     text-align: left;
 }
@@ -951,6 +947,7 @@ WidgetsSpinBoxLayout QLineEdit#lineedit {
 QTextEdit {
     border-radius: 4px;
     border: 1px solid @cbr.normal;
+    min-height: 100px;
 }
 
 QTextEdit[readOnly="false"] {

@@ -144,44 +144,31 @@
         <string>Clear Resolved</string>
        </property>
        <property name="text">
-        <string>CLEAR RESOLVED</string>
+        <string>Clear Resolved</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="BtnCloseConsole">
        <property name="toolTip">
-        <string>Hide Notifications Pane</string>
+        <string>Hide Alerts and Notifications</string>
        </property>
        <property name="text">
-        <string>CLOSE</string>
+        <string>Close</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="WidgetsTableViewBase" name="TableIssues">
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderCascadingSectionResizes">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>24</number>
-     </attribute>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-    </widget>
+    <widget class="WidgetsTableViewBase" name="TableIssues" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
    <class>WidgetsTableViewBase</class>
-   <extends>QTableView</extends>
+   <extends>QWidget</extends>
    <header>WidgetsModule/internal.hpp</header>
   </customwidget>
  </customwidgets>

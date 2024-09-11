@@ -258,7 +258,6 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     contentWithPaneWidgetLayout->addWidget(contentWidget);
     contentWithPaneWidget->setLayout(contentWithPaneWidgetLayout);
 
-
     auto* layout = widget->layout();
     auto cm = layout->contentsMargins();
     cm.setTop(0);
@@ -271,18 +270,16 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     widget->hide();
 
     contentWidget->setLayout(layout);
-    contentWidget->setProperty("her", true);
-    contentWithPaneWidget->setProperty("his", true);
+
+//    widget->setMinimumWidth(std::max(widget->width(), 400));
+
     AttachShadow(contentWithPaneWidget, false);
 
-    if(!resizeable) {
-        contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20,20));
-    } else {
-        contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20,20));
-    }
+    contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20, 20));
+
     auto* mainLayout = createNullLayout();
-    contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    contentWithPaneWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    contentWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    contentWithPaneWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
     mainLayout->addWidget(contentWithPaneWidget);
     widget->setLayout(mainLayout);
 

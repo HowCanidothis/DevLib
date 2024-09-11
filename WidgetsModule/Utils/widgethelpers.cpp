@@ -1021,16 +1021,19 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 
     auto* spinbox = qobject_cast<QAbstractSpinBox*>(m_object);
     if(spinbox != nullptr) {
-        return *Injected<LocalPropertyBool>("a_enable", [spinbox]{
+        return *Injected<LocalPropertyBool>("a_enable", [&]{
             auto* result = new LocalPropertyBool();
-            auto* doubleSpinBox = qobject_cast<QDoubleSpinBox*>(spinbox);
-            if(doubleSpinBox) {
-                WidgetDoubleSpinBoxWrapper(doubleSpinBox).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
-            }
-            auto* spinBox = qobject_cast<QSpinBox*>(spinbox);
-            if(spinBox) {
-                WidgetSpinBoxWrapper(spinBox).WidgetReadOnly().ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
-            }
+            auto& readOnly = *Injected<LocalPropertyBool>("a_readOnly", [&]() -> LocalPropertyBool* {
+                auto* property = new LocalPropertyBool();
+                property->EditSilent() = spinbox->isReadOnly();
+                property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [spinbox, property]{
+                    spinbox->setReadOnly(*property);
+                    WidgetWrapper(spinbox).UpdateStyle();
+                });
+                property->SetSetterHandler(ThreadHandlerMain);
+                return property;
+            });
+            readOnly.ConnectBoth(CDL, *result, FInverseBool, FInverseBool);
             return result;
         });
     }

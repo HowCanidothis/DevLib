@@ -47,7 +47,7 @@ void WidgetsDialog::SetHeaderText(const FTranslationHandler& text)
     WidgetLabelWrapper(ui->label).WidgetText()->SetTranslationHandler(text);
 }
 
-void WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
+QAbstractButton* WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
 {
     auto* button = new QPushButton();
 
@@ -76,6 +76,7 @@ void WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruct& b)
         done(index);
     });
     button->setDefault(true);
+    return button;
 }
 
 void WidgetsDialog::keyPressEvent(QKeyEvent *e)

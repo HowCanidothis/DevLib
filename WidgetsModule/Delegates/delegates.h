@@ -129,7 +129,7 @@ public:
     CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
 
 private:
-    mutable class QColorDialog* m_editor;
+    mutable class WidgetsDialog* m_editor;
 };
 
 class DelegatesDateTime : public QStyledItemDelegate

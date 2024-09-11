@@ -20,9 +20,6 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
 
     WidgetWrapper(ui->dateTimeEdit).ConnectFocus(this);
 
-    WidgetWrapper(ui->dateTimeEdit).WidgetEnablity().ConnectAndCall(CDL, [this](bool enabled) {
-        WidgetWrapper(this).ApplyStyleProperty("readOnly", !enabled);
-    });
     WidgetPushButtonWrapper(ui->CalendarButton).WidgetVisibility().ConnectFrom(CDL, FInverseBool, ForceDisabled);
     m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
 

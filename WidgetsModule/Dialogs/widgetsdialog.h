@@ -23,10 +23,10 @@ public:
     T* GetView() const { return reinterpret_cast<T*>(m_content); }
     QAbstractButton* GetButton(qint32 i) const { return m_buttons.at(i); }
 
-    void Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler);
+    void Initialize(const std::function<void (qint32)>& onDone = nullptr, const std::function<void (const QVector<QAbstractButton*>&)>& handler = nullptr);
     void SetHeaderText(const FTranslationHandler& text);
     void SetContent(QWidget* view);
-    void AddButton(const WidgetsDialogsManagerButtonStruct& b);
+    QAbstractButton* AddButton(const WidgetsDialogsManagerButtonStruct& b);
 
 private:
     void keyPressEvent(QKeyEvent* e) override;

@@ -538,23 +538,28 @@ QWidget* DelegatesColor::createEditor(QWidget*, const QStyleOptionViewItem&, con
 {
     auto dialog = WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow())).SetShowAlpha(true)
                    .SetDefaultLabels();
+    auto wdialog = new WidgetsDialog();
+    wdialog->SetContent(dialog);
+    wdialog->AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())->hide();
+    wdialog->AddButton(WidgetsDialogsManagerDefaultButtons::ApplyButton());
+    wdialog->Initialize();
 
-    dialog->setWindowFlag(Qt::FramelessWindowHint);
-    m_editor = dialog;
+    wdialog->setWindowFlag(Qt::FramelessWindowHint);
+    m_editor = wdialog;
     OnEditorAboutToBeShown(m_editor, index);
 
-    return m_editor;
+    return wdialog;
 }
 
 void DelegatesColor::setEditorData(QWidget*, const QModelIndex& index) const
 {
-    m_editor->setCurrentColor(index.data(Qt::EditRole).value<QColor>());
+    m_editor->GetView<QColorDialog>()->setCurrentColor(index.data(Qt::EditRole).value<QColor>());
 }
 
 void DelegatesColor::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
 {
     if(m_editor->result() == QDialog::Accepted) {
-        model->setData(index, m_editor->currentColor());
+        model->setData(index, m_editor->GetView<QColorDialog>()->currentColor());
     }
 }
 

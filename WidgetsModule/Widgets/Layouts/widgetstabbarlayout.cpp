@@ -12,7 +12,7 @@ WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent)
     , Opened(true)
     , ui(new Ui::WidgetsTabBarLayout)
     , m_prevIndex(-1)
-    , m_currentIndex(0)
+    , m_currentIndex(-1)
     , m_icon(nullptr)
     , m_collapsable(false)
 {
@@ -34,6 +34,8 @@ WidgetsTabBarLayout::WidgetsTabBarLayout(QWidget *parent)
         }
         if(index != -1) {
             Opened = true;
+        } else {
+            Opened = false;
         }
         emit currentIndexChanged(index);
     });
@@ -52,6 +54,7 @@ void WidgetsTabBarLayout::setCollapsable(bool collapsable)
             m_icon = new QLabel();
             ui->horizontalLayout->addWidget(m_icon);
             m_icon->setObjectName("groupIcon");
+            Opened = m_currentIndex != -1;
             Opened.ConnectAndCall(CDL, [this](bool opened) {
                 WidgetWrapper(m_icon).ApplyStyleProperty("a_opened", opened);
                 if(!opened) {
@@ -171,9 +174,11 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
         emit pageTitleChanged(title);
     });
 
-    WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
-        m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
-    }).SetControl(ButtonRole::Tab);
+    WidgetAbstractButtonWrapper(b).SetControl(ButtonRole::Tab).WidgetChecked().Connect(CDL, [this, b](bool checked){
+        if(checked) {
+            m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
+        }
+    });
     m_buttons.insert(index, b);
     page->setProperty("a_is_page", true);
     ui->horizontalLayout->insertWidget(index, b);
