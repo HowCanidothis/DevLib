@@ -176,8 +176,11 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 
     WidgetAbstractButtonWrapper(b).SetControl(ButtonRole::Tab).WidgetChecked().Connect(CDL, [this, b](bool checked){
         if(checked) {
-            m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
+            m_currentIndex = m_buttons.indexOf(b);
         }
+    });
+    WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
+        m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
     });
     m_buttons.insert(index, b);
     page->setProperty("a_is_page", true);
