@@ -346,7 +346,7 @@ public:
         }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 LocalPropertyDate& property = getter(data);
-                property = DateFromVariant(value.toString());
+                property = DateFromVariant(value);
             };
         });
     }
