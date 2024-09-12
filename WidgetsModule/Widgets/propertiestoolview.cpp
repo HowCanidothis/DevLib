@@ -16,7 +16,7 @@ PropertiesToolFolderView::PropertiesToolFolderView(QWidget* parent)
     setLayout(m_layout = new QVBoxLayout);
     m_layout->setContentsMargins(0,0,0,0);
     m_layout->setSpacing(1);
-    WidgetPushButtonWrapper(m_deleteButton = new QPushButton(this)).SetControl(ButtonRole::Icon).SetIcon("DeleteIcon");
+    WidgetPushButtonWrapper(m_deleteButton = new QPushButton(this)).SetControl(ButtonRole::Icon).SetIcon(ActionIcons::Delete);
     m_deleteButton->hide();
 }
 
@@ -133,6 +133,7 @@ DispatcherConnection PropertiesToolFolderView::AddDeleteButton(const WidgetAbstr
             .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
                         WidgetsDialogsManagerDefaultButtons::DiscardRoleButton(TR(tr("Delete")))))) {
                 onClicked();
+                m_deleteButton->hide();
             }
         }
     });

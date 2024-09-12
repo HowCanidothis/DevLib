@@ -120,7 +120,9 @@ std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool 
         });
     };
     auto* dialog = GetOrCreateDialog("ColorDialog", [showAlpha, createParams]{
-        return createParams(new QColorDialog());
+        auto* dialog = new QColorDialog();
+        dialog->layout()->setContentsMargins(0,0,0,0);
+        return createParams(dialog);
     });
     auto* view = dialog->GetView<QColorDialog>();
     view->setOption(QColorDialog::ShowAlphaChannel, showAlpha);

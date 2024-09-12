@@ -85,5 +85,6 @@ DescCustomDialogParams& DescCustomDialogParams::FillWithText(const QString& text
 {
     Q_ASSERT(View == nullptr);
     View = new QLabel(text);
+    View->setContentsMargins(0,0,9,0);
     return *this;
 }
