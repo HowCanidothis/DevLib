@@ -193,9 +193,10 @@ class ViewModelsSelectionFilterModel : public ViewModelsFilterModelBase
     using Super = ViewModelsFilterModelBase;
     using FExtractor = std::function<Selection (const QModelIndex& index)>;
 public:
-    ViewModelsSelectionFilterModel(QObject* parent, const FExtractor& extractor)
+    ViewModelsSelectionFilterModel(qint32 targetColumn, QObject* parent, const FExtractor& extractor)
         : Super(parent)
         , m_extractor(extractor)
+        , m_targetColumn(targetColumn)
     {}
 
     LocalPropertySet<Selection> Selected;
@@ -210,7 +211,7 @@ public:
         bool changed = false;
         auto& silent = Selected.EditSilent();
         for(const auto& index : indices) {
-            if(index.column() == 0) {
+            if(index.column() == m_targetColumn) {
                 silent.remove(m_extractor(mapToSource(index)));
                 changed = true;
             }
@@ -225,7 +226,7 @@ public:
         bool changed = false;
         auto& silent = Selected.EditSilent();
         for(const auto& index : indices) {
-            if(index.column() == 0) {
+            if(index.column() == m_targetColumn) {
                 silent.insert(m_extractor(mapToSource(index)));
                 changed = true;
             }
@@ -247,7 +248,7 @@ public:
 
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override
     {
-        if(index.column() == 0 && role == Qt::CheckStateRole) {
+        if(index.column() == m_targetColumn && role == Qt::CheckStateRole) {
             Selection component = m_extractor(mapToSource(index));
             if(data.value<Qt::CheckState>() == Qt::Checked) {
                 Selected.Insert(component);
@@ -260,7 +261,7 @@ public:
     };
 
     QVariant data(const QModelIndex& index, qint32 role) const override {
-        if(index.column() == 0 && role == Qt::CheckStateRole) {
+        if(index.column() == m_targetColumn && role == Qt::CheckStateRole) {
             auto selection = m_extractor(mapToSource(index));
             if(selection != 0) {
                 return Selected.IsContains(selection) ? Qt::Checked : Qt::Unchecked;
@@ -273,7 +274,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override
     {
         auto defaultFlags = Super::flags(index);
-        if(index.column() == 0) {
+        if(index.column() == m_targetColumn) {
             return defaultFlags |= Qt::ItemIsUserCheckable;
         }
         return defaultFlags;
@@ -296,6 +297,7 @@ public:
 
 private:
     FExtractor m_extractor;
+    qint32 m_targetColumn;
 };
 
 #endif // MODELSFILTERMODELBASE_H
