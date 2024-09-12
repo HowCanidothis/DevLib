@@ -99,7 +99,11 @@ class DelegatesDate : public QStyledItemDelegate
 {
     using Super = QStyledItemDelegate;
 public:
-    using Super::Super;
+    using FExtract = std::function<QDate(const QModelIndex&)>;
+    using FConvert = std::function<QVariant(const QDate&)>;
+
+    DelegatesDate(QObject* parent);
+    DelegatesDate* SetFormat(const FExtract& extract, const FConvert& convert);
 
     QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -109,6 +113,9 @@ public:
 
     CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<QDate, const QModelIndex&> OnEditorValueChanged;
+private:
+    FExtract m_extractor;
+    FConvert m_releaser;
 };
 
 class DelegatesColor : public QStyledItemDelegate

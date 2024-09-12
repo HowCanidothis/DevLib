@@ -277,6 +277,20 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
 }
 
 
+DelegatesDate::DelegatesDate(QObject *parent)
+    : Super(parent)
+    , m_extractor([](const QModelIndex& index){ return index.data(Qt::EditRole).toDate(); })
+    , m_releaser([](const QDate& dt){ return QVariant::fromValue(dt); })
+{
+
+}
+
+DelegatesDate* DelegatesDate::SetFormat(const FExtract &extract, const FConvert &convert){
+    m_extractor = extract;
+    m_releaser = convert;
+    return this;
+}
+
 QString DelegatesDate::displayText(const QVariant& value, const QLocale& locale) const {
     return value.toString();
 }
@@ -293,8 +307,7 @@ QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem
 
 void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
-    const QDate& date = index.model()->data(index, Qt::EditRole).toDate();
-
+    const QDate& date = m_extractor(index);
     QDateEdit* dt = qobject_cast<QDateEdit*>(editor);
     Q_ASSERT(dt != nullptr);
     dt->setDate(date);
@@ -302,8 +315,8 @@ void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) con
 
 void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
 {
-    QDateEdit* dt = static_cast<QDateEdit*>(editor);
-    model->setData(index, dt->date(), Qt::EditRole);
+    QDateEdit* dt = qobject_cast<QDateEdit*>(editor);
+    model->setData(index, m_releaser(dt->date()), Qt::EditRole);
 }
 
 void DelegatesDate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const

@@ -172,6 +172,10 @@ QTime LanguageSettings::TimeFromVariant(const QVariant& data)
 
 QDate LanguageSettings::DateFromVariant(const QVariant& data)
 {
+    if(data.type() == QVariant::String) {
+        const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+        return settings.ApplicationLocale.Native().toDate(data.toString(), settings.DateFormat);
+    }
     return data.toDate();
 }
 
@@ -252,7 +256,8 @@ QString LanguageSettings::DateTimeToString(const QDateTime& dt)
 
 QString LanguageSettings::DateToString(const QDate& dt)
 {
-    return QLocale().toString(dt, SharedSettings::GetInstance().LanguageSettings.DateFormat.Native());
+    const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+    return settings.ApplicationLocale.Native().toString(dt, SharedSettings::GetInstance().LanguageSettings.DateFormat.Native());
 }
 
 QString LanguageSettings::DoubleToString(double v, qint32 precision)

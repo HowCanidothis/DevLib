@@ -7,6 +7,7 @@
 
 WidgetsToolBar::WidgetsToolBar(QWidget* parent, Qt::Orientation orientation)
     : Super(parent)
+    , Expanded(nullptr)
 {
     switch(orientation){
     case Qt::Vertical: m_layout = new QVBoxLayout(this); m_buttonsOrientation = Qt::Horizontal; break;
@@ -34,12 +35,12 @@ ComponentPlacer* WidgetsToolBar::GetComponentPlacer() const
 QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSize)
 {
     auto* result = CreateButton(m_buttonsOrientation == Qt::Horizontal ? "btnDrawer" : "btnDrawerVertical");
-    auto* collapsed = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
-    connect(result, &QPushButton::clicked, [collapsed](bool ){
-        *collapsed = !collapsed->Native();
+    Expanded = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
+    connect(result, &QPushButton::clicked, [this](bool ){
+        *Expanded = !Expanded->Native();
     });
-    collapsed->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [collapsed, result]{
-        result->setProperty("isOpen", collapsed->Native());
+    Expanded->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, result]{
+        result->setProperty("isOpen", Expanded->Native());
         WidgetWrapper(result).UpdateStyle();
     });
     return result;

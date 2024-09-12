@@ -20,6 +20,7 @@ public:
     class QPushButton* CreateDrawerButton(QWidget* drawer, qint32 drawerSize = 450);
     QPushButton* CreateButton(const QString& objectName);
 
+    LocalPropertyBool* Expanded;
 private:
     class QBoxLayout* m_layout;
     Qt::Orientation m_buttonsOrientation;
