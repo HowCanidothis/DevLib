@@ -5,6 +5,7 @@
 #include <QTableView>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
+#include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 WidgetsDebugJsonDialog::WidgetsDebugJsonDialog(QWidget *parent)
     : QDialog(parent, Qt::Window)
@@ -15,6 +16,8 @@ WidgetsDebugJsonDialog::WidgetsDebugJsonDialog(QWidget *parent)
 
     m_connectors.AddConnector<LocalPropertiesTextEditConnector>(&m_output, ui->teOutput);
     m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&m_keyword, ui->leKeyword, false);
+
+    setProperty(WidgetsDialogsManager::ResizeablePropertyName, true);
 
     m_keyword.SetValidator([](const QString& v) -> QString {
         if(!v.contains("%1")) {
