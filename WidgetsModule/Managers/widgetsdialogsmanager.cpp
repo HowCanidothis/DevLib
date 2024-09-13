@@ -106,20 +106,20 @@ std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler&
 
 std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool showAlpha)
 {
-    std::optional<QColor> result;
+    static std::optional<QColor> result;
     auto createParams = [&](const WidgetColorDialogWrapper& wrapper) {
         return DescCustomDialogParams()
         .SetTitle(TR(tr("Apply Color?")))
         .SetView(wrapper.SetDefaultLabels())
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
             WidgetsDialogsManagerDefaultButtons::ApplyButton())
-        .SetOnDone([&result, wrapper](qint32 r) {
+        .SetOnDone([wrapper](qint32 r) {
             if(r != 0) {
                 result = wrapper->currentColor();
             }
         });
     };
-    auto* dialog = GetOrCreateDialog("ColorDialog", [showAlpha, createParams]{
+    auto* dialog = GetOrCreateDialog("ColorDialog", [createParams]{
         auto* dialog = new QColorDialog();
         dialog->layout()->setContentsMargins(0,0,0,0);
         return createParams(dialog);
