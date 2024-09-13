@@ -31,13 +31,14 @@ double TickSplitter::getMantissa(double input, double *magnitude) const
 QVector<double> TickSplitter::CreateTickVector(float from, float to, float tickStep) const
 {
     QVector<double> result;
+    if(to < from) {
+        tickStep = -tickStep;
+    }
     // Generate tick positions according to tickStep:
     qint64 firstStep = floor((from)/tickStep); // do not use qFloor here, or we'll lose 64 bit precision
     qint64 lastStep = ceil((to)/tickStep); // do not use qCeil here, or we'll lose 64 bit precision
-    int tickcount = lastStep - firstStep + 1;
-    if (tickcount < 0) {
-        tickcount = 0;
-    }
+    int tickcount = abs(lastStep - firstStep) + 1;
+
     result.resize(tickcount);
     for (int i=0; i < tickcount; ++i) {
         result[i] = (firstStep+i) * tickStep;
