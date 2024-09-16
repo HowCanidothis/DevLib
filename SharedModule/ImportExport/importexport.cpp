@@ -138,22 +138,34 @@ void ImportExportFormatFactory::Register(const QSet<Name>& extensions, const FHa
 
 AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>& sources) const {
     FutureResult future;
-    for(const auto& source : sources) {
-        auto foundIt = m_factory.find(source->GetExtension());
+
+    auto handleExtension = [&](const Name& extension, const ImportExportSourcePtr& source) {
+        auto foundIt = m_factory.find(extension);
         if(foundIt != m_factory.end()) {
-            bool found = false;
             for(const auto& delegate : foundIt.value()) {
                 if(delegate.first(source)) {
                     future += delegate.second(source);
-                    found = true;
-                    break;
+                    return true;
                 }
             }
-            if(!found) {
-                source->SetError(tr("File format is not supported"));
+        }
+        return false;
+    };
+
+    for(const auto& source : sources) {
+        auto extension = source->GetExtension();
+        if(!handleExtension(extension, source)) {
+            // try most right
+            auto extensionParts = extension.AsString().split(".");
+            if(extensionParts.size() > 1) {
+                Name shortExtension(extensionParts.constLast());
+                source->SetExtension(shortExtension);
+                if(!handleExtension(shortExtension, source)) {
+                    source->SetError(tr("%1 extension is not supported").arg(extension.AsString()));
+                }
+            } else {
+                source->SetError(tr("%1 extension is not supported").arg(extension.AsString()));
             }
-        } else {
-            source->SetError(tr("%1 extension is not supported").arg(source->GetExtension().AsString()));
         }
     }
     return future.ToAsyncResult();

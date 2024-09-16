@@ -51,7 +51,8 @@ public:
     virtual ~ImportExportSource() {}
 
     virtual QIODevice* GetDevice() = 0;
-    virtual const Name& GetExtension() const = 0;
+    const Name& GetExtension() const { return m_extension; }
+    void SetExtension(const Name& extension) { m_extension = extension; }
     virtual const QString& GetSourceName() const = 0;
 
     template<class T>
@@ -63,6 +64,9 @@ public:
     ImportExportSourceStandardProperties StandardProperties;
 
     void SetError(const QVariant& error);
+
+protected:
+    Name m_extension;
 };
 
 using ImportExportSourcePtr = SharedPointer<ImportExportSource>;
@@ -72,14 +76,16 @@ class ImportExportBufferSource : public ImportExportSource
 public:
     ImportExportBufferSource(const Name& extension, const QString& sourceName, QByteArray* array)
         : m_buffer(array)
-        , m_extension(extension)
         , m_sourceName(sourceName)
-    {}
+    {
+        m_extension = extension;
+    }
 
     ImportExportBufferSource(const Name& extension, const QString& sourceName)
-        : m_extension(extension)
-        , m_sourceName(sourceName)
-    {}
+        : m_sourceName(sourceName)
+    {
+        m_extension = extension;
+    }
 
     void SetData(const QByteArray& data)
     {
@@ -87,12 +93,10 @@ public:
     }
 
     QIODevice* GetDevice() override { return &m_buffer; }
-    const Name& GetExtension() const override { return m_extension; }
     const QString& GetSourceName() const override { return m_sourceName; }
 
 private:
     QBuffer m_buffer;
-    Name m_extension;
     QString m_sourceName;
 };
 
@@ -108,7 +112,6 @@ public:
     }
 
     QIODevice* GetDevice() override { return &m_file; }
-    const Name& GetExtension() const override { return m_extension; }
     const QString& GetSourceName() const override { return m_sourceName; }
 
     static SharedPointer<ImportExportFileSource> FromFilePath(const QString& filePath)
@@ -119,7 +122,6 @@ public:
 private:
     QString m_sourceName;
     QFile m_file;
-    Name m_extension;    
 };
 
 struct ImportExportVersion

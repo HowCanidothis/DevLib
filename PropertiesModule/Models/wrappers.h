@@ -237,7 +237,7 @@ public:
         Super::insert(index, count, value_type());
         qint32 i = index;
         for(auto& value : adapters::range(Super::begin() + index, Super::begin() + index + count)) {
-            dataInitializer(i, value);
+            dataInitializer(i++, value);
         }
         OnRowsInserted(index, count);
         OnChanged();
