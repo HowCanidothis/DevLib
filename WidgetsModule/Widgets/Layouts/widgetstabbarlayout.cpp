@@ -3,6 +3,7 @@
 
 #include <QPushButton>
 #include <QLabel>
+#include <QKeyEvent>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Utils/widgetstyleutils.h"
@@ -156,6 +157,11 @@ void WidgetsTabBarLayout::addPage(QWidget* page)
 void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
 {
     auto* b = new QPushButton();
+    if(m_buttons.isEmpty()){
+        setFocusProxy(b);
+    } else {
+        b->setFocusPolicy(Qt::NoFocus);
+    }
     b->setCheckable(true);
 #ifdef QT_PLUGIN
     b->setObjectName("__qt__passive_button_" + QString::number(index));
@@ -181,6 +187,20 @@ void WidgetsTabBarLayout::insertPage(int index, QWidget* page)
     });
     WidgetAbstractButtonWrapper(b).SetOnClicked([this, b]{
         m_currentIndex.SetValueForceInvoke(m_buttons.indexOf(b));
+    }).AddEventFilter([this](QObject*, QEvent* e){
+        if(e->type() == QEvent::KeyPress){
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
+            switch (keyEvent->key()) {
+            case Qt::Key_Right:
+                m_currentIndex = m_currentIndex + 1 == m_buttons.size() ? 0 : m_currentIndex + 1;
+                return true;
+            case Qt::Key_Left:
+                m_currentIndex = m_currentIndex.Native() ? m_currentIndex - 1 : m_buttons.size() - 1;
+                return true;
+            default: break;
+            }
+        }
+        return false;
     });
     m_buttons.insert(index, b);
     page->setProperty("a_is_page", true);

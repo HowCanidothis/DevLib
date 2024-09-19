@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>52</height>
+    <height>55</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,6 +74,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

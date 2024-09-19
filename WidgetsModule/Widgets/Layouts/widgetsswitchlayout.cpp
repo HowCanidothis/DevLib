@@ -22,6 +22,7 @@ WidgetsSwitchLayout::WidgetsSwitchLayout(QWidget *parent) :
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsOn, adapters::toVector(ui->pushButton,ui->pushButton_2));
     WidgetAbstractButtonWrapper(ui->pushButton).WidgetText()->ConnectFrom(CDL, OffText);
     WidgetAbstractButtonWrapper(ui->pushButton_2).WidgetText()->ConnectFrom(CDL, OnText);
+    setFocusProxy(ui->pushButton);
 }
 
 QAbstractButton* WidgetsSwitchLayout::offButton() const

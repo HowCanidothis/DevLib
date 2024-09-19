@@ -11,6 +11,7 @@ WidgetsComboBoxLayout::WidgetsComboBoxLayout(QWidget *parent)
     , ui(new Ui::WidgetsComboBoxLayout)
 {
     ui->setupUi(this);
+    WidgetWrapper(ui->combobox).ConnectFocus(ui->label);
     WidgetWrapper(ui->combobox->view()).ConnectFocus(ui->label);
     setFocusProxy(ui->combobox);
 }
