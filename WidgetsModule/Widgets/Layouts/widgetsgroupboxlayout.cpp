@@ -18,6 +18,7 @@ WidgetsGroupBoxLayout::WidgetsGroupBoxLayout(QWidget *parent)
     ui->setupUi(this);
     ui->groupBar->hide();
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CDL, Opened).MakeSafe(WidgetWrapper(ui->widget).WidgetConnections());
+    setFocusProxy(ui->widget);
 }
 
 WidgetsGroupBoxLayout::~WidgetsGroupBoxLayout()
@@ -37,6 +38,7 @@ bool WidgetsGroupBoxLayout::setWidget(QWidget* widget)
     ui->widget = widget;
     ui->widget->setProperty("a_contentWidget", true);
     WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CDL, Opened).MakeSafe(WidgetWrapper(ui->widget).WidgetConnections());
+    setFocusProxy(widget);
     return true;
 }
 
@@ -64,8 +66,10 @@ void WidgetsGroupBoxLayout::setCollapsable(bool collapsable)
             WidgetAbstractButtonWrapper(ui->groupBar).SetOnClicked(updateChecked);
         }
         m_icon->show();
+        ui->groupBar->setFocusPolicy(Qt::StrongFocus);
     } else if(m_icon != nullptr){
         m_icon->hide();
+        ui->groupBar->setFocusPolicy(Qt::NoFocus);
     }
 }
 

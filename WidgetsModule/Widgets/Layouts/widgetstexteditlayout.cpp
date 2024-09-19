@@ -11,6 +11,7 @@ WidgetsTextEditLayout::WidgetsTextEditLayout(QWidget *parent)
     ui->setupUi(this);
     WidgetWrapper(ui->lineedit).ConnectFocus(ui->label);
     setFocusProxy(ui->lineedit);
+    ui->lineedit->setTabChangesFocus(true);
 }
 
 WidgetsTextEditLayout::~WidgetsTextEditLayout()

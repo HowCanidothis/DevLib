@@ -267,14 +267,14 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
         m_layout->addWidget(widget, rowCount, 0, 1, 2);
         break;
     }};
-    auto* fw = widget;
-    auto* cb = qobject_cast<QComboBox*>(fw);
+
+    auto* cb = qobject_cast<QComboBox*>(widget);
     if(cb != nullptr) {
-        fw = cb->view();
+        WidgetWrapper(cb->view()).ConnectFocus(header);
     }
-    auto& widgets = WidgetWrapper(fw).WidgetTrueFocusWidgets();
+    auto& widgets = WidgetWrapper(widget).WidgetTrueFocusWidgets();
     if(widgets.isEmpty()) {
-        WidgetWrapper(fw).ConnectFocus(header);
+        WidgetWrapper(widget).ConnectFocus(header);
     } else {
         for(auto* w : widgets) {
             WidgetWrapper(w).ConnectFocus(header);

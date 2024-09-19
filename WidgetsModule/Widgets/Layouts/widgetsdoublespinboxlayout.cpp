@@ -87,6 +87,9 @@ void WidgetsDoubleSpinBoxLayout::ensureCheckable()
         WidgetWrapper(ui->spinbox).WidgetEnablity().ConnectFrom(CDL, [](bool disable, bool check){
             return !disable && check;
         }, Disable, WidgetCheckBoxWrapper(m_checkbox->Widget).WidgetChecked()).MakeSafe(connections);
+
+        setFocusProxy(m_checkbox->Widget);
+        QWidget::setTabOrder(m_checkbox->Widget, ui->spinbox);
     }
 }
 
@@ -105,6 +108,9 @@ void WidgetsDoubleSpinBoxLayout::ensureRadioButton()
         m_radiobutton = new WidgetsLayoutComponent<QRadioButton>("checkbox");
         m_radiobutton->Widget->setAutoExclusive(false);
         ui->horizontalLayout_2->insertWidget(0, m_radiobutton->Widget);
+
+        setFocusProxy(m_radiobutton->Widget);
+        QWidget::setTabOrder(m_radiobutton->Widget, ui->spinbox);
     }
 }
 

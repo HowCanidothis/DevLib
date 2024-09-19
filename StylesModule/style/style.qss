@@ -749,10 +749,18 @@ QRadioButton:indicator:checked:disabled {
     image: url(@cPath/radiobox-blank-marked-disabled.svg);
 }
 
+QRadioButton:focus {
+    color: @ctext.1;;
+}
+
 QCheckBox {
     background: transparent;
     color: @ctext.active;
     padding: 2px;
+}
+
+QCheckBox:focus {
+    color: @ctext.1;
 }
 
 QCheckBox:indicator {
