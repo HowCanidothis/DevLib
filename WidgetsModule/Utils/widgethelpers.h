@@ -749,6 +749,9 @@ public:
     static QMenu* CreatePreventedFromClosingMenu(const QString& title, QWidget* parent = nullptr);
     QMenu* AddMenu(const QString& label) const;
 
+    const MenuWrapper& SetOnContextMenu(const FAction& action) const;
+    Dispatcher& OnContextMenu() const;
+
 private:
     WidgetsGlobalTableActionsScopeHandlersPtr m_globalActionsHandlers;
 };

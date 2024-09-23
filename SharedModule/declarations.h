@@ -186,12 +186,12 @@ inline bool fuzzyCompare(float v1, float v2, float epsilon = std::numeric_limits
 
 inline bool fuzzyIsNull(float v1, float epsilon = std::numeric_limits<float>().epsilon())
 {
-    return qAbs(v1 - 0.f) < epsilon;
+    return qAbs(v1) < epsilon;
 }
 
 inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>().epsilon())
 {
-    return qAbs(v1 - 0.0) < epsilon;
+    return qAbs(v1) < epsilon;
 }
 
 namespace sm_internal

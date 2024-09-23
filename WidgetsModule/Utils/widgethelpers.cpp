@@ -102,6 +102,40 @@ bool EventFilterObject::eventFilter(QObject* watched, QEvent* e)
     return m_filter(watched, e);
 }
 
+const MenuWrapper& MenuWrapper::SetOnContextMenu(const FAction& action) const
+{
+    OnContextMenu().Connect(CDL, action);
+    return *this;
+}
+
+Dispatcher& MenuWrapper::OnContextMenu() const
+{
+    auto* w = GetWidget();
+    return *Injected<Dispatcher>("a_onContextMenu", [w]{
+        auto* result = new Dispatcher();
+        if(auto* tv = qobject_cast<QTableView*>(w)) {
+            WidgetWrapper(tv->viewport()).AddEventFilter([result](QObject*, QEvent* e) {
+                if(e->type() == QEvent::ContextMenu) {
+                    result->Invoke();
+                }
+                return false;
+            });
+        } else if(auto* menu = qobject_cast<QMenu*>(w)) {
+            menu->connect(menu, &QMenu::aboutToShow, [result]{
+                result->Invoke();
+            });
+        } else {
+            WidgetWrapper(w).AddEventFilter([result](QObject*, QEvent* e){
+                if(e->type() == QEvent::ContextMenu) {
+                    result->Invoke();
+                }
+                return false;
+            });
+        }
+        return result;
+    });
+}
+
 const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() const
 {
     auto* edit = GetWidget();
