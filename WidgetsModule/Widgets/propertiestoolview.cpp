@@ -120,9 +120,39 @@ LineData PropertiesToolView::AddColorProperty(const Name& propertyName, const FT
 
 DispatcherConnection PropertiesToolFolderView::AddDeleteButton(const WidgetAbstractButtonWrapper& folder, const FAction& onClicked)
 {
-    folder.AddEventFilter([this, folder](QObject*, QEvent* e) {
+    auto visible = ::make_shared<LocalPropertyBool>();
+    auto delay = DelayedCallObjectCreate();
+    visible->ConnectAndCall(CDL, [this, delay](bool visible){
+        delay->Call(CDL, [this, visible]{
+            if(visible) {
+                m_deleteButton->show();
+                m_deleteButton->raise();
+            } else {
+                m_deleteButton->hide();
+            }
+        });
+    });
+    WidgetWrapper(m_deleteButton).AddEventFilter([visible](QObject*, QEvent* e) {
         switch(e->type()) {
-        case QEvent::HoverEnter: m_deleteButton->move(QPoint(folder->x() + folder->width() - m_deleteButton->width() - m_buttonOffset.width(), folder->y() + m_buttonOffset.height())); m_deleteButtonOverFolder = folder; m_deleteButton->show(); m_deleteButton->raise(); break;
+        case QEvent::HoverEnter:
+            *visible = true;
+        default: break;
+        }
+        return false;
+    });
+
+    folder.AddEventFilter([this, folder, visible](QObject*, QEvent* e) {
+        switch(e->type()) {
+        case QEvent::HoverEnter: 
+            m_deleteButton->move(QPoint(folder->x() + folder->width() - m_deleteButton->width() - m_buttonOffset.width(), folder->y() + m_buttonOffset.height()));
+            m_deleteButtonOverFolder = folder;
+            m_deleteButton->show();
+            m_deleteButton->raise();
+            *visible = true;
+            break;
+        case QEvent::HoverLeave:
+            *visible = false;
+            break;
         default: break;
         }
         return false;
