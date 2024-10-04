@@ -257,7 +257,7 @@ QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orienta
             if(role == Qt::DisplayRole) {
                 return QString::number(section + 1);
             } else if(role == Qt::TextAlignmentRole) {
-                return Qt::AlignCenter;
+                return qVariantFromValue(Qt::AlignVCenter | Qt::AlignLeft);
             }
             return QVariant();
         }
