@@ -279,6 +279,7 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
 
 DelegatesDate::DelegatesDate(QObject *parent)
     : Super(parent)
+    , m_displayFormat(SharedSettings::GetInstance().LanguageSettings.DateFormat)
     , m_extractor([](const QModelIndex& index){ return index.data(Qt::EditRole).toDate(); })
     , m_releaser([](const QDate& dt){ return QVariant::fromValue(dt); })
 {
@@ -291,13 +292,21 @@ DelegatesDate* DelegatesDate::SetFormat(const FExtract &extract, const FConvert 
     return this;
 }
 
+void DelegatesDate::setDisplayFormat(const QString &format) {
+    m_displayFormat = format;
+}
+
 QString DelegatesDate::displayText(const QVariant& value, const QLocale& locale) const {
+    if(value.type() == QVariant::Date){
+        return value.toDate().toString(m_displayFormat);
+    }
     return value.toString();
 }
 
 QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     auto* editor = new QDateEdit(parent);
+    editor->setDisplayFormat(m_displayFormat);
     OnEditorAboutToBeShown(editor, index);
     connect(editor,&QDateEdit::dateChanged, [this, index](const QDate& date){
         OnEditorValueChanged(date, index);

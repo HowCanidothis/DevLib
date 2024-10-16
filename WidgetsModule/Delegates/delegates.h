@@ -105,6 +105,7 @@ public:
     DelegatesDate(QObject* parent);
     DelegatesDate* SetFormat(const FExtract& extract, const FConvert& convert);
 
+    void setDisplayFormat(const QString& format);
     QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -114,6 +115,7 @@ public:
     CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<QDate, const QModelIndex&> OnEditorValueChanged;
 private:
+    QString m_displayFormat;
     FExtract m_extractor;
     FConvert m_releaser;
 };
