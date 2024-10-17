@@ -85,6 +85,7 @@ public:
 
     LocalPropertyBool ForceDisabled;
     Dispatcher OnAboutToBeChanged;
+    DispatchersCommutator OnExpandCollapseChanged;
 
 private:
     class QVBoxLayout* m_layout;
@@ -93,6 +94,13 @@ private:
     QPushButton* m_deleteButton;
     QAbstractButton* m_deleteButtonOverFolder;
     QSize m_buttonOffset;
+
+public:
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer << m_widgets;
+    }
 };
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyBoolCommutator>)
 

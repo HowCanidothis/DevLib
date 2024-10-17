@@ -56,6 +56,7 @@ WidgetAbstractButtonWrapper PropertiesToolFolderView::BeginFolder(const Name& fo
     buttonWrapper.WidgetChecked().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [buttonWrapper](bool check){
         buttonWrapper.SetIcon(check ? "CloseIcon" : "OpenIcon");
     });
+    OnExpandCollapseChanged.ConnectFrom(CDL, buttonWrapper.WidgetChecked().OnChanged);
 
     const_cast<BindingRules&>(widget).ToolButton = buttonWrapper;
 
