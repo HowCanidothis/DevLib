@@ -200,6 +200,7 @@ public:
     SerializerXmlBufferBase(bool isReading)
         : m_mode(SerializationMode_Default)
         , m_version(-1)
+        , m_isReading(isReading)
     {}
 
     StandardVariantPropertiesContainer Properties;
