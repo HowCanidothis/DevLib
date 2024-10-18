@@ -200,6 +200,7 @@ public:
     SerializerXmlBufferBase(bool isReading)
         : m_mode(SerializationMode_Default)
         , m_version(-1)
+        , m_isReading(isReading)
     {}
 
     StandardVariantPropertiesContainer Properties;
@@ -467,7 +468,9 @@ inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWrit
     }
     buffer.SetSerializationMode(properties.Mode);
     buffer.SetTextConverterContext(properties.Context);
+    buffer.OpenSection("Object");
     buffer << const_cast<T&>(object);
+    buffer.CloseSection();
     return array;
 }
 
@@ -483,7 +486,9 @@ inline QByteArray SerializeToXML(const QString& startSection, const T& object, c
     }
     buffer.SetSerializationMode(properties.Mode);
     buffer.SetTextConverterContext(properties.Context);
+    buffer.OpenSection(startSection);
     buffer << buffer.Sect(startSection, const_cast<T&>(object));
+    buffer.CloseSection();
     return array;
 }
 
@@ -534,12 +539,14 @@ bool DeSerializeFromXML(const QByteArray& array, T& object, const DescSerializat
         }
     }
     buffer.SetSerializationMode(properties.Mode);
+    buffer.OpenSection("Object");
     buffer << object;
+    buffer.CloseSection();
     return true;
 }
 
-template<class T>
-bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object, const DescSerializationXMLReadParams& properties)
+template<class T, class StringOrArray>
+bool DeSerializeFromXML(const QString& name, const StringOrArray& array, T& object, const DescSerializationXMLReadParams& properties)
 {
     QXmlStreamReader reader(array);
     SerializerXmlReadBuffer buffer(&reader);
@@ -549,7 +556,9 @@ bool DeSerializeFromXML(const QString& name, const QByteArray& array, T& object,
         }
     }
     buffer.SetSerializationMode(properties.Mode);
+    buffer.OpenSection(name);
     buffer << buffer.Sect(name, object);
+    buffer.CloseSection();
     return true;
 }
 
@@ -568,8 +577,8 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
     return DeSerializeFromXML(array, object, properties);
 }
 
-template<class T>
-bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QString& name, const QByteArray& array, T& object, DescSerializationXMLReadParams properties)
+template<class T, class StringOrArray>
+bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QString& name, const StringOrArray& array, T& object, DescSerializationXMLReadParams properties)
 {
     Q_ASSERT(properties.InitHandler == nullptr);
     properties.SetInitHandler([&](SerializerXmlReadBuffer& buffer){
@@ -581,6 +590,14 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
         return true;
     });
     return DeSerializeFromXML(name, array, object, properties);
+}
+
+inline std::pair<bool, SerializerXmlVersion> DeSerializeFromXMLCheckVersion(const SerializerXmlVersion& version, const QByteArray& array)
+{
+    QXmlStreamReader reader(array);
+    SerializerXmlReadBuffer buffer(&reader);
+    auto currentVersion = buffer.ReadVersion();
+    return std::make_pair(!version.CheckVersion(currentVersion).isValid(), currentVersion);
 }
 
 #define DECLARE_SERIALIZER_XML_TYPE_ALIAS(SourceType, TargetType) \

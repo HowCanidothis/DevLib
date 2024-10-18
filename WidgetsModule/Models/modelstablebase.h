@@ -81,6 +81,8 @@ public:
 
     bool SetComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, qint32 index, const ColumnComponentData& columnData);
     qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
+    ColumnComponentData& ChangeComponent(qint32 role, qint32 column);
+    void RemoveComponent(qint32 column);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
     void AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler);
@@ -141,6 +143,8 @@ public:
     bool IsEnabled() const  { return IsEditable && !ForceDisabled; }
 
 protected:
+    friend class ViewModelsStandardComponentsBuilder;
+
     ModelsIconsContext m_iconsContext;
     QHash<qint32, std::function<QVariant (qint32 row, qint32 column)>> m_roleDataHandlers;
     QHash<qint32, std::function<QVariant (qint32 column)>> m_roleHorizontalHeaderDataHandlers;

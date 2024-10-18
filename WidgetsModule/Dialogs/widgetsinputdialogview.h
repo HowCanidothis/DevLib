@@ -29,7 +29,8 @@ public:
     void AddMeasurement(const QString& label, const Measurement* measurement, LocalPropertyDouble* property);
 #endif
     void AddDouble(const QString& label, LocalPropertyDouble* property);
-    void AddLineText(const QString& label, LocalPropertyString* property);
+    void AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList());
+    void AddDate(const QString& label, LocalPropertyDate* property);
     void Reset();
 
 private:

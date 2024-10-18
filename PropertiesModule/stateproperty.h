@@ -46,6 +46,9 @@ public:
             ThreadsBase::DoMain(location, [commutator]{}); // Safe deletion
         });
     }
+
+    static DispatcherConnection OnFirstInvokePerformWhenEveryIsValid(const char* location, const FAction& handler, const QVector<const StateProperty*>& stateProperties);
+    static bool Wait(const char* cdl, const QVector<const StateProperty*>& stateProperties, qint32 msecs = -1);
 };
 
 class StatePropertyBoolCommutator : public LocalPropertyBoolCommutatorBase<DispatchersCommutatorWithDirect>
@@ -1024,8 +1027,65 @@ SharedPointer<StateProperty> StatePropertyCreate(const char* connection, const F
 {
     auto result = ::make_shared<WithDispatcherConnectionsSafe<StateProperty>>();
     result->ConnectFrom(connection, handler, properties...).MakeSafe(result->Connections);
-    return result;
+    return std::move(result);
 }
 
+class DispatcherConnectionChain
+{
+public:
+    DispatcherConnectionChain();
+
+public:
+    using FDep = std::function<const Dispatcher* ()>;
+
+    template<class Property>
+    DispatcherConnectionChain(const Property& property)
+        : DispatcherConnectionChain(property.OnChanged, [&property]{ return property != nullptr; })
+    {
+    }
+
+    DispatcherConnectionChain(const Dispatcher& dep, const std::function<bool ()>& isValid);
+
+    template<class ... Deps>
+    SP<DispatcherConnectionChain> CreateSubChain(const char* cdl, const Deps&... deps)
+    {
+        auto result = ::make_shared<DispatcherConnectionChain>();
+        result->connectFrom(cdl, *this);
+        adapters::Combine([&](const auto& dep) {
+            result->add(cdl, dep);
+        }, deps...);
+        result->update();
+        return result;
+    }
+    void ConnectFrom(const char* cdl, const DispatcherConnectionChain& another);
+
+    StateProperty IsValid;
+
+    DispatcherConnection OnFailed(const char* cdl, const FAction& action);
+    DispatcherConnection OnValid(const char* cdl, const FAction& action);
+
+    static const Dispatcher* DefaultDispatcher();
+
+private:
+    void connectFrom(const char* cdl, const DispatcherConnectionChain& another);
+    void invalidResult();
+    void validResult();
+    void update();
+    void add(const char* cdl, const FDep& dependency);
+    void add(const char* cdl, const SP<DispatcherConnectionChain>& another) { connectFrom(cdl, *another); }
+
+private:
+    QVector<FDep> m_deps;
+    DispatcherConnectionsSafe m_connections;
+    DispatcherConnectionsSafe m_depConnections;
+};
+
+using DispatcherConnectionChainPtr = SP<DispatcherConnectionChain>;
+
+template<typename ... Args>
+DispatcherConnectionChainPtr DispatcherConnectionChainCreate(const Args&... args)
+{
+    return ::make_shared<DispatcherConnectionChain>(args...);
+}
 
 #endif // STATEPROPERTY_H

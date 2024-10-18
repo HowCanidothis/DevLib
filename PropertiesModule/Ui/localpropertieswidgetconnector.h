@@ -111,13 +111,6 @@ public:
         QAbstractButton* BrowseButton = nullptr;
         QAbstractButton* ClearButton = nullptr;
         QString ForceDefaultDir;
-        std::function<void (const QString&)> PathHandler;
-
-        ImageConnectorParams& SetPathHandler(const std::function<void (const QString&)>& pathHandler)
-        {
-            PathHandler = pathHandler;
-            return *this;
-        }
 
         ImageConnectorParams& SetBrowseButton(QAbstractButton* browse)
         {
@@ -144,7 +137,7 @@ public:
         : LocalPropertiesLabelConnector(&property->InputValue, label)
     {}
 
-    LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, const ImageConnectorParams& params);
+    LocalPropertiesLabelConnector(LocalPropertyString* fileName, LocalProperty<QByteArray>* imageSource, QLabel* label, const ImageConnectorParams& params); // Image
     LocalPropertiesLabelConnector(LocalPropertyString* property, class ElidedLabel* label);
     LocalPropertiesLabelConnector(LocalPropertyString* property, QLabel* label);
     template<class T>

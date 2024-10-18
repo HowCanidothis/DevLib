@@ -197,7 +197,7 @@ public:
 
     const LineData& FindRow(const Name& propertyName) const;
 
-    void BeginGroup(const FTranslationHandler& header);
+    LineData BeginGroup(const FTranslationHandler& header);
 
     LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 
@@ -328,7 +328,7 @@ struct TPropertiesToolWrapper {
         , m_object(object)
     {
         if(visibleByDefault) {
-            OnPropertyAdded.Connect(CDL, [](const LineData& ld) {
+            OnPropertyAdded->Connect(CDL, [](const LineData& ld) {
                 ld.EditorWrapper.WidgetVisibility() = true;
             });
         }
@@ -336,7 +336,7 @@ struct TPropertiesToolWrapper {
 
     void BeginGroup(const FTranslationHandler& header)
     {
-        m_folder->BeginGroup(header);
+        Register(m_folder->BeginGroup(header));
     }
 
     LineData AddWidget(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal){
@@ -423,15 +423,15 @@ struct TPropertiesToolWrapper {
         for(const auto& data : m_properties){
             subscribe(data);
         }
-        OnPropertyAdded.Connect(locationInfo, subscribe).MakeSafe(connections);
+        OnPropertyAdded->Connect(locationInfo, subscribe).MakeSafe(connections);
         return *this;
     }
 
-    CommonDispatcher<const LineData&> OnPropertyAdded;
+    SharedPointerInitialized<CommonDispatcher<const LineData&>> OnPropertyAdded;
 private:
     LineData Register(const LineData& data){
         m_properties.insert(data);
-        OnPropertyAdded(data);
+        OnPropertyAdded->Invoke(data);
         return data;
     }
 

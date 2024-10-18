@@ -13,6 +13,7 @@ public:
 
     virtual void CreateActions() = 0;
 
+    void Initialize();
     const Latin1Name& GetName() const { return m_name; }
     QAction* FindAction(const Latin1Name& actionName) const;
     const Stack<QAction*>& GetActions() const { return m_actions; }
@@ -21,6 +22,8 @@ public:
     operator qint32() const { return m_name; }
 
 protected:
+    virtual void onInitialize() {};
+
     QAction* createAction(const Latin1Name& actionName, const FAction& action);
 
     Latin1Name GenerateFullActionName(const Latin1Name& actionName) const;

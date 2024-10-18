@@ -63,10 +63,10 @@ template<class T> using SP = SharedPointer<T>;
 template<class T> using SPI = SharedPointerInitialized<T>;
 
 template<class T, typename DefaultDeleter, typename ... Args>
-SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...), DefaultDeleter()); }
+SharedPointer<T> make_shared(const Args& ... args) { return SharedPointer<T>(new T(args...), DefaultDeleter()); }
 
 template<class T, typename ... Args>
-SharedPointer<T> make_shared(Args ... args) { return SharedPointer<T>(new T(args...)); }
+SharedPointer<T> make_shared(const Args& ... args) { return SharedPointer<T>(new T(args...)); }
 
 #define FIRST_DECLARE_POINTERS_BASE(type, sharedPointer, scopedPointer) \
 using type##Ptr = sharedPointer<class type>; \

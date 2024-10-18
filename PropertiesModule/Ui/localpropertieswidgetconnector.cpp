@@ -173,18 +173,19 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalProp
     });
 }
 
-LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImage>* property, QLabel* label, const ImageConnectorParams& params)
-    : Super([property, label]{
-        auto image = property->Native();
+LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString* fileName, LocalProperty<QByteArray>* imageSource, QLabel* label, const ImageConnectorParams& params)
+    : Super([imageSource, label, fileName]{
+        auto image = imageSource->Native();
         label->setProperty("a_image", image);
-        label->setPixmap(QPixmap::fromImage(image.scaled(label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
-    }, [property, label]{
-        *property = label->property("a_image").value<QImage>();
+        auto suf = QFileInfo(*fileName).suffix();
+        label->setPixmap(QPixmap::fromImage(QImage::fromData(*imageSource, suf.toLatin1()).scaled(label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    }, [imageSource, label]{
+        *imageSource = label->property("a_image").value<QByteArray>();
     }, label)
 {
     if(params.BrowseButton != nullptr) {
         WidgetPushButtonWrapper w(params.BrowseButton);
-        w.OnClicked().Connect(CDL, [this, property, label, params]{
+        w.OnClicked().Connect(CDL, [this, fileName, label, params]{
             QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
             if(!params.ForceDefaultDir.isEmpty()) {
                 fileDialog.setDirectory(params.ForceDefaultDir);
@@ -194,16 +195,14 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImag
 
             auto selectedUrls = fileDialog.selectedUrls();
             auto path = selectedUrls.first().toLocalFile();
-            QImage loadedImage;
+            *fileName = path;
+            QFile file(path);
 
-            if (!loadedImage.load(path)){
+            if (!file.open(QFile::ReadOnly)){
                 qCWarning(LC_UI) << "Can't load image " << path;
                 return;
             }
-            if(params.PathHandler != nullptr) {
-                params.PathHandler(path);
-            }
-            label->setProperty("a_image", loadedImage);
+            label->setProperty("a_image", file.readAll());
             m_propertySetter();
         }).MakeSafe(m_dispatcherConnections);
     }
@@ -215,7 +214,7 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalProperty<QImag
         return false;
     }));
 
-    property->OnChanged.Connect(CDL, [this, ef]{
+    imageSource->OnChanged.Connect(CDL, [this, ef]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 

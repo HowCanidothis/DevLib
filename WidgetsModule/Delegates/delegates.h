@@ -139,6 +139,18 @@ private:
     mutable class WidgetsDialog* m_editor;
 };
 
+class DelegatesLineEdit : public QStyledItemDelegate
+{
+    Q_OBJECT
+    using Super = QStyledItemDelegate;
+public:
+    DelegatesLineEdit(QObject* parent);
+
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+    CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
+};
+
 class DelegatesDateTime : public QStyledItemDelegate
 {
     Q_OBJECT

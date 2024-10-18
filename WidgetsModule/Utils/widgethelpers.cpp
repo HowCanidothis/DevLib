@@ -81,6 +81,7 @@ Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
 Q_DECLARE_METATYPE(FCurrentChanged)
 Q_DECLARE_METATYPE(SP<QVector<QWidget*>>)
+Q_DECLARE_METATYPE(SP<QCompleter>)
 
 struct DisabledColumnComponentData
 {
@@ -134,6 +135,66 @@ Dispatcher& MenuWrapper::OnContextMenu() const
         }
         return result;
     });
+}
+
+const WidgetLineEditWrapper& WidgetLineEditWrapper::AddCompleter(const QStringList& keys) const
+{
+    auto* te = GetWidget();
+
+    Injected<QCompleter>("a_completer", [te, keys]{
+        auto completer = new QCompleter(keys);
+        completer->setWidget(te);
+
+        WidgetWrapper(completer->popup()).AddEventFilter([completer](QObject*, QEvent* e) {
+            if(completer->popup()->currentIndex().row() != -1 && e->type() == QEvent::KeyPress) {
+                auto ke = static_cast<QKeyEvent*>(e);
+                if(ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) {
+                    emit completer->activated(completer->popup()->currentIndex().data().toString());
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        auto start = ::make_shared<qint32>(0);
+        auto end = ::make_shared<qint32>(0);
+
+        completer->connect(completer, QOverload<const QString&>::of(&QCompleter::activated), [completer, te, start,end](const QString& text){
+            if(*start == -1) {
+                return;
+            }
+            auto trueStart = *start;
+            te->setText(te->text().replace(trueStart, *end - trueStart, text));
+            te->setCursorPosition(trueStart + text.length());
+            completer->popup()->hide();
+        });
+
+        te->connect(te, &QLineEdit::cursorPositionChanged, [start,end, te, completer](qint32, qint32 newPos){
+            static QRegularExpression exp(R"((\$[\w\d\.]+))");
+
+            QString result;
+            auto match = exp.globalMatch(te->text());
+            while(match.hasNext()) {
+                auto next = match.next();
+                *start = next.capturedStart();
+                *end = next.capturedEnd();
+                if(newPos >= *start && newPos <= *end) {
+                    completer->setCompletionPrefix(next.captured(1));
+                    if(completer->popup()->model()->rowCount() != 1 || completer->popup()->model()->index(0,0).data().toString() != next.captured(1)) {
+                        completer->complete();
+                    }
+                    return;
+                }
+            }
+            *start = -1;
+            *end = -1;
+            completer->popup()->hide();
+        });
+        return completer;
+    });
+
+
+    return *this;
 }
 
 const WidgetLineEditWrapper& WidgetLineEditWrapper::SetDynamicSizeAdjusting() const
@@ -635,6 +696,14 @@ void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& c
     if(firstIndex.has_value()) {
         table->scrollTo(model->index(0, firstIndex.value()));
     }
+}
+
+const WidgetTableViewWrapper& WidgetTableViewWrapper::SetDefaultActionHandlers(bool readOnly) const
+{
+    auto h = CreateDefaultActionHandlers();
+    h->IsReadOnly = readOnly;
+    h->ShowAll();
+    return *this;
 }
 
 WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::CreateDefaultActionHandlers() const
@@ -2329,6 +2398,74 @@ WidgetTextEditWrapper::WidgetTextEditWrapper(QTextEdit* lineEdit)
     : Super(lineEdit)
 {
 
+}
+
+const WidgetTextEditWrapper& WidgetTextEditWrapper::AddCompleter(const QStringList &keys) const
+{
+    auto* te = GetWidget();
+
+    Injected<QCompleter>("a_completer", [keys, te]{
+        auto completer = new QCompleter(keys);
+        completer->setWidget(te);
+
+        WidgetWrapper(completer->popup()).AddEventFilter([completer](QObject*, QEvent* e) {
+            if(completer->popup()->currentIndex().row() != -1 && e->type() == QEvent::KeyPress) {
+                auto ke = static_cast<QKeyEvent*>(e);
+                switch(ke->key()) {
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                case Qt::Key_Tab:
+                    emit completer->activated(completer->popup()->currentIndex().data().toString());
+                    return true;
+                default: break;
+                }
+            }
+            return false;
+        });
+
+        auto start = ::make_shared<qint32>(0);
+        auto end = ::make_shared<qint32>(0);
+
+        completer->connect(completer, QOverload<const QString&>::of(&QCompleter::activated), [completer, te, start,end](const QString& text){
+            if(*start == -1) {
+                return;
+            }
+            auto trueStart = *start;
+            te->setText(te->toPlainText().replace(trueStart, *end - trueStart, text));
+            auto tc = te->textCursor();
+            tc.setPosition(trueStart + text.length());
+            te->setTextCursor(tc);
+            completer->popup()->hide();
+        });
+
+        te->connect(te, &QTextEdit::cursorPositionChanged, [start,end, te, completer] {
+            static QRegularExpression exp(R"((\$[\w\d\.]+))");
+
+            auto newPos = te->textCursor().position();
+
+            QString result;
+            auto match = exp.globalMatch(te->toPlainText());
+            while(match.hasNext()) {
+                auto next = match.next();
+                *start = next.capturedStart();
+                *end = next.capturedEnd();
+                if(newPos >= *start && newPos <= *end) {
+                    completer->setCompletionPrefix(next.captured(1));
+                    if(completer->popup()->model()->rowCount() != 1 || completer->popup()->model()->index(0,0).data().toString() != next.captured(1)) {
+                        completer->complete();
+                    }
+
+                    return;
+                }
+            }
+            *start = -1;
+            *end = -1;
+            completer->popup()->hide();
+        });
+        return completer;
+    });
+
+    return *this;
 }
 
 QString WidgetTextEditWrapper::Chopped(qint32 maxCount) const

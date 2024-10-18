@@ -11,8 +11,15 @@ class ActionsManager : public SingletoneGlobal<ActionsManager>
     ActionsManager();
 public:
 
+    void Initialize();
+
     void CreateActionsFromRegisteredScopes();
     ActionsScopeBase* FindScope(const Latin1Name& scopeName) const;
+    template<class T>
+    T* FindScope(const Latin1Name& scopeName) const
+    {
+        return reinterpret_cast<T*>(FindScope(scopeName));
+    }
     bool AddTo(const Latin1Name& scopeName, class QMenu* menu);
     bool AddTo(const Latin1Name& scopeName, QWidget* widget);
     class QAction* FindAction(const QString& path) const;

@@ -23,8 +23,9 @@ public:
     bool ShowDeleteCancelDialog(const QString& title, const QString& text);
     qint32 ShowTempDialog(const DescCustomDialogParams& params, const DescShowDialogParams& showParams = DescShowDialogParams()) const;
     void ShowTextDialog(const QString& title, const QString& text) const;
-    std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString());
+    std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString(), const QStringList& keys = QStringList());
     std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
+    std::optional<QDate> GetDate(const FTranslationHandler& title, const QDate& current = QDate());
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
     template<class T>

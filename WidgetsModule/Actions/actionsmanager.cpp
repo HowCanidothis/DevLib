@@ -9,6 +9,13 @@ ActionsManager::ActionsManager()
 
 }
 
+void ActionsManager::Initialize()
+{
+    for(const auto& it : m_actionsScopes) {
+        it.second->Initialize();
+    }
+}
+
 void ActionsManager::CreateActionsFromRegisteredScopes()
 {
     for(const auto& it : m_actionsScopes) {

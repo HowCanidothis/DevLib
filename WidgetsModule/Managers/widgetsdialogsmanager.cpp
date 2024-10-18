@@ -41,6 +41,7 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
     const auto& buttons = params.Buttons;
     if(view != nullptr) {
         dialog->SetContent(view);
+        dialog->setFocusProxy(view);
         auto handler = view->property("DialogHandler");
         if(handler.isValid()) {
             (*((FDialogHandler*)handler.toLongLong()))(dialog);
@@ -80,16 +81,39 @@ qint32 WidgetsDialogsManager::ShowTempDialog(const DescCustomDialogParams& param
     OnDialogCreated(dialog.get());
     DescShowDialogParams copy = showParams;
     copy.SetModal(true);
-    return ShowDialog(dialog.get(), copy);
+    auto result = ShowDialog(dialog.get(), copy);
+    showParams.OnResult(result);
+    return result;
 }
 
-std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler& title, const QString& text)
+std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler& title, const QString& text, const QStringList& keys)
 {
     LocalPropertyString v(text);
     auto* dialogView = new WidgetsInputDialogView();
-    dialogView->AddLineText(title(), &v);
+    dialogView->AddLineText(title(), &v, keys);
 
     auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Input Text:"))).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
+    }
+
+    return v;
+}
+
+std::optional<QDate> WidgetsDialogsManager::GetDate(const FTranslationHandler& title, const QDate& current)
+{
+    LocalPropertyDate v(current.isValid() ? current : QDate::currentDate());
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddDate(title(), &v);
+
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Select Date:"))).SetView(dialogView)
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
                     WidgetsDialogsManagerDefaultButtons::ConfirmButton())
         .SetOnDone([&](qint32 v) {
@@ -107,15 +131,28 @@ std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler&
 std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool showAlpha)
 {
     static std::optional<QColor> result;
+    result = std::nullopt;
     auto createParams = [&](const WidgetColorDialogWrapper& wrapper) {
         return DescCustomDialogParams()
         .SetTitle(TR(tr("Apply Color?")))
         .SetView(wrapper.SetDefaultLabels())
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    WidgetsDialogsManagerDefaultButtons::DiscardRoleButton(TR("Remove Color")),
             WidgetsDialogsManagerDefaultButtons::ApplyButton())
         .SetOnDone([wrapper](qint32 r) {
-            if(r != 0) {
-                result = wrapper->currentColor();
+            switch(r) {
+            case 1:
+                result = Qt::transparent; break;
+            case 2: {
+                auto cColor = wrapper->currentColor();
+                if(cColor.alpha() == 0) {
+                    if(cColor.rgb() != 0) {
+                        cColor.setAlpha(255);
+                    }
+                }
+                result = cColor; break;
+            }
+            default: break;
             }
         });
     };
@@ -148,6 +185,7 @@ qint32 WidgetsDialogsManager::ShowDialog(WidgetsDialog* dialog, const DescShowDi
     }
 
     dialog->setModal(params.Modal);
+    dialog->setFocus();
 
     qint32 result = -1;
     if(params.Modal) {

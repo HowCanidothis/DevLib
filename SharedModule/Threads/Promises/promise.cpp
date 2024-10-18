@@ -245,14 +245,16 @@ bool FutureResult::Wait(qint32 msecs) const
     bool result = true;
     Interruptor interruptor;
     auto data = m_data;
-    interruptor.OnInterrupted().Connect(CONNECTION_DEBUG_LOCATION, [data, &result]{
-        if(data->m_promisesCounter != 0) {
-            result = false;
-            data->m_promisesCounter = 1;
-            data->deref();
-        }
-    });
-    interruptor.Interrupt(msecs);
+    if(msecs > 0) {
+        interruptor.OnInterrupted().Connect(CONNECTION_DEBUG_LOCATION, [data, &result]{
+            if(data->m_promisesCounter != 0) {
+                result = false;
+                data->m_promisesCounter = 1;
+                data->deref();
+            }
+        });
+        interruptor.Interrupt(msecs);
+    }
 
     m_data->wait();
     return result;

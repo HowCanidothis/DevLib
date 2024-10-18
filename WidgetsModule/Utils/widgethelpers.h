@@ -78,7 +78,7 @@ public:
     template<class T>
     SharedPointer<T> Injected(const char* propertyName, const std::function<T* ()>& creator = nullptr) const
     {
-        auto value = m_object->property(propertyName).value<SharedPointer<T>>();
+        SP<T> value = m_object->property(propertyName).value<SharedPointer<T>>();
         if(value == nullptr) {
             value = creator != nullptr ? creator() : new T();
             m_object->setProperty(propertyName, QVariant::fromValue(value));
@@ -380,6 +380,8 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
+    const WidgetLineEditWrapper& AddCompleter(const QStringList& keys) const;
+
     CommonDispatcher<const QString&>& OnEditFinished() const;
     LocalPropertyString& WidgetText() const;
     LocalPropertyBool& WidgetReadOnly() const;
@@ -393,6 +395,8 @@ public:
     WidgetTextEditWrapper(class QTextEdit* lineEdit);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetTextEditWrapper, QTextEdit)
+
+    const WidgetTextEditWrapper& AddCompleter(const QStringList& keys) const;
 
     QString Chopped(qint32 maxCount) const;
     LocalPropertyBool& WidgetReadOnly() const;
@@ -567,6 +571,7 @@ public:
     QSet<int> SelectedColumnsSet() const;
     void SelectRowsAndScrollToFirst(const QSet<qint32>& rows) const;
     void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns) const;
+    const WidgetTableViewWrapper& SetDefaultActionHandlers(bool readOnly) const;
     WidgetsGlobalTableActionsScopeHandlersPtr CreateDefaultActionHandlers() const;
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;

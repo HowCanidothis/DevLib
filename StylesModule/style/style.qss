@@ -862,6 +862,10 @@ QAbstractButton[ActionWidget="true"]:hover {
     background: @cbg.hover;
 }
 
+QPushButton {
+    padding: 4px 12px 4px 12px;
+}
+
 QPushButton[ActionWidget="true"] {
     text-align: left;
     min-height: 30px;

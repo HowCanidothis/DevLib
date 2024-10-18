@@ -24,16 +24,27 @@ WidgetsDialog::~WidgetsDialog()
 
 void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler)
 {    
-    for(auto* button : m_buttons) {
-        auto bRole = m_roles.value(button, ButtonRole::Save);
-        switch(bRole) {
-        case ButtonRole::Save: ui->horizontalLayout->addWidget(button);
-            break;
-        case ButtonRole::Cancel: ui->horizontalLayout->insertWidget(1, button);
-            break;
-        default: ui->horizontalLayout->insertWidget(0, button);
-            break;
-        }
+    auto sortedByRole = m_buttons;
+    /*Cancel/Discard/Save/Action*/
+    static auto priorityMap = Factory<qint32, qint32>().Insert((qint32)ButtonRole::Cancel, 0)
+                                                           .Insert((qint32)ButtonRole::Reset, 1)
+                                                           .Insert((qint32)ButtonRole::Save, 2);
+    std::sort(sortedByRole.begin(), sortedByRole.end(), [this](auto* f, auto* s) {
+        auto frole = (qint32)m_roles.value(f, ButtonRole::Save);
+        auto srole = (qint32)m_roles.value(s, ButtonRole::Save);
+        return priorityMap.value(frole, 3) < priorityMap.value(srole, 3);
+    });
+    for(auto* button : sortedByRole) {
+        ui->horizontalLayout->addWidget(button);
+//        auto bRole = m_roles.value(button, ButtonRole::Save);
+//        switch(bRole) {
+//        case ButtonRole::Save: ui->horizontalLayout->addWidget(button);
+//            break;
+//        case ButtonRole::Cancel: ui->horizontalLayout->insertWidget(1, button);
+//            break;
+//        default: ui->horizontalLayout->insertWidget(0, button);
+//            break;
+//        }
     }
     if(handler != nullptr) {
         handler(m_buttons);

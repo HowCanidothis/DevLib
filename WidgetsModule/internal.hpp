@@ -13,6 +13,7 @@
 #include "Models/viewmodelvacabulary.h"
 #include "Models/viewmodelsdefaultcomponents.h"
 #include "Models/viewmodelsdefaultfieldmodel.h"
+#include "Models/viewmodelsstandard.h"
 
 #include "Bars/menubarmovepane.h"
 #include "Bars/widgetstoolbar.h"

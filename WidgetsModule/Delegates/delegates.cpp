@@ -24,6 +24,19 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
+DelegatesLineEdit::DelegatesLineEdit(QObject* parent)
+    : Super(parent)
+{
+
+}
+
+QWidget* DelegatesLineEdit::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto* editor = Super::createEditor(parent, option, index);
+    OnEditorAboutToBeShown(editor, index);
+    return editor;
+}
+
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
     : Super([]()-> QStringList { return {}; }, parent)
     , m_getter(getter)

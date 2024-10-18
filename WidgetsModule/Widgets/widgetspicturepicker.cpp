@@ -14,29 +14,27 @@ WidgetsPicturePicker::WidgetsPicturePicker(QWidget* parent)
     addButton->setObjectName("AddButton");
     deleteButton->setObjectName("DeleteButton");
     addButton.LocateToParent(DescWidgetsLocationAttachmentParams().DisableFullParentSize());
-    addButton.WidgetVisibility().ConnectFrom(CDL, [](const QImage& image) {
+    addButton.WidgetVisibility().ConnectFrom(CDL, [](const QByteArray& image) {
         return image.isNull();
-    }, Image);
-    ImagePath.ConnectFrom(CDL, [this](const QImage& i) {
+    }, ImageSource);
+    ImagePath.ConnectFrom(CDL, [this](const QByteArray& i) {
         return i.isNull() ? QString() : ImagePath.Native();
-    }, Image);
+    }, ImageSource);
 }
 
 void WidgetsPicturePicker::Initialize(LocalPropertiesWidgetConnectorsContainer& connectors, const FTranslationHandler& t, const QString& forceDefaultDir)
 {
     WidgetAbstractButtonWrapper(m_addButton).SetText(t);
-    connectors.AddConnector<LocalPropertiesLabelConnector>(&Image, this, LocalPropertiesLabelConnector::ImageConnectorParams()
+    connectors.AddConnector<LocalPropertiesLabelConnector>(&ImagePath, &ImageSource, this, LocalPropertiesLabelConnector::ImageConnectorParams()
                                                            .SetBrowseButton(m_addButton)
                                                            .SetClearButton(m_deleteButton)
                                                            .SetForceDefaultBrowseDir(forceDefaultDir)
-                                                           .SetPathHandler([this](const QString& path){
-        ImagePath = path;
-    }));
+                                                           );
 }
 
 void WidgetsPicturePicker::enterEvent(QEvent*)
 {
-    m_deleteButton->setVisible(!Image.Native().isNull());
+    m_deleteButton->setVisible(!ImageSource.Native().isNull());
 }
 
 void WidgetsPicturePicker::leaveEvent(QEvent*)

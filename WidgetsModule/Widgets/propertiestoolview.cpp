@@ -228,13 +228,14 @@ const LineData& PropertiesToolView::FindRow(const Name& propertyName) const
     return iter.value().Data;
 }
 
-void PropertiesToolView::BeginGroup(const FTranslationHandler& header)
+LineData PropertiesToolView::BeginGroup(const FTranslationHandler& header)
 {
     int rowCount = m_layout->rowCount();
     auto* label = new QLabel(header());
     m_layout->addWidget(label, rowCount, 0, 1, 2);
     label->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
     label->setProperty("MinorTitle", true);
+    return LineData(Name(), label);
 }
 
 LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTranslationHandler& title, Qt::Orientation orientation)

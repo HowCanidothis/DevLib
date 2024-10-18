@@ -203,6 +203,7 @@ void WidgetsTabBarLayout::removePage(int index)
 {
     delete m_buttons.takeAt(index);
     m_views.takeAt(index);
+    m_currentIndex = index - 1;
 #ifdef QT_PLUGIN
     for(auto* b : adapters::range(m_buttons, index)) {
         b->setObjectName("__qt__passive_button_" + QString::number(++index));

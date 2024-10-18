@@ -8,6 +8,11 @@ ActionsScopeBase::ActionsScopeBase(const Latin1Name& scopeName)
     ActionsManager::GetInstance().registerActionsScope(this);
 }
 
+void ActionsScopeBase::Initialize()
+{
+    onInitialize();
+}
+
 QAction* ActionsScopeBase::FindAction(const Latin1Name& actionName) const
 {
     auto found = m_actionsMap.find(actionName);

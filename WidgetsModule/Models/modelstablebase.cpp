@@ -292,6 +292,20 @@ bool ViewModelsTableColumnComponents::SetComponent(qint32 role /*Qt::ItemDataRol
     return true;
 }
 
+ViewModelsTableColumnComponents::ColumnComponentData& ViewModelsTableColumnComponents::ChangeComponent(qint32 role, qint32 column)
+{
+    static ColumnComponentData defaultRes;
+    auto foundIt = m_columnComponents.find(column);
+    if(foundIt == m_columnComponents.end()) {
+        return defaultRes;
+    }
+    auto& components = foundIt.value()[role];
+    if(components.isEmpty()) {
+        return defaultRes;
+    }
+    return components.last();
+}
+
 qint32 ViewModelsTableColumnComponents::AddComponent(qint32 role, qint32 column, const ColumnComponentData& columnData)
 {
     auto foundIt = m_columnComponents.find(column);
@@ -301,6 +315,11 @@ qint32 ViewModelsTableColumnComponents::AddComponent(qint32 role, qint32 column,
     auto& components = foundIt.value()[role];
     components.append(columnData);
     return components.size() - 1;
+}
+
+void ViewModelsTableColumnComponents::RemoveComponent(qint32 column)
+{
+    m_columnComponents.remove(column);
 }
 
 void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData)

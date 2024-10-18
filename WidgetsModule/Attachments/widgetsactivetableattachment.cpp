@@ -50,12 +50,12 @@ void WidgetsActiveTableViewAttachment::Attach(QTableView* tableView)
 bool WidgetsActiveTableViewAttachment::eventFilter(QObject* watched, QEvent* event)
 {
     switch(event->type()) {
-    case QEvent::HoverEnter:
+    case QEvent::FocusIn:
     case QEvent::MouseButtonRelease: {
         updateActiveTableView(reinterpret_cast<QTableView*>(watched->parent()));
         break;
     }
-    case QEvent::HoverLeave:
+    case QEvent::FocusOut:
     case QEvent::Destroy:
         if(ActiveTable.Native() == watched->parent()) {
             ActiveTable = nullptr;

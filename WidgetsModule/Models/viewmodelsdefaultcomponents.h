@@ -85,7 +85,7 @@ using ViewModelsColorFormatingRuleDouble = TViewModelsColorFormatingRule<LocalPr
 using ViewModelsColorFormatingRuleInt = TViewModelsColorFormatingRule<LocalPropertyInt>;
 
 template<class Wrapper, typename ValueType = typename ReferenceHelper<typename Wrapper::value_type>::reference, typename ConstValueType = typename ReferenceHelper<typename Wrapper::value_type>::const_reference>
-class TViewModelsColumnComponentsBuilder : TViewModelsColumnComponentsBuilderBase
+class TViewModelsColumnComponentsBuilder : public TViewModelsColumnComponentsBuilderBase
 {
     using Super = TViewModelsColumnComponentsBuilderBase;
 
@@ -255,12 +255,12 @@ public:
         return *this;
     }
 
-    TViewModelsColumnComponentsBuilder& AddStringColumn(qint32 column, const FTranslationHandler& header, const std::function<QString& (ValueType)>& getter) {
-        return AddColumn<QString>(column, header, getter);
-    }
 
-    TViewModelsColumnComponentsBuilder& AddColorColumn(qint32 column, const FTranslationHandler& header, const std::function<QColor& (ValueType)>& getter) {
-        return AddColumn<QColor>(column, header, getter);
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<T (ConstValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            return getter(constData);
+        });
     }
 
     template<typename T>
@@ -268,123 +268,199 @@ public:
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType& data = const_cast<ValueType>(constData);
             return getter(data);
-        }, [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = value.value<T>();};
+        }, [getter](const QVariant& v, ValueType data) {
+            return [&]{ getter(data) = v.value<T>(); };
         });
     }
 
     template<typename T>
-    TViewModelsColumnComponentsBuilder& AddReadOnlyColumn(qint32 column, const FTranslationHandler& header, const std::function<T(ConstValueType)>& getter) {
+    TViewModelsColumnComponentsBuilder& AddColumn(qint32 column, const FTranslationHandler& header, const std::function<std::optional<T> (ConstValueType)>& getter) {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            return QVariant::fromValue(getter(constData));
+            auto v = getter(constData);
+            if(!v.has_value()) {
+                return DASH;
+            }
+            return v.value();
         });
     }
 
+    template<typename Optional, typename T = typename Optional::value_type>
+    typename std::enable_if<std::is_same<std::optional<T>, Optional>::value, TViewModelsColumnComponentsBuilder&>::type AddColumn(qint32 column, const FTranslationHandler& header, const std::function<Optional& (ValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType& data = const_cast<ValueType>(constData);
+            auto& v = getter(data);
+            if(!v.has_value()) {
+                return DASH;
+            }
+            return v.value();
+        }, [getter](const QVariant& v, ValueType data) {
+            return [&]{
+                auto& ref = getter(data);
+                if(v.isValid()) {
+                    ref = v.value<T>();
+                } else {
+                    ref = std::nullopt;
+                }
+            };
+        });
+    }
+
+    template<typename Property, typename T = typename Property::value_type>
+    typename std::enable_if<std::is_base_of<LocalProperty<T>, Property>::value, TViewModelsColumnComponentsBuilder&>::type AddColumn(qint32 column, const FTranslationHandler& header, const std::function<Property& (ValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType& data = const_cast<ValueType>(constData);
+            const auto& v = getter(data).Native();
+            return v;
+        }, [getter](const QVariant& v, ValueType data) {
+            return [&]{
+                auto& ref = getter(data);
+                ref = v.value<T>();
+            };
+        });
+    }
+
+    template<typename Property, typename T = typename Property::value_type>
+    typename std::enable_if<std::is_base_of<LocalProperty<T>, Property>::value, TViewModelsColumnComponentsBuilder&>::type AddColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyOptional<Property>& (ValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType& data = const_cast<ValueType>(constData);
+            const auto& v = getter(data).Native();
+            if(!v.has_value()) {
+                return DASH;
+            }
+            return v.value();
+        }, [getter](const QVariant& v, ValueType data) {
+            return [&]{
+                auto& ref = getter(data);
+                if(v.isValid()) {
+                    ref = v.value<T>();
+                } else {
+                    ref = std::nullopt;
+                }
+            };
+        });
+    }
+
+#define ViewModelsColumnComponentsBuilder_DECLARE_TYPE(name, type, property) \
+    TViewModelsColumnComponentsBuilder& Add##name##ByRef(qint32 column, const FTranslationHandler& header, const std::function<property& (ValueType)>& getter) \
+    { \
+        return AddColumn<property, property::value_type>(column, header, getter); \
+    } \
+    TViewModelsColumnComponentsBuilder& Add##name##ByRefOpt(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyOptional<property>& (ValueType)>& getter) \
+    { \
+        return AddColumn<property, property::value_type>(column, header, getter); \
+    } \
+    TViewModelsColumnComponentsBuilder& Add##name##ByRef(qint32 column, const FTranslationHandler& header, const std::function<type& (ValueType)>& getter) \
+    { \
+        return AddColumn<type>(column, header, getter); \
+    } \
+    TViewModelsColumnComponentsBuilder& Add##name(qint32 column, const FTranslationHandler& header, const std::function<type (ConstValueType)>& getter) \
+    { \
+        return AddColumn<type>(column, header, getter); \
+    } \
+    TViewModelsColumnComponentsBuilder& Add##name##ByRefOpt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<type>& (ValueType)>& getter) \
+    { \
+        return AddColumn<std::optional<type>, type>(column, header, getter); \
+    } \
+    TViewModelsColumnComponentsBuilder& Add##name##Opt(qint32 column, const FTranslationHandler& header, const std::function<std::optional<type> (ConstValueType)>& getter) \
+    { \
+        return AddColumn<type>(column, header, getter); \
+    }
+
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(String, QString, LocalPropertyString)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Name, Name, LocalPropertyName)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Color, QColor, LocalPropertyColor)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Double, double, LocalPropertyDouble)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Int, qint32, LocalPropertyInt)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Bool, bool, LocalPropertyBool)
+
+
     template<class Enum>
-    TViewModelsColumnComponentsBuilder& AddEnumColumn(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddEnum(qint32 column, const FTranslationHandler& header, const std::function<Enum (ConstValueType)>& getter)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return TranslatorManager::ToVariant<Enum>(getter(data));
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+        });
+    }
+
+    template<class Enum>
+    TViewModelsColumnComponentsBuilder& AddEnum(qint32 column, const FTranslationHandler& header, const std::function<qint32 (ConstValueType)>& getter)
+    {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TranslatorManager::ToVariant<Enum>(getter(data));
+        });
+    }
+
+    template<class Enum>
+    TViewModelsColumnComponentsBuilder& AddEnumByRef(qint32 column, const FTranslationHandler& header, const std::function<Enum& (ValueType)>& getter)
+    {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            return TranslatorManager::ToVariant<Enum>(getter(data));
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
             return TranslatorManager::SetterFromString(getter(data), value.toString());
         });
     }
 
     template<class Enum>
-    TViewModelsColumnComponentsBuilder& AddEnumPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter, bool readOnly = false)
+    TViewModelsColumnComponentsBuilder& AddEnumByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertySequentialEnum<Enum>& (ValueType)>& getter)
     {
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return TranslatorManager::ToVariant<Enum>(getter(data));
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
             return getter(data).SetterFromString(value.toString());
         });
     }
 
-    template<typename T>
-    TViewModelsColumnComponentsBuilder& AddPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalProperty<T>& (ValueType)>& getter, bool readOnly = false)
-    {
-        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            return getter(data).Native();
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = value.value<T>();};
-        });
-    }
-    TViewModelsColumnComponentsBuilder& AddIdPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyName& (ValueType)>& getter, bool readOnly = false){
-        return AddPropertyColumn<Name>(column, header, getter, readOnly);
-    }
-    TViewModelsColumnComponentsBuilder& AddIntPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyInt& (ValueType)>& getter, bool readOnly = false){
-        return AddPropertyColumn<int>(column, header, getter, readOnly);
-    }
-    TViewModelsColumnComponentsBuilder& AddDoublePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDouble& (ValueType)>& getter, bool readOnly = false){
-        return AddPropertyColumn<double>(column, header, getter, readOnly);
-    }
-    TViewModelsColumnComponentsBuilder& AddDoublePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDoubleOptional& (ValueType)>& getter, bool readOnly = false){
-        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            LocalPropertyDoubleOptional& property = getter(data);
-            return property.IsValid ? QVariant(property.Value.Native()) : QVariant("-");
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{
-                LocalPropertyDoubleOptional& property = getter(data);
-                if(value.isNull()){
-                    property.IsValid = false;
-                } else {
-                    property.Value = value.toDouble();
-                    property.IsValid = true;
-                }
-            };
-        });
-    }
-    TViewModelsColumnComponentsBuilder& AddDatePropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDate& (ValueType)>& getter, bool readOnly = false){
+    TViewModelsColumnComponentsBuilder& AddDateByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDate& (ValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             LocalPropertyDate& property = getter(data);
             return property.Native().isValid() ? DateToString(property.Native()) : QVariant("-");
-        }, readOnly ? FModelSetter() : [getter](const QVariant& value, ValueType data) -> FAction {
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 LocalPropertyDate& property = getter(data);
                 property = DateFromVariant(value);
             };
-        });
+        }/*, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            LocalPropertyDate& property = getter(data);
+            return property.Native();
+        }*/);
     }
-    TViewModelsColumnComponentsBuilder& AddStringPropertyColumn(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyString& (ValueType)>& getter, bool readOnly = false){
-        return AddPropertyColumn<QString>(column, header, getter, readOnly);
+
+    TViewModelsColumnComponentsBuilder& AddDateByRef(qint32 column, const FTranslationHandler& header, const std::function<QDate& (ValueType)>& getter){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDate& property = getter(data);
+            return property.isValid() ? DateToString(property) : QVariant("-");
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                QDate& property = getter(data);
+                property = DateFromVariant(value);
+            };
+        }/*, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDate& property = getter(data);
+            return property;
+        }*/);
     }
 
-    template<class T>
-    struct DateTimeParams
-    {
-        using FGetter = std::function<T& (ValueType)>;
+    TViewModelsColumnComponentsBuilder& AddDate(qint32 column, const FTranslationHandler& header, const std::function<QDate (ConstValueType)>& getter){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDate property = getter(data);
+            return property.isValid() ? DateToString(property) : QVariant("-");
+        }, FModelSetter()/*, [getter](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDate& property = getter(data);
+            return property;
+        }*/);
+    }
 
-        DateTimeParams(const FGetter& getter)
-            : TimeShift(nullptr)
-            , IsReadOnly(false)
-            , Getter(getter)
-        {}
-
-        DateTimeParams& SetTimeShift(const double* timeShift)
-        {
-            TimeShift = timeShift;
-            return *this;
-        }
-        DateTimeParams& SetReadOnly(bool readOnly)
-        {
-            IsReadOnly = readOnly;
-            return *this;
-        }
-
-        const double* TimeShift;
-        bool IsReadOnly;
-        FGetter Getter;
-    };
-
-    DateTimeParams<LocalPropertyDateTime> CreateDateTimePropertyParams(const typename DateTimeParams<LocalPropertyDateTime>::FGetter& getter) { return DateTimeParams<LocalPropertyDateTime>(getter); }
-    DateTimeParams<QDateTime> CreateDateTimeParams(const typename DateTimeParams<QDateTime>::FGetter& getter) { return DateTimeParams<QDateTime>(getter); }
-
-    TViewModelsColumnComponentsBuilder& AddTimeColumn(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){
+    TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return TimeToString(getter(data));
@@ -396,83 +472,97 @@ public:
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddTimePropertyColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<LocalPropertyDateTime>& params){
-        return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
+    TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyTime& (ValueType)>& getter){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                return TimeToString(params.Getter(data).Native().toOffsetFromUtc(*params.TimeShift).time());
-            }
-            return TimeToString(params.Getter(data).Native().time());
-        }, params.IsReadOnly ? FModelSetter() : [params](const QVariant& value, ValueType data) -> FAction {
-            return [&]{
-                auto& property = params.Getter(data);
-                if(params.TimeShift != nullptr) {
-                    property = QDateTime(property.Native().date(), TimeFromVariant(value), Qt::OffsetFromUTC, *params.TimeShift);
-                    return;
-                }
-                property = QDateTime(property.Native().date(), TimeFromVariant(value));
-            };
-        }, [params](ConstValueType constData)-> QVariant {
+            return TimeToString(getter(data));
+        }, [getter](const QVariant& value, ValueType data) -> FAction {
+            return [&]{ getter(data) = TimeFromVariant(value); };
+        }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                return params.Getter(data).Native().toOffsetFromUtc(*params.TimeShift).time();
-            }
-            return params.Getter(data).Native().time();
-        });
-    }
-    TViewModelsColumnComponentsBuilder& AddDateTimeColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<QDateTime>& params){
-        return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                auto dateTime = params.Getter(data);
-                return DateTimeToString(dateTime.toOffsetFromUtc(*params.TimeShift));
-            }
-            return DateTimeToString(params.Getter(data));
-        }, params.IsReadOnly ? FModelSetter() : [params](const QVariant& value, ValueType data) -> FAction {
-            return [&]{
-                if(params.TimeShift != nullptr) {
-                    auto& property = params.Getter(data);
-                    auto inputDateTime = DateTimeFromVariant(value);
-                    property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *params.TimeShift);
-                    return;
-                }
-                params.Getter(data) = DateTimeFromVariant(value);
-        };
-        }, [params](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                auto dateTime = params.Getter(data);
-                return dateTime.toOffsetFromUtc(*params.TimeShift);
-            }
-            return params.Getter(data);
+            return getter(data);
         });
     }
 
-    TViewModelsColumnComponentsBuilder& AddDateTimePropertyColumn(qint32 column, const FTranslationHandler& header, const DateTimeParams<LocalPropertyDateTime>& params){
-        return AddColumn(column, header, [params](ConstValueType constData)-> QVariant {
+    TViewModelsColumnComponentsBuilder& AddTime(qint32 column, const FTranslationHandler& header, const std::function<QTime (ConstValueType)>& getter){
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            return TimeToString(getter(constData));
+        }, FModelSetter(), [getter](ConstValueType constData)-> QVariant {
+            return getter(constData);
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddDateTime(qint32 column, const FTranslationHandler& header, const std::function<QDateTime (ConstValueType)>& getter, const double* timeShift = nullptr){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                auto dateTime = params.Getter(data).Native();
-                return DateTimeToString(dateTime.toOffsetFromUtc(*params.TimeShift));
+            if(timeShift != nullptr) {
+                QDateTime dateTime = getter(data);
+                return DateTimeToString(dateTime.toOffsetFromUtc(*timeShift));
             }
-            return DateTimeToString(params.Getter(data).Native());
-        }, params.IsReadOnly ? FModelSetter() : [params](const QVariant& value, ValueType data) -> FAction {
+            return DateTimeToString(getter(data));
+        }, FModelSetter(), [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                QDateTime dateTime = getter(data);
+                return dateTime.toOffsetFromUtc(*timeShift);
+            }
+            return getter(data);
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddDateTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<QDateTime& (ValueType)>& getter, const double* timeShift = nullptr){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                QDateTime& dateTime = getter(data);
+                return DateTimeToString(dateTime.toOffsetFromUtc(*timeShift));
+            }
+            return DateTimeToString(getter(data));
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
             return [&]{
-                if(params.TimeShift != nullptr) {
-                    auto& property = params.Getter(data);
+                if(timeShift != nullptr) {
+                    QDateTime& property = getter(data);
                     auto inputDateTime = DateTimeFromVariant(value);
-                    property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *params.TimeShift);
+                    property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *timeShift);
                     return;
                 }
-                params.Getter(data) = DateTimeFromVariant(value);
+                getter(data) = DateTimeFromVariant(value);
         };
-        }, [params](ConstValueType constData)-> QVariant {
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            if(params.TimeShift != nullptr) {
-                auto dateTime = params.Getter(data).Native();
-                return dateTime.toOffsetFromUtc(*params.TimeShift);
+            if(timeShift != nullptr) {
+                QDateTime& dateTime = getter(data);
+                return dateTime.toOffsetFromUtc(*timeShift);
             }
-            return params.Getter(data).Native();
+            return getter(data);
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddDateTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, const double* timeShift = nullptr){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                LocalPropertyDateTime& dateTime = getter(data);
+                return DateTimeToString(dateTime.Native().toOffsetFromUtc(*timeShift));
+            }
+            return DateTimeToString(getter(data));
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                if(timeShift != nullptr) {
+                    LocalPropertyDateTime& property = getter(data);
+                    auto inputDateTime = DateTimeFromVariant(value);
+                    property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *timeShift);
+                    return;
+                }
+                getter(data) = DateTimeFromVariant(value);
+        };
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                LocalPropertyDateTime& dateTime = getter(data);
+                return dateTime.Native().toOffsetFromUtc(*timeShift);
+            }
+            return getter(data);
         });
     }
 

@@ -48,6 +48,7 @@ public:
 private Q_SLOTS:
     void rearrange();
     void showNext();
+    QRect desktopRect() const;
 
 private:
     QQueue<NotifyDataPtr> m_dataQueue;

@@ -332,7 +332,7 @@ struct TextConverter<QColor>
     using value_type = QColor;
     static QString ToText(const value_type& value, const TextConverterContext& )
     {
-        return value.name();
+        return value.name(QColor::HexArgb);
     }
 
     static value_type FromText(const QString& string)

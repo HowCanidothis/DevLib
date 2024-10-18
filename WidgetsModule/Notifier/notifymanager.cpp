@@ -84,15 +84,7 @@ NotifyManager& NotifyManager::GetInstance()
 
 void NotifyManager::rearrange()
 {
-    QDesktopWidget *desktop = QApplication::desktop();
-    auto* focusWidget = qApp->focusWidget();
-    focusWidget = focusWidget == nullptr ? DefaultWindow : focusWidget;
-    QRect desktopRect;
-    if(focusWidget == nullptr) {
-        desktopRect = desktop->screenGeometry(desktop->primaryScreen());
-    } else {
-        desktopRect = desktop->screenGeometry(focusWidget);
-    }
+    auto desktopRect = this->desktopRect();
     QPoint bottomRignt = desktopRect.bottomRight();
 
     qint32 index = 1;
@@ -135,8 +127,7 @@ void NotifyManager::showNext()
     notify->setFixedWidth(Width);
     //notify->setFixedHeight(Height);
 
-    QDesktopWidget* desktop = QApplication::desktop();
-    QRect desktopRect = desktop->screenGeometry(qApp->focusWidget());
+    QRect desktopRect = this->desktopRect();
 
     notify->ShowGriant(DisplayTime, m_icons[data->Type]);
 
@@ -161,5 +152,19 @@ void NotifyManager::showNext()
 
         notify->deleteLater();
     });
+}
+
+QRect NotifyManager::desktopRect() const
+{
+    QDesktopWidget *desktop = QApplication::desktop();
+    auto* focusWidget = qApp->focusWidget();
+    focusWidget = focusWidget == nullptr ? DefaultWindow : focusWidget;
+    QRect desktopRect;
+    if(focusWidget == nullptr) {
+        desktopRect = desktop->screenGeometry(desktop->primaryScreen());
+    } else {
+        desktopRect = desktop->screenGeometry(focusWidget);
+    }
+    return desktopRect;
 }
 
