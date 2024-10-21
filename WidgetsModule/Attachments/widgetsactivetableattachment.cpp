@@ -17,26 +17,27 @@ WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
             SelectedRowsCount = 0;
             return;
         }
-        updateActiveTableView(tv);
+
+        auto* selectionModel = tv->selectionModel();
+        if(selectionModel != nullptr) {
+            SelectedRowsCount = WidgetTableViewWrapper(tv).SelectedRowsSet().size();
+        } else {
+            SelectedRowsCount = 0;
+        }
     });
 }
 
 void WidgetsActiveTableViewAttachment::updateActiveTableView(QTableView* tableView)
 {
     ActiveTable = tableView;
-    auto* selectionModel = ActiveTable->selectionModel();
-    if(selectionModel != nullptr) {
-        SelectedRowsCount = WidgetTableViewWrapper(tableView).SelectedRowsSet().size();
-    } else {
-        SelectedRowsCount = 0;
-    }
 }
 
 void WidgetsActiveTableViewAttachment::Attach(QTableView* tableView)
 {
+    tableView->installEventFilter(GetInstance());
     tableView->viewport()->installEventFilter(GetInstance());
     auto update = [tableView]{
-        GetInstance()->updateActiveTableView(tableView);
+        GetInstance()->ActiveTable = tableView;
     };
 
     if(auto button = tableView->findChild<QAbstractButton*>(QString(), Qt::FindDirectChildrenOnly)) {
@@ -52,15 +53,19 @@ bool WidgetsActiveTableViewAttachment::eventFilter(QObject* watched, QEvent* eve
     switch(event->type()) {
     case QEvent::FocusIn:
     case QEvent::MouseButtonRelease: {
-        updateActiveTableView(reinterpret_cast<QTableView*>(watched->parent()));
+        QTableView* tv = qobject_cast<QTableView*>(watched);
+        ActiveTable = tv ? tv : reinterpret_cast<QTableView*>(watched->parent());
         break;
     }
     case QEvent::FocusOut:
-    case QEvent::Destroy:
-        if(ActiveTable.Native() == watched->parent()) {
+    case QEvent::Destroy: {
+        QTableView* tv = qobject_cast<QTableView*>(watched);
+        tv = tv ? tv : reinterpret_cast<QTableView*>(watched->parent());
+        if(ActiveTable.Native() == tv){
             ActiveTable = nullptr;
         }
         break;
+    }
     default: break;
     }
     return false;
