@@ -2,6 +2,8 @@
 #define SHAREDGUIMODULE_DECL_H
 
 #include <QMetaEnum>
+#include <QDate>
+#include <QDateTime>
 #include <QLoggingCategory>
 
 #include <functional>
@@ -258,6 +260,13 @@ inline bool IsInBounds(double value, double left, double right, double epsilon)
     return value > minmax.first && value < minmax.second;
 }
 
+template<class T>
+inline bool IsInBounds(const T& value, const T& left, const T& right)
+{
+    auto minmax = std::minmax(left, right);
+    return value >= minmax.first && value <= minmax.second;
+}
+
 template <typename FHandler, typename T, typename ... Args>
 void Combine(const FHandler& handler, T& first, Args&... rest) {
     handler(first);
@@ -303,6 +312,17 @@ void Initialize(Args&... args)
     Combine([](auto& p){
         ToReference(p).Initialize();
     }, args...);
+}
+
+template<class IteratorType, class Struct>
+inline void ForeachFieldOfStructByRef(const Struct& data, const std::function<void (IteratorType&)>& handler) {
+    auto size = sizeof(data);
+    qint32 count = size / sizeof(IteratorType);
+    IteratorType* it = (IteratorType*)&data;
+    while(count--) {
+        handler(*it);
+        it++;
+    }
 }
 
 template<class IteratorType, class Struct>

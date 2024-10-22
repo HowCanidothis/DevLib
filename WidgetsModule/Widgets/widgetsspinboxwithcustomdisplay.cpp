@@ -99,7 +99,7 @@ qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
     return m_valueFromTextHandler(this, text);
 }
 
-thread_local static QRegExp regExpFloating(R"(\s*(\d+)[\.\,]?(\d*)\s*)");
+thread_local static QRegExp regExpFloating(R"(\s*(\d+)?[\.\,]?(\d*)\s*)");
 
 QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
@@ -274,7 +274,7 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         return QValidator::Acceptable;
     }
 
-    if((input.size() == 1 && (input.startsWith(DASH) || input.startsWith("+"))) || input.startsWith(".") || input.startsWith(",")) {
+    if(input.size() == 1 && (input.startsWith(DASH) || input.startsWith("+") || input.startsWith(".") || input.startsWith(","))) {
         return QValidator::Intermediate;
     }
 

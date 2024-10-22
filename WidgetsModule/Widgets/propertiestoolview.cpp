@@ -4,6 +4,42 @@
 #include <QTextEdit>
 #include <WidgetsModule/internal.hpp>
 
+const SerializerVersion stateVersion(0x9609e641f01de6, 0,0);
+
+template<>
+struct Serializer<QHash<Name, PropertiesToolFolderView::BindingRules>>
+{
+    using TypeName = QHash<Name, PropertiesToolFolderView::BindingRules>;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        int count = data.size();
+        buffer << buffer.Sect("Size", count);
+        for(auto it = data.begin(); it != data.end(); ++it){
+            buffer << buffer.Sect("Key", it.key());
+            buffer << buffer.Sect("Expand", WidgetAbstractButtonWrapper(it.value().ToolButton).WidgetChecked().Native());
+        }
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        int count = data.size();
+        buffer << buffer.Sect("Size", count);
+        while(count--){
+            Name key; bool expand;
+            buffer << buffer.Sect("Key", key);
+            buffer << buffer.Sect("Expand", expand);
+
+            auto it = data.find(key);
+            if(it != data.end()){
+                WidgetAbstractButtonWrapper(it.value().ToolButton).WidgetChecked() = expand;
+            }
+        }
+    }
+};
+
 struct PropertiesToolFolderViewButtonAttachment
 {
 
@@ -186,6 +222,16 @@ void PropertiesToolFolderView::Release()
             binding.ReleaseBind();
         }
     }
+}
+
+QByteArray PropertiesToolFolderView::SaveState() const
+{
+    return SerializeToArrayVersioned(stateVersion, m_widgets, SerializationMode_InvokeProperties);
+}
+
+bool PropertiesToolFolderView::LoadState(const QByteArray& state)
+{
+    return DeSerializeFromArrayVersioned(stateVersion, state, m_widgets, SerializationMode_InvokeProperties).first;
 }
 
 PropertiesToolView::PropertiesToolView(QWidget* parent)

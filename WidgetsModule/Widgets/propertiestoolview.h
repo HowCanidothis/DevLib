@@ -83,6 +83,9 @@ public:
     void Bind();
     void Release();
 
+    QByteArray SaveState() const;
+    bool LoadState(const QByteArray& state);
+
     LocalPropertyBool ForceDisabled;
     Dispatcher OnAboutToBeChanged;
 
@@ -447,4 +450,5 @@ struct TPropertiesToolWrapper<T> PropertiesToolViewWrapper::CreateObjectWrapper(
 inline CommonDispatcher<const LineData&>& PropertiesToolViewWrapper::OnPropertyAdded() const {
     return GetView()->OnPropertyAdded;
 }
+
 #endif // PROPERTIESTOOLVIEW_H
