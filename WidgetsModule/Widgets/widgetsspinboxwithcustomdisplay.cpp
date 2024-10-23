@@ -286,11 +286,9 @@ QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input
         inputCopy = input.mid(1);
     }
 
-    qDebug() << inputCopy;
     if(regExpFloating.exactMatch(inputCopy)) {
         return QValidator::Acceptable;
     }
-    qDebug() << inputCopy << "Failded";
 
     if(regExpFractial.indexIn(input) != -1) {
         return regExpFractial.cap(5).isEmpty() ? QValidator::Intermediate : QValidator::Acceptable;
