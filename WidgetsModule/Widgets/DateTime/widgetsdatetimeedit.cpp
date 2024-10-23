@@ -76,12 +76,8 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
         CurrentDateTime = TimeShift.IsValid ? QDateTime(dateTime.date(), dateTime.time(), Qt::OffsetFromUTC, TimeShift.Value) : dateTime;
     });
 
-    WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* event){
+    WidgetWrapper(this).AddEventFilter([](QObject*, QEvent* event){
         switch(event->type()){
-        case QEvent::FocusIn: {
-            qDebug() << "Focused";
-            break;
-        }
         case QEvent::KeyPress: {
             auto keyEvent = reinterpret_cast<QKeyEvent*>(event);
             switch(keyEvent->key()){

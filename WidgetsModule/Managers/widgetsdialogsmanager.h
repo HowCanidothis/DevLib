@@ -26,6 +26,7 @@ public:
     std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString(), const QStringList& keys = QStringList());
     std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
     std::optional<QDate> GetDate(const FTranslationHandler& title, const QDate& current = QDate());
+    std::optional<std::pair<QDate, QDate>> GetDateRange(const FTranslationHandler& title, const QDate& from = QDate(), const QDate& to = QDate());
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
     template<class T>

@@ -128,16 +128,17 @@ LocalPropertiesLineEditConnector::LocalPropertiesLineEditConnector(LocalProperty
             [lineEdit, property](){
                *property = lineEdit->text();
             }, lineEdit
-    ), m_textChanged(250)
+    )
 {
     property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
         m_widgetSetter();
     }).MakeSafe(m_dispatcherConnections);
 
     if(reactive){
+        m_textChanged = new DelayedCallObject(250);
         m_connections.connect(lineEdit, &QLineEdit::textChanged, [this]{
             if(!m_ignoreWidgetChange) {
-                m_textChanged.Call(CONNECTION_DEBUG_LOCATION, [this]{ m_propertySetter(); });
+                m_textChanged->Call(CONNECTION_DEBUG_LOCATION, [this]{ m_propertySetter(); });
             }
         });
     } else {

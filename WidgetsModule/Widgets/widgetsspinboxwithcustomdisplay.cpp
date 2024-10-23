@@ -99,7 +99,7 @@ qint32 WidgetsSpinBoxWithCustomDisplay::valueFromText(const QString& text) const
     return m_valueFromTextHandler(this, text);
 }
 
-thread_local static QRegExp regExpFloating(R"(\s*(\d+)?[\.\,]?(\d*)\s*)");
+thread_local static QRegExp regExpFloating(R"(\s*([-+])?(\d+)?[\.\,]?(\d*)\s*)");
 
 QValidator::State WidgetsSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
@@ -169,8 +169,10 @@ const WidgetsDoubleSpinBoxWithCustomDisplay::ValueFromTextHandler& WidgetsDouble
                 value = -value;
             }
         } else if(regExpFloating.indexIn(text) != -1){
-            value = QString("%1.%2").arg(regExpFloating.cap(1), regExpFloating.cap(2)).toDouble();
-            if(regExpFractial.cap(1) == DASH) {
+            auto cap1 = regExpFloating.cap(2);
+            auto cap2 = regExpFloating.cap(3);
+            value = QString("%1.%2").arg(cap1, cap2).toDouble();
+            if(regExpFloating.cap(1) == DASH) {
                 value = -value;
             }
         } else {

@@ -268,7 +268,7 @@ public:
      {}
 
  private:
-     DelayedCallObject m_textChanged;
+     ScopedPointer<DelayedCallObject> m_textChanged;
 };
 
 struct LocalPropertiesSpinBoxConnectorExtractor

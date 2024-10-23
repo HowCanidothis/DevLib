@@ -128,6 +128,28 @@ std::optional<QDate> WidgetsDialogsManager::GetDate(const FTranslationHandler& t
     return v;
 }
 
+std::optional<std::pair<QDate, QDate>> WidgetsDialogsManager::GetDateRange(const FTranslationHandler& title, const QDate& from, const QDate& to)
+{
+    LocalPropertyDate fromP(from.isValid() ? from : QDate::currentDate()), toP(to.isValid() ? to : QDate::currentDate());
+    fromP.SetMinMax(from, to);
+    toP.SetMinMax(from, to);
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddDateRange(title(), &fromP, &toP);
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(title).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
+    }
+
+    return std::make_pair(fromP.Native(), toP.Native());
+}
+
 std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool showAlpha)
 {
     static std::optional<QColor> result;

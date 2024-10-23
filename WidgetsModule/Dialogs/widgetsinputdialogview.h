@@ -31,6 +31,7 @@ public:
     void AddDouble(const QString& label, LocalPropertyDouble* property);
     void AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList());
     void AddDate(const QString& label, LocalPropertyDate* property);
+    void AddDateRange(const QString& label, LocalPropertyDate* from, LocalPropertyDate* to);
     void Reset();
 
 private:

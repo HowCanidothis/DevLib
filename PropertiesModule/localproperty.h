@@ -1802,6 +1802,15 @@ inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& nam
 }
 
 template<>
+inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<QByteArray>& localProperty)
+{
+    auto property = ::make_shared<TProperty<QByteArray>>(name, localProperty.Native());
+    auto* pProperty = property.get();
+    connectProperty(pProperty, localProperty);
+    return property;
+}
+
+template<>
 inline SharedPointer<Property> PropertyFromLocalProperty::Create(const Name& name, LocalProperty<QImage>& localProperty)
 {
     auto property = ::make_shared<TProperty<QImage>>(name, localProperty.Native());

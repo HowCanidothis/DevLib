@@ -61,7 +61,7 @@ void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyStrin
     }
     widget->label()->setText(text);
     ui->Layout->addWidget(widget, count, 0);
-    m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, widget);
+    m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, widget, false);
     saveProperty(property);
 }
 
@@ -77,6 +77,27 @@ void WidgetsInputDialogView::AddDate(const QString& text, LocalPropertyDate* pro
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(property, widget);
     saveProperty(property);
+}
+
+void WidgetsInputDialogView::AddDateRange(const QString& label, LocalPropertyDate* from, LocalPropertyDate* to)
+{
+    auto count = ui->Layout->rowCount();
+    auto* horizontal = new QHBoxLayout();
+    auto* fromDtWidget = new WidgetsDateTimeLayout();
+    auto* toDtWidget = new WidgetsDateTimeLayout();
+    if(count == 1) {
+        setFocusProxy(fromDtWidget);
+    }
+    fromDtWidget->setIsDateTime(false);
+    fromDtWidget->label()->setText(tr("From"));
+    toDtWidget->label()->setText(tr("To"));
+    horizontal->addWidget(fromDtWidget);
+    horizontal->addWidget(toDtWidget);
+    ui->Layout->addLayout(horizontal, count, 0);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(from, fromDtWidget);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(to, toDtWidget);
+    saveProperty(from);
+    saveProperty(to);
 }
 
 void WidgetsInputDialogView::Reset()
