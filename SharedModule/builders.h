@@ -174,6 +174,10 @@ public:
     template<class T>
     StringBuilder& Add(const T& separator, const QString& string)
     {
+        if(string.isEmpty()) {
+            return *this;
+        }
+
         if(!isEmpty()) {
             append(separator);
         }
