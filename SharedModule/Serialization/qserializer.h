@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QVector>
+#include <QTimeZone>
 
 #include <QDataStream>
 
@@ -477,7 +478,7 @@ struct Serializer<QDateTime>
         if(!type.isValid()) {
             buffer << invalidValue;
         } else {
-            qint64 julianDay = type.toMSecsSinceEpoch();
+            qint64 julianDay = type.toUTC().toMSecsSinceEpoch();
             buffer << julianDay;
         }
     }
@@ -489,7 +490,7 @@ struct Serializer<QDateTime>
         if(julianDay == -1) {
             type = QDateTime();
         } else {
-            type = QDateTime::fromMSecsSinceEpoch(julianDay);
+            type = QDateTime::fromMSecsSinceEpoch(julianDay, QTimeZone::utc());
         }
     }
 };

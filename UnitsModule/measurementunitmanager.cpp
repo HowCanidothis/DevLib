@@ -42,7 +42,7 @@ static const Name UNIT_SYSTEM_SI          = "SI";
 
 Measurement::Measurement(const Name& key, const FTranslationHandler& label)
     : Label(label)
-    , CurrentPrecision(2, 1, 10)
+    , CurrentPrecision(2, 0, 10)
     , CurrentStep(1.0)
     , m_wrapper(::make_shared<WPSCUnitTableWrapper>())
     , m_currentUnit(nullptr)
