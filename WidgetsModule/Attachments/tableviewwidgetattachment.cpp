@@ -171,21 +171,16 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         auto sourceCount = sourceModel->rowCount() - start;
         auto targetCount = m_targetModel->rowCount();
         targetCount -= m_targetModel->property(WidgetProperties::ExtraFieldsCount).toInt();
-        if(sourceCount < targetCount){
-            m_targetModel->removeRows(sourceCount, targetCount - sourceCount);
-        } else if(targetCount < sourceCount){
-            m_targetModel->insertRows(targetCount, sourceCount - targetCount);
+
+        if(targetCount) {
+            m_targetModel->removeRows(0, targetCount);
+        }
+        if(sourceCount) {
+            m_targetModel->insertRows(0, sourceCount);
         }
 
         QLocale doubleLocale(DecimalSeparator.Native() == ',' ? QLocale::Russian : QLocale::English);
         bool ok;
-        auto targetColumnsCount = m_targetModel->columnCount();
-        for(int row = 0; row < sourceCount; ++row){
-            for(qint32 col(0); col < targetColumnsCount; col++) {
-                auto targetIndex = m_targetModel->index(row, col);
-                m_targetModel->setData(targetIndex, QVariant());
-            }
-        }
 
         m_attachment->ForeachAttachment<QComboBox>([&ok, sourceModel, this, &doubleLocale, start, sourceCount, &doubleErrorsMetaData, &intErrorsMetaData](qint32 sourceColumn, QComboBox* cb){
             auto targetColumn = cb->currentData().toInt();
