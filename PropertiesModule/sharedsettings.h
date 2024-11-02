@@ -163,10 +163,10 @@ struct LanguageSettings
     void Initialize();
 
     static QTime TimeFromVariant(const QVariant& data);
-    static QDate DateFromVariant(const QVariant& data);
+    static QDate DateFromVariant(const QVariant& data, const QString& dateFormat = QString());
     static QDateTime DateTimeFromVariant(const QVariant& data);
     static QString DateTimeToString(const QDateTime& dt);
-    static QString DateToString(const QDate& dt);
+    static QString DateToString(const QDate& dt, const QString& dateFormat = QString());
     static QString DoubleToString(double v, qint32 precision);
 };
 
