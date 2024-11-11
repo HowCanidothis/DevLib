@@ -1038,13 +1038,25 @@ public:
 public:
     using FDep = std::function<const Dispatcher* ()>;
 
-    template<class Property>
-    DispatcherConnectionChain(const Property& property)
-        : DispatcherConnectionChain(property.OnChanged, [&property]{ return property != nullptr; })
+    template<class Property, class ... Deps>
+    DispatcherConnectionChain(const char* cdl, const Property& property, const Deps&... deps)
+        : DispatcherConnectionChain(cdl, property.OnChanged, FDep([&property]() -> const Dispatcher* {
+            return property == nullptr ? nullptr : DefaultDispatcher();
+        }), deps...)
     {
     }
 
-    DispatcherConnectionChain(const Dispatcher& dep, const std::function<bool ()>& isValid);
+    template<class ... Deps>
+    DispatcherConnectionChain(const char* cdl, const Dispatcher& dispatcher, const FDep& dep, const Deps&... deps)
+    {
+        add(cdl, dep);
+        adapters::Combine([&](const auto& dep) {
+            add(cdl, dep);
+        }, deps...);
+        dispatcher.ConnectAndCall(CDL, [this]{
+            update();
+        }).MakeSafe(m_connections);
+    }
 
     template<class ... Deps>
     SP<DispatcherConnectionChain> CreateSubChain(const char* cdl, const Deps&... deps)
@@ -1083,9 +1095,9 @@ private:
 using DispatcherConnectionChainPtr = SP<DispatcherConnectionChain>;
 
 template<typename ... Args>
-DispatcherConnectionChainPtr DispatcherConnectionChainCreate(const Args&... args)
+DispatcherConnectionChainPtr DispatcherConnectionChainCreate(const char* cdl, const Args&... args)
 {
-    return ::make_shared<DispatcherConnectionChain>(args...);
+    return ::make_shared<DispatcherConnectionChain>(cdl, args...);
 }
 
 #endif // STATEPROPERTY_H

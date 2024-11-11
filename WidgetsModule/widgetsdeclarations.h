@@ -151,8 +151,10 @@ struct DescShowDialogParams
 {
     bool Modal = true;
     bool ResizeToDefault = false;
+    std::optional<bool> Resizeable = false;
     std::function<void (qint32)> OnResult = [](qint32){};
 
+    DescShowDialogParams& SetResizeable(bool resizeable) { Resizeable = resizeable; return *this; }
     DescShowDialogParams& SetOnResult(const std::function<void (qint32)>& onResult) { OnResult = onResult; return *this; }
     DescShowDialogParams& SetModal(bool modal) { Modal = modal; return *this; }
     DescShowDialogParams& SetResizeToDefault(bool resize) { ResizeToDefault = resize; return *this; }

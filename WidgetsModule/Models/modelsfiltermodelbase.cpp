@@ -10,6 +10,13 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
     , m_invalidateFilter(500)
 {
+    UseSourceEnumeration.Connect(CDL, [this](bool) {
+        auto rc = rowCount();
+        if(rc) {
+            emit headerDataChanged(Qt::Vertical, 0, rc - 1);
+        }
+    });
+
     Invalidate.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         InvalidateFilter();
     });
@@ -76,6 +83,10 @@ QVariant ViewModelsFilterModelBase::data(const QModelIndex& index, qint32 role) 
 
 QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
+    if(UseSourceEnumeration) {
+        return Super::headerData(section, orientation, role);
+    }
+
     if(role == Qt::DisplayRole && orientation == Qt::Vertical) {
         return section + 1;
     }

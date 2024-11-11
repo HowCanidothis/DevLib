@@ -157,19 +157,6 @@ DispatcherConnectionChain::DispatcherConnectionChain()
 
 }
 
-DispatcherConnectionChain::DispatcherConnectionChain(const Dispatcher& dep, const std::function<bool ()>& isValid)
-{
-    dep.Connect(CDL, [this, isValid]{
-        m_depConnections.clear();
-        if(!isValid()) {
-            invalidResult();
-            return;
-        }
-        update();
-    }).MakeSafe(m_connections);
-    IsValid.SetState(isValid());
-}
-
 const Dispatcher* DispatcherConnectionChain::DefaultDispatcher()
 {
     static Dispatcher result;

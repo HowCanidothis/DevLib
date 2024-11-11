@@ -53,13 +53,14 @@ void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyStrin
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsLineEditLayout();
-    if(count == 1) {
-        setFocusProxy(widget);
-    }
     if(!keys.isEmpty()) {
         WidgetLineEditWrapper(widget->lineEdit()).AddCompleter(keys);
     }
     widget->label()->setText(text);
+    if(count == 1) {
+        setFocusProxy(widget);
+        widget->label()->setSelection(0, text.size());
+    }
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, widget, false);
     saveProperty(property);

@@ -9,6 +9,16 @@ class ModelsStandardRow : public QVector<QVariant>
 public:
     using Super::Super;
 
+    template<typename ... Args>
+    ModelsStandardRow(const Args&... variants)
+        : Super(sizeof...(variants))
+    {
+        qint32 i = 0;
+        adapters::Combine([&](const auto& v) {
+            (*this)[i++] = v;
+        }, variants...);
+    }
+
     void Set(qint32 i, const QVariant& data);
     QVariant Get(qint32 i) const;
     bool IsValid(qint32 i) const;

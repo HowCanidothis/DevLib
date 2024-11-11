@@ -36,6 +36,7 @@ public:
     void SetRowFilter(const std::function<bool (qint32,const QModelIndex&)>& handler);
     void SetColumnFilter(const std::function<bool (qint32, const QModelIndex&)>& handler);
 
+    LocalPropertyBool UseSourceEnumeration;
     std::function<bool (const QModelIndex&, const QVariant&, qint32 role)> SetDataHandler;
     std::function<Qt::ItemFlags (const QModelIndex&)> GetFlagsHandler;
     std::function<QVariant (const QModelIndex&, qint32)> GetDataHandler;
