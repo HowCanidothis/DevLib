@@ -25,6 +25,7 @@ MainProgressBar::MainProgressBar(const QSet<Name>& processIds, QWidget* parent, 
         ui->ProgressBar->SetMaximum(value.StepsCount);
         ui->ProgressBar->Value = value.CurrentStep;
         ui->ProgressBar->Text = value.Title;
+        qApp->processEvents();
     }).MakeSafe(m_connections);
 
     ProcessFactory::Instance().OnIndeterminate.Connect(CONNECTION_DEBUG_LOCATION, [this](size_t, const DescProcessValueState& value){
@@ -40,6 +41,7 @@ MainProgressBar::MainProgressBar(const QSet<Name>& processIds, QWidget* parent, 
         setVisible(m_counter > 0);
         ui->ProgressBar->SetMaximum(0);
         ui->ProgressBar->Text = value.Title;
+        qApp->processEvents();
     }).MakeSafe(m_connections);
 
     WidgetWrapper(parentWidget()).AddEventFilter([this](QObject*, QEvent* e){

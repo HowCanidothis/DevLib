@@ -22,11 +22,32 @@ public:
         return SourceModelIndex(sourceRow, 0).data(ObjectRole).value<T>();
     }
     bool DefaultLessThan(const QModelIndex& f, const QModelIndex& s) const;
+    bool DefaultCanDropMimeData(const QMimeData *data, Qt::DropAction action,
+                                int row, int column, const QModelIndex &parent) const;
+    std::function<bool (const QMimeData*, Qt::DropAction, int, int, const QModelIndex&)> DefaultCanDropMimeDataHandler() const
+    {
+        return [this](const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+            return DefaultCanDropMimeData(data, action, row, column, parent);
+        };
+    }
+    bool DefaultDropMimeData(const QMimeData *data, Qt::DropAction action,
+                                int row, int column, const QModelIndex &parent);
+    std::function<bool (const QMimeData*, Qt::DropAction, int, int, const QModelIndex&)> DefaultDropMimeDataHandler()
+    {
+        return [this](const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+            return DefaultDropMimeData(data, action, row, column, parent);
+        };
+    }
+
 
     void setSourceModel(QAbstractItemModel* m) override;
 
     bool filterAcceptsRow(qint32 sourceRow, const QModelIndex& sourceParent) const override;
     bool filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const override;
+    bool canDropMimeData(const QMimeData *data, Qt::DropAction action,
+                         int row, int column, const QModelIndex &parent) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                      int row, int column, const QModelIndex &parent) override;
 
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
@@ -43,6 +64,8 @@ public:
     std::function<bool (qint32, const QModelIndex&)> FilterColumnHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;
+    std::function<bool (const QMimeData*, Qt::DropAction, int, int, const QModelIndex&)> CanDropMimeDataHandler;
+    std::function<bool (const QMimeData*, Qt::DropAction, int, int, const QModelIndex&)> DropMimeDataHandler;
     Dispatcher OnInvalidated;
     Dispatcher Invalidate;
     Dispatcher OnModelChanged;

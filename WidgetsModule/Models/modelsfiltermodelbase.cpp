@@ -8,6 +8,8 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     , FilterColumnHandler([](qint32, const QModelIndex&){ return true; })
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
+    , CanDropMimeDataHandler(DefaultCanDropMimeDataHandler())
+    , DropMimeDataHandler(DefaultDropMimeDataHandler())
     , m_invalidateFilter(500)
 {
     UseSourceEnumeration.Connect(CDL, [this](bool) {
@@ -64,6 +66,16 @@ bool ViewModelsFilterModelBase::DefaultLessThan(const QModelIndex& f, const QMod
     return Super::lessThan(f,s);
 }
 
+bool ViewModelsFilterModelBase::DefaultCanDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
+{
+    return Super::canDropMimeData(data, action, row, column, parent);
+}
+
+bool ViewModelsFilterModelBase::DefaultDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+    return Super::dropMimeData(data, action, row, column, parent);
+}
+
 void ViewModelsFilterModelBase::setSourceModel(QAbstractItemModel* m)
 {
     auto* oldModel = sourceModel();
@@ -115,6 +127,16 @@ void ViewModelsFilterModelBase::SetRowFilter(const std::function<bool (qint32, c
 bool ViewModelsFilterModelBase::filterAcceptsColumn(qint32 sourceColumn, const QModelIndex& sourceParent) const
 {
     return FilterColumnHandler(sourceColumn, sourceParent);
+}
+
+bool ViewModelsFilterModelBase::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
+{
+    return CanDropMimeDataHandler(data, action, row, column, parent);
+}
+
+bool ViewModelsFilterModelBase::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+    return DropMimeDataHandler(data, action, row, column, parent);
 }
 
 bool ViewModelsFilterModelBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)
