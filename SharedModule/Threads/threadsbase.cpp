@@ -27,10 +27,12 @@ public:
 
     AsyncResult Push(const char* cdl, const FAction& task)
     {
-        m_mutex.lock();
         AsyncResult result;
+        QMutexLocker locker(&m_mutex);
+        if(m_isTerminated) {
+            return result;
+        }
         m_tasks.push({cdl, result, task });
-        m_mutex.unlock();
         return result;
     }
 
@@ -47,6 +49,14 @@ public:
     void Terminate()
     {
         m_isTerminated = true;
+        while(m_tasks.size() != 0) {
+            TaskInfo task;
+            {
+                QMutexLocker locker(&m_mutex);
+                task = m_tasks.front();
+                m_tasks.pop();
+            }
+        }
     }
 
     void ProcessEvents()

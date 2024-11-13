@@ -46,11 +46,6 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
         if(handler.isValid()) {
             (*((FDialogHandler*)handler.toLongLong()))(dialog);
         }
-        if(view->layout() == nullptr) {
-            dialog->layout()->setSizeConstraint(QLayout::SetFixedSize);
-        } else {
-            dialog->layout()->setSizeConstraint(view->layout()->sizeConstraint());
-        }
     }
 
     for(const auto& b : buttons) {
@@ -183,7 +178,7 @@ std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool 
     };
     auto* dialog = GetOrCreateDialog("ColorDialog", [createParams]{
         auto* dialog = new QColorDialog();
-        dialog->layout()->setContentsMargins(0,0,0,0);
+//        dialog->layout()->setContentsMargins(0,0,0,0);
         return createParams(dialog);
     });
     auto* view = dialog->GetView<QColorDialog>();
@@ -207,6 +202,8 @@ qint32 WidgetsDialogsManager::ShowDialog(WidgetsDialog* dialog, const DescShowDi
 
     if(params.ResizeToDefault) {
         ResizeDialogToDefaults(dialog);
+    } else {
+        dialog->setMinimumWidth(400);
     }
 
     dialog->setModal(params.Modal);
@@ -310,13 +307,15 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
         return result;
     };
 
+    auto size = widget->layout()->sizeHint();
+
     QVBoxLayout* contentWithPaneWidgetLayout = createNullLayout();
-    contentWithPaneWidgetLayout->setSizeConstraint(QLayout::SetMinimumSize);
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
         pane = new MenuBarMovePane(widget);
         pane->setProperty("a_type", movePaneId);
         contentWithPaneWidgetLayout->addWidget(pane);
+        size.rheight() += pane->sizeHint().height();
     }
     QWidget* contentWithPaneWidget = new QWidget();
     QWidget* contentWidget = new QWidget();
@@ -330,23 +329,14 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     widget->window()->setWindowFlag(Qt::FramelessWindowHint);
     widget->window()->setAttribute(Qt::WA_TranslucentBackground);
 
-    widget->show();
-    layout->invalidate();
-    widget->hide();
-
     contentWidget->setLayout(layout);
-
-//    widget->setMinimumWidth(std::max(widget->width(), 400));
 
     AttachShadow(contentWithPaneWidget, false);
 
-    contentWithPaneWidget->setMinimumSize(widget->size() + QSize(20, 20));
-
     auto* mainLayout = createNullLayout();
-    contentWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
-    contentWithPaneWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
     mainLayout->addWidget(contentWithPaneWidget);
     widget->setLayout(mainLayout);
+    widget->setMinimumSize(size + QSize(20,20));
 
     widget->window()->layout()->setMargin(10);
 

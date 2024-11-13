@@ -62,7 +62,8 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
 
     lineEdit()->setPlaceholderText(DASH);
 
-    SetValueFromTextHandler([this, valid](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+    auto callDelayed = DelayedCallObjectCreate();
+    SetValueFromTextHandler([this, valid, callDelayed](const WidgetsSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(property(WidgetProperties::ForceDisabled).toBool()) {
             return spin->value();
         }
@@ -70,7 +71,7 @@ DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalProperty
             *valid = false;
             return value();
         } else {
-            ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[valid]{
+            callDelayed->Call(CDL,[valid]{
                 *valid = true;
             });
         }
@@ -217,7 +218,8 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
 
     lineEdit()->setPlaceholderText(DASH);
 
-    SetValueFromTextHandler([this, valid](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
+    auto callDelayed = DelayedCallObjectCreate();
+    SetValueFromTextHandler([this, valid, callDelayed](const WidgetsDoubleSpinBoxWithCustomDisplay* spin, const QString& text) -> double {
         if(property(WidgetProperties::ForceDisabled).toBool()) {
             return spin->value();
         }
@@ -225,7 +227,7 @@ DispatcherConnection WidgetsDoubleSpinBoxWithCustomDisplay::MakeOptional(LocalPr
             *valid = false;
             return value();
         }
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[valid]{
+        callDelayed->Call(CDL,[valid]{
             *valid = true;
         });
         return GetDefaultValueFromTextHandler()(spin, text);

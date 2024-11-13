@@ -120,7 +120,6 @@ void WidgetsDialog::keyPressEvent(QKeyEvent *e)
 void WidgetsDialog::SetContent(QWidget* view)
 {
     Q_ASSERT(m_content == nullptr);
-    view->setSizePolicy(view->sizePolicy().horizontalPolicy(), QSizePolicy::Expanding);
     ui->verticalLayout->insertWidget(1, view);
     m_content = view;
     WidgetWrapper(m_content).AddEventFilter([this](QObject*, QEvent* e){
