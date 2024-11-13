@@ -15,6 +15,9 @@ class _Export ThreadsBase
     ThreadsBase();
 public:
 
+    static void Initialize();
+    static void ProcessUiOnly();
+
     static bool IsTerminated();
     static AsyncResult DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     template<class T>
@@ -42,7 +45,7 @@ public:
     static void DoQThreadWorker(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult DoQThreadWorkerWithResult(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority = Qt::NormalEventPriority);
     static AsyncResult Async(const FAction& task, EPriority priority = EPriority::High);
-    static void TerminateAllAsyncTasks();
+    static void Terminate();
     static void AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task);
 };
 

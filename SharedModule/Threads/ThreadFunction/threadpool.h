@@ -19,7 +19,7 @@ public:
 
 public:
     bool IsTerminated() const;
-    void TerminateAll();
+    void Terminate();
     // Note: ThreadTaskDesc is managed by ThreadPool and will be freed when task is performed
     AsyncResult PushTask(const FAction& function, EPriority priority);
     void Await();

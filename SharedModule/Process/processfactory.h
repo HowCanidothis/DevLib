@@ -17,16 +17,18 @@ struct DescProcessValueState
     bool IsFinished;
     bool IsCancelable;
     bool IsTitleChanged;
+    bool IsFromMain;
 
     bool IsShouldStayVisible() const { return !IsFinished; }
 
-    DescProcessValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, bool isTitleChanged)
+    DescProcessValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, bool isTitleChanged, bool isFromMain)
         : Id(id)
         , Title(title)
         , Depth(depth)
         , IsFinished(isFinished)
         , IsCancelable(isCancelable)
         , IsTitleChanged(isTitleChanged)
+        , IsFromMain(isFromMain)
     {}
 };
 
@@ -35,14 +37,14 @@ struct DescProcessDeterminateValueState : DescProcessValueState
     int CurrentStep;
     int StepsCount;
 
-    DescProcessDeterminateValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged)
-        : DescProcessValueState(id, title, depth, isFinished, isCancelable, isTitleChanged)
+    DescProcessDeterminateValueState(const Name& id, const QString& title, int depth, bool isFinished, bool isCancelable, int currentStep, int stepsCount, bool isTitleChanged, bool isFromMain)
+        : DescProcessValueState(id, title, depth, isFinished, isCancelable, isTitleChanged, isFromMain)
         , CurrentStep(currentStep)
         , StepsCount(stepsCount)
     {}
 
     DescProcessDeterminateValueState()
-        : DescProcessValueState(Name(), QString(), -1, false, false, false)
+        : DescProcessValueState(Name(), QString(), -1, false, false, false, false)
         , CurrentStep(0)
         , StepsCount(0)
     {}
@@ -60,8 +62,10 @@ public:
     void SetDummy(bool dummy);
     void Cancel();
 
-    DescProcessValueState GetState() const { return { GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged() }; }
-    virtual DescProcessDeterminateValueState GetCommonState() const { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), 0, 0, IsTitleChanged()); }
+    void SetIsFromMain() { m_isFromMain = true; }
+
+    DescProcessValueState GetState() const { return { GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), IsTitleChanged(), IsFromMain() }; }
+    virtual DescProcessDeterminateValueState GetCommonState() const { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), 0, 0, IsTitleChanged(), IsFromMain()); }
     int GetDepth() const { return m_valueDepth; }
     const QString& GetTitle() const { return m_title; }
     void SetId(const Name& id);
@@ -69,6 +73,7 @@ public:
     bool IsFinished() const { return m_isFinished; }
     bool IsCancelable() const { return m_interruptor != nullptr; }
     bool IsTitleChanged() const { return m_isTitleChanged; }
+    bool IsFromMain() const { return m_isFromMain; }
     virtual class ProcessDeterminateValue* AsDeterminate() { return nullptr; }
 
 protected:
@@ -90,6 +95,7 @@ protected:
     bool m_isFinished;
     Interruptor* m_interruptor;
     bool m_isTitleChanged;
+    bool m_isFromMain;
 };
 
 class ProcessDeterminateValue : public ProcessValue
@@ -101,7 +107,7 @@ public:
     ~ProcessDeterminateValue();
 
     DescProcessDeterminateValueState GetState() const { return GetCommonState(); }
-    DescProcessDeterminateValueState GetCommonState() const override { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged()); }
+    DescProcessDeterminateValueState GetCommonState() const override { return DescProcessDeterminateValueState(GetId(), GetTitle(), GetDepth(), IsFinished(), IsCancelable(), GetCurrentStep(), GetStepsCount(), IsTitleChanged(), IsFromMain()); }
     int GetCurrentStep() const { return m_currentStep; }
     int GetStepsCount() const { return m_stepsCount; }
     virtual ProcessDeterminateValue* AsDeterminate() override{ return this; }

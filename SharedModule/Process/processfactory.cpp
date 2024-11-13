@@ -8,6 +8,7 @@ ProcessValue::ProcessValue(const FCallback& callback)
     , m_isFinished(false)
     , m_interruptor(nullptr)
     , m_isTitleChanged(false)
+    , m_isFromMain(false)
 {
 }
 
@@ -112,6 +113,9 @@ ProcessFactory& ProcessFactory::Instance()
 ProcessValue* ProcessFactory::createIndeterminate() const
 {
     return new ProcessValue([this](ProcessValue* value){
+        if(QThread::currentThread() == qApp->thread()) {
+            value->SetIsFromMain();
+        }
         auto state = value->GetState();
         ThreadHandlerMain([value, this, state]{
             OnIndeterminate((size_t)value, state);
@@ -122,6 +126,9 @@ ProcessValue* ProcessFactory::createIndeterminate() const
 ProcessDeterminateValue* ProcessFactory::createDeterminate() const
 {
     return new ProcessDeterminateValue([this](ProcessValue* value){
+        if(QThread::currentThread() == qApp->thread()) {
+            value->SetIsFromMain();
+        }
         auto state = value->GetCommonState();
         ThreadHandlerMain([value, this, state]{
             OnDeterminate((size_t)value, state);

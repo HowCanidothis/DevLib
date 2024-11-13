@@ -14,9 +14,6 @@ class ThreadTimerManager
     ThreadTimerManager();
     ~ThreadTimerManager();
 public:
-    static void Initialize() { getInstance(); }
-    static void Terminate();
-
     static void SingleShot(qint32 msecs, const FAction& onTimeout);
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
     static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);

@@ -9,13 +9,13 @@ ThreadTimer::ThreadTimer(qint32 msecs)
 
 }
 
-void ThreadTimerManager::Terminate()
-{
-    getInstance().terminate();
-}
-
 void ThreadTimerManager::terminate()
 {
+    if(!m_thread->isRunning()) {
+        m_isTerminated = true;
+        return;
+    }
+
     FutureResult result;
     result += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, m_threadWorker.get(), [this]{
         m_timers.Clear();
@@ -51,6 +51,9 @@ ThreadTimerManager::ThreadTimerManager()
 {
     m_thread->start();
     m_threadWorker->moveToThread(m_thread.get());
+    QObject::connect(qApp, &QCoreApplication::aboutToQuit, [this]{
+        terminate();
+    });
 }
 
 ThreadTimerManager::~ThreadTimerManager()

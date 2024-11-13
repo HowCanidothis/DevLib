@@ -23,7 +23,7 @@ bool ThreadPool::IsTerminated() const
 }
 
 // Must be called on application close
-void ThreadPool::TerminateAll()
+void ThreadPool::Terminate()
 {
     for(Thread* t : m_threads) {
         t->terminate();
