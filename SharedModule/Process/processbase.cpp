@@ -4,7 +4,7 @@
 
 ProcessBase::ProcessBase()
     : m_interruptor(nullptr)
-    , m_silentIfOneStep(false)
+    , m_silentIfOneStep(true)
 {
 
 }
@@ -50,7 +50,7 @@ void ProcessBase::BeginProcess(const ProcessBaseDeterminateParams& params)
     }
     m_processValue = nullptr;
     auto value = ProcessFactory::Instance().createDeterminate();
-    value->SetDummy(m_silentIfOneStep && m_divider < 2);
+    value->SetDummy(m_silentIfOneStep && stepsCount < 3);
     value->init(m_interruptor.get(), params.Title, stepsCount);
     value->SetId(m_id);
     m_processValue.reset(value);

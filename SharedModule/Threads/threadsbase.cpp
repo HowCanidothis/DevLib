@@ -23,6 +23,7 @@ public:
     MainThreadTaskContainer()
         : m_isBlocked(false)
         , m_isTerminated(false)
+        , m_isProcessing(false)
     {}
 
     AsyncResult Push(const char* cdl, const FAction& task)
@@ -33,12 +34,21 @@ public:
             return result;
         }
         m_tasks.push({cdl, result, task });
+        if(m_isProcessing) {
+            QtInlineEvent::Post(CDL, [this]{
+                ProcessEvents();
+            }, Qt::LowEventPriority);
+        }
         return result;
     }
 
-    void Block()
+    bool Block()
     {
+        if(m_isProcessing) {
+            return false;
+        }
         m_isBlocked = true;
+        return true;
     }
 
     void Unblock()
@@ -64,6 +74,7 @@ public:
         if(m_isTerminated) {
             return;
         }
+        m_isProcessing = true;
 
         if(!m_isBlocked) {
             while(m_tasks.size() != 0) {
@@ -87,11 +98,13 @@ public:
         QtInlineEvent::Post(CDL, [this]{
             ProcessEvents();
         }, Qt::LowEventPriority);
+        m_isProcessing = false;
     }
 
 private:
     bool m_isBlocked;
     bool m_isTerminated;
+    bool m_isProcessing;
     QMutex m_mutex;
     std::queue<TaskInfo> m_tasks;
 };
@@ -112,9 +125,11 @@ void ThreadsBase::Initialize()
 
 void ThreadsBase::ProcessUiOnly()
 {
-    tasks.Block();
-    qApp->processEvents();
-    tasks.Unblock();
+    THREAD_ASSERT_IS_MAIN();
+    if(tasks.Block()) {
+        qApp->processEvents();
+        tasks.Unblock();
+    }
 }
 
 AsyncResult ThreadsBase::DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority)
