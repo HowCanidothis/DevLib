@@ -10,6 +10,8 @@
 #include "threads_declarations.h"
 #include "SharedModule/ImportExport/importexport.h"
 
+//#define ENABLE
+
 struct TaskInfo
 {
     const char* Location;
@@ -34,9 +36,10 @@ public:
             return result;
         }
         m_tasks.push({cdl, result, task });
-        if(m_isProcessing) {
-            QtInlineEvent::Post(CDL, [this]{
-                ProcessEvents();
+        bool isProcessing = m_isProcessing;
+        if(isProcessing) {
+            QtInlineEvent::Post(CDL, [this, isProcessing]{
+                ProcessEvents(isProcessing);
             }, Qt::LowEventPriority);
         }
         return result;
@@ -69,7 +72,7 @@ public:
         }
     }
 
-    void ProcessEvents()
+    void ProcessEvents(bool isProcessing)
     {
         if(m_isTerminated) {
             return;
@@ -95,10 +98,13 @@ public:
             }
         }
 
-        QtInlineEvent::Post(CDL, [this]{
-            ProcessEvents();
-        }, Qt::LowEventPriority);
+        if(isProcessing) {
+            return;
+        }
         m_isProcessing = false;
+        QtInlineEvent::Post(CDL, [this]{
+            ProcessEvents(false);
+        }, Qt::LowEventPriority);
     }
 
 private:
@@ -118,30 +124,40 @@ ThreadsBase::ThreadsBase()
 
 void ThreadsBase::Initialize()
 {
-    tasks.ProcessEvents();
+#ifdef ENABLE
+    tasks.ProcessEvents(false);
+#endif
     ThreadFunction::threadPool();
     ImportExport::threadPool();
 }
 
 void ThreadsBase::ProcessUiOnly()
 {
+#ifdef ENABLE
     THREAD_ASSERT_IS_MAIN();
     if(tasks.Block()) {
         qApp->processEvents();
         tasks.Unblock();
     }
+#endif
 }
 
 AsyncResult ThreadsBase::DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority)
 {
+#ifdef ENABLE
     return tasks.Push(location, task);
-//    return QtInlineEventWithResult::Post(location, task, priority);
+#else
+    return QtInlineEventWithResult::Post(location, task, priority);
+#endif
 }
 
 void ThreadsBase::DoMain(const char* location, const FAction& task, Qt::EventPriority priority)
 {
+#ifdef ENABLE
     tasks.Push(location, task);
-//    QtInlineEvent::Post(location, task, priority);
+#else
+    QtInlineEvent::Post(location, task, priority);
+#endif
 }
 
 void ThreadsBase::DoMainAwait(const char* location, const FAction &task, Qt::EventPriority priority)
@@ -153,7 +169,11 @@ void ThreadsBase::DoMainAwait(const char* location, const FAction &task, Qt::Eve
         task();
     } else {
         FutureResult result;
+#ifdef ENABLE
         result += tasks.Push(location, task);
+#else
+        result += QtInlineEventWithResult::Post(location, task, priority);
+#endif
         result.Wait();
     }
 }
@@ -167,7 +187,9 @@ void ThreadsBase::Terminate()
 {
     ThreadFunction::threadPool().Terminate();
     ImportExport::threadPool().Terminate();
+#ifdef ENABLE
     tasks.Terminate();
+#endif
 }
 // Due to Qt arch we have to use threadWorker here
 void ThreadsBase::DoQThreadWorker(const char* location, QObject* threadObject, const FAction& task, Qt::EventPriority priority)
