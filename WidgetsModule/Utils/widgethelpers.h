@@ -664,7 +664,7 @@ public:
     WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator);
 
     template<class T>
-    T* GetView() const { return GetWidget()->GetView(); }
+    T* GetView() const { return GetWidget()->GetView<T>(); }
     qint32 Show(const DescShowDialogParams& params = DescShowDialogParams()) const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetDialogWrapper, WidgetsDialog)
