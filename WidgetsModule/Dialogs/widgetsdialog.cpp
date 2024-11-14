@@ -24,6 +24,8 @@ WidgetsDialog::~WidgetsDialog()
 
 void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler)
 {    
+    ui->widget->setVisible(m_buttons.size() > 0);
+
     auto sortedByRole = m_buttons;
     /*Cancel/Discard/Save/Action*/
     static auto priorityMap = Factory<qint32, qint32>().Insert((qint32)ButtonRole::Cancel, 0)
