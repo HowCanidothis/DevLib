@@ -36,6 +36,8 @@
 #include "MeasurementTypes/momentofinertia.h"
 #include "MeasurementTypes/frictionfactordeclaration.h"
 #include "MeasurementTypes/flowbehaviordeclaration.h"
+#include "MeasurementTypes/volumedeclarations.h"
+#include "MeasurementTypes/cementyielddeclaration.h"
 
 #include "measurementunitmanager.h"
 

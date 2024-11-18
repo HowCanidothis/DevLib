@@ -1,0 +1,18 @@
+#ifndef VOLUMEDECLARATIONS_H
+#define VOLUMEDECLARATIONS_H
+
+#include "UnitsModule/measurementdeclarations.h"
+
+namespace VolumeUnits
+{
+    DECLARE_MEASUREMENT_UNIT(CubicMeter)
+    DECLARE_MEASUREMENT_UNIT(CubicFoot)
+    DECLARE_MEASUREMENT_UNIT(CubicInch)
+    DECLARE_MEASUREMENT_UNIT(Barrel)
+    DECLARE_MEASUREMENT_UNIT(Gallon)
+    DECLARE_MEASUREMENT_UNIT(Liter)
+};
+
+DECLARE_MEASUREMENT(Volume)
+
+#endif // VOLUMEDECLARATIONS_H

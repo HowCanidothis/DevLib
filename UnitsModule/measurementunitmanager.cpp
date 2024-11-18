@@ -35,6 +35,8 @@
 #include "MeasurementTypes/momentofinertia.h"
 #include "MeasurementTypes/frictionfactordeclaration.h"
 #include "MeasurementTypes/flowbehaviordeclaration.h"
+#include "MeasurementTypes/volumedeclarations.h"
+#include "MeasurementTypes/cementyielddeclaration.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -425,6 +427,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&ForceUnits::KiloPoundsForce);
 
     AddMeasurement(MeasurementMotorSpeed::Value)
+        .AddUnit(&MotorSpeedUnits::RevolutionPerCubicMeter)
+        .AddUnit(&MotorSpeedUnits::RevolutionPerLiter)
         .AddUnit(&MotorSpeedUnits::RevolutionPerGallon);
 
     AddMeasurement(MeasurementTime::Value)
@@ -551,6 +555,19 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementFlowBehavior::Value)
             .AddUnit(&FlowBehaviorUnits::DimensionlessIndex);
 
+    AddMeasurement(MeasurementVolume::Value)
+            .AddUnit(&VolumeUnits::CubicMeter)
+            .AddUnit(&VolumeUnits::CubicFoot)
+            .AddUnit(&VolumeUnits::CubicInch)
+            .AddUnit(&VolumeUnits::Barrel)
+            .AddUnit(&VolumeUnits::Gallon)
+            .AddUnit(&VolumeUnits::Liter);
+
+    AddMeasurement(MeasurementCementYield::Value)
+            .AddUnit(&CementYieldUnits::CubicMetersPerKilogram)
+            .AddUnit(&CementYieldUnits::CubicMetersPerTonne)
+            .AddUnit(&CementYieldUnits::CubicFootPerSack);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
@@ -600,7 +617,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMomentOfInertia::NAME,             {MomentOfInertiaUnits::KilogrammSqMeters.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
-            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3});
+            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
@@ -651,7 +670,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::PoundForceFootSqSecond.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
-            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3});
+            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -673,7 +694,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementLinearCapacity::NAME,   {VolumePerLengthUnits::CubicMeterPerMeter.Id,  2})
             .AddParameter(MeasurementJetDiameter::NAME,      {DistanceUnits::Milimeters.Id,                 1})
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
-            .AddParameter(MeasurementMass::NAME,              {MassUnits::Tonnes.Id,                         1})
+            .AddParameter(MeasurementMass::NAME,              {MassUnits::Tonnes.Id,                         0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerLiter.Id,      3})
             .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
@@ -703,7 +724,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::PoundForceFootSqSecond.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
-            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3});
+            .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
