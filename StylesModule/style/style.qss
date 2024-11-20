@@ -517,6 +517,12 @@ QColumnView::item {
     border-bottom: 1px solid @cbg.disabled;
 }
 
+
+QTableView[a_selected="true"]::item:selected:!active {
+    border: 1px solid @ctext.1;
+    color: @ctext.label;
+}
+
 QTableView::item {
     border-bottom: 1px solid @cbg.disabled;
 }
