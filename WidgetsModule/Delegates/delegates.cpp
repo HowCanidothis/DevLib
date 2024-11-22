@@ -13,6 +13,7 @@
 #include <QColorDialog>
 #include <QTextDocument>
 #include <QDesktopWidget>
+#include <QLineEdit>
 #include <QAbstractTextDocumentLayout>
 #include <SharedModule/internal.hpp>
 
@@ -32,7 +33,7 @@ DelegatesLineEdit::DelegatesLineEdit(QObject* parent)
 
 QWidget* DelegatesLineEdit::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    auto* editor = Super::createEditor(parent, option, index);
+    auto* editor = new QLineEdit(parent);
     OnEditorAboutToBeShown(editor, index);
     return editor;
 }

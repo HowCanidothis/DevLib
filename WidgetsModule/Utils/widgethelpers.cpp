@@ -398,9 +398,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     }
 
     if(params.UseStandardActionHandlers) {
-        auto handlers = WidgetTableViewWrapper(tableView).CreateDefaultActionHandlers();
-        handlers->IsReadOnly = false;
-        handlers->ShowAll();
+        WidgetTableViewWrapper(tableView).SetDefaultActionHandlers(false);
     }
 
 #ifdef UNITS_MODULE_LIB
@@ -492,9 +490,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     }
 
     if(params.UseStandardActionHandlers) {
-        auto handlers = WidgetTableViewWrapper(tableView).CreateDefaultActionHandlers();
-        handlers->IsReadOnly = false;
-        handlers->ShowAll();
+        WidgetTableViewWrapper(tableView).SetDefaultActionHandlers(false);
     }
 
     if(params.UseMeasurementDelegates){
@@ -698,12 +694,12 @@ void WidgetTableViewWrapper::SelectColumnsAndScrollToFirst(const QSet<qint32>& c
     }
 }
 
-const WidgetTableViewWrapper& WidgetTableViewWrapper::SetDefaultActionHandlers(bool readOnly) const
+WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::SetDefaultActionHandlers(bool readOnly) const
 {
     auto h = CreateDefaultActionHandlers();
     h->IsReadOnly = readOnly;
     h->ShowAll();
-    return *this;
+    return h;
 }
 
 WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::CreateDefaultActionHandlers() const
@@ -1989,8 +1985,9 @@ const MenuWrapper& MenuWrapper::AddGlobalTableAction(const Latin1Name& id) const
     GetWidget()->addAction(action);
     if(m_globalActionsHandlers != nullptr) {
         auto foundIt = m_globalActionsHandlers->Handlers.find(action);
-        Q_ASSERT(foundIt != m_globalActionsHandlers->Handlers.end());
-        foundIt.value().SetVisible(true);
+        if(foundIt != m_globalActionsHandlers->Handlers.end()) {
+            foundIt.value().SetVisible(true);
+        }
     }
     return *this;
 }

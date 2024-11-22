@@ -37,7 +37,8 @@ enum AdditionalStandardRoles {
     MinLimitRole,
     MaxLimitRole,
     UnitRole,
-    LastEditRowRole
+    LastEditRowRole,
+    SpanRole
 };
 
 #define FIRST_DECLARE(container) template<class, template<typename> class> class container;

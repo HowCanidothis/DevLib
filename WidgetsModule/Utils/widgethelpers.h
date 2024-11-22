@@ -571,7 +571,7 @@ public:
     QSet<int> SelectedColumnsSet() const;
     void SelectRowsAndScrollToFirst(const QSet<qint32>& rows) const;
     void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns) const;
-    const WidgetTableViewWrapper& SetDefaultActionHandlers(bool readOnly) const;
+    WidgetsGlobalTableActionsScopeHandlersPtr SetDefaultActionHandlers(bool readOnly) const;
     WidgetsGlobalTableActionsScopeHandlersPtr CreateDefaultActionHandlers() const;
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;

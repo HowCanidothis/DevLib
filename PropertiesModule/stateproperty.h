@@ -1037,6 +1037,15 @@ public:
 
 public:
     using FDep = std::function<const Dispatcher* ()>;
+    template<typename FGetter>
+    struct PropertyWrapper
+    {
+        explicit PropertyWrapper(const FGetter& getter)
+            : Getter(getter)
+        {}
+
+        FGetter Getter;
+    };
 
     template<class Property, class ... Deps>
     DispatcherConnectionChain(const char* cdl, const Property& property, const Deps&... deps)
@@ -1077,12 +1086,24 @@ public:
     DispatcherConnection OnValid(const char* cdl, const FAction& action);
 
     static const Dispatcher* DefaultDispatcher();
+    template<class FGetter>
+    static PropertyWrapper<FGetter> CreatePropertyWrapper(const FGetter& getter) { return PropertyWrapper<FGetter>(getter); }
 
 private:
     void connectFrom(const char* cdl, const DispatcherConnectionChain& another);
     void invalidResult();
     void validResult();
     void update();
+    template<class T>
+    void add(const char* cdl, const PropertyWrapper<T>& propertyGetter)
+    {
+        add(cdl, [propertyGetter]{
+            return &propertyGetter.Getter()->OnChanged;
+        });
+        add(cdl, [propertyGetter]() -> const Dispatcher* {
+            return *propertyGetter.Getter() == nullptr ? nullptr : DefaultDispatcher();
+        });
+    }
     void add(const char* cdl, const FDep& dependency);
     void add(const char* cdl, const SP<DispatcherConnectionChain>& another) { connectFrom(cdl, *another); }
 
