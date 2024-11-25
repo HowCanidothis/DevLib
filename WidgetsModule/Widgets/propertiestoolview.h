@@ -133,10 +133,10 @@ public:
     Name Key;
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
     template<class T>
-    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<T>* ()>& propertyGetter)
+    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<T>* ()>& propertyGetter, const std::function<void (ModelsStandardListModelContainer&)>& handler = [](ModelsStandardListModelContainer&){})
     {
         auto* cb = new QComboBox;
-        WidgetComboboxWrapper(cb).SetEnum<T>();
+        WidgetComboboxWrapper(cb).SetEnum<T>(handler);
 
         return addProperty(propertyName, title, cb, [this, propertyGetter](QWidget* w){
             auto* property = propertyGetter();
