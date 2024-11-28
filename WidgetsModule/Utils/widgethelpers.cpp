@@ -402,8 +402,8 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     }
 
 #ifdef UNITS_MODULE_LIB
-    if(params.UseMeasurementDelegates){
-        auto* model = tableView->model();
+    auto* model = tableView->model();
+    if(model != nullptr) {
         auto count = model->columnCount();
         Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
@@ -493,8 +493,9 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
         WidgetTableViewWrapper(tableView).SetDefaultActionHandlers(false);
     }
 
-    if(params.UseMeasurementDelegates){
-        auto* model = tableView->model();
+#ifdef UNITS_MODULE_LIB
+    auto* model = tableView->model();
+    if(model != nullptr) {
         auto count = model->rowCount();
         Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
@@ -516,6 +517,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             }
         }
     }
+#endif
 
     tableView->setWordWrap(true);
     tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);

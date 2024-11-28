@@ -266,16 +266,9 @@ struct DescTableViewParams
     }
     DescTableViewParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
 
-    DescTableViewParams& SetUseMeasurementDelegates(bool use)
-    {
-        UseMeasurementDelegates = use;
-        return *this;
-    }
-
     QHash<qint32, ColumnParam> ColumnsParams;
     Latin1Name StateTag;
     bool UseStandardActions = true;
-    bool UseMeasurementDelegates = false;
     bool UseStandardActionHandlers = false;
 
     bool StretchLastSection = true;
