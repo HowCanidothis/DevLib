@@ -37,6 +37,7 @@ public:
 
     void setGap(qint32 gap);
     void SetIcons(const QVector<const Name*>& icons);
+    void SetVisible(int index, bool visible);
 
     LocalPropertyBool Opened;
 

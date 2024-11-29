@@ -242,3 +242,14 @@ void WidgetsTabBarLayout::SetIcons(const QVector<const Name*>& icons)
         WidgetPushButtonWrapper(button).SetIcon(*icon);
     }, m_buttons, icons);
 }
+
+void WidgetsTabBarLayout::SetVisible(int index, bool visible)
+{
+    if(index >= m_buttons.size()){
+        return;
+    }
+    if(m_currentIndex == index){
+        m_currentIndex = index - 1;
+    }
+    WidgetWrapper(m_buttons[index]).WidgetVisibility() = visible;
+}
