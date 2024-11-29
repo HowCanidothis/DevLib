@@ -316,7 +316,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&MassUnits::Grams     )
             .AddUnit(&MassUnits::Tonnes    )
             .AddUnit(&MassUnits::Pounds    )
-            .AddUnit(&MassUnits::Kilopounds);
+            .AddUnit(&MassUnits::Kilopounds)
+            .AddUnit(&MassUnits::SaksCement);
 
     AddMeasurement(MeasurementPressure::Value)
             .AddUnit(&PressureUnits::Pascals                    )
@@ -566,7 +567,8 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementCementYield::Value)
             .AddUnit(&CementYieldUnits::CubicMetersPerKilogram)
             .AddUnit(&CementYieldUnits::CubicMetersPerTonne)
-            .AddUnit(&CementYieldUnits::CubicFootPerSack);
+            .AddUnit(&CementYieldUnits::CubicFootPerSack)
+            .AddUnit(&CementYieldUnits::GallonsPerSack);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
