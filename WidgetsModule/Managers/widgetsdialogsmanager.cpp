@@ -51,7 +51,9 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
     for(const auto& b : buttons) {
         dialog->AddButton(b);
     }
-    dialog->setProperty(ResizeablePropertyName, params.Resizeable);
+    if(params.Resizeable.has_value()) {
+        dialog->setProperty(ResizeablePropertyName, params.Resizeable.value());
+    }
     dialog->Initialize(params.OnDone, params.OnInitialized);
     return dialog;
 }
@@ -73,9 +75,6 @@ bool WidgetsDialogsManager::ShowDeleteCancelDialog(const QString& title, const Q
 qint32 WidgetsDialogsManager::ShowTempDialog(const DescCustomDialogParams& params, const DescShowDialogParams& showParams) const
 {
     ScopedPointer<WidgetsDialog> dialog(createDialog(params));
-    if(showParams.Resizeable.has_value()) {
-        dialog->setProperty(ResizeablePropertyName, showParams.Resizeable.value());
-    }
     OnDialogCreated(dialog.get());
     DescShowDialogParams copy = showParams;
     copy.SetModal(true);
