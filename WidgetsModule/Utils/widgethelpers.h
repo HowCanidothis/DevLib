@@ -19,6 +19,7 @@ struct WidgetWrapperInjectedCommutatorData
 
 class EventFilterObject : public QObject
 {
+    Q_OBJECT
     using Super = QObject;
 
     using FFilter = std::function<bool (QObject*, QEvent*)>;

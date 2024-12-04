@@ -996,6 +996,46 @@ QPushButton#btnPrevious {
     padding: 4px;
 }
 
+QPushButton#btnFirst {
+    qproperty-text: "";
+    image: url("@cPath/double-left.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnLast {
+    qproperty-text: "";
+    image: url("@cPath/double-right.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnBold {
+    qproperty-text: "";
+    image: url("@cPath/format-bold.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnItalic {
+    qproperty-text: "";
+    image: url("@cPath/format-italic.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
 QCalendarWidget QToolButton#qt_calendar_nextmonth {
     qproperty-icon: url("@cPath/chevron-right.svg");
 }
