@@ -72,5 +72,7 @@
         <file>style/res/content-copy.svg</file>
         <file>style/res/pin.svg</file>
         <file>aispaces/res/failedNo.svg</file>
+        <file>aispaces/res/insertAfter.svg</file>
+        <file>aispaces/res/insertBelow.svg</file>
     </qresource>
 </RCC>

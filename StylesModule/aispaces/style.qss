@@ -253,7 +253,17 @@ WPSCSectionSummaryView QTableView {
 WPSCSectionSummaryView QTreeView::item
 {
     min-height: 30px;
-    background: @cbg.hover1;
+    background:  @cbg.hover1;
+}
+
+WPSCDrillCaseView QTableView {
+    background: @cbg.1;
+}
+
+WPSCDrillCaseView QTreeView::item
+{
+    min-height: 30px;
+    background:  @cbg.hover1;
 }
 
 QWidget[BlueCircleButton="true"] {
