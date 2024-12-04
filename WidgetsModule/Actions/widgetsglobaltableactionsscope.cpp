@@ -209,7 +209,7 @@ QAction* WidgetsGlobalTableActionsScope::registerAction(const Latin1Name& id, En
     auto* action = createAction(id, [this, id]{
         auto* action = FindAction(id);
         if(m_currentHandlers == nullptr) {
-            Q_ASSERT(false);
+//            Q_ASSERT(false);
             return;
         }
         auto foundIt = m_currentHandlers->Handlers.find(action);
