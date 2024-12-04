@@ -171,7 +171,7 @@ public:
         return value;
     }
 
-    const WidgetWrapper& Click();
+    const WidgetWrapper& Click(const QPoint& pos = QPoint());
 
     QByteArray StoreGeometry() const;
     bool RestoreGeometry(const QByteArray& geometry) const;
