@@ -72,6 +72,8 @@
         <file>style/res/content-copy.svg</file>
         <file>style/res/pin.svg</file>
         <file>aispaces/res/failedNo.svg</file>
+        <file>aispaces/res/insertAfter.svg</file>
+        <file>aispaces/res/insertBelow.svg</file>
         <file>style/res/double-left.svg</file>
         <file>style/res/double-right.svg</file>
         <file>style/res/format-bold.svg</file>

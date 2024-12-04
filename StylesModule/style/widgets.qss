@@ -138,6 +138,14 @@ QFrame#WidgetsTVRAWidget {
     min-height: 28px;
 }
 
+QFrame#TreeViewActionAttachment {
+    background: #323232;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    min-height: 28px;
+}
+
 QWidget#ThemesSpacer {
     background: transparent;
 }
