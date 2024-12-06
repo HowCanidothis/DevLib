@@ -409,6 +409,9 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
         auto delegate = new DelegatesDoubleSpinBox(tableView);
         delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
             auto* unit = index.model()->headerData(index.column(), Qt::Horizontal, UnitRole).value<const Measurement*>();
+            if(unit == nullptr) {
+                return;
+            }
             editor->setSingleStep(unit->CurrentStep);
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
@@ -808,6 +811,10 @@ bool WidgetTableViewWrapper::CopySelectedTableContentsToClipboard(bool includeHe
 QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, const std::function<void (const QModelIndex& index)>& onActivated, qint32 column, QCompleter::ModelSorting sorting) const
 {
     auto* combo = GetWidget();
+    auto* oldEf = combo->property("a_completer_event_filter").value<EventFilterObject*>();
+    if(oldEf != nullptr) {
+        delete oldEf;
+    }
     combo->setModel(model);
     combo->setEditable(true);
     auto* completer = new QCompleter(combo);
@@ -826,6 +833,23 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
     }
     combo->setModelColumn(column);
     combo->setCompleter(completer);
+
+    auto* eventFilter = WidgetWrapper(combo).AddEventFilter([combo, completer](QObject*, QEvent* event) {
+        if(event->type() == QEvent::KeyRelease && combo->currentText() == QString()) {
+            completer->setCompletionPrefix(QString());
+            completer->complete();
+        }
+        return false;
+    });
+    auto* eventFilterLineedit = WidgetWrapper(combo->lineEdit()).AddEventFilter([combo, completer](QObject*, QEvent* event) {
+        if(event->type() == QEvent::MouseButtonRelease && combo->currentText() == QString()) {
+            completer->setCompletionPrefix(QString());
+            completer->complete();
+        }
+        return false;
+    });
+    eventFilterLineedit->setParent(eventFilter);
+    combo->setProperty("a_completer_event_filter", QVariant::fromValue(eventFilter));
 
     DisconnectModel();
     return completer;
