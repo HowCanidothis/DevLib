@@ -10,7 +10,7 @@
 #include "threads_declarations.h"
 #include "SharedModule/ImportExport/importexport.h"
 
-//#define ENABLE
+#define ENABLE
 
 struct TaskInfo
 {
@@ -25,7 +25,6 @@ public:
     MainThreadTaskContainer()
         : m_isBlocked(false)
         , m_isTerminated(false)
-        , m_isProcessing(false)
     {}
 
     AsyncResult Push(const char* cdl, const FAction& task)
@@ -35,23 +34,16 @@ public:
         if(m_isTerminated) {
             return result;
         }
-        m_tasks.push({cdl, result, task });
-        bool isProcessing = m_isProcessing;
-        if(isProcessing) {
-            QtInlineEvent::Post(CDL, [this, isProcessing]{
-                ProcessEvents(isProcessing);
-            }, Qt::LowEventPriority);
-        }
+        m_tasks.append({cdl, result, task});
+        QtInlineEvent::Post(CDL, [this]{
+            ProcessEvents();
+        }, Qt::LowEventPriority);
         return result;
     }
 
-    bool Block()
+    void Block()
     {
-        if(m_isProcessing) {
-            return false;
-        }
         m_isBlocked = true;
-        return true;
     }
 
     void Unblock()
@@ -62,57 +54,44 @@ public:
     void Terminate()
     {
         m_isTerminated = true;
-        while(m_tasks.size() != 0) {
-            TaskInfo task;
-            {
-                QMutexLocker locker(&m_mutex);
-                task = m_tasks.front();
-                m_tasks.pop();
-            }
-        }
+        QMutexLocker locker(&m_mutex);
+        m_tasks.clear();
     }
 
-    void ProcessEvents(bool isProcessing)
+    void ProcessEvents()
     {
+        if(m_isBlocked) {
+            QtInlineEvent::Post(CDL, [this]{
+                ProcessEvents();
+            }, Qt::LowEventPriority);
+            return;
+        }
+
         if(m_isTerminated) {
             return;
         }
-        m_isProcessing = true;
 
-        if(!m_isBlocked) {
-            while(m_tasks.size() != 0) {
-
-                TaskInfo task;
-                {
-                    QMutexLocker locker(&m_mutex);
-                    task = m_tasks.front();
-                    m_tasks.pop();
-                }
-                try{
-                    task.Task();
-                    task.Result.Resolve(true);
-                } catch (...) {
-                    task.Result.Resolve(false);
-                }
-
+        if(!m_tasks.isEmpty()) {
+            TaskInfo task;
+            {
+            QMutexLocker locker(&m_mutex);
+                task = m_tasks.constFirst();
+                m_tasks.pop_front();
+            }
+            try{
+                task.Task();
+                task.Result.Resolve(true);
+            } catch (...) {
+                task.Result.Resolve(false);
             }
         }
-
-        if(isProcessing) {
-            return;
-        }
-        m_isProcessing = false;
-        QtInlineEvent::Post(CDL, [this]{
-            ProcessEvents(false);
-        }, Qt::LowEventPriority);
     }
 
 private:
     bool m_isBlocked;
     bool m_isTerminated;
-    bool m_isProcessing;
     QMutex m_mutex;
-    std::queue<TaskInfo> m_tasks;
+    QQueue<TaskInfo> m_tasks;
 };
 
 MainThreadTaskContainer tasks;
@@ -125,7 +104,7 @@ ThreadsBase::ThreadsBase()
 void ThreadsBase::Initialize()
 {
 #ifdef ENABLE
-    tasks.ProcessEvents(false);
+//    tasks.ProcessEvents();
 #endif
     ThreadFunction::threadPool();
     ImportExport::threadPool();
@@ -135,10 +114,9 @@ void ThreadsBase::ProcessUiOnly()
 {
 #ifdef ENABLE
     THREAD_ASSERT_IS_MAIN();
-    if(tasks.Block()) {
-        qApp->processEvents();
-        tasks.Unblock();
-    }
+    tasks.Block();
+    qApp->processEvents();
+    tasks.Unblock();
 #endif
 }
 
