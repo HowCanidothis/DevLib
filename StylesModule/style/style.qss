@@ -472,12 +472,12 @@ QTreeView::item {
     border: none;
 }
 
-QTreeView::item:hover {
-    background: @cbg.hover;
-}
-
 QTreeView::item:selected {
     background: @cbg.selected;
+}
+
+QTreeView::item:hover {
+    background: @cbg.hover;
 }
 
 QTableView::indicator:unchecked {

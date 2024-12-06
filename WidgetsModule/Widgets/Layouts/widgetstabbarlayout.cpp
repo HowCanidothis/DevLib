@@ -75,16 +75,16 @@ void WidgetsTabBarLayout::setCollapsable(bool collapsable)
             Opened = m_currentIndex != -1;
             Opened.ConnectAndCall(CDL, [this](bool opened) {
                 WidgetWrapper(m_icon).ApplyStyleProperty("a_opened", opened);
-                if(!opened) {
+                if(!opened){
                     m_currentIndex = -1;
+                } else if(m_currentIndex < 0){
+                    m_currentIndex = 0;
                 }
             });
             WidgetTabBarLayoutWrapper(this).AddCollapsing();
             WidgetTabBarLayoutWrapper(this).AddCollapsingDispatcher(m_currentIndex.OnChanged);
             auto updateChecked = [this]{
-                if(Opened) {
-                    Opened = false;
-                }
+                Opened = !Opened.Native();
             };
             WidgetWrapper(m_icon).SetOnClicked(updateChecked);
         }

@@ -605,14 +605,14 @@ Dispatcher& ActionWrapper::OnClicked() const
 
 QList<int> WidgetTableViewWrapper::SelectedRowsSorted() const
 {
-    auto ret = SelectedRowsSet().toList();
+    auto ret = SelectedRowsSet().values();
     std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
     return ret;
 }
 
 QList<int> WidgetTableViewWrapper::SelectedColumnsSorted() const
 {
-    auto ret = SelectedColumnsSet().toList();
+    auto ret = SelectedColumnsSet().values();
 	std::sort(ret.begin(), ret.end(),[](const int& v1, const int& v2){ return v1 < v2; });
     return ret;
 }
@@ -734,6 +734,9 @@ void WidgetTableViewWrapper::DebugSelect() const
     auto* selectionModel = tableView->selectionModel();
     qint32 countToSelect = 10;
     auto rowCount = viewModel->rowCount();
+    if(rowCount == 0){
+        return;
+    }
     auto selectEach = rowCount / 10;
     qint32 currentRow = 0;
     for(qint32 i(0); i < countToSelect; ++i) {
