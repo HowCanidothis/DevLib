@@ -120,6 +120,14 @@ void ThreadsBase::ProcessUiOnly()
 #endif
 }
 
+void ThreadsBase::ProcessMainEvents()
+{
+#ifdef ENABLE
+    tasks.Unblock();
+#endif
+    qApp->processEvents();
+}
+
 AsyncResult ThreadsBase::DoMainWithResult(const char* location, const FAction& task, Qt::EventPriority priority)
 {
 #ifdef ENABLE

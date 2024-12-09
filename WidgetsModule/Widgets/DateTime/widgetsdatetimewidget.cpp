@@ -100,7 +100,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 
     WidgetWrapper(this).AddEventFilter([this](QObject*, QEvent* e) {
-        if(e->type() == QEvent::KeyRelease) {
+        if(e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
             auto* ke = reinterpret_cast<QKeyEvent*>(e);
             if(ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) {
                 if(WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility()) {

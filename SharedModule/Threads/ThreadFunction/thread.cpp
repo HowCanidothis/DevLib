@@ -21,7 +21,7 @@ Thread::~Thread()
     while(isRunning()) {
         QMutexLocker locker(&m_taskMutex);
         m_taskCondition.wakeAll();
-        qApp->processEvents();
+        ThreadsBase::ProcessMainEvents();
     }
 }
 
