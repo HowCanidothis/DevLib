@@ -6,7 +6,7 @@
 
 #define DEBUG_DETAILS
 
-#ifdef QT_DEBUG
+#if defined(QT_DEBUG) || defined(QT_PROFILE)
 #define DEBUG_LOCATION __FILE__ QT_STRINGIFY(__LINE__)
 #else
 #define DEBUG_LOCATION nullptr

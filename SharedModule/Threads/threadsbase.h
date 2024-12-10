@@ -47,6 +47,7 @@ public:
     static AsyncResult Async(const FAction& task, EPriority priority = EPriority::High);
     static void Terminate();
     static void AsyncSemaphore(const SharedPointer<FutureResult>& result, const FAction& task);
+    static void ProcessMainEvents();
 };
 
 #endif // THREADSBASE_H

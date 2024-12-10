@@ -194,7 +194,7 @@ void FutureResultData::wait()
 {
     if(qApp != nullptr && QThread::currentThread() == qApp->thread()) {
         while(!isFinished()) {
-            qApp->processEvents(/*QEventLoop::WaitForMoreEvents*/);
+            ThreadsBase::ProcessMainEvents();
         }
     } else {
         QMutexLocker lock(m_mutex.get());
