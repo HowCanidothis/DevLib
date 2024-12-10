@@ -333,7 +333,7 @@ BHACatalogWidget QListView::item {
 }
 
 WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
-    background: @cbg.hover;
+    background: @cbg.hover1;
 }
 
 WidgetsEditingObjectSaveCancelButtons QPushButton#BtnSave {
