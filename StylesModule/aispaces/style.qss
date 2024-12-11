@@ -345,8 +345,8 @@ IntroProgressBar QProgressBar::chunk {
     background: @c.error;
 }
 
-IntroProgressBar QWidget#Image {
-    border-image: url(@cPath/full_logo.svg);
+IntroProgressBar {
+    qproperty-path: "@cPath/full_logo.svg";
 }
 
 IntroProgressBar QLabel#Label {
