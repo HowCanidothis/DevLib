@@ -140,6 +140,7 @@ public:
     const Point3F& GetIsometricCenter() const { return m_isometricCenter; }
     float GetIsometricCurtain() const { return m_isometricCurtain; }
 
+    Vector3F GetSideCalculated() const { return Vector3F::crossProduct(m_up, m_forward).normalized(); }
     const Point3F& GetEye() const { return m_eye; }
     const Vector3F& GetForward() const { return m_forward; }
     const Vector3F& GetUp() const { return m_up; }

@@ -76,5 +76,6 @@
         <file>style/res/double-right.svg</file>
         <file>style/res/format-bold.svg</file>
         <file>style/res/format-italic.svg</file>
+        <file>aispaces/res/full_logo.svg</file>
     </qresource>
 </RCC>

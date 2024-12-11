@@ -354,7 +354,7 @@ void GtRenderer::onDraw()
         m_forward = camera->GetForward();
         m_invertedMv = camera->GetView().inverted().transposed();
         m_screenSize = Vector2F(fbo->size().width(), fbo->size().height());
-        m_side = Vector3F::crossProduct(m_up.Get(), m_forward.Get()).normalized();
+        m_side = camera->GetSideCalculated();
         m_camera = camera;
 
         { // TODO. Fixing binding issues with shared resources

@@ -332,8 +332,29 @@ BHACatalogWidget QListView::item {
     height: 30px;
 }
 
+IntroProgressBar {
+    background: @cbg.1;
+}
+
+IntroProgressBar QProgressBar {
+    background: rgba(255,255,255,0.24);
+    max-height: 4px;
+}
+
+IntroProgressBar QProgressBar::chunk {
+    background: @c.error;
+}
+
+IntroProgressBar QWidget#Image {
+    border-image: url(@cPath/full_logo.svg);
+}
+
+IntroProgressBar QLabel#Label {
+    font-size: 28px;
+}
+
 WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
-    background: @cbg.hover1;
+    background: @cbg.hover1; 
 }
 
 WidgetsEditingObjectSaveCancelButtons QPushButton#BtnSave {

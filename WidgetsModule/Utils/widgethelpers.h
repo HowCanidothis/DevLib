@@ -251,6 +251,23 @@ public:
     MainProgressBar* AddModalProgressBar(const Name& processId = Name()) const;
     MainProgressBar* AddModalProgressBar(const QSet<Name>& processIds) const;
 
+    template<class T>
+    T* AddModalProgressBar(const Name& processId) const
+    {
+        return AddModalProgressBar<T>(QSet<Name>{processId});
+    }
+
+    template<class T>
+    T* AddModalProgressBar(const QSet<Name>& processIds) const
+    {
+        auto* progressBar = new T(processIds, GetWidget());
+    #ifdef QT_DEBUG
+        Q_ASSERT(!GetWidget()->property("a_progressBar").toBool());
+        GetWidget()->setProperty("a_progressBar", true);
+    #endif
+        return progressBar;
+    }
+
     const WidgetWrapper& AddToFocusManager(const QVector<QWidget*>& additionalWidgets) const;
     const WidgetWrapper& CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing = false) const;
     const WidgetWrapper& AddTestHandler(const FAction& testHandler) const;

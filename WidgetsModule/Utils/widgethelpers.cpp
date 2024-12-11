@@ -1196,12 +1196,7 @@ MainProgressBar* WidgetWrapper::AddModalProgressBar(const Name& processId) const
 
 MainProgressBar* WidgetWrapper::AddModalProgressBar(const QSet<Name>& processIds) const
 {
-    auto* progressBar = new MainProgressBar(processIds, GetWidget());
-#ifdef QT_DEBUG
-    Q_ASSERT(!GetWidget()->property("a_progressBar").toBool());
-    GetWidget()->setProperty("a_progressBar", true);
-#endif
-    return progressBar;
+    return AddModalProgressBar<MainProgressBar>(processIds);
 }
 
 const WidgetWrapper& WidgetWrapper::FixUp() const
