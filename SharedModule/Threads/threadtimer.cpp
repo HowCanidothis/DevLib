@@ -58,6 +58,9 @@ ThreadTimerManager::ThreadTimerManager()
 
 ThreadTimerManager::~ThreadTimerManager()
 {
+    if(!m_isTerminated){
+        terminate();
+    }
     Q_ASSERT(m_isTerminated);
 }
 
