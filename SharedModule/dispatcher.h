@@ -201,7 +201,9 @@ public:
         }
         for(const auto& connections : ::make_const(connectionSubscribesCopy))
         {
-            connections.ConnectionHandler(args...);
+            if(*connections.IsValid){
+                connections.ConnectionHandler(args...);
+            }
         }
     }
 
@@ -277,7 +279,9 @@ public:
         qint32 id;
         if(!m_freeConnections.isEmpty()) {
             id = m_freeConnections.dequeue();
-            m_connections[id].ConnectionHandler = handler;
+            auto& connection = m_connections[id];
+            connection.ConnectionHandler = handler;
+            *connection.IsValid = true;
         } else {
             id = m_connections.size();
             m_connections.append(Connection(handler));
@@ -290,6 +294,7 @@ public:
             auto& connection = m_connections[id];
             auto handler = connection.ConnectionHandler;
             Q_UNUSED(handler);
+            *connection.IsValid = false;
             connection.ConnectionHandler = [](Args...){};
             m_freeConnections.enqueue(id);
         });
@@ -366,9 +371,11 @@ private:
     friend class Connection;
     struct Connection {
         FCommonDispatcherAction ConnectionHandler;
+        SharedPointer<std::atomic_bool> IsValid;
 
         Connection(const FCommonDispatcherAction& connection)
             : ConnectionHandler(connection)
+            , IsValid(::make_shared<std::atomic_bool>(true))
         {}
         Connection(){}
     };

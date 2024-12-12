@@ -30,8 +30,6 @@ public:
         , SkipErrorRows(true)
         , m_updater(1000)
     {
-        SkipErrorRows.Connect(CONNECTION_DEBUG_LOCATION, [this](bool){ update(); });
-        adapters::ResetThread(SkipErrorRows);
     }
 
     LocalPropertyBool SkipErrorRows;
@@ -297,6 +295,7 @@ public:
 private:
     void update()
     {
+        Q_ASSERT(m_updateHandler != nullptr);
         m_updater.Call(CONNECTION_DEBUG_LOCATION, [this]{
             m_updateHandler();
         });
@@ -311,7 +310,7 @@ private:
                 update();
             }).MakeSafe(m_connection);
         }
-        update();
+        SkipErrorRows.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this](bool){ update(); });
     }
 
 private:
