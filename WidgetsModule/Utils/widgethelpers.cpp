@@ -1460,10 +1460,10 @@ WidgetWrapper::WidgetWrapper(QWidget* widget)
 
 }
 
-const WidgetWrapper& WidgetWrapper::Click(const QPoint& pos)
+const WidgetWrapper& WidgetWrapper::Click()
 {
-    QMouseEvent e(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-    QMouseEvent er(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent e(QEvent::MouseButtonPress, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent er(QEvent::MouseButtonRelease, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
     qApp->sendEvent(m_object, &e);
     qApp->sendEvent(m_object, &er);
     return *this;
