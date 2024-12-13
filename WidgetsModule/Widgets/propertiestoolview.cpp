@@ -291,9 +291,9 @@ LineData PropertiesToolView::AddTextProperty(const Name& propertyName, const FTr
     return lineData;
 }
 #ifdef UNITS_MODULE_LIB
-LineData PropertiesToolView::AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter)
+LineData PropertiesToolView::AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters)
 {
-    return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter);
+    return AddProperty<LocalPropertyDoubleOptional>(propertyName, measurement, title, propertyGetter, labelUpdaters);
 }
 #endif
 
@@ -314,7 +314,7 @@ LineData PropertiesToolView::BeginGroup(const FTranslationHandler& header)
     return LineData(Name(), label);
 }
 
-LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTranslationHandler& title, Qt::Orientation orientation)
+LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTranslationHandler& title, const QVector<Dispatcher*>& labelUpdaters, Qt::Orientation orientation)
 {
     widget->setObjectName(id.AsString());
     int rowCount = m_layout->rowCount();
@@ -327,7 +327,7 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
 
     auto header = new ElidedLabel(this);
     LineData result(id, widget, header);
-    result.LabelWrapper.WidgetText()->SetTranslationHandler(title);
+    result.LabelWrapper.WidgetText()->SetTranslationHandler(CDL, title, labelUpdaters);
 
     switch(orientation){
     case Qt::Horizontal: {

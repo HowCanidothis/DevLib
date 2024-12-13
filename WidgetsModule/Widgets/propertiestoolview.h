@@ -179,22 +179,22 @@ public:
 
 #ifdef UNITS_MODULE_LIB
     template<class Property>
-    LineData AddProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<Property* ()>& propertyGetter)
+    LineData AddProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<Property* ()>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = {})
     {
         auto* spinBox = new WidgetsDoubleSpinBoxWithCustomDisplay();
         spinBox->setButtonSymbols(QDoubleSpinBox::NoButtons);
 
-        return addProperty(propertyName, title, spinBox, [this, propertyName, propertyGetter, measurement, title](QWidget* w){
+        return addProperty(propertyName, title, spinBox, [this, propertyName, propertyGetter, measurement, title, labelUpdaters](QWidget* w){
             auto* property = propertyGetter();
             if(property == nullptr) {
                 return;
             }
             auto* spinBox = reinterpret_cast<WidgetsDoubleSpinBoxWithCustomDisplay*>(w);
             ///TODO: kostil with label
-            m_connectors.AddConnector(measurement, property, spinBox, FindRow(propertyName).Label, title, {});
+            m_connectors.AddConnector(measurement, property, spinBox, FindRow(propertyName).Label, title, labelUpdaters);
         });
     }
-    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter);
+    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional* ()>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = {});
 #endif
     LineData AddTextProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyString* ()>& propertyGetter);
 
@@ -202,7 +202,7 @@ public:
 
     LineData BeginGroup(const FTranslationHandler& header);
 
-    LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal);
+    LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>(), Qt::Orientation orientation = Qt::Horizontal);
 
     void Bind();
     void ClearBindings();
@@ -342,8 +342,8 @@ struct TPropertiesToolWrapper {
         Register(m_folder->BeginGroup(header));
     }
 
-    LineData AddWidget(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal){
-        return Register(m_folder->AddData(id, widget, title, orientation));
+    LineData AddWidget(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){
+        return Register(m_folder->AddData(id, widget, title, labelUpdaters, orientation));
     }
 
     template<class Property>
@@ -390,7 +390,7 @@ struct TPropertiesToolWrapper {
         return AddProperty<LocalPropertyDouble>(propertyName, title, propertyGetter);
     }
 #ifdef UNITS_MODULE_LIB
-    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional&(T*)>& propertyGetter){
+    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional&(T*)>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){
         auto property = &propertyGetter(m_object);
         FTranslationHandler titleUnit;
         if(title().contains(MEASUREMENT_UN)){
@@ -398,9 +398,9 @@ struct TPropertiesToolWrapper {
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
         }
-        return Register(m_folder->AddDoubleProperty(propertyName, measurement, titleUnit, [property]{ return property; }));
+        return Register(m_folder->AddDoubleProperty(propertyName, measurement, titleUnit, [property]{ return property; }, labelUpdaters));
     }
-    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDouble&(T*)>& propertyGetter){
+    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDouble&(T*)>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){
         auto property = &propertyGetter(m_object);
         FTranslationHandler titleUnit;
         if(title().contains(MEASUREMENT_UN)){
@@ -408,7 +408,7 @@ struct TPropertiesToolWrapper {
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
         }
-        return Register(m_folder->AddProperty<LocalPropertyDouble>(propertyName, measurement, titleUnit, [property]{ return property; }));
+        return Register(m_folder->AddProperty<LocalPropertyDouble>(propertyName, measurement, titleUnit, [property]{ return property; }, labelUpdaters));
     }
 //    LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<StateParameterProperty<LocalPropertyDoubleOptional>&(T*)>& propertyGetter){
 //        return AddDoubleProperty(propertyName, title, measurement, [propertyGetter](T* o) -> LocalPropertyDoubleOptional& { return propertyGetter(o).InputValue; });
