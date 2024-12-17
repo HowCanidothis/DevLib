@@ -73,11 +73,11 @@
         <file>style/res/pin.svg</file>
         <file>aispaces/res/failedNo.svg</file>
         <file>aispaces/res/insertAfter.svg</file>
-        <file>aispaces/res/insertBelow.svg</file>
         <file>style/res/double-left.svg</file>
         <file>style/res/double-right.svg</file>
         <file>style/res/format-bold.svg</file>
         <file>style/res/format-italic.svg</file>
         <file>aispaces/res/full_logo.svg</file>
+        <file>aispaces/res/insertBefore.svg</file>
     </qresource>
 </RCC>
