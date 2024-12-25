@@ -136,6 +136,7 @@ public:
     const WPSCUnitSystemTableWrapperPtr& GetSystemsWrapper() const { return m_systemWrapper; }
     const WPSCUnitMeasurementTableWrapperPtr& GetMeasurementWrapper() const { return m_measurmentWrapper; }
     
+    static QString MakeMeasurementString(const QString& string, const Measurement* measurment);
 private:
     bool m_initialized;
     DispatcherConnectionsSafe m_connections;
