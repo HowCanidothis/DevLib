@@ -792,6 +792,20 @@ QStringList MeasurementManager::DefaultSystems()
 	return {UNIT_SYSTEM_API.AsString(), UNIT_SYSTEM_API_USFT.AsString(), UNIT_SYSTEM_SI.AsString()};
 }
 
+QString MeasurementManager::MakeMeasurementString(const QString& string, const Measurement* measurment){
+    thread_local static QRegExp regExp(MEASUREMENT_UN);
+    qint32 index = 0, stringIndex = 0;
+    QString resultString;
+    while((index = regExp.indexIn(string, index)) != -1) {
+        resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
+        resultString.append(measurment->CurrentUnitLabel);
+        index += regExp.matchedLength();
+        stringIndex = index;
+    }
+    resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
+    return resultString;
+}
+
 void MeasurementTranslatedString::AttachToTranslatedString(TranslatedString& string, const FTranslationHandler& translationHandler, const Measurement* metric)
 {
     AttachToTranslatedString(string, translationHandler, metric, string.Connections);
@@ -808,18 +822,7 @@ FTranslationHandler MeasurementTranslatedString::generateTranslationHandler(cons
 	Q_ASSERT(translationHandler != nullptr);
     return [translationHandler, measurement]{
         THREAD_ASSERT_IS_MAIN()
-        thread_local static QRegExp regExp(MEASUREMENT_UN);
-        qint32 index = 0;
-        QString resultString, string = translationHandler();
-        if((index = regExp.indexIn(string, index)) != -1) {
-            resultString.append(QStringView(string.begin(), string.begin() + index).toString());
-            resultString.append(measurement->CurrentUnitLabel);
-            index += regExp.matchedLength();
-            resultString.append(QStringView(string.begin() + index, string.end()).toString());
-        } else if(!string.isEmpty()){
-            Q_ASSERT(false);
-        }
-        return resultString;
+        return MeasurementManager::MakeMeasurementString(translationHandler(), measurement);
     };
 }
 

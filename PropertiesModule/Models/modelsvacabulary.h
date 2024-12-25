@@ -13,7 +13,7 @@ public:
     struct HeaderDataValue
     {
         Name ColumnKey;
-        TranslatedStringPtr Label;
+        FTranslationHandler Label;
         FMeasurementGetter Measurement;
     };
     using HeaderData = QVector<HeaderDataValue>;

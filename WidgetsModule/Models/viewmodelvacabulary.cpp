@@ -1,6 +1,7 @@
 #include "viewmodelvacabulary.h"
 #include "modelsfiltermodelbase.h"
 #include "modelslistbase.h"
+#include "UnitsModule/internal.hpp"
 
 ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
@@ -29,7 +30,12 @@ ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     m_roleDataHandlers.insert(Qt::DisplayRole, displayRoleHandlers);
 
     m_roleHorizontalHeaderDataHandlers.insert(Qt::DisplayRole, [this](qint32 section){
-        return GetData()->GetHeader(section).Label->Native();
+        const auto& header = GetData()->GetHeader(section);
+        auto result = header.Label();
+        if(header.Measurement != nullptr && header.Measurement() != nullptr){
+            result = MeasurementManager::MakeMeasurementString(result, header.Measurement());
+        }
+        return result;
     });
 
     m_roleSetDataHandlers.insert(Qt::EditRole, [this](qint32 row, qint32 column, const QVariant& value) -> bool {

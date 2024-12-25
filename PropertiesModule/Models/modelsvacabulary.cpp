@@ -12,9 +12,7 @@ ModelsVocabulary::ModelsVocabulary(const HeaderData& dictionary)
     for(const auto& value : ::make_const(m_header)) {
         Q_ASSERT(value.Label != nullptr);
         if(value.Measurement != nullptr) {
-            auto* measurement = value.Measurement();
-            MeasurementTranslatedString::AttachToTranslatedString(*value.Label, value.Label->GetTranslationHandler(), { measurement });
-            measurements.insert(measurement);
+            measurements.insert(value.Measurement());
         }
     }
     for(const auto* measurement : measurements) {
@@ -36,7 +34,7 @@ const QVariant& ModelsVocabulary::SelectValue(const Name& name, const QHash<Name
 
 const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 column) const
 {
-    static ModelsVocabulary::HeaderDataValue result = { Name(), ::make_shared<TranslatedString>(TR_NONE), nullptr};
+    static ModelsVocabulary::HeaderDataValue result = { Name(), TR_NONE, nullptr};
     if(column < 0 || column >= m_header.size()) {
         return result;
     }

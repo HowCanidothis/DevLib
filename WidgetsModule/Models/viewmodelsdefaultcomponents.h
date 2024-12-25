@@ -495,11 +495,13 @@ public:
     TViewModelsColumnComponentsBuilder& AddDateTime(qint32 column, const FTranslationHandler& header, const std::function<QDateTime (ConstValueType)>& getter, const double* timeShift = nullptr){
         return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
+            QDateTime dateTime = getter(data);
             if(timeShift != nullptr) {
-                QDateTime dateTime = getter(data);
-                return DateTimeToString(dateTime.toOffsetFromUtc(*timeShift));
+                dateTime = dateTime.toOffsetFromUtc(*timeShift);
             }
-            return DateTimeToString(getter(data));
+            const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+            const auto& locale = settings.ApplicationLocale.Native();
+            return locale.toString(dateTime, settings.DateTimeFormat);
         }, FModelSetter(), [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             if(timeShift != nullptr) {
@@ -604,7 +606,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+        return AddColumn(column, [header, pMeasurement]{ return MeasurementManager::MakeMeasurementString(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto concreteValue = getter(const_cast<ValueType>(value));
             if(qIsNaN(concreteValue) || qIsInf(concreteValue)) {
                 return DASH;
@@ -633,7 +635,7 @@ public:
         m_currentMeasurementColumns.InsertSortedUnique(column);
 
         auto pMeasurement = m_currentMeasurement;
-        return AddColumn(column, [header, pMeasurement]{ return setMeasurmentUnit(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
+        return AddColumn(column, [header, pMeasurement]{ return MeasurementManager::MakeMeasurementString(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
             auto dataValue = getter(const_cast<ValueType>(value));
             if(!dataValue.has_value()) {
                 return DASH;
@@ -708,21 +710,6 @@ public:
     }
 
 private:
-    static QString setMeasurmentUnit(const QString& string, const Measurement* measurment)
-    {
-        thread_local static QRegExp regExp(MEASUREMENT_UN);
-        qint32 index = 0, stringIndex = 0;
-        QString resultString;
-        while((index = regExp.indexIn(string, index)) != -1) {
-            resultString.append(QStringView(string.begin() + stringIndex, string.begin() + index).toString());
-            resultString.append(measurment->CurrentUnitLabel);
-            index += regExp.matchedLength();
-            stringIndex = index;
-        }
-        resultString.append(QStringView(string.begin() + stringIndex, string.end()).toString());
-        return resultString;
-    }
-
     TViewModelsColumnComponentsBuilder& addMeasurementLimits(const std::function<void (qint32, qint32, const ViewModelsTableColumnComponents::ColumnComponentData&)>& addDelegate,
                                                              const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); },
                                                              const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
