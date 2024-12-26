@@ -79,5 +79,7 @@
         <file>style/res/format-italic.svg</file>
         <file>aispaces/res/full_logo.svg</file>
         <file>aispaces/res/insertBefore.svg</file>
+        <file>style/res/grid.svg</file>
+        <file>style/res/grid_edit.svg</file>
     </qresource>
 </RCC>

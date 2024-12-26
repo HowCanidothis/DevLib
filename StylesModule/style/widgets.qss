@@ -157,3 +157,23 @@ TopNotifierFrame {
 TopNotifierFrame QLabel{
     color: @c.error;
 }
+
+QPushButton#BtnGridSettings {
+    qproperty-text: "";
+    image: url("@cPath/grid_edit.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#BtnShowGrid {
+    qproperty-text: "";
+    image: url("@cPath/grid.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
