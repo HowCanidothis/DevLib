@@ -499,9 +499,7 @@ public:
             if(timeShift != nullptr) {
                 dateTime = dateTime.toOffsetFromUtc(*timeShift);
             }
-            const auto& settings = SharedSettings::GetInstance().LanguageSettings;
-            const auto& locale = settings.ApplicationLocale.Native();
-            return locale.toString(dateTime, settings.DateTimeFormat);
+            return LanguageSettings::DateTimeToString(dateTime);
         }, FModelSetter(), [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             if(timeShift != nullptr) {
