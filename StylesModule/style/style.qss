@@ -805,6 +805,12 @@ QMenuBar::item:pressed {
     background-color: @cbg.3;
 }
 
+QToolButton#qt_menubar_ext_button {
+    qproperty-text: "";
+    qproperty-icon: url("@cPath/double-right.svg");
+    padding: 0px;
+}
+
 QMenu {
     border: none;
     margin: 0px;
