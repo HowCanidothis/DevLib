@@ -718,9 +718,14 @@ WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
 
 void WidgetTableViewWrapper::DebugJson() const
 {
-    auto* dialog = WidgetsDialogsManager::GetInstance().GetOrCreateDialog<WidgetsDebugJsonDialog>("DebugJson");
-    dialog->SetTableView(GetWidget());
-    dialog->show();
+    WidgetDialogWrapper dialog("DebugJson", []{
+        DescCustomDialogParams result;
+        result.SetView(new WidgetsDebugJsonDialog());
+        result.SetResizeable();
+        return result;
+    });
+    dialog.GetView<WidgetsDebugJsonDialog>()->SetTableView(GetWidget());
+    dialog.Show();
 }
 
 void WidgetTableViewWrapper::DebugSelect() const

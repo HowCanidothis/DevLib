@@ -52,12 +52,12 @@ struct TextConverter<QByteArray>
     using value_type = QByteArray;
     static QString ToText(const value_type& value, const TextConverterContext& )
     {
-        return value;
+        return value.toBase64();
     }
 
     static value_type FromText(const QString& string)
     {
-        return string.toLatin1();
+        return QByteArray::fromBase64(string.toLatin1());
     }
 };
 

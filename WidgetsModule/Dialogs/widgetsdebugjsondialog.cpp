@@ -15,7 +15,7 @@ WidgetsDebugJsonDialog::WidgetsDebugJsonDialog(QWidget *parent)
     ui->setupUi(this);
 
     m_connectors.AddConnector<LocalPropertiesTextEditConnector>(&m_output, ui->teOutput);
-    m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&m_keyword, ui->leKeyword, false);
+    m_connectors.AddConnector<LocalPropertiesLineEditConnector>(&m_keyword, ui->leKeyword);
 
     setProperty(WidgetsDialogsManager::ResizeablePropertyName, true);
 

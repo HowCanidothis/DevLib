@@ -131,7 +131,18 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
 
     QObject::connect(headerView, &QHeaderView::destroyed, [this, headerView, stateName]{
         m_states[stateName].GetData()->Headers.remove(headerView);
-    });    
+    });
 
-    foundIt.value().GetData()->Connect(headerView);
+    auto data = foundIt.value().GetData();
+    auto eventFilterObject = ::make_shared<EventFilterObject*>(nullptr);
+    *eventFilterObject = WidgetWrapper(headerView).AddEventFilter([fixedSizes, headerView, data, eventFilterObject](QObject*, QEvent* e) {
+        switch(e->type()) {
+        case QEvent::ShowToParent:
+            data->Connect(headerView);
+            WidgetsStandardTableHeaderManager::GetInstance().restoreState(data->CurrentState, headerView);
+            (*eventFilterObject)->deleteLater();
+        default: break;
+        }
+        return false;
+    });
 }
