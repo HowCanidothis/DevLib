@@ -187,15 +187,21 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
     if(params.BrowseButton != nullptr) {
         WidgetPushButtonWrapper w(params.BrowseButton);
         w.OnClicked().Connect(CDL, [this, fileName, label, params]{
-            QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
-            if(!params.ForceDefaultDir.isEmpty()) {
-                fileDialog.setDirectory(params.ForceDefaultDir);
-            }
-            fileDialog.setFileMode(QFileDialog::ExistingFile);
-            if(fileDialog.exec() != QDialog::Accepted) return;
+            const auto& paths = WidgetsDialogsManager::GetInstance().AutomatedSourcePaths;
+            QString path;
+            if(paths.isEmpty()) {
+                QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
+                if(!params.ForceDefaultDir.isEmpty()) {
+                    fileDialog.setDirectory(params.ForceDefaultDir);
+                }
+                fileDialog.setFileMode(QFileDialog::ExistingFile);
+                if(fileDialog.exec() != QDialog::Accepted) return;
 
-            auto selectedUrls = fileDialog.selectedUrls();
-            auto path = selectedUrls.first().toLocalFile();
+                auto selectedUrls = fileDialog.selectedUrls();
+                path = selectedUrls.first().toLocalFile();
+            } else {
+                path = paths.first();
+            }
             *fileName = path;
             QFile file(path);
 
