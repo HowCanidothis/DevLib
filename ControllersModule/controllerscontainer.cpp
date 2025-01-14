@@ -22,9 +22,6 @@ ControllersContainer::~ControllersContainer()
 void ControllersContainer::SetVisibilityMask(qint32 vm)
 {
     m_visibilityMask = vm;
-    if(m_currentController != nullptr) {
-        m_currentController->m_visibilityMask = m_visibilityMask;
-    }
 }
 
 void ControllersContainer::SetCurrent(ControllerBase* controller) {
@@ -49,6 +46,14 @@ void ControllersContainer::SetCurrent(ControllerBase* controller) {
         }
 
         m_currentController = controller;
+    }
+}
+
+void ControllersContainer::LeaveEvent()
+{
+    auto* pc = GetCurrent()->GetParentController();
+    if(pc != nullptr && pc->resetOnLeave()) {
+        SetCurrent(pc);
     }
 }
 

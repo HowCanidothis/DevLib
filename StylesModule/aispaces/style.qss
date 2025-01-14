@@ -380,6 +380,26 @@ OffsetView QProgressBar {
     border: none;
 }
 
+WPSCVisualizationFooter QPushButton#btnIsometric {
+    qproperty-text: "";
+    image: url("@cPath/cube.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+WPSCVisualizationFooter QPushButton#btnRuler {
+    qproperty-text: "";
+    image: url("@cPath/ruler.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
 QPushButton#PropertiesToolBarButton {
     color: @ctext.active;
     background: @cbg.widget;

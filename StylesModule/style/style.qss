@@ -69,6 +69,12 @@ QLabel[MinorTitle="true"] {
     color: @ctext.active;
 }
 
+QLabel[GroupTitle="true"] {
+    background: @cbg.widget;
+    font-size: 14px;
+    color: @ctext.active;
+}
+
 QLineEdit{
     padding-left: 8px;
     min-height: 28px;
@@ -1032,6 +1038,26 @@ QPushButton#btnBold {
     padding: 4px;
 }
 
+QPushButton#btnRedo {
+    qproperty-text: "";
+    image: url("@cPath/redo.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnUndo {
+    qproperty-text: "";
+    image: url("@cPath/undo.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
 QPushButton#btnItalic {
     qproperty-text: "";
     image: url("@cPath/format-italic.svg");
@@ -1228,6 +1254,7 @@ QWidget[w_showfocus="1"] {
 
 QComboBox {
     padding-left: 10px;
+    padding-right: 10px;
     min-height: 28px;
     border: 1px solid @cbr.normal;
     border-radius: 4px;

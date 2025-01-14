@@ -48,6 +48,7 @@ public:
     void KeyPressEvent(QKeyEvent* );
     void KeyReleaseEvent(QKeyEvent* );
     void ContextMenuEvent(QMenu* );
+    void LeaveEvent();
 
 private:
     friend class ControllerBase;

@@ -81,5 +81,9 @@
         <file>aispaces/res/insertBefore.svg</file>
         <file>style/res/grid.svg</file>
         <file>style/res/grid_edit.svg</file>
+        <file>style/res/redo.svg</file>
+        <file>style/res/undo.svg</file>
+        <file>style/res/cube.svg</file>
+        <file>style/res/ruler.svg</file>
     </qresource>
 </RCC>

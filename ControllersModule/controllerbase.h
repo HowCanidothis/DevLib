@@ -19,7 +19,6 @@ protected:
     ControllerBase* m_parentController;
     Name m_name;
     QString m_currentOperationName;
-    qint32 m_visibilityMask;
 
     StackPointers<ControllerBase> m_childControllers;
 public:
@@ -34,8 +33,8 @@ public:
     template<class T> T* As() { return (T*)this; }
     template<class T> const T* As() const { return (const T*)this; }
 
+    ControllersContainer* GetContainer() const { return m_container; }
     ControllerBase* GetParentController() const { return static_cast<ControllerBase*>(parent()); }
-    qint32 GetVisibilityMask() const { return m_visibilityMask; }
 
 protected:
     friend class ControllersContainer;
@@ -48,6 +47,7 @@ protected:
     template<class T> const T& context() const { return m_container->GetContext<T>(); }
     template<class T> T& context() { return m_container->GetContext<T>(); }
 
+    virtual bool resetOnLeave() const;
     virtual bool draw(DrawEngineBase*){ return false; }
     virtual bool mouseDoubleClickEvent(QMouseEvent* ){ return false; }
     virtual bool mouseMoveEvent(QMouseEvent* ){ return false; }
