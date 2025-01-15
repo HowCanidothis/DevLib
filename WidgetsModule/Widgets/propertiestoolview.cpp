@@ -309,7 +309,7 @@ LineData PropertiesToolView::BeginGroup(const FTranslationHandler& header)
     int rowCount = m_layout->rowCount();
     auto* label = new QLabel(header());
     m_layout->addWidget(label, rowCount, 0, 1, 2);
-    label->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+    label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setProperty("GroupTitle", true);
     return LineData(Name(), label);
 }

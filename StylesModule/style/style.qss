@@ -70,9 +70,10 @@ QLabel[MinorTitle="true"] {
 }
 
 QLabel[GroupTitle="true"] {
-    background: @cbg.widget;
+    border-bottom: 1px solid @cbr.normal;
     font-size: 14px;
     color: @ctext.active;
+    margin-top: 10px;
 }
 
 QLineEdit{
