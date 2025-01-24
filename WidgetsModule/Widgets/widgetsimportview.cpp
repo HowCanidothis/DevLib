@@ -59,6 +59,44 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 	
 	auto* model = new VariantListModel(this);
     ui->SourceTable->setModel(model);
+
+    MenuWrapper tableViewWrapper(ui->SourceTable);
+    tableViewWrapper.AddDebugActions();
+    tableViewWrapper.AddGlobalTableAction(GlobalActionCopyId);
+    tableViewWrapper.AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+    tableViewWrapper.AddSeparator();
+    tableViewWrapper.AddGlobalTableAction(GlobalActionPasteId);
+    tableViewWrapper.AddSeparator();
+    tableViewWrapper.AddGlobalTableAction(GlobalActionDeleteId);
+
+    WidgetTableViewWrapper(ui->SourceTable).InitializeHorizontal(DescTableViewParams().SetUseStandardActions(false));
+    auto handlers = WidgetTableViewWrapper(ui->SourceTable).CreateDefaultActionHandlers();
+    handlers->FindHandler(GlobalActionDeleteId).SetAction([this]{
+        auto* model = ui->SourceTable->model();
+        auto indexs = WidgetTableViewWrapper(ui->SourceTable).SelectedRowsSorted();
+        if(indexs.isEmpty()){
+            return ;
+        }
+        int startSeries = indexs.last();
+        int counter = 1;
+        for(const auto& index : adapters::reverse(adapters::range(indexs.begin(), indexs.end()-1))){
+            if(startSeries - counter != index){
+                model->removeRows(startSeries - (counter - 1), counter);
+                startSeries = index;
+                counter = 1;
+            } else {
+                ++counter;
+            }
+        }
+        model->removeRows(startSeries - (counter - 1), counter);
+        if(indexs.first() == 0) {
+            m_matchingAttachment->Match();
+        } else {
+            m_matchingAttachment->Transite();
+        }
+    });
+    handlers->IsReadOnly = false;
+    handlers->ShowAll();
 	
     WidgetComboboxWrapper(ui->cbLocale).SetEnum<LocaleType>();
     WidgetComboboxWrapper(ui->cbGroup).SetEnum<GroupKeyboardSeparator>();
@@ -92,33 +130,6 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
     DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->lineEdit()->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
 	
     ui->SourceTable->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-    MenuWrapper(ui->SourceTable).Make([this](const MenuWrapper& wrapper){
-        wrapper.AddAction(tr("Delete Row(s)"), [this]{
-            auto* model = ui->SourceTable->model();
-            auto indexs = WidgetTableViewWrapper(ui->SourceTable).SelectedRowsSorted();
-            if(indexs.isEmpty()){
-                return ;
-            }
-            int startSeries = indexs.last();
-            int counter = 1;
-            for(const auto& index : adapters::reverse(adapters::range(indexs.begin(), indexs.end()-1))){
-                if(startSeries - counter != index){
-                    model->removeRows(startSeries - (counter - 1), counter);
-                    startSeries = index;
-                    counter = 1;
-                } else {
-                    ++counter;
-                }
-            }
-            model->removeRows(startSeries - (counter - 1), counter);
-            if(indexs.first() == 0) {
-                m_matchingAttachment->Match();
-            } else {
-                m_matchingAttachment->Transite();
-            }
-        }).SetShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Delete));
-    });
 
     WidgetWrapper(this).FixUp();
 }
