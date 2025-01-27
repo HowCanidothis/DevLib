@@ -50,7 +50,7 @@ void TableViewColumnsWidgetAttachment::adjustAttachments(qint32 oldCount, qint32
 {
     if(oldCount < newCount) {
         qint32 counter = oldCount;
-        while(counter != newCount) {
+        while(counter != newCount && counter < 200) {
             auto* attachment = m_createDelegate();
             attachment->setParent(m_targetTableView->horizontalHeader());
             m_attachmentWidgets.insert(counter, attachment);
@@ -331,8 +331,11 @@ void WidgetsMatchingAttachment::matchComboboxes()
     auto mapping = m_dictionary->Map(list);
     for(auto iter = mapping.begin(); iter != mapping.end(); ++iter){
         if(iter.value().Row.Object != nullptr){
-            m_attachment->GetAttachmentAt<QComboBox>(iter.key())->setCurrentIndex(iter.value().Row.Id);
-            OnMatchingChanged(iter.key(), iter.value().Row.Id);
+            auto* attachment = m_attachment->GetAttachmentAt<QComboBox>(iter.key());
+            if(attachment != nullptr) {
+               attachment->setCurrentIndex(iter.value().Row.Id);
+               OnMatchingChanged(iter.key(), iter.value().Row.Id);
+            }
         }
     }
 }
