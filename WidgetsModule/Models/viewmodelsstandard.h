@@ -32,7 +32,7 @@ public:
 
 DECLARE_MODEL_BY_TYPE(ModelsStandardRow);
 
-class ViewModelsStandardComponentsBuilder : protected TViewModelsColumnComponentsBuilder<ModelsStandardRowModel>
+class ViewModelsStandardComponentsBuilder : public TViewModelsColumnComponentsBuilder<ModelsStandardRowModel>
 {
     using Super = TViewModelsColumnComponentsBuilder<ModelsStandardRowModel>;
 public:
@@ -48,6 +48,8 @@ class ViewModelsStandard : public TViewModelsTableBase<ModelsStandardRowModel>
     using Super = TViewModelsTableBase<ModelsStandardRowModel>;
 public:
     ViewModelsStandard(QObject* parent);
+
+    ViewModelsStandardComponentsBuilder Builder();
 
 // QAbstractItemModel interface
 public:

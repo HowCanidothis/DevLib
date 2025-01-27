@@ -104,6 +104,7 @@ struct WidgetsDialogsManagerDefaultButtons
     static WidgetsDialogsManagerButtonStruct MergeButton();
     static WidgetsDialogsManagerButtonStruct InsertButton();
     static WidgetsDialogsManagerButtonStruct SelectButton();
+    static WidgetsDialogsManagerButtonStruct ImportButton();
 
     static WidgetsDialogsManagerButtonStruct SaveRoleButton(const FTranslationHandler& text);
     static WidgetsDialogsManagerButtonStruct CancelRoleButton(const FTranslationHandler& text);

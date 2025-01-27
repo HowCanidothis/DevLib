@@ -272,10 +272,22 @@ double WidgetsDoubleSpinBoxWithCustomDisplay::valueFromText(const QString& text)
     return m_valueFromTextHandler(this, text);
 }
 
+void WidgetsDoubleSpinBoxWithCustomDisplay::SetSpecialValidator(const FSpecialValidator& validator)
+{
+    m_specialValidator = validator;
+}
+
 QValidator::State WidgetsDoubleSpinBoxWithCustomDisplay::validate(QString& input, int&) const
 {
     if(input.isEmpty()) {
         return QValidator::Acceptable;
+    }
+
+    if(m_specialValidator != nullptr) {
+        auto validated = m_specialValidator(input);
+        if(validated != QValidator::Invalid) {
+            return validated;
+        }
     }
 
     if(input.size() == 1 && (input.startsWith(DASH) || input.startsWith("+") || input.startsWith(".") || input.startsWith(","))) {

@@ -45,6 +45,7 @@ class WidgetsDoubleSpinBoxWithCustomDisplay : public QDoubleSpinBox
 public:
     using ValueFromTextHandler = std::function<double (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, const QString&)>;
     using TextFromValueHandler = std::function<QString (const WidgetsDoubleSpinBoxWithCustomDisplay* spinBox, double)>;
+    using FSpecialValidator = std::function<QValidator::State (const QString&)>;
     WidgetsDoubleSpinBoxWithCustomDisplay(QWidget* parent = nullptr);
 
     void Update();
@@ -52,6 +53,7 @@ public:
     static const ValueFromTextHandler& GetDefaultValueFromTextHandler();
     static const TextFromValueHandler& GetDefaultTextFromValueHandler();
 
+    void SetSpecialValidator(const FSpecialValidator& validator);
     void SetHandlers(const TextFromValueHandler& textFromValueHandler, const ValueFromTextHandler& valueFromTextHandler);
     void SetTextFromValueHandler(const TextFromValueHandler& textFromValueHandler);
     void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler);
@@ -71,6 +73,7 @@ private:
 private:
     TextFromValueHandler m_textFromValueHandler;
     ValueFromTextHandler m_valueFromTextHandler;
+    FSpecialValidator m_specialValidator;
 };
 
 #endif // WIDGETSSPINBOXWITHCUSTOMDISPLAY_H

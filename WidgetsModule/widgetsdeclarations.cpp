@@ -15,6 +15,11 @@ WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ReplaceBu
     return SaveRoleButton(TR(tr("Replace")));
 }
 
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ImportButton()
+{
+    return SaveRoleButton(TR(tr("Import")));
+}
+
 WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::MergeButton()
 {
     return SaveRoleButton(TR(tr("Merge")));

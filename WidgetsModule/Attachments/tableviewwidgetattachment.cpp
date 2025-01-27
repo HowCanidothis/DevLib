@@ -107,21 +107,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
         match();
     }};
 
-    m_requestedColumns.append(DASH);
-    m_requestedColumnsIndexes.append(-1);
-    if(targetImportColumns.isEmpty()) {
-        for(qint32 i(0); i < targetModel->columnCount(); i++) {
-            m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
-            m_requestedColumnsIndexes.append(i);
-        }
-    } else {
-        for(qint32 i(0); i < targetModel->columnCount(); i++) {
-            if(targetImportColumns.contains(i)) {
-                m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
-                m_requestedColumnsIndexes.append(i);
-            }
-        }
-    }
+    UpdateRequestedColumns(targetImportColumns);
 
     IsEnabled.Subscribe([this]{
         if(IsEnabled) {
@@ -255,6 +241,28 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     DateFormat.Subscribe(transite);
 
     m_lconnections.connect(m_tableView->model(), &QAbstractItemModel::dataChanged, transite);
+}
+
+void WidgetsMatchingAttachment::UpdateRequestedColumns(const QSet<qint32>& targetImportColumns)
+{
+    m_requestedColumns.clear();
+    m_requestedColumnsIndexes.clear();
+    m_requestedColumns.append(DASH);
+    m_requestedColumnsIndexes.append(-1);
+    auto* targetModel = m_targetModel;
+    if(targetImportColumns.isEmpty()) {
+        for(qint32 i(0); i < targetModel->columnCount(); i++) {
+            m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
+            m_requestedColumnsIndexes.append(i);
+        }
+    } else {
+        for(qint32 i(0); i < targetModel->columnCount(); i++) {
+            if(targetImportColumns.contains(i)) {
+                m_requestedColumns.append(targetModel->headerData(i, Qt::Horizontal).toString());
+                m_requestedColumnsIndexes.append(i);
+            }
+        }
+    }
 }
 
 void WidgetsMatchingAttachment::Transite()

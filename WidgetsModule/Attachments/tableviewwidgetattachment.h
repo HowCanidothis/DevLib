@@ -69,6 +69,7 @@ class WidgetsMatchingAttachment
 public:
     WidgetsMatchingAttachment(QTableView* table, QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns);
 
+    void UpdateRequestedColumns(const QSet<qint32>& targetImportColumns = QSet<qint32>());
     void Transite();
 
     LocalPropertyString DateFormat;

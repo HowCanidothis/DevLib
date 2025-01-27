@@ -1,5 +1,9 @@
 #include "viewmodelsstandard.h"
 
+#ifdef UNITS_MODULE_LIB
+#include <UnitsModule/measurementunitmanager.h>
+#endif
+
 void ModelsStandardRow::Set(qint32 i, const QVariant& data)
 {
     if(!IsValid(i)) {
@@ -59,6 +63,11 @@ void ViewModelsStandardComponentsBuilder::SetColumnsCount(qint32 count)
 ViewModelsStandard::ViewModelsStandard(QObject* parent)
     : Super(parent)
 {
+}
+
+ViewModelsStandardComponentsBuilder ViewModelsStandard::Builder()
+{
+    return ViewModelsStandardComponentsBuilder(this);
 }
 
 QVariant ViewModelsStandard::data(const QModelIndex& index, int role) const
