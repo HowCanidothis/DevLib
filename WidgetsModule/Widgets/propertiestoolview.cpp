@@ -87,7 +87,8 @@ WidgetAbstractButtonWrapper PropertiesToolFolderView::BeginFolder(const Name& fo
     Q_ASSERT(!m_widgets.contains(folderName));
     WidgetAbstractButtonWrapper buttonWrapper(new QPushButton);
     buttonWrapper->setCheckable(true);
-    buttonWrapper->setObjectName("PropertiesToolBarButton");
+    buttonWrapper->setProperty("PropertiesToolBarButton", true);
+    buttonWrapper->setObjectName(folderName.AsString() + "Button");
     buttonWrapper.WidgetText()->SetTranslationHandler(title);
     buttonWrapper.WidgetChecked().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [buttonWrapper](bool check){
         buttonWrapper.SetIcon(check ? "CloseIcon" : "OpenIcon");

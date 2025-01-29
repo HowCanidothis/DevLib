@@ -17,7 +17,7 @@ public:
 
     void FlipData();
     void SetData(const QList<QVector<QVariant>>& data);
-    void SetData(const QList<QString>& data, const QString& separator);
+    void SetData(const QList<QString>& data, const QRegularExpression& separator);
     QList<QVector<QVariant>> GetData() const;
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -46,7 +46,12 @@ private:
     QList<QVector<QVariant>> m_data;
 };
 
-static QVector<QString> SEPARATORS = { " ", ";", "\t", "#", "|", "," };
+static QVector<QRegularExpression> SEPARATORS = { QRegularExpression(R"(\s+)"),
+                                                  QRegularExpression(";"),
+                                                  QRegularExpression(R"(\t+)"),
+                                                  QRegularExpression("#"),
+                                                  QRegularExpression(R"(\|)"),
+                                                  QRegularExpression(",") };
 
 WidgetsImportView::WidgetsImportView(QWidget *parent)
     : Super(parent)
@@ -208,7 +213,7 @@ VariantListModel* WidgetsImportView::GetModel() const {
     return dynamic_cast<VariantListModel*>(ui->SourceTable->model());
 }
 
-void VariantListModel::SetData(const QList<QString>& data, const QString& separator){
+void VariantListModel::SetData(const QList<QString>& data, const QRegularExpression& separator){
     QList<QVector<QVariant>> swapData;
     qint32 maxCount = 0;
     for(const auto& stringRow : data){

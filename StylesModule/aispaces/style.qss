@@ -400,7 +400,7 @@ WPSCVisualizationFooter QPushButton#btnRuler {
     padding: 4px;
 }
 
-QPushButton#PropertiesToolBarButton {
+QPushButton[PropertiesToolBarButton=true] {
     color: @ctext.active;
     background: @cbg.widget;
     text-align: left;
@@ -409,7 +409,7 @@ QPushButton#PropertiesToolBarButton {
     border-radius: 0px;
 }
 
-QPushButton#PropertiesToolBarButton:hover {
+QPushButton[PropertiesToolBarButton=true]:hover {
     background: @cbg.hover;
 }
 
