@@ -52,6 +52,9 @@ void TableViewColumnsWidgetAttachment::adjustAttachments(qint32 oldCount, qint32
         qint32 counter = oldCount;
         while(counter != newCount && counter < 200) {
             auto* attachment = m_createDelegate();
+#ifndef BUILD_MASTER
+            attachment->setObjectName(QString::number(counter));
+#endif
             attachment->setParent(m_targetTableView->horizontalHeader());
             m_attachmentWidgets.insert(counter, attachment);
             attachment->setVisible(IsVisible);
