@@ -101,7 +101,7 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
               AddComponent<float>(3).
               AddComponent<float>(4);
 
-    MoveToThread(Settings.Visible, Transform);
+    MoveToThread(Settings.Visible, Transform, Settings.BorderWidth, Settings.Contrast, Settings.Scale, Settings.Color, Settings.BorderColor);
 }
 
 GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
@@ -204,7 +204,7 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
               AddComponent<float>(2).
               AddComponent<float>(3);
 
-    MoveToThread(Settings.Visible);
+    MoveToThread(Settings.Visible, Settings.BorderWidth, Settings.Contrast, Settings.Scale, Settings.Color, Settings.BorderColor);
 }
 
 GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font)

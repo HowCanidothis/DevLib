@@ -47,18 +47,18 @@ ads--CDockWidgetTab QLabel#IconLabel
     margin: 0px;
 }
 
-ads--CDockWidgetTab[activeTab="false"]
+ads--CDockWidgetTab[activeTab=false]
 {
     background: @cbg.widget;
 }
 
-ads--CDockWidgetTab[activeTab="true"]
+ads--CDockWidgetTab[activeTab=true]
 {
     background: @cbg.1;
     padding: 10px 0px 10px 10px;
 }
 
-ads--CDockWidgetTab[activeTab="true"] QLabel
+ads--CDockWidgetTab[activeTab=true] QLabel
 {
     color: @ctext.active;
 }

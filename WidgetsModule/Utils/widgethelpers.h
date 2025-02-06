@@ -626,7 +626,8 @@ class WidgetSplitterWrapper : public WidgetWrapper
 public:
     WidgetSplitterWrapper(class QSplitter* widget);
 
-    void SetWidgetSize(QWidget* widget, qint32 size) const;
+    const WidgetSplitterWrapper& SetWidgetSize(QWidget* widget, qint32 size) const;
+    const WidgetSplitterWrapper& SetInner(bool repolish = false);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSplitterWrapper, QSplitter);
 };
