@@ -523,7 +523,6 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
 #endif
 
     tableView->setWordWrap(true);
-    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
     WidgetsActiveTableViewAttachment::Attach(tableView);
 //    WidgetsStandardTableHeaderManager::GetInstance().Register(params, verticalHeader);
     return verticalHeader;
