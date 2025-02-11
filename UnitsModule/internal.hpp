@@ -34,7 +34,7 @@
 #include "MeasurementTypes/concentrationdeclaration.h"
 #include "MeasurementTypes/voltagedeclarations.h"
 #include "MeasurementTypes/momentofinertia.h"
-#include "MeasurementTypes/frictionfactordeclaration.h"
+#include "MeasurementTypes/factordeclaration.h"
 #include "MeasurementTypes/flowbehaviordeclaration.h"
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"

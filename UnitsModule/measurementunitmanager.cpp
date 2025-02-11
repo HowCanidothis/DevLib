@@ -33,7 +33,7 @@
 #include "MeasurementTypes/concentrationdeclaration.h"
 #include "MeasurementTypes/voltagedeclarations.h"
 #include "MeasurementTypes/momentofinertia.h"
-#include "MeasurementTypes/frictionfactordeclaration.h"
+#include "MeasurementTypes/factordeclaration.h"
 #include "MeasurementTypes/flowbehaviordeclaration.h"
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"
@@ -553,6 +553,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementFrictionFactor::Value)
             .AddUnit(&FrictionFactorUnits::FrictionFactor);
 
+    AddMeasurement(MeasurementSeparationFactor::Value)
+            .AddUnit(&SeparationFactorUnits::SeparationFactor);
+
     AddMeasurement(MeasurementFlowBehavior::Value)
             .AddUnit(&FlowBehaviorUnits::DimensionlessIndex);
 
@@ -619,6 +622,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMomentOfInertia::NAME,             {MomentOfInertiaUnits::KilogrammSqMeters.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
+            .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
@@ -672,6 +676,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::PoundForceFootSqSecond.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
+            .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
@@ -725,7 +730,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementVoltage::NAME,             {VoltageUnits::Volt.Id,     3})
             .AddParameter(MeasurementMomentOfInertia::NAME,     {MomentOfInertiaUnits::KilogrammSqMeters.Id,     3})
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2})
-            .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
+            .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2});
