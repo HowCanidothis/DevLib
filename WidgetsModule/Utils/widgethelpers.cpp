@@ -2297,7 +2297,7 @@ WidgetSplitterWrapper::WidgetSplitterWrapper(QSplitter* splitter)
     : Super(splitter)
 {}
 
-const WidgetSplitterWrapper& WidgetSplitterWrapper::SetInner(bool repolish)
+const WidgetSplitterWrapper& WidgetSplitterWrapper::SetInner(bool repolish) const
 {
     if(repolish) {
         ApplyStyleProperty(WidgetProperties::InnerSplitter, true);

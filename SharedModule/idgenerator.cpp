@@ -187,11 +187,17 @@ void Generator::releaseId(const Name& id)
 
 void Generator::attach(Id* id, void* context, const FAction& deleter)
 {
-    Q_ASSERT(id->m_data == nullptr && !id->IsNull());
+    Q_ASSERT(!id->IsNull());
     auto foundIt = m_registeredIds.find(*id);
     SharedPointer<IdData> data;
     if(foundIt == m_registeredIds.end() || foundIt.value().expired()) {
-        Q_ASSERT(context != nullptr);
+        if(id->m_data != nullptr) {
+            Q_ASSERT(id->m_data->Context != nullptr);
+            context = id->m_data->Context;
+            id->Detach();
+        } else {
+            Q_ASSERT(context != nullptr);
+        }
         Name idName(*id);
         data = ::make_shared<IdData>(this, context, [this, deleter, idName]{
             releaseId(idName); deleter();

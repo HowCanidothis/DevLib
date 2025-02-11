@@ -627,7 +627,7 @@ public:
     WidgetSplitterWrapper(class QSplitter* widget);
 
     const WidgetSplitterWrapper& SetWidgetSize(QWidget* widget, qint32 size) const;
-    const WidgetSplitterWrapper& SetInner(bool repolish = false);
+    const WidgetSplitterWrapper& SetInner(bool repolish = false) const;
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetSplitterWrapper, QSplitter);
 };

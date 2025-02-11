@@ -38,6 +38,7 @@ public:
     bool operator<=(const Name& another) const { return operator<(another) || operator==(another); }
 
     static Name FromValue(qint64 value) { Name result; result.m_value = value; return result; }
+    static Name MakeUniqueName(const Name& name, const QSet<Name>& names);
 
 private:
     QString m_text;
