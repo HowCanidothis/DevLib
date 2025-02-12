@@ -90,6 +90,14 @@ public:
     double& Z() { return m_z; }
     const double& Z() const { return m_z; }
 
+    Point3D operator-(const Point3D& another) const
+    {
+        return Point3D(X() - another.X(), Y() - another.Y(), Z() - another.Z());
+    }
+    Point3D operator+(const Point3D& another) const
+    {
+        return Point3D(X() + another.X(), Y() + another.Y(), Z() + another.Z());
+    }
     bool operator <(const Point3D& other) const{
         if(!qFuzzyIsNull(X() - other.X())) return X() < other.X();
         if(!qFuzzyIsNull(Y() - other.Y())) return Y() < other.Y();

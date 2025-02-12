@@ -7,7 +7,7 @@ QWidget {
     background: @cbg.1;
 }
 
-QWidget[readOnly="true"] {
+QWidget[readOnly=true] {
     background-color: transparent;
     color: @ctext.label;
     selection-background-color: @cbg.hover;
@@ -42,34 +42,34 @@ QPushButton:hover {
     background: @cbg.hover1;
 }
 
-QLabel[a_label="true"] {
+QLabel[a_label=true] {
     margin: 0px;
     padding-left: 0px;
     background: transparent;
     font-size: 12px;
 }
 
-QLabel[a_focus="true"] {
+QLabel[a_focus=true] {
     color: @ctext.1;
 }
 
-ElidedLabel[a_focus="true"] {
+ElidedLabel[a_focus=true] {
     color: @ctext.1;
 }
 
-QLabel[Title="true"] {
+QLabel[Title=true] {
     background: transparent;
     font-size: 24px;
     color: @ctext.active;
 }
 
-QLabel[MinorTitle="true"] {
+QLabel[MinorTitle=true] {
     background: transparent;
     font-size: 14px;
     color: @ctext.active;
 }
 
-QLabel[GroupTitle="true"] {
+QLabel[GroupTitle=true] {
     border-bottom: 1px solid @cbr.normal;
     font-size: 14px;
     color: @ctext.active;
@@ -86,11 +86,11 @@ QLineEdit{
     selection-color: @ctext.active;
 }
 
-QLineEdit[readOnly="false"]:hover {
+QLineEdit[readOnly=false]:hover {
     border: 1px solid @cbr.hover;
 }
 
-QLineEdit[readOnly="false"]:focus {
+QLineEdit[readOnly=false]:focus {
     border: 1px solid @ctext.1;
 }
 
@@ -111,7 +111,7 @@ WidgetsDatetimePopupPicker {
     padding-right: 8px;
 }
 
-WidgetsDatetimePopupPicker[a_focus="true"] {
+WidgetsDatetimePopupPicker[a_focus=true] {
     border: 1px solid @ctext.1;
 }
 
@@ -155,11 +155,11 @@ QDoubleSpinBox {
     padding-left: 8px;
 }
 
-QDoubleSpinBox[readOnly="false"]:hover {
+QDoubleSpinBox[readOnly=false]:hover {
     border: 1px solid @cbr.hover;
 }
 
-QDoubleSpinBox[readOnly="false"]:focus {
+QDoubleSpinBox[readOnly=false]:focus {
     border: 1px solid @ctext.1;
 }
 
@@ -182,15 +182,15 @@ QSpinBox::down-button {
     width: 0px;
 }
 
-QSpinBox[readOnly="false"]:hover {
+QSpinBox[readOnly=false]:hover {
     border: 1px solid @cbr.hover;
 }
 
-QSpinBox[readOnly="false"]:focus {
+QSpinBox[readOnly=false]:focus {
     border: 1px solid @ctext.1;
 }
 
-QWidget[a_contentWidget="true"]{
+QWidget[a_contentWidget=true]{
     background: transparent;
     margin: 0px;
     padding: 0px;
@@ -204,7 +204,7 @@ QLabel#groupIcon {
     image: url("@cPath/chevron-up-active.svg");
 }
 
-QLabel#groupIcon[a_opened="false"] {
+QLabel#groupIcon[a_opened=false] {
     image: url("@cPath/chevron-down.svg");
 }
 
@@ -230,7 +230,7 @@ WidgetsGroupBoxLayout {
     border-radius: 8px;
 }
 
-WidgetsGroupBoxLayout[collapsable="true"] QPushButton#groupBar:hover {
+WidgetsGroupBoxLayout[collapsable=true] QPushButton#groupBar:hover {
     background: @cbg.hover;
     border-radius: 4px;
 }
@@ -240,7 +240,7 @@ WidgetsGroupBoxLayout WidgetsGroupBoxLayout {
     border: 1px solid @cbr.normal;
 }
 
-QWidget[a_is_page="true"] {
+QWidget[a_is_page=true] {
     background: transparent;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -376,12 +376,12 @@ QSplitter::handle:vertical {
     height: 5px;
 }
 
-QSplitter[inner="true"]::handle:horizontal {
+QSplitter[inner=true]::handle:horizontal {
     margin: 0px;
     width: 1px;
 }
 
-QSplitter[inner="true"]::handle:vertical {
+QSplitter[inner=true]::handle:vertical {
     margin: 0px;
     height: 1px;
 }
@@ -525,7 +525,7 @@ QColumnView::item {
 }
 
 
-QTableView[a_selected="true"]::item:selected:!active {
+QTableView[a_selected=true]::item:selected:!active {
     border: 1px solid @ctext.1;
     color: @ctext.label;
 }
@@ -565,7 +565,7 @@ QHeaderView {
     border: none;
 }
 
-QHeaderView[a_focus="true"]::section {
+QHeaderView[a_focus=true]::section {
     color: @ctext.1;
 }
 
@@ -876,7 +876,7 @@ QMenu::right-arrow {
     width: 16px;
 }
 
-QWidget[ActionWidget="true"] {
+QWidget[ActionWidget=true] {
     background: transparent;
     border-radius: 0px;
     color: @ctext.active;
@@ -885,7 +885,7 @@ QWidget[ActionWidget="true"] {
     padding: 4px 8px 3px 8px;
 }
 
-QAbstractButton[ActionWidget="true"]:hover {
+QAbstractButton[ActionWidget=true]:hover {
     background: @cbg.hover;
 }
 
@@ -893,13 +893,13 @@ QPushButton {
     padding: 4px 12px 4px 12px;
 }
 
-QPushButton[ActionWidget="true"] {
+QPushButton[ActionWidget=true] {
     text-align: left;
     min-height: 30px;
     color: @ctext.active;
 }
 
-QPushButton[ActionWidget="true"]:checked {
+QPushButton[ActionWidget=true]:checked {
     color: @ctext.1;
 }
 
@@ -909,7 +909,7 @@ WidgetsTabBarLayout {
     background: @cbg.widget;
 }
 
-QPushButton[a_tab_button="true"] {
+QPushButton[a_tab_button=true] {
     text-align: left;
 }
 
@@ -927,7 +927,7 @@ MenuBarMovePane QPushButton{
     min-height: 15px;
 }
 
-QFrame[Footer="true"]
+QFrame[Footer=true]
 {
     border: none;
     border-radius: 0px;
@@ -935,27 +935,27 @@ QFrame[Footer="true"]
     min-height: 50px;
 }
 
-QFrame[Footer="true"] QLabel
+QFrame[Footer=true] QLabel
 {
     font-size: 12px;
 }
 
-QFrame[Footer="true"] QCheckBox
+QFrame[Footer=true] QCheckBox
 {
     font-size: 12px;
 }
 
-QFrame[Footer="true"] QLabel
+QFrame[Footer=true] QLabel
 {
     font-size: 12px;
 }
 
-QFrame[Footer="true"] QDoubleSpinBox
+QFrame[Footer=true] QDoubleSpinBox
 {
     font-size: 12px;
 }
 
-QFrame[Footer="true"] QSpinBox
+QFrame[Footer=true] QSpinBox
 {
     font-size: 12px;
 }
@@ -981,11 +981,11 @@ QTextEdit {
     min-height: 100px;
 }
 
-QTextEdit[readOnly="false"] {
+QTextEdit[readOnly=false] {
     background: @cbg.1;
 }
 
-QTextEdit[readOnly="false"]:focus {
+QTextEdit[readOnly=false]:focus {
     border: 1px solid @ctext.1;
 }
 
@@ -1104,13 +1104,13 @@ WidgetsTimePicker {
     qproperty-arrowWidth: 2;
 }
 
-WidgetsTimePicker QLabel[active="true"] {
+WidgetsTimePicker QLabel[active=true] {
   color: @ctext.1;
   background-color: @cbg.hover1;
   font: 14px;
 }
 
-WidgetsTimePicker QLabel[active="false"] {
+WidgetsTimePicker QLabel[active=false] {
   background-color: transparent;
 }
 
@@ -1144,17 +1144,17 @@ WidgetsTimeWidget QPushButton:pressed:hover {
     border: none;
 }
 
-WidgetsTimeWidget QPushButton[highlighted="true"] {
+WidgetsTimeWidget QPushButton[highlighted=true] {
     color: @ctext.1;
 }
 
-WidgetsTimeWidget QPushButton[highlighted="true"] {
+WidgetsTimeWidget QPushButton[highlighted=true] {
     background-color: transparent;
     font-size: 12px;
     border: none;
 }
 
-WidgetsTimeWidget QPushButton[highlighted="false"] {
+WidgetsTimeWidget QPushButton[highlighted=false] {
     background-color: transparent;
     font-size: 10px;
     border: none;
@@ -1284,7 +1284,7 @@ QComboBox::down-arrow:on, QComboBox::down-arrow:hover, QComboBox::down-arrow:foc
   image: url("@cPath/arrow-down.svg");
 }
 
-QComboBox[a_focus="true"] {
+QComboBox[a_focus=true] {
     border: 1px solid @ctext.1;
 }
 
@@ -1304,7 +1304,7 @@ QComboBoxListView:disabled{
     color: @ctext.disabled;
 }
 
-QLabel[DialogTitle="true"] {
+QLabel[DialogTitle=true] {
     font-size: 24px;
     color: @ctext.active;
 }

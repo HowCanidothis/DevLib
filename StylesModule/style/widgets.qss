@@ -29,12 +29,12 @@ QPushButton#BtnMinimize:hover {
     background: @cbg.hover;
 }
 
-QPushButton#BtnMaximize[windowMaximized="true"] {
+QPushButton#BtnMaximize[windowMaximized=true] {
     padding: 9 5 8 5;
     image: url("@cPath/detach-button.svg");
 }
 
-QPushButton#BtnMaximize[windowMaximized="false"] {
+QPushButton#BtnMaximize[windowMaximized=false] {
     image: url("@cPath/square.svg");
 }
 

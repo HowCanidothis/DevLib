@@ -2296,7 +2296,17 @@ WidgetSplitterWrapper::WidgetSplitterWrapper(QSplitter* splitter)
     : Super(splitter)
 {}
 
-void WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size) const
+const WidgetSplitterWrapper& WidgetSplitterWrapper::SetInner(bool repolish) const
+{
+    if(repolish) {
+        ApplyStyleProperty(WidgetProperties::InnerSplitter, true);
+    } else {
+        GetWidget()->setProperty(WidgetProperties::InnerSplitter, true);
+    }
+    return *this;
+}
+
+const WidgetSplitterWrapper& WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size) const
 {
     auto index = GetWidget()->indexOf(widget);
     if(index != -1) {
@@ -2313,6 +2323,7 @@ void WidgetSplitterWrapper::SetWidgetSize(QWidget* widget, qint32 size) const
         }
         GetWidget()->setSizes(sizes);
     }
+    return *this;
 }
 
 WidgetCheckBoxWrapper::WidgetCheckBoxWrapper(QCheckBox* target)

@@ -20,7 +20,7 @@ VisualizationLegendWidget QLabel {
     font-size: 10px;
 }
 
-VisualizationLegendWidget QLabel[a_selected="true"] {
+VisualizationLegendWidget QLabel[a_selected=true] {
     color: @c.error;
 }
 

@@ -236,7 +236,7 @@ WidgetsProjectsTreeView QPushButton#BtnActivateObject {
     border-radius: 10px;
 }
 
-QWidget[FormationMarker="true"] {
+QWidget[FormationMarker=true] {
     color: #F2933A;
     background: transparent
 }
@@ -266,7 +266,7 @@ WPSCDrillCaseView QTreeView::item
     background:  @cbg.hover1;
 }
 
-QWidget[BlueCircleButton="true"] {
+QWidget[BlueCircleButton=true] {
     border-radius: 10px;
     max-width: 18px;
     min-width: 18px;
@@ -276,11 +276,11 @@ QWidget[BlueCircleButton="true"] {
     margin: 0px 5px 0px 5px;
 }
 
-QWidget[BlueCircleButton="true"]:hover {
+QWidget[BlueCircleButton=true]:hover {
     background: #223ea6ff;
 }
 
-QWidget[GreenCircleButton="true"] {
+QWidget[GreenCircleButton=true] {
     border-radius: 10px;
     max-width: 18px;
     min-width: 18px;
@@ -290,11 +290,11 @@ QWidget[GreenCircleButton="true"] {
     margin: 0px 5px 0px 5px;
 }
 
-QWidget[GreenCircleButton="true"]:hover {
+QWidget[GreenCircleButton=true]:hover {
     background: #2242d552;
 }
 
-QWidget[RedCircleButton="true"] {
+QWidget[RedCircleButton=true] {
     border-radius: 10px;
     max-width: 18px;
     min-width: 18px;
@@ -304,7 +304,7 @@ QWidget[RedCircleButton="true"] {
     margin: 0px 5px 0px 5px;
 }
 
-QWidget[RedCircleButton="true"]:hover {
+QWidget[RedCircleButton=true]:hover {
     background: #22E01936;
 }
 
@@ -317,7 +317,7 @@ LeftBar {
     background: @cbg.1;
 }
 
-QFrame[Footer="true"]
+QFrame[Footer=true]
 {
     background: @cbg.1;
     min-height: 52px;
@@ -329,7 +329,7 @@ WPSCSimulationTitleBar {
     border-bottom: 1px solid @cbg.3;
 }
 
-QPushButton[DrawerControl="true"] {
+QPushButton[DrawerControl=true] {
     min-height: 20px;
     min-width: 20px;
     max-height: 20px;
@@ -428,11 +428,11 @@ PropertiesToolFolderView QPushButton#BtnAddStab:hover {
     background: @cbg.hover;
 }
 
-PropertiesToolFolderView ElidedLabel[HorizontalLabel="true"] {
+PropertiesToolFolderView ElidedLabel[HorizontalLabel=true] {
     min-height: 30px;
 }
 
-PropertiesToolFolderView QLabel[MinorTitle="true"] {
+PropertiesToolFolderView QLabel[MinorTitle=true] {
     min-height: 35px;
 }
 
@@ -464,11 +464,11 @@ QPushButton#ResetButton {
     image: url("@cPath/refresh.svg");
 }
 
-QWidget[coloredDrawer="true"]{
+QWidget[coloredDrawer=true]{
     background: @cbg.widget;
 }
 
-QWidget[coloredDrawer="true"] QScrollBar{
+QWidget[coloredDrawer=true] QScrollBar{
     background: @cbg.widget;
 }
 
@@ -514,11 +514,11 @@ WPSWellplanTargetView {
     border-radius: 8px;
 }
 
-QLabel[align_layout_label="true"] {
+QLabel[align_layout_label=true] {
     padding-left: 28px;
 }
 
-QLabel[align_layout_label="false"] {
+QLabel[align_layout_label=false] {
     padding-left: 0px;
 }
 

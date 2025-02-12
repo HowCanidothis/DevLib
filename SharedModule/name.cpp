@@ -9,6 +9,29 @@ DebugNameManager::DebugNameManager()
 {
 }
 
+Name Name::MakeUniqueName(const Name& name, const QSet<Name>& names)
+{
+    if(!names.contains(name)) {
+        return name;
+    }
+
+    thread_local static QRegExp regexp(R"(\(?(\d+)\)$)");
+    Name result;
+    auto cr = name.AsString();
+
+    if(regexp.indexIn(result.AsString()) != -1) {
+        auto decimalPart = regexp.cap(1);
+        auto oldDecimalPart = decimalPart.toInt();
+        cr.replace(regexp, QString("(%1)").arg(oldDecimalPart + 1));
+        result = MakeUniqueName(Name(cr), names);
+    } else {
+        cr += " (1)";
+        result = MakeUniqueName(Name(cr), names);
+    }
+
+    return result;
+}
+
 void DebugNameManager::PrintReport(qint32 maxSymbolUsage)
 {
     QMutexLocker locker(&m_mutex);
