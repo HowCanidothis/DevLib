@@ -836,7 +836,7 @@ QCompleter* WidgetComboboxWrapper::CreateCompleter(QAbstractItemModel* model, co
         combo->connect(combo, QOverload<qint32>::of(&QComboBox::activated), [combo, onActivated](qint32 row){
             auto index = combo->model()->index(row, 0);
             combo->setCurrentText(index.data().toString());
-            onActivated(combo->model()->index(row, 0));
+            onActivated(index);
         });
     }
     combo->setModelColumn(column);
