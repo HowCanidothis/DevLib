@@ -25,6 +25,11 @@ struct WidgetsGlobalTableActionsScopeHandlerData
     }
 };
 
+FAction WidgetsGlobalTableActionsScopeHandler::GetAction() const
+{
+    return m_data == nullptr ? []{} : m_data->Action;
+}
+
 WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetVisible(bool visible)
 {
     m_data->Visibility = visible;

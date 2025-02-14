@@ -1,6 +1,11 @@
 #include "importexport.h"
 #include "SharedModule/builders.h"
 
+#ifdef QT_GUI_LIB
+#include <QClipboard>
+#include <QApplication>
+#endif
+
 ImportExportFilterExtensionsBuilder::ImportExportFilterExtensionsBuilder(bool addZip)
     : m_addAllTypes([](QStringList&){})
 {
@@ -11,6 +16,18 @@ ImportExportFilterExtensionsBuilder::ImportExportFilterExtensionsBuilder(bool ad
     } else {
         m_addZip = [](const ExtensionValue&){};
     }
+}
+
+SP<ImportExportBufferSource> ImportExportBufferSource::CreateFromClipboard()
+{
+#ifdef QT_GUI_LIB
+    THREAD_ASSERT_IS_MAIN()
+    QClipboard* clipboard = qApp->clipboard();
+    static QByteArray text;
+    text = clipboard->text().toUtf8();
+    return ::make_shared<ImportExportBufferSource>("txt", "Clipboard", &text);
+#endif
+    return nullptr;
 }
 
 ImportExportFilterExtensionsBuilder& ImportExportFilterExtensionsBuilder::AddAllTypes(bool enable)

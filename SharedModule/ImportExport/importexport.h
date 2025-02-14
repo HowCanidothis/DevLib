@@ -92,6 +92,8 @@ public:
         m_buffer.setData(data);
     }
 
+    static SP<ImportExportBufferSource> CreateFromClipboard();
+
     QIODevice* GetDevice() override { return &m_buffer; }
     const QString& GetSourceName() const override { return m_sourceName; }
 

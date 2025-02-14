@@ -17,6 +17,8 @@ public:
     TranslatedString& Text() const;
     WidgetsGlobalTableActionsScopeHandler& SetAction(const FAction& action);
 
+    FAction GetAction() const;
+
     bool IsValid() const { return m_data != nullptr; }
 
 private:
