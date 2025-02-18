@@ -19,14 +19,14 @@ QVariant SerializerXmlVersion::CheckVersion(const SerializerXmlVersion &another)
         return tr("Unexpected file contents");
     }
     if(another.GetFormat() != GetFormat()) {
-        return tr("Format error - expected %1, but file version is %2").arg(QString::number(GetFormat()) , QString::number(another.GetFormat()));
+        return tr("File Format is not supported - application supports version %1, but file version is %2.").arg(QString::number(GetFormat()) , QString::number(another.GetFormat()));
     }
     auto currentVersionValue = (quint32)another.GetVersion();
     if(SupportVersionFrom != -1 && currentVersionValue < (quint32)SupportVersionFrom) {
-        return tr("Version is not supported - application supports versions starting from %1, but file version is %2").arg(QString::number(SupportVersionFrom) , QString::number(another.GetVersion()));
+        return tr("Version is not supported - application supports versions starting from %1, but file version is %2.").arg(QString::number(SupportVersionFrom) , QString::number(another.GetVersion()));
     }
      if(currentVersionValue > (quint32)GetVersion()) {
-        return tr("Future version error - application supported version is %1, but file version is %2").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
+        return tr("Version is not supported - application supports version %1, but file version is %2.").arg(QString::number(GetVersion()) , QString::number(another.GetVersion()));
     }
 
     return QVariant();
