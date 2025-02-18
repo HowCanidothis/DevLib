@@ -1,7 +1,7 @@
 #include "importexport.h"
 #include "SharedModule/builders.h"
 
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
 #include <QClipboard>
 #include <QApplication>
 #endif
@@ -20,7 +20,7 @@ ImportExportFilterExtensionsBuilder::ImportExportFilterExtensionsBuilder(bool ad
 
 SP<ImportExportBufferSource> ImportExportBufferSource::CreateFromClipboard()
 {
-#ifdef QT_GUI_LIB
+#ifdef SHARED_LIB_ADD_UI
     THREAD_ASSERT_IS_MAIN()
     QClipboard* clipboard = qApp->clipboard();
     static QByteArray text;
@@ -82,7 +82,7 @@ QStringList ImportExportFilterExtensionsBuilder::Result()
         const auto& ext = value->second;
         return QString("%1 (*.%2)").arg(label.isEmpty() ? ext.toUpper() : label, ext);
     });
-    return result;
+    return std::move(result);
 }
 
 ThreadPool& ImportExport::threadPool()
