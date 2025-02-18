@@ -18,6 +18,7 @@ public:
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
     static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
 
+    static void Terminate();
 private:
     friend class ThreadTimer;
     static QTimer* createTimer(qint32 msecs);
