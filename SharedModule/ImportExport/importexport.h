@@ -440,7 +440,7 @@ public:
         auto tryOpen = [source, handler, mode]() -> qint8 {
             try {
                 if(!source->GetDevice()->open(mode)) {
-                    source->SetError(tr("Device cannot be open(%1)").arg(source->GetDevice()->errorString()));
+                    source->SetError(tr("Device could not be open(%1)").arg(source->GetDevice()->errorString()));
                     return false;
                 }
                 return handler();
