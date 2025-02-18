@@ -86,6 +86,11 @@ void ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
     });
 }
 
+void ThreadTimerManager::Terminate()
+{
+    getInstance().terminate();
+}
+
 QTimer* ThreadTimerManager::createTimer(qint32 msecs)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
