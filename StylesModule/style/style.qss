@@ -403,7 +403,7 @@ QTreeView:branch:!has-children:!has-siblings:adjoins-item {
 }
 
 QTreeView:branch:has-children:!has-siblings:closed, QTreeView:branch:closed:has-children:has-siblings {
-    border-image: url("@cPath/arrow-right.svg") 0 4 -5 0;
+    border-image: url("@cPath/arrow-right.svg") 0 4 -2 2;
 }
 
 QTreeView:branch:open:has-children:!has-siblings, QTreeView:branch:open:has-children:has-siblings {
@@ -411,7 +411,7 @@ QTreeView:branch:open:has-children:!has-siblings, QTreeView:branch:open:has-chil
 }
 
 QTreeView:branch:has-children:!has-siblings:closed:hover, QTreeView:branch:closed:has-children:has-siblings:hover {
-    border-image: url("@cPath/arrow-right.svg") 0 4 -5 0;
+    border-image: url("@cPath/arrow-right.svg") 0 4 -2 2;
 }
 
 QTreeView:branch:open:has-children:!has-siblings:hover, QTreeView:branch:open:has-children:has-siblings:hover {
