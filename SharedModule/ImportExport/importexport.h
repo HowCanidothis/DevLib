@@ -17,12 +17,14 @@ struct DescImportExportSourceParams
     QStringList Filters;
     QString DefaultSuffix;
     qint32 ExpectedExtensionsCount;
+    QString DefaultDirectory;
 
     DescImportExportSourceParams(EMode mode)
         : Mode(mode)
         , ExpectedExtensionsCount(2)
     {}
 
+    DescImportExportSourceParams& SetDefaultDirectory(const QString& dirPath) { DefaultDirectory = dirPath; return *this; }
     DescImportExportSourceParams& SetLabel(const QString& label) { Label = label; return *this; }
     DescImportExportSourceParams& SetFileName(const QString& fileName) { FileName = fileName; return *this; }
     DescImportExportSourceParams& SetFilters(const QStringList& filters) { Filters = filters; return *this; }

@@ -237,7 +237,12 @@ QWidget* WidgetsDialogsManager::GetParentWindow() const
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){
     QString searchDir(QString("last%1Folder").arg(params.Mode == DescImportExportSourceParams::Save ? "Save" : "Load"));
     QSettings internalSettings;
-    auto lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
+    QString lastSearchFolder;
+    if(params.DefaultDirectory.isEmpty()) {
+        lastSearchFolder = internalSettings.value(searchDir, QCoreApplication::applicationDirPath()).toString();
+    } else {
+        lastSearchFolder = params.DefaultDirectory;
+    }
     QFileDialog fileDialog(GetParentWindow(), QString(), lastSearchFolder);
     OnDialogCreated(&fileDialog);
     auto filters = params.Filters;

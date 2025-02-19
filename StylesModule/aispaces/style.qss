@@ -526,6 +526,10 @@ WallPlot {
     qproperty-backColor: @cbg.2;
 }
 
+WallPlotView QPushButton#BtnSave {
+    qproperty-icon: url(@cPath/save.svg);
+}
+
 QDockWidget QScrollBar:vertical,
 QDockWidget QScrollBar:horizontal,
 QDockWidget QTableView,
