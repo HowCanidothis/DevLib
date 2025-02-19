@@ -146,7 +146,7 @@ Name Name::MakeUniqueName(const Name& name, const QSet<Name>& names)
     Name result;
     auto cr = name.AsString();
 
-    if(regexp.indexIn(result.AsString()) != -1) {
+    if(regexp.indexIn(cr) != -1) {
         auto decimalPart = regexp.cap(1);
         auto oldDecimalPart = decimalPart.toInt();
         cr.replace(regexp, QString("(%1)").arg(oldDecimalPart + 1));
