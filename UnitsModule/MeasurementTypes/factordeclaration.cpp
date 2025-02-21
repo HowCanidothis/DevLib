@@ -14,3 +14,9 @@ namespace SeparationFactorUnits
     IMPLEMENT_MEASUREMENT_UNIT(SeparationFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(SeparationFactor, TR(MeasurementTr::tr("Separation Factor")))
+
+namespace RateUnits
+{
+    IMPLEMENT_MEASUREMENT_UNIT(Rate, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(Rate, TR(MeasurementTr::tr("Rate")))

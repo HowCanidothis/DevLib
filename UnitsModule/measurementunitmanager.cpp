@@ -37,6 +37,7 @@
 #include "MeasurementTypes/flowbehaviordeclaration.h"
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"
+#include "MeasurementTypes/currencydeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -559,6 +560,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementFlowBehavior::Value)
             .AddUnit(&FlowBehaviorUnits::DimensionlessIndex);
 
+    AddMeasurement(MeasurementRate::Value)
+            .AddUnit(&RateUnits::Rate);
+
     AddMeasurement(MeasurementVolume::Value)
             .AddUnit(&VolumeUnits::CubicMeter)
             .AddUnit(&VolumeUnits::CubicFoot)
@@ -572,6 +576,13 @@ void MeasurementManager::Initialize()
             .AddUnit(&CementYieldUnits::CubicMetersPerTonne)
             .AddUnit(&CementYieldUnits::CubicFootPerSack)
             .AddUnit(&CementYieldUnits::GallonsPerSack);
+
+    AddMeasurement(MeasurementCurrency::Value)
+            .AddUnit(&CurrencyUnits::Dollar)
+            .AddUnit(&CurrencyUnits::PoundSterling)
+            .AddUnit(&CurrencyUnits::Euro)
+            .AddUnit(&CurrencyUnits::Yuan)
+            .AddUnit(&CurrencyUnits::Ruble);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
@@ -624,8 +635,10 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
-            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
@@ -678,8 +691,10 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
-            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3});
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -732,8 +747,10 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
+            .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
-            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2});
+            .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2})
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
