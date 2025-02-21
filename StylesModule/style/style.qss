@@ -689,7 +689,7 @@ QAbstractButton[a_control="5"]:hover{
 }
 
 QAbstractButton[a_control="6"]{  /* Add */
-    color: @c.error;
+    color: @c.success;
     background: transparent;
 }
 
@@ -992,6 +992,16 @@ QTextEdit[readOnly=false]:focus {
 QPushButton#btnNext {
     qproperty-text: "";
     image: url("@cPath/chevron-right.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnAdd {
+    qproperty-text: "";
+    image: url("@cPath/plus.svg");
     min-width: 20px;
     min-height: 20px;
     max-width: 20px;

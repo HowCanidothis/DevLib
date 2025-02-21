@@ -522,7 +522,7 @@ QLabel[align_layout_label=false] {
     padding-left: 0px;
 }
 
-WallPlot {
+WallPlotView {
     qproperty-backColor: @cbg.2;
 }
 
@@ -573,4 +573,12 @@ WPSCMounthPicker QWidget#btnMonth:hover:!pressed{
 
 WPSCPartialImportDialog QLabel#WarningLabel {
     color: @c.warning;
+}
+
+QPushButton#btnXSLReport {
+    background: @c.success;
+}
+
+QPushButton#btnXSLReport:hover {
+    background: @cbg.hover;
 }

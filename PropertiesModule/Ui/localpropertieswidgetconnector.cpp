@@ -18,6 +18,11 @@
 
 #include "styleutils.h"
 
+void LocalPropertiesWidgetConnectorBase::Update()
+{
+    m_widgetSetter();
+}
+
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w)
     : m_widgetSetter([this, widgetSetter](){
         if(!m_ignorePropertyChange) {

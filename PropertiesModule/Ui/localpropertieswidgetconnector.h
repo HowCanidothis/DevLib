@@ -46,6 +46,8 @@ class _Export LocalPropertiesWidgetConnectorBase : public QObject
 public:
     LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w = nullptr);
 
+    void Update();
+
     LocalPropertyBool ForceDisabled;
     Dispatcher OnAboutToBeChanged;
 

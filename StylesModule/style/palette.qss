@@ -13,6 +13,6 @@ WidgetsStyleSettings {
     qproperty-disabledTableTextColor: @ctext.label;
     qproperty-showFocusMinFrame: 3;
     qproperty-placeHolderColor: @ctext.label;
-    qproperty-shadowColor: #121212;
+    qproperty-shadowColor: @cbg.alt;
     qproperty-shadowBlurRadius: 12;
 }
