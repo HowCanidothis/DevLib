@@ -101,6 +101,9 @@ void WidgetsStandardTableHeaderManager::Register(const DescTableViewParams& para
                 case QEvent::StyleChange:
                 case QEvent::Show:
                     for(auto [logicalIndex, size] : fixedSizes) {
+                        if(headerView->visualIndex(logicalIndex) < 0){
+                            continue;
+                        }
                         headerView->resizeSection(logicalIndex, size);
                         headerView->setSectionResizeMode(logicalIndex, QHeaderView::Fixed);
                     } break;

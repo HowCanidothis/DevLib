@@ -1,0 +1,17 @@
+#ifndef CURRENCYDECLARATIONS_H
+#define CURRENCYDECLARATIONS_H
+
+#include "UnitsModule/measurementdeclarations.h"
+
+namespace CurrencyUnits
+{
+    DECLARE_MEASUREMENT_UNIT(Dollar)
+    DECLARE_MEASUREMENT_UNIT(PoundSterling)
+    DECLARE_MEASUREMENT_UNIT(Euro)
+    DECLARE_MEASUREMENT_UNIT(Yuan)
+    DECLARE_MEASUREMENT_UNIT(Ruble)
+};
+
+DECLARE_MEASUREMENT(Currency)
+
+#endif // CURRENCYDECLARATIONS_H

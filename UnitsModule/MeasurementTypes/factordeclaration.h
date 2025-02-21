@@ -15,4 +15,10 @@ namespace SeparationFactorUnits
 }
 DECLARE_MEASUREMENT(SeparationFactor)
 
+namespace RateUnits
+{
+    DECLARE_MEASUREMENT_UNIT(Rate)
+}
+DECLARE_MEASUREMENT(Rate)
+
 #endif // FACTORDECLARATION_H
