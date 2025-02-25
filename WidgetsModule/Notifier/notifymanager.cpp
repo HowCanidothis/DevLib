@@ -18,7 +18,7 @@ NotifyManager::NotifyManager(QObject *parent)
     , Width(300)
     , Height(50)
     , ReservedHeight(300)
-    , IsNotifactionsEnabled(true)
+    , NotificationsEnabledFlags(0xffffffff)
     , DefaultWindow(nullptr)
     , m_freeHeight(QApplication::desktop()->availableGeometry().height() - ReservedHeight)
     , m_exceedData(::make_shared<NotifyData>(Warning, ""))
@@ -48,7 +48,7 @@ void NotifyManager::Notify(NotifyManager::MessageType messageType, const QString
     auto formatedBody = body;
     formatedBody.replace("\\n", "<br/>");
     auto data = ::make_shared<NotifyData>(messageType, formatedBody);
-    if(!IsNotifactionsEnabled) {
+    if(!(NotificationsEnabledFlags.Native() & messageType)) {
         OnDataRecieved(data);
         return;
     }
@@ -74,6 +74,11 @@ void NotifyManager::Notify(QtMsgType qtMessageType, const QString& body)
     case QtInfoMsg: Notify(NotifyManager::Info, body); break;
     default: break;
     }
+}
+
+QString NotifyManager::PrintingFinishedMessage(const QString& filePath)
+{
+    return QString("<a href=\"file:///%1\">%1</a>\nDownload complete").arg(filePath);
 }
 
 NotifyManager& NotifyManager::GetInstance()

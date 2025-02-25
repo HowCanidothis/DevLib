@@ -30,6 +30,9 @@ public:
 
     void Notify(MessageType messageType, const QString& body);
     void Notify(QtMsgType qtMessageType, const QString& body);
+
+    static QString PrintingFinishedMessage(const QString& filePath);
+
     static NotifyManager& GetInstance();
 
     LocalPropertyInt BottomMargin;
@@ -39,7 +42,7 @@ public:
     LocalPropertyInt Width;
     LocalPropertyInt Height;
     LocalPropertyInt ReservedHeight;
-    LocalPropertyBool IsNotifactionsEnabled;
+    LocalPropertyInt NotificationsEnabledFlags;
     QWidget* DefaultWindow;
 
     CommonDispatcher<const QString&, bool&> OnLinkActivated;

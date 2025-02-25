@@ -27,6 +27,7 @@ public:
     std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
     std::optional<QDate> GetDate(const FTranslationHandler& title, const QDate& current = QDate());
     std::optional<std::pair<QDate, QDate>> GetDateRange(const FTranslationHandler& title, const QDate& from = QDate(), const QDate& to = QDate());
+    std::optional<std::pair<QDateTime, QDateTime>> GetDateTimeRange(const FTranslationHandler& title, const QDateTime& from = QDateTime(), const QDateTime& to = QDateTime());
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
 
     template<class T>

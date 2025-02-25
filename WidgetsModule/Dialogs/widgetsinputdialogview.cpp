@@ -100,6 +100,27 @@ void WidgetsInputDialogView::AddDateRange(const QString& label, LocalPropertyDat
     saveProperty(to);
 }
 
+void WidgetsInputDialogView::AddDateTimeRange(const QString& label, LocalPropertyDateTime* from, LocalPropertyDateTime* to)
+{
+    auto count = ui->Layout->rowCount();
+    auto* horizontal = new QHBoxLayout();
+    auto* fromDtWidget = new WidgetsDateTimeLayout();
+    auto* toDtWidget = new WidgetsDateTimeLayout();
+    if(count == 1) {
+        setFocusProxy(fromDtWidget);
+    }
+    fromDtWidget->setIsDateTime(true);
+    fromDtWidget->label()->setText(tr("From"));
+    toDtWidget->label()->setText(tr("To"));
+    horizontal->addWidget(fromDtWidget);
+    horizontal->addWidget(toDtWidget);
+    ui->Layout->addLayout(horizontal, count, 0);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(from, fromDtWidget);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(to, toDtWidget);
+    saveProperty(from);
+    saveProperty(to);
+}
+
 void WidgetsInputDialogView::Reset()
 {
     for(const auto& reset : m_resets) {
