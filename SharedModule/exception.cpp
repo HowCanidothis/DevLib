@@ -56,7 +56,7 @@ ExceptionHandleParams::ExceptionHandleParams(const QString& processName, const F
     , Action(action)
 {
     SetDefaultNotificatorHandler([](const QString& module, const QString& message){
-        qCCritical(LC_UI) << QString("%1: %2").arg(module, message);
+        qCCritical(LC_CONSOLE) << QString("%1: %2").arg(module, message);
     });
 }
 
@@ -77,7 +77,7 @@ ExceptionHandleParams& ExceptionHandleParams::SetDefaultNotificatorHandler(const
 ExceptionHandleParams& ExceptionHandleParams::SetDefaultNotificatorWarningHandler()
 {
     SetDefaultNotificatorHandler([](const QString& module, const QString& message){
-        qCWarning(LC_UI) << QString("%1: %2").arg(module, message);
+        qCWarning(LC_CONSOLE) << QString("%1: %2").arg(module, message);
     });
     return *this;
 }

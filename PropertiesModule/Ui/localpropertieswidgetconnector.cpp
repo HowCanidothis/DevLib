@@ -195,7 +195,7 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
             const auto& paths = WidgetsDialogsManager::GetInstance().AutomatedSourcePaths;
             QString path;
             if(paths.isEmpty()) {
-                QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "SELECT LOGO");
+                QFileDialog fileDialog(WidgetsDialogsManager::GetInstance().GetParentWindow(), "Select Image");
                 if(!params.ForceDefaultDir.isEmpty()) {
                     fileDialog.setDirectory(params.ForceDefaultDir);
                 }
@@ -211,7 +211,7 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
             QFile file(path);
 
             if (!file.open(QFile::ReadOnly)){
-                qCWarning(LC_UI) << "Can't load image " << path;
+                qCWarning(LC_CONSOLE) << tr("Can't load image ") << path << " " << file.errorString();
                 return;
             }
             label->setProperty("a_image", file.readAll());

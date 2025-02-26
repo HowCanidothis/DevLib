@@ -3,6 +3,7 @@
 #include <QDir>
 
 Q_LOGGING_CATEGORY(LC_UI, "ui")
+Q_LOGGING_CATEGORY(LC_CONSOLE, "console")
 Q_LOGGING_CATEGORY(LC_SYSTEM, "system")
 
 double Nanosecs::TimesPerSecond() const

@@ -95,7 +95,7 @@ void PathSettings::Initialize(const QString& productName)
     TempDir.mkdir(productString);
 
     if(!TempDir.cd(productString)) {
-        qCWarning(LC_UI) << "Unable to create temp directory";
+        qCWarning(LC_CONSOLE) << "Unable to create temp directory";
     } else {
         LoggingDir = TempDir;
         LoggingDir.mkdir("Logging");
@@ -106,7 +106,7 @@ void PathSettings::Initialize(const QString& productName)
     UserDocumentsDir = QDir(path);
     if(!UserDocumentsDir.exists()){
         if(!UserDocumentsDir.mkpath(path)){
-            qWarning(LC_UI()) << tr("Could not create directory %1").arg(path);
+            qWarning(LC_CONSOLE) << tr("Could not create directory %1").arg(path);
         }
     }
 }
