@@ -352,11 +352,11 @@ IntroProgressBar QProgressBar {
 }
 
 IntroProgressBar QProgressBar::chunk {
-    background: @c.error;
+    background: @ctext.active;
 }
 
 IntroProgressBar {
-    qproperty-path: "@cPath/full_logo.svg";
+    qproperty-path: "@cLogoPath";
 }
 
 IntroProgressBar QLabel#Label {

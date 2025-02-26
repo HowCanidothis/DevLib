@@ -85,5 +85,7 @@
         <file>style/res/undo.svg</file>
         <file>style/res/cube.svg</file>
         <file>style/res/ruler.svg</file>
+        <file>aispaces/res/full_logo_black.svg</file>
+        <file>aispaces/res/full_logo_white.svg</file>
     </qresource>
 </RCC>

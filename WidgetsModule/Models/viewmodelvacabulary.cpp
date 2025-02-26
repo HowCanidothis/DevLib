@@ -1,7 +1,10 @@
 #include "viewmodelvacabulary.h"
 #include "modelsfiltermodelbase.h"
 #include "modelslistbase.h"
-#include "UnitsModule/internal.hpp"
+
+#ifdef UNITS_MODULE_LIB
+#include <UnitsModule/internal.hpp>
+#endif
 
 ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
     : Super(parent)
@@ -33,7 +36,9 @@ ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
         const auto& header = GetData()->GetHeader(section);
         auto result = header.Label();
         if(header.Measurement != nullptr && header.Measurement() != nullptr){
+#ifdef UNITS_MODULE_LIB
             result = MeasurementManager::MakeMeasurementString(result, header.Measurement());
+#endif
         }
         return result;
     });
