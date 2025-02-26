@@ -424,11 +424,11 @@ public:
                 LocalPropertyDate& property = getter(data);
                 property = DateFromVariant(value);
             };
-        }/*, [getter](ConstValueType constData)-> QVariant {
+        }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             LocalPropertyDate& property = getter(data);
             return property.Native();
-        }*/);
+        });
     }
 
     TViewModelsColumnComponentsBuilder& AddDateByRef(qint32 column, const FTranslationHandler& header, const std::function<QDate& (ValueType)>& getter){
@@ -441,23 +441,20 @@ public:
                 QDate& property = getter(data);
                 property = DateFromVariant(value);
             };
-        }/*, [getter](ConstValueType constData)-> QVariant {
+        }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             QDate& property = getter(data);
             return property;
-        }*/);
+        });
     }
 
     TViewModelsColumnComponentsBuilder& AddDate(qint32 column, const FTranslationHandler& header, const std::function<QDate (ConstValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            QDate property = getter(data);
+            QDate property = getter(constData);
             return property.isValid() ? DateToString(property) : QVariant("-");
-        }, FModelSetter()/*, [getter](ConstValueType constData)-> QVariant {
-            ValueType data = const_cast<ValueType>(constData);
-            QDate& property = getter(data);
-            return property;
-        }*/);
+        }, FModelSetter(), [getter](ConstValueType constData)-> QVariant {
+            return getter(constData);
+        });
     }
 
     TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){

@@ -23,6 +23,8 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimewidget.h"
 #include "WidgetsModule/Widgets/DateTime/widgetstimewidget.h"
 #include "WidgetsModule/Widgets/DateTime/widgetsdatetimeedit.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsmonthpicker.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsmonthpopuppicker.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
 DelegatesLineEdit::DelegatesLineEdit(QObject* parent)
@@ -290,54 +292,6 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
     m_editHandler = handler;
 }
 
-
-DelegatesDate::DelegatesDate(QObject *parent)
-    : Super(parent)
-    , m_extractor([](const QModelIndex& index){ return index.data(Qt::EditRole).toDate(); })
-    , m_releaser([](const QDate& dt){ return QVariant::fromValue(dt); })
-{
-
-}
-
-DelegatesDate* DelegatesDate::SetFormat(const FExtract &extract, const FConvert &convert){
-    m_extractor = extract;
-    m_releaser = convert;
-    return this;
-}
-
-QString DelegatesDate::displayText(const QVariant& value, const QLocale& locale) const {
-    return value.toString();
-}
-
-QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
-{
-    auto* editor = new QDateEdit(parent);
-    OnEditorAboutToBeShown(editor, index);
-    connect(editor,&QDateEdit::dateChanged, [this, index](const QDate& date){
-        OnEditorValueChanged(date, index);
-    });
-    return editor;
-}
-
-void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) const
-{
-    const QDate& date = m_extractor(index);
-    QDateEdit* dt = qobject_cast<QDateEdit*>(editor);
-    Q_ASSERT(dt != nullptr);
-    dt->setDate(date);
-}
-
-void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
-{
-    QDateEdit* dt = qobject_cast<QDateEdit*>(editor);
-    model->setData(index, m_releaser(dt->date()), Qt::EditRole);
-}
-
-void DelegatesDate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
-{
-    editor->setGeometry(option.rect);
-}
-
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
     : QStyledItemDelegate(parent)
 {
@@ -364,8 +318,10 @@ void DelegatesDateTime::setEditorData(QWidget* editor, const QModelIndex& index)
 }
 
 void DelegatesDateTime::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    QDateTimeEdit* dt = static_cast<QDateTimeEdit*>(editor);
-    model->setData(index, dt->dateTime(), Qt::EditRole);
+    QDateTimeEdit* dtEdit = static_cast<QDateTimeEdit*>(editor);
+    QVariant dt = dtEdit->dateTime();
+    OnAboutToSetData(dt, index);
+    model->setData(index, dt, Qt::EditRole);
 }
 
 void DelegatesDateTime::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& ) const {
@@ -482,7 +438,9 @@ void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* 
 {
     auto* widget = dynamic_cast<WidgetsDatetimePopupPicker*>(editor);
     Q_ASSERT(widget != nullptr);
-    model->setData(index, widget->GetDateTimeWidget()->CurrentDateTime.Native(), Qt::EditRole);
+    QVariant dt = widget->GetDateTimeWidget()->CurrentDateTime.Native();
+    OnAboutToSetData(dt, index);
+    model->setData(index, dt);
 }
 
 QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
@@ -492,7 +450,7 @@ QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionVi
 
     m_editor = new WidgetsTimeWidget(parent);
     m_editor->CurrentTime.SetMinMax(QTime::fromMSecsSinceStartOfDay(0), QTime::fromMSecsSinceStartOfDay(24*3600*1000-1));
-    m_editor->CurrentTime = index.model()->data(index, Qt::EditRole).toTime();
+    m_editor->CurrentTime = index.data(Qt::EditRole).toTime();
     OnEditorAboutToBeShown(m_editor, index);
 
     ac->setDefaultWidget(m_editor);
@@ -530,9 +488,99 @@ void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOpti
 
 void DelegatesTimePicker::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
 {
-    auto dt = model->data(index, Qt::EditRole);
-    dt = m_editor->CurrentTime.Native();
-    OnAboutToSetData(m_editor->CurrentTime, dt, index);
+    QVariant dt = m_editor->CurrentTime.Native();
+    OnAboutToSetData(dt, index);
+    model->setData(index, dt);
+}
+
+
+QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    auto* ac = new QWidgetAction(parent);
+    auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Date"));
+
+    m_editor = new WidgetsDateTimeWidget(parent);
+    m_editor->Mode = WidgetsDateTimeWidget::Date;
+    m_editor->ConnectModel(CDL, &m_dateTime);
+
+    m_dateTime = index.data(Qt::EditRole).toDate().startOfDay();
+    m_editor->OnApplyActivate.Connect(CDL, [menu]{
+        menu->close();
+    });
+    OnEditorAboutToBeShown(m_editor, index);
+
+    ac->setDefaultWidget(m_editor);
+    menu->addAction(ac);
+    return menu;
+}
+
+void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) const
+{
+}
+
+void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    QVariant dt = m_dateTime.Native();
+    OnAboutToSetData(dt, index);
+    model->setData(index, dt);
+}
+
+void DelegatesDate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    adjustDialogEditorToCell(editor, option);
+}
+
+void DelegatesMonth::SetDiplayText(const DisplayHandler& displayHandler)
+{
+    m_displayHandler = displayHandler;
+}
+
+QString DelegatesMonth::displayText(const QVariant& value, const QLocale& locale) const
+{
+    if(m_displayHandler == nullptr){
+        return Super::displayText(value, locale);
+    }
+    return m_displayHandler(value, locale);
+}
+
+QWidget* DelegatesMonth::createEditor(QWidget* parent, const QStyleOptionViewItem&, const QModelIndex& index) const
+{
+    m_apply = false;
+    auto* ac = new QWidgetAction(parent);
+    auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Month"));
+
+    m_editor = new WidgetsMonthPicker(parent);
+    m_editor->Date = index.data(Qt::EditRole).toDate();
+    m_editor->OnApply.Connect(CDL, [this, menu]{
+        m_apply = true;
+        menu->close();
+    });
+    m_editor->OnCancel.Connect(CDL, [menu]{
+        menu->close();
+    });
+    OnEditorAboutToBeShown(m_editor, index);
+
+    ac->setDefaultWidget(m_editor);
+    menu->addAction(ac);
+    return menu;
+}
+
+void DelegatesMonth::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
+{
+    adjustDialogEditorToCell(editor, option);
+}
+
+void DelegatesMonth::setEditorData(QWidget*, const QModelIndex&) const
+{
+}
+
+void DelegatesMonth::setModelData(QWidget* w, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    if(!m_apply){
+        return;
+    }
+    QVariant dt = m_editor->Date.Native();
+    OnAboutToSetData(dt, index);
     model->setData(index, dt);
 }
 

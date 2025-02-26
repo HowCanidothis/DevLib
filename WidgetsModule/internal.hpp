@@ -62,6 +62,8 @@
 #include "Widgets/DateTime/widgetstimepicker.h"
 #include "Widgets/DateTime/widgetstimewidget.h"
 #include "Widgets/DateTime/widgetscalendarwidget.h"
+#include "Widgets/DateTime/widgetsmonthpicker.h"
+#include "Widgets/DateTime/widgetsmonthpopuppicker.h"
 #include "Widgets/elidedlabel.h"
 #include "Widgets/widgetscolorpicker.h"
 #include "Widgets/widgetspicturepicker.h"

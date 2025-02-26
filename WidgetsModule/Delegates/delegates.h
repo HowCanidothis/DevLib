@@ -94,30 +94,6 @@ protected:
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
 };
 
-//TODO ADD FORMAT
-class DelegatesDate : public QStyledItemDelegate
-{
-    using Super = QStyledItemDelegate;
-public:
-    using FExtract = std::function<QDate(const QModelIndex&)>;
-    using FConvert = std::function<QVariant(const QDate&)>;
-
-    DelegatesDate(QObject* parent);
-    DelegatesDate* SetFormat(const FExtract& extract, const FConvert& convert);
-
-    QString displayText(const QVariant& value, const QLocale& locale) const override;
-    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
-    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
-    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-
-    CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
-    CommonDispatcher<QDate, const QModelIndex&> OnEditorValueChanged;
-private:
-    FExtract m_extractor;
-    FConvert m_releaser;
-};
-
 class DelegatesColor : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -166,6 +142,21 @@ public:
 	
 	CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
 	CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
+    CommonDispatcher<QVariant&, const QModelIndex&> OnAboutToSetData;
+};
+
+class DelegatesDate : public DelegatesDateTime
+{
+    using Super = DelegatesDateTime;
+public:
+    using Super::Super;
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+private:
+    mutable LocalPropertyDateTime m_dateTime;
+    mutable class WidgetsDateTimeWidget* m_editor;
 };
 
 class DelegatesCheckBox : public QStyledItemDelegate
@@ -198,8 +189,6 @@ class DelegatesTimePicker : public DelegatesDateTime
 public:
     using Super::Super;
 
-    CommonDispatcher<const QTime&, QVariant&, const QModelIndex&> OnAboutToSetData;
-
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
     void setEditorData(QWidget* , const QModelIndex& ) const override {}
@@ -207,6 +196,25 @@ public:
 
 private:
     mutable class WidgetsTimeWidget* m_editor;
+};
+
+class WidgetsMonthPopupPicker;
+class DelegatesMonth : public DelegatesDateTime
+{
+    using Super = DelegatesDateTime;
+public:
+    using Super::Super;
+    using DisplayHandler = std::function<QString(const QVariant&, const QLocale&)>;
+    void SetDiplayText(const DisplayHandler& displayHandler);
+    QString displayText(const QVariant& value, const QLocale& locale) const override;
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
+    void setEditorData(QWidget* w, const QModelIndex& ) const override;
+    void setModelData(QWidget* , QAbstractItemModel* model, const QModelIndex& index) const override;
+private:
+    DisplayHandler m_displayHandler;
+    mutable bool m_apply;
+    mutable class WidgetsMonthPicker* m_editor;
 };
 
 struct DateTimeRangeAttachment {
