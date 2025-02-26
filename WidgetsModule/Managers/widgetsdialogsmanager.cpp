@@ -221,7 +221,7 @@ qint32 WidgetsDialogsManager::ShowDialog(WidgetsDialog* dialog, const DescShowDi
 {
     dialog->setParent(GetParentWindow(), dialog->windowFlags());
 
-    if(params.ResizeToDefault) {
+    if(params.ResizeToDefault && !dialog->isMaximized()) {
         ResizeDialogToDefaults(dialog);
     } else {
         dialog->setMinimumWidth(400);
