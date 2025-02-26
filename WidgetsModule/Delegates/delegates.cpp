@@ -500,7 +500,7 @@ QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem
     auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Date"));
 
     m_editor = new WidgetsDateTimeWidget(parent);
-    m_editor->Mode = WidgetsDateTimeWidget::Date;
+    m_editor->Mode = DateTimeDisplayFormatEnum::Date;
     m_editor->ConnectModel(CDL, &m_dateTime);
 
     m_dateTime = index.data(Qt::EditRole).toDate().startOfDay();

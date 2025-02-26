@@ -57,6 +57,7 @@ WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
         return QDate(Date.Native().year(), index + 1, 1);
     });
 
+    ui->dateEdit->Mode = DateTimeDisplayFormatEnum::Month;
     for(auto button : m_currButtons)WidgetAbstractButtonWrapper(button).SetControl(ButtonRole::Tab);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&m_buttonIndex, m_currButtons);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&Date, ui->dateEdit);

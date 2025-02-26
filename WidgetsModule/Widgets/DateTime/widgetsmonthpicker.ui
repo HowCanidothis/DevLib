@@ -66,9 +66,6 @@
        <property name="specialValueText">
         <string/>
        </property>
-       <property name="displayFormat">
-        <string>MMMM yyyy</string>
-       </property>
       </widget>
      </item>
      <item>

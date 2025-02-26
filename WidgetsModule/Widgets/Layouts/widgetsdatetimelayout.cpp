@@ -41,7 +41,7 @@ QString WidgetsDateTimeLayout::title() const
 
 bool WidgetsDateTimeLayout::isDateTime() const
 {
-    return ui->DateTimePicker->Mode == WidgetsDateTimeWidget::DateTime;
+    return ui->DateTimePicker->Mode.Native() == DateTimeDisplayFormatEnum::DateTime;
 }
 
 void WidgetsDateTimeLayout::setTitle(const QString& title)
@@ -51,7 +51,7 @@ void WidgetsDateTimeLayout::setTitle(const QString& title)
 
 void WidgetsDateTimeLayout::setIsDateTime(const bool& dateTime)
 {
-    ui->DateTimePicker->Mode = dateTime ? WidgetsDateTimeWidget::DateTime : WidgetsDateTimeWidget::Date;
+    ui->DateTimePicker->Mode = dateTime ? DateTimeDisplayFormatEnum::DateTime : DateTimeDisplayFormatEnum::Date;
 }
 
 bool WidgetsDateTimeLayout::readOnly() const

@@ -146,6 +146,7 @@ struct LanguageSettings
     LocalPropertySequentialEnum<LocaleType> LocaleIndex;
     LocalPropertyLocale ApplicationLocale;
 
+    LocalPropertyString MonthFormat;
     LocalPropertyString TimeFormat;
     LocalPropertyString DateFormat;
     LocalPropertyString DateTimeFormat;

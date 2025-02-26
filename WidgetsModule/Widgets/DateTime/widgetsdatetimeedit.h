@@ -2,8 +2,8 @@
 #define WIDGETSDATETIMEEDIT_H
 
 #include <QDateTimeEdit>
-
 #include <PropertiesModule/internal.hpp>
+#include "WidgetsModule/widgetsdeclarations.h"
 
 class WidgetsDateTimeEdit : public QDateTimeEdit
 {
@@ -24,7 +24,7 @@ public:
     LocalPropertyDate& GetOrCreateDateProperty();
 
     LocalPropertyBool AutoResize;
-    LocalPropertyInt Mode;
+    LocalPropertySequentialEnum<DateTimeDisplayFormatEnum> Mode;
 
     QDateTime dateTimeFromText(const QString &text) const override;
     QString textFromDateTime(const QDateTime &dt) const override;

@@ -38,6 +38,22 @@ struct EnumHelper<DecimalKeyboardSeparator>
     Q_DECLARE_TR_FUNCTIONS(EnumHelper)
 };
 
+enum class DateTimeDisplayFormatEnum {
+    DateTime,
+    Date,
+    Time,
+    Month,
+    First = DateTime,
+    Last = Month
+};
+
+template<>
+struct EnumHelper<DateTimeDisplayFormatEnum>
+{
+    static QStringList GetNames() { return { tr("Date Time"), tr("Date"), tr("Time"), tr("Month")}; }
+    Q_DECLARE_TR_FUNCTIONS(EnumHelper)
+};
+
 template<class T> class TViewModelsTableBase;
 template<class T> class TViewModelsEditTable;
 

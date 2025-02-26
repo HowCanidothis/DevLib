@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QDateTimeEdit>
 #include <PropertiesModule/internal.hpp>
+#include "WidgetsModule/widgetsdeclarations.h"
 
 namespace Ui {
 class WidgetsDatetimePopupPicker;
@@ -27,7 +28,7 @@ public:
 
     LocalPropertyDoubleOptional TimeShift;
 
-    LocalPropertyInt Mode;
+    LocalPropertySequentialEnum<DateTimeDisplayFormatEnum> Mode;
     Dispatcher OnCloseEditor;
     Dispatcher OnDataCommit;
 
