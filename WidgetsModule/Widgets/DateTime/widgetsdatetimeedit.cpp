@@ -31,9 +31,10 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
     Mode.ConnectAndCall(CDL, [this, displayTextConnections](int mode){
         displayTextConnections->clear();
         LocalPropertyString* displayFormat;
-        switch(mode){
-        case 1/*WidgetsDateTimeWidget::Date*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateFormat; break;
-        case 2/*WidgetsDateTimeWidget::Time*/: displayFormat = &SharedSettings::GetInstance().LanguageSettings.TimeFormat; break;
+        switch(static_cast<DateTimeDisplayFormatEnum>(mode)){
+        case DateTimeDisplayFormatEnum::Date: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateFormat; break;
+        case DateTimeDisplayFormatEnum::Time: displayFormat = &SharedSettings::GetInstance().LanguageSettings.TimeFormat; break;
+        case DateTimeDisplayFormatEnum::Month: displayFormat = &SharedSettings::GetInstance().LanguageSettings.MonthFormat; break;
         default: displayFormat = &SharedSettings::GetInstance().LanguageSettings.DateTimeFormat; break;
         }
         displayFormat->ConnectAndCall(CDL, [this](const QString& format){

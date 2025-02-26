@@ -3,6 +3,7 @@
 
 #include <QFrame>
 #include <PropertiesModule/internal.hpp>
+#include "WidgetsModule/widgetsdeclarations.h"
 
 namespace Ui {
 class WidgetsDateTimeWidget;
@@ -13,12 +14,6 @@ class WidgetsDateTimeWidget : public QFrame
 	Q_OBJECT
 	using Super = QFrame;
 public:
-    enum Mode {
-        DateTime,
-        Date,
-        Time
-    };
-
     explicit WidgetsDateTimeWidget(QWidget *parent = nullptr);
     ~WidgetsDateTimeWidget() override;
 	
@@ -27,7 +22,7 @@ public:
 
     class WidgetsCalendarWidget* GetCalendar() const;
 
-    LocalPropertyInt Mode;
+    LocalPropertySequentialEnum<DateTimeDisplayFormatEnum> Mode;
     LocalPropertyBool NowEnabled;
     LocalPropertyDateTime CurrentDateTime;
     LocalPropertyDoubleOptional TimeShift;

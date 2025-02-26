@@ -94,8 +94,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
 #endif
 
     WidgetAbstractButtonWrapper(ui->btnApply).SetControl(ButtonRole::Save);
-    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 mode){
-        return mode == DateTime;
+    WidgetWrapper(ui->widget).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](DateTimeDisplayFormatEnum mode){
+        return mode == DateTimeDisplayFormatEnum::DateTime;
     }, Mode);
     WidgetWrapper(ui->btnNow).WidgetVisibility().ConnectFrom(CONNECTION_DEBUG_LOCATION, NowEnabled);
 

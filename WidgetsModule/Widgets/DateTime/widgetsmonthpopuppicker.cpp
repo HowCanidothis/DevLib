@@ -13,6 +13,7 @@ WidgetsMonthPopupPicker::WidgetsMonthPopupPicker(QWidget *parent)
     , m_edit(new WidgetsMonthPicker(this))
 {
     ui->setupUi(this);
+    ui->dateEdit->Mode = DateTimeDisplayFormatEnum::Month;
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&Date, ui->dateEdit);
 
     Enable.ConnectAndCall(CDL, [this](bool enable){

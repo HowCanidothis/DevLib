@@ -138,6 +138,7 @@ LanguageSettings::LanguageSettings()
         ApplicationLocale.EditSilent().setNumberOptions(QLocale::OmitGroupSeparator);
         QLocale::setDefault(locale);
 
+        MonthFormat = "MMMM yyyy";
         if(locale.language() == QLocale::English){
             TimeFormat = "hh:mm AP";
             DateFormat = "MM/dd/yyyy";
