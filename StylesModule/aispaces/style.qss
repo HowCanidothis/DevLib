@@ -73,6 +73,7 @@ MenuBar MenuBarMovePane QLabel#Icon {
 MenuBar QLabel#LogoIcon {
     min-width: 28px;
     padding: 5px;
+    padding-top: 7px;
     padding-left: 10px;
     padding-right: 10px;
     border: none;
