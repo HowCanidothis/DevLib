@@ -160,6 +160,40 @@ void WidgetsTableViewBase::keyPressEvent(QKeyEvent* event)
         if(state() != EditingState) {
             edit(currentIndex());
         }
+    } else if(event->modifiers() & Qt::ControlModifier && event->modifiers() & Qt::ShiftModifier) {
+        auto* selModel = selectionModel();
+        if(model() != nullptr && selModel != nullptr) {
+            auto ci = currentIndex();
+            auto selectUp = [&]{
+                auto cr = ci.row();
+                QItemSelection toSelect;
+                for(const auto& mi : WidgetTableViewWrapper(this).SelectedColumnsSet()) {
+                    toSelect.append(QItemSelectionRange(model()->index(0, mi), model()->index(cr, mi)));
+                }
+                selModel->select(toSelect, QItemSelectionModel::ClearAndSelect);
+            };
+            auto selectDown = [&]{
+                auto cr = ci.row();
+                QItemSelection toSelect;
+                auto rc = model()->rowCount();
+                if(model()->index(rc - 1, 0).data(LastEditRowRole).toBool()) {
+                    --rc;
+                }
+                for(const auto& mi : WidgetTableViewWrapper(this).SelectedColumnsSet()) {
+                    toSelect.append(QItemSelectionRange(model()->index(cr, mi), model()->index(rc, mi)));
+                }
+                selModel->select(toSelect, QItemSelectionModel::ClearAndSelect);
+            };
+
+            if(event->key() == Qt::Key_Up) {
+                selectUp();
+                return;
+            } else if(event->key() == Qt::Key_Down) {
+                selectDown();
+                return;
+            }
+        }
+
     }
     Super::keyPressEvent(event);
 }
