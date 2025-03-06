@@ -9,7 +9,7 @@ const Name WidgetsMatchingAttachment::ErrorIncorrectDoubleConversion = "ErrorInc
 const Name WidgetsMatchingAttachment::ErrorIncorrectIntConversion = "ErrorIncorrectIntConversion";
 const Name WidgetsMatchingAttachment::WarningAutoMatchDisabled = "WarningAutoMatchDisabled";
 
-TableViewColumnsWidgetAttachment::TableViewColumnsWidgetAttachment(QTableView* targetTableView)
+WidgetTableViewColumnsAttachment::WidgetTableViewColumnsAttachment(QTableView* targetTableView)
     : IsVisible(false)
     , m_targetTableView(targetTableView)
     , m_createDelegate(nullptr)
@@ -26,7 +26,7 @@ TableViewColumnsWidgetAttachment::TableViewColumnsWidgetAttachment(QTableView* t
     });
 }
 
-TableViewColumnsWidgetAttachment::~TableViewColumnsWidgetAttachment()
+WidgetTableViewColumnsAttachment::~WidgetTableViewColumnsAttachment()
 {
     if(m_owner) {
         for(const auto& widget : m_attachmentWidgets) {
@@ -35,23 +35,31 @@ TableViewColumnsWidgetAttachment::~TableViewColumnsWidgetAttachment()
     }
 }
 
-void TableViewColumnsWidgetAttachment::Initialize(const TableViewColumnsWidgetAttachment::CreateDelegate& createDelegate)
+void WidgetTableViewColumnsAttachment::Initialize(const WidgetTableViewColumnsAttachment::CreateDelegate& createDelegate)
 {
     Q_ASSERT(m_createDelegate == nullptr);
     m_createDelegate = createDelegate;
     adjustAttachments(0, m_targetTableView->horizontalHeader()->count());
-    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionCountChanged, this, &TableViewColumnsWidgetAttachment::adjustAttachments);
-    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionResized, this, &TableViewColumnsWidgetAttachment::adjustGeometry);
-    connect(m_targetTableView->horizontalScrollBar(), &QScrollBar::valueChanged, this, &TableViewColumnsWidgetAttachment::adjustGeometry);
+    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionCountChanged, this, &WidgetTableViewColumnsAttachment::adjustAttachments);
+    connect(m_targetTableView->horizontalHeader(), &QHeaderView::sectionResized, this, &WidgetTableViewColumnsAttachment::adjustGeometry);
+    connect(m_targetTableView->horizontalScrollBar(), &QScrollBar::valueChanged, this, &WidgetTableViewColumnsAttachment::adjustGeometry);
     adjustGeometry();
 }
 
-void TableViewColumnsWidgetAttachment::adjustAttachments(qint32 oldCount, qint32 newCount)
+void WidgetTableViewColumnsAttachment::adjustAttachments(qint32 oldCount, qint32 newCount)
 {
     if(oldCount < newCount) {
         qint32 counter = oldCount;
         while(counter != newCount && counter < 200) {
-            auto* attachment = m_createDelegate();
+            auto* attachment = m_createDelegate(counter);
+            if(attachment == nullptr) {
+                auto foundIt = m_attachmentWidgets.find(counter);
+                if(foundIt != m_attachmentWidgets.end()) {
+                    m_attachmentWidgets.remove(counter);
+                }
+                ++counter;
+                continue;
+            }
 #ifndef BUILD_MASTER
             attachment->setObjectName(QString::number(counter));
 #endif
@@ -75,7 +83,7 @@ void TableViewColumnsWidgetAttachment::adjustAttachments(qint32 oldCount, qint32
     adjustGeometry();
 }
 
-void TableViewColumnsWidgetAttachment::adjustGeometry()
+void WidgetTableViewColumnsAttachment::adjustGeometry()
 {
     m_adjustGeometry.Call(CONNECTION_DEBUG_LOCATION, [this]{
         auto* tableView = m_targetTableView;
@@ -114,8 +122,8 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
 
     IsEnabled.Subscribe([this]{
         if(IsEnabled) {
-            m_attachment = new TableViewColumnsWidgetAttachment(m_tableView);
-            m_attachment->Initialize([this]() -> QWidget* {
+            m_attachment = new WidgetTableViewColumnsAttachment(m_tableView);
+            m_attachment->Initialize([this](qint32) -> QWidget* {
                                          auto* comboBox = new QComboBox();
                                          comboBox->setCursor(QCursor(Qt::ArrowCursor));
                                          comboBox->addItems(m_requestedColumns);

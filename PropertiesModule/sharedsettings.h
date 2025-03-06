@@ -135,7 +135,7 @@ enum class LocaleType {
 template<>
 struct EnumHelper<LocaleType>
 {
-    static QStringList GetNames() { return { tr("EN"), tr("RU")}; }
+    static QStringList GetNames() { return { tr("EN"), tr("EU")}; }
     Q_DECLARE_TR_FUNCTIONS(EnumHelper)
 };
 

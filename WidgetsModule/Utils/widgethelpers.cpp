@@ -528,6 +528,13 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     return verticalHeader;
 }
 
+WidgetTableViewColumnsAttachment* WidgetTableViewWrapper::AddColumnAttachment(const std::function<QWidget* (qint32)>& delegate) const
+{
+    auto* result = new WidgetTableViewColumnsAttachment(GetWidget());
+    result->Initialize(delegate);
+    return result;
+}
+
 WidgetAbstractButtonWrapper::WidgetAbstractButtonWrapper(QAbstractButton* button)
     : Super(button)
 {

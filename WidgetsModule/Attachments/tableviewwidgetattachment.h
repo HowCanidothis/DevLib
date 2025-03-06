@@ -6,13 +6,13 @@
 
 #include <PropertiesModule/internal.hpp>
 
-class TableViewColumnsWidgetAttachment : public QObject
+class WidgetTableViewColumnsAttachment : public QObject
 {
     using Super = QObject;
-    using CreateDelegate = std::function<QWidget* ()>;
+    using CreateDelegate = std::function<QWidget* (qint32 column)>;
 public:
-    TableViewColumnsWidgetAttachment(QTableView* targetTableView);
-    ~TableViewColumnsWidgetAttachment();
+    WidgetTableViewColumnsAttachment(QTableView* targetTableView);
+    ~WidgetTableViewColumnsAttachment();
 
     LocalPropertyBool IsVisible;
     DispatcherConnectionsSafe Connections;
@@ -92,7 +92,7 @@ private:
     void match();
 
 private:
-    ScopedPointer<TableViewColumnsWidgetAttachment> m_attachment;
+    ScopedPointer<WidgetTableViewColumnsAttachment> m_attachment;
     QStringList m_requestedColumns;
     QVector<qint32> m_requestedColumnsIndexes;
     QTableView* m_tableView;

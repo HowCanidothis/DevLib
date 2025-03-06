@@ -593,6 +593,7 @@ public:
     WidgetsGlobalTableActionsScopeHandlersPtr CreateDefaultActionHandlers() const;
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;
+    class WidgetTableViewColumnsAttachment* AddColumnAttachment(const std::function<QWidget* (qint32 column)>& delegate) const;
     class WidgetsMatchingAttachment* CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const;
 
     CommonDispatcher<qint32, qint32>& OnCurrentIndexChanged() const;
