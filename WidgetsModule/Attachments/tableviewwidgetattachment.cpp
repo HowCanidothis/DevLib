@@ -95,7 +95,7 @@ void WidgetTableViewColumnsAttachment::adjustGeometry()
                     QHeaderView* headerView = tableView->horizontalHeader();
                     auto x = headerView->sectionViewportPosition(i);
                     auto y = 0;
-                    foundIt.value()->setGeometry(x + 2,y, headerView->sectionSize(i) - 4, headerView->height());
+                    foundIt.value()->setGeometry(x + 2,y, headerView->sectionSize(i) - 4, headerView->height() - 1);
                     foundIt.value()->setCursor(QCursor(Qt::ArrowCursor));
                 }
             }
