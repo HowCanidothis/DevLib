@@ -20,9 +20,15 @@ class ModelsAbstractItemModel : public QAbstractItemModel
 
 struct ModelsIconsContext
 {
+    static Name ErrorIconId;
+    static Name WarningIconId;
+    static Name InfoIconId;
+    static Name PlusIconId;
+
     IconsSvgIcon ErrorIcon;
     IconsSvgIcon WarningIcon;
     IconsSvgIcon InfoIcon;
+    IconsSvgIcon PlusIcon;
 
 private:
     friend class ViewModelsTableBase;
@@ -474,6 +480,7 @@ public:
                 }
                 case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
                 case Qt::DisplayRole: return tr("Add");
+                case Qt::DecorationRole: return Super::m_iconsContext.PlusIcon;
                 default: break;
                 }
             }

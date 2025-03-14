@@ -104,6 +104,69 @@ std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler&
     return v;
 }
 
+std::optional<QDate> WidgetsDialogsManager::GetMonth(const FTranslationHandler& title, const QDate& current, const FTranslationHandler& confirmationButtonText)
+{
+    LocalPropertyDate v(current.isValid() ? current : QDate::currentDate());
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddMonth(QString(), &v);
+
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(title).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    confirmationButtonText ? WidgetsDialogsManagerDefaultButtons::SaveRoleButton(confirmationButtonText) : WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
+    }
+
+    return v;
+}
+
+std::optional<QDateTime> WidgetsDialogsManager::GetDateTime(const FTranslationHandler& title, const QDateTime& current, const FTranslationHandler& confirmationButtonText)
+{
+    LocalPropertyDateTime v(current.isValid() ? current : QDateTime::currentDateTime());
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddDateTime(QString(), &v);
+
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(title).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    confirmationButtonText ? WidgetsDialogsManagerDefaultButtons::SaveRoleButton(confirmationButtonText) : WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
+    }
+
+    return v;
+}
+
+std::optional<qint32> WidgetsDialogsManager::GetInt(const FTranslationHandler& title, qint32 defaultValue, const FTranslationHandler& confirmationButtonText)
+{
+    LocalPropertyInt v(defaultValue);
+    auto* dialogView = new WidgetsInputDialogView();
+    dialogView->AddInt(QString(), &v);
+
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(title).SetView(dialogView)
+        .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
+                    confirmationButtonText ? WidgetsDialogsManagerDefaultButtons::SaveRoleButton(confirmationButtonText) : WidgetsDialogsManagerDefaultButtons::ConfirmButton())
+        .SetOnDone([&](qint32 v) {
+        if(v == 0) {
+            dialogView->Reset();
+        }
+    }));
+    if(res == 0) {
+        return std::nullopt;
+    }
+
+    return v;
+}
+
 std::optional<QDate> WidgetsDialogsManager::GetDate(const FTranslationHandler& title, const QDate& current)
 {
     LocalPropertyDate v(current.isValid() ? current : QDate::currentDate());

@@ -8,6 +8,7 @@
 #include "WidgetsModule/Widgets/Layouts/widgetsdoublespinboxlayout.h"
 #include "WidgetsModule/Widgets/Layouts/widgetslineeditlayout.h"
 #include "WidgetsModule/Widgets/Layouts/widgetsdatetimelayout.h"
+#include "WidgetsModule/Widgets/DateTime/widgetsmonthpicker.h"
 
 WidgetsInputDialogView::WidgetsInputDialogView(QWidget *parent)
     : Super(parent)
@@ -49,6 +50,19 @@ void WidgetsInputDialogView::AddDouble(const QString& text, LocalPropertyDouble*
     saveProperty(property);
 }
 
+void WidgetsInputDialogView::AddInt(const QString& label, LocalPropertyInt* property)
+{
+    auto count = ui->Layout->rowCount();
+    auto* widget = new WidgetsSpinBoxLayout();
+    if(count == 1) {
+        setFocusProxy(widget);
+    }
+    widget->label()->setText(label);
+    ui->Layout->addWidget(widget, count, 0);
+    m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(property, widget);
+    saveProperty(property);
+}
+
 void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyString* property, const QStringList& keys)
 {
     auto count = ui->Layout->rowCount();
@@ -74,6 +88,32 @@ void WidgetsInputDialogView::AddDate(const QString& text, LocalPropertyDate* pro
     }
     widget->setIsDateTime(false);
     widget->label()->setText(text);
+    ui->Layout->addWidget(widget, count, 0);
+    m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(property, widget);
+    saveProperty(property);
+}
+
+void WidgetsInputDialogView::AddMonth(const QString& label, LocalPropertyDate* property)
+{
+    auto count = ui->Layout->rowCount();
+    auto* widget = new WidgetsMonthPicker();
+    if(count == 1) {
+        setFocusProxy(widget);
+    }
+//    widget->label()->setText(label);
+    ui->Layout->addWidget(widget, count, 0);
+    property->ConnectBoth(CDL, widget->Date).MakeSafe(m_connections);
+    saveProperty(property);
+}
+
+void WidgetsInputDialogView::AddDateTime(const QString& label, LocalPropertyDateTime* property)
+{
+    auto count = ui->Layout->rowCount();
+    auto* widget = new WidgetsDateTimeLayout();
+    if(count == 1) {
+        setFocusProxy(widget);
+    }
+    widget->label()->setText(label);
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(property, widget);
     saveProperty(property);

@@ -265,10 +265,16 @@ QVariant ViewModelsTableBase::headerData(qint32 section, Qt::Orientation orienta
     }
 }
 
+Name ModelsIconsContext::ErrorIconId("ErrorIcon");
+Name ModelsIconsContext::WarningIconId("WarningIcon");
+Name ModelsIconsContext::InfoIconId("InfoIcon");
+Name ModelsIconsContext::PlusIconId("PlusIcon");
+
 ModelsIconsContext::ModelsIconsContext()
-    : ErrorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
-    , WarningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
-    , InfoIcon(IconsManager::GetInstance().GetIcon("InfoIcon"))
+    : ErrorIcon(IconsManager::GetInstance().GetIcon(ErrorIconId))
+    , WarningIcon(IconsManager::GetInstance().GetIcon(WarningIconId))
+    , InfoIcon(IconsManager::GetInstance().GetIcon(InfoIconId))
+    , PlusIcon(IconsManager::GetInstance().GetIcon(PlusIconId))
 {
 
 }

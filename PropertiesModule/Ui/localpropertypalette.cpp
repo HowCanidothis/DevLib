@@ -103,7 +103,7 @@ LocalPropertyPaletteBuilder::LocalPropertyPaletteBuilder(bool)
     AddColor(LOCALPROPERTY_PALETTE_COLOR, QColor()).
     AddInt(LOCALPROPERTY_PALETTE_VISIBILITY, 0xffffffff).
     AddDouble(LOCALPROPERTY_PALETTE_LINE_WIDTH, 1.0).
-    AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 4.0);
+    AddDouble(LOCALPROPERTY_PALETTE_POINT_SIZE, 12.0);
 }
 
 LocalPropertyPaletteBuilder& LocalPropertyPaletteBuilder::AddDouble(const Name& key, double defaultValue)

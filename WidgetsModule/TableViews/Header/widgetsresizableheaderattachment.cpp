@@ -44,7 +44,21 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QHeaderView* hv, c
             });
         }
         auto oldActions = result->actions();
-        wrapper.AddAction(tr("Switch"), [oldActions]{
+        wrapper.AddAction(tr("Select All"), [oldActions]{
+            for(auto* action : oldActions) {
+                if(!action->isChecked()) {
+                    action->trigger();
+                }
+            }
+        });
+        wrapper.AddAction(tr("Deselect All"), [oldActions]{
+            for(auto* action : oldActions) {
+                if(action->isChecked()) {
+                    action->trigger();
+                }
+            }
+        });
+        wrapper.AddAction(tr("Swap Selections"), [oldActions]{
             for(auto* action : oldActions) {
                 action->trigger();
             }

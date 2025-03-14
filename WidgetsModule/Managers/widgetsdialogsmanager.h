@@ -25,7 +25,10 @@ public:
     void ShowTextDialog(const QString& title, const QString& text) const;
     std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString(), const QStringList& keys = QStringList());
     std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
+    std::optional<qint32> GetInt(const FTranslationHandler& title, qint32 defaultValue, const FTranslationHandler& confirmationButtonText = FTranslationHandler());
     std::optional<QDate> GetDate(const FTranslationHandler& title, const QDate& current = QDate());
+    std::optional<QDate> GetMonth(const FTranslationHandler& title, const QDate& current = QDate(), const FTranslationHandler& confirmationButtonText = FTranslationHandler());
+    std::optional<QDateTime> GetDateTime(const FTranslationHandler& title, const QDateTime& current = QDateTime(), const FTranslationHandler& confirmationButtonText = FTranslationHandler());
     std::optional<std::pair<QDate, QDate>> GetDateRange(const FTranslationHandler& title, const QDate& from = QDate(), const QDate& to = QDate());
     std::optional<std::pair<QDateTime, QDateTime>> GetDateTimeRange(const FTranslationHandler& title, const QDateTime& from = QDateTime(), const QDateTime& to = QDateTime());
     QList<QUrl> SelectDirectory(const DescImportExportSourceParams& params);
