@@ -4,15 +4,17 @@
 #include <QHash>
 #include <QString>
 
+#if defined(QT_DEBUG)  || defined(QT_PROFILE)
 #define DEBUG_DETAILS
+#endif
 
-#if defined(QT_DEBUG) || defined(QT_PROFILE)
+#ifdef DEBUG_DETAILS
 #define DEBUG_LOCATION __FILE__ QT_STRINGIFY(__LINE__)
 #else
 #define DEBUG_LOCATION nullptr
 #endif
 
-#if defined(QT_DEBUG) && defined(DEBUG_DETAILS)
+#ifdef DEBUG_DETAILS
 #define DEBUG_CREATE_INFO(x, name, connections) DebugObjectManager::Create(DEBUG_LOCATION, x, name, connections);
 #define DEBUG_PRINT_INFO(x) DebugObjectManager::PrintInfo(DEBUG_LOCATION, x)
 #define DEBUG_PRINT_INFO_ACTION(x, action) DebugObjectManager::PrintInfo(DEBUG_LOCATION, x, [&]{ action })

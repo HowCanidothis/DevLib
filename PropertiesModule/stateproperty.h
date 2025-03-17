@@ -420,12 +420,12 @@ public:
                     if(m_interruptor != nullptr) {
                         m_interruptor->Interrupt();
                     }
+                    Super::Cancel();
                     if(!Valid) {
                         return;
                     }
                     Q_ASSERT_X(m_calculator && m_preparator && m_releaser, __FUNCTION__, m_calculatorProblemLocation);
                     Valid.SetState(false);
-                    Super::Cancel();
                 }};
                 m_onChanged += { this, [this]{
                     Valid.SetState(false);
@@ -744,7 +744,7 @@ public:
 
 #ifndef QT_NO_DEBUG
         guards::LambdaGuard guard([this]{ m_internalEditing = false; }, [this]{ m_internalEditing = true; });
-#endif
+#endif 
             if(m_handler != nullptr) {
                 auto data = m_handler();
                 m_data->Swap(data);
@@ -862,6 +862,7 @@ public:
 
     const TPtr& GetData() const { return m_data; }
     qint32 GetLockCounter() const { return m_lockCounter; }
+    const StateCalculator<bool>& GetCalculator() const { return m_calculator; }
 
 protected:
     TPtr m_data;

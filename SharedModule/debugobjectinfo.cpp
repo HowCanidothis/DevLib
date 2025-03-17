@@ -6,16 +6,13 @@ QMutex DebugObjectManager::m_mutex;
 
 void DebugObjectManager::Create(const char* location, const void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
 {
-#ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
     qDebug() << "Debug object" << name << "is registered by key" << QString::number(size_t(object), 16);
     create(location, object, name, safeConnections);
-#endif
 }
 
 void DebugObjectManager::create(const char* location, const void* object, const QString& name, DispatcherConnectionsSafe& safeConnections)
 {
-#ifdef QT_DEBUG
     QVector<DispatcherConnectionSafePtr> result;
     auto keyObject = reinterpret_cast<size_t>(object);
     safeConnections += ::make_shared<DispatcherConnectionSafe>(DispatcherConnection([keyObject]{
@@ -34,14 +31,12 @@ void DebugObjectManager::create(const char* location, const void* object, const 
     for(auto* child : ::make_const(value.Children)) {
         create(location, child, name, safeConnections);
     }
-#endif
 }
 
 const QString PrintPattern("From %1: Created at: %2; ObjectName: %3");
 
 void DebugObjectManager::PrintInfo(const char* location, const void* object, const FAction& onPrinted)
 {
-#ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
     const auto& info = debugInfo();
     auto foundIt = info.find(reinterpret_cast<size_t>(object));
@@ -52,30 +47,25 @@ void DebugObjectManager::PrintInfo(const char* location, const void* object, con
             onPrinted();
         }
     }
-#endif
 }
 
 const DebugObjectManager::DebugInfo DebugObjectManager::GetInfo(const void* object)
 {
-#ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
     const auto& info = debugInfo();
     auto foundIt = info.find(reinterpret_cast<size_t>(object));
     if(foundIt != info.end() && !foundIt.value().ObjectName.isEmpty()) {
         return foundIt.value();
     }
-#endif
     return DebugInfo();
 }
 
 void DebugObjectManager::Synchronize(const void* object, const QSet<const void*>& children)
 {
-#ifdef QT_DEBUG
     QMutexLocker locker(&m_mutex);
     auto& value = debugInfo()[reinterpret_cast<size_t>(object)];
     Q_ASSERT(value.ObjectName.isEmpty());
     value.Children += children;
-#endif
 }
 
 QHash<size_t, DebugObjectManager::DebugInfo>& DebugObjectManager::debugInfo()
