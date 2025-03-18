@@ -335,7 +335,7 @@ protected:
     bool isLastEditRow(const QModelIndex& index) const
     {
         Q_ASSERT(GetData() != nullptr);
-        return GetData()->GetSize() <= index.row();
+        return GetData()->GetSize() == index.row();
     }
 
 private:

@@ -97,6 +97,8 @@ void WidgetsInputDialogView::AddMonth(const QString& label, LocalPropertyDate* p
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsMonthPicker();
+    widget->layout()->setContentsMargins(0,0,0,0);
+    widget->EnableButtons = false;
     if(count == 1) {
         setFocusProxy(widget);
     }

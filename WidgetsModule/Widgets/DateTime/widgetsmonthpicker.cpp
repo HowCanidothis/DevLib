@@ -3,6 +3,7 @@
 
 WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
     : QFrame(parent)
+    , EnableButtons(true)
     , ui(new Ui::WidgetsMonthPicker)
 {
     ui->setupUi(this);
@@ -61,6 +62,10 @@ WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
     for(auto button : m_currButtons)WidgetAbstractButtonWrapper(button).SetControl(ButtonRole::Tab);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&m_buttonIndex, m_currButtons);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&Date, ui->dateEdit);
+
+    WidgetWrapper(ui->btnSave).CreateVisibilityRule(CDL, [this]{
+        return EnableButtons.Native();
+    }, {ui->btnCancel}, EnableButtons);
 
     WidgetPushButtonWrapper(ui->btnSave).OnClicked().Connect(CDL, [this]{
         OnApply();

@@ -19,6 +19,7 @@ public:
     DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyDate* model);
     DispatcherConnections ConnectModel(const char* locationInfo, LocalPropertyInt* month, LocalPropertyInt* year);
 
+    LocalPropertyBool EnableButtons;
     LocalPropertyDate Date;
 
     Dispatcher OnApply;
