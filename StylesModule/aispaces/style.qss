@@ -542,36 +542,6 @@ QDockWidget QTableCornerButton::section {
     background: @cbg.2;
 }
 
-WPSCMounthPicker QWidget#btnYear{
-    border-bottom: 1px solid @cbr.normal;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-WPSCMounthPicker QWidget#btnYear:pressed{
-    border-bottom: 1px solid @ctext.1;
-    color: @ctext.1;
-}
-
-WPSCMounthPicker QWidget#btnYear:hover:!pressed{
-    border-bottom: 1px solid @cbr.hover;
-}
-
-WPSCMounthPicker QWidget#btnMonth{
-    border-bottom: 1px solid @cbr.normal;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-WPSCMounthPicker QWidget#btnMonth:pressed{
-    border-bottom: 1px solid @ctext.1;
-    color: @ctext.1;
-}
-
-WPSCMounthPicker QWidget#btnMonth:hover:!pressed{
-    border-bottom: 1px solid @cbr.hover;
-}
-
 WPSCPartialImportDialog QLabel#WarningLabel {
     color: @c.warning;
 }

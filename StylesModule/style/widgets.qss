@@ -177,3 +177,7 @@ QPushButton#BtnShowGrid {
     max-height: 20px;
     padding: 4px;
 }
+
+WidgetsMonthPicker {
+    background: @cbg.1;
+}

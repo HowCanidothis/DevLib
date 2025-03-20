@@ -12,7 +12,7 @@ WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
                      ui->btnSep, ui->btnOct, ui->btnNov, ui->btnDec};
 
     WidgetPushButtonWrapper(ui->btnPrevious).SetOnClicked([this]{
-        Date = Date.Native().addYears(-1);
+        Date = Date.Native().addMonths(-1);
     }).WidgetVisibility().ConnectFrom(CDL, [this](const QDate& d){
         auto min = Date.GetMin();
         if(!min.isValid()){
@@ -22,7 +22,7 @@ WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
     }, Date);
 
     WidgetPushButtonWrapper(ui->btnNext).SetOnClicked([this]{
-        Date = Date.Native().addYears(1);
+        Date = Date.Native().addMonths(1);
     }).WidgetVisibility().ConnectFrom(CDL, [this](const QDate& d){
         auto max = Date.GetMax();
         if(!max.isValid()){
