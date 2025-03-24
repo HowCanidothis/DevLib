@@ -553,3 +553,8 @@ QPushButton#btnXSLReport {
 QPushButton#btnXSLReport:hover {
     background: @cbg.hover;
 }
+
+TreeIntroActionsBar {
+    background: @cbg.2;
+    padding: 10px;
+}

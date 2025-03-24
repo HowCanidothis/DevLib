@@ -470,7 +470,7 @@ QListView {
 }
 
 QTreeView {
-    qproperty-iconSize: 20px 20px;
+    qproperty-iconSize: 14px 14px;
     qproperty-indentation: 12;
 }
 
