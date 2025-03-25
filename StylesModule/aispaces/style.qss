@@ -58,8 +58,8 @@ WPSCSimulationTitleBar QLabel {
 }
 
 MenuBar {
-    min-height: 30px;
-    max-height: 30px;
+    min-height: 40px;
+    max-height: 40px;
     background: transparent;
 }
 
@@ -81,20 +81,22 @@ MenuBar QLabel#LogoIcon {
 }
 
 MenuBar MenuBarMovePane {
+    min-height: 40px;
+    max-height: 40px;
     border: none;
     background: transparent;
+    padding-top: 1px;
 }
 
 MenuBarMovePane QLabel#Title {
     background: transparent;
 }
 
-QFrame#MainFooter {
-    min-height: 22px;
-    max-height: 22px;
+QWidget#MainFooter {
+    min-height: 3px;
+    max-height: 3px;
     border-radius: 0px;
     border: none;
-    padding: 0px 15px 0px 15px; 
 }
 
 DDFooter QLabel{
@@ -164,11 +166,6 @@ DDFooter[DDReferenceMode="2"] QMenuBar::item::selected {
 
 DDFooter[DDReferenceMode="2"] QMenuBar::item::pressed:disabled {
     background: #69C2D3;
-}
-
-QFrame#MainFooter QLabel#FooterProgressBarLabel{
-    font-size: 8px;
-    qproperty-alignment: 'AlignVCenter | AlignLeft';
 }
 
 QFrame[ApplicationMode="1"] QWidget{
@@ -557,4 +554,18 @@ QPushButton#btnXSLReport:hover {
 TreeIntroActionsBar {
     background: @cbg.2;
     padding: 10px;
+}
+
+TopControlBar {
+    min-height: 28px;
+    max-height: 28px;
+}
+
+TopControlBar QFrame#lbRefColor {
+    margin-left: 8px;
+    margin-right: 0px;
+    min-width: 10px;
+    max-width: 10px;
+    min-height: 1px;
+    max-height: 1px;
 }

@@ -22,6 +22,7 @@ public:
 
     void SetWindow(QWidget* w);
 
+    class QHBoxLayout* GetPlaceHolder() const;
     QString GetTitle() const;
     QLabel* GetTitleWidget() const;
     void SetTitle(const QString& title);

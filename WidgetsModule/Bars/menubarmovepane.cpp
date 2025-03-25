@@ -76,6 +76,11 @@ QLabel* MenuBarMovePane::GetTitleWidget() const
     return ui->Title;
 }
 
+QHBoxLayout* MenuBarMovePane::GetPlaceHolder() const
+{
+    return ui->PlaceHolder;
+}
+
 QString MenuBarMovePane::GetTitle() const
 {
     return ui->Title->text();

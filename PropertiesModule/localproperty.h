@@ -1563,6 +1563,13 @@ struct LocalPropertyOptional
         return result;
     }
 
+    DispatcherConnections ConnectFrom(const char* locationInfo, const Property& another)
+    {
+        return Value.ConnectFrom(locationInfo, [](const auto& v) {
+            return v;
+        }, another);
+    }
+
     DispatcherConnections ConnectFrom(const char* locationInfo, const LocalPropertyOptional& another)
     {
         DispatcherConnections connections;

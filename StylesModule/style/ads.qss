@@ -64,8 +64,13 @@ ads--CDockWidgetTab[activeTab=true] QLabel
 }
 
 ads--CDockAreaWidget {
+    border: 0px solid @cbg.1;
     padding: 0px;
     margin: 0px;
+}
+
+ads--CDockAreaWidget[a_focus_view=true] {
+    border: 1px solid @ctext.1;
 }
 
 ads--CDockAreaTabBar {

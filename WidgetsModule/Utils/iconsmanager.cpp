@@ -105,16 +105,16 @@ SvgIconEngine::SvgIconEngine()
         }*/
     };
 
-    d->Palette.ActiveColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
+    d->Palette.ActiveColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Active);
     }).MakeSafe(m_connections);
-    d->Palette.NormalColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
+    d->Palette.NormalColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Normal);
     }).MakeSafe(m_connections);
-    d->Palette.SelectedColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
+    d->Palette.SelectedColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Selected);
     }).MakeSafe(m_connections);
-    d->Palette.DisabledColor.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [resetCache]{
+    d->Palette.DisabledColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
         resetCache(QIcon::Disabled);
     }).MakeSafe(m_connections);
 }
@@ -246,13 +246,31 @@ QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon
     auto& doc = d->Source;
     // recurivelly change color
     if(state == QIcon::On) {
-        setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Native().name());
+        if(d->Palette.SelectedColor.IsValid) {
+            setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Value.Native().name());
+        }
     } else {
         switch (mode) {
-        case QIcon::Active: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
-        case QIcon::Disabled: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Native().name()); break;
-        case QIcon::Selected: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
-        default: setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Native().name()); break;
+        case QIcon::Active:
+            if(d->Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+            }
+            break;
+        case QIcon::Disabled:
+            if(d->Palette.DisabledColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Value.Native().name());
+            }
+            break;
+        case QIcon::Selected:
+            if(d->Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+            }
+            break;
+        default:
+            if(d->Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+            }
+            break;
         }
     }
 
@@ -360,10 +378,10 @@ IconsSvgIcon IconsManager::RegisterIconWithDefaultColorScheme(const Name& id, co
 
     auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
 
-    icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
-    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconDisabledColor);
-    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconPrimaryColor);
-    icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSelectionColor);
+    icon.EditPalette().NormalColor.ConnectFrom(CDL, styleSettings.IconPrimaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CDL, styleSettings.IconDisabledColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CDL, styleSettings.IconPrimaryColor);
+    icon.EditPalette().SelectedColor.ConnectFrom(CDL, styleSettings.IconSelectionColor);
 
     return icon;
 }
@@ -374,10 +392,10 @@ IconsSvgIcon IconsManager::RegisterIconWithSecondaryColorScheme(const Name& id, 
 
     auto& styleSettings = SharedSettings::GetInstance().StyleSettings;
 
-    icon.EditPalette().NormalColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryColor);
-    icon.EditPalette().DisabledColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondaryDisabledColor);
-    icon.EditPalette().ActiveColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
-    icon.EditPalette().SelectedColor.ConnectFrom(CONNECTION_DEBUG_LOCATION, styleSettings.IconSecondarySelectionColor);
+    icon.EditPalette().NormalColor.ConnectFrom(CDL, styleSettings.IconSecondaryColor);
+    icon.EditPalette().DisabledColor.ConnectFrom(CDL, styleSettings.IconSecondaryDisabledColor);
+    icon.EditPalette().ActiveColor.ConnectFrom(CDL, styleSettings.IconSecondarySelectionColor);
+    icon.EditPalette().SelectedColor.ConnectFrom(CDL, styleSettings.IconSecondarySelectionColor);
 
     return icon;
 }

@@ -403,19 +403,19 @@ QTreeView:branch:!has-children:!has-siblings:adjoins-item {
 }
 
 QTreeView:branch:has-children:!has-siblings:closed, QTreeView:branch:closed:has-children:has-siblings {
-    border-image: url("@cPath/arrow-right.svg") 0 4 -2 2;
+    image: url("@cPath/arrow-right.svg") 0 0 0 0;
 }
 
 QTreeView:branch:open:has-children:!has-siblings, QTreeView:branch:open:has-children:has-siblings {
-    border-image: url("@cPath/arrow-down.svg") 0 0 0 0;
+    image: url("@cPath/arrow-down.svg") 0 0 0 0;
 }
 
 QTreeView:branch:has-children:!has-siblings:closed:hover, QTreeView:branch:closed:has-children:has-siblings:hover {
-    border-image: url("@cPath/arrow-right.svg") 0 4 -2 2;
+    image: url("@cPath/arrow-right.svg") 0 0 0 0;
 }
 
 QTreeView:branch:open:has-children:!has-siblings:hover, QTreeView:branch:open:has-children:has-siblings:hover {
-    border-image: url("@cPath/arrow-down.svg") 0 0 0 0;
+    image: url("@cPath/arrow-down.svg") 0 0 0 0;
 }
 
 QTreeView::indicator:checked,
@@ -470,8 +470,8 @@ QListView {
 }
 
 QTreeView {
-    qproperty-iconSize: 14px 14px;
-    qproperty-indentation: 12;
+    qproperty-iconSize: 16px 16px;
+    qproperty-indentation: 16;
 }
 
 QTreeView::item {
@@ -837,7 +837,7 @@ QMenu::icon {
 
 QMenu::item {
     font-size: 14px;
-    padding: 8px 24px 8px 24px;
+    padding: 8px 12px 8px 12px;
     background-color: @cbg.3;
     border: none;
 }
@@ -1317,4 +1317,10 @@ QComboBoxListView:disabled{
 QLabel[DialogTitle=true] {
     font-size: 24px;
     color: @ctext.active;
+}
+
+QFrame[VDivider=true] {
+    background: @cbg.3;
+    min-width: 1px;
+    max-width: 1px;
 }

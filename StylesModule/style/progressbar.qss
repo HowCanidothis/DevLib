@@ -12,8 +12,6 @@ MainProgressBar QRoundProgressBar {
 }
 
 QWidget#FooterProgressBar{
-    max-height: 5px;
-    max-width: 40px;
     border: none;
 }
 

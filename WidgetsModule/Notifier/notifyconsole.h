@@ -31,7 +31,6 @@ public:
     ~NotifyConsole();
 
     void SetVisibility(ElementVisibilityFlags visibility);
-    void SetCloseIcon(const class IconsSvgIcon& closeIcon);
     void SetErrorIcon(const IconsSvgIcon& errorIcon);
     void SetCleanIcon(const IconsSvgIcon& cleanIcon);
     void SetWarningIcon(const IconsSvgIcon& cleanIcon);

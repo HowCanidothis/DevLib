@@ -53,6 +53,9 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="PlaceHolder"/>
+   </item>
+   <item>
     <widget class="QPushButton" name="BtnMinimize">
      <property name="text">
       <string>Minimize</string>

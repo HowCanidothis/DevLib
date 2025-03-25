@@ -149,7 +149,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="BtnCloseConsole">
+      <widget class="QPushButton" name="BtnCloseMinor">
        <property name="toolTip">
         <string>Hide Alerts and Notifications</string>
        </property>

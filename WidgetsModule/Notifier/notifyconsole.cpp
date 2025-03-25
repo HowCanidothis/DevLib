@@ -252,6 +252,9 @@ NotifyConsole::NotifyConsole(QWidget *parent)
         setVisible(IsOpened);
     });
 
+    WidgetPushButtonWrapper(ui->BtnCloseMinor).SetOnClicked([this]{
+        IsOpened = false;
+    });
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowErrors, ui->BtnShowErrors);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowInfos, ui->BtnShowInfo);
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&IsShowWarnings, ui->BtnShowWarnings);
@@ -310,17 +313,12 @@ NotifyConsole::~NotifyConsole()
 
 void NotifyConsole::SetVisibility(ElementVisibilityFlags visibility)
 {
-    ui->BtnCloseConsole->setVisible(visibility.TestFlag(ElementVisibility_Close));
+    ui->BtnCloseMinor->setVisible(visibility.TestFlag(ElementVisibility_Close));
     ui->BtnClear->setVisible(visibility.TestFlag(ElementVisibility_Clear));
     ui->BtnShowWarnings->setVisible(visibility.TestFlag(ElementVisibility_ShowWarnings));
     ui->Filter->setVisible(visibility.TestFlag(ElementVisibility_Filter));
     ui->BtnShowInfo->setVisible(visibility.TestFlag(ElementVisibility_ShowInfos));
     ui->BtnShowErrors->setVisible(visibility.TestFlag(ElementVisibility_ShowErrors));
-}
-
-void NotifyConsole::SetCloseIcon(const IconsSvgIcon& icon)
-{
-    ui->BtnCloseConsole->setIcon(icon);
 }
 
 void NotifyConsole::SetErrorIcon(const IconsSvgIcon& icon)

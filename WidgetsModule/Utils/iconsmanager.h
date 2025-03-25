@@ -7,10 +7,10 @@
 
 struct IconsPalette
 {
-    LocalPropertyColor NormalColor;
-    LocalPropertyColor DisabledColor;
-    LocalPropertyColor ActiveColor;
-    LocalPropertyColor SelectedColor;
+    LocalPropertyOptional<LocalPropertyColor> NormalColor;
+    LocalPropertyOptional<LocalPropertyColor> DisabledColor;
+    LocalPropertyOptional<LocalPropertyColor> ActiveColor;
+    LocalPropertyOptional<LocalPropertyColor> SelectedColor;
 
     IconsPalette& SetColors(const QColor& color)
     {
