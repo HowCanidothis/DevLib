@@ -36,10 +36,10 @@ MainWindow {
 
     qproperty-visualizationTextColor: white;
     qproperty-visualizationTextBorderColor: white;
-    qproperty-visualizationBackgroundColor: @cbg.1;
-    qproperty-visualizationBoxColor: @cbg.2;
+    qproperty-visualizationBackgroundColor: @cbg.2;
+    qproperty-visualizationBoxColor: @cbg.1;
     qproperty-visualizationAxisColor: @ctext.disabled;
-    qproperty-visualizationFrameColor: @cbg.1;
+    qproperty-visualizationFrameColor: @cbg.2;
     qproperty-visualizationAltAxisColor: @cbg.3;
     qproperty-visualizationAltBackgroundColor: @cbg.2;
     qproperty-visualizationAltTextColor: white;

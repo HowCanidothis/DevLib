@@ -29,6 +29,7 @@ public:
     QAbstractButton* AddButton(const WidgetsDialogsManagerButtonStruct& b);
 
 private:
+    void paintEvent(QPaintEvent*) override;
     void keyPressEvent(QKeyEvent* e) override;
     // QDialog interface
 public slots:

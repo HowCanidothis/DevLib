@@ -179,5 +179,5 @@ QPushButton#BtnShowGrid {
 }
 
 WidgetsMonthPicker {
-    background: @cbg.1;
+    background: @cbg.2;
 }

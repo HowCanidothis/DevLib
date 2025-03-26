@@ -4,7 +4,7 @@ QWidget {
     padding: 0px;
     border: none;
     color: @ctext.label;
-    background: @cbg.1;
+    background: transparent;
 }
 
 QWidget[readOnly=true] {
@@ -77,6 +77,7 @@ QLabel[GroupTitle=true] {
 }
 
 QLineEdit{
+    background: @cbg.control;
     padding-left: 8px;
     min-height: 28px;
     color: @ctext.active;
@@ -95,6 +96,7 @@ QLineEdit[readOnly=false]:focus {
 }
 
 QDateTimeEdit{
+    background: @cbg.control;
     padding-left: 8px;
     min-height: 28px;
     color: @ctext.active;
@@ -107,7 +109,7 @@ QDateTimeEdit{
 WidgetsDatetimePopupPicker {
     border-radius: 4px;
     border: 1px solid @cbr.normal;
-    background: @cbg.1;
+    background: @cbg.control;
     padding-right: 8px;
 }
 
@@ -132,7 +134,7 @@ WidgetsSwitchLayout QPushButton {
 
 WidgetsSwitchLayout QPushButton:checked {
     color: @ctext.active;
-    background: @cbg.3;
+    background: @cbg.control;
 }
 
 WidgetsSwitchLayout QPushButton:!checked {
@@ -145,6 +147,7 @@ WidgetsSwitchLayout QPushButton:hover {
 }
 
 QDoubleSpinBox {
+    background: @cbg.control;
     border: 1px solid @cbr.normal; 
     min-height: 28px;
     border-radius: 4px;
@@ -164,6 +167,7 @@ QDoubleSpinBox[readOnly=false]:focus {
 }
 
 QSpinBox {
+    background: @cbg.control;
     min-height: 28px;
     border-radius: 4px;
     border: 1px solid @cbr.normal;
@@ -365,7 +369,8 @@ QSplitter {
 QSplitter::handle {
     spacing: 0px;
     margin: 0px 0px 0px 0px;
-    background: @cbg.3;
+    background: @cbg.1;
+    qproperty-mouseTracking: 1;
 }
 
 QSplitter::handle:horizontal {
@@ -384,6 +389,10 @@ QSplitter[inner=true]::handle:horizontal {
 QSplitter[inner=true]::handle:vertical {
     margin: 0px;
     height: 1px;
+}
+
+QSplitter[a_hovered_sh=true]::handle {
+    background: @ctext.disabled;
 }
 
 QTreeView:branch:selected, QTreeView:branch:hover {
@@ -462,7 +471,7 @@ QColumnView {
     margin: 0px;
     padding: 0px;
     outline: none;
-    background: @cbg.1;
+    background: transparent;
 }
 
 QListView {
@@ -552,7 +561,7 @@ QColumnView::item:selected {
 
 QTableCornerButton::section {
     border-radius: 0px;
-    background: @cbg.1;
+    background: transparent;
     border-bottom: 1px solid @cbg.disabled;
 }
 
@@ -561,7 +570,7 @@ QHeaderView {
     padding: 0px;
     margin: 0px;
     border-radius: 0px;
-    background-color: @cbg.1;
+    background-color: transparent;
     border: none;
 }
 
@@ -573,7 +582,7 @@ QHeaderView::section {
     padding: 2px;
     border-radius: 0px;
     text-align: left;
-    background-color: @cbg.1;
+    background-color: transparent;
     color: @ctext.label;
 }
 
@@ -795,12 +804,10 @@ QCheckBox:indicator:checked:disabled {
 
 QMenuBar {
     font-size: 14px;
-    background-color: @cbg.1;
     color: @ctext.label;
 }
 
 QMenuBar::item {
-    background: @cbg.1;
     padding: 4px 12px 3px 12px;
 }
 
@@ -918,8 +925,8 @@ WidgetsTabBarLayout QLabel#groupIcon {
 }
 
 MenuBarMovePane {
-    min-height: 28px;
-    max-height: 28px;
+    min-height: 40px;
+    max-height: 40px;
     background: @cbg.1;
 }
 
@@ -982,7 +989,7 @@ QTextEdit {
 }
 
 QTextEdit[readOnly=false] {
-    background: @cbg.1;
+    background: @cbg.control;
 }
 
 QTextEdit[readOnly=false]:focus {
@@ -1097,7 +1104,7 @@ WidgetsCalendarWidget
 
 QCalendarWidget QAbstractItemView {
     font: bold;
-    background-color: @cbg.1;
+    background-color: @cbg.control;
     selection-background-color: @cbg.hover1;
     alternate-background-color: transparent;
     selection-color: @ctext.1;
@@ -1109,7 +1116,7 @@ QCalendarWidget QAbstractItemView:disabled
 }
 
 WidgetsTimePicker {
-    qproperty-clockColor: @cbg.2;
+    qproperty-clockColor: @cbg.3;
     qproperty-arrowColor: @ctext.1;
     qproperty-arrowWidth: 2;
 }
@@ -1182,7 +1189,7 @@ WidgetsTimePicker QLabel {
 
 WidgetsDateTimeWidget {
     padding: 6px;
-    background: @cbg.1;
+    background: @cbg.control;
 }
 
 QDockWidget {
@@ -1264,6 +1271,7 @@ QWidget[w_showfocus="1"] {
 }
 
 QComboBox {
+    background: @cbg.control;
     padding-left: 10px;
     padding-right: 10px;
     min-height: 28px;
@@ -1323,4 +1331,14 @@ QFrame[VDivider=true] {
     background: @cbg.3;
     min-width: 1px;
     max-width: 1px;
+}
+
+QDialog {
+    background: @cbg.2;
+    border: 1px solid @cbg.3;
+}
+
+QFrame[a_cover=true] {
+    background: black;
+    qproperty-windowOpacity: 0.5;
 }

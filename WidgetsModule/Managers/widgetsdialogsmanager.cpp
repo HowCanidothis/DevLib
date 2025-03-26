@@ -295,7 +295,9 @@ qint32 WidgetsDialogsManager::ShowDialog(WidgetsDialog* dialog, const DescShowDi
 
     qint32 result = -1;
     if(params.Modal) {
+        OnModalDialogAboutToBeShown();
         result = dialog->exec();
+        OnModalDialogClosed();
     } else {
         dialog->show();
     }
@@ -399,6 +401,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     auto size = widget->layout()->sizeHint();
 
     QVBoxLayout* contentWithPaneWidgetLayout = createNullLayout();
+    contentWithPaneWidgetLayout->setContentsMargins(1,1,1,0);
     MenuBarMovePane* pane = nullptr;
     if(attachMovePane) {
         pane = new MenuBarMovePane(widget);
@@ -406,8 +409,8 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
         contentWithPaneWidgetLayout->addWidget(pane);
         size.rheight() += pane->sizeHint().height();
     }
-    QWidget* contentWithPaneWidget = new QWidget();
-    QWidget* contentWidget = new QWidget();
+    QWidget* contentWithPaneWidget = new QFrame();
+    QWidget* contentWidget = new QFrame();
     contentWithPaneWidgetLayout->addWidget(contentWidget);
     contentWithPaneWidget->setLayout(contentWithPaneWidgetLayout);
 
@@ -416,18 +419,18 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
     cm.setTop(0);
     layout->setContentsMargins(cm);
     widget->window()->setWindowFlag(Qt::FramelessWindowHint);
-    widget->window()->setAttribute(Qt::WA_TranslucentBackground);
+//    widget->window()->setAttribute(Qt::WA_TranslucentBackground);
 
     contentWidget->setLayout(layout);
 
-    AttachShadow(contentWithPaneWidget, false);
+//    AttachShadow(contentWithPaneWidget, false);
 
     auto* mainLayout = createNullLayout();
     mainLayout->addWidget(contentWithPaneWidget);
     widget->setLayout(mainLayout);
     widget->setMinimumSize(size + QSize(20,20));
 
-    widget->window()->layout()->setMargin(10);
+    widget->window()->layout()->setMargin(0);
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;

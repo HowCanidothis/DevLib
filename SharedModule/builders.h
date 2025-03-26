@@ -149,6 +149,7 @@ public:
 
     static QString XMLCreateStyleColorized(const QString& text, const QColor& color);
     static QString XMLCreateHyperlink(const QString& text, const FAction* handler, const QColor& color);
+    static QString XMLCreateHyperlink(const QString& text, const FAction* handler);
     StringBuilder& XMLAddEnumerated(const QString& text);
 
 

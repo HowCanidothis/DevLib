@@ -82,6 +82,8 @@ public:
     LocalPropertyColor ShadowColor;
 
     CommonDispatcher<QWidget*> OnDialogCreated;
+    Dispatcher OnModalDialogAboutToBeShown;
+    Dispatcher OnModalDialogClosed;
 
 private:
     WidgetsDialog* createDialog(const DescCustomDialogParams& params) const;

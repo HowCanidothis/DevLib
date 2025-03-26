@@ -16,10 +16,10 @@ namespace Ui {
 class WidgetsInputDialogView;
 }
 
-class WidgetsInputDialogView : public QDialog
+class WidgetsInputDialogView : public QWidget
 {
     Q_OBJECT
-    using Super = QDialog;
+    using Super = QWidget;
 public:
     explicit WidgetsInputDialogView(QWidget *parent = nullptr);
     ~WidgetsInputDialogView();

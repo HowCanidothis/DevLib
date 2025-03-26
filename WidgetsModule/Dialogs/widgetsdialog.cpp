@@ -15,6 +15,8 @@ WidgetsDialog::WidgetsDialog(QWidget *parent) :
     WidgetWrapper(ui->label).WidgetVisibility().ConnectFrom(CDL, [](const QString& t) {
         return !t.isEmpty();
     }, *WidgetLabelWrapper(ui->label).WidgetText());
+
+    setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 WidgetsDialog::~WidgetsDialog()
@@ -117,6 +119,11 @@ void WidgetsDialog::keyPressEvent(QKeyEvent *e)
     } else {
         e->ignore();
     }
+}
+
+void WidgetsDialog::paintEvent(QPaintEvent* e)
+{
+    Super::paintEvent(e);
 }
 
 void WidgetsDialog::SetContent(QWidget* view)
