@@ -139,8 +139,3 @@ NotifyConsole QTableView::indicator:unchecked {
 NotifyConsole QTableView::indicator:checked {
     border-image: url("@cPath/eye.svg");
 }
-
-NotifyConsole QTableView{
-    margin-left: 9px;
-    margin-right: 9px;
-}

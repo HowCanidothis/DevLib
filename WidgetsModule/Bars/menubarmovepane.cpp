@@ -132,7 +132,9 @@ void MenuBarMovePane::mouseDoubleClickEvent(QMouseEvent* event)
 {
     Super::mouseDoubleClickEvent(event);
     m_ignoreMoveEvents = true;
-    MaximizeRestore();
+    if(event->button() == Qt::LeftButton) {
+        MaximizeRestore();
+    }
 }
 
 void MenuBarMovePane::MaximizeRestore()

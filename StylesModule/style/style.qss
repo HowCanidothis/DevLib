@@ -134,7 +134,7 @@ WidgetsSwitchLayout QPushButton {
 
 WidgetsSwitchLayout QPushButton:checked {
     color: @ctext.active;
-    background: @cbg.control;
+    background: @cbg.2;
 }
 
 WidgetsSwitchLayout QPushButton:!checked {
@@ -877,7 +877,7 @@ QMenu::indicator:non-exclusive:checked {
 }
 
 QMenu::right-arrow {
-    margin: 5px;
+    margin: 5px 0px 5px 5px;
     image: url("@cPath/arrow-right.svg");
     height: 16px;
     width: 16px;
@@ -1327,7 +1327,7 @@ QLabel[DialogTitle=true] {
     color: @ctext.active;
 }
 
-QFrame[VDivider=true] {
+QFrame[VSeparator=true] {
     background: @cbg.3;
     min-width: 1px;
     max-width: 1px;
