@@ -1257,7 +1257,7 @@ QScrollArea > QWidget > QWidget{
 WidgetsColorPicker {
     min-height: 28px;
     color: @ctext.label;
-    max-height: 30px;
+    max-height: 28px;
     qproperty-borderRadius: 4px 4px;
 }
 
@@ -1275,6 +1275,7 @@ QComboBox {
     padding-left: 10px;
     padding-right: 10px;
     min-height: 28px;
+    max-height: 28px;
     border: 1px solid @cbr.normal;
     border-radius: 4px;
     color: @ctext.active;

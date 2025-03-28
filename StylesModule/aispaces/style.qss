@@ -452,3 +452,7 @@ TopControlBar QFrame#lbRefColor {
 QFrame#Workspace{
     background: @cbg.2;
 }
+
+TopControlBar QComboBox {
+    min-height: 20px;
+}
