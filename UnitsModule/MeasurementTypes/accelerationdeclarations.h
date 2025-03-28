@@ -15,6 +15,7 @@ namespace AccelerationUnits
     DECLARE_MEASUREMENT_UNIT(USFeetsPerSqSec)
     DECLARE_MEASUREMENT_UNIT(USFeetsPerSqMinute)
     DECLARE_MEASUREMENT_UNIT(USFeetsPerSqHour)
+    DECLARE_MEASUREMENT_UNIT(Gravity)
 };
 
 DECLARE_MEASUREMENT(Acceleration)

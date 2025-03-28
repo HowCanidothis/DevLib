@@ -248,7 +248,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&AccelerationUnits::FeetsPerSqHour)
             .AddUnit(&AccelerationUnits::USFeetsPerSqSec)
             .AddUnit(&AccelerationUnits::USFeetsPerSqMinute)
-            .AddUnit(&AccelerationUnits::USFeetsPerSqHour);
+            .AddUnit(&AccelerationUnits::USFeetsPerSqHour)
+            .AddUnit(&AccelerationUnits::Gravity);
 
     AddMeasurement(MeasurementAngle::Value)
             .AddUnit(&AngleUnits::Degrees)
