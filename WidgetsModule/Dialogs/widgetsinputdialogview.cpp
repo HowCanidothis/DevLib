@@ -131,6 +131,7 @@ void WidgetsInputDialogView::AddDateRange(const QString& label, LocalPropertyDat
         setFocusProxy(fromDtWidget);
     }
     fromDtWidget->setIsDateTime(false);
+    toDtWidget->setIsDateTime(false);
     fromDtWidget->label()->setText(tr("From"));
     toDtWidget->label()->setText(tr("To"));
     horizontal->addWidget(fromDtWidget);

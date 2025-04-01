@@ -1343,3 +1343,7 @@ QFrame[a_cover=true] {
     background: black;
     qproperty-windowOpacity: 0.5;
 }
+
+QTableView QCheckBox {
+    background: @cbg.2;
+}
