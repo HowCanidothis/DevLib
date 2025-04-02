@@ -13,6 +13,7 @@ namespace AccelerationUnits
     IMPLEMENT_MEASUREMENT_UNIT(USFeetsPerSqSec,     TR(MeasurementTr::tr("USFeets Per Square Second")),   TR(MeasurementTr::tr("usft/s2")),   1. / METERS_TO_USFEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(USFeetsPerSqMinute,  TR(MeasurementTr::tr("USFeets Per Square Minute")),   TR(MeasurementTr::tr("usft/m2")),   3600. / METERS_TO_USFEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(USFeetsPerSqHour,    TR(MeasurementTr::tr("USFeets Per Square Hour")),     TR(MeasurementTr::tr("usft/h2")),   3600. * 3600. / METERS_TO_USFEETS_MULTIPLIER)
+    IMPLEMENT_MEASUREMENT_UNIT(Gravity,             TR(MeasurementTr::tr("Gravity")),                     TR(MeasurementTr::tr("g")),         9.80665)
 }
 
 IMPLEMENT_MEASUREMENT(Acceleration, TR(MeasurementTr::tr("Acceleration")))

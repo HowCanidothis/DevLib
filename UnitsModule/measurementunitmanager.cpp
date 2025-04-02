@@ -38,6 +38,7 @@
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"
 #include "MeasurementTypes/currencydeclarations.h"
+#include "MeasurementTypes/magneticfieldstrengthdeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -247,7 +248,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&AccelerationUnits::FeetsPerSqHour)
             .AddUnit(&AccelerationUnits::USFeetsPerSqSec)
             .AddUnit(&AccelerationUnits::USFeetsPerSqMinute)
-            .AddUnit(&AccelerationUnits::USFeetsPerSqHour);
+            .AddUnit(&AccelerationUnits::USFeetsPerSqHour)
+            .AddUnit(&AccelerationUnits::Gravity);
 
     AddMeasurement(MeasurementAngle::Value)
             .AddUnit(&AngleUnits::Degrees)
@@ -584,6 +586,12 @@ void MeasurementManager::Initialize()
             .AddUnit(&CurrencyUnits::Yuan)
             .AddUnit(&CurrencyUnits::Ruble);
 
+    AddMeasurement(MeasurementMagneticFieldStrength::Value)
+            .AddUnit(&MagneticFieldStrengthUnits::AmperePerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::AmpereTurnPerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::KiloAmperePerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::Oersted);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
@@ -638,6 +646,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
@@ -694,6 +703,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
 
@@ -750,6 +760,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
