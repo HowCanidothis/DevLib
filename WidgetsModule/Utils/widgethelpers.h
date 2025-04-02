@@ -591,6 +591,7 @@ public:
     void SelectColumnsAndScrollToFirst(const QSet<qint32>& columns) const;
     WidgetsGlobalTableActionsScopeHandlersPtr SetDefaultActionHandlers(bool readOnly) const;
     WidgetsGlobalTableActionsScopeHandlersPtr CreateDefaultActionHandlers() const;
+    WidgetsGlobalTableActionsScopeHandlersPtr GetActionHandlers() const;
     class QHeaderView* InitializeHorizontal(const DescTableViewParams& params = DescTableViewParams()) const;
     QHeaderView* InitializeVertical(const DescTableViewParams& params = DescTableViewParams()) const;
     class WidgetTableViewColumnsAttachment* AddColumnAttachment(const std::function<QWidget* (qint32 column)>& delegate) const;

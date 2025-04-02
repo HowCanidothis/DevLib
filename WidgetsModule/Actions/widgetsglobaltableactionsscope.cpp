@@ -12,18 +12,27 @@
 struct WidgetsGlobalTableActionsScopeHandlerData
 {
     FAction Action;
+    QAction* UiAction;
     LocalPropertyBool Visibility;
     LocalPropertyBool Enablity;
     TranslatedString Text;
 
-    WidgetsGlobalTableActionsScopeHandlerData(const FAction& action)
+    WidgetsGlobalTableActionsScopeHandlerData(QAction* uiAction, const FAction& action)
         : Action(action)
+        , UiAction(uiAction)
         , Visibility(false)
         , Enablity(false)
     {
 
     }
 };
+
+void WidgetsGlobalTableActionsScopeHandler::SetShortcut(const QKeySequence& shortcut)
+{
+    if(m_data != nullptr) {
+        m_data->UiAction->setShortcut(shortcut);
+    }
+}
 
 FAction WidgetsGlobalTableActionsScopeHandler::GetAction() const
 {
@@ -37,9 +46,16 @@ WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::Se
     return *this;
 }
 
-WidgetsGlobalTableActionsScopeHandler::WidgetsGlobalTableActionsScopeHandler(const FAction& action)
-    : m_data(::make_shared<WidgetsGlobalTableActionsScopeHandlerData>(action))
+WidgetsGlobalTableActionsScopeHandler::WidgetsGlobalTableActionsScopeHandler(QAction* uiAction, const FAction& action)
+    : m_data(::make_shared<WidgetsGlobalTableActionsScopeHandlerData>(uiAction, action))
 {
+}
+
+void WidgetsGlobalTableActionsScopeHandler::Trigger()
+{
+    if(IsValid() && m_data->Enablity && m_data->Visibility) {
+        m_data->Action();
+    }
 }
 
 LocalPropertyBool& WidgetsGlobalTableActionsScopeHandler::Visibility() const { return m_data->Visibility; }
@@ -393,7 +409,7 @@ WidgetsGlobalTableActionsScopeHandlers& WidgetsGlobalTableActionsScopeHandlers::
 
 WidgetsGlobalTableActionsScopeHandler WidgetsGlobalTableActionsScopeHandlers::AddHandler(const FTranslationHandler& handler, const QKeySequence& sequence, QAction* action, const FAction& actionHandler)
 {
-    auto ret = *Handlers.insert(action, actionHandler);
+    auto ret = *Handlers.insert(action, WidgetsGlobalTableActionsScopeHandler(action, actionHandler));
     action->setShortcut(sequence);
     ret.Text().SetTranslationHandler(handler);
     return ret;

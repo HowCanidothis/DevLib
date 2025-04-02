@@ -718,6 +718,11 @@ WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::CreateDefaultA
     return WidgetsGlobalTableActionsScope::AddDefaultHandlers(GetWidget());
 }
 
+WidgetsGlobalTableActionsScopeHandlersPtr WidgetTableViewWrapper::GetActionHandlers() const
+{
+    return WidgetsGlobalTableActionsScope::EditHandlers(GetWidget());
+}
+
 WidgetTableViewWrapper::WidgetTableViewWrapper(QTableView* tableView)
     : WidgetWrapper(tableView)
 {}

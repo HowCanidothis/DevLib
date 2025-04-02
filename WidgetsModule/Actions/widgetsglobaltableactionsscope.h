@@ -8,7 +8,7 @@ class WidgetsGlobalTableActionsScopeHandler
 {
 public:
     WidgetsGlobalTableActionsScopeHandler() {}
-    WidgetsGlobalTableActionsScopeHandler(const FAction& action);
+    WidgetsGlobalTableActionsScopeHandler(QAction* uiAction, const FAction& action);
 
     WidgetsGlobalTableActionsScopeHandler& SetVisible(bool visible);
 
@@ -18,6 +18,8 @@ public:
     WidgetsGlobalTableActionsScopeHandler& SetAction(const FAction& action);
 
     FAction GetAction() const;
+    void SetShortcut(const QKeySequence& shortcut);
+    void Trigger();
 
     bool IsValid() const { return m_data != nullptr; }
 
