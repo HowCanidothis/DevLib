@@ -39,6 +39,7 @@
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"
 #include "MeasurementTypes/currencydeclarations.h"
+#include "MeasurementTypes/magneticfieldstrengthdeclarations.h"
 
 #include "measurementunitmanager.h"
 
