@@ -283,9 +283,22 @@ void MeasurementManager::Initialize()
             .AddUnit(&DistanceUnits::Kilometers);
 
     AddMeasurement(MeasurementMagneticField::Value)
+            .AddUnit(&FieldStrengthUnits::Tesla)
             .AddUnit(&FieldStrengthUnits::MicroTeslas)
             .AddUnit(&FieldStrengthUnits::Gauss)
-            .AddUnit(&FieldStrengthUnits::NanoTeslas);
+            .AddUnit(&FieldStrengthUnits::NanoTeslas)
+            .AddUnit(&FieldStrengthUnits::WeberPerSquareMeter)
+            .AddUnit(&FieldStrengthUnits::MaxwellPerSquareMeter);
+
+    AddMeasurement(MeasurementMagneticFlux::Value)
+            .AddUnit(&MagneticFluxUnits::Weber)
+            .AddUnit(&MagneticFluxUnits::MicroWeber)
+            .AddUnit(&MagneticFluxUnits::NanoWeber)
+            .AddUnit(&MagneticFluxUnits::VoltSecod)
+            .AddUnit(&MagneticFluxUnits::Maxwell)
+            .AddUnit(&MagneticFluxUnits::TeslaSquareMeter)
+            .AddUnit(&MagneticFluxUnits::GaussSquareMeter)
+            .AddUnit(&MagneticFluxUnits::GaussSquareCentimeters);
 
     AddMeasurement(MeasurementDLS::Value)
             .AddUnit(&DLSUnits::Degree100USFeet)
@@ -647,6 +660,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::Weber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
@@ -704,6 +718,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
 
@@ -761,6 +776,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{

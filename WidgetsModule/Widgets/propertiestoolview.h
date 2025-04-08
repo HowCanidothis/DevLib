@@ -109,7 +109,8 @@ struct LineData {
     WidgetElidedLabelWrapper LabelWrapper;
     LocalPropertyBool& WidgetEnablity() const { return EditorWrapper.WidgetEnablity(); }
     LocalPropertyBool& WidgetVisibility() const { return EditorWrapper.WidgetVisibility(); }
-    LineData& SetReadOnly(bool readOnly = true) { GetEditorWrapper<WidgetDoubleSpinBoxWrapper>()->setReadOnly(readOnly); return *this; }
+    LineData& SetReadOnly(bool readOnly = true) { GetEditorWrapper<WidgetDoubleSpinBoxWrapper>().WidgetReadOnly() = readOnly; return *this; }
+    LineData& SetPrecision(int presicion) { GetEditorWrapper<WidgetDoubleSpinBoxWrapper>()->setDecimals(presicion); return *this; }
 //    LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const { return EditorWrapper.WidgetHighlighted(); }
     LocalPropertyBoolCommutator& ContentVisibilityCommutator() const;
 
