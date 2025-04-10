@@ -606,7 +606,7 @@ void MeasurementManager::Initialize()
             .AddUnit(&MagneticFieldStrengthUnits::Oersted);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -660,11 +660,11 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
-            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::Weber.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         2})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
