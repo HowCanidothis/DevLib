@@ -357,6 +357,26 @@ bool Foreach(const FFunction& handler, T& c1, T2& c2, Args&... args)
     return true;
 }
 
+template<typename FFunction, class T, class T2, typename ... Args>
+bool ForeachConst(const FFunction& handler, const T& c1, const T2& c2, const Args&... args)
+{
+    qint32 minSize = std::numeric_limits<qint32>().max();
+    adapters::Combine([&](const auto& t){
+        minSize = std::min(t.size(), minSize);
+    }, c1, c2, args...);
+
+
+    auto f = c1.begin();
+    auto s = c2.begin();
+    for(qint32 i(0); i < minSize; ++i) {
+        handler(*f, *s, *(args.begin() + i)...);
+        ++f;
+        ++s;
+    }
+
+    return true;
+}
+
 template<typename First, typename ... Args>
 QVector<First> toVector(const First& first, Args... args) { return QVector<First>({ first, args... }); }
 

@@ -40,8 +40,9 @@ QWidget* DelegatesLineEdit::createEditor(QWidget* parent, const QStyleOptionView
     return editor;
 }
 
-DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent)
+DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent, bool completer)
     : Super([]()-> QStringList { return {}; }, parent)
+    , m_includeCompleter(completer)
     , m_getter(getter)
 {}
 
@@ -49,6 +50,11 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
 {
     QComboBox* comboBox = new QComboBox(parent);
     auto* model = m_getter();
+    if(!m_includeCompleter) {
+        comboBox->setModel(model);
+        return comboBox;
+    }
+
     WidgetComboboxWrapper(comboBox).Make([this, comboBox, model](const WidgetComboboxWrapper& wrapper){
         auto update = [this, comboBox](QAbstractItemDelegate::EndEditHint hints){
             auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);

@@ -41,10 +41,11 @@ class DelegatesComboboxCustomViewModel : public DelegatesCombobox
     using Super = DelegatesCombobox;
 public:
     using ModelGetter = std::function<QAbstractItemModel* ()>;
-    DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent);
+    DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent, bool completer = true);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex&) const override;
 
 protected:
+    bool m_includeCompleter;
     ModelGetter m_getter;
 };
 
