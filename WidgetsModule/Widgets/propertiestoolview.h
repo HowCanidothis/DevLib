@@ -110,6 +110,7 @@ struct LineData {
     LocalPropertyBool& WidgetEnablity() const { return EditorWrapper.WidgetEnablity(); }
     LocalPropertyBool& WidgetVisibility() const { return EditorWrapper.WidgetVisibility(); }
     LineData& SetPrecision(int presicion) { GetEditorWrapper<WidgetDoubleSpinBoxWrapper>()->setDecimals(presicion); return *this; }
+    LineData& SetReadOnly(bool readOnly) { WidgetEnablity() = !readOnly; return *this; }
 //    LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const { return EditorWrapper.WidgetHighlighted(); }
     LocalPropertyBoolCommutator& ContentVisibilityCommutator() const;
 
