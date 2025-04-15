@@ -343,10 +343,12 @@ struct Serializer<QMap<T, T2>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; it++) {
+            buffer.BeginArrayObject();
             buffer << buffer.Sect("key", const_cast<T&>(it.key()));
             buffer << buffer.Sect("value", const_cast<T2&>(it.value()));
+            buffer.EndArrayObject();
         }
     }
 
@@ -354,13 +356,15 @@ struct Serializer<QMap<T, T2>>
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         data.clear();
         while(count--) {
+            buffer.BeginArrayObject();
             T key; T2 value;
             buffer << buffer.Sect("key", key);
             buffer << buffer.Sect("value", value);
             data.insert(key, value);
+            buffer.EndArrayObject();
         }
     }
 };
@@ -404,10 +408,12 @@ struct Serializer<QHash<T, T2>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; it++) {
+            buffer.BeginArrayObject();
             buffer << buffer.Sect("key", const_cast<T&>(it.key()));
             buffer << buffer.Sect("value", const_cast<T2&>(it.value()));
+            buffer.EndArrayObject();
         }
     }
 
@@ -415,13 +421,15 @@ struct Serializer<QHash<T, T2>>
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         data.clear();
         while(count--) {
+            buffer.BeginArrayObject();
             T key; T2 value;
             buffer << buffer.Sect("key", key);
             buffer << buffer.Sect("value", value);
             data.insert(key, value);
+            buffer.EndArrayObject();
         }
     }
 };
@@ -434,7 +442,7 @@ struct Serializer<QSet<T>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         if(buffer.GetSerializationMode().TestFlag(SerializationMode_Sorted_Containers)) {
             auto list = data.toList();
             std::sort(list.begin(), list.end());
@@ -452,7 +460,7 @@ struct Serializer<QSet<T>>
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer << buffer.Attr("Size", count);
+        buffer.BeginArray(buffer, count);
         if(!buffer.GetSerializationMode().TestFlag(SerializationMode_Merge_Containers)) {
             data.clear();
         }
@@ -531,7 +539,7 @@ struct Serializer<QVector<T>>
     static void Write(Buffer& buffer, const Type& type)
     {
         qint32 size = type.size();
-        buffer << buffer.Attr("Size", size);
+        buffer.BeginArray(buffer, size);
         for(const T& value : type) {
             buffer << buffer.Sect("element", const_cast<T&>(value));
         }
@@ -540,7 +548,7 @@ struct Serializer<QVector<T>>
     static void Read(Buffer& buffer, Type& type)
     {
         qint32 size;
-        buffer << buffer.Attr("Size", size);
+        buffer.BeginArray(buffer, size);
         type.clear();
         type.resize(size);
         for(T& value : type) {
@@ -557,7 +565,7 @@ struct Serializer<QList<T>>
     static void Write(Buffer& buffer, const Type& type)
     {
         qint32 size = type.size();
-        buffer << buffer.Attr("Size", size);
+        buffer.BeginArray(buffer, size);
         for(const T& value : type) {
             buffer << buffer.Sect("element", const_cast<T&>(value));
         }
@@ -566,7 +574,7 @@ struct Serializer<QList<T>>
     static void Read(Buffer& buffer, Type& type)
     {
         qint32 size;
-        buffer << buffer.Attr("Size", size);
+        buffer.BeginArray(buffer, size);
         type.clear();
         while(size--) {
             T value;

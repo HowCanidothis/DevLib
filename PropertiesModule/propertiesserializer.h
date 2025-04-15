@@ -168,18 +168,18 @@ struct Serializer<LocalPropertyPalette>
     template<class Buffer>
     static void Read(Buffer& buffer, TypeName& object)
     {
-        buffer.OpenSection("PropertiesPalette");
         qint32 count = 0;
-        buffer << buffer.Sect("Count", count);
-
+        buffer.BeginArray(buffer, count);
         auto& data = object.m_data;
         while(count--) {
+            buffer.OpenSection("item");
             Name name; qint32 count2 = 0;
             buffer << buffer.Sect("Name", name);
-            buffer << buffer.Sect("Count", count2);
-            auto foundIt = data.find(name);
+            buffer.OpenSection("colors");
+            buffer.BeginArray(buffer, count2);
+            auto foundIt = data.constFind(name);
             std::function<void (const Name&, const QString&)> handler;
-            if(foundIt != data.end()) {
+            if(foundIt != data.cend()) {
                 handler = [&foundIt](const Name& name, const QString& value){
                     auto foundIt2 = foundIt.value().m_data->find(name);
                     if(foundIt2 != foundIt.value().m_data->end()) {
@@ -191,37 +191,42 @@ struct Serializer<LocalPropertyPalette>
             }
 
             while(count2--) {
+                buffer.BeginArrayObject();
                 QString value;
                 buffer << buffer.Sect("Name", name);
                 buffer << buffer.Sect("Value", value);
                 handler(name, value);
+                buffer.EndArrayObject();
             }
+            buffer.CloseSection();
+            buffer.CloseSection();
         }
-        buffer.CloseSection();
     }
 
     template<class Buffer>
     static void Write(Buffer& buffer, const TypeName& object)
     {
-        buffer.OpenSection("PropertiesPalette");
         auto& data = object.m_data;
         qint32 count = data.size();
-        buffer << buffer.Sect("Count", count);
+        buffer.BeginArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; ++it) {
-            buffer.OpenSection("Object");
+            buffer.OpenSection("item");
             const Name& key = it.key();
             buffer << buffer.Sect("Name", const_cast<Name&>(key));
+            buffer.OpenSection("colors");
             count = it.value().m_data->size();
-            buffer << buffer.Sect("Count", count);
+            buffer.BeginArray(buffer, count);
             for(auto objectIt(it.value().m_data->begin()), objectE(it.value().m_data->end()); objectIt != objectE; ++objectIt) {
                 const Name& okey = objectIt.key();
+                buffer.BeginArrayObject();
                 buffer << buffer.Sect("Name", const_cast<Name&>(okey));
                 QString toString = objectIt->GetData()->ToString();
                 buffer << buffer.Sect("Value", toString);
+                buffer.EndArrayObject();
             }
             buffer.CloseSection();
+            buffer.CloseSection();
         }
-        buffer.CloseSection();
     }
 };
 

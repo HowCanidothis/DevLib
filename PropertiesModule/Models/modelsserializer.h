@@ -33,17 +33,19 @@ struct SerializerXml<TModelsTableWrapper<T>>
     template<class Buffer>
     static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Read(buffer, object.Value);
-        buffer.CloseSection();
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            object.Value.Change([&]{
+                buffer << buffer.Sect(object.Name, object.Value.EditSilent());
+            });
+        } else {
+            buffer << buffer.Sect(object.Name, object.Value.EditSilent());
+        }
     }
 
     template<class Buffer>
     static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object)
     {
-        buffer.OpenSection(object.Name);
-        Serializer<Type>::Write(buffer, object.Value);
-        buffer.CloseSection();
+        buffer << buffer.Sect(object.Name, const_cast<Type&>(object.Value).EditSilent());
     }
 };
 

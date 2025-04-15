@@ -26,6 +26,7 @@
 #include "Serialization/string/textconverter.h"
 #include "Serialization/string/qtextconverters.h"
 #include "Serialization/string/xmlserializer.h"
+#include "Serialization/string/jsonserializer.h"
 #include "array.h"
 #include "stack.h"
 #include "FileSystem/filesguard.h"

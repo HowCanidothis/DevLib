@@ -146,6 +146,9 @@ public:
     LocalPropertyBool IsEditable;
     LocalPropertyBool ForceDisabled;
 
+    static const char* DisableMeasurementValidationByEpsilon;
+
+    bool IsDisableMeasurementValidationByEpsilon() const;
     bool IsEnabled() const  { return IsEditable && !ForceDisabled; }
 
 protected:
@@ -598,10 +601,8 @@ public:
         template<class Buffer>
         void Serialize(Buffer& buffer)
         {
-            buffer.OpenSection("MimeDataObject");
             buffer << buffer.Sect("Row", Row);
-            buffer << Value;
-            buffer.CloseSection();
+            buffer << buffer.Sect("Value", Value);
         }
     };
 

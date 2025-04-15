@@ -106,6 +106,13 @@ void ModelsTableWrapper::DisconnectModel(QAbstractItemModel* qmodel)
     OnValueChanged -= model;
 }
 
+const char* ViewModelsTableBase::DisableMeasurementValidationByEpsilon("DMVBE");
+
+bool ViewModelsTableBase::IsDisableMeasurementValidationByEpsilon() const
+{
+    return property(DisableMeasurementValidationByEpsilon).toBool();
+}
+
 ViewModelsTableBase::ViewModelsTableBase(QObject* parent)
     : Super(parent)
     , IsEditable(true)
