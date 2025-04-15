@@ -17,12 +17,10 @@ struct NetworkSettings
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("NetworkSettings");
         buffer << buffer.Sect("ProxyHost", ProxyHost);
         buffer << buffer.Sect("ProxyPassword", ProxyPassword);
         buffer << buffer.Sect("ProxyUserName", ProxyUserName);
         buffer << buffer.Sect("ProxyPort", ProxyPort);
-        buffer.CloseSection();
     }
 
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);
@@ -91,9 +89,7 @@ struct PathSettings
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("PathSettings");
         buffer << buffer.Sect("TextComparatorApplicationPath", TextComparatorApplicationPath);
-        buffer.CloseSection();
     }
 
     Q_DECLARE_TR_FUNCTIONS(PathSettings)
@@ -117,11 +113,9 @@ struct SaveLoadSettings
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("LanguageSettings");
         buffer << buffer.Sect("AutoSaveEveryMinutes", AutoSaveInMinutes);
         buffer << buffer.Sect("AutoSaveEnabled", AutoSaveEnabled);
         buffer << buffer.Sect("ApplicationRestoreStateAfterRerun", ApplicationRestoreStateAfterRerun);
-        buffer.CloseSection();
     }
 };
 
@@ -156,9 +150,7 @@ struct LanguageSettings
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("LanguageSettings");
         buffer << buffer.Sect("Locale", ApplicationLocale);
-        buffer.CloseSection();
     }
 
     void Initialize();
@@ -190,12 +182,10 @@ public:
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("Settings");
-        buffer << NetworkSettings;
-        buffer << PathSettings;
-        buffer << SaveLoadSettings;
-        buffer << LanguageSettings;
-        buffer.CloseSection();
+        buffer << buffer.Sect("NetworkSettings", NetworkSettings);
+        buffer << buffer.Sect("PathSettings", PathSettings);
+        buffer << buffer.Sect("SaveLoadSettings", SaveLoadSettings);
+        buffer << buffer.Sect("LanguageSettings", LanguageSettings);
     }
 
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);

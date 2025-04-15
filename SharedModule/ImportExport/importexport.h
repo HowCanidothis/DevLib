@@ -159,6 +159,7 @@ public:
     FImportDelegate ImportDelegate;
     FExportDelegate ExportDelegate;
 
+    static ImportExportDelegate<T> CreateSerializerJsonStandardDelegate(const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonReadBuffer&, const T& obj)>& importer = nullptr, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonWriteBuffer&, const T& obj)>& exporter = nullptr);
     static ImportExportDelegate<T> CreateSerializerXmlStandardDelegate(const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerXmlReadBuffer&, const T& obj)>& importer = nullptr, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerXmlWriteBuffer&, const T& obj)>& exporter = nullptr);
     static ImportExportDelegate<T> CreateSerializerStandardDelegate(const SerializerVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerReadBuffer&, const T& obj)>& importer = nullptr, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerWriteBuffer&, const T& obj)>& exporter = nullptr);
 
@@ -350,31 +351,9 @@ class ImportExport
     Q_DECLARE_TR_FUNCTIONS(ImportExport)
     ImportExport(){}
 public:
-    static SerializerXmlVersion ReadVersionXML(QIODevice* device, const QChar& separator = ';') {
-        QXmlStreamReader xmlReader;
-        if(!device->isOpen()) {
-            if(!device->open(QIODevice::ReadOnly)) {
-                return SerializerXmlVersion();
-            }
-        }
-        xmlReader.setDevice(device);
-        SerializerXmlReadBuffer buffer(&xmlReader);
-        auto result = buffer.ReadVersion(separator);
-        device->close();
-        return result;
-    }
-
-    static SerializerVersion ReadVersion(QIODevice* device) {
-        SerializerReadBuffer buffer(device);
-        if(!device->isOpen()) {
-            if(!device->open(QIODevice::ReadOnly)) {
-                return SerializerVersion();
-            }
-        }
-        auto result = buffer.ReadVersion();
-        device->close();
-        return result;
-    }
+    static SerializerXmlVersion ReadVersionXML(QIODevice* device, const QChar& separator = ';');
+    static SerializerXmlVersion ReadVersionJson(QIODevice* device, const QChar& separator = ';');
+    static SerializerVersion ReadVersion(QIODevice* device);
 
     template<class T>
     static AsyncResult ImportTable(const ImportExportSourcePtr& source, class QAbstractItemModel* model, const DescImportExportTableImport<T>& params)
@@ -413,6 +392,7 @@ public:
             bool result = false;
             future += ThreadHandlerMain([&result, &data, model, &source]{
                 WidgetsImportView* view = new WidgetsImportView();
+                model->setProperty(ViewModelsTableBase::DisableMeasurementValidationByEpsilon, true);
                 view->Initialize(data, model, {});
                 auto params = DescCustomDialogParams().SetTitle(TR(tr("Import Data")))
                         .SetView(view)
@@ -426,6 +406,7 @@ public:
                     }, {buttons[1]}, view->IsInTransition);
                 });
                 auto result = WidgetsDialogsManager::GetInstance().ShowTempDialog(params, DescShowDialogParams().SetResizeToDefault(true));
+                model->setProperty(ViewModelsTableBase::DisableMeasurementValidationByEpsilon, false);
                 source->Properties.SetProperty("Mode", result);
             });
             future.Wait();
@@ -476,20 +457,6 @@ public:
         });
     }
 
-    static AsyncResult StandardSerializerExportDevice(const ImportExportSourcePtr& source, const SerializerVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerWriteBuffer& buffer)>& handler)
-    {
-        return StandardImportExportDevice(source, QIODevice::WriteOnly, [=]() -> qint8{
-            SerializerWriteBuffer buffer(source->GetDevice());
-            auto hasher = buffer.WriteVersion(*version);
-            auto result = handler(source, buffer);
-            if(!result) {
-                return false;
-            }
-            hasher.WriteHashSum(source->GetDevice()->size());
-            return true;
-        });
-    }
-
     static AsyncResult StandardSerializerXmlImportDevice(const ImportExportSourcePtr& source, const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerXmlReadBuffer& buffer)>& handler)
     {
         return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8{
@@ -502,6 +469,49 @@ public:
                 return false;
             }
             return handler(source, buffer);
+        });
+    }
+
+    static AsyncResult StandardSerializerJsonExportDevice(const ImportExportSourcePtr& source, const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonWriteBuffer& buffer)>& handler)
+    {
+        return StandardImportExportDevice(source, QIODevice::WriteOnly, [=]() -> qint8{
+            QJsonObject object;
+            SerializerJsonWriteBuffer buffer(&object);
+            buffer.WriteVersion(*version);
+            auto result = handler(source, buffer);
+            QJsonDocument doc(object);
+            source->GetDevice()->write(doc.toJson());
+            return result;
+        });
+    }
+
+    static AsyncResult StandardSerializerJsonImportDevice(const ImportExportSourcePtr& source, const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonReadBuffer& buffer)>& handler)
+    {
+        return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8{
+            auto doc = QJsonDocument::fromJson(source->GetDevice()->readAll());
+            auto object = doc.object();
+            SerializerJsonReadBuffer buffer(&object);
+            auto currentVersion = buffer.ReadVersion();
+            auto result = version->CheckVersion(currentVersion);
+            source->SetError(result);
+            if(result.isValid()) {
+                return false;
+            }
+            return handler(source, buffer);
+        });
+    }
+
+    static AsyncResult StandardSerializerExportDevice(const ImportExportSourcePtr& source, const SerializerVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerWriteBuffer& buffer)>& handler)
+    {
+        return StandardImportExportDevice(source, QIODevice::WriteOnly, [=]() -> qint8{
+            SerializerWriteBuffer buffer(source->GetDevice());
+            auto hasher = buffer.WriteVersion(*version);
+            auto result = handler(source, buffer);
+            if(!result) {
+                return false;
+            }
+            hasher.WriteHashSum(source->GetDevice()->size());
+            return true;
         });
     }
 
@@ -638,6 +648,28 @@ inline ImportExportDelegate<T> ImportExportDelegate<T>::CreateSerializerStandard
     if(exporter != nullptr) {
         result.ExportDelegate = [=](const ImportExportSourcePtr& source, const T& obj) -> AsyncResult {
             return ImportExport::StandardSerializerExportDevice(source, version, [=](const ImportExportSourcePtr& source, SerializerWriteBuffer& buffer)-> qint8 {
+                return exporter(source, buffer, obj);
+            });
+        };
+    }
+    return result;
+}
+
+template<class T>
+inline ImportExportDelegate<T> ImportExportDelegate<T>::CreateSerializerJsonStandardDelegate(const SerializerXmlVersion* version, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonReadBuffer&, const T& obj)>& importer, const std::function<qint8 (const ImportExportSourcePtr& source, SerializerJsonWriteBuffer&, const T& obj)>& exporter)
+{
+    ImportExportDelegate<T> result;
+    if(importer != nullptr) {
+        result.ImportDelegate = [=](const ImportExportSourcePtr& source, const T& obj) -> AsyncResult {
+            return ImportExport::StandardSerializerJsonImportDevice(source, version, [=](const ImportExportSourcePtr& source, SerializerJsonReadBuffer& buffer)-> qint8 {
+                return importer(source, buffer, obj);
+            });
+        };
+    }
+
+    if(exporter != nullptr) {
+        result.ExportDelegate = [=](const ImportExportSourcePtr& source, const T& obj) -> AsyncResult {
+            return ImportExport::StandardSerializerJsonExportDevice(source, version, [=](const ImportExportSourcePtr& source, SerializerJsonWriteBuffer& buffer)-> qint8 {
                 return exporter(source, buffer, obj);
             });
         };

@@ -51,12 +51,10 @@ public:
     template<class Buffer>
     void Serialize(Buffer& buffer)
     {
-        buffer.OpenSection("NotifyConsoleState");
         buffer << buffer.Sect("IsOpened", IsOpened);
         buffer << buffer.Sect("IsShowWarnings", IsShowWarnings);
         buffer << buffer.Sect("IsShowInfos", IsShowInfos);
         buffer << buffer.Sect("IsShowErrors", IsShowErrors);
-        buffer.CloseSection();
     }
 
 private slots:

@@ -187,3 +187,43 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
     }
     return future.ToAsyncResult();
 }
+
+SerializerXmlVersion ImportExport::ReadVersionXML(QIODevice* device, const QChar& separator) {
+    QXmlStreamReader xmlReader;
+    if(!device->isOpen()) {
+        if(!device->open(QIODevice::ReadOnly)) {
+            return SerializerXmlVersion();
+        }
+    }
+    xmlReader.setDevice(device);
+    SerializerXmlReadBuffer buffer(&xmlReader);
+    auto result = buffer.ReadVersion(separator);
+    device->close();
+    return result;
+}
+
+SerializerXmlVersion ImportExport::ReadVersionJson(QIODevice* device, const QChar& separator) {
+    if(!device->isOpen()) {
+        if(!device->open(QIODevice::ReadOnly)) {
+            return SerializerXmlVersion();
+        }
+    }
+    auto doc = QJsonDocument::fromJson(device->readAll());
+    auto object = doc.object();
+    SerializerJsonReadBuffer reader(&object);
+    auto result = reader.ReadVersion(separator);
+    device->close();
+    return result;
+}
+
+SerializerVersion ImportExport::ReadVersion(QIODevice* device) {
+    SerializerReadBuffer buffer(device);
+    if(!device->isOpen()) {
+        if(!device->open(QIODevice::ReadOnly)) {
+            return SerializerVersion();
+        }
+    }
+    auto result = buffer.ReadVersion();
+    device->close();
+    return result;
+}

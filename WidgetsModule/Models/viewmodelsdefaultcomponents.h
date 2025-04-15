@@ -599,6 +599,7 @@ public:
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
+        auto* viewModel = m_viewModel;
 
         auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return MeasurementManager::MakeMeasurementString(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
@@ -607,10 +608,10 @@ public:
                 return DASH;
             }
             return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, setter == nullptr ? FModelSetter() : [setter, pMeasurement, getter](const QVariant& data, ValueType value) -> FAction {
+        }, setter == nullptr ? FModelSetter() : [setter, pMeasurement, getter, viewModel](const QVariant& data, ValueType value) -> FAction {
             auto toSet = pMeasurement->FromUnitToBase(data.toDouble());
             auto old = getter(value);
-            if(!fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
+            if(viewModel->IsDisableMeasurementValidationByEpsilon() || !fuzzyCompare(old, toSet, pMeasurement->CurrentEpsilon)) {
                 return [&value, toSet, setter]{
                     setter(value, toSet);
                 };
@@ -628,6 +629,7 @@ public:
         Q_ASSERT(m_currentMeasurement != nullptr);
         Q_ASSERT(m_currentMeasurementColumns.FindSorted(column) == m_currentMeasurementColumns.end());
         m_currentMeasurementColumns.InsertSortedUnique(column);
+        auto* viewModel = m_viewModel;
 
         auto pMeasurement = m_currentMeasurement;
         return AddColumn(column, [header, pMeasurement]{ return MeasurementManager::MakeMeasurementString(header(), pMeasurement); }, [getter, pMeasurement](ConstValueType value) -> QVariant {
@@ -641,12 +643,12 @@ public:
             }
 
             return pMeasurement->FromBaseToUnitUi(concreteValue);
-        }, setter == nullptr ? FModelSetter() : [setter, getter, pMeasurement](const QVariant& data, ValueType value) -> FAction {
+        }, setter == nullptr ? FModelSetter() : [setter, getter, pMeasurement, viewModel](const QVariant& data, ValueType value) -> FAction {
             bool isDouble; auto dval = data.toDouble(&isDouble);
             auto currentValue = getter(value);
             if(isDouble){
                 auto toSet = pMeasurement->FromUnitToBase(dval);
-                if(currentValue.has_value() && fuzzyCompare(currentValue.value(), toSet, pMeasurement->CurrentEpsilon)) {
+                if(!viewModel->IsDisableMeasurementValidationByEpsilon() && currentValue.has_value() && fuzzyCompare(currentValue.value(), toSet, pMeasurement->CurrentEpsilon)) {
                     return nullptr;
                 }
                 return [toSet, &value, setter]{ setter(value, toSet); };

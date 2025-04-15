@@ -137,6 +137,15 @@ public:
     {
     }
 
+    template<class Buffer>
+    void BeginArray(Buffer& buffer, qint32& size)
+    {
+        buffer << size;
+    }
+
+    void BeginArrayObject(){}
+    void EndArrayObject(){}
+
     SerializerHashSumWriter<TSerializerWriteBuffer> WriteVersion(const SerializerVersion& version)
     {
         Q_ASSERT(Super::IsValid());
@@ -172,6 +181,16 @@ public:
     TSerializerReadBuffer(const QByteArray& array)
         : Super(new Stream(array), true)
     {}
+
+    template<class Buffer>
+    void BeginArray(Buffer& buffer, qint32& size)
+    {
+        buffer << size;
+    }
+
+    void EndArray(){}
+    void BeginArrayObject(){}
+    void EndArrayObject(){}
 
     SerializerVersion ReadVersion()
     {
