@@ -499,6 +499,7 @@ struct Serializer<QDateTime>
             type = QDateTime();
         } else {
             type = QDateTime::fromMSecsSinceEpoch(julianDay, QTimeZone::utc());
+            type.setTimeSpec(Qt::UTC);
         }
     }
 };
