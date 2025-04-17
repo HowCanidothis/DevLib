@@ -1,0 +1,14 @@
+#ifndef MAGNETICFIELDSTRENGTHDECLARATIONS_H
+#define MAGNETICFIELDSTRENGTHDECLARATIONS_H
+
+#include "UnitsModule/measurementdeclarations.h"
+namespace MagneticFieldStrengthUnits
+{
+    DECLARE_MEASUREMENT_UNIT(AmperePerMeter)
+    DECLARE_MEASUREMENT_UNIT(AmpereTurnPerMeter)
+    DECLARE_MEASUREMENT_UNIT(KiloAmperePerMeter)
+    DECLARE_MEASUREMENT_UNIT(Oersted)
+};
+DECLARE_MEASUREMENT(MagneticFieldStrength)
+
+#endif // MAGNETICFIELDSTRENGTHDECLARATIONS_H
