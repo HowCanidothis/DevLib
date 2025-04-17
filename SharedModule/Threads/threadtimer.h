@@ -14,9 +14,9 @@ class ThreadTimerManager
     ThreadTimerManager();
     ~ThreadTimerManager();
 public:
-    static void SingleShot(qint32 msecs, const FAction& onTimeout);
+    static AsyncResult SingleShot(qint32 msecs, const FAction& onTimeout);
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker);
-    static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
+    static AsyncResult SingleShotDoMain(qint32 msecs, const FAction& onTimeout);
 
     static void Terminate();
 private:
@@ -41,9 +41,9 @@ public:
     ThreadTimer(qint32 msecs);
     ~ThreadTimer();
 
-    static void SingleShot(qint32 msecs, const FAction& onTimeout) { ThreadTimerManager::SingleShot(msecs, onTimeout); }
+    static AsyncResult SingleShot(qint32 msecs, const FAction& onTimeout) { return ThreadTimerManager::SingleShot(msecs, onTimeout); }
     static void SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker) { ThreadTimerManager::SingleShotDoThreadWorker(msecs, onTimeout, threadWorker); }
-    static void SingleShotDoMain(qint32 msecs, const FAction& onTimeout) { ThreadTimerManager::SingleShotDoMain(msecs, onTimeout); }
+    static AsyncResult SingleShotDoMain(qint32 msecs, const FAction& onTimeout) { return ThreadTimerManager::SingleShotDoMain(msecs, onTimeout); }
 
     QMetaObject::Connection OnTimeout(const FAction& action);
     QThread* GetThread() const { return ThreadTimerManager::getInstance().m_thread.get(); }

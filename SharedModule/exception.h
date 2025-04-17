@@ -32,6 +32,7 @@ class Exception : public QException
 public:
     FTranslationHandler TranslationHandler;
     QVariant ExceptionData;
+    Exception(const char* text);
     Exception(const QString& text);
     Exception(const FTranslationHandler& handler);
     Exception(const QVariant& exceptionData);

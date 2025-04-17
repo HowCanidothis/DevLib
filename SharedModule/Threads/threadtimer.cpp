@@ -61,13 +61,16 @@ ThreadTimerManager::~ThreadTimerManager()
     Q_ASSERT(m_isTerminated);
 }
 
-void ThreadTimerManager::SingleShotDoMain(qint32 msecs, const FAction& onTimeout)
+AsyncResult ThreadTimerManager::SingleShotDoMain(qint32 msecs, const FAction& onTimeout)
 {
-    SingleShot(msecs, [onTimeout]{
-        ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[onTimeout]{
+    auto result = SingleShot(msecs, []{});
+    result.MoveToMain([onTimeout](qint8 ok) {
+        if(ok) {
             onTimeout();
-        });
+        }
+        return ok;
     });
+    return result;
 }
 
 void ThreadTimerManager::SingleShotDoThreadWorker(qint32 msecs, const FAction& onTimeout, QObject* threadWorker)
@@ -77,13 +80,18 @@ void ThreadTimerManager::SingleShotDoThreadWorker(qint32 msecs, const FAction& o
     });
 }
 
-void ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
+AsyncResult ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
+    AsyncResult result;
 
-    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, onTimeout]{
-        QTimer::singleShot(msecs, onTimeout);
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, onTimeout, result]{
+        QTimer::singleShot(msecs, [result, onTimeout]{
+            result.Resolve(true);
+            onTimeout();
+        });
     });
+    return result;
 }
 
 void ThreadTimerManager::Terminate()

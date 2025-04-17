@@ -101,24 +101,24 @@ public:
 
     QByteArray Serialize(const void* o) const override
     {
-        return SerializeToXML(*(T*)o, DescSerializationXMLWriteParams(SerializationMode)
+        return SerializeToXML("Object", *(T*)o, DescSerializationXMLWriteParams(SerializationMode)
                               .SetAutoFormating(true));
     }
 
 
     void Serialize(SerializerXmlWriteBuffer& writeBuffer, const void* o) const override
     {
-        writeBuffer << *(T*)o;
+        writeBuffer << writeBuffer.Sect("Object", *(T*)o);
     }
 
     void Deserialize(const QByteArray& array, void* o) const override
     {
-        DeSerializeFromXML(array, *(T*)o, DescSerializationXMLReadParams(SerializationMode));
+        DeSerializeFromXML("Object", array, *(T*)o, DescSerializationXMLReadParams(SerializationMode));
     }
 
     void Deserialize(SerializerXmlReadBuffer& buffer, void* o) const override
     {
-        buffer << *(T*)o;
+        buffer << buffer.Sect("Object", *(T*)o);
     }
 
 private:

@@ -9,12 +9,12 @@ QString StringBuilder::XMLCreateHyperlink(const QString& text, const FAction* ha
 {
     return QString("<a href=\"%1\" style=\"color: %2\">%3</a>").arg(QString::number((size_t)handler), color.name(), text);
 }
-
+#ifdef SHARED_LIB_ADD_UI
 QString StringBuilder::XMLCreateHyperlink(const QString& text, const FAction* handler)
 {
     return QString("<a href=\"%1\" style=\"color: %2\">%3</a>").arg(QString::number((size_t)handler), SharedSettings::GetInstance().StyleSettings.DefaultBlueColor.Native().name(), text);
 }
-
+#endif
 StringBuilder& StringBuilder::XMLAddEnumerated(const QString& text)
 {
     *this += "<li>";
