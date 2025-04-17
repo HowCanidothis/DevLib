@@ -2,6 +2,10 @@
 
 static QString DefaultProcessName("Calculations error");
 
+Exception::Exception(const char* text)
+    : Exception([text]{ return QString(text); })
+{}
+
 Exception::Exception(const QString& text)
     : Exception([text]{ return text; })
 {}

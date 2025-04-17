@@ -400,11 +400,16 @@ public:
     void SerializeAtomic(const SerializerXmlObject<T>& object)
     {
         if(object.Type == SerializerValueType::Attribute) {
+            bool found = false;
             for(const auto& attribute : m_reader->attributes()) {
                 if(attribute.name() == object.Name) {
                     object.Value = TextConverter<T>::FromText(attribute.value().toString());
+                    found = true;
                     break;
                 }
+            }
+            if(!found) {
+                throw Exception("Parsing failed");
             }
         } else {
             OpenSection("");
@@ -468,24 +473,6 @@ struct DescSerializationXMLWriteParams
 };
 
 template<class T>
-inline QByteArray SerializeToXML(const T& object, const DescSerializationXMLWriteParams& properties, const DescSerializationXMLWriteParams::FInitHandler& initHandler = nullptr)
-{
-    QByteArray array;
-    QXmlStreamWriter writer(&array);
-    writer.setAutoFormatting(properties.AutoFormating);
-    SerializerXmlWriteBuffer buffer(&writer);
-    if(initHandler != nullptr) {
-        initHandler(buffer);
-    }
-    buffer.SetSerializationMode(properties.Mode);
-    buffer.SetTextConverterContext(properties.Context);
-    buffer.OpenSection("Object");
-    buffer << const_cast<T&>(object);
-    buffer.CloseSection();
-    return array;
-}
-
-template<class T>
 inline QByteArray SerializeToXML(const QString& startSection, const T& object, const DescSerializationXMLWriteParams& properties, const DescSerializationXMLWriteParams::FInitHandler& initHandler = nullptr)
 {
     QByteArray array;
@@ -497,18 +484,8 @@ inline QByteArray SerializeToXML(const QString& startSection, const T& object, c
     }
     buffer.SetSerializationMode(properties.Mode);
     buffer.SetTextConverterContext(properties.Context);
-    buffer.OpenSection(startSection);
     buffer << buffer.Sect(startSection, const_cast<T&>(object));
-    buffer.CloseSection();
     return array;
-}
-
-template<class T>
-inline QByteArray SerializeToXMLVersioned(const SerializerXmlVersion& version, const T& object, DescSerializationXMLWriteParams properties)
-{
-    return SerializeToXML(object, properties, [&version](SerializerXmlWriteBuffer& buffer){
-        buffer.WriteVersion(version);
-    });
 }
 
 template<class T>
@@ -535,23 +512,6 @@ struct DescSerializationXMLReadParams
     DescSerializationXMLReadParams& SetInitHandler(const FInitHandler& initHandler) { InitHandler = initHandler; return *this; }
 };
 
-template<class T>
-bool DeSerializeFromXML(const QByteArray& array, T& object, const DescSerializationXMLReadParams& properties, const DescSerializationXMLReadParams::FInitHandler& initHandler = nullptr)
-{
-    QXmlStreamReader reader(array);
-    SerializerXmlReadBuffer buffer(&reader);
-    if(initHandler != nullptr) {
-        if(!initHandler(buffer)) {
-            return false;
-        }
-    }
-    buffer.SetSerializationMode(properties.Mode);
-    buffer.OpenSection("Object");
-    buffer << object;
-    buffer.CloseSection();
-    return true;
-}
-
 template<class T, class StringOrArray>
 bool DeSerializeFromXML(const QString& name, const StringOrArray& array, T& object, const DescSerializationXMLReadParams& properties, const DescSerializationXMLReadParams::FInitHandler& initHandler = nullptr)
 {
@@ -563,23 +523,8 @@ bool DeSerializeFromXML(const QString& name, const StringOrArray& array, T& obje
         }
     }
     buffer.SetSerializationMode(properties.Mode);
-    buffer.OpenSection(name);
     buffer << buffer.Sect(name, object);
-    buffer.CloseSection();
     return true;
-}
-
-template<class T>
-bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, const QByteArray& array, T& object, DescSerializationXMLReadParams properties)
-{
-    return DeSerializeFromXML(array, object, properties, [&](SerializerXmlReadBuffer& buffer){
-        auto version = buffer.ReadVersion();
-        auto checkVersionError = currentVersion.CheckVersion(version);
-        if(checkVersionError.isValid()) {
-            return false;
-        }
-        return true;
-    });
 }
 
 template<class T, class StringOrArray>

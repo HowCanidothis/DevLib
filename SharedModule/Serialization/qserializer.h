@@ -447,11 +447,11 @@ struct Serializer<QSet<T>>
             auto list = data.toList();
             std::sort(list.begin(), list.end());
             for(const auto& element : list) {
-                buffer << buffer.Sect("element", const_cast<T&>(element));
+                buffer << buffer.Sect("item", const_cast<T&>(element));
             }
         } else {
             for(const auto& element : data) {
-                buffer << buffer.Sect("element", const_cast<T&>(element));
+                buffer << buffer.Sect("item", const_cast<T&>(element));
             }
         }
     }
@@ -468,7 +468,7 @@ struct Serializer<QSet<T>>
             data.reserve(count);
             while(count--) {
                 T element;
-                buffer << buffer.Sect("element", element);
+                buffer << buffer.Sect("item", element);
                 data.insert(element);
             }
         }
@@ -542,7 +542,7 @@ struct Serializer<QVector<T>>
         qint32 size = type.size();
         buffer.BeginArray(buffer, size);
         for(const T& value : type) {
-            buffer << buffer.Sect("element", const_cast<T&>(value));
+            buffer << buffer.Sect("item", const_cast<T&>(value));
         }
     }
     template<class Buffer>
@@ -553,7 +553,7 @@ struct Serializer<QVector<T>>
         type.clear();
         type.resize(size);
         for(T& value : type) {
-            buffer << buffer.Sect("element", value);
+            buffer << buffer.Sect("item", value);
         }
     }
 };
@@ -568,7 +568,7 @@ struct Serializer<QList<T>>
         qint32 size = type.size();
         buffer.BeginArray(buffer, size);
         for(const T& value : type) {
-            buffer << buffer.Sect("element", const_cast<T&>(value));
+            buffer << buffer.Sect("item", const_cast<T&>(value));
         }
     }
     template<class Buffer>
@@ -579,7 +579,7 @@ struct Serializer<QList<T>>
         type.clear();
         while(size--) {
             T value;
-            buffer << buffer.Sect("element", value);
+            buffer << buffer.Sect("item", value);
             type.append(value);
         }
     }
