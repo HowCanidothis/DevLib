@@ -606,7 +606,7 @@ void MeasurementManager::Initialize()
             .AddUnit(&MagneticFieldStrengthUnits::Oersted);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -664,7 +664,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -723,7 +723,7 @@ void MeasurementManager::Initialize()
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,       {AngleUnits::Radians.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
