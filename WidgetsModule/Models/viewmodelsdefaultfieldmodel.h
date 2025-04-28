@@ -14,6 +14,8 @@ public:
     ViewModelsDefaultFieldModel& SetDefaultFieldLabel(const FTranslationHandler& label);
     ViewModelsDefaultFieldModel& SetSourceModel(QAbstractItemModel* model);
 
+    QAbstractItemModel* GetSourceModel() const { return m_sourceModel; }
+
     // QAbstractItemModel interface
 public:
     QVariant data(const QModelIndex& index, int role) const override;

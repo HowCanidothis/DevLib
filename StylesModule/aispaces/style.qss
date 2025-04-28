@@ -379,6 +379,7 @@ QFrame#WellplanDrawer{
     background: transparent;
 }
 
+WPSProjectBackSelector,
 WPSProjectionSelector,
 WPSBackToPlanSelector,
 WPSHoldSelector,
