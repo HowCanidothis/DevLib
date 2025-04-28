@@ -38,6 +38,7 @@
 #include "MeasurementTypes/volumedeclarations.h"
 #include "MeasurementTypes/cementyielddeclaration.h"
 #include "MeasurementTypes/currencydeclarations.h"
+#include "MeasurementTypes/magneticfieldstrengthdeclarations.h"
 
 static const Name UNIT_SYSTEM_API         = "API";
 static const Name UNIT_SYSTEM_API_USFT    = "API USFT";
@@ -247,7 +248,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&AccelerationUnits::FeetsPerSqHour)
             .AddUnit(&AccelerationUnits::USFeetsPerSqSec)
             .AddUnit(&AccelerationUnits::USFeetsPerSqMinute)
-            .AddUnit(&AccelerationUnits::USFeetsPerSqHour);
+            .AddUnit(&AccelerationUnits::USFeetsPerSqHour)
+            .AddUnit(&AccelerationUnits::Gravity);
 
     AddMeasurement(MeasurementAngle::Value)
             .AddUnit(&AngleUnits::Degrees)
@@ -281,9 +283,22 @@ void MeasurementManager::Initialize()
             .AddUnit(&DistanceUnits::Kilometers);
 
     AddMeasurement(MeasurementMagneticField::Value)
+            .AddUnit(&FieldStrengthUnits::Tesla)
             .AddUnit(&FieldStrengthUnits::MicroTeslas)
             .AddUnit(&FieldStrengthUnits::Gauss)
-            .AddUnit(&FieldStrengthUnits::NanoTeslas);
+            .AddUnit(&FieldStrengthUnits::NanoTeslas)
+            .AddUnit(&FieldStrengthUnits::WeberPerSquareMeter)
+            .AddUnit(&FieldStrengthUnits::MaxwellPerSquareMeter);
+
+    AddMeasurement(MeasurementMagneticFlux::Value)
+            .AddUnit(&MagneticFluxUnits::Weber)
+            .AddUnit(&MagneticFluxUnits::MicroWeber)
+            .AddUnit(&MagneticFluxUnits::NanoWeber)
+            .AddUnit(&MagneticFluxUnits::VoltSecod)
+            .AddUnit(&MagneticFluxUnits::Maxwell)
+            .AddUnit(&MagneticFluxUnits::TeslaSquareMeter)
+            .AddUnit(&MagneticFluxUnits::GaussSquareMeter)
+            .AddUnit(&MagneticFluxUnits::GaussSquareCentimeters);
 
     AddMeasurement(MeasurementDLS::Value)
             .AddUnit(&DLSUnits::Degree100USFeet)
@@ -584,8 +599,14 @@ void MeasurementManager::Initialize()
             .AddUnit(&CurrencyUnits::Yuan)
             .AddUnit(&CurrencyUnits::Ruble);
 
+    AddMeasurement(MeasurementMagneticFieldStrength::Value)
+            .AddUnit(&MagneticFieldStrengthUnits::AmperePerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::AmpereTurnPerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::KiloAmperePerMeter)
+            .AddUnit(&MagneticFieldStrengthUnits::Oersted);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -638,10 +659,12 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::FeetsPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
@@ -694,11 +717,13 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         2})
+            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::MetersPerSqSec.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,       {AngleUnits::Radians.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
@@ -750,6 +775,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2})
+            .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
+            .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
