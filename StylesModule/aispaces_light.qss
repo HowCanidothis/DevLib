@@ -16,6 +16,7 @@
 @ctext.1: rgb(62, 166, 255);
 @ctext.active: rgb(33,33,33);
 @ctext.visAltTextColor: rgb(120,120,120);
+@ctext.visTextColor: rgb(180,180,180);
 @cpal.plan: #3ea6ff;
 @cpal.survey: #E01936;
 @cpal.normalColor: rgb(120,120,120);

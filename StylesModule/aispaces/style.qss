@@ -413,8 +413,6 @@ QDockWidget QScrollBar:horizontal,
 QDockWidget QTableView,
 QDockWidget QHeaderView::section,
 QDockWidget QHeaderView,
-QDockWidget VisualizationLegendWidget,
-QDockWidget VisualizationLegendItemWidget,
 QDockWidget QTableCornerButton::section {
     background: @cbg.2;
 }
@@ -456,4 +454,10 @@ QFrame#Workspace{
 
 TopControlBar QComboBox {
     min-height: 20px;
+}
+
+VisualizationLegendWidget,
+VisualizationLegendItemWidget
+{
+    background: @cbg.2;
 }

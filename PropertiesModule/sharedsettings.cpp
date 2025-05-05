@@ -9,6 +9,10 @@
 #include <WidgetsModule/internal.hpp>
 #endif
 
+#ifdef VISUALIZATION_MODULE_LIB
+#include <VisualizationModule/internal.hpp>
+#endif
+
 #include <QStandardPaths>
 
 NetworkSettings::NetworkSettings()
@@ -36,6 +40,9 @@ StyleSettings::StyleSettings()
     #else
     , ShadersPath(":/")
     #endif
+#ifdef VISUALIZATION_MODULE_LIB
+    , VisualSettings(::make_shared<VisualizationSettings>())
+#endif
 {
     ShadersPath.SetValidator([](const QString& path){ return path.isEmpty() ? ":/" : path; });
 #ifdef WIDGETS_MODULE_LIB

@@ -15,4 +15,17 @@ WidgetsStyleSettings {
     qproperty-placeHolderColor: @ctext.label;
     qproperty-shadowColor: @cbg.alt;
     qproperty-shadowBlurRadius: 12;
+
+    qproperty-visualizationTextColor: @ctext.visTextColor;
+    qproperty-visualizationTextBorderColor: @cbg.control;
+    qproperty-visualizationBackgroundColor: @cbg.2;
+    qproperty-visualizationBoxColor: @cbg.1;
+    qproperty-visualizationAxisColor: @ctext.disabled;
+    qproperty-visualizationFrameColor: @cbg.2;
+    qproperty-visualizationAltAxisColor: @cbg.3;
+    qproperty-visualizationAltBackgroundColor: @cbg.2;
+    qproperty-visualizationAltTextColor: white;
+    qproperty-visualizationAltFrameColor: @cbg.2;
+    qproperty-visualizationFrameSelectionColor: @cbg.hover;
+    qproperty-visualizationAreaAlpha: @c.areaAlpha;
 }

@@ -31,6 +31,20 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(qint32 showFocusMinFrame MEMBER m_showFocusMinFrame)
     Q_PROPERTY(QColor placeHolderColor MEMBER m_placeHolderColor)
 
+#ifdef VISUALIZATION_MODULE_LIB
+    Q_PROPERTY(QColor visualizationBackgroundColor MEMBER m_visualizationBackgroundColor)
+    Q_PROPERTY(QColor visualizationBoxColor MEMBER m_visualizationBoxColor)
+    Q_PROPERTY(QColor visualizationAxisColor MEMBER m_visualizationAxisColor)
+    Q_PROPERTY(QColor visualizationTextColor MEMBER m_visualizationTextColor)
+    Q_PROPERTY(QColor visualizationTextBorderColor MEMBER m_visualizationTextBorderColor)
+    Q_PROPERTY(QColor visualizationFrameColor MEMBER m_visualizationFrameColor)
+    Q_PROPERTY(QColor visualizationAltFrameColor MEMBER m_visualizationAltFrameColor)
+    Q_PROPERTY(QColor visualizationAltTextColor MEMBER m_visualizationAltTextColor)
+    Q_PROPERTY(QColor visualizationAltBackgroundColor MEMBER m_visualizationAltBackgroundColor)
+    Q_PROPERTY(QColor visualizationAltAxisColor MEMBER m_visualizationAltAxisColor)
+    Q_PROPERTY(QColor visualizationFrameSelectionColor MEMBER m_visualizationFrameSelectionColor)
+    Q_PROPERTY(float visualizationAreaAlpha MEMBER m_visualizationAreaAlpha)
+#endif
 public:
     WidgetsStyleSettings();
 
@@ -55,7 +69,20 @@ private:
     LocalPropertyInt m_shadowBlurRadius;
 
     LocalPropertyInt& m_showFocusMinFrame;
-
+#ifdef VISUALIZATION_MODULE_LIB
+    LocalPropertyColor& m_visualizationBackgroundColor;
+    LocalPropertyColor& m_visualizationBoxColor;
+    LocalPropertyColor& m_visualizationAxisColor;
+    LocalPropertyColor& m_visualizationTextColor;
+    LocalPropertyColor& m_visualizationTextBorderColor;
+    LocalPropertyColor& m_visualizationFrameColor;
+    LocalPropertyColor& m_visualizationAltFrameColor;
+    LocalPropertyColor& m_visualizationAltTextColor;
+    LocalPropertyColor& m_visualizationAltBackgroundColor;
+    LocalPropertyColor& m_visualizationAltAxisColor;
+    LocalPropertyColor& m_visualizationFrameSelectionColor;
+    LocalPropertyFloat& m_visualizationAreaAlpha;
+#endif
 private:
     static WidgetsStyleSettings* m_instance;
 };

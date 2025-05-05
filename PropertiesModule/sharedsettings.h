@@ -65,6 +65,10 @@ struct StyleSettings
     LocalPropertyInt ShowFocusMinFrame;
     LocalPropertyFilePath ShadersPath;
 
+#ifdef VISUALIZATION_MODULE_LIB
+    SP<struct VisualizationSettings> VisualSettings;
+#endif
+
     void Release();
 
 private:
