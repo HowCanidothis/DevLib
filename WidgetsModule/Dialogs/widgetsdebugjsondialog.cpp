@@ -93,7 +93,7 @@ void WidgetsDebugJsonDialog::SetTableView(QTableView* tv)
     }
     m_headerMap.resizeAndAllocate(count);
     for(qint32 i(0); i < count; ++i) {
-        auto h = model->headerData(i, orientation).toString();
+        auto h = model->headerData(i, orientation).toString(); h.remove('\n');
         QCheckBox* c = m_headerMap.at(i);
         WidgetCheckBoxWrapper(c).WidgetChecked().OnChanged.Connect(CONNECTION_DEBUG_LOCATION, update).MakeSafe(m_modelConnections);
         c->setText(h);
