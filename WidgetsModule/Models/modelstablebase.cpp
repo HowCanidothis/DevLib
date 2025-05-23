@@ -321,6 +321,12 @@ ViewModelsTableColumnComponents::ColumnComponentData& ViewModelsTableColumnCompo
 
 qint32 ViewModelsTableColumnComponents::AddComponent(qint32 role, qint32 column, const ColumnComponentData& columnData)
 {
+    if(column == -2) {
+        for(auto& c : m_columnComponents) {
+            c[role].append(columnData);
+        }
+        return -2;
+    }
     auto foundIt = m_columnComponents.find(column);
     if(foundIt == m_columnComponents.end()) {
         foundIt = m_columnComponents.insert(column, {});

@@ -343,12 +343,9 @@ struct Serializer<QMap<T, T2>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; it++) {
-            buffer.BeginArrayObject();
-            buffer << buffer.Sect("key", const_cast<T&>(it.key()));
-            buffer << buffer.Sect("value", const_cast<T2&>(it.value()));
-            buffer.EndArrayObject();
+            buffer.KeyValue(buffer, const_cast<T&>(it.key()), const_cast<T2&>(it.value()));
         }
     }
 
@@ -356,15 +353,12 @@ struct Serializer<QMap<T, T2>>
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         data.clear();
         while(count--) {
-            buffer.BeginArrayObject();
             T key; T2 value;
-            buffer << buffer.Sect("key", key);
-            buffer << buffer.Sect("value", value);
+            buffer.KeyValue(buffer, key, value);
             data.insert(key, value);
-            buffer.EndArrayObject();
         }
     }
 };
@@ -408,12 +402,9 @@ struct Serializer<QHash<T, T2>>
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; it++) {
-            buffer.BeginArrayObject();
-            buffer << buffer.Sect("key", const_cast<T&>(it.key()));
-            buffer << buffer.Sect("value", const_cast<T2&>(it.value()));
-            buffer.EndArrayObject();
+            buffer.KeyValue(buffer, const_cast<T&>(it.key()), const_cast<T2&>(it.value()));
         }
     }
 
@@ -421,15 +412,12 @@ struct Serializer<QHash<T, T2>>
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         data.clear();
         while(count--) {
-            buffer.BeginArrayObject();
             T key; T2 value;
-            buffer << buffer.Sect("key", key);
-            buffer << buffer.Sect("value", value);
+            buffer.KeyValue(buffer, key, value);
             data.insert(key, value);
-            buffer.EndArrayObject();
         }
     }
 };

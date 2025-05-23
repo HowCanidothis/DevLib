@@ -35,6 +35,27 @@ public:
     {
     }
 
+    void BeginArrayObject(){}
+    void EndArrayObject(){}
+    template<class Buffer>
+    void BeginArray(Buffer& buffer, qint32& size)
+    {
+        buffer << size;
+    }
+
+    template<class Buffer>
+    void BeginKeyValueArray(Buffer& buffer, qint32& size)
+    {
+        BeginArray(buffer, size);
+    }
+
+    template<class Buffer, typename T, typename T2>
+    void KeyValue(Buffer& buffer, T& key, T2& value)
+    {
+        buffer << key;
+        buffer << value;
+    }
+
     void OpenSection(const QString&) {}
     template<class T>
     T& Attr(const QString&, T& value) const { return value; }
@@ -47,7 +68,7 @@ public:
 
     void SetSerializationMode(const SerializationModes& mode) { m_mode = mode; }
     const SerializationModes& GetSerializationMode() const { return m_mode; }
-    int32_t GetVersion() const { return m_version; }
+    uint32_t GetVersion() const { return m_version; }
     bool IsValid() const { return m_stream->device() && m_stream->device()->isOpen(); }
 
     bool IsReading() const { return m_isReading; }
@@ -63,7 +84,7 @@ public:
 
 protected:
     ScopedPointer<Stream> m_stream;
-    int32_t m_version;
+    uint32_t m_version;
     SerializationModes m_mode;
     bool m_isReading;
 };
@@ -137,15 +158,6 @@ public:
     {
     }
 
-    template<class Buffer>
-    void BeginArray(Buffer& buffer, qint32& size)
-    {
-        buffer << size;
-    }
-
-    void BeginArrayObject(){}
-    void EndArrayObject(){}
-
     SerializerHashSumWriter<TSerializerWriteBuffer> WriteVersion(const SerializerVersion& version)
     {
         Q_ASSERT(Super::IsValid());
@@ -181,16 +193,6 @@ public:
     TSerializerReadBuffer(const QByteArray& array)
         : Super(new Stream(array), true)
     {}
-
-    template<class Buffer>
-    void BeginArray(Buffer& buffer, qint32& size)
-    {
-        buffer << size;
-    }
-
-    void EndArray(){}
-    void BeginArrayObject(){}
-    void EndArrayObject(){}
 
     SerializerVersion ReadVersion()
     {

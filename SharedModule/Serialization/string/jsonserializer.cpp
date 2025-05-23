@@ -60,6 +60,9 @@ void SerializerJsonWriteBuffer::ContextObject::ResetWriterToObject()
 
 void SerializerJsonWriteBuffer::OpenSection(const QString& name)
 {
+    if(name.isEmpty() && m_currentObjects.size() == 1) {
+        return;
+    }
     m_currentObjects.append(ContextObject(name, QJsonValue::Object));
 }
 
@@ -79,12 +82,16 @@ void SerializerJsonWriteBuffer::CloseSection()
 SerializerJsonReadBuffer::SerializerJsonReadBuffer(const QJsonObject* reader)
     : Super(true)
 {
+    qDebug() << reader->keys();
+
     m_currentObjects.append(Context(*reader));
 }
 
 SerializerXmlVersion SerializerJsonReadBuffer::ReadVersion(const QChar& separator)
 {
     SerializerXmlVersion result;
+
+    qDebug() << m_currentObjects.constLast().Value.toObject().keys();
 
     auto foundIt = toObject().constFind("version");
     if(foundIt != toObject().constEnd()) {
@@ -118,6 +125,10 @@ const QJsonArray SerializerJsonReadBuffer::toArray() const
 
 void SerializerJsonReadBuffer::OpenSection(const QString& sectionName)
 {
+    if(sectionName.isEmpty() && m_currentObjects.size() == 1) {
+        return;
+    }
+
     const auto& v = m_currentObjects.constLast();
     if(v.Value.isArray()) {
         m_currentObjects.append(v.Value.toArray().at(v.CurrentIndex++));
@@ -128,6 +139,7 @@ void SerializerJsonReadBuffer::OpenSection(const QString& sectionName)
 
 SerializerJsonReadBuffer::Context::Context()
     : CurrentIndex(0)
+    , ReadKeyMode(false)
 {
 
 }
@@ -135,6 +147,7 @@ SerializerJsonReadBuffer::Context::Context()
 SerializerJsonReadBuffer::Context::Context(const QJsonValue& v)
     : Value(v)
     , CurrentIndex(0)
+    , ReadKeyMode(false)
 {
 
 }
@@ -144,6 +157,10 @@ IMPLEMENT_DEFAULT(QJsonArray);
 
 QJsonValue SerializerJsonReadBuffer::Context::Read(const QString& key) const
 {
+    if(ReadKeyMode) {
+        return (Value.toObject().begin() + CurrentIndex++).key();
+    }
+
     if(Value.isObject()) {
         return Value.toObject().value(key);
     }

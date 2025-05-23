@@ -164,7 +164,7 @@ void FutureResultData::addPromise(const AsyncResult& promise, const SharedPointe
 {
     ref();
     promise.Then([this, self](const qint8& result){
-        m_result |= result;
+        m_result &= result;
         deref();
     });
 
@@ -205,7 +205,7 @@ void FutureResultData::wait()
 }
 
 FutureResultData::FutureResultData()
-    : m_result(0)
+    : m_result(1)
     , m_promisesCounter(0)
     , m_mutex(::make_shared<QMutex>())
 {

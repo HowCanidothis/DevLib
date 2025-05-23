@@ -28,10 +28,12 @@ struct CloudServiceRequestParams
     QByteArray Payload;
     QString Route;
     QByteArray Verb;
+    QVector<std::pair<QByteArray, QByteArray>> RawHeaders;
 
     CloudServiceRequestParams(const FOnReplied& onReplied);
     CloudServiceRequestParams(const FOnReplied& onReplied, const QByteArray& data);
 
+    CloudServiceRequestParams& SetRawHeaders(const QVector<std::pair<QByteArray, QByteArray>>& rawHeaders) { RawHeaders = rawHeaders; return *this; }
     CloudServiceRequestParams& SetPostVerb() { Verb = "POST"; return *this; }
     CloudServiceRequestParams& SetVerb(const QByteArray& verb);
     CloudServiceRequestParams& SetRoute(const QString& route);

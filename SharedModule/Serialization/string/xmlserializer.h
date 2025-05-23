@@ -220,8 +220,20 @@ public:
 
     void BeginArrayObject(){}
     void EndArrayObject(){}
+    template<class Buffer>
+    void BeginKeyValueArray(Buffer& buffer, qint32& size)
+    {
+        BeginArray(buffer, size);
+    }
 
-    qint32 GetVersion() const { return m_version; }
+    template<class Buffer, typename T, typename T2>
+    void KeyValue(Buffer& buffer, T& key, T2& value)
+    {
+        buffer << buffer.Sect("key", key);
+        buffer << buffer.Sect("value", value);
+    }
+
+    quint32 GetVersion() const { return m_version; }
 
     bool IsReading() const { return m_isReading; }
     bool IsWriting() const { return !IsReading(); }
@@ -247,7 +259,7 @@ public:
 
 protected:
     SerializationModes m_mode;
-    qint32 m_version;
+    quint32 m_version;
     bool m_isReading;
 };
 
