@@ -86,6 +86,8 @@ public:
     ViewModelsTableColumnComponents();
 
     bool SetComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, qint32 index, const ColumnComponentData& columnData);
+    qint32 AddDefaultComponent(qint32 role, const ColumnComponentData& columnData) { return AddComponent(role, -1, columnData); }
+    qint32 AddOverrideComponent(qint32 role, const ColumnComponentData& columnData) { return AddComponent(role, -2, columnData); }
     qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     ColumnComponentData& ChangeComponent(qint32 role, qint32 column);
     void RemoveComponent(qint32 column);
@@ -193,6 +195,7 @@ class TViewModelsTableBase : public ViewModelsTableBase
 {
     using Super = ViewModelsTableBase;
 public:
+    using model_type = T;
     using FInsertHandler = std::function<bool (int row, int count)>;
     using FRemoveHandler = std::function<bool (int row, int count)>;
     using FCanDropMimeDataHandler = std::function<bool (const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)>;
