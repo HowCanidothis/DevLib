@@ -82,16 +82,12 @@ void SerializerJsonWriteBuffer::CloseSection()
 SerializerJsonReadBuffer::SerializerJsonReadBuffer(const QJsonObject* reader)
     : Super(true)
 {
-    qDebug() << reader->keys();
-
     m_currentObjects.append(Context(*reader));
 }
 
 SerializerXmlVersion SerializerJsonReadBuffer::ReadVersion(const QChar& separator)
 {
     SerializerXmlVersion result;
-
-    qDebug() << m_currentObjects.constLast().Value.toObject().keys();
 
     auto foundIt = toObject().constFind("version");
     if(foundIt != toObject().constEnd()) {
