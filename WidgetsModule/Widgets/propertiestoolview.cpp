@@ -88,7 +88,7 @@ WidgetAbstractButtonWrapper PropertiesToolFolderView::BeginFolder(const Name& fo
     buttonWrapper->setObjectName(folderName.AsString() + "Button");
     buttonWrapper.WidgetText()->SetTranslationHandler(title);
     buttonWrapper.WidgetChecked().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [buttonWrapper](bool check){
-        buttonWrapper.SetIcon(check ? "CloseIcon" : "OpenIcon");
+        buttonWrapper.SetIcon(check ? "CollapseIcon" : "ExpandIcon");
     });
 
     const_cast<BindingRules&>(widget).ToolButton = buttonWrapper;
