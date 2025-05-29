@@ -29,7 +29,8 @@ public:
     QLabel* label() const;
     QLineEdit* lineEdit() const;
     QComboBox* comboBox() const;
-    QHBoxLayout* layout() const;
+    QHBoxLayout* valueLayout() const;
+    QHBoxLayout* headerLayout() const;
 
     bool hasButton() const { return m_button != nullptr; }
     void setHasButton(bool has);

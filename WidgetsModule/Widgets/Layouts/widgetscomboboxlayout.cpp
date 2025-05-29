@@ -52,9 +52,14 @@ QComboBox* WidgetsComboBoxLayout::comboBox() const
     return ui->combobox;
 }
 
-QHBoxLayout* WidgetsComboBoxLayout::layout() const
+QHBoxLayout* WidgetsComboBoxLayout::valueLayout() const
 {
     return ui->horizontalLayout;
+}
+
+QHBoxLayout* WidgetsComboBoxLayout::headerLayout() const
+{
+    return ui->horizontalLayout_2;
 }
 
 void WidgetsComboBoxLayout::setHasButton(bool has)
