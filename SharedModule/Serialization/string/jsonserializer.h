@@ -13,10 +13,17 @@ inline QJsonValue SerializerJsonWriteBufferToJsonValue(const T& v, const TextCon
     return v;
 }
 
+// TODO. QJsonValue supports int64 since Qt 6.0
 template<>
-inline QJsonValue SerializerJsonWriteBufferToJsonValue(const size_t& v, const TextConverterContext&)
+inline QJsonValue SerializerJsonWriteBufferToJsonValue(const qint64& v, const TextConverterContext&)
 {
-    return QJsonValue(qint64(v));
+    return QJsonValue(QString::number(v));
+}
+
+template<>
+inline QJsonValue SerializerJsonWriteBufferToJsonValue(const size_t& v, const TextConverterContext& context)
+{
+    return SerializerJsonWriteBufferToJsonValue(qint64(v), context);
 }
 
 template<class T>
@@ -113,6 +120,17 @@ public:
 
     void BeginArrayObject();
     void EndArrayObject();
+    template<class Buffer>
+    void BeginKeyValueArray(Buffer&, qint32&)
+    {
+    }
+
+    template<class Buffer, typename T, typename T2>
+    void KeyValue(Buffer& buffer, T& key, T2& value)
+    {
+        buffer << buffer.Sect(TextConverter<T>::ToText(key, TextConverterContext()), value);
+    }
+
     void CloseSection();
 
     template<class T>
@@ -166,10 +184,6 @@ public:
     template<class T>
     void SerializeAtomic(const SerializerXmlObject<T>& object)
     {
-        if(m_currentObjects.isEmpty()) {
-            return;
-        }
-
         const auto& last = m_currentObjects.constLast();
         auto jsonValue = last.Read(object.Name);
 
@@ -188,8 +202,28 @@ public:
         if(l.isArray()) {
             size = l.toArray().size();
         } else {
-            size = 0;
+            size = l.toObject().size();
         }
+    }
+
+    template<class Buffer>
+    void BeginKeyValueArray(Buffer& buffer, qint32& size)
+    {
+        BeginArray(buffer, size);
+    }
+
+    template<class Buffer, typename T, typename T2>
+    void KeyValue(Buffer& buffer, T& key, T2& value)
+    {
+        auto& last = m_currentObjects.constLast();
+        last.ReadKeyMode = true;
+        auto jsonValue = last.Read(QString());
+        last.ReadKeyMode = false;
+        if(jsonValue.isNull()) {
+            return;
+        }
+        key = TextConverter<T>::FromText(jsonValue.toString());
+        buffer << buffer.Sect(jsonValue.toString(), value);
     }
 
     void OpenSection(const QString& sectionName);
@@ -224,6 +258,7 @@ private:
     {
         QJsonValue Value;
         mutable qint32 CurrentIndex;
+        mutable bool ReadKeyMode;
 
         Context();
         Context(const QJsonValue& v);
@@ -237,8 +272,16 @@ private:
 template<class T>
 inline QByteArray SerializeToJson(const QString& startSection, const T& object, const DescSerializationXMLWriteParams& properties, const SerializerJsonWriteBuffer::FInitHandler& initHandler = nullptr)
 {
-    QJsonObject jsonObject;
     QJsonDocument document;
+    auto jsonObject = SerializeToJsonObject(startSection, object, properties, initHandler);
+    document.setObject(jsonObject);
+    return document.toJson(properties.AutoFormating ? QJsonDocument::Indented : QJsonDocument::Compact);
+}
+
+template<class T>
+inline QJsonObject SerializeToJsonObject(const QString& startSection, const T& object, const DescSerializationXMLWriteParams& properties, const SerializerJsonWriteBuffer::FInitHandler& initHandler = nullptr)
+{
+    QJsonObject jsonObject;
     SerializerJsonWriteBuffer buffer(&jsonObject);
     if(initHandler != nullptr) {
         initHandler(buffer);
@@ -246,8 +289,7 @@ inline QByteArray SerializeToJson(const QString& startSection, const T& object, 
     buffer.SetSerializationMode(properties.Mode);
     buffer.SetTextConverterContext(properties.Context);
     buffer << buffer.Sect(startSection, const_cast<T&>(object));
-    document.setObject(jsonObject);
-    return document.toJson();
+    return jsonObject;
 }
 
 template<class T>
@@ -263,6 +305,12 @@ bool DeSerializeFromJson(const QString& name, const StringOrArray& array, T& obj
 {
     auto document = QJsonDocument::fromJson(array);
     QJsonObject jsonObject = document.object();
+    return DeSerializeFromJson(name, jsonObject, object, properties, initHandler);
+}
+
+template<class T>
+bool DeSerializeFromJson(const QString& name, const QJsonObject& jsonObject, T& object, const DescSerializationXMLReadParams& properties, const SerializerJsonReadBuffer::FInitHandler& initHandler = nullptr)
+{
     SerializerJsonReadBuffer buffer(&jsonObject);
 
     if(initHandler != nullptr) {
@@ -288,11 +336,8 @@ bool DeSerializeFromJsonVersioned(const SerializerXmlVersion& currentVersion, co
     });
 }
 
-inline std::pair<bool, SerializerXmlVersion> DeSerializeFromJsonCheckVersion(const SerializerXmlVersion& version, const QByteArray& array)
+inline std::pair<bool, SerializerXmlVersion> DeSerializeFromJsonCheckVersion(const SerializerXmlVersion& version, const QJsonObject& jsonObject)
 {
-    QJsonDocument document;
-    document.fromJson(array);
-    QJsonObject jsonObject = document.object();
     SerializerJsonReadBuffer buffer(&jsonObject);
     auto currentVersion = buffer.ReadVersion();
     return std::make_pair(!version.CheckVersion(currentVersion).isValid(), currentVersion);

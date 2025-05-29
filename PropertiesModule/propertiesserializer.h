@@ -176,7 +176,7 @@ struct Serializer<LocalPropertyPalette>
             Name name; qint32 count2 = 0;
             buffer << buffer.Sect("Name", name);
             buffer.OpenSection("colors");
-            buffer.BeginArray(buffer, count2);
+            buffer.BeginKeyValueArray(buffer, count2);
             auto foundIt = data.constFind(name);
             std::function<void (const Name&, const QString&)> handler;
             if(foundIt != data.cend()) {
@@ -191,12 +191,9 @@ struct Serializer<LocalPropertyPalette>
             }
 
             while(count2--) {
-                buffer.BeginArrayObject();
                 QString value;
-                buffer << buffer.Sect("Name", name);
-                buffer << buffer.Sect("Value", value);
+                buffer.KeyValue(buffer, name, value);
                 handler(name, value);
-                buffer.EndArrayObject();
             }
             buffer.CloseSection();
             buffer.CloseSection();
@@ -215,14 +212,11 @@ struct Serializer<LocalPropertyPalette>
             buffer << buffer.Sect("Name", const_cast<Name&>(key));
             buffer.OpenSection("colors");
             count = it.value().m_data->size();
-            buffer.BeginArray(buffer, count);
+            buffer.BeginKeyValueArray(buffer, count);
             for(auto objectIt(it.value().m_data->begin()), objectE(it.value().m_data->end()); objectIt != objectE; ++objectIt) {
                 const Name& okey = objectIt.key();
-                buffer.BeginArrayObject();
-                buffer << buffer.Sect("Name", const_cast<Name&>(okey));
                 QString toString = objectIt->GetData()->ToString();
-                buffer << buffer.Sect("Value", toString);
-                buffer.EndArrayObject();
+                buffer.KeyValue(buffer, const_cast<Name&>(okey), toString);
             }
             buffer.CloseSection();
             buffer.CloseSection();
@@ -534,6 +528,51 @@ struct SerializerXml<LocalPropertyDateTime>
     {
         const auto& value = object.Value.Native();
         buffer << object.Mutate(const_cast<QDateTime&>(value));
+    }
+};
+
+template<class T>
+struct Serializer<LocalPropertySharedPtr<T>>
+{
+    typedef LocalPropertySharedPtr<T> target_type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const target_type& data)
+    {
+        buffer << data.Native();
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, target_type& data)
+    {
+        SP<T> toRead;
+        buffer << toRead;
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            data = toRead;
+        } else {
+            data.EditSilent() = toRead;
+        }
+    }
+};
+
+template<class T>
+struct SerializerXml<LocalPropertySharedPtr<T>>
+{
+    template<class Buffer>
+    static void Read(Buffer& reader, const SerializerXmlObject<LocalPropertySharedPtr<T>>& object)
+    {
+        SP<T> toRead;
+        reader << object.Mutate(toRead);
+        if(reader.GetSerializationMode().TestFlag(SerializationMode_InvokeProperties)) {
+            object.Value = toRead;
+        } else {
+            object.Value.EditSilent() = toRead;
+        }
+
+    }
+    template<class Buffer>
+    static void Write(Buffer& writer, const SerializerXmlObject<LocalPropertySharedPtr<T>>& object)
+    {
+        writer << object.Mutate(const_cast<SP<T>&>(object.Value.Native()));
     }
 };
 

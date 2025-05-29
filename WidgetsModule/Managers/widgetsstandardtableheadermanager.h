@@ -67,12 +67,9 @@ struct Serializer<QHash<Latin1Name, WidgetsStandardTableHeaderManager::StateObje
     static void Write(Buffer& buffer, const target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         for(auto it(data.begin()), e(data.end()); it != e; it++) {
-            buffer.BeginArrayObject();
-            buffer << buffer.Sect("key", const_cast<T&>(it.key()));
-            buffer << buffer.Sect("value", it.value().GetData()->CurrentState.EditSilent());
-            buffer.EndArrayObject();
+            buffer.KeyValue(buffer, const_cast<T&>(it.key()), it.value().GetData()->CurrentState.EditSilent());
         }
     }
 
@@ -80,13 +77,10 @@ struct Serializer<QHash<Latin1Name, WidgetsStandardTableHeaderManager::StateObje
     static void Read(Buffer& buffer, target_type& data)
     {
         qint32 count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         while(count--) {
-            buffer.BeginArrayObject();
             T key; QByteArray value;
-            buffer << buffer.Sect("key", key);
-            buffer << buffer.Sect("value", value);
-            buffer.EndArrayObject();
+            buffer.KeyValue(buffer, key, value);
             auto foundIt = data.find(key);
             if(foundIt == data.end()) {
                 WidgetsStandardTableHeaderManager::StateObject object;

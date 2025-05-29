@@ -113,10 +113,10 @@ WPSCLicenseDialog QLabel#State {
 }
 
 WPSCSpaceTreeView {
-    qproperty-iconOffset: 25;
+    qproperty-iconOffset: 0;
 }
 
-WidgetsProjectsTreeView QPushButton#BtnActivateObject {
+QPushButton[a_floating=true] {
     margin: 0px;
     padding: 0px;
     background: none;
@@ -240,11 +240,11 @@ IntroProgressBar QLabel#Label {
     font-size: 28px;
 }
 
-WidgetsProjectsTreeView QPushButton#BtnActivateObject:hover {
+QPushButton[a_floating=true]:hover {
     background: @cbg.hover1; 
 }
 
-WidgetsEditingObjectSaveCancelButtons QPushButton#BtnSave {
+QPushButton#BtnSave {
     qproperty-icon: url(@cPath/save.svg);
 }
 
@@ -402,10 +402,6 @@ QLabel[align_layout_label=false] {
 
 WallPlotView {
     qproperty-backColor: @cbg.2;
-}
-
-WallPlotView QPushButton#BtnSave {
-    qproperty-icon: url(@cPath/save.svg);
 }
 
 QDockWidget QScrollBar:vertical,

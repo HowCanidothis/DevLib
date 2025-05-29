@@ -15,12 +15,9 @@ struct Serializer<QHash<Name, PropertiesToolFolderView::BindingRules>>
     static void Write(Buffer& buffer, const TypeName& data)
     {
         int count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         for(auto it = data.begin(); it != data.end(); ++it){
-            buffer.BeginArrayObject();
-            buffer << buffer.Sect("Key", it.key());
-            buffer << buffer.Sect("Expand", WidgetAbstractButtonWrapper(it.value().ToolButton).WidgetChecked().Native());
-            buffer.EndArrayObject();
+            buffer.KeyValue(buffer, it.key(), WidgetAbstractButtonWrapper(it.value().ToolButton).WidgetChecked().Native());
         }
     }
 
@@ -28,14 +25,10 @@ struct Serializer<QHash<Name, PropertiesToolFolderView::BindingRules>>
     static void Read(Buffer& buffer, TypeName& data)
     {
         int count = data.size();
-        buffer.BeginArray(buffer, count);
+        buffer.BeginKeyValueArray(buffer, count);
         while(count--){
-            buffer.BeginArrayObject();
             Name key; bool expand;
-            buffer << buffer.Sect("Key", key);
-            buffer << buffer.Sect("Expand", expand);
-            buffer.EndArrayObject();
-
+            buffer.KeyValue(buffer, key, expand);
             auto it = data.find(key);
             if(it != data.end()){
                 WidgetAbstractButtonWrapper(it.value().ToolButton).WidgetChecked() = expand;
@@ -95,7 +88,7 @@ WidgetAbstractButtonWrapper PropertiesToolFolderView::BeginFolder(const Name& fo
     buttonWrapper->setObjectName(folderName.AsString() + "Button");
     buttonWrapper.WidgetText()->SetTranslationHandler(title);
     buttonWrapper.WidgetChecked().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [buttonWrapper](bool check){
-        buttonWrapper.SetIcon(check ? "CloseIcon" : "OpenIcon");
+        buttonWrapper.SetIcon(check ? "CollapseIcon" : "ExpandIcon");
     });
 
     const_cast<BindingRules&>(widget).ToolButton = buttonWrapper;

@@ -238,12 +238,12 @@ struct TextConverter<qint64>
 
     static value_type FromText(const QString& string)
     {
-        return string.toDouble();
+        return string.toLongLong();
     }
 
     static value_type FromText(const QStringRef& string)
     {
-        return string.toDouble();
+        return string.toLongLong();
     }
 };
 

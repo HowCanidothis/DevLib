@@ -36,13 +36,20 @@ void CloudService::Terminate()
 
 AsyncRequest CloudService::Request(const CloudServiceRequestParams& params) const
 {
-    Q_ASSERT(m_thread.isRunning());
+    AsyncRequest result;
+    if(!m_thread.isRunning()) {
+        result.Result.Resolve(false);
+        return result;
+    }
     QNetworkRequest request(QUrl(Params->Url + params.Route));
     request.setHeader(QNetworkRequest::ContentTypeHeader, Params->DefaultContentType);
+    for(const auto& headerPair : params.RawHeaders) {
+        request.setRawHeader(headerPair.first, headerPair.second);
+    }
     if(params.OnRequest != nullptr) {
         params.OnRequest(request);
     }
-    AsyncRequest result;
+
     ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, m_connection.get(), [this, request, params, result]{
         if(result.ResultInterruptor.IsInterrupted()) {
             return;

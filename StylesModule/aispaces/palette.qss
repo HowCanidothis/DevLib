@@ -33,4 +33,5 @@ MainWindow {
     qproperty-iconSectionSummaryColor: #00897B;
     qproperty-iconBHADEColor: #00796B;
     qproperty-iconCaseColor: #00695C;
+    qproperty-iconSyncColor: #22b14c;
 }
