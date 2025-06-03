@@ -59,7 +59,7 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
         auto update = [this, comboBox](QAbstractItemDelegate::EndEditHint hints){
             auto* nonConstThis = const_cast<DelegatesComboboxCustomViewModel*>(this);
             emit nonConstThis->commitData(comboBox);
-            emit nonConstThis->closeEditor(comboBox, hints);
+//            emit nonConstThis->closeEditor(comboBox, hints);
         };
         wrapper.CreateCompleter(model, [update](const QModelIndex&){
             update(QAbstractItemDelegate::NoHint);
