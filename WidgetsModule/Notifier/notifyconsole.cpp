@@ -225,7 +225,6 @@ NotifyConsole::NotifyConsole(QWidget *parent)
     , IsShowWarnings(true)
     , IsShowInfos(false)
     , IsShowErrors(true)
-    , OnShownMessagesCountChanged(500)
     , ui(new Ui::NotifyConsole)
     , m_updateErrors(500)
 {

@@ -21,6 +21,7 @@ public:
     LocalPropertyBool Enable;
     LocalPropertyBool ShowLeftRight;
     WidgetsMonthPicker* GetPopup() { return m_edit; }
+    WidgetsDateTimeEdit* GetDateEdit() const;
 
     const QDate& GetDate() const;
     void SetDate(const QDate& d);

@@ -46,6 +46,9 @@ ShadowProgressBarOneForAll::ShadowProgressBarOneForAll(QWidget *parent)
     };
 
     ProcessFactory::Instance().OnDeterminate.Connect(CONNECTION_DEBUG_LOCATION, [accumulateProcesses](size_t desc, const DescProcessDeterminateValueState& value){
+        if(!value.Id.IsNull()) {
+            return;
+        }
         bool visible = value.IsShouldStayVisible();
         qint32 steps = value.CurrentStep;
         qint32 stepsCount = value.StepsCount;
@@ -53,6 +56,9 @@ ShadowProgressBarOneForAll::ShadowProgressBarOneForAll(QWidget *parent)
     });
 
     ProcessFactory::Instance().OnIndeterminate.Connect(CONNECTION_DEBUG_LOCATION, [accumulateProcesses](size_t desc, const DescProcessValueState& value){
+        if(!value.Id.IsNull()) {
+            return;
+        }
         bool visible = value.IsShouldStayVisible();
         qint32 steps = 0;
         qint32 stepsCount = 0;

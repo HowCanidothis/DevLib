@@ -63,6 +63,11 @@ WidgetsMonthPopupPicker::WidgetsMonthPopupPicker(QWidget *parent)
     });
 }
 
+WidgetsDateTimeEdit* WidgetsMonthPopupPicker::GetDateEdit() const
+{
+    return ui->dateEdit;
+}
+
 WidgetsMonthPopupPicker::~WidgetsMonthPopupPicker()
 {
     delete ui;
