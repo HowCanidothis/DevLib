@@ -106,6 +106,9 @@ std::pair<QString, qint64> CompareXmlObject::uploadData(const QString& id, const
         QDir result(SharedSettings::GetInstance().PathSettings.TempDir);
         result.mkdir("sc");
         result.cd("sc");
+        auto pid = QString::number(qApp->applicationPid());
+        result.mkdir(pid);
+        result.cd(pid);
         return result;
     }();
     std::pair<QString, qint64> result;

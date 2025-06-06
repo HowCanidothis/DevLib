@@ -97,7 +97,12 @@ PathSettings::PathSettings()
 void PathSettings::Terminate()
 {
     if(m_initialized) {
-        Q_ASSERT(TempDir.removeRecursively());
+        auto dir = TempDir;
+        if(dir.cd("sc")) {
+            if(dir.cd(QString::number(qApp->applicationPid()))) {
+                Q_ASSERT(dir.removeRecursively());
+            }
+        }
     }
 }
 
@@ -111,11 +116,7 @@ void PathSettings::Initialize(const QString& productName)
 
     Q_ASSERT(!productString.isEmpty());
 
-#ifdef BUILD_MASTER
     auto productStringWithPid = productString;
-#else
-    auto productStringWithPid = productString + QString::number(qApp->applicationPid());
-#endif
 
     TempDir.mkdir(productStringWithPid);
 
