@@ -50,6 +50,13 @@ void Logger::SetConsoleEnabled(bool enabled)
     }
 }
 
+void Logger::Terminate()
+{
+    Logger::EnableLogging(false);
+    GetInstance().m_fileStream = nullptr;
+    GetInstance().m_file = nullptr;
+}
+
 void Logger::printNo(const QString&)
 {
 

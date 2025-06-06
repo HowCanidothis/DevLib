@@ -27,6 +27,7 @@ public:
 
     static void Print(const QString& message);
     static void SetAdditionalMessageHandler(const QtMessageHandler& messageHandler);
+    static void Terminate();
 
 private:
     static void messageHandler(QtMsgType type, const QMessageLogContext&, const QString& message);
