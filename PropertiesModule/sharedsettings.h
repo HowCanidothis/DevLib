@@ -89,6 +89,7 @@ struct PathSettings
 
 
     void Initialize(const QString& productName);
+    void Terminate();
 
     template<class Buffer>
     void Serialize(Buffer& buffer)
@@ -97,6 +98,9 @@ struct PathSettings
     }
 
     Q_DECLARE_TR_FUNCTIONS(PathSettings)
+
+private:
+    bool m_initialized;
 };
 
 struct MetricsSettings

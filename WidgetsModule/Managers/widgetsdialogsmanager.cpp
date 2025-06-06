@@ -127,7 +127,7 @@ std::optional<QDate> WidgetsDialogsManager::GetMonth(const FTranslationHandler& 
 
 std::optional<QDateTime> WidgetsDialogsManager::GetDateTime(const FTranslationHandler& title, const QDateTime& current, const FTranslationHandler& confirmationButtonText)
 {
-    LocalPropertyDateTime v(current.isValid() ? current : QDateTime::currentDateTime());
+    LocalPropertyDateTime v(current.isValid() ? current : QDateTime::currentDateTimeUtc());
     auto* dialogView = new WidgetsInputDialogView();
     dialogView->AddDateTime(QString(), &v);
 
@@ -212,7 +212,7 @@ std::optional<std::pair<QDate, QDate>> WidgetsDialogsManager::GetDateRange(const
 
 std::optional<std::pair<QDateTime, QDateTime>> WidgetsDialogsManager::GetDateTimeRange(const FTranslationHandler& title, const QDateTime& from, const QDateTime& to)
 {
-    LocalPropertyDateTime fromP(from.isValid() ? from : QDateTime::currentDateTime()), toP(to.isValid() ? to : QDateTime::currentDateTime());
+    LocalPropertyDateTime fromP(from.isValid() ? from : QDateTime::currentDateTimeUtc()), toP(to.isValid() ? to : QDateTime::currentDateTimeUtc());
     fromP.SetMinMax(from, to);
     toP.SetMinMax(from, to);
     auto* dialogView = new WidgetsInputDialogView();

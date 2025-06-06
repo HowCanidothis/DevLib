@@ -31,11 +31,11 @@ static Name GenerateId()
 {
     static quint64 index = 1;
 
-    auto secsSinceEpoch = QDateTime::currentDateTime().toSecsSinceEpoch();
+    auto secsSinceEpoch = QDateTime::currentDateTimeUtc().toSecsSinceEpoch();
     auto currentDateTime = QDateTime::fromSecsSinceEpoch(secsSinceEpoch ^ index);
 
     QString id;
-    id += IdsTable[QDateTime::currentDateTime().toMSecsSinceEpoch() % std::size(IdsTable)];
+    id += IdsTable[QDateTime::currentDateTimeUtc().toMSecsSinceEpoch() % std::size(IdsTable)];
     id += IdsTable[currentDateTime.time().second()];
     id += IdsTable[currentDateTime.time().minute()];
     id += IdsTable[currentDateTime.time().hour()];

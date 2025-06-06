@@ -90,20 +90,39 @@ void NetworkSettings::CreateGlobalProperties(QString prefix, PropertyFromLocalPr
 PathSettings::PathSettings()
     : TextComparatorApplicationPath("C:/Program Files/TortoiseGit/bin/TortoiseGitMerge.exe")
     , TempDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+    , m_initialized(false)
 {
+}
+
+void PathSettings::Terminate()
+{
+    if(m_initialized) {
+        Q_ASSERT(TempDir.removeRecursively());
+    }
 }
 
 void PathSettings::Initialize(const QString& productName)
 {
+    if(m_initialized) {
+        return;
+    }
+
     auto productString = productName.isEmpty() ? qApp->applicationName() : productName;
 
     Q_ASSERT(!productString.isEmpty());
 
-    TempDir.mkdir(productString);
+#ifdef BUILD_MASTER
+    auto productStringWithPid = productString;
+#else
+    auto productStringWithPid = productString + QString::number(qApp->applicationPid());
+#endif
 
-    if(!TempDir.cd(productString)) {
+    TempDir.mkdir(productStringWithPid);
+
+    if(!TempDir.cd(productStringWithPid)) {
         qCWarning(LC_CONSOLE) << "Unable to create temp directory";
     } else {
+        m_initialized = true;
         LoggingDir = TempDir;
         LoggingDir.mkdir("Logging");
         LoggingDir.cd("Logging");

@@ -13,8 +13,9 @@ void EditingObject::SetParent(EditingObject* parent)
 {
     m_parentConnections.clear();
 
-    OnEnteredEditingMode.ConnectFrom(CONNECTION_DEBUG_LOCATION, parent->OnEnteredEditingMode).MakeSafe(m_parentConnections);
-    OnLeavedEditingMode.ConnectFrom(CONNECTION_DEBUG_LOCATION, parent->OnLeavedEditingMode).MakeSafe(m_parentConnections);
+    parent->OnEnteredEditingMode.Connect(CDL, [this]{
+        SetActive(true);
+    }).MakeSafe(m_parentConnections);
 
     parent->OnAboutToBeSaved.Connect(CONNECTION_DEBUG_LOCATION, [this]{
         Save();
@@ -97,5 +98,46 @@ CompareXmlObject::CompareXmlObject(const QByteArray& data1, const QByteArray& da
 
     m_compareProcess = new QProcess();
     m_compareProcess->start(pathSettings.TextComparatorApplicationPath, QStringList() << oldFilePath << newFilePath);
+}
+
+std::pair<QString, qint64> CompareXmlObject::uploadData(const QString& id, const QByteArray& data, const QByteArray& text)
+{
+    static QDir appDir = []{
+        QDir result(SharedSettings::GetInstance().PathSettings.TempDir);
+        result.mkdir("sc");
+        result.cd("sc");
+        return result;
+    }();
+    std::pair<QString, qint64> result;
+    result.first = appDir.absoluteFilePath(id);
+    QFile f(result.first);
+    if(f.open(QFile::WriteOnly)) {
+        result.second = f.write(data);
+        f.write(text);
+        f.close();
+    }
+    return result;
+}
+
+std::pair<QByteArray, QByteArray> CompareXmlObject::downloadData(const std::pair<QString, qint64>& fileInfo)
+{
+    std::pair<QByteArray, QByteArray> result;
+    QFile f(fileInfo.first);
+    if(f.open(QFile::ReadOnly)) {
+         result.first = f.read(fileInfo.second);
+         result.second = f.readAll();
+    }
+    return result;
+}
+
+DescSerializationXMLWriteParams CompareXmlObject::createCompareParams(qint32 serializationMode)
+{
+    return DescSerializationXMLWriteParams(serializationMode | SerializationMode_Comparison).SetAutoFormating(true)
+            .SetTextConverterContext(TextConverterContext().SetDoublePrecision(6).SetFloatPrecision(6));
+}
+
+qint32 CompareXmlObject::createSaveRestoreMode(qint32 serializationMode)
+{
+    return serializationMode | SerializationMode_InvokeProperties | SerializationMode_MinMaxProperties;
 }
 

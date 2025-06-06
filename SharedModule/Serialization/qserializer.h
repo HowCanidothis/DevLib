@@ -403,8 +403,17 @@ struct Serializer<QHash<T, T2>>
     {
         qint32 count = data.size();
         buffer.BeginKeyValueArray(buffer, count);
-        for(auto it(data.begin()), e(data.end()); it != e; it++) {
-            buffer.KeyValue(buffer, const_cast<T&>(it.key()), const_cast<T2&>(it.value()));
+
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_Comparison)) {
+            auto list = data.keys();
+            std::sort(list.begin(), list.end());
+            for(auto& key : list) {
+                buffer.KeyValue(buffer, key, const_cast<QHash<T, T2>&>(data)[key]);
+            }
+        } else {
+            for(auto it(data.begin()), e(data.end()); it != e; it++) {
+                buffer.KeyValue(buffer, const_cast<T&>(it.key()), const_cast<T2&>(it.value()));
+            }
         }
     }
 
@@ -431,7 +440,7 @@ struct Serializer<QSet<T>>
     {
         qint32 count = data.size();
         buffer.BeginArray(buffer, count);
-        if(buffer.GetSerializationMode().TestFlag(SerializationMode_Sorted_Containers)) {
+        if(buffer.GetSerializationMode().TestFlag(SerializationMode_Comparison)) {
             auto list = data.toList();
             std::sort(list.begin(), list.end());
             for(const auto& element : list) {
@@ -449,7 +458,7 @@ struct Serializer<QSet<T>>
     {
         qint32 count = data.size();
         buffer.BeginArray(buffer, count);
-        if(!buffer.GetSerializationMode().TestFlag(SerializationMode_Merge_Containers)) {
+        if(!buffer.GetSerializationMode().TestFlag(SerializationMode_MergeContainers)) {
             data.clear();
         }
         if(count) {

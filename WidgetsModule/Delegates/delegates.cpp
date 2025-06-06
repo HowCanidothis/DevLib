@@ -592,10 +592,10 @@ void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QP
         if(currentDateTime.IsRealTime()) {
             if(index.column() == columns.second) {
                 auto startDateTime = index.model()->index(index.row(), columns.first).data(Qt::EditRole).toDateTime();
-                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTime();
+                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTimeUtc();
             } else {
                 auto startDateTime = index.model()->index(index.row() - 1, columns.second).data(Qt::EditRole).toDateTime();
-                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTime();
+                currentDateTime = startDateTime.isValid() ? startDateTime : QDateTime::currentDateTimeUtc();
             }
         }
         currentDateTime.SetMinMax(*start, *stop);
