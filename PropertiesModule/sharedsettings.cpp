@@ -98,12 +98,16 @@ void PathSettings::Terminate()
 {
     if(m_initialized) {
         auto dir = TempDir;
+#ifdef BUILD_MASTER
+        dir.removeRecursively();
+#else
         if(dir.cd("sc")) {
             if(dir.cd(QString::number(qApp->applicationPid()))) {
                 Q_ASSERT(dir.removeRecursively());
             }
         }
     }
+#endif
 }
 
 void PathSettings::Initialize(const QString& productName)
