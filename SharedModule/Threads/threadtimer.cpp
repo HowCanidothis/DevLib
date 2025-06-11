@@ -54,6 +54,20 @@ ThreadTimerManager::ThreadTimerManager()
     QObject::connect(qApp, &QCoreApplication::aboutToQuit, [this]{
         terminate();
     });
+
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, m_threadWorker.get(), [this]{
+        m_singleShotTimer = new ThreadTimer(100);
+        m_singleShotTimer->OnTimeout([this]{
+            m_singleShotStack.remove_if([](auto& pair) {
+                pair.first -= 100;
+                if(pair.first <= 0) {
+                    pair.second();
+                    return true;
+                }
+                return false;
+            });
+        });
+    });
 }
 
 ThreadTimerManager::~ThreadTimerManager()
@@ -85,11 +99,13 @@ AsyncResult ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeou
     Q_ASSERT(getInstance().m_thread->isRunning());
     AsyncResult result;
 
-    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, onTimeout, result]{
-        QTimer::singleShot(msecs, [result, onTimeout]{
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, result]{
+        ThreadTimerManager::getInstance().m_singleShotStack.push_back(std::make_pair(msecs, [result]{
             result.Resolve(true);
-            onTimeout();
-        });
+        }));
+    });
+    result.Then([onTimeout](bool){
+        onTimeout();
     });
     return result;
 }
@@ -103,15 +119,23 @@ QTimer* ThreadTimerManager::createTimer(qint32 msecs)
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    FutureResult futureResult;
     QTimer* result;
-    futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, &result]{
-        auto* timer = new QTimer;
-        getInstance().m_timers.InsertSortedUnique(timer);
-        timer->start(msecs);
-        result = timer;
-    });
-    futureResult.Wait();
+    if(QThread::currentThread() == getInstance().m_thread.get()) {
+            auto* timer = new QTimer;
+            getInstance().m_timers.InsertSortedUnique(timer);
+            timer->start(msecs);
+            result = timer;
+    } else {
+        FutureResult futureResult;
+        futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, &result]{
+            auto* timer = new QTimer;
+            getInstance().m_timers.InsertSortedUnique(timer);
+            timer->start(msecs);
+            result = timer;
+        });
+        futureResult.Wait();
+    }
+
     return result;
 }
 
@@ -129,12 +153,16 @@ QMetaObject::Connection ThreadTimerManager::addTimerConnection(QTimer* timerHand
 {
     Q_ASSERT(getInstance().m_thread->isRunning());
 
-    FutureResult futureResult;
     QMetaObject::Connection result;
-    futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [timerHandle, onTimeout, &result]{
+    if(QThread::currentThread() == getInstance().m_thread.get()) {
         result = QObject::connect(timerHandle, &QTimer::timeout, onTimeout);
-    });
-    futureResult.Wait();
+    } else {
+        FutureResult futureResult;
+        futureResult += ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [timerHandle, onTimeout, &result]{
+            result = QObject::connect(timerHandle, &QTimer::timeout, onTimeout);
+        });
+        futureResult.Wait();
+    }
     return result;
 }
 

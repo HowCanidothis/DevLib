@@ -32,6 +32,8 @@ private:
     ArrayPointers<class QTimer> m_timers;
     ScopedPointer<QThread> m_thread;
     ScopedPointer<QObject> m_threadWorker;
+    ScopedPointer<ThreadTimer> m_singleShotTimer;
+    std::list<std::pair<qint32, FAction>> m_singleShotStack;
     bool m_isTerminated;
 };
 

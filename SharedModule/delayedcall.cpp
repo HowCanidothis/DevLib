@@ -69,19 +69,19 @@ DelayedCallDelayOnCall::DelayedCallDelayOnCall(const FAction& action, QMutex* mu
 
 void DelayedCallDelayOnCall::Call()
 {
-    if(--m_counter == 0) {
-        Super::Call();
-    }
+    Super::Call();
 }
 
 AsyncResult DelayedCallDelayOnCall::Invoke(const ThreadHandlerNoThreadCheck& threadHandler, const FAction& delayedCall, qint32 delay)
 {
     m_counter++;
     AsyncResult result;
-    ThreadTimer::SingleShot(delay, [threadHandler, delayedCall, result]{
-        threadHandler(delayedCall).Then([result](bool value){
-            result.Resolve(value);
-        });
+    ThreadTimer::SingleShot(delay, [this, threadHandler, delayedCall, result]{
+        if(--m_counter == 0) {
+            threadHandler(delayedCall).Then([result](bool value){
+                result.Resolve(value);
+            });
+        }
     });
     return result;
 }
