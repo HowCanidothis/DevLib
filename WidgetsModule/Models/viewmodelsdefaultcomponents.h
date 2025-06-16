@@ -512,18 +512,18 @@ public:
             ValueType data = const_cast<ValueType>(constData);
             if(timeShift != nullptr) {
                 QDateTime& dateTime = getter(data);
-                return DateTimeToString(dateTime.toOffsetFromUtc(*timeShift));
+                return LanguageSettings::DateTimeToString(dateTime.toOffsetFromUtc(*timeShift));
             }
-            return DateTimeToString(getter(data));
+            return LanguageSettings::DateTimeToString(getter(data));
         }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 if(timeShift != nullptr) {
                     QDateTime& property = getter(data);
-                    auto inputDateTime = DateTimeFromVariant(value);
+                    auto inputDateTime = LanguageSettings::DateTimeFromVariant(value);
                     property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *timeShift);
                     return;
                 }
-                getter(data) = DateTimeFromVariant(value);
+                getter(data) = LanguageSettings::DateTimeFromVariant(value);
         };
         }, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -540,18 +540,18 @@ public:
             ValueType data = const_cast<ValueType>(constData);
             if(timeShift != nullptr) {
                 LocalPropertyDateTime& dateTime = getter(data);
-                return DateTimeToString(dateTime.Native().toOffsetFromUtc(*timeShift));
+                return LanguageSettings::DateTimeToString(dateTime.Native().toOffsetFromUtc(*timeShift));
             }
-            return DateTimeToString(getter(data));
+            return LanguageSettings::DateTimeToString(getter(data));
         }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 if(timeShift != nullptr) {
                     LocalPropertyDateTime& property = getter(data);
-                    auto inputDateTime = DateTimeFromVariant(value);
+                    auto inputDateTime = LanguageSettings::DateTimeFromVariant(value);
                     property = QDateTime(inputDateTime.date(), inputDateTime.time(), Qt::OffsetFromUTC, *timeShift);
                     return;
                 }
-                getter(data) = DateTimeFromVariant(value);
+                getter(data) = LanguageSettings::DateTimeFromVariant(value);
         };
         }, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
