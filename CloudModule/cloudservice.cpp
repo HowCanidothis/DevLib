@@ -68,7 +68,7 @@ void CloudService::processReply(QNetworkReply* reply, const CloudServiceRequestP
         guards::LambdaGuard guard([&]{ result.Result.Resolve(ok); reply->deleteLater(); });
         if(reply->error() != QNetworkReply::NoError) {
             if(params.OnError != nullptr) {
-                params.OnError(reply->errorString());
+                params.OnError(reply->errorString() + ": " + reply->readAll());
             }            
             return;
         }
