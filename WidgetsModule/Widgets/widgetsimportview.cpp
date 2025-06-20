@@ -69,7 +69,6 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
     tableViewWrapper.AddDebugActions();
     tableViewWrapper.AddGlobalTableAction(GlobalActionCopyId);
     tableViewWrapper.AddGlobalTableAction(GlobalActionCopyWithHeadersId);
-    tableViewWrapper.AddSeparator();
     tableViewWrapper.AddGlobalTableAction(GlobalActionPasteId);
     tableViewWrapper.AddSeparator();
     tableViewWrapper.AddGlobalTableAction(GlobalActionDeleteId);

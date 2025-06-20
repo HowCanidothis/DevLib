@@ -386,9 +386,9 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             tableViewWrapper.AddDebugActions();
             tableViewWrapper.AddGlobalTableAction(GlobalActionCopyId);
             tableViewWrapper.AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+            tableViewWrapper.AddGlobalTableAction(GlobalActionPasteId);
             tableViewWrapper.AddSeparator();
             tableViewWrapper.AddGlobalTableAction(GlobalActionInsertId);
-            tableViewWrapper.AddGlobalTableAction(GlobalActionPasteId);
             tableViewWrapper.AddGlobalTableAction(GlobalActionImportId);
             tableViewWrapper.AddSeparator();
             tableViewWrapper.AddGlobalTableAction(GlobalActionDeleteId);
@@ -482,9 +482,9 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             MenuWrapper(tableView).AddDebugActions();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyId);
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionCopyWithHeadersId);
+            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionInsertId);
-            MenuWrapper(tableView).AddGlobalTableAction(GlobalActionPasteId);
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionImportId);
             MenuWrapper(tableView).AddSeparator();
             MenuWrapper(tableView).AddGlobalTableAction(GlobalActionDeleteId);
