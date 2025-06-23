@@ -11,15 +11,18 @@ struct WidgetBuilderLayoutParams
     Qt::Orientation Orientation;
     bool AddSpacerToTheEnd;
     qint32 Margin;
+    qint32 Spacing;
     QLayout::SizeConstraint SizeConstraint;
 
     WidgetBuilderLayoutParams(Qt::Orientation orientation)
         : Orientation(orientation)
         , AddSpacerToTheEnd(false)
         , Margin(9)
+        , Spacing(6)
         , SizeConstraint(QLayout::SetDefaultConstraint)
     {}
 
+    WidgetBuilderLayoutParams& SetSpacing(qint32 spacing) { Spacing = spacing; return *this; }
     WidgetBuilderLayoutParams& SetMargin(qint32 margins) { Margin = margins; return *this; }
     WidgetBuilderLayoutParams& AddSpacer() { AddSpacerToTheEnd = true; return *this; }
     WidgetBuilderLayoutParams& SetSizeConstraint(QLayout::SizeConstraint constraint) { SizeConstraint = constraint; return *this; }

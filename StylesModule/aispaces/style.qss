@@ -457,3 +457,22 @@ VisualizationLegendItemWidget
 {
     background: @cbg.2;
 }
+
+QWidget#LoginInfoProfileWidget {
+    padding: 0px;
+    max-width: 32px;
+    max-height: 32px;
+}
+
+QWidget#LoginInfo {
+    max-height: 80px;
+}
+
+QWidget#LoginUserInfo {
+    margin: 0px;
+    padding: 0px;
+}
+
+QWidget#LoginFullName {
+    color: @ctext.active;
+}

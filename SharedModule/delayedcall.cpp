@@ -144,8 +144,8 @@ AsyncResult DelayedCallManager::CallDelayed(const char* connectionInfo, DelayedC
             delayedCall->Call();
         }, object->m_params.DelayMsecs);
         qint32 id = object->GetId();
-        delayedCall->GetResult().Then([id](bool){
-            if(locked) {
+        delayedCall->GetResult().Then([id, connectionInfo](bool){
+            if(locked || TERMINATED) {
                 return;
             }
             QMutexLocker locker(mutex());

@@ -87,5 +87,6 @@
         <file>style/res/ruler.svg</file>
         <file>aispaces/res/full_logo_black.svg</file>
         <file>aispaces/res/full_logo_white.svg</file>
+        <file>style/res/out.svg</file>
     </qresource>
 </RCC>

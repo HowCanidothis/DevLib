@@ -52,15 +52,16 @@ WidgetBuilder& WidgetBuilder::StartLayout(const WidgetBuilderLayoutParams& param
     }
 
     toAdd->setMargin(params.Margin);
+    toAdd->setSpacing(params.Spacing);
     toAdd->setSizeConstraint(params.SizeConstraint);
     m_addWidgetFunctors.last()(dummyWidget);
     m_addWidgetFunctors.append([toAdd](QWidget* w){ toAdd->addWidget(w); });
     handler(*this);
     if(params.AddSpacerToTheEnd) {
         if(params.Orientation == Qt::Vertical) {
-            toAdd->addItem(new QSpacerItem(20,40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+            toAdd->addItem(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::Expanding));
         } else {
-            toAdd->addItem(new QSpacerItem(40,20, QSizePolicy::Expanding));
+            toAdd->addItem(new QSpacerItem(0,0, QSizePolicy::Expanding));
         }
     }
     m_addWidgetFunctors.pop();
