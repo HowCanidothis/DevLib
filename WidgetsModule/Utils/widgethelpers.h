@@ -399,6 +399,7 @@ public:
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
     const WidgetLineEditWrapper& AddCompleter(const QStringList& keys) const;
+    const WidgetLineEditWrapper& AddPasswordButton() const;
 
     CommonDispatcher<const QString&>& OnEditFinished() const;
     LocalPropertyString& WidgetText() const;

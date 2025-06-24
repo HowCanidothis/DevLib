@@ -181,3 +181,21 @@ QPushButton#BtnShowGrid {
 WidgetsMonthPicker {
     background: @cbg.2;
 }
+
+QPushButton#BtnShowPassword {
+    image: url("@cPath/eye-off.svg");
+    padding: 0px;
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+}
+
+QPushButton#BtnShowPassword:hover {
+    background: none;
+}
+
+QPushButton#BtnShowPassword:checked {
+    image: url("@cPath/eye.svg");
+    background: none;
+}

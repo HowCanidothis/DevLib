@@ -460,8 +460,8 @@ VisualizationLegendItemWidget
 
 QWidget#LoginInfoProfileWidget {
     padding: 0px;
-    max-width: 32px;
-    max-height: 32px;
+    max-width: 28px;
+    max-height: 28px;
 }
 
 QWidget#LoginInfo {
@@ -475,4 +475,8 @@ QWidget#LoginUserInfo {
 
 QWidget#LoginFullName {
     color: @ctext.active;
+}
+
+QMenu[user_info=true]::item {
+    padding-left: 26px;
 }

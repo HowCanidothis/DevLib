@@ -137,6 +137,27 @@ Dispatcher& MenuWrapper::OnContextMenu() const
     });
 }
 
+const WidgetLineEditWrapper& WidgetLineEditWrapper::AddPasswordButton() const
+{
+    auto* le = GetWidget();
+#ifdef QT_DEBUG
+    Q_ASSERT(!le->property("HasBtnShowPassword").toBool());
+    le->setProperty("HasBtnShowPassword", true);
+#endif
+    auto* eyeButton = new QPushButton(le);
+    eyeButton->setObjectName("BtnShowPassword");
+    eyeButton->setCheckable(true);
+    WidgetPushButtonWrapper(eyeButton).SetOnClicked([le, eyeButton]{
+        if(eyeButton->isChecked()) {
+            le->setEchoMode(QLineEdit::Normal);
+        } else {
+            le->setEchoMode(QLineEdit::Password);
+        }
+    });
+    WidgetWrapper(eyeButton).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleRight).SetOffset({10,0}).DisableFullParentSize());
+    return *this;
+}
+
 const WidgetLineEditWrapper& WidgetLineEditWrapper::AddCompleter(const QStringList& keys) const
 {
     auto* te = GetWidget();
