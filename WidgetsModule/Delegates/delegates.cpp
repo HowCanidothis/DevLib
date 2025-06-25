@@ -386,7 +386,11 @@ QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOpti
 {
     auto widget = new WidgetsDatetimePopupPicker(parent);
     widget->GetLineEdit()->AutoResize = false;
-    widget->GetDateTimeWidget()->CurrentDateTime = index.model()->data(index, Qt::EditRole).toDateTime();
+    widget->GetDateTimeWidget()->CurrentDateTime = index.data(Qt::EditRole).toDateTime();
+    auto min = index.data(MinLimitRole).toDateTime();
+    auto max = index.data(MaxLimitRole).toDateTime();
+    widget->GetDateTimeWidget()->CurrentDateTime.SetMinMax(min, max);
+
     OnEditorAboutToBeShown(widget, index);
     widget->OnDataCommit.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
         auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);

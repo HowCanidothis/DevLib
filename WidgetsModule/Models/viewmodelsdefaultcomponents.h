@@ -560,8 +560,24 @@ public:
                 return dateTime.Native().toOffsetFromUtc(*timeShift);
             }
             return getter(data);
+        }).template addDateTimeLimits<QDateTime>(column, [this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data){
+            m_viewModel->ColumnComponents.AddComponent(role, column, data);
+        }, [getter](ConstValueType v) {
+            return getter(const_cast<ValueType>(v)).GetMin();
+        }, [getter](ConstValueType v) {
+            return getter(const_cast<ValueType>(v)).GetMax();
         });
     }
+
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& AddDateTimeColumnLimits(const std::function<T(ConstValueType)>& min = [](ConstValueType){ return T(); }, const std::function<T(ConstValueType)>& max = [](ConstValueType){ return T(); })
+    {
+        return addDateTimeLimits<T>([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data) {
+            bool installedComponent = m_viewModel->ColumnComponents.SetComponent(role, column, 0, data);
+            Q_ASSERT(installedComponent);
+        }, min, max);
+    }
+
 
 #ifdef UNITS_MODULE_LIB
     TViewModelsColumnComponentsBuilder& SetCurrentMeasurement(const Measurement* measurement)
@@ -732,6 +748,31 @@ private:
         }));
         return *this;
     }
+
+    template<typename T>
+    TViewModelsColumnComponentsBuilder& addDateTimeLimits(int column, const std::function<void (qint32, qint32, const ViewModelsTableColumnComponents::ColumnComponentData&)>& addDelegate,
+                                                             const std::function<T(ConstValueType)>& min = [](ConstValueType){ return T(); },
+                                                             const std::function<T(ConstValueType)>& max = [](ConstValueType){ return T(); })
+    {
+         auto modelGetter = m_modelGetter;
+         addDelegate(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([modelGetter, min](const QModelIndex& index) -> QVariant {
+             const auto& viewModel = modelGetter();
+             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                 return T();
+             }
+             return min(viewModel->At(index.row()));
+         }));
+
+         addDelegate(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([modelGetter, max](const QModelIndex& index) -> QVariant {
+             const auto& viewModel = modelGetter();
+             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
+                 return T();
+             }
+             return max(viewModel->At(index.row()));
+         }));
+        return *this;
+    }
+
 
 #endif
 private:
