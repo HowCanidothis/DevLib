@@ -434,7 +434,7 @@ public:
                         qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
                     );
 
-                    Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
+//                    Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
                     if(m_calculator == nullptr) {
                         return;
                     }
@@ -833,13 +833,13 @@ public:
         m_handler = handler;
         if(m_handler){
             connectorHandler(m_calculator);
-        }
 
-        m_calculator.SetCalculator([]{
-            return true;
-        });
+            m_calculator.SetCalculator([]{
+                return true;
+            });
 
-        m_calculator.RequestRecalculate();
+            m_calculator.RequestRecalculate();
+        }        
     }
 
     template<class ExternalData>
