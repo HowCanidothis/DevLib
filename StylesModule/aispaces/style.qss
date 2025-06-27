@@ -112,10 +112,6 @@ WPSCLicenseDialog QLabel#State {
     color: @c.error;
 }
 
-WPSCSpaceTreeView {
-    qproperty-iconOffset: 0;
-}
-
 QPushButton[a_floating=true] {
     margin: 0px;
     padding: 0px;
