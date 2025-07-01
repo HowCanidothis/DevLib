@@ -817,6 +817,18 @@ public:
         });
     }
 
+    void AttachEmpty()
+    {
+        m_calculator.Disconnect(CDL);
+        m_handler = []{
+            return container_type();
+        };
+        m_calculator.SetCalculator([]{
+            return true;
+        });
+        m_calculator.RequestRecalculate();
+    }
+
     void AttachCopy(const TPtr& externalData)
     {
         if(externalData == nullptr) {
