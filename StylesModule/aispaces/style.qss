@@ -440,7 +440,7 @@ TopControlBar QFrame#lbRefColor {
     max-height: 1px;
 }
 
-QFrame#Workspace{
+QWidget#Workspace{
     background: @cbg.2;
 }
 
