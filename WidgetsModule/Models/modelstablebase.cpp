@@ -369,9 +369,10 @@ std::optional<bool> ViewModelsTableColumnComponents::SetData(const QModelIndex& 
         for(const auto& handlers : adapters::reverse(components)) {
             result = handlers.SetterHandler(index, data);
             if(result.has_value()) {
-                break;
+                return true;
             }
         }
+        return false;
     };
 
     if(callHandler(index.column(), (Qt::ItemDataRole)role, testHandler)) {
@@ -387,9 +388,10 @@ std::optional<QVariant> ViewModelsTableColumnComponents::GetData(const QModelInd
         for(const auto& handlers : adapters::reverse(components)) {
             result = handlers.GetterHandler(index);
             if(result.has_value()) {
-                break;
+                return true;
             }            
         }
+        return false;
     };
 
     if(callHandler(index.column(), (Qt::ItemDataRole)role, testHandler)) {
@@ -405,9 +407,10 @@ std::optional<QVariant> ViewModelsTableColumnComponents::GetHeaderData(qint32 se
         for(const auto& handlers : adapters::reverse(data)) {
             result = handlers.GetHeaderHandler();
             if(result.has_value()) {
-                break;
+                return true;
             }            
         }
+        return false;
     };
 
     if(callHandler(section, (Qt::ItemDataRole)role, testHandler)) {
@@ -423,9 +426,10 @@ std::optional<Qt::ItemFlags> ViewModelsTableColumnComponents::GetFlags(const QMo
         for(const auto& handlers : adapters::reverse(data)) {
             result = handlers.GetFlagsHandler(index.row());
             if(result.has_value()) {
-                break;
+                return true;
             }
         }
+        return false;
     };
 
     if(callFlagsHandler(index.column(), testHandler)) {
@@ -442,15 +446,16 @@ qint32 ViewModelsTableColumnComponents::GetColumnCount() const
     return m_columnComponents.lastKey() + 1;
 }
 
-bool ViewModelsTableColumnComponents::callHandler(qint32 column, qint32 role, const std::function<void (const QVector<ColumnComponentData> &)> &onFound) const
+bool ViewModelsTableColumnComponents::callHandler(qint32 column, qint32 role, const std::function<bool (const QVector<ColumnComponentData> &)> &onFound) const
 {
     auto foundIt = m_columnComponents.find(column);
     if(foundIt != m_columnComponents.end()) {
         const auto& columnsHandlers = foundIt.value();
         auto foundItRole = columnsHandlers.find(role);
         if(foundItRole != columnsHandlers.end()) {
-            onFound(foundItRole.value());
-            return true;
+            if(onFound(foundItRole.value())) {
+                return true;
+            }
         }
     }
     foundIt = m_columnComponents.find(-1);
@@ -458,8 +463,9 @@ bool ViewModelsTableColumnComponents::callHandler(qint32 column, qint32 role, co
         const auto& columnsHandlers = foundIt.value();
         auto foundItRole = columnsHandlers.find(role);
         if(foundItRole != columnsHandlers.end()) {
-            onFound(foundItRole.value());
-            return true;
+            if(onFound(foundItRole.value())) {
+                return true;
+            }
         }
     }
     return false;

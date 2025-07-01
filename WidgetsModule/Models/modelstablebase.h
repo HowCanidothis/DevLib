@@ -103,7 +103,7 @@ public:
     qint32 GetColumnCount() const;
 
 private:
-    bool callHandler(qint32 column, qint32 role, const std::function<void (const QVector<ColumnComponentData>&)>& onFound) const;
+    bool callHandler(qint32 column, qint32 role, const std::function<bool (const QVector<ColumnComponentData>&)>& onFound) const;
     bool callFlagsHandler(qint32 column, const std::function<void (const QVector<ColumnFlagsComponentData>& )>& onFound) const;
 
 private:
