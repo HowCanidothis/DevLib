@@ -476,3 +476,20 @@ QWidget#LoginFullName {
 QMenu[user_info=true]::item {
     padding-left: 26px;
 }
+
+TTView QTableView#AvailableTargets {
+    margin-right: 9px;
+}
+
+TTView QTableView#SelectedTargets {
+    margin-left: 9px;
+}
+
+TTView QTableView#WellplanPreview {
+    margin-top: 9px;
+    margin-bottom: 9px;
+}
+
+TTView QSplitter#splitter {
+    margin-bottom: 9px;
+}

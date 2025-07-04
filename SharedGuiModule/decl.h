@@ -406,6 +406,12 @@ public:
 
     Vector3F To3F() const { return Vector3F(m_x, m_y, m_z); }
 
+    const double* begin() const { return &m_x; }
+    const double* end() const { return &m_z + 1; }
+
+    double* begin() { return &m_x; }
+    double* end() { return &m_z + 1; }
+
 private:
     double m_x,m_y,m_z;
 };
