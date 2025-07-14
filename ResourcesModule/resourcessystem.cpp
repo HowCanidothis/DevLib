@@ -13,6 +13,11 @@ ResourceData* ResourcesSystem::getResourceData(const Name& name) const
     return find.value().get();
 }
 
+ResourcesSystem::~ResourcesSystem()
+{
+
+}
+
 void ResourcesSystem::RegisterResource(const Name& name, const DescRegisterResourceParams& params)
 {
     ResourceCache& cache = m_resources;

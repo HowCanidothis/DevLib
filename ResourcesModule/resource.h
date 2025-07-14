@@ -3,32 +3,47 @@
 
 #include <SharedModule/internal.hpp>
 
-class ResourceData
+struct ResourceDataCapture : private SmartPointerValueCaptured
 {
-public:
-    using FInitializer = std::function<void* ()>;
-    using FReleaser = std::function<void (void*)>;
+    ResourceDataCapture()
+    {
+        Value = nullptr;
+    }
 
-    ResourceData(const FInitializer& initializer, const FReleaser& releaser);
-    virtual ~ResourceData();
+    ResourceDataCapture& operator=(const SmartPointerValueCaptured& c)
+    {
+        Capture = c.Capture;
+        Value = c.Value;
+        return *this;
+    }
 
-protected:
+private:
+    bool isThreadSafe() const { return m_lock != nullptr; }
+    void* get() const { return Value; }
+    template<class T>
+    T& get() const { return *static_cast<T*>(Value); }
+    void lock() { if(m_lock) m_lock(); }
+    void unlock() { if(m_unlock) m_unlock(); }
+
+private:
     template<class> friend class TResource;
     friend class Resource;
-    virtual void lock() const {}
-    virtual void unlock() const {}
-    virtual bool isThreadSafe() const { return false; }
+    friend class ResourceDataThreadSafe;
+    FAction m_lock, m_unlock;
+};
 
-private:
-    void* use();
-    void release();
-    void* get() const;
+class ResourceData : public SmartPointerValue
+{
+    using Super = SmartPointerValue;
+public:
+    using Super::Super;
 
-private:
-    void* m_data;
-    FInitializer m_initializer;
-    FReleaser m_releaser;
-    qint32 m_useCount;
+    virtual ResourceDataCapture Capture()
+    {
+        ResourceDataCapture result;
+        result = Super::Capture();
+        return result;
+    }
 };
 
 class ResourceDataThreadSafe : public ResourceData
@@ -37,22 +52,38 @@ class ResourceDataThreadSafe : public ResourceData
 public:
     using Super::Super;
 
-protected:
-    void lock() const override { m_mutex.lock(); }
-    void unlock() const override { m_mutex.unlock(); }
-    bool isThreadSafe() const override { return true; }
+    virtual ResourceDataCapture Capture()
+    {
+        ResourceDataCapture result;
+        if(m_watcher.expired()) {
+            auto mutex = ::make_shared<QMutex>();
+            result.m_lock = m_lock = [mutex] { mutex->lock(); };
+            result.m_unlock = m_unlock = [mutex] { mutex->unlock(); };
+            auto* data = m_data = result.Value = m_onCaptured();
+            auto releaser = m_onReleased;
+            m_watcher = result.Capture = ::make_shared<SmartPointerWatcher>([data, releaser]{
+                releaser(data);
+            });
+        } else {
+            result.Capture = m_watcher.lock();
+            result.Value = m_data;
+            result.m_lock = m_lock;
+            result.m_unlock = m_unlock;
+        }
+
+        return result;
+    }
 
 private:
-    mutable QMutex m_mutex;
+    FAction m_lock;
+    FAction m_unlock;
 };
 
 class Resource
 {
 public:
-    Resource()
-        : m_resourceData(nullptr)
-    {}
-    Resource(ResourceData* resourceData);
+    Resource(){}
+    Resource(const ResourceDataCapture& capture);
     Resource(const Resource& resource);
 
     virtual ~Resource();
@@ -60,29 +91,28 @@ public:
     template<class T>
     void GetAccess(const std::function<void (T& resourceData)>& handler)
     {
-        Q_ASSERT(m_resourceData != nullptr);
-        m_resourceData->lock();
-        handler(*(T*)m_resourceData->get());
-        m_resourceData->unlock();
+        Q_ASSERT(m_resourceData.get() != nullptr);
+        m_resourceData.lock();
+        handler(m_resourceData.get<T>());
+        m_resourceData.unlock();
     }
 
     template<class T>
     void GetAccess(const std::function<void (const T& resourceData)>& handler) const
     {
-        Q_ASSERT(m_resourceData != nullptr);
-        m_resourceData->lock();
-        handler(*(T*)m_resourceData->get());
-        m_resourceData->unlock();
+        Q_ASSERT(m_resourceData.get() != nullptr);
+        m_resourceData.lock();
+        handler(m_resourceData.get<T>());
+        m_resourceData.unlock();
     }
 
     Resource& operator=(const Resource& another);
 
-    bool IsNull() const { return m_resourceData == nullptr; }
-    bool operator==(void* ptr) const { return m_resourceData == ptr; }
-    bool operator!=(void* ptr) const { return m_resourceData != ptr; }
+    bool operator==(void* ptr) const { return m_resourceData.get() == ptr; }
+    bool operator!=(void* ptr) const { return m_resourceData.get() != ptr; }
 
 protected:
-    ResourceData* m_resourceData;
+    ResourceDataCapture m_resourceData;
 };
 
 template<class T>
@@ -112,8 +142,8 @@ public:
 
     const T& Get() const
     {
-        Q_ASSERT(!m_resourceData->isThreadSafe());
-        return *(T*)m_resourceData->get();
+        Q_ASSERT(!m_resourceData.isThreadSafe());
+        return m_resourceData.get<T>();
     }
 };
 

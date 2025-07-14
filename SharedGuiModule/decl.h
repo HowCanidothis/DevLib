@@ -141,6 +141,39 @@ public:
     {}
     using Super::Super;
 
+    float ProjectToLineSegmentT(const Vector2F& a, const Vector2F& b) const
+    {
+        auto ba = b - a;
+        const float l2 = dotProduct(ba, ba);
+        if (qFuzzyIsNull(l2)) {
+            return 0.0;
+        }
+        auto t = dotProduct(*this - a, ba) / l2;
+        return ::clamp(ProjectToLine(a, b), 0.f, 1.f);
+    }
+
+    float ProjectToLine(const Vector2F& a, const Vector2F& b) const
+    {
+        auto ba = b - a;
+        const float l2 = dotProduct(ba, ba);
+        if (qFuzzyIsNull(l2)) {
+            return 0.0;
+        }
+        auto t = dotProduct(*this - a, ba) / l2;
+        return t;
+    }
+
+    float SquaredDistanceToPoint(const Vector2F& point) const
+    {
+        auto v = *this - point;
+        return dotProduct(v,v);
+    }
+
+    Vector2F ProjectToLineSegment(const Vector2F& a, const Vector2F& b) const
+    {
+        return ::lerp(a, b, ProjectToLineSegmentT(a,b));
+    }
+
     float& X() { return operator[](0); }
     float X() const { return operator[](0); }
 
@@ -576,7 +609,8 @@ public:
     void MultiplyExtent(float multiplier)
     {
         auto currentExtent = CalculateExtent();
-        AddExtent(currentExtent.x() * multiplier, currentExtent.y() * multiplier, currentExtent.z() * multiplier);
+        auto mmo = multiplier - 1.f;
+        AddExtent(currentExtent.x() * mmo, currentExtent.y() * mmo, currentExtent.z() * mmo);
     }
     void AddExtent(float x, float y, float z)
     {

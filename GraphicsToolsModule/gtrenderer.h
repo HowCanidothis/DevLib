@@ -122,7 +122,6 @@ private:
     friend class GtRenderPath;
 
     QHash<GtRendererController*, GtRendererControllerPtr> m_controllers;
-    ScopedPointer<QImage> m_outputImage;
     Matrix4Resource m_mvp;
     Matrix4Resource m_view;
     Matrix4Resource m_projection;

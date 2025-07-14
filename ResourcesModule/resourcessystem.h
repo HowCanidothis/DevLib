@@ -14,6 +14,7 @@ class ResourcesSystem
 
 public:
     ResourcesSystem() {}
+    virtual ~ResourcesSystem();
     struct DescRegisterResourceParams
     {
         std::function<void*()> Initializer;
@@ -62,7 +63,7 @@ public:
             }
             return TResource<T>();
         }
-        return TResource<T>(data);
+        return TResource<T>(data->Capture());
     }
 
 private:

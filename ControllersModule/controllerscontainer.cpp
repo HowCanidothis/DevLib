@@ -51,6 +51,7 @@ void ControllersContainer::SetCurrent(ControllerBase* controller) {
 
 void ControllersContainer::LeaveEvent()
 {
+    GetCurrent()->mouseLeaveEvent();
     auto* pc = GetCurrent()->GetParentController();
     if(pc != nullptr && pc->resetOnLeave()) {
         SetCurrent(pc);

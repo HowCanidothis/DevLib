@@ -91,8 +91,6 @@ GtRenderer::~GtRenderer()
 {
     OnAboutToBeDestroyed();
     Quit();
-    auto resourceSystem = m_resourceSystem;
-    ThreadsBase::DoMain(CONNECTION_DEBUG_LOCATION,[resourceSystem]{});
 }
 
 GtRendererControllerPtr GtRenderer::CreateDefaultController()

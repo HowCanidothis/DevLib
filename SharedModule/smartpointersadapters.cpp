@@ -41,3 +41,31 @@ void SmartPointerWatcher::disconnect()
 {
     m_disconnector = nullptr;
 }
+
+SmartPointerValue::SmartPointerValue(const FInitializer& initializer, const FReleaser& releaser)
+    : m_data(nullptr)
+    , m_onCaptured(initializer)
+    , m_onReleased(releaser)
+{
+
+}
+SmartPointerValue::~SmartPointerValue()
+{
+}
+
+SmartPointerValueCaptured SmartPointerValue::Capture()
+{
+    SmartPointerValueCaptured result;
+    if(m_watcher.expired()) {
+        auto* data = m_data = result.Value = m_onCaptured();
+        auto releaser = m_onReleased;
+        m_watcher = result.Capture = ::make_shared<SmartPointerWatcher>([data, releaser]{
+            releaser(data);
+        });
+    } else {
+        result.Capture = m_watcher.lock();
+        result.Value = m_data;
+    }
+
+    return result;
+}

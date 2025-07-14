@@ -82,6 +82,7 @@ public:
     ~SmartPointerWatcher();
 
 private:
+    friend class SmartPointerValue;
     friend class SmartPointer;
     void disconnect();
 
@@ -108,5 +109,34 @@ private:
     std::function<void ()> m_onReleased;
     std::weak_ptr<SmartPointerWatcher> m_watcher;
 };
+
+struct SmartPointerValueCaptured
+{
+    SmartPointerWatcherPtr Capture;
+    void* Value;
+
+    template<class T>
+    T& GetData() const { return *static_cast<T*>(Value); }
+};
+
+class SmartPointerValue
+{
+public:
+    using FInitializer = std::function<void* ()>;
+    using FReleaser = std::function<void (void*)>;
+
+    SmartPointerValue(const FInitializer& initializer, const FReleaser& releaser);
+    virtual ~SmartPointerValue();
+
+    SmartPointerValueCaptured Capture();
+
+protected:
+    void* m_data;
+    FInitializer m_onCaptured;
+    FReleaser m_onReleased;
+    std::weak_ptr<SmartPointerWatcher> m_watcher;
+};
+
+using SmartPointerValuePtr = SP<SmartPointerValue>;
 
 #endif // SMARTPOINTERSADAPTERS_H

@@ -331,7 +331,7 @@ void GtCamera::SetIsometric(bool flag)
 
 void GtCamera::Resize(qint32 width, qint32 height)
 {
-    m_viewport = SizeF(width,height);
+    m_viewport = SizeF(qMax(width, 1), qMax(height,1));
     calculateIsometricCoef();
     m_state.AddFlag(State_NeedUpdateProjection);
 }

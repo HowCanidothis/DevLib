@@ -62,6 +62,8 @@ protected:
     virtual void enterEvent() {}
     virtual void leaveEvent() {}
 
+    virtual void mouseLeaveEvent(){}
+
     virtual void onContextChanged() {}
 };
 
