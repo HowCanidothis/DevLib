@@ -89,5 +89,9 @@
         <file>aispaces/res/full_logo_white.svg</file>
         <file>style/res/out.svg</file>
         <file>style/res/open-in-app.svg</file>
+        <file>style/res/adjust.svg</file>
+        <file>aispaces/res/view_3d.svg</file>
+        <file>aispaces/res/view_left.svg</file>
+        <file>aispaces/res/view_top.svg</file>
     </qresource>
 </RCC>

@@ -493,3 +493,8 @@ TTView QTableView#WellplanPreview {
 TTView QSplitter#splitter {
     margin-bottom: 9px;
 }
+
+WPSWellplanTargetView QPushButton#BtnAdjust {
+    qproperty-icon: url(@cPath/adjust.svg);
+    qproperty-text: "";
+}
