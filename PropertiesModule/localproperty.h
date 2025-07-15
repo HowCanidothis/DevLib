@@ -715,6 +715,46 @@ public:
     bool IsContains(const T& value) const { return this->m_value.contains(value); }
     typename QSet<T>::const_iterator Find(const T& value) const { return this->m_value.find(value); }//TODO
 
+    bool Insert(const T& v)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value.insert(v);
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+            return true;
+        }
+        return false;
+    }
+
+    bool Remove(const T& v)
+    {
+        auto result = this->m_value.remove(v);
+        if(result) {
+            this->Invoke();
+        }
+        return result;
+    }
+
+    LocalPropertySet& operator-=(const QSet<T>& another)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value -= another;
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+        }
+        return *this;
+    }
+
+    LocalPropertySet& operator+=(const QSet<T>& another)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value += another;
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+        }
+        return *this;
+    }
+
     LocalPropertySet& operator=(const QSet<T>& another)
     {
         if(IsEmpty() && another.isEmpty()) {
@@ -732,28 +772,6 @@ public:
             this->m_value.clear();
             this->Invoke();
         }
-    }
-
-    bool Insert(const T& value)
-    {
-        auto find = this->m_value.find(value);
-        if(find == this->m_value.end()) {
-            this->m_value.insert(value);
-            this->Invoke();
-            return true;
-        }
-        return false;
-    }
-
-    bool Remove(const T& value)
-    {
-        auto find = this->m_value.find(value);
-        if(find != this->m_value.end()) {
-            this->m_value.erase(find);
-            this->Invoke();
-            return true;
-        }
-        return false;
     }
 
     typename QSet<T>::const_iterator begin() const { return this->m_value.begin(); }
