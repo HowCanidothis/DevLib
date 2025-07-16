@@ -105,9 +105,6 @@ public:
                     }};
                 }
             });
-            editObject.OnAboutToBeSaved.Connect(CONNECTION_DEBUG_LOCATION, [this, object, testChanged]{
-                save(object, testChanged);
-            });
             editObject.OnAboutToBeDiscarded.Connect(CONNECTION_DEBUG_LOCATION, [this, object, testChanged]{
                 if(object->EditObject.IsDirty()){
                     auto f = load().first;
