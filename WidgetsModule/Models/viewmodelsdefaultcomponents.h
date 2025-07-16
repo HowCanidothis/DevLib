@@ -170,6 +170,24 @@ public:
         return *this;
     }
 
+    TViewModelsColumnComponentsBuilder& AddIdComponent()
+    {
+        auto modelGetter = m_modelGetter;
+        m_viewModel->ColumnComponents.AddDefaultComponent(IdRole, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([modelGetter](const QModelIndex& index){
+            return QVariant::fromValue(modelGetter()->At(index.row())->Id);
+        }));
+        return *this;
+    }
+
+    TViewModelsColumnComponentsBuilder& AddObjectComponent()
+    {
+        auto modelGetter = m_modelGetter;
+        m_viewModel->ColumnComponents.AddDefaultComponent(ObjectRole, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([modelGetter](const QModelIndex& index){
+            return QVariant::fromValue(modelGetter()->At(index.row()));
+        }));
+        return *this;
+    }
+
     template<typename T2>
     TViewModelsColumnComponentsBuilder& AddErrorComponent(ModelsErrorComponent<Wrapper>* component, const std::map<qint32, QVector<qint64>>& columns, const std::function<const T2&(ConstValueType&)>& extractor = [](ConstValueType& d)->ConstValueType&{return d;})
     {
