@@ -150,6 +150,21 @@ public:
         });
     }
 
+    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>* ()>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter)
+    {
+        auto* cb = new QComboBox;
+
+        return addProperty(propertyName, title, cb, [this, propertyGetter, modelGetter](QWidget* w){
+            auto* property = propertyGetter();
+            if(property == nullptr) {
+                return;
+            }
+            auto* comboBox = reinterpret_cast<QComboBox*>(w);
+            comboBox->setModel(modelGetter());
+            m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(property, comboBox, IdRole);
+        });
+    }
+
     template<class Property>
     LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<Property* ()>& propertyGetter, const std::function<ModelsStandardListModelPtr ()>& modelGetter)
     {
@@ -360,6 +375,13 @@ struct TPropertiesToolWrapper {
         auto* property = &propertyGetter(m_object);
         return Register(m_folder->AddProperty<Property>(propertyName, title, [property]{ return property; }));
     }
+
+    LineData AddIdProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>& (T*)>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter)
+    {
+        auto* property = &propertyGetter(m_object);
+        return Register(m_folder->AddProperty(propertyName, title, [property]() -> LocalProperty<Name>* { return property; }, modelGetter));
+    }
+
     LineData AddBoolProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool& (T*)>& propertyGetter){
         return AddProperty<LocalPropertyBool>(propertyName, title, propertyGetter);
     }
@@ -433,6 +455,7 @@ struct TPropertiesToolWrapper {
     }
 
     SharedPointerInitialized<CommonDispatcher<const LineData&>> OnPropertyAdded;
+    T* GetData() { return m_object; }
 private:
     LineData Register(const LineData& data){
         m_properties.insert(data);
