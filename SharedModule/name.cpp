@@ -142,7 +142,7 @@ Name Name::MakeUniqueName(const Name& name, const QSet<Name>& names)
         return name;
     }
 
-    thread_local static QRegExp regexp(R"(\(?(\d+)\)$)");
+    thread_local static QRegExp regexp(R"(\((\d+)\)$)");
     Name result;
     auto cr = name.AsString();
 
