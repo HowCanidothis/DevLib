@@ -93,5 +93,6 @@
         <file>aispaces/res/view_3d.svg</file>
         <file>aispaces/res/view_left.svg</file>
         <file>aispaces/res/view_top.svg</file>
+        <file>style/res/link.svg</file>
     </qresource>
 </RCC>
