@@ -33,7 +33,14 @@ void QtQSSReader::Install(const QString& mainQSSFile)
 {
     _fileName = mainQSSFile;
 
+    auto allWidgets = qApp->allWidgets();
+    for(auto* w : allWidgets) {
+        w->setUpdatesEnabled(false);
+    }
     qApp->setStyleSheet(ReadAll());
+    for(auto* w : allWidgets) {
+        w->setUpdatesEnabled(true);
+    }
 }
 
 QString QtQSSReader::ReadAll()

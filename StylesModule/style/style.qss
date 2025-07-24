@@ -7,7 +7,7 @@ QWidget {
     background: transparent;
 }
 
-QWidget[readOnly=true] {
+QWidget[readOnly=true],[ForceDisabled=true] {
     background-color: transparent;
     color: @ctext.label;
     selection-background-color: @cbg.hover;
@@ -110,7 +110,6 @@ WidgetsDatetimePopupPicker {
     border-radius: 4px;
     border: 1px solid @cbr.normal;
     background: @cbg.control;
-    padding-right: 8px;
 }
 
 WidgetsDatetimePopupPicker[a_focus=true] {
@@ -730,11 +729,6 @@ QAbstractButton[a_control="7"]:checked{
     background: @cbg.hover;
 }*/
 
-QAbstractButton:disabled {
-    color: @ctext.disabled;
-    background: transparent;
-}
-
 QAbstractButton[a_control="13"] { /*IconWithText*/
     color: @ctext.active;
     text-align: left;
@@ -742,6 +736,16 @@ QAbstractButton[a_control="13"] { /*IconWithText*/
 
 QAbstractButton[a_control="13"]:hover {
     background: @cbg.hover;
+}
+
+QAbstractButton:disabled,[ForceDisabled=true] {
+    color: @ctext.disabled;
+    background: transparent;
+}
+
+QAbstractButton[ForceDisabled=true],[a_control] {
+    color: @ctext.disabled;
+    background: transparent;
 }
 
 QRadioButton {
@@ -994,96 +998,6 @@ QTextEdit[readOnly=false] {
 
 QTextEdit[readOnly=false]:focus {
     border: 1px solid @ctext.1;
-}
-
-QPushButton#btnNext {
-    qproperty-text: "";
-    image: url("@cPath/chevron-right.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnAdd {
-    qproperty-text: "";
-    image: url("@cPath/plus.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnPrevious {
-    qproperty-text: "";
-    image: url("@cPath/chevron-left.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnFirst {
-    qproperty-text: "";
-    image: url("@cPath/double-left.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnLast {
-    qproperty-text: "";
-    image: url("@cPath/double-right.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnBold {
-    qproperty-text: "";
-    image: url("@cPath/format-bold.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnRedo {
-    qproperty-text: "";
-    image: url("@cPath/redo.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnUndo {
-    qproperty-text: "";
-    image: url("@cPath/undo.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
-}
-
-QPushButton#btnItalic {
-    qproperty-text: "";
-    image: url("@cPath/format-italic.svg");
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    padding: 4px;
 }
 
 QCalendarWidget QToolButton#qt_calendar_nextmonth {

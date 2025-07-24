@@ -11,6 +11,11 @@
 void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
 {
     button.SetOnClicked([this, action, dialogText, confirmButton]{
+        auto* targetAction = WidgetsGlobalTableActionsScope::GetInstance().FindAction(action);
+        WidgetWrapper(m_target->viewport()).Click();
+        if(!targetAction->isVisible() || !targetAction->isEnabled()) {
+            return;
+        }
         if(dialogText != nullptr) {
             if(!WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(dialogText)
                                                                     .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())
@@ -18,9 +23,9 @@ void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, cons
                 return;
             }
         }
-        WidgetWrapper(m_target->viewport()).Click();
+
         if(SelectCurrentRow()) {
-            WidgetsGlobalTableActionsScope::GetInstance().FindAction(action)->trigger();
+            targetAction->trigger();
         }
     });
 }
@@ -28,8 +33,8 @@ void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, cons
 WidgetsTableViewRowAttachment::WidgetsTableViewRowAttachment(const std::function<QWidget* (WidgetsTableViewRowAttachment*)>& widgetCreator)
     : CurrentRow(-1)
     , m_target(nullptr)
-    , m_pane(widgetCreator(this))
 {
+    m_pane = widgetCreator(this);
     Q_ASSERT(m_pane->parent() == nullptr);
     m_pane->setObjectName("WidgetsTVRAWidget");
     StyleUtils::InstallSizeAdjuster(m_pane);

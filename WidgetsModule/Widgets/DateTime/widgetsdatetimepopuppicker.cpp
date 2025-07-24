@@ -23,6 +23,10 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     WidgetPushButtonWrapper(ui->CalendarButton).WidgetVisibility().ConnectFrom(CDL, FInverseBool, ForceDisabled);
     m_connectors.ForceDisabled.ConnectFrom(CDL, ForceDisabled);
 
+    ForceDisabled.Connect(CDL, [this](bool forceDisabled) {
+        WidgetWrapper(this).ApplyStyleProperty(WidgetProperties::ForceDisabled, forceDisabled);
+    });
+
     auto* menu = MenuWrapper(ui->CalendarButton).AddPreventedFromClosingMenu(tr("DateTime"));
     auto* ac = new QWidgetAction(parent);
     m_editor = new WidgetsDateTimeWidget(parent);

@@ -30,7 +30,7 @@ public:
 #endif
     void AddInt(const QString& label, LocalPropertyInt* property);
     void AddDouble(const QString& label, LocalPropertyDouble* property);
-    void AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList());
+    void AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList(), bool encrypted = false);
     void AddMonth(const QString& label, LocalPropertyDate* property);
     void AddDate(const QString& label, LocalPropertyDate* property);
     void AddDateTime(const QString& label, LocalPropertyDateTime* property);

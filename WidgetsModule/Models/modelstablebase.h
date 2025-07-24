@@ -91,6 +91,7 @@ public:
     qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     ColumnComponentData& ChangeComponent(qint32 role, qint32 column);
     void RemoveComponent(qint32 column);
+    void AddFlagsOverrideComponent(const ColumnFlagsComponentData::FHandler& handler) { AddFlagsComponent(-2, handler); }
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
     void AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler);
@@ -307,6 +308,9 @@ public:
                                              int row, int column,
                                              const QModelIndex& parent) const
     {
+        if(!IsEnabled()) {
+            return false;
+        }
         if(m_canDropMimeDataHandler(data, action, row, column, parent)) {
             return Super::canDropMimeData(data, action, row, column, parent);
         }
@@ -315,6 +319,9 @@ public:
 
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, qint32 row, qint32 column, const QModelIndex& index) override
     {
+        if(!IsEnabled()) {
+            return false;
+        }
         return m_dropMimeDataHandler(data, action, row, column, index);
     }
 	

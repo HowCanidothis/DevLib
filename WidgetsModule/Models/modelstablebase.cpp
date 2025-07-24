@@ -343,6 +343,12 @@ void ViewModelsTableColumnComponents::RemoveComponent(qint32 column)
 
 void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData)
 {
+    if(column == -2) {
+        for(auto& c : m_columnFlagsComponents) {
+            c.append(flagsColumnData);
+        }
+        return;
+    }
     auto foundIt = m_columnFlagsComponents.find(column);
     if(foundIt == m_columnFlagsComponents.end()) {
         foundIt = m_columnFlagsComponents.insert(column, {});

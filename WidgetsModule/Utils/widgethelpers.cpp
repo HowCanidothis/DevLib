@@ -620,6 +620,15 @@ Dispatcher& WidgetAbstractButtonWrapper::OnClicked() const
     });
 }
 
+const ActionWrapper& ActionWrapper::ConnectEnablityFromViewModel(const char* cdl, ViewModelsTableBase* viewModel) const
+{
+    WidgetEnablity().ConnectFromDispatchers(cdl, [viewModel]{
+        return viewModel->IsEnabled();
+    }, viewModel->IsEditable, viewModel->ForceDisabled);
+
+    return *this;
+}
+
 Dispatcher& ActionWrapper::OnClicked() const
 {
     auto* widget = GetWidget();

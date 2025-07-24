@@ -108,10 +108,6 @@ OffsetView {
     padding: 10px 10px 10px 10px;
 }
 
-WPSCLicenseDialog QLabel#State {
-    color: @c.error;
-}
-
 QPushButton[a_floating=true] {
     margin: 0px;
     padding: 0px;
@@ -497,4 +493,12 @@ TTView QSplitter#splitter {
 WPSWellplanTargetView QPushButton#BtnAdjust {
     qproperty-icon: url(@cPath/adjust.svg);
     qproperty-text: "";
+}
+
+WPSCTreeViewBase::item {
+    color: none;
+}
+
+QTreeView::item:selected {
+    color: @ctext.active;
 }

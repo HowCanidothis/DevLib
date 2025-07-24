@@ -199,3 +199,118 @@ QPushButton#BtnShowPassword:checked {
     image: url("@cPath/eye.svg");
     background: none;
 }
+
+QLabel#CurrentErrorState {
+    color: @c.error;
+}
+
+WidgetsHeaderLayout[hasLockButton=true]{
+    margin-left: 0px;
+}
+
+QPushButton#BtnLocked {
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
+    padding: 4px;
+}
+
+QPushButton#BtnLocked:checked {
+    image: url("@cPath/lock.svg");
+    background: none;
+}
+
+QPushButton#BtnLocked:!checked {
+    image: url("@cPath/lock_open.svg");
+}
+
+QPushButton#btnNext {
+    qproperty-text: "";
+    image: url("@cPath/chevron-right.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnAdd {
+    qproperty-text: "";
+    image: url("@cPath/plus.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnPrevious {
+    qproperty-text: "";
+    image: url("@cPath/chevron-left.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnFirst {
+    qproperty-text: "";
+    image: url("@cPath/double-left.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnLast {
+    qproperty-text: "";
+    image: url("@cPath/double-right.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnBold {
+    qproperty-text: "";
+    image: url("@cPath/format-bold.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnRedo {
+    qproperty-text: "";
+    image: url("@cPath/redo.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnUndo {
+    qproperty-text: "";
+    image: url("@cPath/undo.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}
+
+QPushButton#btnItalic {
+    qproperty-text: "";
+    image: url("@cPath/format-italic.svg");
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+}

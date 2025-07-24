@@ -220,6 +220,7 @@ public:
     LineData BeginGroup(const FTranslationHandler& header);
 
     LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>(), Qt::Orientation orientation = Qt::Horizontal);
+    LineData AddTableView(const Name& id, ViewModelsTableBase* viewModel = nullptr, const Latin1Name& stateTag = Latin1Name());
 
     void Bind();
     void ClearBindings();
@@ -357,6 +358,11 @@ struct TPropertiesToolWrapper {
     void BeginGroup(const FTranslationHandler& header)
     {
         Register(m_folder->BeginGroup(header));
+    }
+
+    LineData AddTableView(const Name& id, ViewModelsTableBase* viewModel, const Latin1Name& stateTag = Latin1Name())
+    {
+        return Register(m_folder->AddTableView(id, viewModel, stateTag));
     }
 
     LineData AddWidget(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, Qt::Orientation orientation = Qt::Horizontal, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){

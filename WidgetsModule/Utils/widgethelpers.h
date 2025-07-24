@@ -612,6 +612,7 @@ public:
     const ActionWrapper& SetShortcut(const QKeySequence& keySequence) const;
     const ActionWrapper& SetText(const QString& text) const;
     const ActionWrapper& SetIcon(const Name& iconName) const;
+    const ActionWrapper& ConnectEnablityFromViewModel(const char* cdl, class ViewModelsTableBase* viewModel) const;
 
     Dispatcher& OnClicked() const;
 

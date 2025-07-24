@@ -161,6 +161,14 @@ LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(Dispatche
     });
 }
 
+LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(class QAbstractButton* button, const FAction& onClicked)
+    : Super([]{}, onClicked, button)
+{
+    m_connections.connect(button, &QPushButton::clicked, [this](){
+        m_propertySetter();
+    });
+}
+
 LocalPropertiesPushButtonConnector::LocalPropertiesPushButtonConnector(LocalPropertyBool* checkedProperty, QAbstractButton* button)
     : Super([button,checkedProperty]{
                 button->setChecked(*checkedProperty);

@@ -312,6 +312,19 @@ LineData PropertiesToolView::BeginGroup(const FTranslationHandler& header)
     return LineData(Name(), label);
 }
 
+LineData PropertiesToolView::AddTableView(const Name& id, ViewModelsTableBase* viewModel, const Latin1Name& stateTag)
+{
+    auto* tv = new WidgetsAdjustableTableView(this);
+    tv->setModel(viewModel);
+    viewModel->ForceDisabled.ConnectFrom(CDL, ForceDisabled);
+    tv->KeepStrictWidth = false;
+    WidgetTableViewWrapper(tv).InitializeHorizontal(DescTableViewParams().SetStateTag(stateTag));
+    auto handlers = WidgetsGlobalTableActionsScope::AddDefaultHandlers(tv);
+    handlers->ShowAll();
+    handlers->IsReadOnly.ConnectFrom(CDL, ForceDisabled);
+    return AddData(id, tv);
+}
+
 LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTranslationHandler& title, const QVector<Dispatcher*>& labelUpdaters, Qt::Orientation orientation)
 {
     widget->setObjectName(id.AsString());

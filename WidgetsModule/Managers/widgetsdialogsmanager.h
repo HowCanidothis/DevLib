@@ -23,7 +23,7 @@ public:
     bool ShowDeleteCancelDialog(const QString& title, const QString& text);
     qint32 ShowTempDialog(const DescCustomDialogParams& params, const DescShowDialogParams& showParams = DescShowDialogParams()) const;
     void ShowTextDialog(const QString& title, const QString& text) const;
-    std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString(), const QStringList& keys = QStringList());
+    std::optional<QString> GetText(const FTranslationHandler& title, const QString& text = QString(), const QStringList& keys = QStringList(), bool encrypted = false);
     std::optional<QColor> GetColor(const QColor& color = QColor(), bool showAlpha = false);
     std::optional<qint32> GetInt(const FTranslationHandler& title, qint32 defaultValue, const FTranslationHandler& confirmationButtonText = FTranslationHandler());
     std::optional<QDate> GetDate(const FTranslationHandler& title, const QDate& current = QDate());

@@ -63,12 +63,15 @@ void WidgetsInputDialogView::AddInt(const QString& label, LocalPropertyInt* prop
     saveProperty(property);
 }
 
-void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyString* property, const QStringList& keys)
+void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyString* property, const QStringList& keys, bool encrypted)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsLineEditLayout();
     if(!keys.isEmpty()) {
         WidgetLineEditWrapper(widget->lineEdit()).AddCompleter(keys);
+    }
+    if(encrypted) {
+        WidgetLineEditWrapper(widget->lineEdit()).AddPasswordButton();
     }
     widget->label()->setText(text);
     if(count == 1) {

@@ -83,13 +83,13 @@ qint32 WidgetsDialogsManager::ShowTempDialog(const DescCustomDialogParams& param
     return result;
 }
 
-std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler& title, const QString& text, const QStringList& keys)
+std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler& title, const QString& text, const QStringList& keys, bool encrypted)
 {
     LocalPropertyString v(text);
     auto* dialogView = new WidgetsInputDialogView();
-    dialogView->AddLineText(title(), &v, keys);
+    dialogView->AddLineText(QString(), &v, keys, encrypted);
 
-    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Input Text:"))).SetView(dialogView)
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Input Text:"))).SetView(dialogView).SetTitle(title)
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
                     WidgetsDialogsManagerDefaultButtons::ConfirmButton())
         .SetOnDone([&](qint32 v) {
