@@ -213,7 +213,11 @@ QPushButton#BtnLocked {
     min-height: 16px;
     max-width: 16px;
     max-height: 16px;
-    padding: 4px;
+    padding: 0px;
+}
+
+QPushButton#BtnLocked:hover {
+    background: none;
 }
 
 QPushButton#BtnLocked:checked {
