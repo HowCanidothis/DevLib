@@ -174,6 +174,9 @@ void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inO
         opt.currentText = index.data().toString();
         opt.rect = inOption.rect;
         opt.state = inOption.state;
+        if(!(index.flags() & Qt::ItemIsEditable)) {
+            opt.state &= ~QStyle::State_Enabled;
+        }
 
         auto style = cb.style();
         style->drawComplexControl(QStyle::CC_ComboBox, &opt, painter, &cb);

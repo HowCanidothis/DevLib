@@ -96,5 +96,6 @@
         <file>style/res/link.svg</file>
         <file>style/res/lock.svg</file>
         <file>style/res/lock_open.svg</file>
+        <file>style/res/lock_disabled.svg</file>
     </qresource>
 </RCC>

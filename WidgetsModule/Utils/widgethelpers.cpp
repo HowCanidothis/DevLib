@@ -147,6 +147,7 @@ const WidgetLineEditWrapper& WidgetLineEditWrapper::AddPasswordButton() const
     auto* eyeButton = new QPushButton(le);
     eyeButton->setObjectName("BtnShowPassword");
     eyeButton->setCheckable(true);
+    le->setEchoMode(QLineEdit::Password);
     WidgetPushButtonWrapper(eyeButton).SetOnClicked([le, eyeButton]{
         if(eyeButton->isChecked()) {
             le->setEchoMode(QLineEdit::Normal);

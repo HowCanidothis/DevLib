@@ -229,6 +229,10 @@ QPushButton#BtnLocked:!checked {
     image: url("@cPath/lock_open.svg");
 }
 
+QPushButton#BtnLocked:checked:disabled {
+    image: url("@cPath/lock_disabled.svg");
+}
+
 QPushButton#btnNext {
     qproperty-text: "";
     image: url("@cPath/chevron-right.svg");
