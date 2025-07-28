@@ -192,7 +192,7 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
 
 AsyncResult ImportExport::WriteSecuritySum(const ImportExportSourcePtr& source, const AsyncResult& res)
 {
-    if(!source->StandardProperties.IsSecured) {
+    if(!source->StandardProperties.SecurityKeyWord.isEmpty()) {
         return res;
     }
     AsyncResult result;
@@ -203,7 +203,7 @@ AsyncResult ImportExport::WriteSecuritySum(const ImportExportSourcePtr& source, 
             auto p = device->pos();
             device->seek(0);
             hash.addData(device);
-            hash.addData("AISpacesHSG");
+            hash.addData(source->StandardProperties.SecurityKeyWord);
             auto hr = hash.result();
             auto ws = QString(R"(<hashsum="%1"/>)").arg(QString(hr.toHex()));
             device->seek(p);
@@ -221,7 +221,7 @@ bool ImportExport::CheckSecuritySum(const ImportExportSourcePtr& source)
     auto fsize = QCryptographicHash::hashLength(QCryptographicHash::Md5) * 2  + 13;
     auto foffset = bytearray.size() - fsize;
     hash.addData(bytearray.cbegin(), foffset);
-    hash.addData("AISpacesHSG");
+    hash.addData(source->StandardProperties.SecurityKeyWord);
 
     auto hr = QString(R"(<hashsum="%1"/>)").arg(QString(hash.result().toHex()));
     auto rhr = QByteArray(bytearray.cbegin() + foffset, fsize);

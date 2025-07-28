@@ -40,7 +40,7 @@ struct ImportExportSourceStandardProperties
     bool IsAutoMatching = false;
     bool IsExportHeader = true;
     bool IsMuted = false;
-    bool IsSecured = false;
+    QByteArray SecurityKeyWord;
     std::function<qint8 (const QList<QString>&)> ImportTableStringHandler;
     std::function<qint8 (const QList<QVector<QVariant>>&)> ImportTableDataHandler;
 };
@@ -428,7 +428,7 @@ public:
                     source->SetError(tr("Device could not be open(%1)").arg(source->GetDevice()->errorString()));
                     return false;
                 }
-                if(!source->GetDevice()->openMode().testFlag(QIODevice::WriteOnly) && source->StandardProperties.IsSecured) {
+                if(!source->GetDevice()->openMode().testFlag(QIODevice::WriteOnly) && !source->StandardProperties.SecurityKeyWord.isEmpty()) {
                     if(!CheckSecuritySum(source)) {
                         source->SetError(tr("Device could not be open(%1)").arg(tr("Data is corrupted")));
                         return false;
@@ -499,7 +499,7 @@ public:
     {
         return StandardImportExportDevice(source, QIODevice::ReadOnly, [=]() -> qint8{
             auto d = source->GetDevice()->readAll();
-            if(source->StandardProperties.IsSecured) {
+            if(!source->StandardProperties.SecurityKeyWord.isEmpty()) {
                 d.resize(d.size() - 45);
             }
             auto doc = QJsonDocument::fromJson(d);
