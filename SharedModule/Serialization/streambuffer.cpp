@@ -2,9 +2,9 @@
 
 QVariant SerializerVersion::CheckVersion(const SerializerVersion& currentVersion, qint64 size) const
 {
-    if(currentVersion.HashSum != -1 && currentVersion.HashSum != size) {
-        return QObject::tr("File is corrupted or could not be loaded.");
-    }
+//    if(currentVersion.HashSum != -1 && currentVersion.HashSum != size) {
+//        return QObject::tr("File is corrupted or could not be loaded.");
+//    }
     if(currentVersion.Format != Format) {
         return QObject::tr("File Format is not supported - application supports version %1, but file version is %2.").arg(QString::number(Format) , QString::number(currentVersion.Format));
     }

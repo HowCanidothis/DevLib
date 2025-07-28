@@ -1,6 +1,8 @@
 #include "importexport.h"
 #include "SharedModule/builders.h"
 
+#include <QCryptographicHash>
+
 #ifdef SHARED_LIB_ADD_UI
 #include <QClipboard>
 #include <QApplication>
@@ -186,6 +188,47 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
         }
     }
     return future.ToAsyncResult();
+}
+
+AsyncResult ImportExport::WriteSecuritySum(const ImportExportSourcePtr& source, const AsyncResult& res)
+{
+    if(!source->StandardProperties.IsSecured) {
+        return res;
+    }
+    AsyncResult result;
+    res.Then([result, source](bool r) {
+        if(r) {
+            QCryptographicHash hash(QCryptographicHash::Md5);
+            auto* device = source->GetDevice();
+            auto p = device->pos();
+            device->seek(0);
+            hash.addData(device);
+            hash.addData("AISpacesHSG");
+            auto hr = hash.result();
+            auto ws = QString(R"(<hashsum="%1"/>)").arg(QString(hr.toHex()));
+            device->seek(p);
+            device->write(ws.toLatin1());
+        }
+        result.Resolve(r);
+    });
+    return result;
+}
+
+bool ImportExport::CheckSecuritySum(const ImportExportSourcePtr& source)
+{
+    auto bytearray = source->GetDevice()->readAll();
+    QCryptographicHash hash(QCryptographicHash::Md5);
+    auto fsize = QCryptographicHash::hashLength(QCryptographicHash::Md5) * 2  + 13;
+    auto foffset = bytearray.size() - fsize;
+    hash.addData(bytearray.cbegin(), foffset);
+    hash.addData("AISpacesHSG");
+
+    auto hr = QString(R"(<hashsum="%1"/>)").arg(QString(hash.result().toHex()));
+    auto rhr = QByteArray(bytearray.cbegin() + foffset, fsize);
+
+    source->GetDevice()->seek(0);
+    bool result = hr == rhr;
+    return result;
 }
 
 SerializerXmlVersion ImportExport::ReadVersionXML(QIODevice* device, const QChar& separator) {
