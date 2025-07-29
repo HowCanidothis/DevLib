@@ -502,3 +502,11 @@ WPSCTreeViewBase::item {
 QTreeView::item:selected {
     color: @ctext.active;
 }
+
+QPushButton#BtnTakeServerData {
+    qproperty-icon: url(@cPath/cloud_download.svg);
+}
+
+QPushButton#BtnTakeMyData {
+    qproperty-icon: url(@cPath/cloud_upload.svg);
+}

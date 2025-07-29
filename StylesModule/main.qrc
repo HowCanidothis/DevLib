@@ -97,5 +97,7 @@
         <file>style/res/lock.svg</file>
         <file>style/res/lock_open.svg</file>
         <file>style/res/lock_disabled.svg</file>
+        <file>aispaces/res/cloud_download.svg</file>
+        <file>aispaces/res/cloud_upload.svg</file>
     </qresource>
 </RCC>
