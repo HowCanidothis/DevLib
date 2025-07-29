@@ -192,7 +192,7 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
 
 AsyncResult ImportExport::WriteSecuritySum(const ImportExportSourcePtr& source, const AsyncResult& res)
 {
-    if(!source->StandardProperties.SecurityKeyWord.isEmpty()) {
+    if(source->StandardProperties.SecurityKeyWord.isEmpty()) {
         return res;
     }
     AsyncResult result;
@@ -220,6 +220,9 @@ bool ImportExport::CheckSecuritySum(const ImportExportSourcePtr& source)
     QCryptographicHash hash(QCryptographicHash::Md5);
     auto fsize = QCryptographicHash::hashLength(QCryptographicHash::Md5) * 2  + 13;
     auto foffset = bytearray.size() - fsize;
+    if(foffset <= 0) {
+        return false;
+    }
     hash.addData(bytearray.cbegin(), foffset);
     hash.addData(source->StandardProperties.SecurityKeyWord);
 
