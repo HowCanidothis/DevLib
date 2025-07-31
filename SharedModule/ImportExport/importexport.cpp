@@ -254,7 +254,14 @@ SerializerXmlVersion ImportExport::ReadVersionJson(QIODevice* device, const QCha
             return SerializerXmlVersion();
         }
     }
-    auto doc = QJsonDocument::fromJson(device->readAll());
+    auto data = device->readAll();
+    auto fsize = QCryptographicHash::hashLength(QCryptographicHash::Md5) * 2  + 13;
+    auto foffset = data.size() - fsize;
+    QByteArray hs(data.begin() + foffset);
+    if(hs.startsWith("<hashsum=")) {
+        data.resize(foffset);
+    }
+    auto doc = QJsonDocument::fromJson(data);
     auto object = doc.object();
     SerializerJsonReadBuffer reader(&object);
     auto result = reader.ReadVersion(separator);
