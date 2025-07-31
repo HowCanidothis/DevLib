@@ -33,6 +33,8 @@ ScopedPointer<T> make_scoped(Args ... args) { return ScopedPointer<T>(new T(args
 template<class T, typename ... Args>
 ScopedPointer<T> make_unique(Args ... args) { return ScopedPointer<T>(new T(args...)); }
 
+template<class T> class SPNullable;
+
 template<typename T>
 class SharedPointer : public std::shared_ptr<T>
 {
@@ -47,6 +49,16 @@ public:
     const SharedPointer<T2>& Cast() const { return *reinterpret_cast<const SharedPointer<T2>*>(this); }
     template<typename T2>
     SharedPointer<T2>& Cast() { return *reinterpret_cast<SharedPointer<T2>*>(this); }
+
+    SPNullable<T>& ToNullable() { return reinterpret_cast<SPNullable<T>&>(*this); }
+};
+
+template<class T>
+class SPNullable : public SharedPointer<T>
+{
+    using Super = SharedPointer<T>;
+public:
+    using Super::Super;
 };
 
 template<class T>

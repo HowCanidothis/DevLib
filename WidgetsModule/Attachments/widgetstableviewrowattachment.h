@@ -19,7 +19,7 @@ public:
     bool SelectCurrentRow();
     void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerDefaultButtons::DiscardButton());
 
-    qint32 CurrentRow;
+    LocalPropertyInt CurrentRow;
 
 private:
     QTableView* m_target;

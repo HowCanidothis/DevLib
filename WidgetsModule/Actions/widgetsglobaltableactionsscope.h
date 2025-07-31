@@ -10,15 +10,15 @@ public:
     WidgetsGlobalTableActionsScopeHandler() {}
     WidgetsGlobalTableActionsScopeHandler(QAction* uiAction, const FAction& action);
 
-    WidgetsGlobalTableActionsScopeHandler& SetVisible(bool visible);
+    const WidgetsGlobalTableActionsScopeHandler& SetVisible(bool visible) const;
 
     LocalPropertyBool& Visibility() const;
     LocalPropertyBool& Enablity() const;
     TranslatedString& Text() const;
-    WidgetsGlobalTableActionsScopeHandler& SetAction(const FAction& action);
+    const WidgetsGlobalTableActionsScopeHandler& SetAction(const FAction& action) const;
 
     FAction GetAction() const;
-    void SetShortcut(const QKeySequence& shortcut);
+    const WidgetsGlobalTableActionsScopeHandler& SetShortcut(const QKeySequence& shortcut) const;
     void Trigger();
 
     bool IsValid() const { return m_data != nullptr; }
@@ -110,6 +110,8 @@ DECLARE_GLOBAL_NAME(Paste)
 DECLARE_GLOBAL_NAME(Delete)
 DECLARE_GLOBAL_NAME(Insert)
 DECLARE_GLOBAL_NAME(Download)
+DECLARE_GLOBAL_NAME(ResolveConflictServer)
+DECLARE_GLOBAL_NAME(ResolveConflictClient)
 }
 
 #define DECLARE_GLOBAL_ACTION(ActionId) \

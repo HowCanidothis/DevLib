@@ -57,11 +57,11 @@ void WidgetsTableViewRowAttachment::Attach(QTableView* v)
             return;
         }
         m_pane->setParent(v->viewport());
-        m_pane->show();
-        QRect rect = v->visualRect(index);
-        auto left = v->viewport()->width() - m_pane->width();
-        m_pane->move(left, rect.top() + (rect.height() - m_pane->height()) / 2);
         CurrentRow = index.row();
+        m_pane->show();        
+        QRect rect = v->visualRect(index);
+        auto left = v->viewport()->width() - m_pane->minimumSizeHint().width();
+        m_pane->move(left, rect.top() + (rect.height() - m_pane->height()) / 2);
         m_target = v;
     });
     v->connect(v, &QTableView::viewportEntered, [this] {

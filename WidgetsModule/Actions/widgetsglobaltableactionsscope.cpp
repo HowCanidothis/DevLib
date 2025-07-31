@@ -27,11 +27,12 @@ struct WidgetsGlobalTableActionsScopeHandlerData
     }
 };
 
-void WidgetsGlobalTableActionsScopeHandler::SetShortcut(const QKeySequence& shortcut)
+const WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetShortcut(const QKeySequence& shortcut) const
 {
     if(m_data != nullptr) {
         m_data->UiAction->setShortcut(shortcut);
     }
+    return *this;
 }
 
 FAction WidgetsGlobalTableActionsScopeHandler::GetAction() const
@@ -39,7 +40,7 @@ FAction WidgetsGlobalTableActionsScopeHandler::GetAction() const
     return m_data == nullptr ? []{} : m_data->Action;
 }
 
-WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetVisible(bool visible)
+const WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetVisible(bool visible) const
 {
     m_data->Visibility = visible;
     m_data->Enablity = visible;
@@ -62,7 +63,7 @@ LocalPropertyBool& WidgetsGlobalTableActionsScopeHandler::Visibility() const { r
 LocalPropertyBool& WidgetsGlobalTableActionsScopeHandler::Enablity() const { return m_data->Enablity; }
 TranslatedString& WidgetsGlobalTableActionsScopeHandler::Text() const { return m_data->Text; }
 
-WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetAction(const FAction& action)
+const WidgetsGlobalTableActionsScopeHandler& WidgetsGlobalTableActionsScopeHandler::SetAction(const FAction& action) const
 {
     m_data->Action = action;
     return *this;
@@ -447,6 +448,8 @@ IMPLEMENT_GLOBAL_NAME_1(Paste)
 IMPLEMENT_GLOBAL_NAME_1(Delete)
 IMPLEMENT_GLOBAL_NAME_1(Insert)
 IMPLEMENT_GLOBAL_NAME_1(Download)
+IMPLEMENT_GLOBAL_NAME_1(ResolveConflictServer)
+IMPLEMENT_GLOBAL_NAME_1(ResolveConflictClient)
 }
 
 IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default, ActionIcons::NoIcon)

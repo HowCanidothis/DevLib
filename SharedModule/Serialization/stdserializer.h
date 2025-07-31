@@ -139,6 +139,40 @@ struct Serializer<type<T>> \
     } \
 };
 
+template<class T>
+struct Serializer<SPNullable<T>>
+{
+    typedef SPNullable<T> Type;
+    template<class Buffer>
+    static void Write(Buffer& buffer, const Type& type)
+    {
+        bool hasValue;
+        if(type == nullptr) {
+            hasValue = false;
+            buffer << buffer.Attr("has_value", hasValue);
+            return;
+        }
+
+        hasValue = true;
+        buffer << buffer.Attr("has_value", hasValue);
+        buffer << buffer.Sect("value", *type);
+    }
+    template<class Buffer>
+    static void Read(Buffer& buffer, Type& type)
+    {
+        bool hasValue;
+        buffer << buffer.Attr("has_value", hasValue);
+        if(!hasValue) {
+            type = nullptr;
+            return;
+        }
+        if(type == nullptr) {
+            type.reset(new T());
+        }
+        buffer << buffer.Sect("value", *type);
+    }
+};
+
 DECL_SMART_POINTER_SERIALIZER(std::shared_ptr)
 DECL_SMART_POINTER_SERIALIZER(std::unique_ptr)
 DECL_SMART_POINTER_SERIALIZER(SharedPointer)

@@ -171,6 +171,27 @@ struct SerializerXml<ObjectType<T, T2>> \
     } \
 };
 
+#define DECLARE_SERIALIZER_XML_TO_SERIALIZER_T(ObjectType) \
+template<class T> \
+struct SerializerXml<ObjectType<T>> \
+{ \
+    using Type = ObjectType<T>; \
+    template<class Buffer> \
+    static void Read(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Read(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+    template<class Buffer> \
+    static void Write(Buffer& buffer, const SerializerXmlObject<Type>& object) \
+    { \
+        buffer.OpenSection(object.Name); \
+        Serializer<Type>::Write(buffer, object.Value); \
+        buffer.CloseSection(); \
+    } \
+};
+
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QMap)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER_2(QHash)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QSet)
@@ -179,6 +200,7 @@ DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(QList)
 DECLARE_SERIALIZER_XML_CONTAINER_TO_SERIALIZER(std::optional)
 DECLARE_SERIALIZER_XML_TO_SERIALIZER(QRectF)
 DECLARE_SERIALIZER_XML_TO_SERIALIZER(QPointF)
+DECLARE_SERIALIZER_XML_TO_SERIALIZER_T(SPNullable)
 
 template<>
 struct SerializerXml<Id::Id>
