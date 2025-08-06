@@ -2,6 +2,7 @@
 #include "ui_widgetsdialog.h"
 
 #include <QPushButton>
+#include <QCheckBox>
 #include <QKeyEvent>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
@@ -12,7 +13,7 @@ WidgetsDialog::WidgetsDialog(QWidget *parent) :
     m_content(nullptr)
 {
     ui->setupUi(this);
-    WidgetWrapper(ui->label).WidgetVisibility().ConnectFrom(CDL, [](const QString& t) {
+    WidgetWrapper(ui->widget_2).WidgetVisibility().ConnectFrom(CDL, [](const QString& t) {
         return !t.isEmpty();
     }, *WidgetLabelWrapper(ui->label).WidgetText());
 
@@ -24,7 +25,7 @@ WidgetsDialog::~WidgetsDialog()
     delete ui;
 }
 
-void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler)
+void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler, const std::function<void (bool)>& dontShowHandler)
 {    
     ui->widget->setVisible(m_buttons.size() > 0);
 
@@ -54,6 +55,15 @@ void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const
         handler(m_buttons);
     }
     m_onDone = onDone;
+    if(dontShowHandler != nullptr) {
+        auto* checkBox = new QCheckBox(tr("Do not show this message again"));
+        WidgetCheckBoxWrapper(checkBox).WidgetChecked().Connect(CDL, dontShowHandler);
+        if(m_content == nullptr) {
+            ui->verticalLayout->insertWidget(1, checkBox);
+        } else {
+            ui->verticalLayout->insertWidget(2, checkBox);
+        }
+    }
     m_roles.clear();
 }
 

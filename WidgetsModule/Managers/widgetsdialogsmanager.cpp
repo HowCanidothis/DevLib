@@ -54,7 +54,7 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
     if(params.Resizeable.has_value()) {
         dialog->setProperty(ResizeablePropertyName, params.Resizeable.value());
     }
-    dialog->Initialize(params.OnDone, params.OnInitialized);
+    dialog->Initialize(params.OnDone, params.OnInitialized, params.DontShowHandler);
     return dialog;
 }
 
