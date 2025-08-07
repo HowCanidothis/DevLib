@@ -11,20 +11,19 @@
 void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
 {
     button.SetOnClicked([this, action, dialogText, confirmButton]{
-        auto* targetAction = WidgetsGlobalTableActionsScope::GetInstance().FindAction(action);
         WidgetWrapper(m_target->viewport()).Click();
-        if(!targetAction->isVisible() || !targetAction->isEnabled()) {
-            return;
-        }
-        if(dialogText != nullptr) {
-            if(!WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(dialogText)
-                                                                    .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())
-                                                                    .AddButton(confirmButton))) {
+        if(SelectCurrentRow()) {
+            auto* targetAction = WidgetsGlobalTableActionsScope::GetInstance().FindAction(action);
+            if(!targetAction->isVisible() || !targetAction->isEnabled()) {
                 return;
             }
-        }
-
-        if(SelectCurrentRow()) {
+            if(dialogText != nullptr) {
+                if(!WidgetsDialogsManager::GetInstance().ShowTempDialog(DescCustomDialogParams().SetTitle(dialogText)
+                                                                        .AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())
+                                                                        .AddButton(confirmButton))) {
+                    return;
+                }
+            }
             targetAction->trigger();
         }
     });
