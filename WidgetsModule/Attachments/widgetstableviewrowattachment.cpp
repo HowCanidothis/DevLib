@@ -11,8 +11,8 @@
 void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
 {
     button.SetOnClicked([this, action, dialogText, confirmButton]{
-        WidgetWrapper(m_target->viewport()).Click();
         if(SelectCurrentRow()) {
+            WidgetWrapper(m_target->viewport()).Click(); // Click is for updating action handler state
             auto* targetAction = WidgetsGlobalTableActionsScope::GetInstance().FindAction(action);
             if(!targetAction->isVisible() || !targetAction->isEnabled()) {
                 return;

@@ -100,6 +100,7 @@ void PathSettings::Terminate()
         auto dir = TempDir;
 #ifdef BUILD_MASTER
         dir.removeRecursively();
+    }
 #else
         if(dir.cd("sc")) {
             if(dir.cd(QString::number(qApp->applicationPid()))) {
