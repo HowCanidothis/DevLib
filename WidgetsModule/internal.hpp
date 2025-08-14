@@ -73,6 +73,7 @@
 //#include "Widgets/widgetsfloatingtoolbar.h"
 
 #include "Dialogs/widgetsinputdialogview.h"
+#include "Dialogs/widgetshyperlinkedlistdialogview.h"
 
 #include "Managers/widgetsdialogsmanager.h"
 #include "Managers/widgetsfocusmanager.h"

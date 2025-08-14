@@ -20,6 +20,7 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Dialogs/widgetsinputdialogview.h"
 #include "WidgetsModule/Dialogs/widgetsdialog.h"
+#include "WidgetsModule/Dialogs/widgetshyperlinkedlistdialogview.h"
 
 const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
 const char* WidgetsDialogsManager::FDialogHandlerPropertyName = "DialogHandler";
@@ -29,6 +30,21 @@ WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
 {
 
+}
+
+void WidgetsDialogsManager::ShowHyperlinkedListDialog(const FTranslationHandler& title, const QString& text, const QString& list, const FTranslationHandler& buttonText) const
+{
+    auto* view = new WidgetsHyperlinkedListDialogView();
+    DescCustomDialogParams params;
+    params.View = view;
+    params.SetTitle(title);
+    if(buttonText == nullptr) {
+        params.AddButton(WidgetsDialogsManagerDefaultButtons::CancelRoleButton(TR(tr("Skip"))));
+    } else {
+        params.AddButton(WidgetsDialogsManagerDefaultButtons::CancelRoleButton(buttonText));
+    }
+    view->SetText(text, list);
+    ShowTempDialog(params);
 }
 
 WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams& params) const
