@@ -25,6 +25,7 @@
 const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
 const char* WidgetsDialogsManager::FDialogHandlerPropertyName = "DialogHandler";
 const char* WidgetsDialogsManager::ResizeablePropertyName = "Resizeable";
+const char* WidgetsDialogsManager::NoClosePropertyName = "NoClose";
 
 WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
@@ -69,6 +70,9 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
     }
     if(params.Resizeable.has_value()) {
         dialog->setProperty(ResizeablePropertyName, params.Resizeable.value());
+    }
+    if(params.Closeable.has_value()) {
+        dialog->setProperty(NoClosePropertyName, !params.Closeable.value());
     }
     dialog->Initialize(params.OnDone, params.OnInitialized, params.DontShowHandler);
     return dialog;
@@ -450,6 +454,7 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
 
     if(pane != nullptr) {
         pane->Resizeable = resizeable;
+        pane->Closeable = !widget->property(NoClosePropertyName).toBool();
         WidgetWrapper(widget).AddEventFilter([widget, pane](QObject*, QEvent* e){
             if(e->type() == QEvent::Show) {
                 pane->Modal = widget->isModal();

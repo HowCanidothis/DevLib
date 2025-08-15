@@ -140,10 +140,12 @@ struct DescCustomDialogParams
     std::function<void (const QVector<QAbstractButton*>&)> OnInitialized;
     std::function<void (qint32)> OnDone;
     std::optional<bool> Resizeable;
+    std::optional<bool> Closeable;
     std::function<void (bool)> DontShowHandler;
 
     DescCustomDialogParams& SetDontShowHandler(const std::function<void (bool)>& dontShowHandler) { DontShowHandler = dontShowHandler; return *this; }
     DescCustomDialogParams& SetResizeable(){ Resizeable = true; return *this; }
+    DescCustomDialogParams& SetNoClose(){ Closeable = false; return *this; }
     DescCustomDialogParams& SetOnDone(const std::function<void (qint32)>& onDone){ OnDone = onDone; return *this; }
     DescCustomDialogParams& SetOnInitialized(const std::function<void (const QVector<QAbstractButton*>&)>& onInitialized) { OnInitialized = onInitialized; return *this; }
     DescCustomDialogParams& SetTitle(const FTranslationHandler& title) { Title = title; return *this; }

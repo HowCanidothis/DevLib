@@ -16,6 +16,7 @@ class MenuBarMovePane : public QFrame
 public:
     MenuBarMovePane(QWidget* parent = nullptr);
     
+    LocalPropertyBool Closeable;
     LocalPropertyBool Resizeable;
     LocalPropertyBool Modal;
     CommonDispatcher<QWidget*> OnGeometryRestored;

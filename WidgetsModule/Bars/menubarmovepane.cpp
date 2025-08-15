@@ -13,6 +13,7 @@
 
 MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     : Super(parent)
+    , Closeable(true)
     , Resizeable(true)
     , Modal(false)
     , ui(new Ui::MenuBarMovePane())
@@ -31,6 +32,10 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
 
     Resizeable.Subscribe([this]{
         ui->BtnMaximize->setVisible(Resizeable);
+    });
+
+    Closeable.Subscribe([this]{
+        ui->BtnClose->setVisible(Closeable);
     });
 
     Modal.Subscribe([this]{
