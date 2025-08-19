@@ -767,6 +767,15 @@ public:
         });
     }
 
+    template<class Enum>
+    ActionWrapper AddComboboxAction(const QString& title, LocalPropertySequentialEnum<Enum>* property) const
+    {
+        return AddComboboxAction(title, TranslatorManager::GetInstance().GetEnumNames<Enum>(), (qint32)property->Native(), [property](qint32 selected){
+            *property = selected;
+        });
+    }
+
+    ActionWrapper AddComboboxAction(const QString& title, const QStringList& content, qint32 index, const std::function<void (qint32)>& handler) const;
     ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
     ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
     ActionWrapper AddDoubleAction(const QString& title, double min, double max, const std::optional<double>& value, const std::function<void (const std::optional<double>&)>& handler) const;

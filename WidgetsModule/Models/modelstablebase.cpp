@@ -209,6 +209,7 @@ QVariant ViewModelsTableBase::data(const QModelIndex& index, qint32 role) const
         return QVariant();
     }
 
+    m_currentRow = index.row();
     auto componentsResult = ColumnComponents.GetData(index, role);
     if(componentsResult.has_value()) {
         return componentsResult.value();

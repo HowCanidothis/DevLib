@@ -1990,6 +1990,32 @@ ActionWrapper MenuWrapper::AddMeasurementAction(const Measurement* measurement, 
 }
 #endif
 
+ActionWrapper MenuWrapper::AddComboboxAction(const QString& title, const QStringList& content, qint32 index, const std::function<void (qint32)>& handler) const
+{
+    auto* layoutWidget = new QWidget();
+    auto* layout = new QHBoxLayout();
+    layoutWidget->setLayout(layout);
+    layout->setContentsMargins(QMargins(9,0,0,0));
+
+    auto* label = new QLabel(title);
+    auto* btn = new QComboBox();
+    btn->addItems(content);
+    btn->setCurrentIndex(index);
+
+    layout->addWidget(label);
+    layout->addWidget(btn);
+
+    QObject::connect(btn, QOverload<qint32>::of(&QComboBox::activated), [handler] (qint32 index){
+        handler(index);
+    });
+
+    auto* action = new QWidgetAction(GetWidget());
+    btn->setProperty(WidgetProperties::ActionWidget, true);
+    action->setDefaultWidget(layoutWidget);
+    GetWidget()->addAction(action);
+    return action;
+}
+
 ActionWrapper MenuWrapper::AddSeparator() const
 {
     QAction *action = new QAction(GetWidget());
