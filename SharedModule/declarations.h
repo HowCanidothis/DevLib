@@ -251,6 +251,44 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+inline bool IsIntersects(double left1, double right1, double left2, double right2, double epsilon = std::numeric_limits<double>().epsilon())
+{
+    if(fuzzyCompare(left1, left2, epsilon) || fuzzyCompare(left1, right2, epsilon)) {
+        return true;
+    }
+    if(fuzzyCompare(right1, left2, epsilon) || fuzzyCompare(right1, right2, epsilon)) {
+        return true;
+    }
+    auto mm1 = std::minmax(left1, right1);
+    auto mm2 = std::minmax(left2, right2);
+    enum Flags {
+        FirstLeftGreaterThanSecondLeft = 0x1,
+        FirstLeftGreaterThanSecondRight = 0x2,
+        FirstRightGreaterThanSecondLeft = 0x4,
+        FirstRightGreaterThanSecondRight = 0x8,
+
+        FirstContainsSecond = FirstRightGreaterThanSecondRight | FirstRightGreaterThanSecondLeft,
+        SecondContainsFirst = FirstLeftGreaterThanSecondLeft | FirstRightGreaterThanSecondLeft,
+        IntersectsRight = FirstLeftGreaterThanSecondLeft | FirstRightGreaterThanSecondLeft | FirstRightGreaterThanSecondRight,
+        IntersectsLeft = FirstRightGreaterThanSecondLeft
+    };
+    auto flags = 0;
+    flags |= mm1.first > mm2.first ? FirstLeftGreaterThanSecondLeft : 0;
+    flags |= mm1.first > mm2.second ? FirstLeftGreaterThanSecondRight : 0;
+    flags |= mm1.second > mm2.first ? FirstRightGreaterThanSecondLeft : 0;
+    flags |= mm1.second > mm2.second ? FirstRightGreaterThanSecondRight : 0;
+
+    switch(flags) {
+    case FirstContainsSecond:
+    case SecondContainsFirst:
+    case IntersectsRight:
+    case IntersectsLeft:
+        return true;
+    default: break;
+    }
+    return false;
+}
+
 inline bool IsInBounds(double value, double left, double right, double epsilon)
 {
     if(fuzzyCompare(value, left, epsilon)) {
