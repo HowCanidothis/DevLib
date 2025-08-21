@@ -136,7 +136,7 @@ MeasurementManager::MeasurementManager()
     , m_measurmentWrapper(::make_shared<WPSCUnitMeasurementTableWrapper>())
     , m_defaultSystemsCount(0)
 {
-    CurrentMeasurementSystem = UNIT_SYSTEM_API_USFT;
+    CurrentMeasurementSystem = UNIT_SYSTEM_API;
 }
 
 const MeasurementPtr& MeasurementManager::GetMeasurement(const Name& name) const
