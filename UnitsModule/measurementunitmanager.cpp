@@ -605,6 +605,9 @@ void MeasurementManager::Initialize()
             .AddUnit(&MagneticFieldStrengthUnits::KiloAmperePerMeter)
             .AddUnit(&MagneticFieldStrengthUnits::Oersted);
 
+    AddMeasurement(MeasurementWearFactor::Value)
+            .AddUnit(&WearFactorUnits::WearFactor);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
@@ -661,7 +664,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
-            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
+            .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -719,7 +723,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicFootPerSack.Id,    3})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
-            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
+            .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -778,7 +783,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCementYield::NAME, {CementYieldUnits::CubicMetersPerKilogram.Id,    2})
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
-            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2});
+            .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
+            .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
