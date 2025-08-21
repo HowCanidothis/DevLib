@@ -21,4 +21,10 @@ namespace RateUnits
 }
 DECLARE_MEASUREMENT(Rate)
 
+namespace WearFactorUnits {
+    DECLARE_MEASUREMENT_UNIT(Pascal)
+    DECLARE_MEASUREMENT_UNIT(WearFactor)
+}
+DECLARE_MEASUREMENT(WearFactor)
+
 #endif // FACTORDECLARATION_H
