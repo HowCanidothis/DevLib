@@ -7,6 +7,7 @@
 
 WidgetsPicturePicker::WidgetsPicturePicker(QWidget* parent)
     : Super(parent)
+    , MaxImageSize(-1)
 {
     auto deleteButton = WidgetAbstractButtonWrapper(m_deleteButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText).SetVisible(false).SetText(TR(tr("Remove")));
     auto addButton = WidgetAbstractButtonWrapper(m_addButton = new QPushButton(this)).SetControl(ButtonRole::IconWithText);
@@ -29,6 +30,7 @@ void WidgetsPicturePicker::Initialize(LocalPropertiesWidgetConnectorsContainer& 
                                                            .SetBrowseButton(m_addButton)
                                                            .SetClearButton(m_deleteButton)
                                                            .SetForceDefaultBrowseDir(forceDefaultDir)
+                                                           .SetMaxImageSize(MaxImageSize)
                                                            );
 }
 

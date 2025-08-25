@@ -171,7 +171,7 @@ public:
         return value;
     }
 
-    const WidgetWrapper& Click();
+    const WidgetWrapper& Click(const QPoint& localPos = QPoint());
 
     QByteArray StoreGeometry() const;
     bool RestoreGeometry(const QByteArray& geometry) const;
@@ -791,6 +791,18 @@ public:
 
 private:
     WidgetsGlobalTableActionsScopeHandlersPtr m_globalActionsHandlers;
+};
+
+class ImageWrapper
+{
+public:
+    ImageWrapper(QImage* image);
+
+    QByteArray Compress();
+    static QByteArray CompressIfGreater(const QByteArray& source, qint64 bytesGreaterThan);
+
+private:
+    QImage* m_image;
 };
 
 class WidgetsObserver : public QObject

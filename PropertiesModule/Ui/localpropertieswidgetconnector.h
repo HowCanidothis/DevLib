@@ -114,6 +114,7 @@ public:
         QAbstractButton* BrowseButton = nullptr;
         QAbstractButton* ClearButton = nullptr;
         QString ForceDefaultDir;
+        quint32 MaxImageSize = -1;
 
         ImageConnectorParams& SetBrowseButton(QAbstractButton* browse)
         {
@@ -133,6 +134,11 @@ public:
             return *this;
         }
 
+        ImageConnectorParams& SetMaxImageSize(quint32 maxImageSize)
+        {
+            MaxImageSize = maxImageSize;
+            return *this;
+        }
     };
 
     template<class T>

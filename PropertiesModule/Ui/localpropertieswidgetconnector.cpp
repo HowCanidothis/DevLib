@@ -222,7 +222,7 @@ LocalPropertiesLabelConnector::LocalPropertiesLabelConnector(LocalPropertyString
                 qCWarning(LC_CONSOLE) << tr("Can't load image ") << path << " " << file.errorString();
                 return;
             }
-            label->setProperty("a_image", file.readAll());
+            label->setProperty("a_image", ImageWrapper::CompressIfGreater(file.readAll(), params.MaxImageSize));
             m_propertySetter();
         }).MakeSafe(m_dispatcherConnections);
     }

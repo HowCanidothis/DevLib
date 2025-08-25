@@ -1187,6 +1187,35 @@ void WidgetWrapper::ApplyStyleProperty(const char* propertyName, const QVariant&
     UpdateStyle(recursive);
 }
 
+ImageWrapper::ImageWrapper(QImage* image)
+    : m_image(image)
+{
+
+}
+
+QByteArray ImageWrapper::Compress()
+{
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    m_image->save(&buffer, "PNG");
+    *m_image = QImage::fromData(ba);
+    return ba;
+}
+
+QByteArray ImageWrapper::CompressIfGreater(const QByteArray& source, qint64 bytesGreaterThan)
+{
+    if(source.size() < bytesGreaterThan) {
+        return source;
+    }
+    auto img = QImage::fromData(source);
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    img.save(&buffer, "PNG");
+    return ba;
+}
+
 LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 {
     auto value = m_object->property("a_enable").value<SharedPointer<LocalPropertyBool>>();
@@ -1510,10 +1539,10 @@ WidgetWrapper::WidgetWrapper(QWidget* widget)
 
 }
 
-const WidgetWrapper& WidgetWrapper::Click()
+const WidgetWrapper& WidgetWrapper::Click(const QPoint& localPos)
 {
-    QMouseEvent e(QEvent::MouseButtonPress, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-    QMouseEvent er(QEvent::MouseButtonRelease, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent e(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent er(QEvent::MouseButtonRelease, localPos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
     qApp->sendEvent(m_object, &e);
     qApp->sendEvent(m_object, &er);
     return *this;
