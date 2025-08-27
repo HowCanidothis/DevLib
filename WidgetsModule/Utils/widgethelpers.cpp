@@ -1193,27 +1193,34 @@ ImageWrapper::ImageWrapper(QImage* image)
 
 }
 
-QByteArray ImageWrapper::Compress()
+QByteArray ImageWrapper::CompressTo(qint64 bytesCount)
 {
     QByteArray ba;
     QBuffer buffer(&ba);
     buffer.open(QIODevice::WriteOnly);
     m_image->save(&buffer, "PNG");
     *m_image = QImage::fromData(ba);
+    if(ba.size() > bytesCount) {
+        auto powFactor = double(ba.size()) / bytesCount;
+        auto factor = sqrt(powFactor);
+        auto nw = m_image->width() / factor;
+        auto nh = m_image->height() / factor;
+        *m_image = m_image->scaled(nw, nh, Qt::KeepAspectRatio);
+        ba.clear();
+        buffer.seek(0);
+        m_image->save(&buffer, "PNG");
+    }
     return ba;
 }
 
-QByteArray ImageWrapper::CompressIfGreater(const QByteArray& source, qint64 bytesGreaterThan)
+QByteArray ImageWrapper::CompressIfGreater(const QByteArray& source, qint64 ifBytesGreaterThan)
 {
-    if(source.size() < bytesGreaterThan) {
+    if(source.size() < ifBytesGreaterThan) {
         return source;
     }
     auto img = QImage::fromData(source);
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    img.save(&buffer, "PNG");
-    return ba;
+    ImageWrapper iw(&img);
+    return iw.CompressTo(ifBytesGreaterThan);
 }
 
 LocalPropertyBool& WidgetWrapper::WidgetEnablity() const

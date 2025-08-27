@@ -798,8 +798,8 @@ class ImageWrapper
 public:
     ImageWrapper(QImage* image);
 
-    QByteArray Compress();
-    static QByteArray CompressIfGreater(const QByteArray& source, qint64 bytesGreaterThan);
+    QByteArray CompressTo(qint64 bytesCount);
+    static QByteArray CompressIfGreater(const QByteArray& source, qint64 ifBytesGreaterThan);
 
 private:
     QImage* m_image;
