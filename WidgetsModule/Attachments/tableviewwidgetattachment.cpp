@@ -196,7 +196,7 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                         break;
                     }
                     case QVariant::Double: {
-                        auto dval = doubleLocale.toDouble(value.toString(), &ok);
+                        auto dval = doubleLocale.toDouble(value.toString().remove(' '), &ok);
                         if(!ok) {
                             doubleErrorsMetaData.insert(sourceRow);
                         }
