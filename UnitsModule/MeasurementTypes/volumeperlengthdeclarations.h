@@ -6,10 +6,14 @@
 namespace VolumePerLengthUnits
 {
     DECLARE_MEASUREMENT_UNIT(CubicMeterPerMeter)
+    DECLARE_MEASUREMENT_UNIT(CubicMilimeterPerMeter)
     DECLARE_MEASUREMENT_UNIT(BarrelPerFoot)
     DECLARE_MEASUREMENT_UNIT(LiterPerMeter)
+    DECLARE_MEASUREMENT_UNIT(CubicInchPerFoot)
 };
 
 DECLARE_MEASUREMENT(LinearCapacity)
+DECLARE_MEASUREMENT(VolumePerLength)
+DECLARE_MEASUREMENT(CasingWearVolume)
 
 #endif // VOLUMEPERLENGTHDECLARATIONS_H

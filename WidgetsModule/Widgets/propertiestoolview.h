@@ -456,7 +456,7 @@ struct TPropertiesToolWrapper {
         for(const auto& data : m_properties){
             subscribe(data);
         }
-        OnPropertyAdded->Connect(locationInfo, subscribe).MakeSafe(connections);
+//        OnPropertyAdded->Connect(locationInfo, subscribe).MakeSafe(connections);
         return *this;
     }
 
@@ -465,7 +465,7 @@ struct TPropertiesToolWrapper {
 private:
     LineData Register(const LineData& data){
         m_properties.insert(data);
-        OnPropertyAdded->Invoke(data);
+//        OnPropertyAdded->Invoke(data);
         return data;
     }
 

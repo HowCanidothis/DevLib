@@ -25,9 +25,11 @@ SP<ImportExportBufferSource> ImportExportBufferSource::CreateFromClipboard()
 #ifdef SHARED_LIB_ADD_UI
     THREAD_ASSERT_IS_MAIN()
     QClipboard* clipboard = qApp->clipboard();
-    static QByteArray text;
-    text = clipboard->text().toUtf8();
-    return ::make_shared<ImportExportBufferSource>("txt", "Clipboard", &text);
+    static QByteArray buffer;
+    auto text = clipboard->text();
+    text = text.replace(QChar(160), ' ');//non break space
+    buffer = text.toUtf8();
+    return ::make_shared<ImportExportBufferSource>("txt", "Clipboard", &buffer);
 #endif
     return nullptr;
 }
