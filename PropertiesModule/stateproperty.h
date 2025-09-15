@@ -951,6 +951,23 @@ public:
         : StateDoubleBufferData(::make_shared<T>(), ::make_shared<T>(), copy)
     {}
 
+    StateDoubleBufferData(const std::function<container_type (const container_type& c)>& handler)
+        : m_immutableData(::make_shared<StateImmutableData<T>>(::make_shared<T>()))
+        , m_data(::make_shared<T>())
+        , Enabled(m_immutableData->Enabled)
+    {
+        Enabled.OnChanged += { this, [this, handler]{
+            if(Enabled) {
+                m_immutableData->AttachSource(m_data, [this, handler]{
+                    return handler(m_data->Native());
+                });
+            } else {
+                m_immutableData->AttachCopy(nullptr);
+            }
+        }};
+        adapters::ResetThread(Enabled);
+    }
+
     using TPtr = SharedPointer<T>;
     StateDoubleBufferData(const TPtr& source, const TPtr& immutable, bool copy = false)
         : m_immutableData(::make_shared<StateImmutableData<T>>(immutable))
