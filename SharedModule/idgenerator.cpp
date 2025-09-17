@@ -4,20 +4,23 @@ namespace Id {
 
 struct IdData
 {
-    IdData(class Generator* generator, void* context, const FAction& deleter)
+    IdData(class Generator* generator, void* context, const FAction& deleter, const FAction& detacher)
         : Generator(generator)
         , Context(context)
         , Deleter(deleter)
+        , Detacher(detacher)
     {}
 
     ~IdData()
     {
         Deleter();
+        Detacher();
     }
 
     Generator* Generator;
     void* Context;
     FAction Deleter;
+    FAction Detacher;
 };
 
 static char IdsTable[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -74,9 +77,9 @@ Id::Id(const Name& id)
 {
 }
 
-Generator* Id::GetGenerator() const
+bool Id::IsAttached() const
 {
-    return m_data == nullptr ? nullptr : m_data->Generator;
+    return m_data != nullptr;
 }
 
 Id::~Id()
@@ -91,7 +94,8 @@ void Id::Attach(Generator* generator)
 void Id::Detach()
 {
     Q_ASSERT(m_data != nullptr);
-    m_data->Generator->releaseId(*this);
+    m_data->Detacher();
+    m_data->Detacher = []{};
 }
 
 void* Id::getContext() const
@@ -106,7 +110,9 @@ Generator::Generator(qint32 idSize)
         m_generator = [this](void* context, const FAction& deleter) {
             auto result = generateComplexId();
             Q_ASSERT(result.AsString().size() == m_idSize);
-            auto data = ::make_shared<IdData>(this, context, deleter);
+            auto data = ::make_shared<IdData>(this, context, deleter, [result,this]{
+                releaseId(result);
+            });
             auto it = m_registeredIds.insert(result, data);
             return std::make_pair(it.key(), data);
         };
@@ -119,7 +125,9 @@ Generator::Generator(qint32 idSize)
                     continue;
                 }
                 Q_ASSERT(id.AsString().size() == m_idSize);
-                auto data = ::make_shared<IdData>(this, context, deleter);
+                auto data = ::make_shared<IdData>(this, context, deleter, [id,this]{
+                    releaseId(id);
+                });
                 auto it = m_registeredIds.insert(id, data);
                 return std::make_pair(it.key(), data);
             }
@@ -141,7 +149,7 @@ Generator::~Generator()
     for(const auto& id : m_registeredIds) {
         auto ptr = id.lock();
         if(ptr != nullptr) {
-            ptr->Deleter = []{};
+            ptr->Detacher = []{};
         }
     }
 }
@@ -199,10 +207,10 @@ void Generator::attach(Id* id, void* context, const FAction& deleter)
             Q_ASSERT(context != nullptr);
         }
         Name idName(*id);
-        data = ::make_shared<IdData>(this, context, [this, deleter, idName]{
-            releaseId(idName); deleter();
+        data = ::make_shared<IdData>(this, context, deleter, [this, deleter, idName]{
+            releaseId(idName);
         });
-        foundIt = m_registeredIds.insert(*id, std::weak_ptr<IdData>(data));
+        foundIt = m_registeredIds.insert(*id, WeakPtr<IdData>(data));
     }
     id->m_data = std::shared_ptr<IdData>(foundIt.value());
 }

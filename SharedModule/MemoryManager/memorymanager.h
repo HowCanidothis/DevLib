@@ -79,7 +79,7 @@ public:
     }
 };
 
-#ifdef QT_PROFILE
+#ifdef ENABLE_MEMORY_MANAGER
 #define ATTACH_MEMORY_SPY(x) : MemorySpy<x>
 #define ATTACH_MEMORY_SPY_2(x) , MemorySpy<x>
 #else

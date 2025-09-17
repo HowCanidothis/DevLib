@@ -18,7 +18,7 @@ public:
     void Attach(Generator* generator, const SharedPointer<T>& data);
     void Attach(Generator* generator);
     void Detach();
-    Generator* GetGenerator() const;
+    bool IsAttached() const;
 
     template<class T> SharedPointer<T> As() const;
 
@@ -32,6 +32,14 @@ private:
     SharedPointer<struct IdData> m_data;
 };
 
+template<class T>
+class WeakPtr : public std::weak_ptr<T> ATTACH_MEMORY_SPY_2(WeakPtr<T>)
+{
+    using Super = std::weak_ptr<T>;
+public:
+    using Super::Super;
+};
+
 class Generator
 {
 public:
@@ -42,7 +50,7 @@ public:
     template<class T>
     Id CreateId(const SharedPointer<T>& data)
     {
-        auto weakPtr = new std::weak_ptr<T>(data);
+        auto weakPtr = new WeakPtr<T>(data);
         return createId(weakPtr, [weakPtr] { delete weakPtr; });
     }
 
@@ -57,7 +65,7 @@ private:
     template<class T>
     void attachId(Id* id, const SharedPointer<T>& data)
     {
-        auto weakPtr = new std::weak_ptr<T>(data);
+        auto weakPtr = new WeakPtr<T>(data);
         attach(id, weakPtr, [weakPtr] { delete weakPtr; });
     }
 
@@ -68,7 +76,7 @@ private:
     static Id createId(const Name& id, const SharedPointer<IdData>& iterator);
 
 private:
-    QHash<Name, std::weak_ptr<IdData>> m_registeredIds;
+    QHash<Name, WeakPtr<IdData>> m_registeredIds;
     qint32 m_idSize;
     std::function<std::pair<Name, SharedPointer<IdData>> (void* context, const FAction& deleter)> m_generator;
 };
@@ -87,7 +95,7 @@ inline SharedPointer<T> Id::As() const
     if(context == nullptr) {
         return defaultValue;
     }
-    auto weakPtr = static_cast<std::weak_ptr<T>*>(context);
+    auto weakPtr = static_cast<WeakPtr<T>*>(context);
     if(weakPtr->expired()) {
         return defaultValue;
     }
