@@ -82,6 +82,11 @@ bool Id::IsAttached() const
     return m_data != nullptr;
 }
 
+Generator* Id::GetGenerator() const
+{
+    return m_data == nullptr ? nullptr : m_data->Generator;
+}
+
 Id::~Id()
 {
 }

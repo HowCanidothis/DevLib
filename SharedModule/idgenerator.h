@@ -19,6 +19,7 @@ public:
     void Attach(Generator* generator);
     void Detach();
     bool IsAttached() const;
+    Generator* GetGenerator() const;
 
     template<class T> SharedPointer<T> As() const;
 
