@@ -130,11 +130,11 @@ std::pair<bool, SerializerVersion> DeSerializeFromArrayVersioned(const Serialize
     return std::make_pair(DeSerializeFromArray(array, object, params), currentVersion);
 }
 
-inline std::pair<bool, SerializerVersion> DeSerializeFromArrayCheckVersion(const SerializerVersion& version, const QByteArray& array)
+inline std::pair<QVariant, SerializerVersion> DeSerializeFromArrayCheckVersion(const SerializerVersion& version, const QByteArray& array)
 {
     SerializerReadBuffer buffer(array);
     auto currentVersion = buffer.ReadVersion();
-    return std::make_pair(!version.CheckVersion(currentVersion, buffer.GetDevice()->size()).isValid(), currentVersion);
+    return std::make_pair(version.CheckVersion(currentVersion, buffer.GetDevice()->size()), currentVersion);
 }
 
 template<>

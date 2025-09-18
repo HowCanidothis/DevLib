@@ -336,11 +336,11 @@ bool DeSerializeFromJsonVersioned(const SerializerXmlVersion& currentVersion, co
     });
 }
 
-inline std::pair<bool, SerializerXmlVersion> DeSerializeFromJsonCheckVersion(const SerializerXmlVersion& version, const QJsonObject& jsonObject)
+inline std::pair<QVariant, SerializerXmlVersion> DeSerializeFromJsonCheckVersion(const SerializerXmlVersion& version, const QJsonObject& jsonObject)
 {
     SerializerJsonReadBuffer buffer(&jsonObject);
     auto currentVersion = buffer.ReadVersion();
-    return std::make_pair(!version.CheckVersion(currentVersion).isValid(), currentVersion);
+    return std::make_pair(version.CheckVersion(currentVersion), currentVersion);
 }
 
 #endif // JSONSERIALIZER_H

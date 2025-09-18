@@ -2149,12 +2149,36 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
         [](QPushButton* btn) { delete btn; },
         [](QPushButton* btn) { delete btn; }
     };
+    static const QVector<std::function<void (QLabel*)>> labelDelegates {
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){ lbl->setText("Opacity:"); }
+    };
     auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
+    auto itLabel = labelDelegates.cbegin(), eLabel = labelDelegates.cend();
     ForeachChildWidget([&](const WidgetWrapper& widget) {
         auto* button = qobject_cast<QPushButton*>(widget);
-        if(button != nullptr && it != e) {
-            (*it)(button);
-            ++it;
+        if(button != nullptr) {
+            if(it != e) {
+                (*it)(button);
+                ++it;
+            }
+        } else {
+            auto* label = qobject_cast<QLabel*>(widget);
+            if(label != nullptr) {
+                qDebug() << label->text() << label->objectName();
+                if(itLabel != eLabel) {
+                    (*itLabel)(label);
+                    ++itLabel;
+                }
+            }
         }
     });
     return *this;
