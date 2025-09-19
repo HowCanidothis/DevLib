@@ -198,9 +198,10 @@ void LanguageSettings::Initialize()
 #endif
 }
 
-QTime LanguageSettings::TimeFromVariant(const QVariant& data)
+QString LanguageSettings::TimeToString(const QTime& timeValue)
 {
-    return data.toTime();
+    const auto& settings = SharedSettings::GetInstance().LanguageSettings;
+    return TimeToString(settings.ApplicationLocale, timeValue);
 }
 
 QDate LanguageSettings::DateFromVariant(const QVariant& data, const QString& dateFormat)
@@ -269,6 +270,54 @@ QString tryFixUpDateTime(const QString& input, const QString& format)
     update();
 
     return result;
+}
+
+QString LanguageSettings::TimeToString(const QLocale& locale, const QTime& timeValue){
+    static QString enFormat("%1:%2 %3");
+    static QString ruFormat("%1:%2");
+    QString result;
+    if(!timeValue.isValid()) {
+        return result;
+    }
+
+    auto formatString00 = [](qint32 count) {
+        return (count < 10 ? "0" : "") + QString::number(count);
+    };
+
+    if(locale.language() == QLocale::English){
+        auto cutHours = timeValue.hour() > 12 ? (timeValue.hour() - 12) : timeValue.hour();
+        if(timeValue.hour() >= 12) {
+            result = enFormat.arg(formatString00(cutHours), formatString00(timeValue.minute()), "PM");
+        } else {
+            result = enFormat.arg(formatString00(cutHours), formatString00(timeValue.minute()), "AM");
+        }
+    } else {
+        result = ruFormat.arg(formatString00(timeValue.hour()), formatString00(timeValue.minute()));
+    }
+
+    return result;
+}
+
+QTime LanguageSettings::TimeFromVariant(const QVariant& v)
+{
+    if(v.type() == QVariant::String) {
+        thread_local static QRegExp enFormat(R"((\d+):(\d+) (\w\w))");
+        thread_local static QRegExp ruFormat(R"((\d+):(\d+))");
+
+        auto string = v.toString();
+        QLocale locale;
+        if(locale.language() == QLocale::English) {
+            if(enFormat.indexIn(string) != -1) {
+                qint32 shift = enFormat.cap(3) == "PM" ? 12 : 0;
+                return QTime(enFormat.cap(1).toInt() + shift, enFormat.cap(2).toInt());
+            }
+        }
+        if(ruFormat.indexIn(string) != -1) {
+            return QTime(ruFormat.cap(1).toInt(), ruFormat.cap(2).toInt());
+        }
+        return QTime();
+    }
+    return v.toTime();
 }
 
 QDateTime LanguageSettings::DateTimeFromVariant(const QVariant& v)

@@ -436,11 +436,11 @@ public:
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             LocalPropertyDate& property = getter(data);
-            return property.Native().isValid() ? DateToString(property.Native()) : QVariant("-");
+            return property.Native().isValid() ? LanguageSettings::DateToString(property.Native()) : QVariant("-");
         }, [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 LocalPropertyDate& property = getter(data);
-                property = DateFromVariant(value);
+                property = LanguageSettings::DateFromVariant(value);
             };
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -453,11 +453,11 @@ public:
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             QDate& property = getter(data);
-            return property.isValid() ? DateToString(property) : QVariant("-");
+            return property.isValid() ? LanguageSettings::DateToString(property) : QVariant("-");
         }, [getter](const QVariant& value, ValueType data) -> FAction {
             return [&]{
                 QDate& property = getter(data);
-                property = DateFromVariant(value);
+                property = LanguageSettings::DateFromVariant(value);
             };
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
@@ -466,10 +466,66 @@ public:
         });
     }
 
+    TViewModelsColumnComponentsBuilder& AddDateByRef(qint32 column, const FTranslationHandler& header, const std::function<QDateTime& (ValueType)>& getter, const double* timeShift){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDateTime& property = getter(data);
+            if(timeShift != nullptr) {
+                return LanguageSettings::DateToString(property.toOffsetFromUtc(*timeShift).date());
+            }
+            return property.isValid() ? LanguageSettings::DateToString(property.date()) : QVariant("-");
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                QDateTime& property = getter(data);
+                auto inputDate = LanguageSettings::DateFromVariant(value);
+                if(timeShift != nullptr) {
+                    property = QDateTime(inputDate, property.time(), Qt::OffsetFromUTC, *timeShift);
+                    return;
+                }
+                property = QDateTime(inputDate, property.time());
+            };
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            QDateTime& property = getter(data);
+            if(timeShift != nullptr) {
+                return property.toOffsetFromUtc(*timeShift).date();
+            }
+            return property.date();
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddDateByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, const double* timeShift){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            LocalPropertyDateTime& property = getter(data);
+            if(timeShift != nullptr) {
+                return LanguageSettings::DateToString(property.Native().toOffsetFromUtc(*timeShift).date());
+            }
+            return property.Native().isValid() ? LanguageSettings::DateToString(property.Native().date()) : QVariant("-");
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                LocalPropertyDateTime& property = getter(data);
+                auto inputDate = LanguageSettings::DateFromVariant(value);
+                if(timeShift != nullptr) {
+                    property = QDateTime(inputDate, property.Native().time(), Qt::OffsetFromUTC, *timeShift);
+                    return;
+                }
+                property = QDateTime(inputDate, property.Native().time());
+            };
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            LocalPropertyDateTime& property = getter(data);
+            if(timeShift != nullptr) {
+                return property.Native().toOffsetFromUtc(*timeShift).date();
+            }
+            return property.Native().date();
+        });
+    }
+
     TViewModelsColumnComponentsBuilder& AddDate(qint32 column, const FTranslationHandler& header, const std::function<QDate (ConstValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             QDate property = getter(constData);
-            return property.isValid() ? DateToString(property) : QVariant("-");
+            return property.isValid() ? LanguageSettings::DateToString(property) : QVariant("-");
         }, FModelSetter(), [getter](ConstValueType constData)-> QVariant {
             return getter(constData);
         });
@@ -478,9 +534,9 @@ public:
     TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<QTime& (ValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TimeToString(getter(data));
+            return LanguageSettings::TimeToString(getter(data));
         }, [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = TimeFromVariant(value); };
+            return [&]{ getter(data) = LanguageSettings::TimeFromVariant(value); };
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return getter(data);
@@ -490,9 +546,9 @@ public:
     TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyTime& (ValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
-            return TimeToString(getter(data));
+            return LanguageSettings::TimeToString(getter(data));
         }, [getter](const QVariant& value, ValueType data) -> FAction {
-            return [&]{ getter(data) = TimeFromVariant(value); };
+            return [&]{ getter(data) = LanguageSettings::TimeFromVariant(value); };
         }, [getter](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
             return getter(data);
@@ -501,11 +557,67 @@ public:
 
     TViewModelsColumnComponentsBuilder& AddTime(qint32 column, const FTranslationHandler& header, const std::function<QTime (ConstValueType)>& getter){
         return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
-            return TimeToString(getter(constData));
+            return LanguageSettings::TimeToString(getter(constData));
         }, FModelSetter(), [getter](ConstValueType constData)-> QVariant {
             return getter(constData);
         });
     }
+
+    TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<QDateTime& (ValueType)>& getter, const double* timeShift = nullptr){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                QDateTime& dateTime = getter(data);
+                return LanguageSettings::TimeToString(dateTime.toOffsetFromUtc(*timeShift).time());
+            }
+            return LanguageSettings::DateTimeToString(getter(data));
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                QDateTime& property = getter(data);
+                auto inputTime = LanguageSettings::TimeFromVariant(value);
+                if(timeShift != nullptr) {
+                    property = QDateTime(property.date(), inputTime, Qt::OffsetFromUTC, *timeShift);
+                    return;
+                }
+                getter(data) = QDateTime(property.date(), inputTime);
+        };
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                QDateTime& dateTime = getter(data);
+                return dateTime.toOffsetFromUtc(*timeShift).time();
+            }
+            return getter(data).time();
+        });
+    }
+
+    TViewModelsColumnComponentsBuilder& AddTimeByRef(qint32 column, const FTranslationHandler& header, const std::function<LocalPropertyDateTime& (ValueType)>& getter, const double* timeShift = nullptr){
+        return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                LocalPropertyDateTime& dateTime = getter(data);
+                return LanguageSettings::TimeToString(dateTime.Native().toOffsetFromUtc(*timeShift).time());
+            }
+            return LanguageSettings::DateTimeToString(getter(data));
+        }, [getter, timeShift](const QVariant& value, ValueType data) -> FAction {
+            return [&]{
+                LocalPropertyDateTime& property = getter(data);
+                auto inputTime = LanguageSettings::TimeFromVariant(value);
+                if(timeShift != nullptr) {
+                    property = QDateTime(property.Native().date(), inputTime, Qt::OffsetFromUTC, *timeShift);
+                    return;
+                }
+                getter(data) = QDateTime(property.Native().date(), inputTime);
+        };
+        }, [getter, timeShift](ConstValueType constData)-> QVariant {
+            ValueType data = const_cast<ValueType>(constData);
+            if(timeShift != nullptr) {
+                LocalPropertyDateTime& dateTime = getter(data);
+                return dateTime.Native().toOffsetFromUtc(*timeShift).time();
+            }
+            return getter(data).Native().time();
+        });
+    };
 
     TViewModelsColumnComponentsBuilder& AddDateTime(qint32 column, const FTranslationHandler& header, const std::function<QDateTime (ConstValueType)>& getter, const double* timeShift = nullptr){
         return AddColumn(column, header, [getter, timeShift](ConstValueType constData)-> QVariant {
