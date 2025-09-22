@@ -13,7 +13,7 @@ const char *MemoryManager::typeName(size_t _type)
 
 void MemoryManager::registerSpy(size_t key, void* spy, const char* name)
 {
-#ifdef ENABLE_MEMORY_MANAGER
+#ifdef SHARED_LIB_ENABLE_MEMORY_MANAGER
     bool traced;
     {
         QMutexLocker locker(&m_mutex);
@@ -30,7 +30,7 @@ void MemoryManager::registerSpy(size_t key, void* spy, const char* name)
 
 void MemoryManager::unregiterSpy(size_t key, void* spy)
 {
-#ifdef ENABLE_MEMORY_MANAGER
+#ifdef SHARED_LIB_ENABLE_MEMORY_MANAGER
     QMutexLocker locker(&m_mutex);
     m_destroyed[key]++;
     m_spies[key].remove({ spy, 0 });
@@ -39,7 +39,7 @@ void MemoryManager::unregiterSpy(size_t key, void* spy)
 
 void MemoryManager::MakeMemoryReport()
 {
-#ifdef ENABLE_MEMORY_MANAGER
+#ifdef SHARED_LIB_ENABLE_MEMORY_MANAGER
     qCDebug(LC_SYSTEM) << "----------------------------MemoryReport------------------------";
     QMutexLocker locker(&m_mutex);
     QHashIterator<size_t,qint32> i(m_created);
