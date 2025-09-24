@@ -5,6 +5,10 @@
 
 #include <SharedModule/internal.hpp>
 
+namespace Delegates {
+    void AdjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& option);
+}
+
 class QComboBox;
 class DelegatesCombobox : public QStyledItemDelegate
 {
@@ -100,7 +104,9 @@ class DelegatesColor : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    using Super::Super;
+    DelegatesColor(QObject* parent)
+        : Super(parent)
+    {}
 
     QString displayText(const QVariant& value, const QLocale& locale) const override;
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -150,14 +156,18 @@ class DelegatesDate : public DelegatesDateTime
 {
     using Super = DelegatesDateTime;
 public:
-    using Super::Super;
+    DelegatesDate(QObject* parent)
+        : Super(parent)
+    {}
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
 private:
     mutable LocalPropertyDateTime m_dateTime;
     mutable class WidgetsDateTimeWidget* m_editor;
+    mutable bool m_accepted;
 };
 
 class DelegatesCheckBox : public QStyledItemDelegate
@@ -176,19 +186,26 @@ class DelegatesDateTimePicker : public DelegatesDateTime
 {
     using Super = DelegatesDateTime;
 public:
-    DelegatesDateTimePicker(QObject* parent = nullptr);
+    DelegatesDateTimePicker(QObject* parent);
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
     void setEditorData(QWidget* , const QModelIndex& ) const override {}
     void setModelData(QWidget* , QAbstractItemModel* model, const QModelIndex& index) const override;
+
+    static void AttachDateTimeRange(DelegatesDateTimePicker* delegate, const QPair<int, int>& columns, LocalPropertyDateTime* start = nullptr, LocalPropertyDateTime* stop = nullptr);
+
+private:
+    mutable bool m_accepted;
 };
 
 class DelegatesTimePicker : public DelegatesDateTime
 {
     using Super = DelegatesDateTime;
 public:
-    using Super::Super;
+    DelegatesTimePicker(QObject* parent)
+        : Super(parent)
+    {}
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const override;
@@ -204,7 +221,9 @@ class DelegatesMonth : public DelegatesDateTime
 {
     using Super = DelegatesDateTime;
 public:
-    using Super::Super;
+    DelegatesMonth(QObject* parent)
+        : Super(parent)
+    {}
     using DisplayHandler = std::function<QString(const QVariant&, const QLocale&)>;
     void SetDiplayText(const DisplayHandler& displayHandler);
     QString displayText(const QVariant& value, const QLocale& locale) const override;
@@ -216,10 +235,6 @@ private:
     DisplayHandler m_displayHandler;
     mutable bool m_apply;
     mutable class WidgetsMonthPicker* m_editor;
-};
-
-struct DateTimeRangeAttachment {
-    static void Attach(DelegatesDateTimePicker* delegate, const QPair<int, int>& columns, LocalPropertyDateTime* start = nullptr, LocalPropertyDateTime* stop = nullptr);
 };
 
 #endif // DELEGATES_H

@@ -63,7 +63,7 @@ WidgetsMonthPicker::WidgetsMonthPicker(QWidget *parent)
     m_connectors.AddConnector<LocalPropertiesPushButtonConnector>(&m_buttonIndex, m_currButtons);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(&Date, ui->dateEdit);
 
-    WidgetWrapper(ui->btnSave).CreateVisibilityRule(CDL, [this]{
+    WidgetPushButtonWrapper(ui->btnSave).SetControl(ButtonRole::Save).CreateVisibilityRule(CDL, [this]{
         return EnableButtons.Native();
     }, {ui->btnCancel}, EnableButtons);
 

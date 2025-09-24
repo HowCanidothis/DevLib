@@ -1527,21 +1527,23 @@ struct LocalPropertyOptional
         return connections;
     }
 
-    DispatcherConnections Connect(const char* locationInfo, const std::function<void (const std::optional<value_type>&)>& action) const
+    template<class ... Dispatchers>
+    DispatcherConnections Connect(const char* locationInfo, const std::function<void (const std::optional<value_type>&)>& action, Dispatchers&... dispatchers) const
     {
         DispatcherConnections connections;
         auto invoke = [action, this]{
             action(ToStdOptional());
         };
-        connections += Value.OnChanged.Connect(locationInfo, invoke);
+        connections += Value.OnChanged.ConnectCombined(locationInfo, invoke, dispatchers...);
         connections += IsValid.OnChanged.Connect(locationInfo, invoke);
         return connections;
     }
 
-    DispatcherConnections ConnectAndCall(const char* locationInfo, const std::function<void (const std::optional<value_type>&)>& action) const
+    template<class ... Dispatchers>
+    DispatcherConnections ConnectAndCall(const char* locationInfo, const std::function<void (const std::optional<value_type>&)>& action, Dispatchers&... dispatchers) const
     {
         action(ToStdOptional());
-        return Connect(locationInfo, action);
+        return Connect(locationInfo, action, dispatchers...);
     }
 
     template<class Another, typename T = typename Property::value_type, typename T2 = typename Another::value_type, typename Evaluator = std::function<T2 (const T&)>, typename ThisEvaluator = std::function<T(const T2&)>, typename... Dispatchers>

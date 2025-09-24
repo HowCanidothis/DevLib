@@ -103,10 +103,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
         if(e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
             auto* ke = reinterpret_cast<QKeyEvent*>(e);
             if(ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) {
-                if(WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility()) {
-                    emit ui->calendarWidget->clicked(ui->calendarWidget->selectedDate());
-                    OnApplyActivate();
-                }
+                emit ui->calendarWidget->clicked(ui->calendarWidget->selectedDate());
+                OnApplyActivate();
             }
         }
         return false;
@@ -141,15 +139,10 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationIn
         CurrentDateTime.SetMinMax(QDateTime(modelProperty->GetMin(), QTime()), QDateTime(modelProperty->GetMax(), QTime()));
     });
 
-    auto connections = DispatcherConnectionsSafeCreate();
-    ret += OnAboutToShow.Connect(locationInfo, [this, modelProperty, connections, locationInfo]{
-        connections->clear();
+    ret += OnAboutToShow.Connect(locationInfo, [this, modelProperty]{
         auto initialDate = modelProperty->Native();
         if(!initialDate.isValid()) initialDate = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(initialDate.year(), initialDate.month());
-        WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDate](const QDate& t){
-            return initialDate != t;
-        }, *modelProperty).MakeSafe(*connections);
     });
     return ret;
 }
@@ -174,16 +167,11 @@ DispatcherConnections WidgetsDateTimeWidget::ConnectModel(const char* locationIn
         CurrentDateTime.SetMinMax(modelProperty->GetMin(), modelProperty->GetMax());
     });
 
-    auto connections = DispatcherConnectionsSafeCreate();
-    ret += OnAboutToShow.Connect(locationInfo, [this, locationInfo, modelProperty, connections]{
-        connections->clear();
+    ret += OnAboutToShow.Connect(locationInfo, [this, modelProperty]{
         auto initialDateTime = modelProperty->Native();
         auto date = initialDateTime.date();
         if(!date.isValid()) date = QDate::currentDate();
         ui->calendarWidget->setCurrentPage(date.year(), date.month());
-        WidgetAbstractButtonWrapper(ui->btnApply).WidgetVisibility().ConnectFrom(locationInfo, [initialDateTime](const QDateTime& dt){
-            return initialDateTime != dt;
-        }, *modelProperty).MakeSafe(*connections);
     });
     return ret;
 }

@@ -456,7 +456,36 @@ Range<It> range(Container& container, qint32 startIndex) {
     return Range<It>(container.begin() + startIndex, container.begin() + startIndex + container.size() - startIndex);
 }
 
+template<class Container>
+void move_items(Container& source, const std::function<bool (const typename Container::value_type)>& isItemToMove, qint32 to)
+{
+    Container nodesAfter;
+    Container nodesBefore;
+    Container nodesToInsert;
+    if(to == -1) {
+        to = source.size();
+    }
+    for(auto& n : range(source, 0, to)) {
+        if(isItemToMove(n)) {
+            nodesToInsert.append(n);
+        } else {
+            nodesBefore.append(n);
+        }
+    }
+    for(auto& n : range(source, to)) {
+        if(isItemToMove(n)) {
+            nodesToInsert.append(n);
+        } else {
+            nodesAfter.append(n);
+        }
+    }
+    source.clear();
+    source += nodesBefore;
+    source += nodesToInsert;
+    source += nodesAfter;
 }
+
+} // adapters
 
 template <class T>
 inline const T& make_const(T& container) { return container; }

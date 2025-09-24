@@ -394,14 +394,17 @@ QWidget* DelegatesDateTimePicker::createEditor(QWidget* parent, const QStyleOpti
     auto max = index.data(MaxLimitRole).toDateTime();
     widget->GetDateTimeWidget()->CurrentDateTime.SetMinMax(min, max);
 
+    m_accepted = false;
     OnEditorAboutToBeShown(widget, index);
     widget->OnDataCommit.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
-        auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
-        nonConst->emit commitData(widget);
+        m_accepted = true;
+//        auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
+//        nonConst->emit commitData(widget);
     });
 
     widget->OnCloseEditor.Connect(CONNECTION_DEBUG_LOCATION, [this, widget]{
         auto* nonConst = const_cast<DelegatesDateTimePicker*>(this);
+        nonConst->emit commitData(widget);
         nonConst->emit closeEditor(widget);
     });
     auto* le = widget->GetLineEdit();
@@ -441,6 +444,11 @@ void DelegatesDateTimePicker::updateEditorGeometry(QWidget* editor, const QStyle
 
 void DelegatesDateTimePicker::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
 {
+    if(index.data(LastEditRowRole).toBool()) {
+        if(!m_accepted) {
+            return;
+        }
+    }
     auto* widget = dynamic_cast<WidgetsDatetimePopupPicker*>(editor);
     Q_ASSERT(widget != nullptr);
     QVariant dt = widget->GetDateTimeWidget()->CurrentDateTime.Native();
@@ -463,7 +471,7 @@ QWidget* DelegatesTimePicker::createEditor(QWidget* parent, const QStyleOptionVi
     return menu;
 }
 
-void adjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& option)
+void Delegates::AdjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& option)
 {
     auto* parentWidget = option.widget;
     QDesktopWidget *desktop = QApplication::desktop();
@@ -488,7 +496,7 @@ void adjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& optio
 
 void DelegatesTimePicker::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
 {
-    adjustDialogEditorToCell(editor, option);
+    Delegates::AdjustDialogEditorToCell(editor, option);
 }
 
 void DelegatesTimePicker::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
@@ -504,13 +512,15 @@ QWidget* DelegatesDate::createEditor(QWidget* parent, const QStyleOptionViewItem
     auto* ac = new QWidgetAction(parent);
     auto* menu = MenuWrapper::CreatePreventedFromClosingMenu(tr("Date"));
 
+    m_accepted = false;
     m_editor = new WidgetsDateTimeWidget(parent);
     m_editor->Mode = DateTimeDisplayFormatEnum::Date;
     m_editor->ConnectModel(CDL, &m_dateTime);
 
     m_dateTime = index.data(Qt::EditRole).toDate().startOfDay();
-    m_editor->OnApplyActivate.Connect(CDL, [menu]{
-        menu->close();
+    m_editor->OnApplyActivate.Connect(CDL, [this, menu]{
+        m_accepted = true;
+        menu->close();        
     });
     OnEditorAboutToBeShown(m_editor, index);
 
@@ -525,6 +535,11 @@ void DelegatesDate::setEditorData(QWidget* editor, const QModelIndex& index) con
 
 void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
 {
+    if(index.data(LastEditRowRole).toBool()) {
+        if(!m_accepted) {
+            return;
+        }
+    }
     QVariant dt = m_dateTime.Native();
     OnAboutToSetData(dt, index);
     model->setData(index, dt);
@@ -532,7 +547,7 @@ void DelegatesDate::setModelData(QWidget* editor, QAbstractItemModel* model, con
 
 void DelegatesDate::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    adjustDialogEditorToCell(editor, option);
+    Delegates::AdjustDialogEditorToCell(editor, option);
 }
 
 void DelegatesMonth::SetDiplayText(const DisplayHandler& displayHandler)
@@ -572,7 +587,7 @@ QWidget* DelegatesMonth::createEditor(QWidget* parent, const QStyleOptionViewIte
 
 void DelegatesMonth::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex&) const
 {
-    adjustDialogEditorToCell(editor, option);
+    Delegates::AdjustDialogEditorToCell(editor, option);
 }
 
 void DelegatesMonth::setEditorData(QWidget*, const QModelIndex&) const
@@ -581,15 +596,17 @@ void DelegatesMonth::setEditorData(QWidget*, const QModelIndex&) const
 
 void DelegatesMonth::setModelData(QWidget* w, QAbstractItemModel* model, const QModelIndex& index) const
 {
-    if(!m_apply){
-        return;
+    if(index.data(LastEditRowRole).toBool()) {
+        if(!m_apply) {
+            return;
+        }
     }
     QVariant dt = m_editor->Date.Native();
     OnAboutToSetData(dt, index);
     model->setData(index, dt);
 }
 
-void DateTimeRangeAttachment::Attach(DelegatesDateTimePicker* delegate, const QPair<int,int>& columns, LocalPropertyDateTime* start, LocalPropertyDateTime* stop)
+void DelegatesDateTimePicker::AttachDateTimeRange(DelegatesDateTimePicker* delegate, const QPair<int,int>& columns, LocalPropertyDateTime* start, LocalPropertyDateTime* stop)
 {
     delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [columns, start, stop](QWidget* w, const QModelIndex& index){
         auto* picker = reinterpret_cast<WidgetsDatetimePopupPicker*>(w);
@@ -659,5 +676,5 @@ void DelegatesColor::paint(QPainter* painter, const QStyleOptionViewItem& option
 
 void DelegatesColor::updateEditorGeometry(QWidget* w, const QStyleOptionViewItem& option, const QModelIndex&) const
 {
-    adjustDialogEditorToCell(w, option);
+    Delegates::AdjustDialogEditorToCell(w, option);
 }

@@ -37,12 +37,12 @@ WidgetsDatetimePopupPicker::WidgetsDatetimePopupPicker(QWidget *parent)
     menu->addAction(ac);
     connect(ui->CalendarButton, &QPushButton::clicked, [menu, this](bool){
         menu->setProperty("a_accept", false);
-        m_editor->Store();
+//        m_editor->Store();
         menu->exec(ui->dateTimeEdit->mapToGlobal(ui->dateTimeEdit->geometry().bottomLeft()));
         if(menu->property("a_accept").toBool()) {
             OnDataCommit();
         } else {
-            m_editor->Reset();
+//            m_editor->Reset();
         }
         OnCloseEditor();
     });

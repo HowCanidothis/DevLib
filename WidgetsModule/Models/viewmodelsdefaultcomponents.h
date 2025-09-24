@@ -607,7 +607,7 @@ public:
                     property = QDateTime(property.Native().date(), inputTime, Qt::OffsetFromUTC, *timeShift);
                     return;
                 }
-                getter(data) = QDateTime(property.Native().date(), inputTime);
+                property = QDateTime(property.Native().date(), inputTime);
         };
         }, [getter, timeShift](ConstValueType constData)-> QVariant {
             ValueType data = const_cast<ValueType>(constData);
