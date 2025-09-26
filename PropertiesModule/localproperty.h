@@ -1666,7 +1666,7 @@ struct LocalPropertyOptional
     QVariant ToVariantUi(const Measurement* m) const { return ToVariantUi([&](value_type v){ return m->FromBaseToUnitUi(v); }); }
 #endif
 
-    operator const std::optional<value_type>&() const { return Native(); }
+    operator std::optional<value_type>() const { return Native(); }
 private:
     template<typename T>
     static void dispatcherExtractor(QVector<Dispatcher*>& dispatchers, T& property){
