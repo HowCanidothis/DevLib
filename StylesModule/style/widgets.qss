@@ -94,6 +94,22 @@ QPushButton#btnDrawer
     background: @cbg.2;
 }
 
+QPushButton#btnDrawerM
+{
+    qproperty-text: "";
+    min-width: 20px;
+    min-height: 48px;
+    max-width: 20px;
+    max-height: 48px;
+    border: 1px solid @cbg.3;
+    padding: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin-right: 13px;
+    margin-left: 0px;
+    background: @cbg.2;
+}
+
 QPushButton#btnDrawer[isOpen=false]
 {
     image: url("@cPath/chevron-left.svg");
@@ -104,7 +120,33 @@ QPushButton#btnDrawer[isOpen=true]
     image: url("@cPath/chevron-right.svg");
 }
 
+QPushButton#btnDrawerM[isOpen=true]
+{
+    image: url("@cPath/chevron-left.svg");
+}
+
+QPushButton#btnDrawerM[isOpen=false]
+{
+    image: url("@cPath/chevron-right.svg");
+}
+
 QPushButton#btnDrawerVertical
+{
+    qproperty-text: "";
+    min-width: 48px;
+    min-height: 20px;
+    max-width: 48px;
+    max-height: 20px;
+    padding: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border: 1px solid @cbg.3;
+    margin-top: 13px;
+    margin-bottom: 0px;
+    background: @cbg.2;
+}
+
+QPushButton#btnDrawerVerticalM
 {
     qproperty-text: "";
     min-width: 48px;
@@ -126,6 +168,16 @@ QPushButton#btnDrawerVertical[isOpen=false]
 }
 
 QPushButton#btnDrawerVertical[isOpen=true]
+{
+    image: url("@cPath/chevron-down.svg");
+}
+
+QPushButton#btnDrawerVerticalM[isOpen=true]
+{
+    image: url("@cPath/chevron-up.svg");
+}
+
+QPushButton#btnDrawerVerticalM[isOpen=false]
 {
     image: url("@cPath/chevron-down.svg");
 }

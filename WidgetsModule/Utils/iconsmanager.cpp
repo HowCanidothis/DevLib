@@ -284,11 +284,10 @@ QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon
 }
 
 IconsSvgIcon::IconsSvgIcon()
-    : Super(m_engine = new SvgIconEngine())
 {}
 
 IconsSvgIcon::IconsSvgIcon(const QString& filePath)
-    : IconsSvgIcon()
+    : Super(m_engine = new SvgIconEngine())
 {
     m_engine->GetData()->FilePath = filePath;
 }
@@ -347,6 +346,11 @@ QIcon IconsSvgIcon::MergedIcon(const QSize& size, const QVector<QIcon>& icons) c
 
 IconsPalette& IconsSvgIcon::EditPalette() const
 {
+    Q_ASSERT(m_engine != nullptr);
+    static IconsPalette defaultPalette;
+    if(m_engine == nullptr) {
+        return defaultPalette;
+    }
     return m_engine->GetData()->Palette;
 }
 

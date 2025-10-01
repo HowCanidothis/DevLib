@@ -22,6 +22,7 @@ public:
     void Move(const Point3F& center, const Vector3F& forward, const Vector3F& up, float distance);
     void Move(const Point3F& center, float distance);
     void Move(const Point3F& newEye);
+    void MoveDelta(float deltaX, float deltaY, float deltaZ);
 
     bool IsRunning() const;
 

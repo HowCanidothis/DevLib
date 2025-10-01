@@ -285,7 +285,7 @@ struct DescTableViewParams
     }
     DescTableViewParams& SetStateTag(const Latin1Name& stateTag) { StateTag = stateTag; return *this; }
 
-    QHash<qint32, ColumnParam> ColumnsParams;
+    QMap<qint32, ColumnParam> ColumnsParams;
     Latin1Name StateTag;
     bool UseStandardActions = true;
     bool UseStandardActionHandlers = false;

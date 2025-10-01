@@ -155,6 +155,9 @@ public:
     bool IsEnabled() const  { return IsEditable && !ForceDisabled; }
 
 protected:
+    qint32 getDataCurrentRow() const { return m_currentRow; }
+
+protected:
     friend class ViewModelsStandardComponentsBuilder;
 
     ModelsIconsContext m_iconsContext;
@@ -166,6 +169,9 @@ protected:
     qint32 m_mostLeftColumnToUpdate;
     qint32 m_mostRightColumnToUpdate;
     DelayedCallObject m_update;
+
+private:
+    mutable qint32 m_currentRow;
 };
 
 template<class T>

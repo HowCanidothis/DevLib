@@ -574,12 +574,12 @@ bool DeSerializeFromXMLVersioned(const SerializerXmlVersion& currentVersion, con
     });
 }
 
-inline std::pair<bool, SerializerXmlVersion> DeSerializeFromXMLCheckVersion(const SerializerXmlVersion& version, const QByteArray& array)
+inline std::pair<QVariant, SerializerXmlVersion> DeSerializeFromXMLCheckVersion(const SerializerXmlVersion& version, const QByteArray& array)
 {
     QXmlStreamReader reader(array);
     SerializerXmlReadBuffer buffer(&reader);
     auto currentVersion = buffer.ReadVersion();
-    return std::make_pair(!version.CheckVersion(currentVersion).isValid(), currentVersion);
+    return std::make_pair(version.CheckVersion(currentVersion), currentVersion);
 }
 
 #define DECLARE_SERIALIZER_XML_TYPE_ALIAS(SourceType, TargetType) \

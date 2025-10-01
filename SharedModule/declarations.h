@@ -251,6 +251,19 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+inline bool IsIntersects(double left1, double right1, double left2, double right2, double epsilon = std::numeric_limits<double>().epsilon())
+{
+    if(fuzzyCompare(left1, left2, epsilon) || fuzzyCompare(left1, right2, epsilon)) {
+        return true;
+    }
+    if(fuzzyCompare(right1, left2, epsilon) || fuzzyCompare(right1, right2, epsilon)) {
+        return true;
+    }
+    auto mm1 = std::minmax(left1, right1);
+    auto mm2 = std::minmax(left2, right2);
+    return !(mm2.first > mm1.second || mm1.first > mm2.second);
+}
+
 inline bool IsInBounds(double value, double left, double right, double epsilon)
 {
     if(fuzzyCompare(value, left, epsilon)) {
@@ -443,7 +456,36 @@ Range<It> range(Container& container, qint32 startIndex) {
     return Range<It>(container.begin() + startIndex, container.begin() + startIndex + container.size() - startIndex);
 }
 
+template<class Container>
+void move_items(Container& source, const std::function<bool (const typename Container::value_type)>& isItemToMove, qint32 to)
+{
+    Container nodesAfter;
+    Container nodesBefore;
+    Container nodesToInsert;
+    if(to == -1) {
+        to = source.size();
+    }
+    for(auto& n : range(source, 0, to)) {
+        if(isItemToMove(n)) {
+            nodesToInsert.append(n);
+        } else {
+            nodesBefore.append(n);
+        }
+    }
+    for(auto& n : range(source, to)) {
+        if(isItemToMove(n)) {
+            nodesToInsert.append(n);
+        } else {
+            nodesAfter.append(n);
+        }
+    }
+    source.clear();
+    source += nodesBefore;
+    source += nodesToInsert;
+    source += nodesAfter;
 }
+
+} // adapters
 
 template <class T>
 inline const T& make_const(T& container) { return container; }

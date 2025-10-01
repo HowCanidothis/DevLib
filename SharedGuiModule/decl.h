@@ -174,6 +174,24 @@ public:
         return ::lerp(a, b, ProjectToLineSegmentT(a,b));
     }
 
+    Vector2F Rotated(double angle) const
+    {
+        auto cs = cos(angle);
+        auto sn = sin(angle);
+        return Vector2F(x() * cs - y() * sn, x() * sn + y() * cs);
+    }
+
+    double AngleTo(const Vector2F& another) const
+    {
+        Q_ASSERT(fuzzyCompare(another.length(), 1.f) && fuzzyCompare(length(), 1.f));
+        return acos(dotProduct(*this, another));
+    }
+
+    double Angle() const
+    {
+        return atan2(y(), x());
+    }
+
     float& X() { return operator[](0); }
     float X() const { return operator[](0); }
 

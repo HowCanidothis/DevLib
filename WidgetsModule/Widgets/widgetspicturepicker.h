@@ -17,6 +17,7 @@ public:
 
     LocalProperty<QByteArray> ImageSource;
     LocalPropertyString ImagePath;
+    quint32 MaxImageSize;
 
     // QWidget interface
 protected:

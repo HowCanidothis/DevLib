@@ -151,4 +151,23 @@ protected:
 
 using SmartPointerValuePtr = SP<SmartPointerValue>;
 
+template<class T>
+struct DeleterWithDestroyedNotification
+{
+    void operator()(T* ptr)
+    {
+        Q_ASSERT(!ptr->m_deleted);
+        if(ptr->m_deleted) {
+            return;
+        }
+        ptr->m_deleted = true;
+        ptr->OnAboutToBeDestroyed();
+        delete ptr;
+    }
+};
+
+#define DECLARE_SHARED_POINTER_DELETER_WITH_DESTROYED_NOTIFICATION(className) \
+template<> \
+inline SharedPointer<className> make_shared() { return ::make_shared<className, DeleterWithDestroyedNotification<className>>(); }
+
 #endif // SMARTPOINTERSADAPTERS_H

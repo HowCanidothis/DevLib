@@ -12,7 +12,6 @@ void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, cons
 {
     button.SetOnClicked([this, action, dialogText, confirmButton]{
         if(SelectCurrentRow()) {
-            WidgetWrapper(m_target->viewport()).Click(); // Click is for updating action handler state
             auto* targetAction = WidgetsGlobalTableActionsScope::GetInstance().FindAction(action);
             if(!targetAction->isVisible() || !targetAction->isEnabled()) {
                 return;
@@ -76,6 +75,7 @@ bool WidgetsTableViewRowAttachment::SelectCurrentRow()
     if(CurrentRow == -1) {
         return false;
     }
-    m_target->selectRow(CurrentRow);
+    auto center = m_target->visualRect(m_target->model()->index(CurrentRow, 0)).center();
+    WidgetWrapper(m_target->viewport()).Click(center);
     return true;
 }

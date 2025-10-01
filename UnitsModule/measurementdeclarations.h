@@ -32,7 +32,7 @@ namespace Measurement##name { \
 const Name NAME(QT_STRINGIFY(name)); \
 const SharedPointer<Measurement> Value = ::make_shared<Measurement>(NAME, translationHandler); \
 const Measurement* Get() { return Value.get(); } \
-QString FromBaseToUnitUi(const std::optional<double>& value, const QString& pattern) { return value.has_value() ? Get()->FromBaseToUnitUi(value.value(), pattern) : DASH; } \
+QString FromBaseToUnitUi(const std::optional<double>& value, const QString& pattern) { return value.has_value() ? Get()->FromBaseToUnitUi(value.value(), pattern) : pattern.arg(DASH); } \
 QString FromBaseToUnitUi(const std::optional<double>& value) { return value.has_value() ? Get()->FromBaseToUnitUi(value.value()) : DASH; } \
 double FromBaseToUnit(double value) { return Get()->FromBaseToUnit(value); } \
 double FromUnitToBase(double value) { return Get()->FromUnitToBase(value); } \

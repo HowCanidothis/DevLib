@@ -30,6 +30,27 @@ GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera*
     }).MakeSafe(m_connections);
 }
 
+void GtCameraAnimationEngine::MoveDelta(float deltaX, float deltaY, float deltaZ)
+{
+    m_animation = new QParallelAnimationGroup();
+    Point3F newEye = m_camera->GetEye() + Vector3F(deltaX, deltaY, deltaZ);
+    auto eyeAnimation = new QVariantAnimation(m_animation.get());
+    eyeAnimation->setStartValue(m_camera->GetEye());
+    eyeAnimation->setEasingCurve(m_movementCurve);
+    eyeAnimation->setDuration(m_movementDuration);
+    eyeAnimation->setEndValue(newEye);
+
+    QObject::connect(eyeAnimation, &QVariantAnimation::valueChanged, [this](const QVariant& value){
+        m_renderer->Asynch([this, value]{
+            m_camera->SetEye(value.value<QVector3D>());
+        });
+    });
+
+    m_animation->addAnimation(eyeAnimation);
+
+    m_animation->start();
+}
+
 void GtCameraAnimationEngine::Move(const Point3F& center, const Vector3F& forward, const Vector3F& up, float distance){
     if(m_renderer == nullptr) {
         return;

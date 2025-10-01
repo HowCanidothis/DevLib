@@ -60,9 +60,8 @@ void WidgetTableViewColumnsAttachment::adjustAttachments(qint32 oldCount, qint32
                 ++counter;
                 continue;
             }
-#ifndef BUILD_MASTER
+
             attachment->setObjectName(QString::number(counter));
-#endif
             attachment->setParent(m_targetTableView->horizontalHeader());
             m_attachmentWidgets.insert(counter, attachment);
             attachment->setVisible(IsVisible);

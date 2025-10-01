@@ -34,7 +34,21 @@ ComponentPlacer* WidgetsToolBar::GetComponentPlacer() const
 
 QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSize)
 {
-    auto* result = CreateButton(m_buttonsOrientation == Qt::Horizontal ? "btnDrawer" : "btnDrawerVertical");
+    QString buttonObjectName;
+    if(m_buttonsOrientation == Qt::Horizontal) {
+        if(GetComponentPlacer()->Location.Native() & QuadTreeF::LeftLessZero) {
+            buttonObjectName = "btnDrawer";
+        } else {
+            buttonObjectName = "btnDrawerM";
+        }
+    } else {
+        if(GetComponentPlacer()->Location.Native() & QuadTreeF::TopLessZero) {
+            buttonObjectName = "btnDrawerVertical";
+        } else {
+            buttonObjectName = "btnDrawerVerticalM";
+        }
+    }
+    auto* result = CreateButton(buttonObjectName);
     Expanded = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
     connect(result, &QPushButton::clicked, [this](bool ){
         *Expanded = !Expanded->Native();

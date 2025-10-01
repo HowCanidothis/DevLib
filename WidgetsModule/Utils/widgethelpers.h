@@ -171,7 +171,7 @@ public:
         return value;
     }
 
-    const WidgetWrapper& Click();
+    const WidgetWrapper& Click(const QPoint& localPos = QPoint());
 
     QByteArray StoreGeometry() const;
     bool RestoreGeometry(const QByteArray& geometry) const;
@@ -767,6 +767,15 @@ public:
         });
     }
 
+    template<class Enum>
+    ActionWrapper AddComboboxAction(const QString& title, LocalPropertySequentialEnum<Enum>* property) const
+    {
+        return AddComboboxAction(title, TranslatorManager::GetInstance().GetEnumNames<Enum>(), (qint32)property->Native(), [property](qint32 selected){
+            *property = selected;
+        });
+    }
+
+    ActionWrapper AddComboboxAction(const QString& title, const QStringList& content, qint32 index, const std::function<void (qint32)>& handler) const;
     ActionWrapper AddCheckboxAction(const QString& title, bool checked, const std::function<void (bool)>& handler) const;
     ActionWrapper AddColorAction(const QString& title, const QColor& color, const std::function<void (const QColor& color)>& handler) const;
     ActionWrapper AddDoubleAction(const QString& title, double min, double max, const std::optional<double>& value, const std::function<void (const std::optional<double>&)>& handler) const;
@@ -782,6 +791,18 @@ public:
 
 private:
     WidgetsGlobalTableActionsScopeHandlersPtr m_globalActionsHandlers;
+};
+
+class ImageWrapper
+{
+public:
+    ImageWrapper(QImage* image);
+
+    QByteArray CompressTo(qint64 bytesCount);
+    static QByteArray CompressIfGreater(const QByteArray& source, qint64 ifBytesGreaterThan);
+
+private:
+    QImage* m_image;
 };
 
 class WidgetsObserver : public QObject

@@ -1187,6 +1187,42 @@ void WidgetWrapper::ApplyStyleProperty(const char* propertyName, const QVariant&
     UpdateStyle(recursive);
 }
 
+ImageWrapper::ImageWrapper(QImage* image)
+    : m_image(image)
+{
+
+}
+
+QByteArray ImageWrapper::CompressTo(qint64 bytesCount)
+{
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    m_image->save(&buffer, "PNG");
+    *m_image = QImage::fromData(ba);
+    if(ba.size() > bytesCount) {
+        auto powFactor = double(ba.size()) / bytesCount;
+        auto factor = sqrt(powFactor);
+        auto nw = m_image->width() / factor;
+        auto nh = m_image->height() / factor;
+        *m_image = m_image->scaled(nw, nh, Qt::KeepAspectRatio);
+        ba.clear();
+        buffer.seek(0);
+        m_image->save(&buffer, "PNG");
+    }
+    return ba;
+}
+
+QByteArray ImageWrapper::CompressIfGreater(const QByteArray& source, qint64 ifBytesGreaterThan)
+{
+    if(source.size() < ifBytesGreaterThan) {
+        return source;
+    }
+    auto img = QImage::fromData(source);
+    ImageWrapper iw(&img);
+    return iw.CompressTo(ifBytesGreaterThan);
+}
+
 LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 {
     auto value = m_object->property("a_enable").value<SharedPointer<LocalPropertyBool>>();
@@ -1510,10 +1546,10 @@ WidgetWrapper::WidgetWrapper(QWidget* widget)
 
 }
 
-const WidgetWrapper& WidgetWrapper::Click()
+const WidgetWrapper& WidgetWrapper::Click(const QPoint& localPos)
 {
-    QMouseEvent e(QEvent::MouseButtonPress, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-    QMouseEvent er(QEvent::MouseButtonRelease, QPoint(), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent e(QEvent::MouseButtonPress, localPos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QMouseEvent er(QEvent::MouseButtonRelease, localPos, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
     qApp->sendEvent(m_object, &e);
     qApp->sendEvent(m_object, &er);
     return *this;
@@ -1990,6 +2026,32 @@ ActionWrapper MenuWrapper::AddMeasurementAction(const Measurement* measurement, 
 }
 #endif
 
+ActionWrapper MenuWrapper::AddComboboxAction(const QString& title, const QStringList& content, qint32 index, const std::function<void (qint32)>& handler) const
+{
+    auto* layoutWidget = new QWidget();
+    auto* layout = new QHBoxLayout();
+    layoutWidget->setLayout(layout);
+    layout->setContentsMargins(QMargins(9,0,0,0));
+
+    auto* label = new QLabel(title);
+    auto* btn = new QComboBox();
+    btn->addItems(content);
+    btn->setCurrentIndex(index);
+
+    layout->addWidget(label);
+    layout->addWidget(btn);
+
+    QObject::connect(btn, QOverload<qint32>::of(&QComboBox::activated), [handler] (qint32 index){
+        handler(index);
+    });
+
+    auto* action = new QWidgetAction(GetWidget());
+    btn->setProperty(WidgetProperties::ActionWidget, true);
+    action->setDefaultWidget(layoutWidget);
+    GetWidget()->addAction(action);
+    return action;
+}
+
 ActionWrapper MenuWrapper::AddSeparator() const
 {
     QAction *action = new QAction(GetWidget());
@@ -2087,12 +2149,36 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
         [](QPushButton* btn) { delete btn; },
         [](QPushButton* btn) { delete btn; }
     };
+    static const QVector<std::function<void (QLabel*)>> labelDelegates {
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){},
+        [](QLabel* lbl){ lbl->setText("Opacity:"); }
+    };
     auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
+    auto itLabel = labelDelegates.cbegin(), eLabel = labelDelegates.cend();
     ForeachChildWidget([&](const WidgetWrapper& widget) {
         auto* button = qobject_cast<QPushButton*>(widget);
-        if(button != nullptr && it != e) {
-            (*it)(button);
-            ++it;
+        if(button != nullptr) {
+            if(it != e) {
+                (*it)(button);
+                ++it;
+            }
+        } else {
+            auto* label = qobject_cast<QLabel*>(widget);
+            if(label != nullptr) {
+                qDebug() << label->text() << label->objectName();
+                if(itLabel != eLabel) {
+                    (*itLabel)(label);
+                    ++itLabel;
+                }
+            }
         }
     });
     return *this;

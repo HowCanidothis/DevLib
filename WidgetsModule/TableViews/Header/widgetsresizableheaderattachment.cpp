@@ -19,6 +19,7 @@ WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientati
 
     setDropIndicatorShown(params.DropIndicatorShown);
     setSortIndicatorShown(params.SortIndicatorShown);
+    setMinimumSectionSize(16);
 }
 
 QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QHeaderView* hv, const DescTableViewParams& params)

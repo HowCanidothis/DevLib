@@ -43,6 +43,7 @@
 #include "delayedcall.h"
 #include "FullTextSearch/ftsdictionary.h"
 #include "flags.h"
+#include "math.h"
 #include "profile_utils.h"
 #include "timer.h"
 #include "nativetranslates.h"
