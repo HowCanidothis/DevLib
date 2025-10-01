@@ -594,6 +594,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementSeparationFactor::Value)
             .AddUnit(&SeparationFactorUnits::SeparationFactor);
 
+    AddMeasurement(MeasurementBendingStressMagnificationFactor::Value)
+            .AddUnit(&BendingStressMagnificationFactorUnits::BendingStressMagnificationFactor);
+
     AddMeasurement(MeasurementFlowBehavior::Value)
             .AddUnit(&FlowBehaviorUnits::DimensionlessIndex);
 
@@ -683,6 +686,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2, 0.01})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
+            .AddParameter(MeasurementBendingStressMagnificationFactor::NAME, {BendingStressMagnificationFactorUnits::BendingStressMagnificationFactor.Id,    3})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
@@ -745,6 +749,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::FootHourSquareFootFahrenheit.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2, 0.01})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
+            .AddParameter(MeasurementBendingStressMagnificationFactor::NAME, {BendingStressMagnificationFactorUnits::BendingStressMagnificationFactor.Id,    3})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::Barrel.Id,    3})
@@ -808,6 +813,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementThermalConductivity::NAME, {ThermalConductivityUnits::WattMeterCelsius.Id,    2})
             .AddParameter(MeasurementFrictionFactor::NAME, {FrictionFactorUnits::FrictionFactor.Id,    2, 0.01})
             .AddParameter(MeasurementSeparationFactor::NAME, {SeparationFactorUnits::SeparationFactor.Id,    2})
+            .AddParameter(MeasurementBendingStressMagnificationFactor::NAME, {BendingStressMagnificationFactorUnits::BendingStressMagnificationFactor.Id,    3})
             .AddParameter(MeasurementFlowBehavior::NAME, {FlowBehaviorUnits::DimensionlessIndex.Id,    3})
             .AddParameter(MeasurementRate::NAME,         {RateUnits::Rate.Id,    2})
             .AddParameter(MeasurementVolume::NAME, {VolumeUnits::CubicMeter.Id,    3})

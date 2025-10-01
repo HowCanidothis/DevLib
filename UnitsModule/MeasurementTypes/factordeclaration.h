@@ -15,6 +15,12 @@ namespace SeparationFactorUnits
 }
 DECLARE_MEASUREMENT(SeparationFactor)
 
+namespace BendingStressMagnificationFactorUnits
+{
+    DECLARE_MEASUREMENT_UNIT(BendingStressMagnificationFactor)
+}
+DECLARE_MEASUREMENT(BendingStressMagnificationFactor)
+
 namespace RateUnits
 {
     DECLARE_MEASUREMENT_UNIT(Rate)
