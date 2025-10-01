@@ -15,6 +15,12 @@ namespace SeparationFactorUnits
 }
 IMPLEMENT_MEASUREMENT(SeparationFactor, TR(MeasurementTr::tr("Separation Factor")))
 
+namespace BendingStressMagnificationFactorUnits
+{
+    IMPLEMENT_MEASUREMENT_UNIT(BendingStressMagnificationFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(BendingStressMagnificationFactor, TR(MeasurementTr::tr("Bending Stress Magnification Factor")))
+
 namespace RateUnits
 {
     IMPLEMENT_MEASUREMENT_UNIT(Rate, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
