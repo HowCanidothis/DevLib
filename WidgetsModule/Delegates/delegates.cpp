@@ -247,6 +247,8 @@ DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(QObject* parent)
 QWidget* DelegatesDoubleSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new WidgetsDoubleSpinBoxWithCustomDisplay (parent);
+    spin->setMinimum(-std::numeric_limits<double>().max());
+    spin->setMaximum(std::numeric_limits<double>().max());
     spin->MakeOptional();
     OnEditorAboutToBeShown(spin, index);
     connect(spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, index](double value){

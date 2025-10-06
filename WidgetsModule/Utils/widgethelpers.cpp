@@ -1722,12 +1722,12 @@ const WidgetWrapper& WidgetWrapper::AddToFocusManager(const QVector<QWidget*>& a
     auto eventFilter = [w](QObject* watched, QEvent* event){
         switch (event->type()) {
         case QEvent::MouseButtonPress: {
-            auto toBlock = qobject_cast<QCheckBox*>(watched) || qobject_cast<QComboBox*>(watched);
+//            auto toBlock = qobject_cast<QCheckBox*>(watched) || qobject_cast<QComboBox*>(watched);
             bool interupt = false;
-            if(toBlock) {
-                auto& fm = FocusManager::GetInstance();
-                interupt = fm.FocusedWidget() != w;
-            }
+//            if(toBlock) {
+//                auto& fm = FocusManager::GetInstance();
+//                interupt = fm.FocusedWidget() != w;
+//            }
             FocusManager::GetInstance().SetFocusWidget(w);
             return interupt;
         }
