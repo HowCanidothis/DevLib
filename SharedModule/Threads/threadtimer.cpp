@@ -96,7 +96,9 @@ void ThreadTimerManager::SingleShotDoThreadWorker(qint32 msecs, const FAction& o
 
 AsyncResult ThreadTimerManager::SingleShot(qint32 msecs, const FAction& onTimeout)
 {
-    Q_ASSERT(getInstance().m_thread->isRunning());
+    if(!getInstance().m_thread->isRunning()) {
+        return AsyncError();
+    }
     AsyncResult result;
 
     ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, getInstance().m_threadWorker.get(), [msecs, result]{
