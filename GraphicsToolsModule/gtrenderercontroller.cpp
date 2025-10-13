@@ -251,6 +251,16 @@ void GtRendererController::MouseMoveEvent(QMouseEvent* event)
     });
 }
 
+void GtRendererController::MouseClickedEvent(QMouseEvent* event)
+{
+    auto cevent = new QMouseEvent(*event);
+    m_renderer->Asynch([this, cevent]{
+        m_dirty = true;
+        m_controllers->OnClicked(cevent);
+        delete cevent;
+    });
+}
+
 void GtRendererController::MousePressEvent(QMouseEvent* event)
 {
     auto cevent = new QMouseEvent(*event);

@@ -200,6 +200,7 @@ public:
 
     void Resize(qint32 w, qint32 h);
     void MouseMoveEvent(class QMouseEvent* event);
+    void MouseClickedEvent(QMouseEvent* event);
     void MousePressEvent(QMouseEvent* event);
     void MouseReleaseEvent(QMouseEvent* event);
     void MouseDoubleClickEvent(QMouseEvent* event);

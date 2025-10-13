@@ -33,6 +33,7 @@ protected:
 
 private:
     GtRendererControllerPtr m_controller;
+    bool m_clicked;
     QImage m_image;
 };
 

@@ -4,6 +4,15 @@
 
 #include <QKeyEvent>
 
+const QSet<Qt::MouseButtons> GtPlayerControllerCamera::RotationButtons({Qt::LeftButton });
+const QSet<Qt::MouseButtons> GtPlayerControllerCamera::MovementButtons({Qt::RightButton, Qt::MiddleButton });
+
+GtPlayerControllerCamera::GtPlayerControllerCamera(const Name& name, ControllersContainer* container, ControllerBase* parent)
+    : Super(name, container, parent)
+{
+
+}
+
 Point2I GtPlayerControllerCamera::resolutional(const Point2I& p) const
 {
     return p;
@@ -13,20 +22,10 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 {
     Point2I resolutional_screen_pos = resolutional(event->pos());
     auto depth = ctx().DepthBuffer->ValueAt(resolutional_screen_pos.x(), resolutional_screen_pos.y());
-    switch (event->buttons()) {
-//    case Qt::MiddleButton:
-//        ctx().Camera->RotateRPE(ctx().LastScreenPoint - resolutional_screen_pos);
-//        break;
-    case Qt::RightButton:
+    if(RotationButtons.contains(event->buttons())) {
         ctx().Camera->Rotate(ctx().LastScreenPoint - resolutional_screen_pos);
-        break;
-    case Qt::MiddleButton:
-    case Qt::LeftButton: {
+    } else if(MovementButtons.contains(event->buttons())){
         ctx().Camera->MoveFocused(resolutional_screen_pos);
-        break;
-    }
-    default:
-        break;
     }
     ctx().LastScreenPoint = resolutional_screen_pos;
     ctx().LastWorldPoint = ctx().Camera->Unproject(resolutional_screen_pos.x(), resolutional_screen_pos.y(), depth);
@@ -44,9 +43,6 @@ bool GtPlayerControllerCamera::mousePressEvent(QMouseEvent* event)
 
 bool GtPlayerControllerCamera::mouseReleaseEvent(QMouseEvent* event)
 {
-    if(event->button() == Qt::RightButton) {
-        return true;
-    }
     return false;
 }
 

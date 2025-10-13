@@ -85,6 +85,11 @@ void ControllersContainer::Draw(DrawEngineBase* engine)
     callFunctionRecursively(&ControllerBase::draw, engine);
 }
 
+void ControllersContainer::OnClicked(QMouseEvent* e)
+{
+    callFunctionRecursively(&ControllerBase::onClicked, e);
+}
+
 void ControllersContainer::MouseMoveEvent(QMouseEvent* e)
 {
     callFunctionRecursively(&ControllerBase::mouseMoveEvent, e);

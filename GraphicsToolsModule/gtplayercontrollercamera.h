@@ -11,7 +11,10 @@ class GtPlayerControllerCamera : public ControllerContextedBase<GtControllersCon
 {
     typedef ControllerContextedBase<GtControllersContext> Super;
 public:
-    using Super::Super;
+    GtPlayerControllerCamera(const Name& name, ControllersContainer* container, ControllerBase* parent=nullptr);
+
+    static const QSet<Qt::MouseButtons> RotationButtons;
+    static const QSet<Qt::MouseButtons> MovementButtons;
 
     // GtPlayerControllerBase interface
 public:

@@ -44,6 +44,7 @@ public:
     void MousePressEvent(QMouseEvent* );
     void MouseReleaseEvent(QMouseEvent* );
     void MouseDoubleClickEvent(QMouseEvent* );
+    void OnClicked(QMouseEvent*);
     void WheelEvent(QWheelEvent* );
     void KeyPressEvent(QKeyEvent* );
     void KeyReleaseEvent(QKeyEvent* );
