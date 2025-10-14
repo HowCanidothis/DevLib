@@ -530,6 +530,7 @@ QColumnView::item {
     border-left: none;
     border-right: none;
     border-bottom: 1px solid @cbg.disabled;
+    color: @ctext.1;
 }
 
 
