@@ -21,7 +21,7 @@ VisualizationLegendWidget QLabel {
 }
 
 VisualizationLegendWidget QLabel[a_selected=true] {
-    color: @c.error;
+    color: @ctext.1;
 }
 
 VisualizationLegendColorItemWidget {
