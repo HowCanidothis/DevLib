@@ -106,12 +106,30 @@ public:
         return cloned;
     }
 
+    template<class T>
+    SharedPointer<T> CloneTree() const
+    {
+        auto cloned = Clone<T>();
+        cloneChilds<T>(cloned.get());
+        return cloned;
+    }
+
     QVector<ModelsTreeItemBase*> GetPath() const;
 
     static const Name ExpandedKey;
     static const Name CheckedKey;
 
 private:
+    template<class T>
+    static void cloneChilds(ModelsTreeItemBase* node) {
+        auto childs = node->GetChilds();
+        node->m_childs.clear();
+        for(const auto& child : childs) {
+            auto clonedChild = child->Clone<T>();
+            node->AddChild(clonedChild);
+            cloneChilds<T>(clonedChild.get());
+        }
+    };
     static void foreachChild(ModelsTreeItemBase* item, const HandlerFunc& handler, const FilterFunc& filterFunc = nullptr);
     static void findChildRecursive(ModelsTreeItemBase* item, const FilterFunc& filterFunc, bool& found);
 

@@ -251,6 +251,17 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+inline double Intersection(double left1, double right1, double left2, double right2)
+{
+    auto intersection_lower = std::max(left1, left2);
+    auto intersection_upper = std::min(right1, right2);
+
+    if (intersection_lower > intersection_upper) {
+        return 0.0;
+    }
+    return intersection_upper - intersection_lower;
+}
+
 inline bool IsIntersects(double left1, double right1, double left2, double right2, double epsilon = std::numeric_limits<double>().epsilon())
 {
     if(fuzzyCompare(left1, left2, epsilon) || fuzzyCompare(left1, right2, epsilon)) {
