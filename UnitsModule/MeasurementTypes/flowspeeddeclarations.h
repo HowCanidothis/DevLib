@@ -15,6 +15,8 @@ namespace FlowSpeedUnits
     DECLARE_MEASUREMENT_UNIT(BarrelsPerMinute)
     DECLARE_MEASUREMENT_UNIT(CubicFeetPerSecond)
     DECLARE_MEASUREMENT_UNIT(MilliliterPer30Min)
+
+    DECLARE_GLOBAL(double, Precision)
 }
 
 DECLARE_MEASUREMENT(FlowSpeed)

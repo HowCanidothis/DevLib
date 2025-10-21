@@ -631,7 +631,8 @@ void MeasurementManager::Initialize()
             .AddUnit(&MagneticFieldStrengthUnits::Oersted);
 
     AddMeasurement(MeasurementWearFactor::Value)
-            .AddUnit(&WearFactorUnits::WearFactor);
+            .AddUnit(&WearFactorUnits::WearFactor)
+            .AddUnit(&WearFactorUnits::WearFactorSI);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -821,7 +822,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMagneticFieldStrength::NAME, {MagneticFieldStrengthUnits::AmperePerMeter.Id,    3})
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
-            .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2});
+            .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactorSI.Id,    2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);

@@ -14,6 +14,8 @@ namespace FlowSpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(BarrelsPerMinute,        TR(MeasurementTr::tr("barrels per minute")),        TR(MeasurementTr::tr("bbl/min")),   0.00264979)
     IMPLEMENT_MEASUREMENT_UNIT(CubicFeetPerSecond,      TR(MeasurementTr::tr("Cubic feet per second")),     TR(MeasurementTr::tr("ft³/s")),     0.0283168466)
     IMPLEMENT_MEASUREMENT_UNIT(MilliliterPer30Min,      TR(MeasurementTr::tr("milliliter per 30 min")),     TR(MeasurementTr::tr("mL/30min")),  5.55555556e-10)
+
+    IMPLEMENT_GLOBAL(double, Precision, GallonsPerMinute.FromUnitToBase(1.e-3));
 }
 
 IMPLEMENT_MEASUREMENT(FlowSpeed, TR(MeasurementTr::tr("Flow Speed")))

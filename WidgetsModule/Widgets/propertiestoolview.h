@@ -403,9 +403,19 @@ struct TPropertiesToolWrapper {
         return Register(m_folder->AddColorProperty(propertyName, title, [property]{ return property; }, hasAlpha));
     }
     template<class Enum>
-    LineData AddEnumProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<Enum>& (T*)>& propertyGetter){
+    LineData AddEnumProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertySequentialEnum<Enum>& (T*)>& propertyGetter, const QSet<qint32>& items = QSet<qint32>()){
         auto* property = &propertyGetter(m_object);
-        return Register(m_folder->AddProperty<Enum>(propertyName, title, [property]{ return property; }));
+        std::function<void (ModelsStandardListModelContainer&)> handler = [](ModelsStandardListModelContainer&){};
+        if(!items.isEmpty()){
+            handler = [items](ModelsStandardListModelContainer& c){
+                int index(0);
+                auto end = std::remove_if(c.begin(), c.end(), [&index, items](const QHash<qint32, QVariant>&){
+                    return !items.contains(index++);
+                });
+                c.resize(std::distance(c.begin(), end));
+            };
+        }
+        return Register(m_folder->AddProperty<Enum>(propertyName, title, [property]{ return property; }, handler));
     }
     LineData AddIntProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyIntOptional&(T*)>& propertyGetter){
         return AddProperty<LocalPropertyIntOptional>(propertyName, title, propertyGetter);
