@@ -370,9 +370,18 @@ void MeasurementManager::Initialize()
             .AddUnit(&TorqueUnits::PoundFoot);
 
     AddMeasurement(MeasurementMudWeight::Value)
-            .AddUnit(&DensityUnits::PoundsPerGallon      )
+            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
+            .AddUnit(&DensityUnits::KilogramsPerLiter)
             .AddUnit(&DensityUnits::PoundsPerCubicFeet   )
-            .AddUnit(&DensityUnits::KilogramsPerCubicMeters);
+            .AddUnit(&DensityUnits::PoundsPerGallon      );
+
+    AddMeasurement(MeasurementDensity::Value)
+            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
+            .AddUnit(&DensityUnits::PoundsPerCubicFeet);
+
+    AddMeasurement(MeasurementSolidDensity::Value)
+            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
+            .AddUnit(&DensityUnits::SpecificGravity);
 
     AddMeasurement(MeasurementViscosity::Value)
             .AddUnit(&ViscosityUnits::Centipoise       )
@@ -397,13 +406,6 @@ void MeasurementManager::Initialize()
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerMeter)
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPer100Feet);
-
-    AddMeasurement(MeasurementDensity::Value)
-            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
-            .AddUnit(&DensityUnits::KilogramsPerLiter)
-            .AddUnit(&DensityUnits::PoundsPerGallon)
-            .AddUnit(&DensityUnits::PoundsPerCubicFeet)
-            .AddUnit(&DensityUnits::SpecificGravity);
 
     AddMeasurement(MeasurementWeightPerLength::Value)
             .AddUnit(&WeightPerLengthUnits::NewtonPerMeter)
@@ -559,13 +561,6 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementVoltage::Value)
             .AddUnit(&VoltageUnits::Volt);
 
-    AddMeasurement(MeasurementSolidDensity::Value)
-            .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
-            .AddUnit(&DensityUnits::KilogramsPerLiter)
-            .AddUnit(&DensityUnits::PoundsPerGallon)
-            .AddUnit(&DensityUnits::PoundsPerCubicFeet)
-            .AddUnit(&DensityUnits::SpecificGravity);
-
     AddMeasurement(MeasurementFiltrate::Value)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerSecond)
             .AddUnit(&FlowSpeedUnits::CubicMetersPerMinute)
@@ -635,12 +630,13 @@ void MeasurementManager::Initialize()
             .AddUnit(&WearFactorUnits::WearFactorSI);
 
     AddSystem(UNIT_SYSTEM_API_USFT, true)
-            .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
-            .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
-            .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
+            .AddParameter(MeasurementAcceleration::NAME,      {AccelerationUnits::Gravity.Id,         3})
+            .AddParameter(MeasurementAngle::NAME,             {AngleUnits::Degrees.Id,                       2})
+            .AddParameter(MeasurementPlaneAngle::NAME,        {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
-            .AddParameter(MeasurementDensity::NAME,           {DensityUnits::SpecificGravity.Id,          2})
-            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2})
+            .AddParameter(MeasurementMudWeight::NAME,         {DensityUnits::PoundsPerGallon.Id,            2, 0.1})
+            .AddParameter(MeasurementDensity::NAME,   {DensityUnits::PoundsPerCubicFeet.Id,          2, 0.1})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2, 0.1})
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::USFeets.Id,                    2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree100USFeet.Id,                    2})
@@ -657,7 +653,6 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Inches.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     1})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        1})
             .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::USfeetPerMinute.Id,                 2})
@@ -702,9 +697,10 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,      {AngleUnits::NumberOfRevolutions.Id,            2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqInches.Id,                       3})
-            .AddParameter(MeasurementDensity::NAME,           {DensityUnits::SpecificGravity.Id,          2})
-            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2})
-            .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     2, 0.125 })
+            .AddParameter(MeasurementMudWeight::NAME,         {DensityUnits::PoundsPerGallon.Id,            2, 0.1})
+            .AddParameter(MeasurementDensity::NAME,   {DensityUnits::PoundsPerCubicFeet.Id,          2, 0.1})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::SpecificGravity.Id,          2, 0.1})
+            .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Inches.Id,                     3, 0.125 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Feets.Id,                      2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree100Feet.Id,                      2})
             .AddParameter(MeasurementMagneticField::NAME,    {FieldStrengthUnits::NanoTeslas.Id,            1})
@@ -720,7 +716,6 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Inches.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Kilopounds.Id,                     1})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerGallon.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::PoundsPerGallon.Id,            2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::PoundsPerSquareInch.Id,        1})
             .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::FeetPerMinute.Id,                   2})
@@ -766,8 +761,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementAngle::NAME,            {AngleUnits::Degrees.Id,                       2})
             .AddParameter(MeasurementPlaneAngle::NAME,       {AngleUnits::Radians.Id,                       2})
             .AddParameter(MeasurementArea::NAME,              {AreaUnits::SqCentimeters.Id,                  3})
-            .AddParameter(MeasurementDensity::NAME,           {DensityUnits::KilogramsPerCubicMeters.Id,     2})
-            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::KilogramsPerCubicMeters.Id,          2})
+            .AddParameter(MeasurementMudWeight::NAME,         {DensityUnits::KilogramsPerCubicMeters.Id,    1, 10})
+            .AddParameter(MeasurementDensity::NAME,   {DensityUnits::KilogramsPerCubicMeters.Id,    1, 10})
+            .AddParameter(MeasurementSolidDensity::NAME,      {DensityUnits::KilogramsPerCubicMeters.Id,    1, 10})
             .AddParameter(MeasurementDiameter::NAME,          {DistanceUnits::Milimeters.Id,                 2, 1.0 })
             .AddParameter(MeasurementDistance::NAME,         {DistanceUnits::Meters.Id,                     2})
             .AddParameter(MeasurementDLS::NAME,               {DLSUnits::Degree30Meter.Id,                     2})
@@ -784,7 +780,6 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCutterDiameter::NAME,   {DistanceUnits::Milimeters.Id,                 2})
             .AddParameter(MeasurementMass::NAME,              {MassUnits::Tonnes.Id,                         0})
             .AddParameter(MeasurementMotorSpeed::NAME,       {MotorSpeedUnits::RevolutionPerLiter.Id,      3})
-            .AddParameter(MeasurementMudWeight::NAME,        {DensityUnits::KilogramsPerCubicMeters.Id,     2})
             .AddParameter(MeasurementPercents::NAME,          {PercentsUnits::Percents.Id,                   2})
             .AddParameter(MeasurementPressure::NAME,          {PressureUnits::Bars.Id,                       1})
             .AddParameter(MeasurementSpeed::NAME,             {SpeedUnits::MetersPerSecond.Id,               2})
@@ -833,6 +828,9 @@ void MeasurementManager::Initialize()
             const auto& measurement = GetMeasurement(iter.key());
             auto* parameters = &iter.value();
             Q_ASSERT(measurement != nullptr);
+            if(measurement == nullptr){
+                continue;
+            }
             measurement->CurrentStep = parameters->UnitStep;
             measurement->CurrentUnitId = parameters->UnitId;
             measurement->CurrentPrecision = parameters->UnitPrecision;
