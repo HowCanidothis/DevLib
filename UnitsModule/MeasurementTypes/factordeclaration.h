@@ -34,4 +34,8 @@ namespace WearFactorUnits {
 }
 DECLARE_MEASUREMENT(WearFactor)
 
+namespace FatigueRatioUnits {
+    DECLARE_MEASUREMENT_UNIT(FatigueRatio)
+}
+DECLARE_MEASUREMENT(FatigueRatio)
 #endif // FACTORDECLARATION_H

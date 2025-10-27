@@ -15,6 +15,8 @@ namespace PressureUnits
     IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInch,     TR(MeasurementTr::tr("kilopounds-force/sq.inch")),      TR(MeasurementTr::tr("ksi")),       6894757)
     IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareFeet,         TR(MeasurementTr::tr("pounds-force/sq.feet")),          TR(MeasurementTr::tr("lbf/ft2")),   47.8802589804)
     IMPLEMENT_MEASUREMENT_UNIT(PoundsPer100SquareFeet,      TR(MeasurementTr::tr("pounds-force/100 sq.feet")),      TR(MeasurementTr::tr("lbf/100ft2")),0.478802589804)
+
+    IMPLEMENT_GLOBAL(double, FatigueEnduranceLimit, PoundsPerSquareInch.FromUnitToBase(35000));
 }
 
 IMPLEMENT_MEASUREMENT(Pressure, TR(MeasurementTr::tr("Pressure")))

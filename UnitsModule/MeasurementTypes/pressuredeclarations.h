@@ -21,6 +21,8 @@ namespace PressureUnits
     DECLARE_MEASUREMENT_UNIT(KilopoundsPerSquareInch)
     DECLARE_MEASUREMENT_UNIT(PoundsPerSquareFeet)
     DECLARE_MEASUREMENT_UNIT(PoundsPer100SquareFeet)
+
+    DECLARE_GLOBAL(double, FatigueEnduranceLimit)
 }
 
 DECLARE_MEASUREMENT(Pressure)

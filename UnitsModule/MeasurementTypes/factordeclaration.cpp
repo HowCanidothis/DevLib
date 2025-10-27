@@ -33,3 +33,8 @@ namespace WearFactorUnits {
     IMPLEMENT_MEASUREMENT_UNIT(WearFactor, TR(MeasurementTr::tr("E-10 / psi")), TR(MeasurementTr::tr("E-10 / psi")), 1.e-10 / 6894.757)
 }
 IMPLEMENT_MEASUREMENT(WearFactor, TR(MeasurementTr::tr("Wear Factor")))
+
+namespace FatigueRatioUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(FatigueRatio, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(FatigueRatio, TR(MeasurementTr::tr("Fatigue Ratio")))
