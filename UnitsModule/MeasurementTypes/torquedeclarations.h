@@ -10,7 +10,6 @@ namespace TorqueUnits
     DECLARE_MEASUREMENT_UNIT(KilonewtonMeters)
     DECLARE_MEASUREMENT_UNIT(PoundForceFeet)
     DECLARE_MEASUREMENT_UNIT(KilopoundForceFeet)
-    DECLARE_MEASUREMENT_UNIT(PoundFoot)
 }
 
 DECLARE_MEASUREMENT(Torque)

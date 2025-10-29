@@ -366,8 +366,7 @@ void MeasurementManager::Initialize()
             .AddUnit(&TorqueUnits::DecaNewtonMeters  )
             .AddUnit(&TorqueUnits::KilonewtonMeters  )
             .AddUnit(&TorqueUnits::PoundForceFeet    )
-            .AddUnit(&TorqueUnits::KilopoundForceFeet)
-            .AddUnit(&TorqueUnits::PoundFoot);
+            .AddUnit(&TorqueUnits::KilopoundForceFeet);
 
     AddMeasurement(MeasurementMudWeight::Value)
             .AddUnit(&DensityUnits::KilogramsPerCubicMeters)
