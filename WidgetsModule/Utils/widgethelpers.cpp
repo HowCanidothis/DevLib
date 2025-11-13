@@ -2159,10 +2159,44 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
         [](QLabel* lbl){},
         [](QLabel* lbl){},
         [](QLabel* lbl){},
-        [](QLabel* lbl){ lbl->setText("Opacity:"); }
+        [](QLabel* lbl){ lbl->setText("Opacity (%):"); }
+    };
+    static const QVector<std::function<void (QSpinBox*)>> spinBoxDelegates {
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){},
+        [](QSpinBox* spinBox){
+            auto* l = reinterpret_cast<QGridLayout*>(spinBox->parentWidget()->layout());
+            auto io = l->indexOf(spinBox);
+            qint32 r,c,rs,cs;
+            l->getItemPosition(io, &r, &c, &rs, &cs);
+            delete l->takeAt(io);
+            auto* hbox = new QHBoxLayout();
+            auto* w = new QWidget();
+            spinBox->setParent(w);
+            w->setVisible(false);
+            auto* mySpin = new QSpinBox();
+            hbox->addWidget(w);
+            hbox->addWidget(mySpin);
+            mySpin->setRange(0, 100);
+            auto mySpinToSpin = [spinBox](qint32 v) {
+                spinBox->setValue(qRound(double(v) * 2.55));
+            };
+            auto spinToMySpin = [mySpin](qint32 v) {
+                mySpin->setValue(qRound(double(v) / 2.55));
+            };
+            spinToMySpin(spinBox->value());
+            mySpin->connect(spinBox, QOverload<qint32>::of(&QSpinBox::valueChanged), spinToMySpin);
+            mySpin->connect(mySpin, QOverload<qint32>::of(&QSpinBox::valueChanged), mySpinToSpin);
+            l->addLayout(hbox, r, c, rs, cs);
+        }
     };
     auto it = buttonsDelegates.cbegin(), e = buttonsDelegates.cend();
     auto itLabel = labelDelegates.cbegin(), eLabel = labelDelegates.cend();
+    auto itSpinBox = spinBoxDelegates.cbegin(), eSpinBox = spinBoxDelegates.cend();
     ForeachChildWidget([&](const WidgetWrapper& widget) {
         auto* button = qobject_cast<QPushButton*>(widget);
         if(button != nullptr) {
@@ -2173,10 +2207,17 @@ const WidgetColorDialogWrapper& WidgetColorDialogWrapper::SetDefaultLabels() con
         } else {
             auto* label = qobject_cast<QLabel*>(widget);
             if(label != nullptr) {
-                qDebug() << label->text() << label->objectName();
                 if(itLabel != eLabel) {
                     (*itLabel)(label);
                     ++itLabel;
+                }
+            } else {
+                auto* spinBox = qobject_cast<QSpinBox*>(widget);
+                if(spinBox != nullptr) {
+                    if(itSpinBox != eSpinBox) {
+                        (*itSpinBox)(spinBox);
+                        ++itSpinBox;
+                    }
                 }
             }
         }
