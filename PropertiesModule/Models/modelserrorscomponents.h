@@ -25,10 +25,10 @@ public:
     using FHandler = std::function<bool(const T& current, const T& prev)>;
     using FPerRowHandler = std::function<bool(const T& current)>;
 
-    ModelsErrorComponent()
+    ModelsErrorComponent(int delay = 1000)
         : ErrorFilter(0xffffffff)
         , SkipErrorRows(true)
-        , m_updater(1000)
+        , m_updater(delay)
     {
     }
 
