@@ -212,6 +212,7 @@ public:
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;
 
+    const ControllersContainer* GetContainer() const { return m_controllers.get(); }
     GtRenderer* GetRenderer() const { return m_renderer; }
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
     GtCamera* GetCamera() { return m_camera.get(); }

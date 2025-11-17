@@ -24,6 +24,8 @@ public:
     using T = typename Wrapper::value_type;
     using FHandler = std::function<bool(const T& current, const T& prev)>;
     using FPerRowHandler = std::function<bool(const T& current)>;
+    using FMarkHasError = std::function<void (qint64 error, T&)>;
+    using FModelHandler = std::function<void (typename Wrapper::container_type&, const FMarkHasError& markError)>;
 
     ModelsErrorComponent(int delay = 1000)
         : ErrorFilter(0xffffffff)
@@ -165,6 +167,16 @@ public:
         m_errorTypes.insert(error, type);
     }
 
+    void RegisterCustomErrors(const FModelHandler& modelHandler, const QVector<std::pair<qint64, TranslatedStringPtr>>& comments)
+    {
+        Q_ASSERT(m_customErrors == nullptr);
+        m_customErrors = modelHandler;
+        for(const auto& c : comments) {
+            m_errorComments.insert(c.first, c.second);
+            m_errorTypes.insert(c.first, QtCriticalMsg);
+        }
+    }
+
     void RegisterWarning(qint64 error, const FHandler& checkHandler, const TranslatedStringPtr& errorComment){
         RegisterError(error, checkHandler, errorComment, QtWarningMsg);
     }
@@ -196,13 +208,21 @@ public:
             auto errorState = 0;
             wrapper->UpdateUi([&errorState, wrapper, this, flagsGetter, hasCriticalErrorsHandler]{
                 auto& native = wrapper->EditSilent();
+                for(auto& data : native) {
+                    flagsGetter(data) = 0;
+                }
+                if(m_customErrors != nullptr) {
+                    m_customErrors(native, [&](qint64 code, T& data) {
+                        auto& flags = flagsGetter(data);
+                        LongFlagsHelpers::Add(flags, code);
+                    });
+                }
                 if(SkipErrorRows){
                     qint32 startCorrectIndex = 0;
                     qint32 index = 0;
                     bool foundStart = false;
                     for(auto& data : native) {
                         auto& flags = flagsGetter(data);
-                        flags = 0;
                         for(const auto& [code, handler] : m_errorPerRowHandlers) {
                             LongFlagsHelpers::ChangeFromBoolean(!handler(data), flags, code);
                         }
@@ -234,7 +254,7 @@ public:
                     }
                 } else {
                     auto piter = (native.begin());
-                    auto& flags = flagsGetter(*piter); flags = 0;
+                    auto& flags = flagsGetter(*piter);
                     for(const auto& [code, handler] : m_errorPerRowHandlers) {
                         LongFlagsHelpers::ChangeFromBoolean(!handler(*piter), flags, code);
                     }
@@ -242,7 +262,6 @@ public:
 
                     for(auto citer(native.begin() + 1), endIt(native.end()); citer != endIt; ++piter, ++ citer){
                         auto& flags = flagsGetter(*citer);
-                        flags = 0;
                         for(const auto& [code, handler] : m_errorPerRowHandlers) {
                             LongFlagsHelpers::ChangeFromBoolean(!handler(*citer), flags, code);
                         }
@@ -322,6 +341,7 @@ private:
     DelayedCallObject m_updater;
     FAction m_updateHandler;
     QHash<qint64, DescModelsErrorComponentAttachToErrorsContainerParameters> m_errors;
+    FModelHandler m_customErrors;
 };
 
 #endif // MODELSERRORSCOMPONENTS_H

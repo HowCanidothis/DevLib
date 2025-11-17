@@ -3,6 +3,20 @@ VisualizationToolTipWidget {
     background: @cbg.3;
 }
 
+VisualizationToolTipWidget QAbstractSpinBox {
+    border: none;
+    qproperty-alignment: "Qt::AlignRight | Qt::AlignBottom";
+}
+
+QLabel[tooltip_title=false] {
+    qproperty-alignment: "Qt::AlignLeft | Qt::AlignBottom";
+}
+
+QLabel[tooltip_title=true] {
+    font-weight: bold;
+    qproperty-alignment: "Qt::AlignHCenter | Qt::AlignVCenter";
+}
+
 ToolTipArrowWidget {
     background: @cbg.3;
 }
