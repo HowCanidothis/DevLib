@@ -11,6 +11,8 @@ namespace VolumeUnits
     DECLARE_MEASUREMENT_UNIT(Barrel)
     DECLARE_MEASUREMENT_UNIT(Gallon)
     DECLARE_MEASUREMENT_UNIT(Liter)
+
+    DECLARE_GLOBAL(double, Precision)
 };
 
 DECLARE_MEASUREMENT(Volume)

@@ -9,6 +9,8 @@ namespace VolumeUnits
     IMPLEMENT_MEASUREMENT_UNIT(Barrel,     TR(MeasurementTr::tr("barrel")),         TR(MeasurementTr::tr("bbl")),   0.158987294928)
     IMPLEMENT_MEASUREMENT_UNIT(Gallon,     TR(MeasurementTr::tr("gallon")),         TR(MeasurementTr::tr("gal")),   0.003785411784)
     IMPLEMENT_MEASUREMENT_UNIT(Liter,      TR(MeasurementTr::tr("liter")),          TR(MeasurementTr::tr("L")),     0.001)
+
+    IMPLEMENT_GLOBAL(double, Precision, Gallon.FromUnitToBase(1.e-3));
 };
 
 IMPLEMENT_MEASUREMENT(Volume, TR(MeasurementTr::tr("Volume")))
