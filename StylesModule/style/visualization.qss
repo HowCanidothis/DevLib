@@ -5,16 +5,9 @@ VisualizationToolTipWidget {
 
 VisualizationToolTipWidget QAbstractSpinBox {
     border: none;
+    min-height: 0px;
+    padding: 0px;
     qproperty-alignment: "Qt::AlignRight | Qt::AlignBottom";
-}
-
-QLabel[tooltip_title=false] {
-    qproperty-alignment: "Qt::AlignLeft | Qt::AlignBottom";
-}
-
-QLabel[tooltip_title=true] {
-    font-weight: bold;
-    qproperty-alignment: "Qt::AlignHCenter | Qt::AlignVCenter";
 }
 
 ToolTipArrowWidget {
