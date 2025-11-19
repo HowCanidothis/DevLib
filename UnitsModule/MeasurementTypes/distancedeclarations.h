@@ -15,6 +15,8 @@ namespace DistanceUnits
     DECLARE_MEASUREMENT_UNIT(Miles)
     DECLARE_MEASUREMENT_UNIT(OnePerThirtyTwoInches)
     DECLARE_MEASUREMENT_UNIT(Point)
+
+    DECLARE_GLOBAL(double, DiameterPrecision)
 };
 
 DECLARE_MEASUREMENT(Distance)
