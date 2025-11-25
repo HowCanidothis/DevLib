@@ -163,6 +163,7 @@ FAction WidgetsGlobalTableActionsScope::CreateDefaultDeleteHandler(QTableView* t
             const auto& info = toRemove.takeLast();
             model->removeRows(info.first, info.second);
         }
+        table->setCurrentIndex(QModelIndex());
     };
 }
 
@@ -450,6 +451,7 @@ IMPLEMENT_GLOBAL_NAME_1(Insert)
 IMPLEMENT_GLOBAL_NAME_1(Download)
 IMPLEMENT_GLOBAL_NAME_1(ResolveConflictServer)
 IMPLEMENT_GLOBAL_NAME_1(ResolveConflictClient)
+IMPLEMENT_GLOBAL_NAME_1(Settings)
 }
 
 IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default, ActionIcons::NoIcon)

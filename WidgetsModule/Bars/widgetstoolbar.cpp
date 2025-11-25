@@ -50,9 +50,7 @@ QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSi
     }
     auto* result = CreateButton(buttonObjectName);
     Expanded = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
-    connect(result, &QPushButton::clicked, [this](bool ){
-        *Expanded = !Expanded->Native();
-    });
+    Expanded->ConnectBoth(CDL, WidgetAbstractButtonWrapper(result).WidgetChecked());
     Expanded->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, result]{
         result->setProperty("isOpen", Expanded->Native());
         WidgetWrapper(result).UpdateStyle();

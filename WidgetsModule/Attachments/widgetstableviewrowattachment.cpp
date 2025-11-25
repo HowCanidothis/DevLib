@@ -40,17 +40,22 @@ WidgetsTableViewRowAttachment::WidgetsTableViewRowAttachment(const std::function
 
 void WidgetsTableViewRowAttachment::Attach(QTableView* v)
 {
+    v->setFocusProxy(v);
     v->setMouseTracking(true);
     v->connect(v->viewport(), &QTableView::destroyed, [this,v]{
         if(m_pane->parent() == v->viewport()) {
+            v->setTabKeyNavigation(false);
             m_pane->setParent(nullptr);
+            v->setTabKeyNavigation(true);
         }
     });
     v->connect(v, &QTableView::entered, [this, v](const QModelIndex& index) {
         if(!index.isValid() || index.data(LastEditRowRole).toBool()) {
+            v->setTabKeyNavigation(false);
             m_pane->hide();
-            CurrentRow = -1;
             m_pane->setParent(nullptr);
+            v->setTabKeyNavigation(true);
+            CurrentRow = -1;
             m_target = nullptr;
             return;
         }
@@ -62,10 +67,12 @@ void WidgetsTableViewRowAttachment::Attach(QTableView* v)
         m_pane->move(left, rect.top() + (rect.height() - m_pane->height()) / 2);
         m_target = v;
     });
-    v->connect(v, &QTableView::viewportEntered, [this] {
+    v->connect(v, &QTableView::viewportEntered, [this, v] {
+        v->setTabKeyNavigation(false);
         m_pane->hide();
-        CurrentRow = -1;
         m_pane->setParent(nullptr);
+        v->setTabKeyNavigation(true);
+        CurrentRow = -1;
         m_target = nullptr;
     });
 }
