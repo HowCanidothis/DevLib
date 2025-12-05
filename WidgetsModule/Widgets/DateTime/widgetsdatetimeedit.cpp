@@ -66,7 +66,16 @@ WidgetsDateTimeEdit::WidgetsDateTimeEdit(const QVariant& date, QVariant::Type ty
             return;
         }
         guards::BooleanGuard guard(&m_recursionBlock);
-        setDateTimeRange(CurrentDateTime.GetMinValid(), CurrentDateTime.GetMaxValid());
+        auto dtmin = CurrentDateTime.GetMinValid();
+        auto dtmax = CurrentDateTime.GetMaxValid();
+        if(TimeShift.IsValid) {
+            // Qt operates with time using Time Spec. We need to present UTC time as LocalTime
+            auto localOffset = QTimeZone::systemTimeZone().offsetFromUtc(QDateTime());
+            auto timeDelta = (localOffset - TimeShift.Value) * 1000;
+            dtmin = QDateTime::fromMSecsSinceEpoch(dtmin.toMSecsSinceEpoch() - timeDelta);
+            dtmax = QDateTime::fromMSecsSinceEpoch(dtmax.toMSecsSinceEpoch() - timeDelta);
+        }
+        setDateTimeRange(dtmin, dtmax);
     });
 
     connect(this, &WidgetsDateTimeEdit::dateTimeChanged, [this](const QDateTime& dateTime){
