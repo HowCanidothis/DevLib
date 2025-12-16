@@ -48,11 +48,19 @@ MainProgressBar::MainProgressBar(const QSet<Name>& processIds, QWidget* parent, 
         }
     }).MakeSafe(m_connections);
 
-    WidgetWrapper(parentWidget()).AddEventFilter([this](QObject*, QEvent* e){
-        if(e->type() == QEvent::Resize || e->type() == QEvent::Show || e->type() == QEvent::ShowToParent) {
+    WidgetWrapper(parentWidget()).AddEventFilter([this, parent](QObject*, QEvent* e){
+        switch(e->type()) {
+        case QEvent::Resize: {
             auto* resizeEvent = reinterpret_cast<QResizeEvent*>(e);
             resize(resizeEvent->size());
             raise();
+        } break;
+        case QEvent::Show:
+        case QEvent::ShowToParent:
+            resize(parent->size());
+            raise();
+            break;
+        default: break;
         }
         return false;
     });

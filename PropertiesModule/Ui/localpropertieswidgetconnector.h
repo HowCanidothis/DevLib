@@ -174,7 +174,7 @@ public:
                     value_type value = property->Native();
                     for(const auto& checkbox : checkBoxes) {
                         Q_ASSERT(checkbox.GetAssignedFlag() != 0);
-                        checkbox->setChecked((value & checkbox.GetAssignedFlag()) == checkbox.GetAssignedFlag());
+                        checkbox.WidgetChecked() = (value & checkbox.GetAssignedFlag()) == checkbox.GetAssignedFlag();
                     }
                 },
                 [property, checkBoxes]{
@@ -187,7 +187,7 @@ public:
                     *property = value;
                 })
     {
-        property->GetDispatcher().Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        property->GetDispatcher().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
             m_widgetSetter();
         }).MakeSafe(m_dispatcherConnections);
 
@@ -198,7 +198,6 @@ public:
                     m_widgetSetter();
                 });
             }).MakeSafe(m_dispatcherConnections);
-            checkbox.WidgetChecked() = false;
         }
     }
 
