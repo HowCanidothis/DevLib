@@ -518,3 +518,19 @@ WPSCTreeViewControlPane {
 QLabel[restriction_frame=true] {
     background: @cbg.2;
 }
+
+WPSCDDSpaceView:branch:has-children:!has-siblings:closed, WPSCDDSpaceView:branch:closed:has-children:has-siblings {
+    image: none;
+}
+
+WPSCDDSpaceView:branch:open:has-children:!has-siblings, WPSCDDSpaceView:branch:open:has-children:has-siblings {
+    image: none;
+}
+
+WPSCDDSpaceView:branch:has-children:!has-siblings:closed:hover, WPSCDDSpaceView:branch:closed:has-children:has-siblings:hover {
+    image: none;
+}
+
+WPSCDDSpaceView:branch:open:has-children:!has-siblings:hover, WPSCDDSpaceView:branch:open:has-children:has-siblings:hover {
+    image: none;
+}
