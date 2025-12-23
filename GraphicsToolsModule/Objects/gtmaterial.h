@@ -18,9 +18,12 @@ public:
     void AddParameter(const SharedPointer<GtMaterialParameterBase>&, bool required = true);
     void AddMesh(const SharedPointer<GtMesh>& mesh);
     void Draw(OpenGLFunctions* f);
+    void DrawInstanced(OpenGLFunctions* f, qint32 instanceCount);
     void SetVisible(bool visible);
 
     void SetRenderType(gRenderType renderType);
+
+    const QVector<SharedPointer<GtMesh>>& GetMeshes() const { return m_meshs; }
 
 private:
     void update();

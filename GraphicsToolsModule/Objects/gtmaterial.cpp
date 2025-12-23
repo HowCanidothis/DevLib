@@ -59,6 +59,29 @@ void GtMaterial::Draw(OpenGLFunctions* f)
     m_shaderProgram->Release();
 }
 
+void GtMaterial::DrawInstanced(OpenGLFunctions* f, qint32 instanceCount)
+{
+    if(!m_visible || !m_shaderProgram->IsValid()) {
+        return;
+    }
+
+    if(!m_shaderProgram->Bind()) {
+        return;
+    }
+    if(m_isDirty) {
+        update();
+    }
+
+    updateParameters(f);
+
+    for(const auto& mesh : m_meshs) {
+        if(mesh->IsVisible())
+            mesh->DrawInstanced(m_renderType, f, instanceCount);
+    }
+
+    m_shaderProgram->Release();
+}
+
 void GtMaterial::SetVisible(bool visible)
 {
     m_visible = visible;

@@ -79,6 +79,15 @@ GtShaderProgram& GtShaderProgram::AddShader(ShaderType type, const QString& file
     return *this;
 }
 
+void GtShaderProgram::SetShaders(const QString& path, const QString& vertShader, const QString& tessControlShader, const QString& tessEvalShader, const QString& fragShader)
+{
+    m_shadersPath = path;
+    AddShader(Vertex, QFileInfo(m_shadersPath, vertShader).absoluteFilePath());
+    AddShader(TessellationControl, QFileInfo(m_shadersPath, tessControlShader).absoluteFilePath());
+    AddShader(TessellationEvaluation, QFileInfo(m_shadersPath, tessEvalShader).absoluteFilePath());
+    AddShader(Fragment, QFileInfo(m_shadersPath, fragShader).absoluteFilePath());
+}
+
 void GtShaderProgram::SetShaders(const QString& path, const QString& vertFile, const QString& fragFile)
 {
     m_shadersPath = path;

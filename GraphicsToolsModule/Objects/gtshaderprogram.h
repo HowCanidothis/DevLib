@@ -38,6 +38,7 @@ public:
     GtShaderProgram& AddShader(ShaderType type, const QString& file);
     void SetShaders(const QString& path, const QString& vertFile, const QString& fragFile);
     void SetShaders(const QString& path, const QString& vertFile, const QString& geomFile, const QString& fragFile);
+    void SetShaders(const QString& path, const QString& vertFile, const QString& tessControlShader, const QString& tessEvalShader, const QString& fragShader);
 
     class QOpenGLShaderProgram* GetQOpenGLShaderProgram() { return m_shaderProgram.get(); }
 

@@ -11,9 +11,10 @@ class QOpenGLVertexArrayObject;
 class GtMeshBufferBuilder
 {
 public:
-    GtMeshBufferBuilder& AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized);
+    void SetCurrentIndex(qint32 cIndex) { m_currentIndex = cIndex; }
+    GtMeshBufferBuilder& AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized, qint32 divisor);
     template<class T>
-    GtMeshBufferBuilder& AddComponent(qint32 count, bool normalized = false);
+    GtMeshBufferBuilder& AddComponent(qint32 count, bool normalized = false, qint32 divisor = 0);
 
     const QVector<std::function<void(OpenGLFunctions*)>>& GetResult() const { return m_result; }
 private:
@@ -24,16 +25,16 @@ private:
 };
 
 template<>
-inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<float>(qint32 count, bool normalized)
+inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<float>(qint32 count, bool normalized, qint32 divisor)
 {
-    AddComponent(count, GL_FLOAT, sizeof(float), normalized);
+    AddComponent(count, GL_FLOAT, sizeof(float), normalized, divisor);
     return *this;
 }
 
 template<>
-inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<qint32>(qint32 count, bool normalized)
+inline GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent<qint32>(qint32 count, bool normalized, qint32 divisor)
 {
-    AddComponent(count, GL_INT, sizeof(qint32), normalized);
+    AddComponent(count, GL_INT, sizeof(qint32), normalized, divisor);
     return *this;
 }
 
@@ -59,7 +60,7 @@ public:
 
     void* Map(qint32 offset, qint32 count, QOpenGLBuffer::RangeAccessFlags flags);
     bool UnMap();
-    virtual void Initialize(OpenGLFunctions* f);
+    virtual void Initialize(OpenGLFunctions* f, const SP<QOpenGLVertexArrayObject>& vao = nullptr);
     void UpdateVao(OpenGLFunctions* f) { m_vaoBinder(f); }
     void Clear();
     VertexType GetType() const { return m_vertexType; }
@@ -81,6 +82,7 @@ public:
 
     QOpenGLBuffer* GetVboObject() { return m_vbo.get(); }
     QOpenGLVertexArrayObject* GetVaoObject() { return m_vao.get(); }
+    const SP<QOpenGLVertexArrayObject>& GetVaoPtr() const { return m_vao; }
 
 protected:
     void setVertexType(VertexType vertexType);
@@ -109,7 +111,7 @@ protected:
 
 protected:
     ScopedPointer<QOpenGLBuffer> m_vbo;
-    ScopedPointer<QOpenGLVertexArrayObject> m_vao;
+    SP<QOpenGLVertexArrayObject> m_vao;
     std::function<void (OpenGLFunctions*)> m_vaoBinder;
     FAction m_updateOnInitialized;
     qint32 m_verticesCount;
@@ -129,6 +131,7 @@ public:
     const GtMeshBufferPtr& GetBuffer() const { return m_buffer; }
 
     virtual void Draw(gRenderType renderType, OpenGLFunctions* f);
+    virtual void DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount);
 
 protected:
     GtMeshBufferPtr m_buffer;
@@ -143,6 +146,7 @@ public:
 
     bool IsVisible() const final{ return m_visible && m_buffer->IsValid() && m_indicesBuffer->IsValid(); }
     void Draw(gRenderType renderType, OpenGLFunctions* f) final;
+    void DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount) final;
 
 protected:
     GtMeshBufferPtr m_indicesBuffer;

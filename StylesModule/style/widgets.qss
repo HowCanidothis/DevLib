@@ -374,3 +374,12 @@ QPushButton#btnItalic {
     max-height: 20px;
     padding: 4px;
 }
+
+QPushButton#BtnBack {
+    image: url("@cPath/chevron-left.svg");
+    min-width: 20px;
+    max-width: 20px;
+    padding: 0px;
+    margin: 0px;
+    background: @cbg.widget;
+}
