@@ -534,3 +534,49 @@ WPSCDDSpaceView:branch:has-children:!has-siblings:closed:hover, WPSCDDSpaceView:
 WPSCDDSpaceView:branch:open:has-children:!has-siblings:hover, WPSCDDSpaceView:branch:open:has-children:has-siblings:hover {
     image: none;
 }
+
+WPSCDDSpaceView {
+    qproperty-iconSize: 20px 20px;
+}
+
+WPSCDDSpaceView:item {
+    padding-left: 10px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-radius: 5px;
+    background: none;
+}
+
+WPSCDDSpaceView:item:open {
+    background: @cbg.selected;
+}
+
+WPSCDDSpaceView:item:selected:!open {
+    background: none;
+}
+
+WPSCDDSpaceView:item:selected:hover {
+    background: @cbg.hover;
+}
+
+QPushButton#BtnDDView {
+    qproperty-text: "";
+    min-width: 20px;
+    min-height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    padding: 4px;
+    background: none;
+}
+
+QPushButton#BtnDDView:hover {
+    background: @cbg.hover;
+}
+
+QPushButton#BtnDDView:checked {
+    image: url("@cPath/file-tree-outline.svg");
+}
+
+QPushButton#BtnDDView:!checked {
+    image: url("@cPath/list-box-outline.svg");
+}

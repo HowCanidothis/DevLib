@@ -99,5 +99,7 @@
         <file>style/res/lock_disabled.svg</file>
         <file>aispaces/res/cloud_download.svg</file>
         <file>aispaces/res/cloud_upload.svg</file>
+        <file>aispaces/res/file-tree-outline.svg</file>
+        <file>aispaces/res/list-box-outline.svg</file>
     </qresource>
 </RCC>
