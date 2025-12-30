@@ -25,10 +25,9 @@ LeftBar QFrame {
 TreeBar QFrame#Header {
     border: none;
     border-radius: 0px;
-    padding-right: 15px;
-    padding-left: 15px;
+    padding-right: 6px;
+    padding-left: 9px;
     background: @cbg.1;
-    border-bottom: 1px solid @cbg.3;
 }
 
 TreeBar QLabel {    
@@ -112,7 +111,7 @@ QPushButton[a_floating=true] {
     margin: 0px;
     padding: 0px;
     background: none;
-    border-radius: 10px;
+    border-radius: 4px;
 }
 
 QWidget[FormationMarker=true] {
@@ -136,7 +135,7 @@ WPSCDrillCaseView QTreeView::item
 }
 
 QWidget[BlueCircleButton=true] {
-    border-radius: 10px;
+    border-radius: 4px;
     max-width: 18px;
     min-width: 18px;
     max-height: 18px;
@@ -150,7 +149,7 @@ QWidget[BlueCircleButton=true]:hover {
 }
 
 QWidget[GreenCircleButton=true] {
-    border-radius: 10px;
+    border-radius: 4px;
     max-width: 18px;
     min-width: 18px;
     max-height: 18px;
@@ -164,7 +163,7 @@ QWidget[GreenCircleButton=true]:hover {
 }
 
 QWidget[RedCircleButton=true] {
-    border-radius: 10px;
+    border-radius: 4px;
     max-width: 18px;
     min-width: 18px;
     max-height: 18px;
@@ -351,6 +350,7 @@ QWidget#widgetheader QLabel{
 
 NotifierErrorsFrame {
     background: @cbg.error;
+    border-radius: 4px;
 }
 
 NotifierErrorsFrame QLabel{
@@ -381,7 +381,7 @@ WPSDLSToTargetSelector,
 WPSWellplanTargetView {
     background: @cbg.2;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 QLabel[align_layout_label=true] {
@@ -415,11 +415,6 @@ QPushButton#btnXSLReport {
 
 QPushButton#btnXSLReport:hover {
     background: @cbg.hover;
-}
-
-TreeIntroActionsBar {
-    background: @cbg.1;
-    padding: 10px;
 }
 
 TopControlBar {
@@ -537,13 +532,16 @@ WPSCDDSpaceView:branch:open:has-children:!has-siblings:hover, WPSCDDSpaceView:br
 
 WPSCDDSpaceView {
     qproperty-iconSize: 20px 20px;
+    padding-right: 4px;
+    padding-left: 8px;
+    padding-top: 2px;
 }
 
 WPSCDDSpaceView:item {
     padding-left: 10px;
     margin-top: 2px;
     margin-bottom: 2px;
-    border-radius: 5px;
+    border-radius: 4px;
     background: none;
 }
 
@@ -579,4 +577,61 @@ QPushButton#BtnDDView:checked {
 
 QPushButton#BtnDDView:!checked {
     image: url("@cPath/list-box-outline.svg");
+}
+
+TreeIntroActionsBar QPushButton{
+    min-height: 28px;
+    max-height: 28px;
+}
+
+TreeIntroActionsBar QLabel{
+    border-radius: 4px;
+    border: 1px solid @cbg.2;
+    padding-top: -2px;
+    padding-bottom: -2px;
+    color: @ctext.active;
+}
+
+TreeIntroActionsBar QLabel:hover{
+    background: @cbg.hover;
+}
+
+TreeIntroActionsBar QPushButton[a_addrole=true] {
+    background: @ctext.1;
+    color: @ctext.active;
+    qproperty-iconSize: 16px 16px;
+}
+
+TreeIntroActionsBar QPushButton[a_importrole=true] {
+    background: @cbg.2;
+    color: @ctext.active;
+    qproperty-iconSize: 16px 16px;
+}
+
+QPushButton#BtnSelectWellbore {
+    qproperty-icon: url("@cPath/plus-normal.svg");
+}
+
+QPushButton#BtnCreateLocalDatabase {
+    qproperty-icon: url("@cPath/plus-normal.svg");
+}
+
+QPushButton#BtnSelectJob {
+    qproperty-icon: url("@cPath/plus-normal.svg");
+}
+
+QPushButton#BtnSelectCase {
+    qproperty-icon: url("@cPath/plus-normal.svg");
+}
+
+QPushButton#BtnImportFromCloud {
+    qproperty-icon: url("@cPath/cloud-normal.svg");
+}
+
+QPushButton#BtnConnectToServer {
+    qproperty-icon: url("@cPath/database-normal.svg");
+}
+
+QPushButton#BtnImportEDM {
+    qproperty-icon: url("@cPath/out-normal.svg");
 }

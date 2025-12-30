@@ -19,7 +19,7 @@ ads--CFloatingDockContainer {
 
 QScrollBar#ADSTabAreaHorizontalScrollBar
 {
-    background: @cbg.2;
+    background: transparent;
     height: 2px;
 }
 
@@ -28,9 +28,8 @@ ads--CDockWidgetTab
     border-color: none;
     padding: 10px 0px 10px 5px;
     margin: 0px;
-/*    border-top-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-*/
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 ads--CDockWidgetTab QLabel
@@ -55,6 +54,8 @@ ads--CDockWidgetTab[activeTab=false]
 ads--CDockWidgetTab[activeTab=true]
 {
     background: @cbg.2;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 ads--CDockWidgetTab[activeTab=true] QLabel
@@ -63,26 +64,29 @@ ads--CDockWidgetTab[activeTab=true] QLabel
 }
 
 ads--CDockAreaWidget {
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     padding: 0px;
     margin: 0px;
     background: @cbg.2;
+    border-radius: 4px;
 }
 
 ads--CDockAreaWidget[a_focus_view=true] {
-    border: 1px solid @cbr.normal;
+    border: 2px solid @ctext.1;
 }
 
 ads--CDockAreaTabBar {
     margin: 0px;
     padding: 0px;
-    background: @cbg.2;
+    background: transparent;
 }
 
 ads--CDockAreaTitleBar {
     background: @cbg.1;
     margin: 0px;
     padding: 0px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 ads--CDockManager #tabsMenuButton,
@@ -96,6 +100,8 @@ ads--CDockManager QScrollArea#dockWidgetScrollArea
 {
 	padding: 0px;
 	border: none;
+    background: @cbg.2;
+    border-radius: 4px;
 }
 
 ads--CDockWidgetTab QPushButton#tabCloseButton
@@ -109,6 +115,7 @@ ads--CDockWidgetTab QPushButton#tabCloseButton
     min-width: 10px;
     min-height: 10px;
     border-image: url(@cPath/close.svg);
+    border-radius 8px;
 }
 
 ads--CDockWidgetTab QPushButton#tabCloseButton:hover
@@ -126,7 +133,7 @@ QWidget #tabsMenuButton {
     padding-left: 10px;
     padding-right: 10px;
     border: none;
-    border-radius: 0px;
+    border-radius: 4px;
     background: transparent;
 }
 
@@ -136,7 +143,7 @@ QWidget #dockAreaCloseButton {
     padding-left: 10px;
     padding-right: 10px;
     border: none;
-    border-radius: 0px;
+    border-radius: 4px;
     background: transparent;
 }
 
@@ -146,7 +153,7 @@ QWidget #detachGroupButton {
     padding-left: 10px;
     padding-right: 10px;
     border: none;
-    border-radius: 0px;
+    border-radius: 4px;
     background: transparent;
 }
 

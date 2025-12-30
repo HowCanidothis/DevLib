@@ -101,5 +101,10 @@
         <file>aispaces/res/cloud_upload.svg</file>
         <file>aispaces/res/file-tree-outline.svg</file>
         <file>aispaces/res/list-box-outline.svg</file>
+        <file>style/res/star.svg</file>
+        <file>style/res/plus-normal.svg</file>
+        <file>style/res/cloud-normal.svg</file>
+        <file>style/res/database-normal.svg</file>
+        <file>style/res/out-normal.svg</file>
     </qresource>
 </RCC>

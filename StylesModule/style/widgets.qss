@@ -81,33 +81,33 @@ QPushButton#BtnCloseMinor:hover {
 QPushButton#btnDrawer
 {
     qproperty-text: "";
-    min-width: 20px;
-    min-height: 48px;
-    max-width: 20px;
-    max-height: 48px;
+    min-width: 12px;
+    min-height: 60px;
+    max-width: 12px;
+    max-height: 60px;
     border: 1px solid @cbg.3;
     padding: 0px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
-    margin-left: 13px;
+    margin-left: 23px;
     margin-right: 0px;
-    background: @cbg.2;
+    background: @ctext.1;
 }
 
 QPushButton#btnDrawerM
 {
     qproperty-text: "";
-    min-width: 20px;
-    min-height: 48px;
-    max-width: 20px;
-    max-height: 48px;
+    min-width: 12px;
+    min-height: 60px;
+    max-width: 12px;
+    max-height: 60px;
     border: 1px solid @cbg.3;
     padding: 0px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    margin-right: 13px;
+    margin-right: 18px;
     margin-left: 0px;
-    background: @cbg.2;
+    background: @ctext.1;
 }
 
 QPushButton#btnDrawer[isOpen=false]
@@ -133,33 +133,33 @@ QPushButton#btnDrawerM[isOpen=false]
 QPushButton#btnDrawerVertical
 {
     qproperty-text: "";
-    min-width: 48px;
-    min-height: 20px;
-    max-width: 48px;
-    max-height: 20px;
+    min-width: 60px;
+    min-height: 12px;
+    max-width: 60px;
+    max-height: 12px;
     padding: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     border: 1px solid @cbg.3;
-    margin-top: 13px;
+    margin-top: 23px;
     margin-bottom: 0px;
-    background: @cbg.2;
+    background: @ctext.1;
 }
 
 QPushButton#btnDrawerVerticalM
 {
     qproperty-text: "";
-    min-width: 48px;
-    min-height: 20px;
-    max-width: 48px;
-    max-height: 20px;
+    min-width: 60px;
+    min-height: 12px;
+    max-width: 60px;
+    max-height: 12px;
     padding: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     border: 1px solid @cbg.3;
-    margin-top: 13px;
+    margin-top: 18px;
     margin-bottom: 0px;
-    background: @cbg.2;
+    background: @ctext.1;
 }
 
 QPushButton#btnDrawerVertical[isOpen=false]
@@ -204,6 +204,7 @@ QWidget#ThemesSpacer {
 
 TopNotifierFrame {
     background: @cbg.error;
+    border-radius: 4px;
 }
 
 TopNotifierFrame QLabel{
@@ -376,10 +377,7 @@ QPushButton#btnItalic {
 }
 
 QPushButton#BtnBack {
-    image: url("@cPath/chevron-left.svg");
-    min-width: 20px;
-    max-width: 20px;
-    padding: 0px;
-    margin: 0px;
-    background: @cbg.widget;
+    qproperty-icon: url("@cPath/chevron-left.svg");
+    qproperty-iconSize: 20px 20px;
+    padding-left: 4px;
 }

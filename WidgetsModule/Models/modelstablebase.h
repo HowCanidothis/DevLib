@@ -499,7 +499,6 @@ public:
                 }
                 case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
                 case Qt::DisplayRole: return tr("Add");
-                case Qt::DecorationRole: return Super::m_iconsContext.PlusIcon;
                 default: break;
                 }
             }

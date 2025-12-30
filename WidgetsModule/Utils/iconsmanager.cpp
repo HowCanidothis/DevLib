@@ -248,27 +248,32 @@ QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon
     if(state == QIcon::On) {
         if(d->Palette.SelectedColor.IsValid) {
             setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Value.Native().name());
+            setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.SelectedColor.Value.Native().name());
         }
     } else {
         switch (mode) {
         case QIcon::Active:
             if(d->Palette.NormalColor.IsValid) {
                 setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
             }
             break;
         case QIcon::Disabled:
             if(d->Palette.DisabledColor.IsValid) {
                 setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.DisabledColor.Value.Native().name());
             }
             break;
         case QIcon::Selected:
             if(d->Palette.NormalColor.IsValid) {
                 setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
             }
             break;
         default:
             if(d->Palette.NormalColor.IsValid) {
                 setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
             }
             break;
         }
