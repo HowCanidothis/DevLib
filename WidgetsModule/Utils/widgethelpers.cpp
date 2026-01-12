@@ -82,6 +82,7 @@ Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
 Q_DECLARE_METATYPE(FCurrentChanged)
 Q_DECLARE_METATYPE(SP<QVector<QWidget*>>)
 Q_DECLARE_METATYPE(SP<QCompleter>)
+Q_DECLARE_METATYPE(SP<QtLambdaConnections>)
 
 struct DisabledColumnComponentData
 {
@@ -345,7 +346,6 @@ static const char* WidgetAppearanceAnimationPropertyName = "a_WAA";
 static const char* WidgetAppearanceAnimationIsHidePropertyName = "a_WAAH";
 
 Q_DECLARE_METATYPE(SharedPointer<QPropertyAnimation>)
-Q_DECLARE_METATYPE(SharedPointer<QtLambdaConnections>)
 
 WidgetsMatchingAttachment* WidgetTableViewWrapper::CreateMatching(QAbstractItemModel* targetModel, const QSet<qint32>& targetImportColumns) const
 {
@@ -1711,6 +1711,11 @@ DispatcherConnectionsSafe& ObjectWrapper::ObjectConnections() const
     return *Injected<DispatcherConnectionsSafe>("a_connections");
 }
 
+QtLambdaConnections& ObjectWrapper::ObjectQConnections() const
+{
+    return *Injected<QtLambdaConnections>("a_qconnections");
+}
+
 EventFilterObject* ObjectWrapper::AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const
 {
     return new EventFilterObject(filter, m_object);
@@ -1886,6 +1891,11 @@ const WidgetWrapper& WidgetWrapper::SetPalette(const QHash<qint32, LocalProperty
 
     GetWidget()->setProperty("a_palette", true);
     return *this;
+}
+
+QtLambdaConnections& WidgetWrapper::WidgetQConnections() const
+{
+    return ObjectQConnections();
 }
 
 DispatcherConnectionsSafe& WidgetWrapper::WidgetConnections() const

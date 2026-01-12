@@ -72,6 +72,7 @@ public:
     {}
 
     DispatcherConnectionsSafe& ObjectConnections() const;
+    QtLambdaConnections& ObjectQConnections() const;
     EventFilterObject* AddEventFilter(const std::function<bool (QObject*, QEvent*)>& filter) const;
 
     template<class T> const T& Cast() const { Q_ASSERT(qobject_cast<typename T::expected_type*>(m_object)); return *((const T*)this); }
@@ -278,6 +279,7 @@ public:
     const WidgetWrapper& SetPalette(const QHash<qint32, LocalPropertyColor*>& palette) const;
 
     DispatcherConnectionsSafe& WidgetConnections() const;
+    QtLambdaConnections& WidgetQConnections() const;
     QVector<QWidget*>& WidgetTrueFocusWidgets() const;
     LocalPropertySequentialEnum<HighLightEnum>& WidgetHighlighted() const;
     LocalPropertyBool& WidgetVisibility() const;

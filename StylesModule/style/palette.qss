@@ -7,7 +7,7 @@ WidgetsStyleSettings {
     qproperty-secondaryColor: @ctext.label;
     qproperty-secondarySelectionColor: @ctext.1;
     qproperty-secondaryDisabledColor: @ctext.disabled;
-    qproperty-enabledTableColor: red;
+    qproperty-enabledTableColor: transparent;
     qproperty-enabledTableTextColor: @ctext.active;
     qproperty-disabledTableColor: @cbg.widget;
     qproperty-disabledTableTextColor: @ctext.label;
