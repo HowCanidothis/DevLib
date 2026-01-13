@@ -635,3 +635,18 @@ QPushButton#BtnConnectToServer {
 QPushButton#BtnImportEDM {
     qproperty-icon: url("@cPath/out-normal.svg");
 }
+
+QMenu#TreeBarSpacesMenu::item {
+    padding: 4px 4px 4px 4px;
+    background-color: @cbg.3;
+    border: none;
+}
+
+QMenu#TreeBarSpacesMenu::item:selected {
+    background: @cbg.hover;
+}
+
+QMenu#TreeBarSpacesMenu::icon {
+    margin: 0px;
+    left: 6px;
+}
