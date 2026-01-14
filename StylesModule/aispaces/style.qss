@@ -602,10 +602,18 @@ TreeIntroActionsBar QPushButton[a_addrole=true] {
     qproperty-iconSize: 16px 16px;
 }
 
+TreeIntroActionsBar QPushButton[a_addrole=true]:hover {
+    background: @cbg.disabled;
+}
+
 TreeIntroActionsBar QPushButton[a_importrole=true] {
     background: @cbg.2;
     color: @ctext.active;
     qproperty-iconSize: 16px 16px;
+}
+
+TreeIntroActionsBar QPushButton[a_importrole=true]:hover {
+    background: @cbg.disabled;
 }
 
 QPushButton#BtnSelectWellbore {
