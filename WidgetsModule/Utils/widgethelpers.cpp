@@ -1106,7 +1106,7 @@ bool WidgetComboboxWrapper::SetCurrentData(const QVariant& value, Qt::ItemDataRo
 {
     auto indexOf = ViewModelWrapper(GetWidget()->model()).IndexOf([&](const QModelIndex& index){
         return index.data(role) == value;
-    });
+    }, GetWidget()->modelColumn());
     if(indexOf != -1) {
         GetWidget()->setCurrentIndex(indexOf);
         return true;
@@ -2556,28 +2556,33 @@ ViewModelWrapper::ViewModelWrapper(QAbstractItemModel* model)
     : Super(model)
 {}
 
-const ViewModelWrapper& ViewModelWrapper::ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function) const
+const ViewModelWrapper& ViewModelWrapper::ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column) const
 {
     auto* viewModel = GetViewModel();
     auto rowCount = viewModel->rowCount(parent);
     for(int r = 0; r < rowCount; ++r) {
-        QModelIndex index = viewModel->index(r, 0, parent);
+        QModelIndex index = viewModel->index(r, column, parent);
+        if(!index.isValid()) {
+//            Q_ASSERT_X(false, "ForeachIndex Call", "Incorrect implemented model");
+            return *this;
+        }
+
         if(function(index)) {
             return *this;
         }
-        if( viewModel->hasChildren(index) ) {
-            ForeachModelIndex(index, function);
+        if(viewModel->hasChildren(index) ) {
+            ForeachModelIndex(index, function, column);
         }
     }
     return *this;
 }
 
-qint32 ViewModelWrapper::IndexOf(const FIterationHandler& handler) const
+qint32 ViewModelWrapper::IndexOf(const FIterationHandler& handler, qint32 column) const
 {
-    return Find(handler).row();
+    return Find(handler, column).row();
 }
 
-QModelIndex ViewModelWrapper::Find(const FIterationHandler& handler) const
+QModelIndex ViewModelWrapper::Find(const FIterationHandler& handler, qint32 column) const
 {
     QModelIndex result;
     ForeachModelIndex([&](const QModelIndex& index) {
@@ -2586,7 +2591,7 @@ QModelIndex ViewModelWrapper::Find(const FIterationHandler& handler) const
             return true;
         }
         return false;
-    });
+    }, column);
     return result;
 }
 

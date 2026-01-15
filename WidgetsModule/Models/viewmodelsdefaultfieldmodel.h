@@ -20,6 +20,7 @@ public:
 public:
     QVariant data(const QModelIndex& index, int role) const override;
     int rowCount(const QModelIndex& index = QModelIndex()) const override;
+    int columnCount(const QModelIndex& index = QModelIndex()) const override;
 
 private:
     FTranslationHandler m_label;

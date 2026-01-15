@@ -523,7 +523,7 @@ void LocalPropertiesComboBoxConnector::connectComboBox(QComboBox* comboBox)
 
 void LocalPropertiesComboBoxConnector::setCurrentIndex(QComboBox* comboBox, const std::function<bool (const QModelIndex&)>& handler)
 {
-    comboBox->setCurrentIndex(ViewModelWrapper(comboBox->model()).IndexOf(handler));
+    comboBox->setCurrentIndex(ViewModelWrapper(comboBox->model()).IndexOf(handler, comboBox->modelColumn()));
 }
 
 QModelIndex LocalPropertiesComboBoxConnector::currentIndex(QComboBox* combobox)

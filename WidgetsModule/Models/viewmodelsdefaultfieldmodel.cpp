@@ -77,5 +77,18 @@ QVariant ViewModelsDefaultFieldModel::data(const QModelIndex& index, int role) c
 
 int ViewModelsDefaultFieldModel::rowCount(const QModelIndex& index) const
 {
-    return m_sourceModel ? m_sourceModel->rowCount(index) + 1 : 1;
+    if(m_sourceModel != nullptr) {
+        auto rows = m_sourceModel->rowCount(index) + 1;
+        return rows;
+    }
+    return 1;
+}
+
+int ViewModelsDefaultFieldModel::columnCount(const QModelIndex& index) const
+{
+    if(m_sourceModel != nullptr) {
+        auto columns = m_sourceModel->columnCount(index);
+        return columns;
+    }
+    return 1;
 }
