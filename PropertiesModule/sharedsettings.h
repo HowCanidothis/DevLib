@@ -46,6 +46,8 @@ struct StyleSettings
 
     LocalPropertyColor DisabledTableCellColor;
     LocalPropertyColor EnabledTableCellColor;
+    LocalPropertyColor DisabledTableCellAltColor;
+    LocalPropertyColor EnabledTableCellAltColor;
     LocalPropertyColor DisabledTableCellTextColor;
     LocalPropertyColor EnabledTableCellTextColor;
 
@@ -61,6 +63,11 @@ struct StyleSettings
     LocalPropertyColor DefaultOrangeColor;
     LocalPropertyColor DefaultGrayColor;
     LocalPropertyColor DefaultPurpleColor;
+
+    LocalPropertyColor ErrorCellColor;
+    LocalPropertyColor ErrorCellAltColor;
+    LocalPropertyColor WarningCellColor;
+    LocalPropertyColor WarningCellAltColor;
 
     LocalPropertyInt ShowFocusMinFrame;
     LocalPropertyFilePath ShadersPath;

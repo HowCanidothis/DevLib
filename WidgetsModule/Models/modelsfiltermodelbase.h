@@ -38,6 +38,7 @@ public:
             return DefaultDropMimeData(data, action, row, column, parent);
         };
     }
+    QVariant DefaultGetData(const QModelIndex& mi, qint32 role) const;
 
 
     void setSourceModel(QAbstractItemModel* m) override;
@@ -48,6 +49,7 @@ public:
                          int row, int column, const QModelIndex &parent) const override;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                       int row, int column, const QModelIndex &parent) override;
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
     bool setData(const QModelIndex& index, const QVariant& data, qint32 role) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;

@@ -5,11 +5,28 @@
 #endif
 
 TViewModelsColumnComponentsBuilderBase& TViewModelsColumnComponentsBuilderBase::AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
-                               LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor)
+                               LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor, LocalPropertyColor* enabledCellColorAlt, LocalPropertyColor* disabledCellColorAlt)
 {
     auto* model = m_viewModel;
+    m_viewModel->ColumnComponents.AddDefaultComponent(BackgroundAltRole, ViewModelsTableColumnComponents::ColumnComponentData()
+                                         .SetGetter([model, enabledCellColorAlt, disabledCellColorAlt](const QModelIndex& index) {
+                                            switch(index.data(FieldHasErrorRole).toInt()) {
+                                            case 1: return SharedSettings::GetInstance().StyleSettings.ErrorCellAltColor.Native();
+                                            case 2: return SharedSettings::GetInstance().StyleSettings.WarningCellAltColor.Native();
+                                            default: break;
+                                            }
+                                            if(model->flags(index).testFlag(Qt::ItemIsEditable)) {
+                                                return enabledCellColorAlt->Native();
+                                            }
+                                            return disabledCellColorAlt->Native();
+                                         }));
     m_viewModel->ColumnComponents.AddDefaultComponent(Qt::BackgroundRole, ViewModelsTableColumnComponents::ColumnComponentData()
                                          .SetGetter([model, enabledCellColor, disabledCellColor](const QModelIndex& index) {
+                                            switch(index.data(FieldHasErrorRole).toInt()) {
+                                            case 1: return SharedSettings::GetInstance().StyleSettings.ErrorCellColor.Native();
+                                            case 2: return SharedSettings::GetInstance().StyleSettings.WarningCellColor.Native();
+                                            default: break;
+                                            }
                                             if(model->flags(index).testFlag(Qt::ItemIsEditable)) {
                                                 return enabledCellColor->Native();
                                             }

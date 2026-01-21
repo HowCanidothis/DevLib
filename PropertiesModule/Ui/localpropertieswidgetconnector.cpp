@@ -84,6 +84,25 @@ LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalProperty
     }).MakeSafe(m_dispatcherConnections);
 }
 
+LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyInt* property, QCheckBox* checkBox)
+    : Super([checkBox, property]{
+                checkBox->setCheckState((Qt::CheckState)property->Native());
+            },
+            [property, checkBox]{
+                *property = checkBox->checkState();
+            }, checkBox
+    )
+{
+    checkBox->setTristate(true);
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(checkBox, &QCheckBox::stateChanged, [this]{
+        m_propertySetter();
+    });
+}
+
 LocalPropertiesCheckBoxConnector::LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class WidgetsSwitchLayout* l)
     : Super([l, property]{
                 l->IsOn = property->Native();

@@ -452,6 +452,7 @@ IMPLEMENT_GLOBAL_NAME_1(Download)
 IMPLEMENT_GLOBAL_NAME_1(ResolveConflictServer)
 IMPLEMENT_GLOBAL_NAME_1(ResolveConflictClient)
 IMPLEMENT_GLOBAL_NAME_1(Settings)
+IMPLEMENT_GLOBAL_NAME_1(Burger)
 }
 
 IMPLEMENT_GLOBAL_ACTION(GlobalActionDebugSelectId, WidgetsGlobalTableActionsScope::EIM_Default, ActionIcons::NoIcon)

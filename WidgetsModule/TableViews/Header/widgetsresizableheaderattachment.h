@@ -11,6 +11,7 @@ class WidgetsResizableHeaderAttachment : public QHeaderView
     using Super = QHeaderView;
 public:
     WidgetsResizableHeaderAttachment(Qt::Orientation orientation, class QTableView* parent, const DescTableViewParams& params);
+    ~WidgetsResizableHeaderAttachment();
 
     static class QMenu* CreateShowColumsMenu(QHeaderView* hv, const DescTableViewParams& ignorColumns = DescTableViewParams());
     // QHeaderView interface

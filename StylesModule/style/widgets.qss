@@ -183,7 +183,7 @@ QPushButton#btnDrawerVerticalM[isOpen=false]
 }
 
 QFrame#WidgetsTVRAWidget {
-    background: @cbg.2;
+    background: transparent;
     border: none;
     margin: 0px;
     padding: 0px;
@@ -380,4 +380,8 @@ QPushButton#BtnBack {
     qproperty-icon: url("@cPath/chevron-left.svg");
     qproperty-iconSize: 20px 20px;
     padding-left: 4px;
+}
+
+QPushButton#ColumnsSelector {
+    background: @cbg.hover;
 }

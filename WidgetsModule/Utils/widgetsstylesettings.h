@@ -20,13 +20,21 @@ class WidgetsStyleSettings : public QWidget
     Q_PROPERTY(qint32 shadowBlurRadius MEMBER m_shadowBlurRadius)
 
     Q_PROPERTY(QColor enabledTableColor MEMBER m_enabledTableColor)
+    Q_PROPERTY(QColor enabledTableAltColor MEMBER m_enabledTableAltColor)
     Q_PROPERTY(QColor enabledTableTextColor MEMBER m_enabledTableTextColor)
     Q_PROPERTY(QColor disabledTableColor MEMBER m_disabledTableColor)
+    Q_PROPERTY(QColor disabledTableAltColor MEMBER m_disabledTableAltColor)
     Q_PROPERTY(QColor disabledTableTextColor MEMBER m_disabledTableTextColor)
     Q_PROPERTY(QColor errorLinkColor MEMBER m_errorLinkColor)
     Q_PROPERTY(QColor warningLinkColor MEMBER m_warningLinkColor)
     Q_PROPERTY(QColor errorColor MEMBER m_errorColor)
     Q_PROPERTY(QColor warningColor MEMBER m_warningColor)
+
+    Q_PROPERTY(QColor defaultBlueColor MEMBER m_defaultBlueColor)
+    Q_PROPERTY(QColor errorCellColor MEMBER m_errorCellColor)
+    Q_PROPERTY(QColor errorCellAltColor MEMBER m_errorCellAltColor)
+    Q_PROPERTY(QColor warningCellColor MEMBER m_warningCellColor)
+    Q_PROPERTY(QColor warningCellAltColor MEMBER m_warningCellAltColor)
 
     Q_PROPERTY(qint32 showFocusMinFrame MEMBER m_showFocusMinFrame)
     Q_PROPERTY(QColor placeHolderColor MEMBER m_placeHolderColor)
@@ -50,8 +58,10 @@ public:
 
 private:
     LocalPropertyColor& m_enabledTableColor;
+    LocalPropertyColor& m_enabledTableAltColor;
     LocalPropertyColor& m_enabledTableTextColor;
     LocalPropertyColor& m_disabledTableColor;
+    LocalPropertyColor& m_disabledTableAltColor;
     LocalPropertyColor& m_disabledTableTextColor;
 
     LocalPropertyColor& m_secondarySelectionColor;
@@ -67,6 +77,12 @@ private:
     LocalPropertyColor& m_warningColor;
     LocalPropertyColor& m_placeHolderColor;
     LocalPropertyInt m_shadowBlurRadius;
+
+    LocalPropertyColor& m_defaultBlueColor;
+    LocalPropertyColor& m_errorCellColor;
+    LocalPropertyColor& m_errorCellAltColor;
+    LocalPropertyColor& m_warningCellColor;
+    LocalPropertyColor& m_warningCellAltColor;
 
     LocalPropertyInt& m_showFocusMinFrame;
 #ifdef VISUALIZATION_MODULE_LIB

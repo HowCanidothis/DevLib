@@ -497,8 +497,10 @@ public:
                     result.setItalic(true);
                     return result;
                 }
-                case Qt::TextColorRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
+                case Qt::ForegroundRole: return SharedSettings::GetInstance().StyleSettings.DisabledTableCellTextColor.Native();
                 case Qt::DisplayRole: return tr("Add");
+                case Qt::BackgroundRole: return SharedSettings::GetInstance().StyleSettings.EnabledTableCellColor.Native();
+                case BackgroundAltRole: return SharedSettings::GetInstance().StyleSettings.EnabledTableCellAltColor.Native();
                 default: break;
                 }
             }

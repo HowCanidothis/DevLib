@@ -9,11 +9,23 @@ namespace Delegates {
     void AdjustDialogEditorToCell(QWidget* editor, const QStyleOptionViewItem& option);
 }
 
-class QComboBox;
-class DelegatesCombobox : public QStyledItemDelegate
+class QStyledItemDelegateBase : public QStyledItemDelegate
 {
     Q_OBJECT
     using Super = QStyledItemDelegate;
+public:
+    using Super::Super;
+
+protected:
+    void initStyleOption(QStyleOptionViewItem *option,
+                                const QModelIndex &index) const override;
+};
+
+class QComboBox;
+class DelegatesCombobox : public QStyledItemDelegateBase
+{
+    Q_OBJECT
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesCombobox (QObject* parent);
     DelegatesCombobox (const std::function<QStringList ()>& valuesExtractor, QObject* parent);
@@ -53,10 +65,10 @@ protected:
     ModelGetter m_getter;
 };
 
-class DelegatesIntSpinBox : public QStyledItemDelegate
+class DelegatesIntSpinBox : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesIntSpinBox (QObject* parent);
     
@@ -76,10 +88,10 @@ private:
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
 };
 
-class DelegatesDoubleSpinBox : public QStyledItemDelegate
+class DelegatesDoubleSpinBox : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesDoubleSpinBox (QObject* parent);
 
@@ -99,10 +111,10 @@ protected:
     std::function<bool(QAbstractItemModel*, const QModelIndex&)> m_editHandler;
 };
 
-class DelegatesColor : public QStyledItemDelegate
+class DelegatesColor : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesColor(QObject* parent)
         : Super(parent)
@@ -122,10 +134,10 @@ private:
     mutable class WidgetsDialog* m_editor;
 };
 
-class DelegatesLineEdit : public QStyledItemDelegate
+class DelegatesLineEdit : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesLineEdit(QObject* parent);
 
@@ -134,10 +146,10 @@ public:
     CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
 };
 
-class DelegatesDateTime : public QStyledItemDelegate
+class DelegatesDateTime : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesDateTime (QObject* parent);
 
@@ -170,10 +182,10 @@ private:
     mutable bool m_accepted;
 };
 
-class DelegatesCheckBox : public QStyledItemDelegate
+class DelegatesCheckBox : public QStyledItemDelegateBase
 {
     Q_OBJECT
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     DelegatesCheckBox (QObject* parent);
 

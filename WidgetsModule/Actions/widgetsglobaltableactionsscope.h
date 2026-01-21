@@ -113,6 +113,7 @@ DECLARE_GLOBAL_NAME(Download)
 DECLARE_GLOBAL_NAME(Settings)
 DECLARE_GLOBAL_NAME(ResolveConflictServer)
 DECLARE_GLOBAL_NAME(ResolveConflictClient)
+DECLARE_GLOBAL_NAME(Burger)
 }
 
 #define DECLARE_GLOBAL_ACTION(ActionId) \

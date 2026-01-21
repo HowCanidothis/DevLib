@@ -14,7 +14,7 @@ public:
     {}
 
     TViewModelsColumnComponentsBuilderBase& AddDefaultColors(LocalPropertyColor* enabledCellColor, LocalPropertyColor* disabledCellColor,
-                                   LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor);
+                                   LocalPropertyColor* enabledTextColor, LocalPropertyColor* disabledTextColor, LocalPropertyColor* enabledCellColorAlt, LocalPropertyColor* disabledCellColorAlt);
 
 protected:
     ViewModelsTableBase* m_viewModel;
@@ -166,7 +166,7 @@ public:
     {
         auto& settings = SharedSettings::GetInstance();
         Super::AddDefaultColors(&settings.StyleSettings.EnabledTableCellColor, &settings.StyleSettings.DisabledTableCellColor,
-                         &settings.StyleSettings.EnabledTableCellTextColor, &settings.StyleSettings.DisabledTableCellTextColor);
+                         &settings.StyleSettings.EnabledTableCellTextColor, &settings.StyleSettings.DisabledTableCellTextColor, &settings.StyleSettings.EnabledTableCellAltColor, &settings.StyleSettings.DisabledTableCellAltColor);
         return *this;
     }
 
@@ -195,10 +195,10 @@ public:
         auto modelGetter = m_modelGetter;
         for(const auto& [column, errorsStack] : columns) {
             auto errorsStackCopy = errorsStack;
-            viewModel->ColumnComponents.AddComponent(Qt::DecorationRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
+            viewModel->ColumnComponents.AddComponent(FieldHasErrorRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
                                                    .SetGetter([viewModel, component, errorsStackCopy, modelGetter, extractor](const QModelIndex& index) {
                                                         ConstValueType data = modelGetter()->At(index.row());
-                                                        return component->ErrorIcon(extractor(data), errorsStackCopy, viewModel->GetIconsContext());
+                                                        return component->HasError(extractor(data), errorsStackCopy);
                                                     }));
             viewModel->ColumnComponents.AddComponent(Qt::ToolTipRole, column, ViewModelsTableColumnComponents::ColumnComponentData()
                                                    .SetGetter([component, errorsStackCopy, modelGetter, extractor](const QModelIndex& index) {

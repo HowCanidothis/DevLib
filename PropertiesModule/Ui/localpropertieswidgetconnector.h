@@ -167,6 +167,7 @@ class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetCon
 public:
     LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class WidgetsSwitchLayout* l);
     LocalPropertiesCheckBoxConnector(LocalPropertyBool* property, class QCheckBox* checkBox);
+    LocalPropertiesCheckBoxConnector(LocalPropertyInt* property, QCheckBox* checkBox);
     LocalPropertiesCheckBoxConnector(LocalPropertyString* property, QCheckBox* checkBox);
     template<class T, typename CheckBoxWrapper, typename value_type = T::value_type>
     LocalPropertiesCheckBoxConnector(T* property, const QVector<CheckBoxWrapper>& checkBoxes)

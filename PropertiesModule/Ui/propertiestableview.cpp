@@ -27,5 +27,5 @@ PropertiesTableView::PropertiesTableView(QWidget* parent, Qt::WindowFlags flags)
     proxy->setSourceModel(m_propertiesModel);
     setModel(proxy);
 
-    setItemDelegate(new PropertiesDelegate(this));
+//    setItemDelegate(new PropertiesDelegate(this));
 }

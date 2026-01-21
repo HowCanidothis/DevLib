@@ -85,6 +85,11 @@ void ViewModelsFilterModelBase::setSourceModel(QAbstractItemModel* m)
     }
 }
 
+QVariant ViewModelsFilterModelBase::DefaultGetData(const QModelIndex& mi, qint32 role) const
+{
+    return Super::data(mi, role);
+}
+
 QVariant ViewModelsFilterModelBase::data(const QModelIndex& index, qint32 role) const
 {
     if(!index.isValid()) {
@@ -137,6 +142,12 @@ bool ViewModelsFilterModelBase::canDropMimeData(const QMimeData* data, Qt::DropA
 bool ViewModelsFilterModelBase::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
     return DropMimeDataHandler(data, action, row, column, parent);
+}
+
+void ViewModelsFilterModelBase::sort(int column, Qt::SortOrder order)
+{
+    Super::sort(column, order);
+    OnInvalidated();
 }
 
 bool ViewModelsFilterModelBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)

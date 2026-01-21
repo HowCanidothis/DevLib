@@ -106,5 +106,6 @@
         <file>style/res/cloud-normal.svg</file>
         <file>style/res/database-normal.svg</file>
         <file>style/res/out-normal.svg</file>
+        <file>style/res/minus-box.svg</file>
     </qresource>
 </RCC>

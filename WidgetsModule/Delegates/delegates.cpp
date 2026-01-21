@@ -27,6 +27,14 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsmonthpopuppicker.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
+void QStyledItemDelegateBase::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
+{
+    Super::initStyleOption(option, index);
+    if(option->features & QStyleOptionViewItem::Alternate) {
+        option->backgroundBrush = qvariant_cast<QBrush>(index.data(BackgroundAltRole));
+    }
+}
+
 DelegatesLineEdit::DelegatesLineEdit(QObject* parent)
     : Super(parent)
 {
@@ -185,7 +193,7 @@ void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inO
 }
 
 DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegateBase(parent)
     , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
 
@@ -239,7 +247,7 @@ void DelegatesIntSpinBox::SetEditHandler(const std::function<bool (QAbstractItem
 }
 
 DelegatesDoubleSpinBox::DelegatesDoubleSpinBox(QObject* parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegateBase(parent)
     , m_editHandler([](QAbstractItemModel*, const QModelIndex&)->bool {return true;})//todo static default
 {
 }
@@ -296,7 +304,7 @@ void DelegatesDoubleSpinBox::SetEditHandler(const std::function<bool (QAbstractI
 }
 
 DelegatesDateTime::DelegatesDateTime(QObject* parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegateBase(parent)
 {
     
 }
@@ -337,7 +345,7 @@ QString DelegatesDateTime::displayText(const QVariant& value, const QLocale&) co
 }
 
 DelegatesCheckBox::DelegatesCheckBox(QObject* parent)
-    : QStyledItemDelegate(parent)
+    : QStyledItemDelegateBase(parent)
 {
 
 }

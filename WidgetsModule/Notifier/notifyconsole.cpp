@@ -13,9 +13,9 @@
 #include "notifywidget.h"
 #include "notifymanager.h"
 
-class RichTextItemDelegate : public QStyledItemDelegate
+class RichTextItemDelegate : public QStyledItemDelegateBase
 {
-    using Super = QStyledItemDelegate;
+    using Super = QStyledItemDelegateBase;
 public:
     using Super::Super;
 

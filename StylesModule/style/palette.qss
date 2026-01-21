@@ -7,14 +7,21 @@ WidgetsStyleSettings {
     qproperty-secondaryColor: @ctext.label;
     qproperty-secondarySelectionColor: @ctext.1;
     qproperty-secondaryDisabledColor: @ctext.disabled;
-    qproperty-enabledTableColor: transparent;
+    qproperty-enabledTableColor: @cbg.cell;
+    qproperty-enabledTableAltColor: @cbg.cell2;
     qproperty-enabledTableTextColor: @ctext.active;
     qproperty-disabledTableColor: @cbg.widget;
+    qproperty-disabledTableAltColor: transparent;
     qproperty-disabledTableTextColor: @ctext.label;
     qproperty-showFocusMinFrame: 3;
     qproperty-placeHolderColor: @ctext.label;
     qproperty-shadowColor: @cbg.alt;
     qproperty-shadowBlurRadius: 12;
+    qproperty-defaultBlueColor: @ctext.1;
+    qproperty-errorCellColor: @cbg.ecell;
+    qproperty-errorCellAltColor: @cbg.ecell2;
+    qproperty-warningCellColor: @cbg.wcell;
+    qproperty-warningCellAltColor: @cbg.wcell2;
 
     qproperty-visualizationTextColor: @ctext.visTextColor;
     qproperty-visualizationTextBorderColor: @cbg.control;

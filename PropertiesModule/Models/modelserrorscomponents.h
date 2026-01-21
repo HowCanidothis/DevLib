@@ -46,6 +46,26 @@ public:
         return value.StateError & ErrorFilter & errorFlags;
     }
 
+    template<class T2>
+    qint32 HasError(const T2& value, const QVector<qint64>& sequence) const
+    {
+        for(const auto& error : sequence) {
+            if(HasError(value, error)) {
+                auto foundIt = m_errorTypes.find(error);
+                if(foundIt != m_errorTypes.end()) {
+                    switch(foundIt.value()) {
+                    case QtCriticalMsg: return 1;
+                    case QtWarningMsg: return 2;
+                    case QtInfoMsg: return 3;
+                    default: break;
+                    }
+                }
+                return 0;
+            }
+        }
+        return 0;
+    }
+
     /// deprecated
     template<class T2>
     QVariant WarningIcon(const T2& value, qint64 errorFlags, const struct ModelsIconsContext& iconsContext) const
