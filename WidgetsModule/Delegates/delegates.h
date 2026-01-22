@@ -32,7 +32,6 @@ public:
 
     DelegatesCombobox* SetInitializeHandler(const std::function<bool(QComboBox*, const QModelIndex& )>& handler) { m_initializeHandler = handler; return this; }
     DelegatesCombobox* SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; return this; }
-    DelegatesCombobox* SetDrawCombobox(bool draw){ m_drawCombobox = draw; return this; }
     DelegatesCombobox* SetDrawRichText(bool draw) { m_drawRichText = draw; return this; }
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -47,7 +46,6 @@ public:
 protected:
     std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;
-    bool m_drawCombobox;
     bool m_drawRichText;
     std::function<bool(QComboBox*, const QModelIndex& )> m_initializeHandler;
 };

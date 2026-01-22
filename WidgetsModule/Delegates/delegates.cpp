@@ -80,7 +80,6 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     : Super(parent)
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignLeft)
-    , m_drawCombobox(false)
     , m_drawRichText(false)
     , m_initializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
 {}
@@ -136,10 +135,6 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
 
 void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inOption, const QModelIndex& index) const
 {
-    if(!m_drawCombobox && !m_drawRichText) {
-        Super::paint(painter, inOption, index);
-        return ;
-    }
     if(m_drawRichText) {
         QStyleOptionViewItem option = inOption;
         initStyleOption(&option, index);
@@ -174,21 +169,18 @@ void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inO
         doc.documentLayout()->draw(painter, ctx);
         painter->restore();
     } else {
-        QStyleOptionComboBox opt;
-        static QComboBox cb;
+        Super::paint(painter, inOption, index);
+    }
+    if(index.flags().testFlag(Qt::ItemIsEditable)) {
+        static auto expandIcon = IconsManager::GetInstance().GetIcon(ActionIcons::DropDown);
+        const auto h = inOption.rect.height();
+        const qint32 iconSize = 20;
+        if(!expandIcon.isNull() && inOption.rect.width() > iconSize && h > iconSize) {
+            const auto tl = inOption.rect.topLeft();
+            const auto br = inOption.rect.bottomRight();
 
-        opt.initFrom(&cb);
-        opt.editable = false;
-        opt.currentText = index.data().toString();
-        opt.rect = inOption.rect;
-        opt.state = inOption.state;
-        if(!(index.flags() & Qt::ItemIsEditable)) {
-            opt.state &= ~QStyle::State_Enabled;
+            expandIcon.paint(painter, br.x() - 5.0 - iconSize, tl.y() + (h - iconSize) / 2.0, iconSize, iconSize, Qt::AlignCenter);
         }
-
-        auto style = cb.style();
-        style->drawComplexControl(QStyle::CC_ComboBox, &opt, painter, &cb);
-        style->drawControl(QStyle::CE_ComboBoxLabel, &opt, painter, &cb);
     }
 }
 

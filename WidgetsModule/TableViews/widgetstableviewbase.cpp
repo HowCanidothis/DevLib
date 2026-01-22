@@ -454,6 +454,24 @@ void WidgetsTableViewBase::drawCell(QPainter* painter, const QStyleOptionViewIte
     }
 
     itemDelegate(index)->paint(painter, opt, index);
+
+    static auto drawTriangle = [](QPainter* painter, const QStyleOptionViewItem& option, const QColor& c) {
+        QPolygonF polygon;
+        const auto tl = option.rect.topLeft();
+        const auto br = option.rect.bottomRight();
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(c);
+        polygon.append(QPointF(br.x() - 10.0, tl.y()));
+        polygon.append(QPointF(br.x(), tl.y()));
+        polygon.append(QPointF(br.x(), tl.y() + 10.0));
+        painter->drawPolygon(polygon);
+    };
+
+    switch (index.data(FieldHasErrorRole).toInt()) {
+    case 1: drawTriangle(painter, option, SharedSettings::GetInstance().StyleSettings.DefaultRedColor); break;
+    case 2: drawTriangle(painter, option, SharedSettings::GetInstance().StyleSettings.DefaultOrangeColor); break;
+    default: break;
+    }
 }
 
 void WidgetsTableViewBase::paintDropIndicator(QPainter* painter)

@@ -280,8 +280,8 @@ public:
         if(!m_freeConnections.isEmpty()) {
             id = m_freeConnections.dequeue();
             auto& connection = m_connections[id];
+            connection.IsValid = ::make_shared<std::atomic_bool>(true);
             connection.ConnectionHandler = handler;
-            *connection.IsValid = true;
         } else {
             id = m_connections.size();
             m_connections.append(Connection(handler));
