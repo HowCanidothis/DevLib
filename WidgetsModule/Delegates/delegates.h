@@ -58,7 +58,9 @@ public:
     DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent, bool completer = true);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex&) const override;
 
+    DelegatesComboboxCustomViewModel* SetModelColumn(int c);
 protected:
+    int m_column;
     bool m_includeCompleter;
     ModelGetter m_getter;
 };

@@ -50,6 +50,7 @@ QWidget* DelegatesLineEdit::createEditor(QWidget* parent, const QStyleOptionView
 
 DelegatesComboboxCustomViewModel::DelegatesComboboxCustomViewModel(const ModelGetter& getter, QObject* parent, bool completer)
     : Super([]()-> QStringList { return {}; }, parent)
+    , m_column(0)
     , m_includeCompleter(completer)
     , m_getter(getter)
 {}
@@ -60,14 +61,20 @@ QWidget* DelegatesComboboxCustomViewModel::createEditor(QWidget* parent, const Q
     auto* model = m_getter();
     if(!m_includeCompleter) {
         comboBox->setModel(model);
+        comboBox->setModelColumn(m_column);
         return comboBox;
     }
 
-    WidgetComboboxWrapper(comboBox).Make([model](const WidgetComboboxWrapper& wrapper){
-        wrapper.CreateCompleter(model, [](const QModelIndex&){}, 0, QCompleter::UnsortedModel);
+    WidgetComboboxWrapper(comboBox).Make([this, model](const WidgetComboboxWrapper& wrapper){
+        wrapper.CreateCompleter(model, [](const QModelIndex&){}, m_column, QCompleter::UnsortedModel);
         wrapper.BlockWheel();
     });
     return comboBox;
+}
+
+DelegatesComboboxCustomViewModel* DelegatesComboboxCustomViewModel::SetModelColumn(int c)
+{
+    m_column = c; return this;
 }
 
 DelegatesCombobox::DelegatesCombobox(QObject* parent)
