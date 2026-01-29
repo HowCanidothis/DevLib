@@ -369,6 +369,11 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(const QVector<qint32>& c
     }
 }
 
+void ViewModelsTableColumnComponents::RemoveFlagsComponent(qint32 column)
+{
+    m_columnFlagsComponents.remove(column);
+}
+
 std::optional<bool> ViewModelsTableColumnComponents::SetData(const QModelIndex& index, const QVariant& data, qint32 role)
 {
     std::optional<bool> result;

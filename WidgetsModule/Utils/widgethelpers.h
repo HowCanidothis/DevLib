@@ -6,6 +6,7 @@
 
 #include "WidgetsModule/widgetsdeclarations.h"
 #include "WidgetsModule/Dialogs/widgetsdialog.h"
+#include "WidgetsModule/Models/viewmodelsstandard.h"
 
 struct WidgetWrapperInjectedCommutatorData
 {
@@ -292,7 +293,7 @@ public:
 
     bool HasParent(const QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
-    void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const;
+    void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler, bool recursive = true) const;
 
 protected:
     template<typename T, typename FPropertyGetter, typename ... Dispatchers>
@@ -447,6 +448,8 @@ class WidgetComboboxWrapper : public WidgetWrapper
 public:
     WidgetComboboxWrapper(class QComboBox* combobox);
     WidgetComboboxWrapper(class WidgetsComboBoxLayout* combobox);
+
+    WidgetComboboxWrapper& TurnToFilterComboBox(const ModelsStandardRowModelPtr& model, LocalPropertyInt* filter);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     template<class Enum, typename ... Dispatchers>

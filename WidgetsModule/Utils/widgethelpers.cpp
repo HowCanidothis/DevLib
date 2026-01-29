@@ -1062,6 +1062,120 @@ WidgetComboboxWrapper::WidgetComboboxWrapper(WidgetsComboBoxLayout* combobox)
     : WidgetComboboxWrapper(combobox->comboBox())
 {}
 
+#include <QStylePainter>
+
+class ComboBoxHack : public QComboBox
+{
+    using Super = QComboBox;
+public:
+    void initStyleOption(QStyleOptionComboBox* opt)
+    {
+        Super::initStyleOption(opt);
+    }
+
+};
+
+WidgetComboboxWrapper& WidgetComboboxWrapper::TurnToFilterComboBox(const ModelsStandardRowModelPtr& model, LocalPropertyInt* filter)
+{
+    auto* w = GetWidget();
+    Q_ASSERT(w->property("a_filterConnections").isNull());
+    auto* connections = Injected<DispatcherConnectionsSafe>("a_filterConnections").get();
+
+    filter->ConnectAction(CDL, [w] { w->update(); }).MakeSafe(*connections);
+
+    auto* viewModel = new ViewModelsStandard(w);
+    viewModel->Builder().AddColumn(0, TR_NONE);
+    viewModel->ColumnComponents.AddFlagsOverrideComponent([](qint32) -> std::optional<Qt::ItemFlags> {
+        return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+    });
+    w->setModel(viewModel);
+    viewModel->SetData(model);
+
+    auto isInRecursion = ::make_shared<bool>(false);
+    filter->ConnectAndCall(CDL, [viewModel, isInRecursion, filter](qint32) {
+        if(*isInRecursion) {
+            return;
+        }
+        guards::BooleanGuard guard(isInRecursion.get());
+        viewModel->GetData()->Change([&](ModelsStandardRowContainer& c){
+            auto currentFlag = 0x1;
+            for(auto& row : c) {
+                auto checkState = Qt::Unchecked;
+                if(filter->Native() & currentFlag) {
+                    checkState = Qt::Checked;
+                }
+                row.Set(0, checkState, Qt::CheckStateRole);
+                currentFlag <<= 1;
+            }
+        });
+    }).MakeSafe(*connections);
+
+    viewModel->GetData()->Connect(CDL, [filter, isInRecursion](const ModelsStandardRowContainer& c){
+        if(*isInRecursion) {
+            return;
+        }
+        guards::BooleanGuard guard(isInRecursion.get());
+        qint32 currentFlag = 0x1;
+        qint32 selection = 0;
+        for(const auto& row : c) {
+            if(row.Get(0, Qt::CheckStateRole).toBool()) {
+                selection |= currentFlag;
+            }
+            currentFlag <<= 1;
+        }
+        *filter = selection;
+    }).MakeSafe(*connections);
+
+    AddEventFilter([w, viewModel, filter](QObject*, QEvent* e) {
+        if(e->type() == QEvent::Paint) {
+            auto* cb = static_cast<ComboBoxHack*>(w);
+            QStylePainter painter(cb);
+            painter.setPen(cb->palette().color(QPalette::Text));
+
+            // draw the combobox frame, focusrect and selected etc.
+            QStyleOptionComboBox opt;
+            cb->initStyleOption(&opt);
+            painter.drawComplexControl(QStyle::CC_ComboBox, opt);
+            auto paddedRect = cb->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxEditField, cb);
+
+            if(viewModel->GetData() != nullptr) {
+                auto r = paddedRect;
+                const auto spacing = 2;
+                auto w = r.width();
+                const auto iconSize = opt.iconSize.height();
+                auto maxCount = w / (iconSize + spacing);
+                auto x = r.x();
+                auto y = paddedRect.y() + (r.height() - iconSize) / 2;
+
+                if(*filter == 0) {
+                    for(const auto& row : *viewModel->GetData()) {
+                        if(!maxCount) {
+                            break;
+                        }
+                        row.Get(0, Qt::DecorationRole).value<QIcon>().paint(&painter, QRect(x,y, iconSize, iconSize));
+                        x += iconSize + spacing;
+                        --maxCount;
+                    }
+                } else {
+                    for(const auto& row : *viewModel->GetData()) {
+                        if(!maxCount) {
+                            break;
+                        }
+                        if(row.Get(0, Qt::CheckStateRole).toBool()) {
+                            row.Get(0, Qt::DecorationRole).value<QIcon>().paint(&painter, QRect(x,y, iconSize, iconSize));
+                            x += iconSize + spacing;
+                            --maxCount;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    });
+    return *this;
+}
+
 DisabledColumnComponentData& WidgetComboboxWrapper::disabledColumnComponent() const
 {
     Q_ASSERT(qobject_cast<ViewModelsStandardListModel*>(GetWidget()->model()));
@@ -1947,9 +2061,9 @@ void WidgetWrapper::ForeachParentWidget(const std::function<bool(const WidgetWra
     }
 }
 
-void WidgetWrapper::ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const
+void WidgetWrapper::ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler, bool recursive) const
 {
-    auto childWidgets = GetWidget()->findChildren<QWidget*>();
+    auto childWidgets = GetWidget()->findChildren<QWidget*>(QString(), recursive ? Qt::FindChildrenRecursively : Qt::FindDirectChildrenOnly);
     for(auto* childWidget : childWidgets) {
         handler(childWidget);
     }

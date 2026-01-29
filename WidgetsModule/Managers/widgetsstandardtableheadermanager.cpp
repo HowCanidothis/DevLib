@@ -14,7 +14,9 @@ QByteArray WidgetsStandardTableHeaderManager::saveState(QHeaderView* headerView)
 
 void WidgetsStandardTableHeaderManager::restoreState(const QByteArray& array, QHeaderView* headerView)
 {
+    auto isIndicatorShown = headerView->isSortIndicatorShown();
     headerView->restoreState(array);
+    headerView->setSortIndicatorShown(isIndicatorShown);
 }
 
 void WidgetsStandardTableHeaderManager::updateState(const Latin1Name& stateName)

@@ -3,9 +3,9 @@
 
 #include "viewmodelsdefaultcomponents.h"
 
-class ModelsStandardRow : public QVector<QVariant>
+class ModelsStandardRow : public QVector<QHash<qint32,QVariant>>
 {
-    using Super = QVector<QVariant>;
+    using Super = QVector<QHash<qint32,QVariant>>;
 public:
     using Super::Super;
 
@@ -15,12 +15,12 @@ public:
     {
         qint32 i = 0;
         adapters::Combine([&](const auto& v) {
-            (*this)[i++] = v;
+            (*this)[i++][Qt::DisplayRole] = v;
         }, variants...);
     }
 
-    void Set(qint32 i, const QVariant& data);
-    QVariant Get(qint32 i) const;
+    void Set(qint32 i, const QVariant& data, qint32 role = Qt::DisplayRole);
+    QVariant Get(qint32 i, qint32 role) const;
     bool IsValid(qint32 i) const;
 
     template<class Buffer>
@@ -38,9 +38,9 @@ class ViewModelsStandardComponentsBuilder : public TViewModelsColumnComponentsBu
 public:
     using Super::Super;
 
-    void AddColumn(qint32 i, const FTranslationHandler& title);
-    void SetColumn(qint32 i, const FTranslationHandler& title);
-    void SetColumnsCount(qint32 i);
+    ViewModelsStandardComponentsBuilder& AddColumn(qint32 i, const FTranslationHandler& title);
+    ViewModelsStandardComponentsBuilder& SetColumn(qint32 i, const FTranslationHandler& title);
+    ViewModelsStandardComponentsBuilder& SetColumnsCount(qint32 i);
 };
 
 class ViewModelsStandard : public TViewModelsTableBase<ModelsStandardRowModel>
@@ -53,6 +53,7 @@ public:
 
 // QAbstractItemModel interface
 public:
+    bool setData(const QModelIndex& index, const QVariant& v, qint32 role) override;
     QVariant data(const QModelIndex& index, int role) const override;
 };
 

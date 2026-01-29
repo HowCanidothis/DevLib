@@ -107,5 +107,12 @@
         <file>style/res/database-normal.svg</file>
         <file>style/res/out-normal.svg</file>
         <file>style/res/minus-box.svg</file>
+        <file>style/res/filter-variant.svg</file>
+        <file>style/res/pin2.svg</file>
+        <file>style/res/pin-off-outline.svg</file>
+        <file>style/res/arrow-expand-horizontal.svg</file>
+        <file>style/res/arrow-expand-vertical.svg</file>
+        <file>style/res/arrow-down-sort.svg</file>
+        <file>style/res/arrow-up-sort.svg</file>
     </qresource>
 </RCC>

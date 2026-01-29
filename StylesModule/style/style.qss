@@ -59,7 +59,7 @@ ElidedLabel[a_focus=true] {
 
 QLabel[Title=true] {
     background: transparent;
-    font-size: 24px;
+    font-size: 20px;
     color: @ctext.active;
 }
 
@@ -607,7 +607,7 @@ QHeaderView::down-arrow {
     width: 16px;
     padding-left: 2px;
     padding-right: 2px;
-    image: url("@cPath/arrow-down.svg");
+    image: url("@cPath/arrow-down-sort.svg");
 }
 
 QHeaderView::up-arrow {
@@ -617,7 +617,7 @@ QHeaderView::up-arrow {
     width: 16px;
     padding-left: 2px;
     padding-right: 2px;
-    image: url("@cPath/arrow-up.svg");
+    image: url("@cPath/arrow-up-sort.svg");
 }
 
 QHeaderView::section::horizontal:hover {
@@ -778,10 +778,6 @@ QRadioButton:indicator:unchecked:disabled {
 
 QRadioButton:indicator:checked:disabled {
     image: url(@cPath/radiobox-blank-marked-disabled.svg);
-}
-
-QRadioButton:focus {
-    color: @ctext.1;;
 }
 
 QMenuBar {
@@ -1247,15 +1243,21 @@ QComboBoxListView:disabled{
     color: @ctext.disabled;
 }
 
-QLabel[DialogTitle=true] {
+QLabel[DialogTitle] {
     font-size: 24px;
     color: @ctext.active;
 }
 
-QFrame[VSeparator=true] {
-    background: @cbg.3;
+QFrame[VSeparator] {
+    background: @cbg.disabled;
     min-width: 1px;
     max-width: 1px;
+}
+
+QFrame[HSeparator] {
+    background: @cbg.disabled;
+    min-height: 1px;
+    max-height: 1px;
 }
 
 QDialog {
@@ -1263,7 +1265,7 @@ QDialog {
     border: 1px solid @cbg.3;
 }
 
-QFrame[a_cover=true] {
+QFrame[a_cover] {
     background: black;
     qproperty-windowOpacity: 0.5;
 }

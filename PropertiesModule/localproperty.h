@@ -227,6 +227,25 @@ public:
         return OnChanged.ConnectCombined(connectionInfo, [handler, this]{ handler(*this); }, dispatchers...);
     }
 
+    template<typename Function, typename ... Properties, typename First>
+    DispatcherConnections ConnectProperties(const char* connectionInfo, const Function& handler, const First& first, const Properties&... args) const
+    {
+        auto update = [connectionInfo, this, handler, &first, &args...]{
+            handler(this->Native(), first.Native(), args.Native()...);
+        };
+        return OnChanged.ConnectCombined(connectionInfo, update, args...);
+    }
+
+    template<typename Function, typename ... Properties, typename First>
+    DispatcherConnections ConnectAndCallProperties(const char* connectionInfo, const Function& handler, const First& first, const Properties&... args) const
+    {
+        auto update = [connectionInfo, this, handler, &first, &args...]{
+            handler(this->Native(), first.Native(), args.Native()...);
+        };
+        update();
+        return OnChanged.ConnectCombined(connectionInfo, update, args...);
+    }
+
     template<typename ... Dispatchers>
     DispatcherConnections ConnectAndCall(const char* connectionInfo, const std::function<void (const T&)>& handler, Dispatchers&... dispatchers) const
     {

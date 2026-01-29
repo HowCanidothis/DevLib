@@ -680,7 +680,20 @@ void DelegatesColor::paint(QPainter* painter, const QStyleOptionViewItem& option
     Super::paint(painter, option, index);
     painter->setPen(Qt::NoPen);
     painter->setBrush(value.value<QColor>());
-    painter->drawRect(option.rect.adjusted(1,1,-1,-2));
+    const qint32 iconSize = 20;
+    const qint32 right = 5;
+    painter->drawRoundedRect(option.rect.adjusted(9,4,-(iconSize + right + 4),-4), 4,4);
+    if(index.flags().testFlag(Qt::ItemIsEditable)) {
+        static auto expandIcon = IconsManager::GetInstance().GetIcon(ActionIcons::DropDown);
+        const auto h = option.rect.height();
+
+        if(!expandIcon.isNull() && option.rect.width() > iconSize && h > iconSize) {
+            const auto tl = option.rect.topLeft();
+            const auto br = option.rect.bottomRight();
+
+            expandIcon.paint(painter, br.x() - right - iconSize, tl.y() + (h - iconSize) / 2.0, iconSize, iconSize, Qt::AlignCenter);
+        }
+    }
 }
 
 void DelegatesColor::updateEditorGeometry(QWidget* w, const QStyleOptionViewItem& option, const QModelIndex&) const

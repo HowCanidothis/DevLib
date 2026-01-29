@@ -268,6 +268,28 @@ WPSCVisualizationFooter QPushButton#btnRuler {
     padding: 4px;
 }
 
+WPSCVisualizationFiltersDrawer QPushButton#btnRuler{
+    text-align: left;
+    padding-left: 4px;
+}
+
+WPSCVisualizationFiltersDrawer QPushButton#btnIsometric{
+    text-align: left;
+    padding-left: 4px;
+}
+
+WPSCVisualizationFiltersDrawer {
+    background: @cbg.1;
+    min-width: 450px;
+    max-width: 450px;
+}
+
+WPSCVisualizationTCDrawer {
+    background: @cbg.1;
+    min-width: 309px;
+    max-width: 309px;
+}
+
 QPushButton[PropertiesToolBarButton=true] {
     color: @ctext.active;
     background: @cbg.widget;
@@ -332,12 +354,13 @@ QPushButton#ResetButton {
     image: url("@cPath/refresh.svg");
 }
 
-QWidget[coloredDrawer=true]{
-    background: @cbg.widget;
+QWidget[coloredDrawer]{
+    background: @cbg.1;
+    border-left: 1px solid @cbg.disabled;
 }
 
-QWidget[coloredDrawer=true] QScrollBar{
-    background: @cbg.widget;
+QWidget[coloredDrawer] QScrollBar{
+    background: @cbg.1;
 }
 
 QWidget#widgetheader {
@@ -657,4 +680,33 @@ QMenu#TreeBarSpacesMenu::item:selected {
 QMenu#TreeBarSpacesMenu::icon {
     margin: 0px;
     left: 6px;
+}
+
+WPSTextFormatingView {
+    min-width: 300px;
+    max-width: 300px;
+}
+
+QPushButton#VerticalDrillingIcon {
+    qproperty-icon: url("@cPath/arrow-expand-vertical.svg");
+}
+
+QPushButton#HorizontalDrillingIcon {
+    qproperty-icon: url("@cPath/arrow-expand-horizontal.svg");
+}
+
+WPSCProjectionsView QWidget#ProjectionsTable {
+    background: @cbg.2;
+}
+
+WPSCProjectionsView QFrame#UnderCover {
+    background: @cbg.1;
+}
+
+WPSCProjectionView {
+    background: @cbg.2;
+}
+
+WPSCBitProjectionView {
+    min-width: 500px;
 }
