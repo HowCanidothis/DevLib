@@ -428,38 +428,38 @@ QTreeView:branch:open:has-children:!has-siblings:hover, QTreeView:branch:open:ha
 
 QTreeView::indicator:checked,
 QListView::indicator:checked {
-    image: url("@cPath/checkbox-checked.svg");
+    border-image: url("@cPath/checkbox-checked.svg");
 }
 
 QTreeView::indicator:checked:hover, QTreeView::indicator:checked:focus, QTreeView::indicator:checked:pressed,
 QListView::indicator:checked:hover,
 QListView::indicator:checked:focus,
 QListView::indicator:checked:pressed {
-    image: url("@cPath/checkbox-checked.svg");
+    border-image: url("@cPath/checkbox-checked.svg");
 }
 
 QTreeView::indicator:unchecked,
 QListView::indicator:unchecked {
-    image: url("@cPath/checkbox-blank-outline.svg");
+    border-image: url("@cPath/checkbox-blank-outline.svg");
 }
 
 QTreeView::indicator:unchecked:hover, QTreeView::indicator:unchecked:focus, QTreeView::indicator:unchecked:pressed,
 QListView::indicator:unchecked:hover,
 QListView::indicator:unchecked:focus,
 QListView::indicator:unchecked:pressed {
-    image: url("@cPath/checkbox-blank-outline.svg");
+    border-image: url("@cPath/checkbox-blank-outline.svg");
 }
 
 QTreeView::indicator:indeterminate,
 QListView::indicator:indeterminate {
-    image: url("@cPath/checkbox-checked.svg");
+    border-image: url("@cPath/checkbox-checked.svg");
 }
 
 QTreeView::indicator:indeterminate:hover, QTreeView::indicator:indeterminate:focus, QTreeView::indicator:indeterminate:pressed,
 QListView::indicator:indeterminate:hover,
 QListView::indicator:indeterminate:focus,
 QListView::indicator:indeterminate:pressed {
-    image: url("@cPath/checkbox-checked.svg");
+    border-image: url("@cPath/checkbox-checked.svg");
 }
 
 QTreeView,
@@ -484,7 +484,7 @@ QTreeView {
 
 QTreeView::item {
     color: @ctext.active;
-    border: none;
+    padding: 0px;
 }
 
 QTreeView::item:selected {

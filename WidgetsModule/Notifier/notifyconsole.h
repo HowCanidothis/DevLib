@@ -37,11 +37,11 @@ public:
     void SetInfoIcon(const IconsSvgIcon& icon);
 
     void AddWarning(const QString& data, const FAction& handler);
+    void Add(const NotifyConsoleDataPtr& data);
 
-    void AttachErrorsContainer(LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler);
+    void AttachErrorsContainer(const Name& folderId, LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler, const TranslatedStringPtr& folderText = nullptr);
     void DetachErrorsContainer(LocalPropertyErrorsContainer* container);
 
-    NotifyConsoleDataWrapperPtr Data;
     LocalPropertyBool IsOpened;
     LocalPropertyBool IsShowWarnings;
     LocalPropertyBool IsShowInfos;
@@ -63,6 +63,8 @@ private slots:
 
 private:
     void erasePermanentErrors();
+    class NotifyTreeFolderNode* getOrCreateFolder(const Name& folderId, const TranslatedStringPtr& label=nullptr);
+    void removeFolder(const Name& folderId);
 
 private:
     Ui::NotifyConsole *ui;
@@ -73,6 +75,9 @@ private:
     LocalPropertyColor m_showWarningsNormalColor;
     LocalPropertyColor m_showWarningsSelectedColor;
     DispatchersCommutator m_updateErrors;
+    QHash<Name, NotifyTreeFolderNode*> m_folders;
+    ModelsTreePtr m_model;
+    class NotifyConsoleSortFilterViewModel* m_filterViewModel;
 };
 
 #endif // NOTIFYCONSOLE_H

@@ -2670,21 +2670,20 @@ ViewModelWrapper::ViewModelWrapper(QAbstractItemModel* model)
     : Super(model)
 {}
 
-const ViewModelWrapper& ViewModelWrapper::ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column) const
+const ViewModelWrapper& ViewModelWrapper::ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column, bool recursive) const
 {
     auto* viewModel = GetViewModel();
     auto rowCount = viewModel->rowCount(parent);
     for(int r = 0; r < rowCount; ++r) {
         QModelIndex index = viewModel->index(r, column, parent);
         if(!index.isValid()) {
-//            Q_ASSERT_X(false, "ForeachIndex Call", "Incorrect implemented model");
             return *this;
         }
 
         if(function(index)) {
             return *this;
         }
-        if(viewModel->hasChildren(index) ) {
+        if(recursive && viewModel->hasChildren(index) ) {
             ForeachModelIndex(index, function, column);
         }
     }

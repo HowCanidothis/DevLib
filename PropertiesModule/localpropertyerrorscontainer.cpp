@@ -172,6 +172,17 @@ QString LocalPropertyErrorsContainer::ToString() const
     return resultText;
 }
 
+QString LocalPropertyErrorsContainer::ToErrorString(const QString& separator) const
+{
+    QString resultText;
+    for(const auto& error : *this) {
+        if(error.Type == QtCriticalMsg) {
+            resultText += error.Error->Native() + separator;
+        }
+    }
+    return resultText;
+}
+
 QStringList LocalPropertyErrorsContainer::ToStringList() const
 {
     QStringList result;

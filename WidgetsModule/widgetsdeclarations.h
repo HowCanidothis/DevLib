@@ -85,6 +85,7 @@ struct WidgetsDialogsManagerButtonStruct
 {
     QDialogButtonBox::ButtonRole Role;
     FTranslationHandler Text;
+    Name Icon;
 
     WidgetsDialogsManagerButtonStruct()
         : Role(QDialogButtonBox::RejectRole)
@@ -92,6 +93,11 @@ struct WidgetsDialogsManagerButtonStruct
     WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text)
         : Role(role)
         , Text(text)
+    {}
+    WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text, const Name& icon)
+        : Role(role)
+        , Text(text)
+        , Icon(icon)
     {}
 };
 
@@ -128,7 +134,7 @@ struct WidgetsDialogsManagerDefaultButtons
     static WidgetsDialogsManagerButtonStruct SaveRoleButton(const FTranslationHandler& text);
     static WidgetsDialogsManagerButtonStruct CancelRoleButton(const FTranslationHandler& text);
     static WidgetsDialogsManagerButtonStruct DiscardRoleButton(const FTranslationHandler& text);
-    static WidgetsDialogsManagerButtonStruct ActionRoleButton(const FTranslationHandler& text);
+    static WidgetsDialogsManagerButtonStruct ActionRoleButton(const FTranslationHandler& text, const Name& icon);
 
     Q_DECLARE_TR_FUNCTIONS(WidgetsDialogsManagerDefaultButtons)
 };

@@ -34,7 +34,7 @@
 #include "Attachments/widgetsactivetableattachment.h"
 #include "Attachments/windowresizeattachment.h"
 #include "Attachments/widgetslocationattachment.h"
-#include "Attachments/widgetstableviewrowattachment.h"
+#include "Attachments/widgetsabstractviewrowattachment.h"
 
 #include "Components/componentplacer.h"
 
@@ -51,6 +51,7 @@
 
 #include "TableViews/widgetstableviewbase.h"
 #include "TableViews/widgetsadjustabletableview.h"
+#include "TableViews/widgetstreeviewbase.h"
 #include "TableViews/Header/widgetsresizableheaderattachment.h"
 
 #include "Widgets/widgetsspinboxwithcustomdisplay.h"

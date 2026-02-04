@@ -114,5 +114,6 @@
         <file>style/res/arrow-expand-vertical.svg</file>
         <file>style/res/arrow-down-sort.svg</file>
         <file>style/res/arrow-up-sort.svg</file>
+        <file>style/res/unfold-less-horizontal.svg</file>
     </qresource>
 </RCC>

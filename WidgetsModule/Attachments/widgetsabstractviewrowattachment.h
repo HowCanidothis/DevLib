@@ -1,5 +1,5 @@
-#ifndef WIDGETSTABLEVIEWROWATTACHMENT_H
-#define WIDGETSTABLEVIEWROWATTACHMENT_H
+#ifndef WIDGETSABSTRACTVIEWROWATTACHMENT_H
+#define WIDGETSABSTRACTVIEWROWATTACHMENT_H
 
 #include <SharedModule/internal.hpp>
 
@@ -10,20 +10,20 @@ class WidgetAbstractButtonWrapper;
 class QTableView;
 class QWidget;
 
-class WidgetsTableViewRowAttachment
+class WidgetsAbstractViewRowAttachment
 {
 public:
-    WidgetsTableViewRowAttachment(const std::function<QWidget* (WidgetsTableViewRowAttachment*)>& widgetCreator);
+    WidgetsAbstractViewRowAttachment(const std::function<QWidget* (WidgetsAbstractViewRowAttachment*)>& widgetCreator);
 
-    void Attach(QTableView* v);
+    void Attach(QAbstractItemView* v);
     bool SelectCurrentRow();
     void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerDefaultButtons::DiscardButton());
 
-    LocalPropertyInt CurrentRow;
+    LocalProperty<QModelIndex> CurrentIndex;
 
 private:
-    QTableView* m_target;
+    QAbstractItemView* m_target;
     QWidget* m_pane;
 };
 
-#endif // WIDGETSTABLEVIEWROWATTACHMENT_H
+#endif // WIDGETSABSTRACTVIEWROWATTACHMENT_H

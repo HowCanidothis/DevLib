@@ -706,7 +706,3 @@ WPSCProjectionsView QFrame#UnderCover {
 WPSCProjectionView {
     background: @cbg.2;
 }
-
-WPSCBitProjectionView {
-    min-width: 500px;
-}

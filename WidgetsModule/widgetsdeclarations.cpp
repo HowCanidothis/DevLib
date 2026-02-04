@@ -81,9 +81,9 @@ WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::DiscardRo
 {
     return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::DestructiveRole, text);
 }
-WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ActionRoleButton(const FTranslationHandler& text)
+WidgetsDialogsManagerButtonStruct WidgetsDialogsManagerDefaultButtons::ActionRoleButton(const FTranslationHandler& text, const Name& icon)
 {
-    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ActionRole, text);
+    return WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ActionRole, text, icon);
 }
 
 DescCustomDialogParams& DescCustomDialogParams::FillWithText(const QString& text)

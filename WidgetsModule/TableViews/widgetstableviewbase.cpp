@@ -393,8 +393,9 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
         painter.drawRect(QRect(-1, y, viewport()->width(), rowh));
     }
 
-    if(selectionModel() != nullptr && !selectionModel()->selectedIndexes().isEmpty()) {
-        for(const auto& index : selectionModel()->selectedIndexes()) {
+    if(selectionModel() != nullptr) {
+        auto selectedIndexes = selectionModel()->selectedIndexes();
+        for(const auto& index : selectedIndexes) {
             if(this->isPersistentEditorOpen(index)) {
                 continue;
             }

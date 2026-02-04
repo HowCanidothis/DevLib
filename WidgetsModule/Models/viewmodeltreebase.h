@@ -35,6 +35,7 @@ protected:
     ModelsTreeWrapperPtr m_data;
     IconsSvgIcon m_errorIcon;
     IconsSvgIcon m_warningIcon;
+    IconsSvgIcon m_infoIcon;
 };
 
 template<class T>

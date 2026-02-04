@@ -837,8 +837,8 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ViewModelWrapper, QAbstractItemModel);
 
     class ViewModelsDefaultFieldModel* CreateDefaultFieldModel(QObject* parent, const FTranslationHandler& field = nullptr) const;
-    const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column) const;
-    const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function, qint32 column) const { return ForeachModelIndex(QModelIndex(), function, column); }
+    const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column, bool recursive = true) const;
+    const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function, qint32 column, bool recursive = true) const { return ForeachModelIndex(QModelIndex(), function, column, recursive); }
     qint32 IndexOf(const FIterationHandler& handler, qint32 column) const;
     QModelIndex Find(const FIterationHandler& handler, qint32 column) const;
 
