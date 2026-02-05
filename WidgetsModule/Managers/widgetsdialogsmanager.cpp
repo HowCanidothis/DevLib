@@ -26,6 +26,7 @@ const char* WidgetsDialogsManager::CustomViewPropertyKey = "CustomView";
 const char* WidgetsDialogsManager::FDialogHandlerPropertyName = "DialogHandler";
 const char* WidgetsDialogsManager::ResizeablePropertyName = "Resizeable";
 const char* WidgetsDialogsManager::NoClosePropertyName = "NoClose";
+const char* WidgetsDialogsManager::SizeHintPropertyName = "SizeHint";
 
 WidgetsDialogsManager::WidgetsDialogsManager()
     : m_defaultParent(nullptr)
@@ -70,6 +71,9 @@ WidgetsDialog* WidgetsDialogsManager::createDialog(const DescCustomDialogParams&
     }
     if(params.Resizeable.has_value()) {
         dialog->setProperty(ResizeablePropertyName, params.Resizeable.value());
+    }
+    if(params.CustomSize.isValid()) {
+        dialog->setProperty(SizeHintPropertyName, params.CustomSize);
     }
     if(params.Closeable.has_value()) {
         dialog->setProperty(NoClosePropertyName, !params.Closeable.value());
@@ -418,7 +422,13 @@ void WidgetsDialogsManager::MakeFrameless(QWidget* widget, bool attachMovePane, 
         return result;
     };
 
-    auto size = widget->layout()->sizeHint();
+    auto sizeHintProperty = widget->property(SizeHintPropertyName);
+    QSize size;
+    if(sizeHintProperty.isNull()) {
+        size = widget->layout()->sizeHint();
+    } else {
+        size = sizeHintProperty.toSize();
+    }
 
     QVBoxLayout* contentWithPaneWidgetLayout = createNullLayout();
     contentWithPaneWidgetLayout->setContentsMargins(1,1,1,0);

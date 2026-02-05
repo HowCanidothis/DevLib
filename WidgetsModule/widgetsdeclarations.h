@@ -151,6 +151,7 @@ struct DescCustomDialogParams
     std::optional<bool> Resizeable;
     std::optional<bool> Closeable;
     std::function<void (bool)> DontShowHandler;
+    QSize CustomSize;
 
     DescCustomDialogParams& SetDontShowHandler(const std::function<void (bool)>& dontShowHandler) { DontShowHandler = dontShowHandler; return *this; }
     DescCustomDialogParams& SetResizeable(){ Resizeable = true; return *this; }
@@ -159,6 +160,7 @@ struct DescCustomDialogParams
     DescCustomDialogParams& SetOnInitialized(const std::function<void (const QVector<QAbstractButton*>&)>& onInitialized) { OnInitialized = onInitialized; return *this; }
     DescCustomDialogParams& SetTitle(const FTranslationHandler& title) { Title = title; return *this; }
     DescCustomDialogParams& FillWithText(const QString& text);
+    DescCustomDialogParams& SetCustomSize(const QSize& size) { CustomSize = size; return *this; }
     DescCustomDialogParams& SetDefaultSpacing(bool defaultSpacing) { DefaultSpacing = defaultSpacing; return *this; }
     DescCustomDialogParams& AddButton(const WidgetsDialogsManagerButtonStruct& button)
     {

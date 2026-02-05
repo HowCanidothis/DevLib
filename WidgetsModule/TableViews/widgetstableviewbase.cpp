@@ -43,6 +43,14 @@ WidgetsTableViewBase::~WidgetsTableViewBase()
 
 }
 
+void WidgetsTableViewBase::setModel(QAbstractItemModel *model)
+{
+    Super::setModel(model);
+    m_modelConnections.connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this](const QItemSelection&, const QItemSelection&) {
+        update();
+    });
+}
+
 void WidgetsTableViewBase::OverrideEditorEvent(const std::function<void (const FAction&)>& action)
 {
     setProperty(OverridenEditorEvent, QVariant::fromValue(::make_shared<EditorEvent>(action)));

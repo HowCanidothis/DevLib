@@ -18,6 +18,8 @@ public:
     WidgetsTableViewBase(QWidget* parent = nullptr);
     ~WidgetsTableViewBase();
 
+    void setModel(QAbstractItemModel *model) override;
+
     void OverrideEditorEvent(const std::function<void (const FAction&)>& action);
 
 private:
@@ -35,5 +37,6 @@ private:
     QModelIndex m_editorIndex;
     LocalPropertyColor m_selectionColor;
     LocalPropertyColor m_hoverColor;
+    QtLambdaConnections m_modelConnections;
 };
 #endif // WIDGETSTABLEVIEWBASE_H
