@@ -83,6 +83,7 @@ Q_DECLARE_METATYPE(FCurrentChanged)
 Q_DECLARE_METATYPE(SP<QVector<QWidget*>>)
 Q_DECLARE_METATYPE(SP<QCompleter>)
 Q_DECLARE_METATYPE(SP<QtLambdaConnections>)
+Q_DECLARE_METATYPE(LocalPropertyInt*)
 
 struct DisabledColumnComponentData
 {
@@ -1080,6 +1081,7 @@ WidgetComboboxWrapper& WidgetComboboxWrapper::TurnToFilterComboBox(const ModelsS
     auto* w = GetWidget();
     Q_ASSERT(w->property("a_filterConnections").isNull());
     auto* connections = Injected<DispatcherConnectionsSafe>("a_filterConnections").get();
+    w->setProperty("a_filterValue", QVariant::fromValue(filter));
 
     filter->ConnectAction(CDL, [w] { w->update(); }).MakeSafe(*connections);
 
