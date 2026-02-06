@@ -3,8 +3,9 @@
 ViewModelsDefaultFieldModel::ViewModelsDefaultFieldModel(QObject* parent, const FTranslationHandler& label, QAbstractItemModel* model)
     : Super(parent)
     , m_label(label)
-    , m_sourceModel(model)
-{}
+{
+    SetSourceModel(model);
+}
 
 ViewModelsDefaultFieldModel& ViewModelsDefaultFieldModel::SetDefaultFieldLabel(const FTranslationHandler& label)
 {
