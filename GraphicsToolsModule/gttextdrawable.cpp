@@ -5,6 +5,7 @@
 #include "Objects/gtmaterialparametertexture.h"
 #include "gttexture2D.h"
 #include "gtrenderer.h"
+#include "gtrenderercontroller.h"
 
 void GtTextMap::LoadFromFnt(const QString& fntFile)
 {
@@ -155,7 +156,11 @@ void GtTextDrawable::draw(OpenGLFunctions* f)
     if(!isVisibleFromMask(Settings.Visible)) {
         return;
     }
+    auto& scale = Settings.Scale.EditSilent();
+    auto prevScale = scale;
+    scale *= getRendererController()->GetScaleFactor();
     m_material.Draw(f);
+    scale = prevScale;
     f->glPointSize(10.f); // TODO. ?
 }
 
@@ -253,7 +258,11 @@ void GtTextScreenDrawable::draw(OpenGLFunctions* f)
     if(!isVisibleFromMask(Settings.Visible)) {
         return;
     }
+    auto& scale = Settings.Scale.EditSilent();
+    auto prevScale = scale;
+    scale *= getRendererController()->GetScaleFactor();
     m_material.Draw(f);
+    scale = prevScale;
     f->glPointSize(10.f);
 }
 

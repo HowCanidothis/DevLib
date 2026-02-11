@@ -1269,3 +1269,9 @@ QFrame[a_cover] {
     background: black;
     qproperty-windowOpacity: 0.5;
 }
+
+QToolButton#qt_toolbar_ext_button {
+    qproperty-icon: url("@cPath/dots-vertical.svg");
+    padding: 0px;
+    margin: 0px;
+}

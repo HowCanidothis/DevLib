@@ -144,6 +144,7 @@ private:
     SharedPointer<ResourcesSystem> m_resourceSystem;
     QVector<GtRendererPtr> m_childRenderers;
     GtRenderProperties m_renderProperties;
+    GtRendererController* m_currentRenderController;
     QVector<FAction> m_delayedDraws;
     std::atomic_bool m_updateRequested;
     ThreadHandler m_threadHandler;

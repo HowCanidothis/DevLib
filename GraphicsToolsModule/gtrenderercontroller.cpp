@@ -151,6 +151,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , m_resize(DelayedCallObjectParams(100, renderer->GetThreadHandlerNoCheck()))
     , m_dirty(true)
     , m_renderPath(::make_shared<GtDefaultRenderPath>(renderer))
+    , m_scaleFactor(1.f)
 {
     m_controllersContext->Camera = m_camera.get();
     m_controllersContext->Renderer = renderer;
@@ -160,6 +161,11 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     m_camera->SetPosition({0.f,0.f,1000.f}, { 0.f, 0.f, -1.f }, { 0.f, 1.f, 0.f });
 
     m_renderer->MoveToThread(SpaceColor);
+}
+
+void GtRendererController::SetScaleFactor(float scaleFactor)
+{
+    m_scaleFactor = scaleFactor;
 }
 
 bool GtRendererController::isDirtyReset()
@@ -184,6 +190,7 @@ void GtRendererController::UpdateFrame()
 GtRendererController::~GtRendererController()
 {
     OnAboutToBeDestroyed();
+    m_onDeleted.Interrupt();
 }
 
 void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)
@@ -208,6 +215,23 @@ void GtRendererController::ClearQueue(qint32 queueNumber)
             m_drawables.erase(foundIt);
         }
     });
+}
+
+#include <private/qhighdpiscaling_p.h>
+
+AsyncResult GtRendererController::MapToScreen(const Point3F& point, Point2I& pointResult) const
+{
+    auto* c = const_cast<GtRendererController*>(this);
+    auto onDeleted = m_onDeleted;
+    auto result = m_renderer->Asynch([this, c, point, &pointResult, onDeleted]{
+        if(onDeleted.IsInterrupted()) {
+            return;
+        }
+        auto projected = c->GetCamera()->Project(point);
+        pointResult = Point2I(projected.x(), projected.y());
+        pointResult /= m_scaleFactor;
+    });
+    return result;
 }
 
 void GtRendererController::SetVisibilityMask(qint32 mask)

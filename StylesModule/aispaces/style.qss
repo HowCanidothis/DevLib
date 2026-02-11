@@ -706,3 +706,22 @@ WPSCProjectionsView QFrame#UnderCover {
 WPSCProjectionView {
     background: @cbg.2;
 }
+
+QToolBar[a_actionsBar] {
+    margin-right: 20px;
+    padding-right: 20px;
+}
+
+QToolBar[a_actionsBar] QToolButton {
+    font-size: 14px;
+    color: @ctext.label;
+    padding: 4px 12px 3px 12px;
+}
+
+QToolBar[a_actionsBar] QToolButton:hover {
+    background: @cbg.hover;
+}
+
+QToolBar[a_actionsBar] QToolButton:pressed {
+    background: @cbg.3;
+}
