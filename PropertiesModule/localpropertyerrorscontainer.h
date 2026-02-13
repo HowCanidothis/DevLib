@@ -68,6 +68,7 @@ public:
     DispatcherConnections ConnectFromErrors(const char* debugLocation, const LocalPropertyErrorsContainer& errors, const QSet<Name>& activeErrors);
 
     QString ToString() const;
+    QString ToErrorString(const QString& separator = "\n") const;
     QStringList ToStringList() const;
 
     LocalPropertyBool HasErrors;

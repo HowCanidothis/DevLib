@@ -161,15 +161,15 @@
     </layout>
    </item>
    <item>
-    <widget class="WidgetsTableViewBase" name="TableIssues" native="true"/>
+    <widget class="WidgetsTreeViewBase" name="IssuesView"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>WidgetsTableViewBase</class>
-   <extends>QWidget</extends>
-   <header>WidgetsModule/internal.hpp</header>
+   <class>WidgetsTreeViewBase</class>
+   <extends>QTreeView</extends>
+   <header>WidgetsModule/TableViews/widgetstreeviewbase.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

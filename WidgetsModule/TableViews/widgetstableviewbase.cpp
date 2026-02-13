@@ -43,6 +43,14 @@ WidgetsTableViewBase::~WidgetsTableViewBase()
 
 }
 
+void WidgetsTableViewBase::setModel(QAbstractItemModel *model)
+{
+    Super::setModel(model);
+    m_modelConnections.connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this](const QItemSelection&, const QItemSelection&) {
+        update();
+    });
+}
+
 void WidgetsTableViewBase::OverrideEditorEvent(const std::function<void (const FAction&)>& action)
 {
     setProperty(OverridenEditorEvent, QVariant::fromValue(::make_shared<EditorEvent>(action)));
@@ -393,8 +401,9 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
         painter.drawRect(QRect(-1, y, viewport()->width(), rowh));
     }
 
-    if(selectionModel() != nullptr && !selectionModel()->selectedIndexes().isEmpty()) {
-        for(const auto& index : selectionModel()->selectedIndexes()) {
+    if(selectionModel() != nullptr) {
+        auto selectedIndexes = selectionModel()->selectedIndexes();
+        for(const auto& index : selectedIndexes) {
             if(this->isPersistentEditorOpen(index)) {
                 continue;
             }

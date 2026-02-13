@@ -52,14 +52,22 @@ bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
         SetTitle(widget->windowTitle());
     } break;
     case QEvent::Resize:
-    case QEvent::Move:
+    case QEvent::Move: {
+        auto* widget = window();
+        if(!widget->isMaximized()) {
+            m_windowGeometry = window()->saveGeometry();
+        }
+    } break;
     case QEvent::WindowStateChange: {
         auto* widget = window();
-        if(widget->isMaximized()) {
+        auto* ce = static_cast<QWindowStateChangeEvent*>(event);
+        auto dif = ce->oldState() ^ widget->windowState();
+        if(dif & Qt::WindowMaximized && widget->windowState() & Qt::WindowMaximized) {
             WidgetWrapper(ui->BtnMaximize).ApplyStyleProperty("windowMaximized", true);
+            window()->layout()->setMargin(0);
         } else {
-            m_windowGeometry = window()->saveGeometry();
             WidgetWrapper(ui->BtnMaximize).ApplyStyleProperty("windowMaximized", false);
+            window()->layout()->setMargin(10);
         }
     } break;
     default: break;
@@ -148,11 +156,9 @@ void MenuBarMovePane::MaximizeRestore()
         return;
     }    
     if(window()->isMaximized()) {
-        window()->layout()->setMargin(10);
         WidgetWrapper(window()).RestoreGeometry(m_windowGeometry);
         OnGeometryRestored(window());
     } else {
-        window()->layout()->setMargin(0);
         window()->showMaximized();
     }
 }

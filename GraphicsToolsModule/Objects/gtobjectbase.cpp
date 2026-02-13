@@ -116,6 +116,11 @@ const GtRenderProperties& GtDrawableBase::getRenderProperties() const
     return m_renderer->m_renderProperties;
 }
 
+const GtRendererController* GtDrawableBase::getRendererController() const
+{
+    return m_renderer->m_currentRenderController;
+}
+
 void GtDrawableBase::initialize(GtRenderer* renderer)
 {
     onInitialize(renderer);

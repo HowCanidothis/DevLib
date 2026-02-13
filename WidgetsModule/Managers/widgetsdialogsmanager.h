@@ -14,6 +14,7 @@ public:
     static const char* ResizeablePropertyName;
     static const char* CustomViewPropertyKey;
     static const char* NoClosePropertyName;
+    static const char* SizeHintPropertyName;
 
     using FDialogHandler = std::function<void (class WidgetsDialog*)>;
     QList<QString> AutomatedSourcePaths;

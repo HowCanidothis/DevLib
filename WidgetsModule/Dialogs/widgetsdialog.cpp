@@ -40,16 +40,13 @@ void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const
         return priorityMap.value(frole, 3) < priorityMap.value(srole, 3);
     });
     for(auto* button : sortedByRole) {
-        ui->horizontalLayout->addWidget(button);
-//        auto bRole = m_roles.value(button, ButtonRole::Save);
-//        switch(bRole) {
-//        case ButtonRole::Save: ui->horizontalLayout->addWidget(button);
-//            break;
-//        case ButtonRole::Cancel: ui->horizontalLayout->insertWidget(1, button);
-//            break;
-//        default: ui->horizontalLayout->insertWidget(0, button);
-//            break;
-//        }
+        auto bRole = m_roles.value(button, ButtonRole::Save);
+        switch(bRole) {
+        case ButtonRole::IconWithText: ui->horizontalLayout->insertWidget(0, button);
+            break;
+        default: ui->horizontalLayout->addWidget(button);
+            break;
+        }
     }
     if(handler != nullptr) {
         handler(m_buttons);
@@ -82,12 +79,16 @@ QAbstractButton* WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruc
     };
 
     switch(b.Role) {
+    case QDialogButtonBox::ActionRole:
+        if(!b.Icon.IsNull()) {
+            WidgetAbstractButtonWrapper(button).SetIcon(b.Icon);
+        }
+        setRole(button, ButtonRole::IconWithText); break;
     case QDialogButtonBox::YesRole:
     case QDialogButtonBox::ApplyRole:
-    case QDialogButtonBox::ActionRole:;
     case QDialogButtonBox::AcceptRole: setRole(button, ButtonRole::Save); break;
-    case QDialogButtonBox::ResetRole:
     case QDialogButtonBox::NoRole:
+    case QDialogButtonBox::ResetRole:
     case QDialogButtonBox::RejectRole: setRole(button, ButtonRole::Cancel); break;
     case QDialogButtonBox::DestructiveRole: setRole(button, ButtonRole::Reset); break;
     default: Q_ASSERT(false); break;
@@ -97,9 +98,15 @@ QAbstractButton* WidgetsDialog::AddButton(const WidgetsDialogsManagerButtonStruc
     }
     auto index = m_buttons.size();
     m_buttons.append(button);
-    WidgetAbstractButtonWrapper(button).SetOnClicked([this, index]{
-        done(index);
-    });
+    if(b.Role == QDialogButtonBox::ActionRole) {
+        WidgetAbstractButtonWrapper(button).SetOnClicked([this, index]{
+            m_onDone(index);
+        });
+    } else {
+        WidgetAbstractButtonWrapper(button).SetOnClicked([this, index]{
+            done(index);
+        });
+    }
     button->setDefault(true);
     return button;
 }

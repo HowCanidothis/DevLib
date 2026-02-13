@@ -336,6 +336,7 @@ void GtRenderer::onDraw()
         auto* depthFbo = controller->m_depthFbo.get();
         m_renderProperties = controller->m_renderProperties;
         m_currentVisibilityMask = controller->m_controllers->GetVisibilityMask();
+        m_currentRenderController = controller.get();
         m_renderProperties[RENDER_PROPERTY_CAMERA_STATE_CHANGED] = cameraStateChanged;
 
         controller->drawSpace(this);

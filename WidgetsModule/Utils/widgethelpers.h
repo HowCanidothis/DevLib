@@ -6,6 +6,7 @@
 
 #include "WidgetsModule/widgetsdeclarations.h"
 #include "WidgetsModule/Dialogs/widgetsdialog.h"
+#include "WidgetsModule/Models/viewmodelsstandard.h"
 
 struct WidgetWrapperInjectedCommutatorData
 {
@@ -292,7 +293,7 @@ public:
 
     bool HasParent(const QWidget* parent) const;
     void ForeachParentWidget(const std::function<bool(const WidgetWrapper&)>& handler) const;
-    void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler) const;
+    void ForeachChildWidget(const std::function<void (const WidgetWrapper&)>& handler, bool recursive = true) const;
 
 protected:
     template<typename T, typename FPropertyGetter, typename ... Dispatchers>
@@ -447,6 +448,8 @@ class WidgetComboboxWrapper : public WidgetWrapper
 public:
     WidgetComboboxWrapper(class QComboBox* combobox);
     WidgetComboboxWrapper(class WidgetsComboBoxLayout* combobox);
+
+    WidgetComboboxWrapper& TurnToFilterComboBox(const ModelsStandardRowModelPtr& model, LocalPropertyInt* filter);
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetComboboxWrapper, QComboBox)
     template<class Enum, typename ... Dispatchers>
@@ -834,8 +837,8 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS_BASE(ViewModelWrapper, QAbstractItemModel);
 
     class ViewModelsDefaultFieldModel* CreateDefaultFieldModel(QObject* parent, const FTranslationHandler& field = nullptr) const;
-    const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column) const;
-    const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function, qint32 column) const { return ForeachModelIndex(QModelIndex(), function, column); }
+    const ViewModelWrapper& ForeachModelIndex(const QModelIndex& parent, const FIterationHandler& function, qint32 column, bool recursive = true) const;
+    const ViewModelWrapper& ForeachModelIndex(const FIterationHandler& function, qint32 column, bool recursive = true) const { return ForeachModelIndex(QModelIndex(), function, column, recursive); }
     qint32 IndexOf(const FIterationHandler& handler, qint32 column) const;
     QModelIndex Find(const FIterationHandler& handler, qint32 column) const;
 

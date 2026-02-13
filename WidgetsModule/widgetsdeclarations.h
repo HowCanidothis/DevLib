@@ -64,6 +64,7 @@ struct DescWidgetsLocationAttachmentParams
         , Delay(0)
         , RelativeParent(nullptr)
         , FullParentSize(true)
+        , AddSizeAdjuster(true)
     {}
 
     QuadTreeF::BoundingRect_Location Location;
@@ -71,17 +72,20 @@ struct DescWidgetsLocationAttachmentParams
     QWidget* RelativeParent;
     QPoint Offset;
     bool FullParentSize;
+    bool AddSizeAdjuster;
 
     DescWidgetsLocationAttachmentParams& SetOffset(const QPoint& offset) { Offset = offset; return *this; }
     DescWidgetsLocationAttachmentParams& SetDelay(qint32 delay) { Delay = delay; return *this; }
     DescWidgetsLocationAttachmentParams& SetRelativeParent(QWidget* parent) { RelativeParent = parent; return *this; }
     DescWidgetsLocationAttachmentParams& DisableFullParentSize() { FullParentSize = false; return *this; }
+    DescWidgetsLocationAttachmentParams& RemoveSizeAdjuster() { AddSizeAdjuster = false; return *this; }
 };
 
 struct WidgetsDialogsManagerButtonStruct
 {
     QDialogButtonBox::ButtonRole Role;
     FTranslationHandler Text;
+    Name Icon;
 
     WidgetsDialogsManagerButtonStruct()
         : Role(QDialogButtonBox::RejectRole)
@@ -89,6 +93,11 @@ struct WidgetsDialogsManagerButtonStruct
     WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text)
         : Role(role)
         , Text(text)
+    {}
+    WidgetsDialogsManagerButtonStruct(QDialogButtonBox::ButtonRole role, const FTranslationHandler& text, const Name& icon)
+        : Role(role)
+        , Text(text)
+        , Icon(icon)
     {}
 };
 
@@ -125,7 +134,7 @@ struct WidgetsDialogsManagerDefaultButtons
     static WidgetsDialogsManagerButtonStruct SaveRoleButton(const FTranslationHandler& text);
     static WidgetsDialogsManagerButtonStruct CancelRoleButton(const FTranslationHandler& text);
     static WidgetsDialogsManagerButtonStruct DiscardRoleButton(const FTranslationHandler& text);
-    static WidgetsDialogsManagerButtonStruct ActionRoleButton(const FTranslationHandler& text);
+    static WidgetsDialogsManagerButtonStruct ActionRoleButton(const FTranslationHandler& text, const Name& icon);
 
     Q_DECLARE_TR_FUNCTIONS(WidgetsDialogsManagerDefaultButtons)
 };
@@ -142,6 +151,7 @@ struct DescCustomDialogParams
     std::optional<bool> Resizeable;
     std::optional<bool> Closeable;
     std::function<void (bool)> DontShowHandler;
+    QSize CustomSize;
 
     DescCustomDialogParams& SetDontShowHandler(const std::function<void (bool)>& dontShowHandler) { DontShowHandler = dontShowHandler; return *this; }
     DescCustomDialogParams& SetResizeable(){ Resizeable = true; return *this; }
@@ -150,6 +160,7 @@ struct DescCustomDialogParams
     DescCustomDialogParams& SetOnInitialized(const std::function<void (const QVector<QAbstractButton*>&)>& onInitialized) { OnInitialized = onInitialized; return *this; }
     DescCustomDialogParams& SetTitle(const FTranslationHandler& title) { Title = title; return *this; }
     DescCustomDialogParams& FillWithText(const QString& text);
+    DescCustomDialogParams& SetCustomSize(const QSize& size) { CustomSize = size; return *this; }
     DescCustomDialogParams& SetDefaultSpacing(bool defaultSpacing) { DefaultSpacing = defaultSpacing; return *this; }
     DescCustomDialogParams& AddButton(const WidgetsDialogsManagerButtonStruct& button)
     {

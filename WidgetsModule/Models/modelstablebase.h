@@ -95,6 +95,7 @@ public:
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
     void AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler);
+    void RemoveFlagsComponent(qint32 column);
 
     std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
     std::optional<QVariant> GetData(const QModelIndex& index, qint32 role) const;
@@ -501,6 +502,7 @@ public:
                 case Qt::DisplayRole: return tr("Add");
                 case Qt::BackgroundRole: return SharedSettings::GetInstance().StyleSettings.EnabledTableCellColor.Native();
                 case BackgroundAltRole: return SharedSettings::GetInstance().StyleSettings.EnabledTableCellAltColor.Native();
+                case Qt::DecorationRole: return Super::m_iconsContext.PlusIcon;
                 default: break;
                 }
             }

@@ -52,7 +52,9 @@ WidgetsLocationAttachment::WidgetsLocationAttachment(QWidget* target, const Desc
             }
         }).MakeSafe(m_componentPlacerConnections);
     }
-    StyleUtils::InstallSizeAdjuster(m_target);
+    if(params.AddSizeAdjuster) {
+        StyleUtils::InstallSizeAdjuster(m_target);
+    }
 }
 
 bool WidgetsLocationAttachment::eventFilter(QObject* watched, QEvent* event)

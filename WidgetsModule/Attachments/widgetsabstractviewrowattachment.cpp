@@ -1,4 +1,4 @@
-#include "widgetstableviewrowattachment.h"
+#include "widgetsabstractviewrowattachment.h"
 
 #include <QTableView>
 #include <QAction>
@@ -8,7 +8,7 @@
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Actions/widgetsglobaltableactionsscope.h"
 
-void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
+void WidgetsAbstractViewRowAttachment::ConnectButton(const Latin1Name& action, const WidgetPushButtonWrapper& button, const FTranslationHandler& dialogText, const WidgetsDialogsManagerButtonStruct& confirmButton)
 {
     button.SetOnClicked([this, action, dialogText, confirmButton]{
         if(SelectCurrentRow()) {
@@ -28,9 +28,8 @@ void WidgetsTableViewRowAttachment::ConnectButton(const Latin1Name& action, cons
     });
 }
 
-WidgetsTableViewRowAttachment::WidgetsTableViewRowAttachment(const std::function<QWidget* (WidgetsTableViewRowAttachment*)>& widgetCreator)
-    : CurrentRow(-1)
-    , m_target(nullptr)
+WidgetsAbstractViewRowAttachment::WidgetsAbstractViewRowAttachment(const std::function<QWidget* (WidgetsAbstractViewRowAttachment*)>& widgetCreator)
+    : m_target(nullptr)
 {
     m_pane = widgetCreator(this);
     Q_ASSERT(m_pane->parent() == nullptr);
@@ -38,7 +37,7 @@ WidgetsTableViewRowAttachment::WidgetsTableViewRowAttachment(const std::function
     StyleUtils::InstallSizeAdjuster(m_pane);
 }
 
-void WidgetsTableViewRowAttachment::Attach(QTableView* v)
+void WidgetsAbstractViewRowAttachment::Attach(QAbstractItemView* v)
 {
     v->setFocusProxy(v);
     v->setMouseTracking(true);
@@ -55,12 +54,12 @@ void WidgetsTableViewRowAttachment::Attach(QTableView* v)
             m_pane->hide();
             m_pane->setParent(nullptr);
             v->setTabKeyNavigation(true);
-            CurrentRow = -1;
+            CurrentIndex = QModelIndex();
             m_target = nullptr;
             return;
         }
         m_pane->setParent(v->viewport());
-        CurrentRow = index.row();
+        CurrentIndex = index;
         m_pane->show();        
         QRect rect = v->visualRect(index);
         auto left = v->viewport()->width() - m_pane->minimumSizeHint().width();
@@ -72,17 +71,17 @@ void WidgetsTableViewRowAttachment::Attach(QTableView* v)
         m_pane->hide();
         m_pane->setParent(nullptr);
         v->setTabKeyNavigation(true);
-        CurrentRow = -1;
+        CurrentIndex = QModelIndex();
         m_target = nullptr;
     });
 }
 
-bool WidgetsTableViewRowAttachment::SelectCurrentRow()
+bool WidgetsAbstractViewRowAttachment::SelectCurrentRow()
 {
-    if(CurrentRow == -1) {
+    if(!CurrentIndex.Native().isValid()) {
         return false;
     }
-    auto center = m_target->visualRect(m_target->model()->index(CurrentRow, 0)).center();
+    auto center = m_target->visualRect(CurrentIndex).center();
     WidgetWrapper(m_target->viewport()).Click(center);
     return true;
 }

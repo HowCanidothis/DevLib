@@ -189,6 +189,8 @@ public:
         return result;
     }
 
+    float GetScaleFactor() const { return m_scaleFactor; }
+    void SetScaleFactor(float scaleFactor);
     void RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable);
     void ClearQueue(qint32 queueNumber);
 
@@ -212,6 +214,7 @@ public:
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;
 
+    AsyncResult MapToScreen(const Point3F& point, Point2I& result) const;
     const ControllersContainer* GetContainer() const { return m_controllers.get(); }
     GtRenderer* GetRenderer() const { return m_renderer; }
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
@@ -260,6 +263,8 @@ private:
     DelayedCallObject m_resize;
     bool m_dirty;
     GtRenderPathPtr m_renderPath;
+    float m_scaleFactor;
+    Interruptor m_onDeleted;
 };
 
 #endif // GTRENDERERCONTROLLER_H

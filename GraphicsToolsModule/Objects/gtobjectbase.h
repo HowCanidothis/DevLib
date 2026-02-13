@@ -77,6 +77,7 @@ protected:
     }
 
     const GtRenderProperties& getRenderProperties() const;
+    const GtRendererController* getRendererController() const;
 
 protected:
     GtRenderer* m_renderer;
