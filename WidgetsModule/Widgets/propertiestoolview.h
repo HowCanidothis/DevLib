@@ -150,17 +150,18 @@ public:
         });
     }
 
-    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>* ()>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter)
+    LineData AddProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>* ()>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter, int column = 0)
     {
         auto* cb = new QComboBox;
 
-        return addProperty(propertyName, title, cb, [this, propertyGetter, modelGetter](QWidget* w){
+        return addProperty(propertyName, title, cb, [this, propertyGetter, modelGetter, column](QWidget* w){
             auto* property = propertyGetter();
             if(property == nullptr) {
                 return;
             }
             auto* comboBox = reinterpret_cast<QComboBox*>(w);
             comboBox->setModel(modelGetter());
+            comboBox->setModelColumn(column);
             m_connectors.AddConnector<LocalPropertiesComboBoxConnector>(property, comboBox, IdRole);
         });
     }
@@ -387,10 +388,10 @@ struct TPropertiesToolWrapper {
         return Register(m_folder->AddProperty<Property>(propertyName, title, [property]{ return property; }));
     }
 
-    LineData AddIdProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>& (T*)>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter)
+    LineData AddIdProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalProperty<Name>& (T*)>& propertyGetter, const std::function<QAbstractItemModel*()>& modelGetter, int modelColumn = 0)
     {
         auto* property = &propertyGetter(m_object);
-        return Register(m_folder->AddProperty(propertyName, title, [property]() -> LocalProperty<Name>* { return property; }, modelGetter));
+        return Register(m_folder->AddProperty(propertyName, title, [property]() -> LocalProperty<Name>* { return property; }, modelGetter, modelColumn));
     }
 
     LineData AddBoolProperty(const Name& propertyName, const FTranslationHandler& title, const std::function<LocalPropertyBool& (T*)>& propertyGetter){
