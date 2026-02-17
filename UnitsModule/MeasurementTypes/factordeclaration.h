@@ -38,4 +38,9 @@ namespace FatigueRatioUnits {
     DECLARE_MEASUREMENT_UNIT(FatigueRatio)
 }
 DECLARE_MEASUREMENT(FatigueRatio)
+
+namespace ThermalFactorUnits {
+    DECLARE_MEASUREMENT_UNIT(ThermalFactor)
+}
+DECLARE_MEASUREMENT(ThermalFactor)
 #endif // FACTORDECLARATION_H
