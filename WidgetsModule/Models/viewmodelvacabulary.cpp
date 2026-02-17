@@ -42,6 +42,16 @@ ModelsVocabularyViewModel::ModelsVocabularyViewModel(QObject* parent)
         }
         return result;
     });
+    m_roleHorizontalHeaderDataHandlers.insert(UnitRole, [this](qint32 section) {
+        const auto& header = GetData()->GetHeader(section);
+        QVariant result;
+        if(header.Measurement != nullptr && header.Measurement() != nullptr){
+#ifdef UNITS_MODULE_LIB
+            result = QVariant::fromValue(header.Measurement());
+#endif
+        }
+        return result;
+    });
 
     m_roleSetDataHandlers.insert(Qt::EditRole, [this](qint32 row, qint32 column, const QVariant& value) -> bool {
         QVariant concreteValue = value;

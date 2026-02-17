@@ -631,6 +631,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementFatigueRatio::Value)
             .AddUnit(&FatigueRatioUnits::FatigueRatio);
 
+    AddMeasurement(MeasurementThermalFactor::Value)
+            .AddUnit(&ThermalFactorUnits::ThermalFactor);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,      {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,             {AngleUnits::Degrees.Id,                       2})
@@ -693,7 +696,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
-            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2});
+            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -757,7 +761,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
-            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2});
+            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -822,7 +827,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementMagneticFlux::NAME, {MagneticFluxUnits::MicroWeber.Id,    3})
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactorSI.Id,    2})
-            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2});
+            .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);

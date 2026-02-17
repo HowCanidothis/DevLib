@@ -38,3 +38,8 @@ namespace FatigueRatioUnits {
     IMPLEMENT_MEASUREMENT_UNIT(FatigueRatio, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(FatigueRatio, TR(MeasurementTr::tr("Fatigue Ratio")))
+
+namespace ThermalFactorUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(ThermalFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(ThermalFactor, TR(MeasurementTr::tr("Thermal Factor")))
