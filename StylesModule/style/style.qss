@@ -491,6 +491,10 @@ QTreeView::item:selected {
     background: @cbg.selected;
 }
 
+QTreeView::item:selected:hover {
+    background: @cbg.selected;
+}
+
 QTreeView::item:hover {
     background: @cbg.hover;
 }
@@ -556,11 +560,14 @@ QColumnView::item:!selected:hover {
     outline: 0;
 }*/
 
-QListView::item:selected,
-QTableView::item:selected,
-QColumnView::item:selected {
+QTableView::item:selected {
     background-color: @ctext.1;
     color: @ctext.label;
+}
+
+QListView::item:selected,
+QColumnView::item:selected {
+    background-color: @ctext.1;
 }
 
 QTableCornerButton::section {
@@ -583,7 +590,6 @@ QHeaderView[a_focus=true]::section {
 }
 
 QHeaderView::section {
-    padding: 2px;
     border-radius: 0px;
     text-align: left;
     background-color: transparent;
@@ -601,6 +607,7 @@ QHeaderView::section::vertical {
 }
 
 QHeaderView::down-arrow {
+    subcontrol-position: top center;
     background: transparent;
     border: none;
     height: 16px;
@@ -611,6 +618,7 @@ QHeaderView::down-arrow {
 }
 
 QHeaderView::up-arrow {
+    subcontrol-position: top center;
     background: transparent;
     border: none;
     height: 16px;

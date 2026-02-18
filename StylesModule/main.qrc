@@ -115,5 +115,9 @@
         <file>style/res/arrow-down-sort.svg</file>
         <file>style/res/arrow-up-sort.svg</file>
         <file>style/res/unfold-less-horizontal.svg</file>
+        <file>style/res/chevron-down-alt.svg</file>
+        <file>style/res/chevron-left-alt.svg</file>
+        <file>style/res/chevron-right-alt.svg</file>
+        <file>style/res/chevron-up-alt.svg</file>
     </qresource>
 </RCC>

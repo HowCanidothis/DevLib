@@ -725,3 +725,7 @@ QToolBar[a_actionsBar] QToolButton:hover {
 QToolBar[a_actionsBar] QToolButton:pressed {
     background: @cbg.3;
 }
+
+WPSBackToPlanSelector QWidget#widget {
+    background: red;
+}

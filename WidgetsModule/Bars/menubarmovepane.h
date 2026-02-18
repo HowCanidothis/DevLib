@@ -29,6 +29,8 @@ public:
     void SetTitle(const QString& title);
     void MaximizeRestore();
 
+    static const char* DontHandleMoveEventPropertyName;
+
     // QObject interface
 public:
     bool filter(QObject* watched, QEvent* event);

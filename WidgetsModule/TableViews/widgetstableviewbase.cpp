@@ -15,6 +15,73 @@ using EditorEvent = std::function<void (const FAction&)>;
 using WidgetsTableViewBaseOverridenEditorEvent = SharedPointer<EditorEvent>;
 Q_DECLARE_METATYPE(WidgetsTableViewBaseOverridenEditorEvent)
 
+struct WidgetsTableViewBaseSpan
+{
+    int m_top;
+    int m_left;
+    int m_bottom;
+    int m_right;
+    bool will_be_deleted;
+    inline int top() const { return m_top; }
+    inline int left() const { return m_left; }
+    inline int bottom() const { return m_bottom; }
+    inline int right() const { return m_right; }
+    inline int height() const { return m_bottom - m_top + 1; }
+    inline int width() const { return m_right - m_left + 1; }
+};
+
+struct WidgetsTableViewBaseSpanCollection
+{
+    typedef std::list<WidgetsTableViewBaseSpan*> SpanList;
+    SpanList spans; //lists of all spans
+    //the indexes are negative so the QMap::lowerBound do what i need.
+    typedef QMap<int, WidgetsTableViewBaseSpan*> SubIndex;
+    typedef QMap<int, SubIndex> Index;
+    Index index;
+
+    QSet<WidgetsTableViewBaseSpan*> spansInRect(int x, int y, int w, int h) const
+    {
+        QSet<WidgetsTableViewBaseSpan*> list;
+        if(index.isEmpty()) {
+            return list;
+        }
+        Index::const_iterator it_y = index.lowerBound(-y);
+        if(it_y == index.end())
+            --it_y;
+        while(-it_y.key() <= y + h) {
+            SubIndex::const_iterator it_x = (*it_y).lowerBound(-x);
+            if (it_x == (*it_y).end())
+                --it_x;
+            while(-it_x.key() <= x + w) {
+                WidgetsTableViewBaseSpan *s = *it_x;
+                if (s->bottom() >= y && s->right() >= x)
+                    list << s;
+                if (it_x == (*it_y).begin())
+                    break;
+                --it_x;
+            }
+            if(it_y == index.begin())
+                break;
+            --it_y;
+        }
+        return list;
+    }
+
+    WidgetsTableViewBaseSpan* spanAt(int x, int y) const
+    {
+        Index::const_iterator it_y = index.lowerBound(-y);
+        if (it_y == index.end())
+            return nullptr;
+        SubIndex::const_iterator it_x = (*it_y).lowerBound(-x);
+        if (it_x == (*it_y).end())
+            return nullptr;
+        WidgetsTableViewBaseSpan* span = *it_x;
+        if (span->right() >= x && span->bottom() >= y)
+            return span;
+        return nullptr;
+    }
+};
+
 class WidgetsTableViewBasePrivate
 {
 public:
@@ -22,6 +89,8 @@ public:
 //    qint32 top() const { return *((qint32*)((size_t)this + 0x244)); }
     const QPersistentModelIndex& hoverIndex() const { return *((QPersistentModelIndex*)((size_t)this + 0x310)); }
     const QRect& dropIndicatorRect() const { return *((QRect*)((size_t)this + 0x31c)); }
+    const WidgetsTableViewBaseSpanCollection& spans() const { return *((WidgetsTableViewBaseSpanCollection*)((size_t)this + 0x420)); }
+    bool hasSpans() { return !spans().spans.empty(); }
 };
 
 WidgetsTableViewBase::WidgetsTableViewBase(QWidget* parent)
@@ -277,10 +346,10 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
 
     const QRegion region = event->region().translated(offset);
 
-    //        if (d->hasSpans()) {
-    //            d->drawAndClipSpans(region, &painter, option, &drawn,
-    //                                 firstVisualRow, lastVisualRow, firstVisualColumn, lastVisualColumn);
-    //        }
+    if (d->hasSpans()) {
+        drawAndClipSpans(region, &painter, option, &drawn,
+                             firstVisualRow, lastVisualRow, firstVisualColumn, lastVisualColumn, gridColor);
+    }
 
     for (QRect dirtyArea : region) {
         dirtyArea.setBottom(qMin(dirtyArea.bottom(), int(y)));
@@ -392,6 +461,7 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
         //            }
     }
 
+    painter.setClipRect(viewport()->rect());
     if(d->hoverIndex().isValid()) {
         auto rowToHighlight = d->hoverIndex().row();
         auto y = rowViewportPosition(rowToHighlight) + offset.y() - 1;
@@ -399,6 +469,14 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
         painter.setPen(Qt::NoPen);
         painter.setBrush(m_hoverColor.Native());
         painter.drawRect(QRect(-1, y, viewport()->width(), rowh));
+        auto span = rowSpan(rowToHighlight, d->hoverIndex().column());
+        if(span != 1) {
+            auto row = rowToHighlight + 1;
+            while(--span) {
+                auto y = rowViewportPosition(row) + offset.y() - 1;
+                painter.drawRect(-1, y, viewport()->width(), rowHeight(row) + 1);
+            }
+        }
     }
 
     if(selectionModel() != nullptr) {
@@ -434,6 +512,113 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
 
     painter.setPen(old);
     paintDropIndicator(&painter);
+}
+
+int sectionSpanEndLogical(const QHeaderView *header, int logical, int span)
+{
+    int visual = header->visualIndex(logical);
+    for (int i = 1; i < span; ) {
+        if (++visual >= header->count())
+            break;
+        logical = header->logicalIndex(visual);
+        ++i;
+    }
+    return logical;
+}
+
+int sectionSpanSize(const QHeaderView* header, int logical, int span)
+{
+    int endLogical = sectionSpanEndLogical(header, logical, span);
+    return header->sectionPosition(endLogical)
+        - header->sectionPosition(logical)
+        + header->sectionSize(endLogical);
+}
+
+void WidgetsTableViewBase::drawAndClipSpans(const QRegion &area, QPainter *painter,
+                                         const QStyleOptionViewItem &option, QBitArray *drawn,
+                                         int firstVisualRow, int lastVisualRow, int firstVisualColumn, int lastVisualColumn, const QColor& gridColor)
+{
+    Q_D(const WidgetsTableViewBase);
+    bool alternateBase = false;
+    QRegion region = viewport()->rect();
+
+    QSet<WidgetsTableViewBaseSpan*> visibleSpans;
+    bool sectionMoved = verticalHeader()->sectionsMoved() || horizontalHeader()->sectionsMoved();
+
+    if (!sectionMoved) {
+        visibleSpans = d->spans().spansInRect(horizontalHeader()->logicalIndex(firstVisualColumn), verticalHeader()->logicalIndex(firstVisualRow),
+                                         lastVisualColumn - firstVisualColumn + 1, lastVisualRow - firstVisualRow + 1);
+    } else {
+        for(int x = firstVisualColumn; x <= lastVisualColumn; x++)
+            for(int y = firstVisualRow; y <= lastVisualRow; y++)
+                visibleSpans.insert(d->spans().spanAt(x,y));
+        visibleSpans.remove(nullptr);
+    }
+
+    auto visualSpanRect = [this](const WidgetsTableViewBaseSpan& span) {
+        int row = span.top();
+        int rowp = verticalHeader()->sectionViewportPosition(row);
+        int rowh = sectionSpanSize(verticalHeader(), row, span.height());
+        // horizontal
+        int column = span.left();
+        int colw = sectionSpanSize(horizontalHeader(), row, span.width());
+        if (isRightToLeft())
+            column = span.right();
+        int colp = horizontalHeader()->sectionViewportPosition(column);
+
+        const int i = showGrid() ? 1 : 0;
+        if (isRightToLeft())
+            return QRect(colp + i, rowp, colw - i, rowh - i);
+        return QRect(colp, rowp, colw - i, rowh - i);
+    };
+
+    for (WidgetsTableViewBaseSpan *span : qAsConst(visibleSpans)) {
+        int row = span->top();
+        int col = span->left();
+        QModelIndex index = model()->index(row, col, rootIndex());
+        if (!index.isValid())
+            continue;
+        QRect rect = visualSpanRect(*span);
+        rect.translate(d->scrollDelayOffset());
+        if (!area.intersects(rect))
+            continue;
+        QStyleOptionViewItem opt = option;
+        opt.rect = rect;
+        alternateBase = (span->top() & 1);
+        opt.features.setFlag(QStyleOptionViewItem::Alternate, alternateBase);
+        drawCell(painter, opt, index);
+        painter->setPen(gridColor);
+        painter->drawLine(opt.rect.right(), opt.rect.top(), opt.rect.right(), opt.rect.bottom());
+        painter->drawLine(opt.rect.left(), opt.rect.top(), opt.rect.left(), opt.rect.bottom());
+        painter->drawLine(opt.rect.left(), opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
+//        if (showGrid()) {
+//            // adjust the clip rect to be able to paint the top & left grid lines
+//            // if the headers are not visible, see paintEvent()
+//            if (horizontalHeader()->visualIndex(row) == 0)
+//                rect.setTop(rect.top() + 1);
+//            if (verticalHeader()->visualIndex(row) == 0) {
+//                if (isLeftToRight())
+//                    rect.setLeft(rect.left() + 1);
+//                else
+//                    rect.setRight(rect.right() - 1);
+//            }
+//        }
+        region -= rect;
+        for (int r = span->top(); r <= span->bottom(); ++r) {
+            const int vr = verticalHeader()->visualIndex(r);
+            if (vr < firstVisualRow || vr > lastVisualRow)
+                continue;
+            for (int c = span->left(); c <= span->right(); ++c) {
+                const int vc = horizontalHeader()->visualIndex(c);
+                if (vc < firstVisualColumn  || vc > lastVisualColumn)
+                    continue;
+                drawn->setBit((vr - firstVisualRow) * (lastVisualColumn - firstVisualColumn + 1)
+                             + vc - firstVisualColumn);
+            }
+        }
+
+    }
+    painter->setClipRegion(region);
 }
 
 void WidgetsTableViewBase::drawCell(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index)
