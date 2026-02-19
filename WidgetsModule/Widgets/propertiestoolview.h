@@ -222,6 +222,8 @@ public:
     LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>(), Qt::Orientation orientation = Qt::Horizontal);
     LineData AddTableView(const Name& id, ViewModelsTableBase* viewModel = nullptr, const Latin1Name& stateTag = Latin1Name());
 
+    QWidget* OpenSection(const FTranslationHandler& header);
+    QWidget* CloseSection();
     void Bind();
     void ClearBindings();
 

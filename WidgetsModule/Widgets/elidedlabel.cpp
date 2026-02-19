@@ -94,9 +94,18 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
 //    painter.setBrush(Qt::red);
 //    painter.drawRect(rect());
 
+    auto currentSize = size();
+    QStyleOption opt;
+    auto sizeWithMargins = style()->sizeFromContents(QStyle::CT_PushButton, &opt, currentSize, this);
+    ///PM_DockWidgetTitleBarButtonMargin to get top margin
+    auto leftMargin = style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth, &opt, this);
+    auto rightMargin = sizeWithMargins.width() - currentSize.width() - leftMargin;
+
     if(m_alignment != (Qt::AlignLeft | Qt::AlignVCenter)) {
-        painter.drawText(rect(), content, QTextOption(m_alignment));
+        painter.drawText(rect().adjusted(leftMargin, 0, -rightMargin, 0), content, QTextOption(m_alignment));
     } else {
+        auto w = currentSize.width() - leftMargin - rightMargin;
+
         QTextLayout textLayout(content, painter.font());
         textLayout.beginLayout();
         QVector<QTextLine> textLines;
@@ -106,7 +115,7 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
             if (!line.isValid())
                 break;
 
-            line.setLineWidth(width());
+            line.setLineWidth(w);
             textLines.append(line);
 
             int nextLineY = y + lineSpacing;
@@ -130,7 +139,7 @@ void ElidedLabel::paintEvent(QPaintEvent *event)
             y = nextLineY;
             QString lastLine = content.mid(line.textStart(), line.textLength());
             QString elidedLastLine = fontMetrics.elidedText(lastLine, Qt::ElideRight, width());
-            painter.drawText(QPointF(0, y), elidedLastLine);
+            painter.drawText(QPointF(leftMargin, y), elidedLastLine);
         }
     }
 }

@@ -388,3 +388,28 @@ QPushButton#BtnBack {
 QPushButton#ColumnsSelector {
     background: @cbg.hover;
 }
+
+PropertiesToolView {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+QFrame#CloseSectionLine {
+    border-bottom: 1px solid @cbg.3;
+    background: transparent;
+}
+
+QWidget[a_ptvRight=true] {
+    margin-right: 8px;
+}
+
+QWidget[a_ptvLeft=true] {
+    margin-left: 8px;
+}
+
+QLabel[GroupTitle=true] {
+    font-size: 14px;
+    color: @ctext.label;
+    margin-bottom: 5px;
+    margin-left: -1px;
+}

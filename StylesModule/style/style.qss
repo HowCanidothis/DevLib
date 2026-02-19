@@ -69,13 +69,6 @@ QLabel[MinorTitle=true] {
     color: @ctext.active;
 }
 
-QLabel[GroupTitle=true] {
-    border-bottom: 1px solid @cbr.normal;
-    font-size: 14px;
-    color: @ctext.active;
-    margin-top: 10px;
-}
-
 QLineEdit{
     background: @cbg.control;
     padding-left: 8px;
@@ -1273,3 +1266,4 @@ QToolButton#qt_toolbar_ext_button {
     padding: 0px;
     margin: 0px;
 }
+
