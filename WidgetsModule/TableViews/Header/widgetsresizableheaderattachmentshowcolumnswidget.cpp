@@ -36,7 +36,8 @@ public:
             return false;
         }
         if(role == Qt::CheckStateRole) {
-            m_hv->setSectionHidden(mi.row(), v.toInt() != Qt::Checked);
+            const auto& at = GetData()->At(mi.row());
+            m_hv->setSectionHidden(at.LogicalIndex, v.toInt() != Qt::Checked);
             SectionChanged();
             m_hv->update();
             return true;

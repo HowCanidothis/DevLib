@@ -330,6 +330,8 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     widget->setObjectName(id.AsString());
     int rowCount = m_layout->rowCount();
     if(title == nullptr) {
+        widget->setProperty("a_ptvLeft", true);
+        widget->setProperty("a_ptvRight", true);
         m_layout->addWidget(widget, rowCount, 0, 1, 2);
         LineData result (id, widget);
         OnPropertyAdded(result);
@@ -344,12 +346,26 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     case Qt::Horizontal: {
         header->setProperty("HorizontalLabel", true);
         widget->setFixedWidth(150);
+        header->setProperty("a_ptvLeft", true);
+        header->setProperty("a_ptvRight", true);
+//        header->setContentsMargins(8, 0, 0, 0);
+        widget->setProperty("a_ptvLeft", true);
+        widget->setProperty("a_ptvRight", true);
+
         m_layout->addWidget(header, rowCount, 0);
         m_layout->addWidget(widget, rowCount, 1);
         break;
     }
     case Qt::Vertical: {
         header->setAlignment(Qt::AlignCenter);
+//        header->setContentsMargins(8, 0, 8, 0);
+//        widget->setContentsMargins(8, 0, 8, 0);
+
+        header->setProperty("a_ptvRight", true);
+        header->setProperty("a_ptvLeft", true);
+
+        widget->setProperty("a_ptvRight", true);
+        widget->setProperty("a_ptvLeft", true);
         m_layout->addWidget(header, rowCount++, 0, 1, 2);
         m_layout->addWidget(widget, rowCount, 0, 1, 2);
         break;
@@ -369,6 +385,26 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     }
     OnPropertyAdded(result);
     return result;
+}
+
+QWidget* PropertiesToolView::OpenSection(const FTranslationHandler& header){
+    auto* label = new QLabel(this);
+    label->setProperty("a_ptvLeft", true);
+    label->setProperty("a_ptvRight", true);
+    label->setProperty("GroupTitle", true);
+    WidgetLabelWrapper(label).SetText(header);
+    m_layout->addWidget(label, m_layout->rowCount(), 0, 1, 2);
+    return label;
+}
+
+QWidget* PropertiesToolView::CloseSection(){
+    auto* line = new QFrame(this);
+    line->setObjectName("CloseSectionLine");
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Plain);
+    line->setLineWidth(0);
+    m_layout->addWidget(line, m_layout->rowCount(), 0, 1, 2);
+    return line;
 }
 
 void PropertiesToolView::Bind()

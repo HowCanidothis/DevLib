@@ -31,7 +31,7 @@ WidgetsStyleSettings {
     qproperty-visualizationFrameColor: @cbg.2;
     qproperty-visualizationAltAxisColor: @cbg.3;
     qproperty-visualizationAltBackgroundColor: @cbg.2;
-    qproperty-visualizationAltTextColor: white;
+    qproperty-visualizationAltTextColor: @ctext.visTextColor;
     qproperty-visualizationAltFrameColor: @cbg.2;
     qproperty-visualizationFrameSelectionColor: @cbg.hover;
     qproperty-visualizationAreaAlpha: @c.areaAlpha;

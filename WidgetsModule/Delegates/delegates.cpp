@@ -142,6 +142,8 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
 
 void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inOption, const QModelIndex& index) const
 {
+    static const qint32 iconSize = 20;
+    static const qint32 iconRightMargin = 5;
     if(m_drawRichText) {
         QStyleOptionViewItem option = inOption;
         initStyleOption(&option, index);
@@ -172,7 +174,7 @@ void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inO
         QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
         painter->save();
         painter->translate(textRect.topLeft());
-        painter->setClipRect(textRect.translated(-textRect.topLeft()));
+        painter->setClipRect(textRect.translated(-textRect.topLeft()).adjusted(0,0,-iconSize -iconRightMargin,0));
         doc.documentLayout()->draw(painter, ctx);
         painter->restore();
     } else {
@@ -181,12 +183,11 @@ void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inO
     if(index.flags().testFlag(Qt::ItemIsEditable)) {
         static auto expandIcon = IconsManager::GetInstance().GetIcon(ActionIcons::DropDown);
         const auto h = inOption.rect.height();
-        const qint32 iconSize = 20;
         if(!expandIcon.isNull() && inOption.rect.width() > iconSize && h > iconSize) {
             const auto tl = inOption.rect.topLeft();
             const auto br = inOption.rect.bottomRight();
 
-            expandIcon.paint(painter, br.x() - 5.0 - iconSize, tl.y() + (h - iconSize) / 2.0, iconSize, iconSize, Qt::AlignCenter);
+            expandIcon.paint(painter, br.x() - iconRightMargin - iconSize, tl.y() + (h - iconSize) / 2.0, iconSize, iconSize, Qt::AlignCenter);
         }
     }
 }

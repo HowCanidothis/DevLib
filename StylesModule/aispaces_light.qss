@@ -35,6 +35,7 @@
 @cIcon.f1:rgb(120,120,120);
 @cIcon.1:rgb(25, 118, 210);
 @cIcon.hover:rgb(238,238,238);
+@cIcon.alt: white;
 @resource.1::/style/res;
 @resource.2::/aispaces/res;
 @import url("style/style.qss");

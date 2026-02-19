@@ -111,5 +111,5 @@ QVariant ViewModelsStandard::data(const QModelIndex& index, int role) const
     default: break;
     }
 
-    return QVariant();
+    return Super::data(index,role);
 }

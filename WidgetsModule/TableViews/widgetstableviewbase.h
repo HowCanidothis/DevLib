@@ -31,6 +31,9 @@ private:
     void paintEvent(QPaintEvent* event) override;
     void drawCell(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index);
     void paintDropIndicator(QPainter *painter);
+    void drawAndClipSpans(const QRegion &area, QPainter *painter,
+                                         const QStyleOptionViewItem &option, QBitArray *drawn,
+                                         int firstVisualRow, int lastVisualRow, int firstVisualColumn, int lastVisualColumn, const QColor& gridColor);
     void mouseMoveEvent(QMouseEvent* event) override;
 
 private:

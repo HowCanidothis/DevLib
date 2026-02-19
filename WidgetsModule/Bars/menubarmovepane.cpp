@@ -11,6 +11,8 @@
 
 #include <WidgetsModule/internal.hpp>
 
+const char* MenuBarMovePane::DontHandleMoveEventPropertyName("DHMEPN");
+
 MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     : Super(parent)
     , Closeable(true)
@@ -27,6 +29,8 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     ui->BtnClose->setAttribute(Qt::WA_NoMousePropagation);
     ui->BtnMinimize->setAttribute(Qt::WA_NoMousePropagation);
     ui->BtnMaximize->setAttribute(Qt::WA_NoMousePropagation);
+    ui->PlaceHolder->setProperty(DontHandleMoveEventPropertyName, true);
+    ui->Title->setProperty(DontHandleMoveEventPropertyName, true);
 
     SetWindow(this);
 
@@ -91,7 +95,7 @@ QLabel* MenuBarMovePane::GetTitleWidget() const
 
 QHBoxLayout* MenuBarMovePane::GetPlaceHolder() const
 {
-    return ui->PlaceHolder;
+    return reinterpret_cast<QHBoxLayout*>(ui->PlaceHolder->layout());
 }
 
 QString MenuBarMovePane::GetTitle() const
@@ -115,6 +119,7 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
 {
     Super::mouseMoveEvent(event);
     if(!m_ignoreMoveEvents && event->pos() != m_pressPoint && event->buttons() == Qt::LeftButton) {
+        event->accept();
         if(window()->isMaximized()) {
             window()->layout()->setMargin(10);
             WidgetWrapper(window()).RestoreGeometry(m_windowGeometry);
@@ -127,17 +132,17 @@ void MenuBarMovePane::mouseMoveEvent(QMouseEvent* event)
             auto distance = event->pos() - m_pressPoint;
             window()->move(window()->pos() + distance);
         }
+//#ifdef Q_OS_WIN
+//        if (!m_isDrag){
+//            m_isDrag = true;
+//            ::SendNotifyMessage(HWND(nativeParentWidget()->winId()), WM_ENTERSIZEMOVE, SC_MOVE, NULL);
+//        }
 
-#ifdef Q_OS_WIN
-        if (!m_isDrag){
-            m_isDrag = true;
-            ::SendNotifyMessage(HWND(window()->winId()), WM_ENTERSIZEMOVE, SC_MOVE, NULL);
-        }
-
-        auto rect = window()->geometry();
-        RECT rectW {rect.left(), rect.top(), rect.right(), rect.bottom()};
-        ::SendMessageA(HWND(window()->winId()), WM_MOVING, NULL, LPARAM(&rectW));
-#endif
+//        auto rect = nativeParentWidget()->geometry();
+//        qDebug() << rect << nativeParentWidget()->winId();
+//        RECT rectW {rect.left(), rect.top(), rect.right(), rect.bottom()};
+//        ::SendMessageA(HWND(nativeParentWidget()->winId()), WM_MOVING, NULL, LPARAM(&rectW));
+//#endif
     }
 }
 

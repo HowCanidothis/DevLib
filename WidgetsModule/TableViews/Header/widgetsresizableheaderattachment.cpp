@@ -53,7 +53,7 @@ public:
         m_currentSection = logicalIndex;
         m_connections.Clear();
         m_widget->SetHeaderView(tv, params);
-        auto x = tv->sectionPosition(logicalIndex);
+        auto x = tv->sectionViewportPosition(logicalIndex);
         auto w = tv->sectionSize(logicalIndex);
         auto h = tv->height();
         auto sizeHint = this->sizeHint();
@@ -100,7 +100,7 @@ WidgetsResizableHeaderAttachment::WidgetsResizableHeaderAttachment(Qt::Orientati
 
     setDropIndicatorShown(params.DropIndicatorShown);
     setSortIndicatorShown(params.SortIndicatorShown);
-    setMinimumSectionSize(16);
+    setMinimumSectionSize(26);
 }
 
 WidgetsResizableHeaderAttachment::~WidgetsResizableHeaderAttachment()
