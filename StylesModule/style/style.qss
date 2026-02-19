@@ -473,10 +473,6 @@ QColumnView {
     background: transparent;
 }
 
-QListView {
-    background: @cbg.2;
-}
-
 QTreeView {
     qproperty-iconSize: 16px 16px;
     qproperty-indentation: 16;
@@ -485,14 +481,11 @@ QTreeView {
 QTreeView::item {
     color: @ctext.active;
     padding: 0px;
+    border: 1px solid transparent;
 }
 
 QTreeView::item:selected {
-    background: @cbg.selected;
-}
-
-QTreeView::item:selected:hover {
-    background: @cbg.selected;
+    border: 1px solid @ctext.1;
 }
 
 QTreeView::item:hover {
@@ -511,12 +504,14 @@ QTableView::item {
     padding: 0px;
 }
 
-QListView::item {
-    border: 1px solid transparent;
+QListView {
+    background: @cbg.2;
+    qproperty-iconSize: 18px;
 }
 
-QListView {
-    qproperty-iconSize: 18px;
+QListView::item {
+    border: 1px solid transparent;
+    color: @ctext.label;
 }
 
 QTableView {
@@ -524,12 +519,6 @@ QTableView {
     qproperty-showGrid: 0;
     qproperty-alternatingRowColors: 1;
     gridline-color: @cbg.3;
-}
-
-QListView::item,
-QColumnView::item {
-    background: transparent;
-    border: 1px solid transparent;
 }
 
 QTableView::item:selected:!active,
@@ -567,7 +556,7 @@ QTableView::item:selected {
 
 QListView::item:selected,
 QColumnView::item:selected {
-    background-color: @ctext.1;
+    border: 1px solid @ctext.1;
 }
 
 QTableCornerButton::section {
@@ -597,7 +586,7 @@ QHeaderView::section {
 }
 
 QHeaderView::section::horizontal {
-    padding-left: 4px;
+    padding-left: 20px;
     padding-right: 4px;
 }
 
@@ -607,7 +596,7 @@ QHeaderView::section::vertical {
 }
 
 QHeaderView::down-arrow {
-    subcontrol-position: top center;
+    subcontrol-position: center left;
     background: transparent;
     border: none;
     height: 16px;
@@ -618,7 +607,7 @@ QHeaderView::down-arrow {
 }
 
 QHeaderView::up-arrow {
-    subcontrol-position: top center;
+    subcontrol-position: center left;
     background: transparent;
     border: none;
     height: 16px;
@@ -1144,6 +1133,7 @@ QTabBar::tab {
     padding: 5px 20px 5px 20px;
     margin: 0px;
     border: none;
+    min-width: 100px;
 }
 
 QTabBar::close-button {
