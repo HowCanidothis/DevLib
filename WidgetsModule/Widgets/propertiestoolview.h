@@ -217,8 +217,6 @@ public:
 
     const LineData& FindRow(const Name& propertyName) const;
 
-    LineData BeginGroup(const FTranslationHandler& header);
-
     LineData AddData(const Name& id, QWidget* widget, const FTranslationHandler& title = nullptr, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>(), Qt::Orientation orientation = Qt::Horizontal);
     LineData AddTableView(const Name& id, ViewModelsTableBase* viewModel = nullptr, const Latin1Name& stateTag = Latin1Name());
 
@@ -357,9 +355,14 @@ struct TPropertiesToolWrapper {
         }
     }
 
-    void BeginGroup(const FTranslationHandler& header)
+    void OpenSection(const FTranslationHandler& header)
     {
-        Register(m_folder->BeginGroup(header));
+        m_folder->OpenSection(header);
+    }
+
+    void CloseSection()
+    {
+        m_folder->CloseSection();
     }
 
     LineData AddTableView(const Name& id, ViewModelsTableBase* viewModel, const Latin1Name& stateTag = Latin1Name())

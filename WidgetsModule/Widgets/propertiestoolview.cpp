@@ -302,16 +302,6 @@ const LineData& PropertiesToolView::FindRow(const Name& propertyName) const
     return iter.value().Data;
 }
 
-LineData PropertiesToolView::BeginGroup(const FTranslationHandler& header)
-{
-    int rowCount = m_layout->rowCount();
-    auto* label = new QLabel(header());
-    m_layout->addWidget(label, rowCount, 0, 1, 2);
-    label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-    label->setProperty("GroupTitle", true);
-    return LineData(Name(), label);
-}
-
 LineData PropertiesToolView::AddTableView(const Name& id, ViewModelsTableBase* viewModel, const Latin1Name& stateTag)
 {
     auto* tv = new WidgetsAdjustableTableView(this);
