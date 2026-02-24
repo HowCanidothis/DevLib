@@ -24,11 +24,13 @@ struct ModelsIconsContext
     static Name WarningIconId;
     static Name InfoIconId;
     static Name PlusIconId;
+    static Name DragIconId;
 
     IconsSvgIcon ErrorIcon;
     IconsSvgIcon WarningIcon;
     IconsSvgIcon InfoIcon;
     IconsSvgIcon PlusIcon;
+    IconsSvgIcon DragIcon;
 
 private:
     friend class ViewModelsTableBase;
@@ -91,6 +93,7 @@ public:
     qint32 AddComponent(qint32 role /*Qt::ItemDataRole*/, qint32 column, const ColumnComponentData& columnData);
     ColumnComponentData& ChangeComponent(qint32 role, qint32 column);
     void RemoveComponent(qint32 column);
+    void AddDragField(qint32 column);
     void AddFlagsOverrideComponent(const ColumnFlagsComponentData::FHandler& handler) { AddFlagsComponent(-2, handler); }
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
     void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
@@ -142,7 +145,7 @@ public:
 
     Qt::ItemFlags EditableFlags() const { return IsEnabled() ? StandardEditableFlags() : StandardNonEditableFlags(); }
     static Qt::ItemFlags StandardEditableFlags() { return StandardNonEditableFlags() | Qt::ItemIsEditable; }
-    static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable; }
+    static Qt::ItemFlags StandardNonEditableFlags() { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; }
 
     Dispatcher OnModelChanged;
 

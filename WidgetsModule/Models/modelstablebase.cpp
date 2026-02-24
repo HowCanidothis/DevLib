@@ -197,7 +197,7 @@ Qt::ItemFlags ViewModelsTableBase::flags(const QModelIndex& index) const
     }
     auto componentsResult = ColumnComponents.GetFlags(index);
     if(componentsResult.has_value()) {
-        return componentsResult.value() | Qt::ItemIsDragEnabled;
+        return componentsResult.value();
     }
 
     return StandardNonEditableFlags();
@@ -277,12 +277,14 @@ Name ModelsIconsContext::ErrorIconId("ErrorIcon");
 Name ModelsIconsContext::WarningIconId("WarningIcon");
 Name ModelsIconsContext::InfoIconId("InfoIcon");
 Name ModelsIconsContext::PlusIconId("PlusIcon");
+Name ModelsIconsContext::DragIconId("DragIcon");
 
 ModelsIconsContext::ModelsIconsContext()
     : ErrorIcon(IconsManager::GetInstance().GetIcon(ErrorIconId))
     , WarningIcon(IconsManager::GetInstance().GetIcon(WarningIconId))
     , InfoIcon(IconsManager::GetInstance().GetIcon(InfoIconId))
     , PlusIcon(IconsManager::GetInstance().GetIcon(PlusIconId))
+    , DragIcon(IconsManager::GetInstance().GetIcon(DragIconId))
 {
 
 }
@@ -360,6 +362,15 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const Col
 void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler)
 {
     AddFlagsComponent(column, ColumnFlagsComponentData(handler));
+}
+
+void ViewModelsTableColumnComponents::AddDragField(qint32 column)
+{
+    AddFlagsComponent(column, [](qint32) { return ViewModelsTableBase::StandardEditableFlags() | Qt::ItemIsDragEnabled; });
+    auto dragIcon = IconsManager::GetInstance().GetIcon("DragIcon");
+    AddComponent(Qt::DecorationRole, column, ColumnComponentData().SetGetter([dragIcon](const QModelIndex& index) -> std::optional<QVariant> {
+        return dragIcon;
+    }));
 }
 
 void ViewModelsTableColumnComponents::AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler)
