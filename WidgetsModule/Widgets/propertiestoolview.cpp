@@ -337,9 +337,9 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
         header->setProperty("HorizontalLabel", true);
         widget->setFixedWidth(150);
         header->setProperty("a_ptvLeft", true);
-        header->setProperty("a_ptvRight", true);
+        header->setProperty("a_ptvRight", false);
 //        header->setContentsMargins(8, 0, 0, 0);
-        widget->setProperty("a_ptvLeft", true);
+        widget->setProperty("a_ptvLeft", false);
         widget->setProperty("a_ptvRight", true);
 
         m_layout->addWidget(header, rowCount, 0);
