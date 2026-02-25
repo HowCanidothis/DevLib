@@ -198,8 +198,9 @@ void SvgIconEngine::paint(QPainter* painter, const QRect& rect,
                            QIcon::Mode mode, QIcon::State state)
 {
     QSize pixmapSize = rect.size();
-    if (painter->device())
+    if (painter->device()) {
         pixmapSize *= painter->device()->devicePixelRatioF();
+    }
     painter->drawPixmap(rect, pixmap(pixmapSize, mode, state));
 }
 
