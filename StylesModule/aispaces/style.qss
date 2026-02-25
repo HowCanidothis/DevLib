@@ -308,7 +308,7 @@ PropertiesToolFolderView QPushButton#BtnAddStab {
     background: @cbg.widget;
     text-align: left;
     padding: 10px 0px 10px 0px;
-    qproperty-iconSize: 20px 20px;
+    qproperty-iconSize: 16px 16px;
     border: none;
     border-radius: 0px;
     qproperty-icon: url(@cPath/plus-hover.svg);
