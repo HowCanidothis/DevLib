@@ -11,6 +11,7 @@ namespace ForceUnits
 }
 
 IMPLEMENT_MEASUREMENT(Force, TR(MeasurementTr::tr("Force")))
+IMPLEMENT_MEASUREMENT(SmallForce, TR(MeasurementTr::tr("Small Force")))
 
 namespace NormalizedForceUnits
 {

@@ -13,6 +13,7 @@ namespace ForceUnits
 }
 
 DECLARE_MEASUREMENT(Force)
+DECLARE_MEASUREMENT(SmallForce)
 
 namespace NormalizedForceUnits
 {

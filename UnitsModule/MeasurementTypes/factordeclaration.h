@@ -6,6 +6,8 @@
 namespace FrictionFactorUnits
 {
     DECLARE_MEASUREMENT_UNIT(FrictionFactor)
+    DECLARE_GLOBAL(double, Min)
+    DECLARE_GLOBAL(double, Max)
 }
 DECLARE_MEASUREMENT(FrictionFactor)
 
