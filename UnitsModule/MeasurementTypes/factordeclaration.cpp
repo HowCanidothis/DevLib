@@ -5,6 +5,9 @@
 namespace FrictionFactorUnits
 {
     IMPLEMENT_MEASUREMENT_UNIT(FrictionFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+
+    IMPLEMENT_GLOBAL(double, Min, 0.01);
+    IMPLEMENT_GLOBAL(double, Max, 3.0);
 }
 
 IMPLEMENT_MEASUREMENT(FrictionFactor, TR(MeasurementTr::tr("Friction Factor")))
