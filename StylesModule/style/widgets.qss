@@ -411,5 +411,5 @@ QLabel[GroupTitle=true] {
     font-size: 14px;
     color: @ctext.label;
     margin-bottom: 5px;
-    margin-left: -1px;
+    margin-left: 4px;
 }
