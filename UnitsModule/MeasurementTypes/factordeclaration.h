@@ -31,6 +31,9 @@ namespace WearFactorUnits {
     DECLARE_MEASUREMENT_UNIT(Pascal)
     DECLARE_MEASUREMENT_UNIT(WearFactorSI)
     DECLARE_MEASUREMENT_UNIT(WearFactor)
+
+    DECLARE_GLOBAL(double, Min)
+    DECLARE_GLOBAL(double, Max)
 }
 DECLARE_MEASUREMENT(WearFactor)
 
