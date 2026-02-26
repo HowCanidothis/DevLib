@@ -34,6 +34,9 @@ namespace WearFactorUnits {
     IMPLEMENT_MEASUREMENT_UNIT(Pascal, TR(MeasurementTr::tr("1 / Pa")), TR(MeasurementTr::tr("Pa-1")), 1.0)
     IMPLEMENT_MEASUREMENT_UNIT(WearFactorSI, TR(MeasurementTr::tr("E-10 / kPa")), TR(MeasurementTr::tr("E-10 / kPa")), 1.e-13)
     IMPLEMENT_MEASUREMENT_UNIT(WearFactor, TR(MeasurementTr::tr("E-10 / psi")), TR(MeasurementTr::tr("E-10 / psi")), 1.e-10 / 6894.757)
+
+    IMPLEMENT_GLOBAL(double, Min, 0.0)
+    IMPLEMENT_GLOBAL(double, Max, WearFactor.FromUnitToBase(2500.0))
 }
 IMPLEMENT_MEASUREMENT(WearFactor, TR(MeasurementTr::tr("Wear Factor")))
 
