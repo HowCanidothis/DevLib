@@ -113,19 +113,21 @@ QMenu* WidgetsResizableHeaderAttachment::CreateShowColumsMenu(QHeaderView* hv, c
     QTableView* table = qobject_cast<QTableView*> (hv->parentWidget());
     Q_ASSERT(table != nullptr);
     hv->setMouseTracking(true);
-    WidgetWrapper(hv->viewport()).AddEventFilter([hv, params](QObject*, QEvent* e) {
-        static auto* hoverButton = new WidgetsResizableHeaderAttachmentShowColumnsButton;
-        if(e->type() == QEvent::MouseMove) {
-            auto* me = static_cast<QMouseEvent*>(e);
-            auto logicalIndex = hv->logicalIndexAt(me->pos());
-            hoverButton->Show(hv, logicalIndex, params);
-        } else if(e->type() == QEvent::Leave) {
-            if(qApp->widgetAt(QCursor::pos()) != hoverButton) {
-                hoverButton->Hide();
+    if(hv->orientation() == Qt::Horizontal) {
+        WidgetWrapper(hv->viewport()).AddEventFilter([hv, params](QObject*, QEvent* e) {
+            static auto* hoverButton = new WidgetsResizableHeaderAttachmentShowColumnsButton;
+            if(e->type() == QEvent::MouseMove) {
+                auto* me = static_cast<QMouseEvent*>(e);
+                auto logicalIndex = hv->logicalIndexAt(me->pos());
+                hoverButton->Show(hv, logicalIndex, params);
+            } else if(e->type() == QEvent::Leave) {
+                if(qApp->widgetAt(QCursor::pos()) != hoverButton) {
+                    hoverButton->Hide();
+                }
             }
-        }
-        return false;
-    });
+            return false;
+        });
+    }
     auto* result = MenuWrapper(table).AddPreventedFromClosingMenu(hv->orientation() == Qt::Horizontal ? tr("Show Columns") : tr("Show Rows"));
     connect(result, &QMenu::aboutToShow, [table, result, params, hv]{
         result->clear();

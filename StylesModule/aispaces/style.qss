@@ -622,6 +622,10 @@ TreeIntroActionsBar QPushButton[a_addrole=true] {
     qproperty-iconSize: 16px 16px;
 }
 
+TreeIntroActionsBar QPushButton[a_hoverButton]:hover {
+    background: @cbg.widget;
+}
+
 TreeIntroActionsBar QPushButton[a_addrole=true]:hover {
     background: @cbg.disabled;
 }

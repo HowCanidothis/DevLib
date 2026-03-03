@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 
 const QSet<Qt::MouseButtons> GtPlayerControllerCamera::RotationButtons({Qt::LeftButton });
-const QSet<Qt::MouseButtons> GtPlayerControllerCamera::MovementButtons({Qt::RightButton, Qt::MiddleButton });
+const QSet<Qt::MouseButtons> GtPlayerControllerCamera::MovementButtons({Qt::MiddleButton, Qt::RightButton });
 
 GtPlayerControllerCamera::GtPlayerControllerCamera(const Name& name, ControllersContainer* container, ControllerBase* parent)
     : Super(name, container, parent)
@@ -22,9 +22,9 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
 {
     Point2I resolutional_screen_pos = resolutional(event->pos());
     auto depth = ctx().DepthBuffer->ValueAt(resolutional_screen_pos.x(), resolutional_screen_pos.y());
-    if(RotationButtons.contains(event->buttons())) {
+    if(IsRotationButton(event->buttons())) {
         ctx().Camera->Rotate(ctx().LastScreenPoint - resolutional_screen_pos);
-    } else if(MovementButtons.contains(event->buttons())){
+    } else if(IsMovementButton(event->buttons())){
         ctx().Camera->MoveFocused(resolutional_screen_pos);
     }
     ctx().LastScreenPoint = resolutional_screen_pos;

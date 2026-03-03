@@ -1688,23 +1688,25 @@ Dispatcher& WidgetWrapper::OnClicked() const
         auto* result = new Dispatcher();
         auto eventFilter = [result](QObject*, QEvent* event){
             switch (event->type()) {
-            case QEvent::MouseButtonPress: result->Invoke(); break;
+            case QEvent::MouseButtonPress: {
+                result->Invoke();
+            }   break;
             default: break;
             }
             return false;
         };
 
         w.AddEventFilter(eventFilter);
-        w.ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
-            widget.AddEventFilter(eventFilter);
-        });
+//        w.ForeachChildWidget([eventFilter](const WidgetWrapper& widget){
+//            widget.AddEventFilter(eventFilter);
+//        });
 
-        WidgetsObserver::GetInstance().OnAdded.Connect(CONNECTION_DEBUG_LOCATION, [w, eventFilter](QObject* o){
-            auto* created = qobject_cast<QWidget*>(o);
-            if(WidgetWrapper(created).HasParent(w)) {
-                WidgetWrapper(created).AddEventFilter(eventFilter);
-            }
-        }).MakeSafe(w.WidgetConnections());
+//        WidgetsObserver::GetInstance().OnAdded.Connect(CONNECTION_DEBUG_LOCATION, [w, eventFilter](QObject* o){
+//            auto* created = qobject_cast<QWidget*>(o);
+//            if(WidgetWrapper(created).HasParent(w)) {
+//                WidgetWrapper(created).AddEventFilter(eventFilter);
+//            }
+//        }).MakeSafe(w.WidgetConnections());
         return result;
     });
 }

@@ -13,6 +13,12 @@ class GtPlayerControllerCamera : public ControllerContextedBase<GtControllersCon
 public:
     GtPlayerControllerCamera(const Name& name, ControllersContainer* container, ControllerBase* parent=nullptr);
 
+    void SetRotationButtons(const QSet<Qt::MouseButtons>& buttons) { m_rotationButtons = buttons; }
+    void SetMovementButtons(const QSet<Qt::MouseButtons>& buttons) { m_movementButtons = buttons; }
+
+    bool IsRotationButton(Qt::MouseButtons button) const { return (m_rotationButtons.isEmpty() && m_movementButtons.isEmpty()) ? RotationButtons.contains(button) : m_rotationButtons.contains(button); }
+    bool IsMovementButton(Qt::MouseButtons button) const { return (m_rotationButtons.isEmpty() && m_movementButtons.isEmpty()) ? MovementButtons.contains(button) : m_movementButtons.contains(button); }
+
     static const QSet<Qt::MouseButtons> RotationButtons;
     static const QSet<Qt::MouseButtons> MovementButtons;
 
@@ -27,6 +33,8 @@ public:
 
 protected:
     Point2I resolutional(const Point2I& p) const;
+    QSet<Qt::MouseButtons> m_rotationButtons;
+    QSet<Qt::MouseButtons> m_movementButtons;
 };
 
 #endif // GTPLAYERCONTROLLERCAMERA_H
