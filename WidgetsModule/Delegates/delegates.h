@@ -118,6 +118,7 @@ class DelegatesColor : public QStyledItemDelegateBase
 public:
     DelegatesColor(QObject* parent)
         : Super(parent)
+        , m_alphaEnabled(true)
     {}
 
     QString displayText(const QVariant& value, const QLocale& locale) const override;
@@ -126,11 +127,13 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    DelegatesColor* DisableAlpha(){ m_alphaEnabled = false; return this;}
 
     CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
 
 private:
+    bool m_alphaEnabled;
     mutable class WidgetsDialog* m_editor;
 };
 
