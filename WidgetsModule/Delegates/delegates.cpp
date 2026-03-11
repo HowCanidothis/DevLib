@@ -643,7 +643,7 @@ QString DelegatesColor::displayText(const QVariant&, const QLocale&) const
 
 QWidget* DelegatesColor::createEditor(QWidget*, const QStyleOptionViewItem&, const QModelIndex& index) const
 {
-    auto dialog = WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow())).SetShowAlpha(true)
+    auto dialog = WidgetColorDialogWrapper(new QColorDialog(WidgetsDialogsManager::GetInstance().GetParentWindow())).SetShowAlpha(m_alphaEnabled)
                    .SetDefaultLabels();
     auto wdialog = new WidgetsDialog();
     wdialog->SetContent(dialog);
