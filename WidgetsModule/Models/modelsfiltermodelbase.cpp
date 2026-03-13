@@ -147,7 +147,6 @@ bool ViewModelsFilterModelBase::dropMimeData(const QMimeData* data, Qt::DropActi
 void ViewModelsFilterModelBase::sort(int column, Qt::SortOrder order)
 {
     Super::sort(column, order);
-    OnInvalidated();
 }
 
 bool ViewModelsFilterModelBase::setData(const QModelIndex& index, const QVariant& data, qint32 role)

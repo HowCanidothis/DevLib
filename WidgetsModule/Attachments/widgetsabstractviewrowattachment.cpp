@@ -3,6 +3,7 @@
 #include <QTableView>
 #include <QAction>
 
+#include "WidgetsModule/Attachments/widgetsactivetableattachment.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 #include "WidgetsModule/Utils/widgetstyleutils.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
@@ -81,7 +82,15 @@ bool WidgetsAbstractViewRowAttachment::SelectCurrentRow()
     if(!CurrentIndex.Native().isValid()) {
         return false;
     }
-    auto center = m_target->visualRect(CurrentIndex).center();
-    WidgetWrapper(m_target->viewport()).Click(center);
+    auto* sm = m_target->selectionModel();
+    if(sm == nullptr) {
+        return false;
+    }
+    sm->setCurrentIndex(CurrentIndex, QItemSelectionModel::Current);
+    sm->select(CurrentIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+
+    if(auto* tv = qobject_cast<QTableView*>(m_target)) {
+        WidgetsActiveTableViewAttachment::GetInstance()->ActiveTable = tv;
+    }
     return true;
 }
