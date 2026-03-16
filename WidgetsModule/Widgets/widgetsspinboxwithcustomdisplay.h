@@ -26,7 +26,10 @@ public:
     void SetValueFromTextHandler(const ValueFromTextHandler& valueFromTextHandler);
 
     DispatcherConnection MakeOptional(LocalPropertyBool* valid);
+    DispatcherConnection MakeOptional();
     void SetText(const QString& text);
+
+    bool IsValid() const;
 
 private:
     QString textFromValue(int val) const override;

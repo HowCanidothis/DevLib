@@ -202,6 +202,9 @@ DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
 QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new WidgetsSpinBoxWithCustomDisplay(parent);
+    spin->setMinimum(std::numeric_limits<qint32>().min());
+    spin->setMaximum(std::numeric_limits<qint32>().max());
+    spin->MakeOptional();
     OnEditorAboutToBeShown(spin, index);
     connect(spin, QOverload<qint32>::of(&QSpinBox::valueChanged), [this, index](int value){
         OnEditorValueChanged(value, index);
@@ -217,13 +220,13 @@ void DelegatesIntSpinBox::setEditorData(QWidget* editor, const QModelIndex& inde
 }
 
 void DelegatesIntSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    auto* spin = static_cast<QSpinBox*>(editor);
+    WidgetsSpinBoxWithCustomDisplay* spin = static_cast<WidgetsSpinBoxWithCustomDisplay*>(editor);
     const auto& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
     
     bool accept = true;
     OnEditingFinished(val, index, accept);
     if(accept) {
-        model->setData(index, val, Qt::EditRole);
+        model->setData(index, spin->IsValid() ? val : QVariant(), Qt::EditRole);
     }
 }
 

@@ -257,8 +257,11 @@ public:
                     return false;
                 }
                 QVariant toSet;
-                if(data.toString() != DASH) {
-                    toSet = data;
+                if(data.isValid()) {
+                    auto toStr = data.toString();
+                    if(!toStr.isEmpty() && toStr != DASH) {
+                        toSet = data;
+                    }
                 }
                 return viewModel->EditWithCheck(index.row(), [&](ValueType value){ return setter(toSet, value); }, {column});
             };
