@@ -730,3 +730,17 @@ QToolBar[a_actionsBar] QToolButton:pressed {
 WPSBackToPlanSelector QWidget#widget {
     background: red;
 }
+
+QLabel#uploadIcon {
+    image: url("@cPath/cloud-upload-filled.svg");
+}
+
+QWidget#UploadPlaceHolder{
+    border: 1px dotted @cbr.hover;
+    border-radius: 8px;
+    background: transparent;
+}
+
+QWidget#UploadPlaceHolder:hover {
+    background: @ctext.1;
+}

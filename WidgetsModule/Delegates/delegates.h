@@ -14,11 +14,19 @@ class QStyledItemDelegateBase : public QStyledItemDelegate
     Q_OBJECT
     using Super = QStyledItemDelegate;
 public:
-    using Super::Super;
+    QStyledItemDelegateBase(QObject* parent);
+
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    QStyledItemDelegateBase* SetDrawRichText(bool draw) { m_drawRichText = draw; return this; }
 
 protected:
     void initStyleOption(QStyleOptionViewItem *option,
                                 const QModelIndex &index) const override;
+
+    virtual qint32 rightPadding() const { return 0; }
+
+private:
+    bool m_drawRichText;
 };
 
 class QComboBox;
@@ -32,7 +40,6 @@ public:
 
     DelegatesCombobox* SetInitializeHandler(const std::function<bool(QComboBox*, const QModelIndex& )>& handler) { m_initializeHandler = handler; return this; }
     DelegatesCombobox* SetAlignment(Qt::AlignmentFlag alignment) { m_aligment = alignment; return this; }
-    DelegatesCombobox* SetDrawRichText(bool draw) { m_drawRichText = draw; return this; }
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
@@ -44,9 +51,11 @@ public:
     CommonDispatcher<QComboBox*, const QModelIndex&> OnAboutToSetModelData;
 
 protected:
+    qint32 rightPadding() const override;
+
+protected:
     std::function<QStringList ()> m_valuesExtractor;
     Qt::AlignmentFlag m_aligment;
-    bool m_drawRichText;
     std::function<bool(QComboBox*, const QModelIndex& )> m_initializeHandler;
 };
 

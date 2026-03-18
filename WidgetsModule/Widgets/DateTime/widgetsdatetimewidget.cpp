@@ -18,7 +18,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Sunday, style);
 	
     auto updateData = [this](const QDate& date){
-        if(CurrentDateTime.IsRealTime() || !ui->widget->CurrentTime.Native().isValid()) {
+        if(CurrentDateTime.IsRealTime()) {
             if(TimeShift.IsValid) {
                 CurrentDateTime = QDateTime(date, QTime(0,0), Qt::OffsetFromUTC, TimeShift.Value);
                 return;
@@ -73,7 +73,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [updateTimeRangeHandler]{
         updateTimeRangeHandler();
     });
-	
+
     CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [this](const QDateTime& dt){
         if(TimeShift.IsValid) {
             return dt.toOffsetFromUtc(TimeShift.Value).time();
