@@ -180,6 +180,7 @@ public:
 
     void RegisterDialogView(const DescCustomDialogParams& params);
 
+    EventFilterObject* AddDragAndDrop(const std::function<bool (const QMimeData*)>& dropableHandler, const std::function<void (const QMimeData*)>& onDrop);
     template<typename ... Args>
     EventFilterObject* ConnectFocus(Args... other) const
     {

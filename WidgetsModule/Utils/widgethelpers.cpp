@@ -377,6 +377,56 @@ void WidgetWrapper::RegisterDialogView(const DescCustomDialogParams& params)
 
 }
 
+EventFilterObject* WidgetWrapper::AddDragAndDrop(const std::function<bool (const QMimeData*)>& dropableHandler, const std::function<void (const QMimeData*)>& onDrop)
+{
+    auto* w = GetWidget();
+    w->setAcceptDrops(true);
+    return AddEventFilter([w, dropableHandler, onDrop](QObject*, QEvent* e) {
+        switch(e->type()) {
+
+        case QEvent::Drop: {
+            auto* de = static_cast<QDropEvent*>(e);
+            const auto* data = de->mimeData();
+            if(dropableHandler(data)){
+                de->setDropAction(Qt::CopyAction);
+                de->accept();
+                onDrop(data);
+            } else {
+                de->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragEnter: {
+            auto de = static_cast<QDragEnterEvent*>(e);
+            if (dropableHandler(de->mimeData())){
+                de->accept();
+                w->setAttribute(Qt::WA_Hover);
+                WidgetWrapper(w).UpdateStyle(true);
+            } else {
+                de->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragMove: {
+            auto* dm = static_cast<QDragMoveEvent*>(e);
+            if(dropableHandler(dm->mimeData())){
+                dm->setDropAction(Qt::CopyAction);
+                dm->accept();
+            } else {
+                dm->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragLeave:
+            w->setAttribute(Qt::WA_Hover, false);
+            WidgetWrapper(w).UpdateStyle(true);
+            e->accept(); return true;
+        default: break;
+        }
+        return false;
+    });
+}
+
 WidgetDialogWrapper::WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator)
     : Super(WidgetsDialogsManager::GetInstance().GetOrCreateDialog(id, paramsCreator))
 {

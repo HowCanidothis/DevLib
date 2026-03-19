@@ -8,7 +8,8 @@ struct DescImportExportSourceParams
     {
         Save,
         Load,
-        LoadSingle
+        LoadSingle,
+        DirectorySingle
     };
 
     QString Label;
