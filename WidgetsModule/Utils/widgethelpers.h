@@ -161,6 +161,7 @@ class WidgetWrapper : public ObjectWrapper
     using Super = ObjectWrapper;
 public:
     WidgetWrapper(QWidget* widget = nullptr);
+    WidgetWrapper(QWindow* window);
 
     template<class T>
     T* InjectedWidget(const char* propertyName, const std::function<T* (QWidget* parent)>& creator = nullptr) const

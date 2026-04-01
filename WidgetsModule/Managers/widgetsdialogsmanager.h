@@ -59,13 +59,11 @@ public:
         if(!restoreGeometryName.IsNull()) {
             QSettings geometriesSettings;
             auto geometry = geometriesSettings.value("Geometries/" + restoreGeometryName.AsString()).toByteArray();
-            if(!geometry.isEmpty()) {
-                result->restoreGeometry(geometry);
-            }
+            WidgetWrapper(result).RestoreGeometry(geometry);
             WidgetWrapper(result).AddEventFilter([result, restoreGeometryName](QObject*, QEvent* event){
                 if(event->type() == QEvent::Hide) {
                     QSettings geometriesSettings;
-                    geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), result->saveGeometry());
+                    geometriesSettings.setValue("Geometries/" + restoreGeometryName.AsString(), WidgetWrapper(result).StoreGeometry());
                 }
                 return false;
             });

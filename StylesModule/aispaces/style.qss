@@ -345,6 +345,7 @@ QListView#SettingsCatalogList {
     font-size: 16px;
     qproperty-spacing: 5;
     background: @cbg.2;
+    max-width: 100px;
 }
 
 QPushButton#ResetButton {
@@ -743,4 +744,18 @@ QWidget#UploadPlaceHolder{
 
 QWidget#UploadPlaceHolder:hover {
     background: @ctext.1;
+}
+
+QToolButton#QTabBarBurger {
+    min-width: 18px;
+    min-height: 20px;
+    qproperty-icon: url("@cPath/burger.svg");
+}
+
+ProjectionWidget {
+    background: @cbg.3
+}
+
+ProjectionWidget:hover {
+    background: @cbg.hover;
 }
