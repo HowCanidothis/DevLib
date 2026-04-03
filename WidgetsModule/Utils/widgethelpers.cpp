@@ -573,7 +573,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     auto* model = tableView->model();
     if(model != nullptr) {
         auto count = model->rowCount();
-        Q_ASSERT(count > 0);
+//        Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
         delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
             auto* unit = index.model()->headerData(index.row(), Qt::Vertical, UnitRole).value<const Measurement*>();

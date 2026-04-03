@@ -63,8 +63,9 @@ void WidgetsAbstractViewRowAttachment::Attach(QAbstractItemView* v)
         CurrentIndex = index;
         m_pane->show();        
         QRect rect = v->visualRect(index);
-        auto left = v->viewport()->width() - m_pane->minimumSizeHint().width();
-        m_pane->move(left, rect.top() + (rect.height() - m_pane->height()) / 2);
+        auto sh = m_pane->sizeHint();
+        auto left = v->viewport()->width() - sh.width();
+        m_pane->move(left, rect.top() + (rect.height() - sh.height()) / 2);
         m_target = v;
     });
     v->connect(v, &QTableView::viewportEntered, [this, v] {

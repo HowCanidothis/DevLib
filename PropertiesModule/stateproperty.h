@@ -72,7 +72,7 @@ public:
     void Unlock();
     void Reset();
 
-    DispatchersCommutator OnChanged;
+    DispatchersCommutatorWithDirect OnChanged;
     StatePropertyBoolCommutator IsValid;
     LocalPropertyBool IsLocked;
     DispatcherConnectionsSafe Connections;
@@ -645,7 +645,7 @@ public:
         if(!params->IsInitialized()) {
             params->Initialize();
         }
-        Connect(connection, params->OnChanged);
+        Connect(connection, params->OnChanged.OnDirectChanged);
         Connect(connection, params->m_isValid);
         Connect(connection, params->IsValid);
         m_stateParameters.insert(params);
