@@ -69,7 +69,7 @@ Promise::Promise()
     : m_data(::make_shared<PromiseData>())
 {}
 
-DispatcherConnection Promise::Then(const typename PromiseData::FCallback& handler, const class FutureResult& future) const
+DispatcherConnection Promise::Then(const PromiseData::FCallback& handler, const FutureResult& future) const
 {
     AsyncResult tmp;
     future += tmp;

@@ -5,6 +5,7 @@
 #include <QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QHttpMultiPart>
 
 namespace Routes {
 static QString Login = "/auth/login";
@@ -32,6 +33,50 @@ void CloudService::Terminate()
     onTerminate();
     m_thread.terminate();
     m_thread.wait();
+}
+
+AsyncRequest CloudService::PostFile(const CloudServiceRequestParams& params, const QString& filePath) const
+{
+    AsyncRequest result;
+    if(!m_thread.isRunning()) {
+        result.Result.Resolve(false);
+        return result;
+    }
+    QNetworkRequest request(QUrl(Params->Url + params.Route));
+    if(params.OnRequest != nullptr) {
+        params.OnRequest(request);
+    }
+
+    ThreadsBase::DoQThreadWorkerWithResult(CONNECTION_DEBUG_LOCATION, m_connection.get(), [this, request, params, result, filePath]{
+        QFile* file = new QFile(filePath);
+        if (!file->open(QIODevice::ReadOnly)) {
+            result.Result.Resolve(false);
+            return;
+        }
+
+        QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+        QHttpPart filePart;
+        // Set headers for the file part
+        filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+            QVariant("form-data; name=\"file\"; filename=\"" + file->fileName() + "\""));
+        filePart.setBodyDevice(file);
+        file->setParent(multiPart); // File is deleted when multiPart is deleted
+        multiPart->append(filePart);
+
+        if(params.OnMultiPart != nullptr) {
+            params.OnMultiPart(*multiPart);
+        }
+
+        if(result.ResultInterruptor.IsInterrupted()) {
+            multiPart->deleteLater();
+            return;
+        }
+
+        QNetworkReply* reply = m_connection->post(request, multiPart);
+        multiPart->setParent(reply);
+        processReply(reply, params, result);
+    });
+    return result;
 }
 
 AsyncRequest CloudService::Request(const CloudServiceRequestParams& params) const

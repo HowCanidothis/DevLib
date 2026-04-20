@@ -186,14 +186,6 @@ public:
         return *this;
     }
 
-    template<class T>
-    StringBuilder& Join(const T& separator, const QString& string)
-    {
-        append(separator);
-        append(string);
-        return *this;
-    }
-
     template<class T, class ... Strings>
     StringBuilder& AddStrings(const T& separator, const Strings&... strings)
     {

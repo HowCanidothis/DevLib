@@ -19,12 +19,14 @@ class QNetworkAccessManager;
 struct CloudServiceRequestParams
 {
     using FOnRequest = std::function<void (class QNetworkRequest&)>;
+    using FOnMultiPart = std::function<void (class QHttpMultiPart&)>;
     using FOnReplied = std::function<void (const AsyncRequest&, class QNetworkReply&)>;
     using FOnError = std::function<void (const QString&)>;
 
     FOnReplied OnReplied;
     FOnError OnError;
     FOnRequest OnRequest;
+    FOnMultiPart OnMultiPart;
     QByteArray Payload;
     QString Route;
     QByteArray Verb;
@@ -39,6 +41,7 @@ struct CloudServiceRequestParams
     CloudServiceRequestParams& SetRoute(const QString& route);
     CloudServiceRequestParams& SetOnError(const FOnError& onError);
     CloudServiceRequestParams& SetOnRequest(const FOnRequest& onRequest);
+    CloudServiceRequestParams& SetOnMultiPart(const FOnMultiPart& onMultiPart) { OnMultiPart = onMultiPart; return *this; } // TODO. Works only with post files
 };
 
 class CloudService
@@ -53,6 +56,7 @@ public:
     void Terminate();
 
     AsyncRequest Request(const CloudServiceRequestParams& params) const;
+    AsyncRequest PostFile(const CloudServiceRequestParams& params, const QString& filePath) const;
 
     //CommonDispatcher<qint64, const class QNetworkReply&> OnReplyGot;
 
