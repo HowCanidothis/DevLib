@@ -15,6 +15,8 @@ namespace SpeedUnits
     IMPLEMENT_MEASUREMENT_UNIT(FeetPerSecond,     TR(MeasurementTr::tr("Feet Per Second")),     TR(MeasurementTr::tr("ft/sec")),    1.0/ METERS_TO_FEETS_MULTIPLIER )
     IMPLEMENT_MEASUREMENT_UNIT(USfeetPerSecond,   TR(MeasurementTr::tr("US Feet Per Second")),  TR(MeasurementTr::tr("usft/sec")),  USFEETS_TO_FEETS_MULTIPLIER / METERS_TO_FEETS_MULTIPLIER )
     IMPLEMENT_MEASUREMENT_UNIT(MilesPerHour,      TR(MeasurementTr::tr("Miles Per Hour")),      TR(MeasurementTr::tr("mphr")),      5280 / METERS_TO_FEETS_MULTIPLIER / 60.0 / 60.0)
+
+    IMPLEMENT_GLOBAL(double, Precision, FeetPerSecond.FromUnitToBase(0.01));
 }
 
 IMPLEMENT_MEASUREMENT(Speed, TR(MeasurementTr::tr("Speed")))

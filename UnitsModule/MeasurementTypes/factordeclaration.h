@@ -48,4 +48,11 @@ namespace ThermalFactorUnits {
     DECLARE_MEASUREMENT_UNIT(ThermalFactor)
 }
 DECLARE_MEASUREMENT(ThermalFactor)
+
+namespace ReynoldNumberUnits {
+    DECLARE_MEASUREMENT_UNIT(Reynold)
+
+    DECLARE_GLOBAL(double, Precision)
+}
+DECLARE_MEASUREMENT(ReynoldNumber)
 #endif // FACTORDECLARATION_H

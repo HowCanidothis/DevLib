@@ -8,6 +8,7 @@ namespace TemperatureUnits
     DECLARE_MEASUREMENT_UNIT(Kelvin)
     DECLARE_MEASUREMENT_UNIT(Celsius)
     DECLARE_MEASUREMENT_UNIT(Fahrenheit)
+    DECLARE_MEASUREMENT_UNIT(Rankine)
 }
 
 namespace TemperaturePerDistanceUnits

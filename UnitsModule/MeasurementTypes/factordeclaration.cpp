@@ -49,3 +49,10 @@ namespace ThermalFactorUnits {
     IMPLEMENT_MEASUREMENT_UNIT(ThermalFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(ThermalFactor, TR(MeasurementTr::tr("Thermal Factor")))
+
+namespace ReynoldNumberUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(Reynold, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+
+    IMPLEMENT_GLOBAL(double, Precision, 1e-1);
+}
+IMPLEMENT_MEASUREMENT(ReynoldNumber, TR(MeasurementTr::tr("Reynold Number")))

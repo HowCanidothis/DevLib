@@ -641,6 +641,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementThermalFactor::Value)
             .AddUnit(&ThermalFactorUnits::ThermalFactor);
 
+    AddMeasurement(MeasurementReynoldNumber::Value)
+            .AddUnit(&ReynoldNumberUnits::Reynold);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,      {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,             {AngleUnits::Degrees.Id,                       2})
@@ -705,7 +708,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
-            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -771,7 +775,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
-            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -838,7 +843,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementCurrency::NAME, {CurrencyUnits::Dollar.Id,    2})
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactorSI.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
-            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3});
+            .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
