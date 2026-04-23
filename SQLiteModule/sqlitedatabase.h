@@ -19,6 +19,8 @@ public:
     AsyncResult Query(const std::function<bool (QSqlQuery&)>& handler);
     AsyncResult IdExists(const QString& tableName, const Name& id);
 
+    void Terminate();
+
     enum Op
     {
         In,

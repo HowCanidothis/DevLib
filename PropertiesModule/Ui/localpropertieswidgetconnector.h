@@ -161,6 +161,13 @@ public:
     }
 };
 
+class _Export LocalPropertiesSliderConnector : public LocalPropertiesWidgetConnectorBase
+{
+    using Super = LocalPropertiesWidgetConnectorBase;
+public:
+    LocalPropertiesSliderConnector(LocalPropertyDouble* property, class QSlider* slider);
+};
+
 class _Export LocalPropertiesCheckBoxConnector : public LocalPropertiesWidgetConnectorBase
 {
     using Super = LocalPropertiesWidgetConnectorBase;

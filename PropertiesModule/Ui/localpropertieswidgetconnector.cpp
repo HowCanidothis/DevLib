@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QDateTimeEdit>
 #include <QMenu>
+#include <QSlider>
 #include <QPushButton>
 #include <QAbstractButton>
 #include <QFileDialog>
@@ -21,6 +22,25 @@
 void LocalPropertiesWidgetConnectorBase::Update()
 {
     m_widgetSetter();
+}
+
+LocalPropertiesSliderConnector::LocalPropertiesSliderConnector(LocalPropertyDouble* property, QSlider* slider)
+    : Super([slider, property]{
+                slider->setValue(property->Native() * 100.0);
+            },
+            [property, slider]{
+                *property = double(slider->value()) / 100.0;
+            }, slider
+    )
+{
+    slider->setRange(0,100);
+    property->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+        m_widgetSetter();
+    }).MakeSafe(m_dispatcherConnections);
+
+    m_connections.connect(slider, &QSlider::valueChanged, [this]{
+        m_propertySetter();
+    });
 }
 
 LocalPropertiesWidgetConnectorBase::LocalPropertiesWidgetConnectorBase(const FAction& widgetSetter, const FAction& propertySetter, QWidget* w)

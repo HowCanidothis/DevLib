@@ -372,6 +372,13 @@ MetricsSettings::MetricsSettings()
 #endif
 }
 
+ControlSettings::ControlSettings()
+    : ZoomSensitivity(0.0, 0.0, 1.0)
+    , MouseSensitivity(0.0, 0.0, 1.0)
+{
+
+}
+
 void SharedSettings::Release()
 {
 #ifdef SHARED_LIB_ADD_UI

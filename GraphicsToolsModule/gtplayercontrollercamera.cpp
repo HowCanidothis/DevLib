@@ -23,7 +23,8 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
     Point2I resolutional_screen_pos = resolutional(event->pos());
     auto depth = ctx().DepthBuffer->ValueAt(resolutional_screen_pos.x(), resolutional_screen_pos.y());
     if(IsRotationButton(event->buttons())) {
-        ctx().Camera->Rotate((ctx().LastScreenPoint - resolutional_screen_pos) / 8.0);
+        auto lerped = ::lerp(8.0, 1.0, SharedSettings::GetInstance().ControlSettings.MouseSensitivity.Native());
+        ctx().Camera->Rotate((ctx().LastScreenPoint - resolutional_screen_pos) / lerped);
     } else if(IsMovementButton(event->buttons())){
         ctx().Camera->MoveFocused(resolutional_screen_pos);
     }

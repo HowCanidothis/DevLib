@@ -180,6 +180,21 @@ struct LanguageSettings
     static QString DoubleToString(double v, qint32 precision);
 };
 
+struct ControlSettings
+{
+    ControlSettings();
+
+    LocalPropertyDouble ZoomSensitivity;
+    LocalPropertyDouble MouseSensitivity;
+
+    template<class Buffer>
+    void Serialize(Buffer& buffer)
+    {
+        buffer << buffer.Sect("ZoomSensitivity", ZoomSensitivity);
+        buffer << buffer.Sect("MouseSensitivity", MouseSensitivity);
+    }
+};
+
 class SharedSettings : public Singletone<SharedSettings>
 {
 public:
@@ -193,6 +208,7 @@ public:
     SaveLoadSettings SaveLoadSettings;
     LanguageSettings LanguageSettings;
     NetworkSettings NetworkSettings;
+    ControlSettings ControlSettings;
 
     DispatchersCommutator OnChanged;
 
@@ -203,6 +219,7 @@ public:
         buffer << buffer.Sect("PathSettings", PathSettings);
         buffer << buffer.Sect("SaveLoadSettings", SaveLoadSettings);
         buffer << buffer.Sect("LanguageSettings", LanguageSettings);
+        buffer << buffer.Sect("ControlSettings", ControlSettings);
     }
 
     void CreateGlobalProperties(QString prefix, PropertyFromLocalPropertyContainer& properties);

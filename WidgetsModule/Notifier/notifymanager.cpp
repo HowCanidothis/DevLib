@@ -45,7 +45,8 @@ NotifyManager::~NotifyManager()
 
 void NotifyManager::Notify(NotifyManager::MessageType messageType, const QString& body)
 {   
-    auto data = ::make_shared<NotifyData>(messageType, body.toHtmlEscaped().replace("\n", "<br/>"));
+    auto formated = body;
+    auto data = ::make_shared<NotifyData>(messageType, formated.replace("\n", "<br/>"));
     if(!(NotificationsEnabledFlags.Native() & messageType)) {
         OnDataRecieved(data);
         return;
