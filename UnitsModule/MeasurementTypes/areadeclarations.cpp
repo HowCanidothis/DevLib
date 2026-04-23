@@ -10,6 +10,8 @@ namespace AreaUnits
     IMPLEMENT_MEASUREMENT_UNIT(SqFeets,         TR(MeasurementTr::tr("square feet")),       TR(MeasurementTr::tr("ft2")), 1.0 / SQ_METERS_TO_FEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(SqUSFeets,       TR(MeasurementTr::tr("square US feet")),    TR(MeasurementTr::tr("usft2")), SQ_USFEETS_TO_FEETS_MULTIPLIER / SQ_METERS_TO_FEETS_MULTIPLIER)
     IMPLEMENT_MEASUREMENT_UNIT(SqInches,        TR(MeasurementTr::tr("square inches")),     TR(MeasurementTr::tr("in2")), 1.0 / 144.0 / SQ_METERS_TO_FEETS_MULTIPLIER)
+
+    IMPLEMENT_GLOBAL(double, Precision, SqFeets.FromUnitToBase(pow(0.01, 2)));
 }
 
 IMPLEMENT_MEASUREMENT(Area, TR(MeasurementTr::tr("Area")))
