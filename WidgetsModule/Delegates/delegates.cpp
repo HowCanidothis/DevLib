@@ -27,11 +27,56 @@
 #include "WidgetsModule/Widgets/DateTime/widgetsmonthpopuppicker.h"
 #include "WidgetsModule/Managers/widgetsdialogsmanager.h"
 
+QStyledItemDelegateBase::QStyledItemDelegateBase(QObject* parent)
+    : Super(parent)
+    , m_drawRichText(false)
+{}
+
 void QStyledItemDelegateBase::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
 {
     Super::initStyleOption(option, index);
     if(option->features & QStyleOptionViewItem::Alternate) {
         option->backgroundBrush = qvariant_cast<QBrush>(index.data(BackgroundAltRole));
+    }
+}
+
+void QStyledItemDelegateBase::paint(QPainter *painter, const QStyleOptionViewItem& inOption, const QModelIndex &index) const
+{
+    if(m_drawRichText) {
+        QStyleOptionViewItem option = inOption;
+        initStyleOption(&option, index);
+
+        QStyle* style = option.widget? option.widget->style() : QApplication::style();
+
+        QTextOption textOption;
+        textOption.setAlignment(option.displayAlignment);
+        textOption.setWrapMode(QTextOption::NoWrap);
+
+        QTextDocument doc;
+        option.font.setPixelSize(option.font.pixelSize() + 1);
+        doc.setDefaultFont(option.font);
+        doc.setDefaultTextOption(textOption);
+        doc.setTextWidth(option.rect.width());
+        doc.setIndentWidth(0.0);
+        doc.setHtml(option.text);
+
+        /// Painting item without text
+        option.text = QString();
+        option.state &= ~QStyle::State_HasFocus;
+        style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+
+        QAbstractTextDocumentLayout::PaintContext ctx;
+
+        ctx.palette = option.palette;
+
+        QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
+        painter->save();
+        painter->translate(textRect.topLeft());
+        painter->setClipRect(textRect.translated(-textRect.topLeft()).adjusted(0,0, -rightPadding(),0));
+        doc.documentLayout()->draw(painter, ctx);
+        painter->restore();
+    } else {
+        Super::paint(painter, inOption, index);
     }
 }
 
@@ -87,7 +132,6 @@ DelegatesCombobox::DelegatesCombobox(const std::function<QStringList ()>& values
     : Super(parent)
     , m_valuesExtractor(valuesExtractor)
     , m_aligment(Qt::AlignLeft)
-    , m_drawRichText(false)
     , m_initializeHandler([](QComboBox* , const QModelIndex& ){ return false; })
 {}
 
@@ -140,54 +184,25 @@ void DelegatesCombobox::updateEditorGeometry(QWidget* editor, const QStyleOption
     editor->setGeometry(option.rect);
 }
 
+static const qint32 dcbIconSize = 20;
+static const qint32 dcbIconRightMargin = 5;
+
+qint32 DelegatesCombobox::rightPadding() const
+{
+    return dcbIconSize + dcbIconRightMargin;
+}
+
 void DelegatesCombobox::paint(QPainter* painter, const QStyleOptionViewItem& inOption, const QModelIndex& index) const
 {
-    static const qint32 iconSize = 20;
-    static const qint32 iconRightMargin = 5;
-    if(m_drawRichText) {
-        QStyleOptionViewItem option = inOption;
-        initStyleOption(&option, index);
-
-        QStyle* style = option.widget? option.widget->style() : QApplication::style();
-
-        QTextOption textOption;
-        textOption.setAlignment(option.displayAlignment);
-        textOption.setWrapMode(QTextOption::NoWrap);
-
-        QTextDocument doc;
-        option.font.setPixelSize(option.font.pixelSize() + 1);
-        doc.setDefaultFont(option.font);
-        doc.setDefaultTextOption(textOption);
-        doc.setTextWidth(option.rect.width());
-        doc.setIndentWidth(0.0);
-        doc.setHtml(option.text);
-
-        /// Painting item without text
-        option.text = QString();
-        option.state &= ~QStyle::State_HasFocus;
-        style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
-
-        QAbstractTextDocumentLayout::PaintContext ctx;
-
-        ctx.palette = option.palette;
-
-        QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
-        painter->save();
-        painter->translate(textRect.topLeft());
-        painter->setClipRect(textRect.translated(-textRect.topLeft()).adjusted(0,0,-iconSize -iconRightMargin,0));
-        doc.documentLayout()->draw(painter, ctx);
-        painter->restore();
-    } else {
-        Super::paint(painter, inOption, index);
-    }
+    Super::paint(painter, inOption, index);
     if(index.flags().testFlag(Qt::ItemIsEditable)) {
         static auto expandIcon = IconsManager::GetInstance().GetIcon(ActionIcons::DropDown);
         const auto h = inOption.rect.height();
-        if(!expandIcon.isNull() && inOption.rect.width() > iconSize && h > iconSize) {
+        if(!expandIcon.isNull() && inOption.rect.width() > dcbIconSize && h > dcbIconSize) {
             const auto tl = inOption.rect.topLeft();
             const auto br = inOption.rect.bottomRight();
 
-            expandIcon.paint(painter, br.x() - iconRightMargin - iconSize, tl.y() + (h - iconSize) / 2.0, iconSize, iconSize, Qt::AlignCenter);
+            expandIcon.paint(painter, br.x() - dcbIconRightMargin - dcbIconSize, tl.y() + (h - dcbIconSize) / 2.0, dcbIconSize, dcbIconSize, Qt::AlignCenter);
         }
     }
 }
@@ -202,6 +217,9 @@ DelegatesIntSpinBox::DelegatesIntSpinBox(QObject* parent)
 QWidget* DelegatesIntSpinBox::createEditor(QWidget* parent, const QStyleOptionViewItem& , const QModelIndex& index) const
 {
     auto* spin = new WidgetsSpinBoxWithCustomDisplay(parent);
+    spin->setMinimum(std::numeric_limits<qint32>().min());
+    spin->setMaximum(std::numeric_limits<qint32>().max());
+    spin->MakeOptional();
     OnEditorAboutToBeShown(spin, index);
     connect(spin, QOverload<qint32>::of(&QSpinBox::valueChanged), [this, index](int value){
         OnEditorValueChanged(value, index);
@@ -217,13 +235,13 @@ void DelegatesIntSpinBox::setEditorData(QWidget* editor, const QModelIndex& inde
 }
 
 void DelegatesIntSpinBox::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const {
-    auto* spin = static_cast<QSpinBox*>(editor);
+    WidgetsSpinBoxWithCustomDisplay* spin = static_cast<WidgetsSpinBoxWithCustomDisplay*>(editor);
     const auto& val = ::clamp(spin->value(), spin->minimum(), spin->maximum());
     
     bool accept = true;
     OnEditingFinished(val, index, accept);
     if(accept) {
-        model->setData(index, val, Qt::EditRole);
+        model->setData(index, spin->IsValid() ? val : QVariant(), Qt::EditRole);
     }
 }
 

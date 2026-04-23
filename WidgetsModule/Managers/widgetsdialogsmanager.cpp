@@ -367,9 +367,12 @@ QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceP
             return f.size() < s.size();
         });
     }
-    fileDialog.setNameFilters(filters);
-    fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile :
-                                          DescImportExportSourceParams::Load ? QFileDialog::ExistingFiles : QFileDialog::ExistingFile);
+    if(params.Mode != DescImportExportSourceParams::DirectorySingle) {
+        fileDialog.setNameFilters(filters);
+    } else {
+        fileDialog.setOption(QFileDialog::ShowDirsOnly, true);
+    }
+    fileDialog.setFileMode(params.Mode == DescImportExportSourceParams::Save ? QFileDialog::AnyFile : QFileDialog::ExistingFile);
 
     if(params.Mode == DescImportExportSourceParams::Save){
         fileDialog.setAcceptMode(QFileDialog::AcceptSave);

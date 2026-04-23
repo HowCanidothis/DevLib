@@ -210,7 +210,7 @@ void GtCamera::Zoom(bool closer)
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
     } else {
-        float denum = closer ? 4.f : -4.f;
+        float denum = closer ? 8.f : -8.f;
         Point3F neye = m_eye + ray / denum;
         m_eye = neye;
         m_state.AddFlag(State_NeedUpdateView);

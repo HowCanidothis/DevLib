@@ -4,6 +4,12 @@
 
 static const char* IsValidPropertyName = "IsValid";
 
+bool WidgetsSpinBoxWithCustomDisplay::IsValid() const
+{
+    auto value = property(IsValidPropertyName);
+    return !value.isValid() ? true : ((LocalPropertyBool*)value.toLongLong())->Native();
+}
+
 WidgetsSpinBoxWithCustomDisplay::WidgetsSpinBoxWithCustomDisplay(QWidget* parent)
     : Super(parent)
     , m_textFromValueHandler(GetDefaultTextFromValueHandler())
@@ -48,6 +54,13 @@ void WidgetsSpinBoxWithCustomDisplay::SetValueFromTextHandler(const ValueFromTex
 QString WidgetsSpinBoxWithCustomDisplay::textFromValue(int val) const
 {
     return m_textFromValueHandler(this, val);
+}
+
+DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional()
+{
+    auto property = ::make_shared<LocalPropertyBool>(true);
+    setProperty("IsValidStorage", QVariant::fromValue(property));
+    return MakeOptional(property.get());
 }
 
 DispatcherConnection WidgetsSpinBoxWithCustomDisplay::MakeOptional(LocalPropertyBool* valid)

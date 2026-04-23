@@ -17,8 +17,8 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Saturday, style);
     ui->calendarWidget->setWeekdayTextFormat(Qt::DayOfWeek::Sunday, style);
 	
-    connect(ui->calendarWidget, &QCalendarWidget::clicked, [this](const QDate& date){
-        if(CurrentDateTime.IsRealTime() || !ui->widget->CurrentTime.Native().isValid()) {
+    auto updateData = [this](const QDate& date){
+        if(CurrentDateTime.IsRealTime()) {
             if(TimeShift.IsValid) {
                 CurrentDateTime = QDateTime(date, QTime(0,0), Qt::OffsetFromUTC, TimeShift.Value);
                 return;
@@ -31,6 +31,14 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
             return;
         }
         CurrentDateTime = QDateTime(date, CurrentDateTime.Native().time());
+    };
+
+    connect(ui->calendarWidget, &QCalendarWidget::clicked, updateData);
+    connect(ui->calendarWidget, &QCalendarWidget::currentPageChanged, [this, updateData](qint32 year, qint32 month){
+        auto currentDate = ui->calendarWidget->selectedDate();
+        currentDate = QDate(year, month, currentDate.day());
+        ui->calendarWidget->setSelectedDate(currentDate);
+        updateData(currentDate);
     });
 
     auto updateTimeRangeHandler = [this]{
@@ -65,7 +73,7 @@ WidgetsDateTimeWidget::WidgetsDateTimeWidget(QWidget *parent)
     CurrentDateTime.OnMinMaxChanged.Connect(CONNECTION_DEBUG_LOCATION, [updateTimeRangeHandler]{
         updateTimeRangeHandler();
     });
-	
+
     CurrentDateTime.ConnectBoth(CONNECTION_DEBUG_LOCATION,ui->widget->CurrentTime, [this](const QDateTime& dt){
         if(TimeShift.IsValid) {
             return dt.toOffsetFromUtc(TimeShift.Value).time();

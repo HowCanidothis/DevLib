@@ -131,8 +131,11 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
         DecimalSeparator = TranslatorManager::GetNames<DecimalKeyboardSeparator>().indexOf(Locale.Native().decimalPoint());
         DateTimeFormat = Locale.Native().language() == QLocale::English ? "MM/dd/yyyy h:mm AP" : "dd.MM.yyyy H:mm";
 	});
-    DateTimeFormat.SetAndSubscribe([this]{ ui->lbDatePreview->lineEdit()->setText(QDateTime::currentDateTime().toString(DateTimeFormat)); });
-	
+    m_appDateTimeFormat = SharedSettings::GetInstance().LanguageSettings.DateTimeFormat;
+    DateTimeFormat.SetAndSubscribe([this]{
+        ui->lbDatePreview->lineEdit()->setText(QDateTime::currentDateTime().toString(DateTimeFormat));
+        SharedSettings::GetInstance().LanguageSettings.DateTimeFormat = DateTimeFormat.Native();
+    });
     ui->SourceTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     WidgetWrapper(this).FixUp();
@@ -141,6 +144,7 @@ WidgetsImportView::WidgetsImportView(QWidget *parent)
 WidgetsImportView::~WidgetsImportView()
 {
 	delete ui;
+    SharedSettings::GetInstance().LanguageSettings.DateTimeFormat = m_appDateTimeFormat;
 }
 
 void WidgetsImportView::SetVisibilityMode(VisibilityFlags mode)

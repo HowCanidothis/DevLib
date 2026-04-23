@@ -8,7 +8,8 @@ struct DescImportExportSourceParams
     {
         Save,
         Load,
-        LoadSingle
+        LoadSingle,
+        DirectorySingle
     };
 
     QString Label;
@@ -442,7 +443,7 @@ public:
         };
 
         if(multithread) {
-            async([result, source, handler, tryOpen]{
+            Async([result, source, handler, tryOpen]{
                 result.Resolve(tryOpen);
             });
         } else {
@@ -580,6 +581,8 @@ public:
     static QString StandardImportingString();
     static QString StandardExportingString();
 
+    static AsyncResult Async(const FAction& task, EPriority priority = EPriority::Low);
+
 private:
     friend class ThreadsBase;
 
@@ -601,7 +604,6 @@ private:
         return future.ToAsyncResult();
     }
 
-    static AsyncResult async(const FAction& task, EPriority priority = EPriority::Low);
     static ThreadPool& threadPool();
 };
 

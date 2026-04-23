@@ -11,5 +11,6 @@
 #include "widgetstexteditlayout.h"
 #include "widgetsheaderlayout.h"
 #include "widgetsswitchlayout.h"
+#include "widgetsbuttonlayout.h"
 
 #endif

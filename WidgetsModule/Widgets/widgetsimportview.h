@@ -60,6 +60,7 @@ private:
 	DispatcherConnectionsSafe m_connections;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
     ScopedPointer<class WidgetsMatchingAttachment> m_matchingAttachment;
+    QString m_appDateTimeFormat;
 };
 
 #endif // WPSCIMPORTPREPARATIONDIALOG_H

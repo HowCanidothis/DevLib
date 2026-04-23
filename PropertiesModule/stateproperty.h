@@ -72,7 +72,7 @@ public:
     void Unlock();
     void Reset();
 
-    DispatchersCommutator OnChanged;
+    Dispatcher OnChanged; // StateParameters are primary used in Calculators, then calculators must be reset when any property changed immediatly
     StatePropertyBoolCommutator IsValid;
     LocalPropertyBool IsLocked;
     DispatcherConnectionsSafe Connections;

@@ -233,7 +233,7 @@ public:
         auto update = [connectionInfo, this, handler, &first, &args...]{
             handler(this->Native(), first.Native(), args.Native()...);
         };
-        return OnChanged.ConnectCombined(connectionInfo, update, args...);
+        return OnChanged.ConnectCombined(connectionInfo, update, first, args...);
     }
 
     template<typename Function, typename ... Properties, typename First>
@@ -243,7 +243,7 @@ public:
             handler(this->Native(), first.Native(), args.Native()...);
         };
         update();
-        return OnChanged.ConnectCombined(connectionInfo, update, args...);
+        return OnChanged.ConnectCombined(connectionInfo, update, first, args...);
     }
 
     template<typename ... Dispatchers>

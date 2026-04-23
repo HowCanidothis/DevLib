@@ -23,7 +23,7 @@ bool GtPlayerControllerCamera::mouseMoveEvent(QMouseEvent* event)
     Point2I resolutional_screen_pos = resolutional(event->pos());
     auto depth = ctx().DepthBuffer->ValueAt(resolutional_screen_pos.x(), resolutional_screen_pos.y());
     if(IsRotationButton(event->buttons())) {
-        ctx().Camera->Rotate(ctx().LastScreenPoint - resolutional_screen_pos);
+        ctx().Camera->Rotate((ctx().LastScreenPoint - resolutional_screen_pos) / 8.0);
     } else if(IsMovementButton(event->buttons())){
         ctx().Camera->MoveFocused(resolutional_screen_pos);
     }

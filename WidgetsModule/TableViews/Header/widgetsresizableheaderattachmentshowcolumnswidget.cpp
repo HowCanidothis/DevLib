@@ -77,7 +77,7 @@ struct WidgetsResizableHeaderAttachmentFilterData
     WidgetsResizableHeaderAttachmentFilterData()
         : IsShown(Qt::PartiallyChecked)
     {
-        OnChanged.ConnectFrom(CDL, Text, IsShown);
+        OnChanged.ConnectFrom(CDL, Text);
     }
 
     LocalPropertyString Text;
@@ -140,10 +140,6 @@ void WidgetsResizableHeaderAttachmentShowColumnsWidget::SetHeaderView(QHeaderVie
     m_proxy = proxy;
 
     auto* filterComponent = new ViewModelsTableFilterComponent<WidgetsResizableHeaderAttachmentFilterData>(proxy, [this](const WidgetsResizableHeaderAttachmentFilterData& f, qint32 index){
-        auto checkState = m_viewModel->index(index, 0).data(Qt::CheckStateRole).toInt();
-        if(f.IsShown != Qt::PartiallyChecked && f.IsShown != checkState) {
-            return false;
-        }
         if(!f.Text.Native().isEmpty()) {
             if(!m_viewModel->index(index, 0).data().toString().contains(f.Text, Qt::CaseInsensitive)) {
                 return false;

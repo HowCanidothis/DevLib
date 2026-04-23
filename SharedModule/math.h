@@ -54,7 +54,7 @@ public:
             auto d = chooseDirection(p, handler, left, right);
             dist = d.second;
             eps = d.first;
-        } while(!fuzzyIsNull(eps, Eps::Value));
+        } while(!fuzzyIsNull(eps, Eps::Value) && !fuzzyCompare(left, right));
         return std::make_pair(left, dist);
     }
 

@@ -377,6 +377,56 @@ void WidgetWrapper::RegisterDialogView(const DescCustomDialogParams& params)
 
 }
 
+EventFilterObject* WidgetWrapper::AddDragAndDrop(const std::function<bool (const QMimeData*)>& dropableHandler, const std::function<void (const QMimeData*)>& onDrop)
+{
+    auto* w = GetWidget();
+    w->setAcceptDrops(true);
+    return AddEventFilter([w, dropableHandler, onDrop](QObject*, QEvent* e) {
+        switch(e->type()) {
+
+        case QEvent::Drop: {
+            auto* de = static_cast<QDropEvent*>(e);
+            const auto* data = de->mimeData();
+            if(dropableHandler(data)){
+                de->setDropAction(Qt::CopyAction);
+                de->accept();
+                onDrop(data);
+            } else {
+                de->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragEnter: {
+            auto de = static_cast<QDragEnterEvent*>(e);
+            if (dropableHandler(de->mimeData())){
+                de->accept();
+                w->setAttribute(Qt::WA_Hover);
+                WidgetWrapper(w).UpdateStyle(true);
+            } else {
+                de->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragMove: {
+            auto* dm = static_cast<QDragMoveEvent*>(e);
+            if(dropableHandler(dm->mimeData())){
+                dm->setDropAction(Qt::CopyAction);
+                dm->accept();
+            } else {
+                dm->ignore();
+            }
+            return true;
+        }
+        case QEvent::DragLeave:
+            w->setAttribute(Qt::WA_Hover, false);
+            WidgetWrapper(w).UpdateStyle(true);
+            e->accept(); return true;
+        default: break;
+        }
+        return false;
+    });
+}
+
 WidgetDialogWrapper::WidgetDialogWrapper(const Name& id, const std::function<DescCustomDialogParams ()>& paramsCreator)
     : Super(WidgetsDialogsManager::GetInstance().GetOrCreateDialog(id, paramsCreator))
 {
@@ -523,7 +573,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
     auto* model = tableView->model();
     if(model != nullptr) {
         auto count = model->rowCount();
-        Q_ASSERT(count > 0);
+//        Q_ASSERT(count > 0);
         auto delegate = new DelegatesDoubleSpinBox(tableView);
         delegate->OnEditorAboutToBeShown.Connect(CONNECTION_DEBUG_LOCATION, [](class QDoubleSpinBox* editor, const QModelIndex& index){
             auto* unit = index.model()->headerData(index.row(), Qt::Vertical, UnitRole).value<const Measurement*>();
@@ -1462,20 +1512,15 @@ const WidgetComboboxWrapper& WidgetComboboxWrapper::DisableStandardItems(const Q
 
 #include <QDesktopWidget>
 
-static void checkRestoredGeometry(const QRect &availableGeometry, QRect *restoredGeometry,
-                                  int frameHeight)
-{
-    if (!restoredGeometry->intersects(availableGeometry)) {
-        restoredGeometry->moveBottom(qMin(restoredGeometry->bottom(), availableGeometry.bottom()));
-        restoredGeometry->moveLeft(qMax(restoredGeometry->left(), availableGeometry.left()));
-        restoredGeometry->moveRight(qMin(restoredGeometry->right(), availableGeometry.right()));
-    }
-    restoredGeometry->moveTop(qMax(restoredGeometry->top(), availableGeometry.top() + frameHeight));
-}
+#include <private/qhighdpiscaling_p.h>
 
 QByteArray WidgetWrapper::StoreGeometry() const
 {
     auto* w = GetWidget();
+    auto* screen = w->screen();
+    if(screen == nullptr) {
+        return QByteArray();
+    }
     QDesktopWidget *desktop = QApplication::desktop();
     QByteArray array;
     QDataStream stream(&array, QIODevice::WriteOnly);
@@ -1485,26 +1530,37 @@ QByteArray WidgetWrapper::StoreGeometry() const
     // - Qt 4.2 - 4.8.6, 5.0 - 5.3    : Version 1.0
     // - Qt 4.8.6 - today, 5.4 - today: Version 2.0, save screen width in addition to check for high DPI scaling.
     // - Qt 5.12 - today              : Version 3.0, save QWidget::geometry()
-    quint16 majorVersion = 3;
+    quint16 majorVersion = 5;
     quint16 minorVersion = 0;
     const int screenNumber = desktop->screenNumber(w);
+
+    auto screenGeometry = QHighDpi::toNativePixels(screen->availableGeometry(), screen);
+    auto screenGeometryW = screenGeometry.width();
+    auto screenGeometryH = screenGeometry.height();
+    auto screenRelativeGeometry = [&](QRect geometry) {
+        geometry = QHighDpi::toNativePixels(geometry, screen);
+        return QRectF(double(qMax(0, geometry.x() - screenGeometry.x()))/screenGeometryW,
+                      double(qMax(0, geometry.y() - screenGeometry.y()))/screenGeometryH,
+                      double(geometry.width()) / screenGeometryW,
+                      double(geometry.height()) / screenGeometryH);
+    };
+
     stream << magicNumber
            << majorVersion
            << minorVersion
-           << w->frameGeometry()
-           << w->normalGeometry()
            << qint32(screenNumber)
            << quint8(w->windowState() & Qt::WindowMaximized)
            << quint8(w->windowState() & Qt::WindowFullScreen)
-           << qint32(desktop->screenGeometry(screenNumber).width()) // added in 2.0
-           << w->geometry(); // added in 3.0
+           << screenRelativeGeometry((w->windowState() & Qt::WindowMaximized ||
+                                      w->windowState() & Qt::WindowFullScreen) ? w->normalGeometry() : w->geometry())
+           << QHighDpi::toNativePixels(w->minimumSize(), screen);
     return array;
 }
 
 bool WidgetWrapper::RestoreGeometry(const QByteArray& geometry) const
 {
     if (geometry.size() < 4)
-            return false;
+        return false;
     QDataStream stream(geometry);
     stream.setVersion(QDataStream::Qt_4_0);
     QWidget* w = GetWidget();
@@ -1515,101 +1571,74 @@ bool WidgetWrapper::RestoreGeometry(const QByteArray& geometry) const
     if (storedMagicNumber != magicNumber)
         return false;
 
-    const quint16 currentMajorVersion = 3;
+    const quint16 currentMajorVersion = 5;
     quint16 majorVersion = 0;
     quint16 minorVersion = 0;
 
     stream >> majorVersion >> minorVersion;
 
-    if (majorVersion > currentMajorVersion)
+    if (majorVersion < currentMajorVersion)
         return false;
     // (Allow all minor versions.)
 
-    QRect restoredFrameGeometry;
-    QRect restoredGeometry;
-    QRect restoredNormalGeometry;
+    QRectF restoredGeometry;
     qint32 restoredScreenNumber;
     quint8 maximized;
     quint8 fullScreen;
-    qint32 restoredScreenWidth = 0;
+    QSize minimumSize;
 
-    stream >> restoredFrameGeometry // Only used for sanity checks in version 0
-           >> restoredNormalGeometry
-           >> restoredScreenNumber
+    stream >> restoredScreenNumber
            >> maximized
-           >> fullScreen;
-
-    if (majorVersion > 1)
-        stream >> restoredScreenWidth;
-    if (majorVersion > 2)
-        stream >> restoredGeometry;
-
-    // ### Qt 6 - Perhaps it makes sense to dumb down the restoreGeometry() logic, see QTBUG-69104
+           >> fullScreen
+           >> restoredGeometry
+           >> minimumSize;
 
     QDesktopWidget *desktop = QApplication::desktop();
     if (restoredScreenNumber >= desktop->numScreens())
         restoredScreenNumber = desktop->primaryScreen();
-    const qreal screenWidthF = qreal(desktop->screenGeometry(restoredScreenNumber).width());
-    // Sanity check bailing out when large variations of screen sizes occur due to
-    // high DPI scaling or different levels of DPI awareness.
-    if (restoredScreenWidth) {
-        const qreal factor = qreal(restoredScreenWidth) / screenWidthF;
-        if (factor < 0.8 || factor > 1.25)
-            return false;
-    } else {
-        // Saved by Qt 5.3 and earlier, try to prevent too large windows
-        // unless the size will be adapted by maximized or fullscreen.
-        if (!maximized && !fullScreen && qreal(restoredFrameGeometry.width()) / screenWidthF > 1.5)
-            return false;
+    auto* screen = desktop->screen(restoredScreenNumber)->screen();
+    if(screen == nullptr) {
+        return false;
     }
+    const QRect screenGeometry = QHighDpi::toNativePixels(desktop->availableGeometry(restoredScreenNumber), screen);
+    auto screenGeometryW = screenGeometry.width();
+    auto screenGeometryH = screenGeometry.height();
 
-    const int frameHeight = 0;
+    auto screenAbsoluteGeometry = [&](const QRectF& geometry) {
+        auto result = QRect(geometry.x() * screenGeometryW + screenGeometry.x(),
+                     geometry.y() * screenGeometryH + screenGeometry.y(),
+                     geometry.width() * screenGeometryW,
+                     geometry.height() * screenGeometryH);
+        result.setWidth(qMin((qint32)result.width(), screenGeometryW - result.x()));
+        result.setHeight(qMin((qint32)result.height(), screenGeometryH - result.y()));
+        return QHighDpi::fromNativePixels(result, screen);
+    };
 
-    if (!restoredNormalGeometry.isValid())
-        restoredNormalGeometry = QRect(QPoint(0, frameHeight), w->sizeHint());
-    /*if (!restoredNormalGeometry.isValid()) {
-        // use the widget's adjustedSize if the sizeHint() doesn't help
-        restoredNormalGeometry.setSize(restoredNormalGeometry
-                                       .size()
-                                       .expandedTo(w->adjustedSize()));
-    }*/
+    if (!restoredGeometry.isValid())
+        restoredGeometry = QRect(QPoint(), w->sizeHint());
 
-    const QRect availableGeometry = desktop->availableGeometry(restoredScreenNumber);
-
-    checkRestoredGeometry(availableGeometry, &restoredGeometry, frameHeight);
-    checkRestoredGeometry(availableGeometry, &restoredNormalGeometry, frameHeight);
+    w->setMinimumSize(QHighDpi::fromNativePixels(w->minimumSize(), screen));
 
     if (maximized || fullScreen) {
         // set geometry before setting the window state to make
         // sure the window is maximized to the right screen.
-        Qt::WindowStates ws = w->windowState();
+        Qt::WindowStates ws = w->windowState() & ~(Qt::WindowMinimized | Qt::WindowFullScreen | Qt::WindowMaximized);
+        w->setWindowState(ws);
 
         if (ws & Qt::WindowFullScreen) {
             // Full screen is not a real window state on Windows.
-            w->move(availableGeometry.topLeft());
-        } else if (ws & Qt::WindowMaximized) {
-            // Setting a geometry on an already maximized window causes this to be
-            // restored into a broken, half-maximized state, non-resizable state (QTBUG-4397).
-            // Move the window in normal state if needed.
-            if (restoredScreenNumber != desktop->screenNumber(w)) {
-                w->setWindowState(Qt::WindowNoState);
-                w->setGeometry(restoredNormalGeometry);
-            }
+            w->move(screenGeometry.topLeft());
         } else {
-            w->setGeometry(restoredNormalGeometry);
+            w->setGeometry(screenAbsoluteGeometry(restoredGeometry));
         }
-        if (maximized)
-            ws |= Qt::WindowMaximized;
-        if (fullScreen)
-            ws |= Qt::WindowFullScreen;
-       w->setWindowState(ws);
-       //normalGeometry = restoredNormalGeometry;
+        if (maximized) {
+            w->setWindowState(ws | Qt::WindowMaximized);
+        } else if (fullScreen) {
+            w->setWindowState(ws | Qt::WindowFullScreen);
+        }
     } else {
         w->setWindowState(w->windowState() & ~(Qt::WindowMaximized | Qt::WindowFullScreen));
-        if (majorVersion > 2)
-            w->setGeometry(restoredGeometry);
-        else
-            w->setGeometry(restoredNormalGeometry);
+        w->setGeometry(screenAbsoluteGeometry(restoredGeometry));
     }
     return true;
 }
@@ -1658,6 +1687,12 @@ const WidgetGroupboxWrapper& WidgetGroupboxWrapper::AddCollapsingDispatcher(Disp
 
 WidgetWrapper::WidgetWrapper(QWidget* widget)
     : Super(widget)
+{
+
+}
+
+WidgetWrapper::WidgetWrapper(QWindow* window)
+    : Super(window)
 {
 
 }

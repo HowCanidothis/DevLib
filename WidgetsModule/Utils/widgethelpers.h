@@ -161,6 +161,7 @@ class WidgetWrapper : public ObjectWrapper
     using Super = ObjectWrapper;
 public:
     WidgetWrapper(QWidget* widget = nullptr);
+    WidgetWrapper(QWindow* window);
 
     template<class T>
     T* InjectedWidget(const char* propertyName, const std::function<T* (QWidget* parent)>& creator = nullptr) const
@@ -180,6 +181,7 @@ public:
 
     void RegisterDialogView(const DescCustomDialogParams& params);
 
+    EventFilterObject* AddDragAndDrop(const std::function<bool (const QMimeData*)>& dropableHandler, const std::function<void (const QMimeData*)>& onDrop);
     template<typename ... Args>
     EventFilterObject* ConnectFocus(Args... other) const
     {

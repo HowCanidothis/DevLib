@@ -105,7 +105,7 @@ QString ImportExport::StandardExportingString()
     return tr("Exporting to %1...");
 }
 
-AsyncResult ImportExport::async(const FAction& function, const EPriority priority)
+AsyncResult ImportExport::Async(const FAction& function, const EPriority priority)
 {
     return threadPool().PushTask(function, priority);
 }

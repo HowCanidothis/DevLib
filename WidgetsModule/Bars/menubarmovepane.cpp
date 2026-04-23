@@ -45,7 +45,7 @@ MenuBarMovePane::MenuBarMovePane(QWidget* parent)
     Modal.Subscribe([this]{
         ui->BtnMinimize->setVisible(!Modal);
     });
-    m_windowGeometry = parent->window()->saveGeometry();
+    m_windowGeometry = WidgetWrapper(parent->window()).StoreGeometry();
 }
 
 bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
@@ -59,7 +59,7 @@ bool MenuBarMovePane::filter(QObject* watched, QEvent* event)
     case QEvent::Move: {
         auto* widget = window();
         if(!widget->isMaximized()) {
-            m_windowGeometry = window()->saveGeometry();
+            m_windowGeometry = WidgetWrapper(window()).StoreGeometry();
         }
     } break;
     case QEvent::WindowStateChange: {

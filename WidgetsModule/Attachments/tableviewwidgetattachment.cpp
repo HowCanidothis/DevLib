@@ -211,7 +211,11 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
                                 intErrorsMetaData.insert(sourceRow);
                             }
                         }
-                        m_targetModel->setData(targetIndex, ival);
+                        if(!ok) {
+                            m_targetModel->setData(targetIndex, value);
+                        } else {
+                            m_targetModel->setData(targetIndex, ival);
+                        }
                         break;
                     }
                     default: m_targetModel->setData(targetIndex, value); break;

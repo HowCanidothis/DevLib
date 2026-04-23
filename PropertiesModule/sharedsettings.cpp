@@ -226,6 +226,9 @@ QString tryFixUpDateTime(const QString& input, const QString& format)
     qint32 currentDigitLettersCount = 0;
 
     auto update = [&]{
+//        while(inputIt != input.end() && inputIt->isSpace()) {
+//            ++inputIt;
+//        }
         if(currentKey == "AP") {
             while(inputIt != input.cend() && inputIt->isLetter()) {
                 currentDigit.append(*inputIt);
@@ -242,7 +245,7 @@ QString tryFixUpDateTime(const QString& input, const QString& format)
                 currentDigit.append(*inputIt);
                 ++inputIt;
             }
-            while(inputIt != input.cend() && !inputIt->isDigit()) {
+            while(inputIt != input.cend() && !inputIt->isDigit() && !inputIt->isLetter()) {
                 ++inputIt;
             }
             auto adjustCount = currentDigitLettersCount - currentDigit.size();
