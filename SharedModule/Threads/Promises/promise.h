@@ -37,6 +37,7 @@ private:
 
 private:
     friend class Promise;
+    template<class T> friend class PromisedValue;
     qint8 m_result;
     std::atomic_bool m_isResolved;
     std::atomic_bool m_isCompleted;
@@ -62,11 +63,88 @@ private:
     SharedPointer<SafeCallData> m_data;
 };
 
+template<class T>
+class PromisedValue
+{
+    SP<T> m_data;
+    SharedPointer<PromiseData> m_promiseData;
+
+public:
+    PromisedValue()
+        : m_data(::make_shared<T>())
+        , m_promiseData(::make_shared<PromiseData>())
+    {
+    }
+
+    PromisedValue(const T& v)
+        : m_data(::make_shared<T>(v))
+        , m_promiseData(::make_shared<PromiseData>())
+    {
+    }
+
+    void Fail() const { m_promiseData->resolve(false); }
+    template<class Ret, typename FFunctor>
+    PromisedValue<Ret> Then(const FFunctor& handler)
+    {
+        PromisedValue<Ret> result;
+        auto d = m_data;
+        m_promiseData->then([result, d, handler](qint8 ok){
+            if(!ok) {
+                result.Fail();
+                return;
+            }
+            handler(*d, result).Then([result](qint8) {
+                result.Fail(); // If not resolved early, will fail.
+            });
+        });
+        return result;
+    }
+
+    template<typename FFunctor>
+    PromisedValue<T> Then(const FFunctor& handler)
+    {
+        auto d = m_data;
+        m_promiseData->then([d, handler](qint8 ok){
+            if(!ok) {
+                return;
+            }
+            handler(*d);
+        });
+        return *this;
+    }
+
+    void OnFailed(const FAction& action)
+    {
+        m_promiseData->then([action](qint8 ok){
+            if(!ok) {
+                action();
+            }
+        });
+    }
+
+    const PromisedValue& operator=(const T& v) const {
+        m_promiseData->resolve([this, v]{
+            *m_data = v;
+            return true;
+        });
+        return *this;
+    }
+    operator const T&() const { return *m_data; }
+
+private:
+//    void link(const PromisedValue<T>& other) const {
+//        auto self = *this;
+//        other.m_promiseData->then([self, other](qint8 ok) {
+//            if (ok) self = *other.m_data; // Assignment operator resolves self
+//            else self.Fail();
+//        });
+//    }
+};
+
 class Promise
 {
     SharedPointer<PromiseData> m_data;
 public:
-
     Promise();
 
     PromiseData* GetData() const { return m_data.get(); }
@@ -74,6 +152,20 @@ public:
     bool IsResolved() const { return m_data->m_isCompleted; }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler, const class FutureResult& future) const;
+    template<class Ret>
+    PromisedValue<Ret> Then(const std::function<Ret ()>& handler)
+    {
+        PromisedValue<Ret> result;
+        Then([handler, result](qint8 ok) {
+            if(!ok) {
+                result.Fail();
+                return;
+            }
+            result = handler();
+        });
+        return result;
+    }
+
     void Resolve(qint8 value) const {  m_data->resolve(value); }
     void Resolve(const std::function<qint8 ()>& handler) const {  m_data->resolve(handler); }
     void Mute() { m_data->mute(); }
