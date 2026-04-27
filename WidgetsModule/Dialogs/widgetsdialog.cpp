@@ -25,7 +25,7 @@ WidgetsDialog::~WidgetsDialog()
     delete ui;
 }
 
-void WidgetsDialog::Initialize(const std::function<void (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler, const std::function<void (bool)>& dontShowHandler)
+void WidgetsDialog::Initialize(const std::function<bool (qint32)>& onDone, const std::function<void (const QVector<QAbstractButton*>&)>& handler, const std::function<void (bool)>& dontShowHandler)
 {    
     ui->widget->setVisible(m_buttons.size() > 0);
 
@@ -162,7 +162,9 @@ void WidgetsDialog::SetContent(QWidget* view)
 void WidgetsDialog::done(int v)
 {
     if(m_onDone != nullptr) {
-        m_onDone(v);
+        if(!m_onDone(v)) {
+            return;
+        }
     }
     Super::done(v);
 }

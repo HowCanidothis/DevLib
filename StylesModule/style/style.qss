@@ -721,7 +721,14 @@ QAbstractButton[a_control="7"]:checked{
 }
 
 QAbstractButton[a_control="9"]{
-    color: @ctext.1;
+    color: @ctext.active;
+    background: @cbg.3;
+}
+QAbstractButton[a_control="9"]:hover{
+    background: @cbg.hover1;
+}
+QAbstractButton[a_control="9"]:checked{
+    background: @cbg.selected;
 }
 
 QAbstractButton[a_control="13"] { /*IconWithText*/
