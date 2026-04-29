@@ -218,11 +218,13 @@ class ViewModelsSelectionFilterModel : public ViewModelsFilterModelBase
 {
     using Super = ViewModelsFilterModelBase;
     using FExtractor = std::function<Selection (const QModelIndex& index)>;
+    using FIsSelectionValid = std::function<bool (const Selection& selection)>;
 public:
-    ViewModelsSelectionFilterModel(qint32 targetColumn, QObject* parent, const FExtractor& extractor)
+    ViewModelsSelectionFilterModel(qint32 targetColumn, QObject* parent, const FExtractor& extractor, const FIsSelectionValid& selValid)
         : Super(parent)
         , m_extractor(extractor)
         , m_targetColumn(targetColumn)
+        , m_selValid(selValid)
     {}
 
     LocalPropertySet<Selection> Selected;
@@ -289,7 +291,7 @@ public:
     QVariant data(const QModelIndex& index, qint32 role) const override {
         if(index.column() == m_targetColumn && role == Qt::CheckStateRole) {
             auto selection = m_extractor(mapToSource(index));
-            if(selection != 0) {
+            if(m_selValid(selection)) {
                 return Selected.IsContains(selection) ? Qt::Checked : Qt::Unchecked;
             }
             return QVariant();
@@ -324,6 +326,7 @@ public:
 private:
     FExtractor m_extractor;
     qint32 m_targetColumn;
+    FIsSelectionValid m_selValid;
 };
 
 #endif // MODELSFILTERMODELBASE_H
