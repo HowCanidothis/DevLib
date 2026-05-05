@@ -138,6 +138,8 @@ struct SQLiteMappingValue
         return result;
     }
 
+    SQLiteMappingValue& SetDefaultValue(const QString& v) { Default = v; return *this; }
+
 
     FToVariant ToVariant;
     FFromVariant FromVariant;

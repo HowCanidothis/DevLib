@@ -81,7 +81,9 @@ void QRoundProgressBar::paintEvent(QPaintEvent *)
     p.setRenderHint(QPainter::Antialiasing);
 
     qint32 weight = RingWidth;
-    QPoint center(width() / 2, height() / 2);
+    auto w = width();
+    auto h = height();
+    QPoint center(w / 2, h / 2);
 
     qint32 outerDiameter = RingSize;
     qint32 innerDiameter = outerDiameter - weight * 2;;
@@ -95,7 +97,7 @@ void QRoundProgressBar::paintEvent(QPaintEvent *)
     QColor baseColor = palette().base().color();
     QColor valueColor = palette().alternateBase().color();
     p.setBrush(palette().background().color());
-    p.drawRect(QRect(0,0,width(), height()));
+    p.drawRect(QRect(0,0,w, h));
 
     p.setBrush(Qt::NoBrush);
 
