@@ -23,7 +23,7 @@ public:
     T* GetView() const { return reinterpret_cast<T*>(m_content); }
     QAbstractButton* GetButton(qint32 i) const { return m_buttons.at(i); }
 
-    void Initialize(const std::function<void (qint32)>& onDone = nullptr, const std::function<void (const QVector<QAbstractButton*>&)>& handler = nullptr, const std::function<void (bool)>& dontShowHandler = nullptr);
+    void Initialize(const std::function<bool (qint32)>& onDone = nullptr, const std::function<void (const QVector<QAbstractButton*>&)>& handler = nullptr, const std::function<void (bool)>& dontShowHandler = nullptr);
     void SetHeaderText(const FTranslationHandler& text);
     void SetContent(QWidget* view);
     QAbstractButton* AddButton(const WidgetsDialogsManagerButtonStruct& b);
@@ -39,7 +39,7 @@ private:
     Ui::WidgetsDialog *ui;
     QVector<QAbstractButton*> m_buttons;
     QHash<QAbstractButton*, ButtonRole> m_roles;
-    std::function<void (qint32)> m_onDone;
+    std::function<bool (qint32)> m_onDone;
     QWidget* m_content;
 };
 

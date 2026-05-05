@@ -130,7 +130,7 @@ QDateTime WidgetsDateTimeEdit::dateTimeFromText(const QString& text) const
 
 QString WidgetsDateTimeEdit::textFromDateTime(const QDateTime& dt) const
 {
-    return !CurrentDateTime.IsRealTime() ? LanguageSettings::DateTimeToString(dt) : QString();
+    return !CurrentDateTime.IsRealTime() ? (Mode == DateTimeDisplayFormatEnum::Date ? LanguageSettings::DateToString(dt.date()) : LanguageSettings::DateTimeToString(dt)) : QString();
 }
 
 QValidator::State WidgetsDateTimeEdit::validate(QString& input, int& pos) const

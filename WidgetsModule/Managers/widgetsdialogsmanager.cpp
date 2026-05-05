@@ -120,6 +120,7 @@ std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler&
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -141,6 +142,7 @@ std::optional<QDate> WidgetsDialogsManager::GetMonth(const FTranslationHandler& 
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -162,6 +164,7 @@ std::optional<QDateTime> WidgetsDialogsManager::GetDateTime(const FTranslationHa
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -183,6 +186,7 @@ std::optional<qint32> WidgetsDialogsManager::GetInt(const FTranslationHandler& t
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -197,13 +201,14 @@ std::optional<QDate> WidgetsDialogsManager::GetDate(const FTranslationHandler& t
     auto* dialogView = new WidgetsInputDialogView();
     dialogView->AddDate(title(), &v);
 
-    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Select Date:"))).SetView(dialogView)
+    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(title).SetView(dialogView)
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
                     WidgetsDialogsManagerDefaultButtons::ConfirmButton())
         .SetOnDone([&](qint32 v) {
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -226,6 +231,7 @@ std::optional<std::pair<QDate, QDate>> WidgetsDialogsManager::GetDateRange(const
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -248,6 +254,7 @@ std::optional<std::pair<QDateTime, QDateTime>> WidgetsDialogsManager::GetDateTim
         if(v == 0) {
             dialogView->Reset();
         }
+        return true;
     }));
     if(res == 0) {
         return std::nullopt;
@@ -282,6 +289,7 @@ std::optional<QColor> WidgetsDialogsManager::GetColor(const QColor& color, bool 
             }
             default: break;
             }
+            return true;
         });
     };
     auto* dialog = GetOrCreateDialog("ColorDialog", [createParams]{

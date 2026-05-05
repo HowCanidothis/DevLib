@@ -29,6 +29,16 @@ SQLiteDatabase::SQLiteDatabase(const QString& connection, const QString& user, c
     }, EPriority::High);
 }
 
+void SQLiteDatabase::Terminate()
+{
+    PushTask([this]{
+        m_db.close();
+    }, EPriority::Low);
+    Await();
+    *m_deleted = true;
+    Super::Terminate();
+}
+
 AsyncResult SQLiteDatabase::QueryWhereIdIn(const QString& operation, const QSet<Name>& ids, Op op)
 {
     return Transaction([operation, op, ids](QSqlDatabase& db){
@@ -158,10 +168,5 @@ SP<SQLiteDatabase> SQLiteDatabase::Create(const QString& connection, const QStri
 
 SQLiteDatabase::~SQLiteDatabase()
 {
-    PushTask([this]{
-        m_db.close();
-    }, EPriority::Low);
-    Await();
-    *m_deleted = true;
 }
 

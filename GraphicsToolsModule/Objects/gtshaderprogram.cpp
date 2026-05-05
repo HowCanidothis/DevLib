@@ -122,6 +122,7 @@ bool GtShaderProgram::Bind()
         m_shaderProgram->bind();
         return true;
     }
+    m_mutex->unlock();
     return false;
 }
 

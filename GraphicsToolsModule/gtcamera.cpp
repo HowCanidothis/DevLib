@@ -188,7 +188,8 @@ void GtCamera::Zoom(bool closer)
         if(qFuzzyIsNull(isometricScale.x()) || qFuzzyIsNull(isometricScale.y())) {
             isometricScale = Point2F(1.f,1.f) / m_isometricCoef;
         }
-        isometricScale *= closer ? 0.75f : 1.25f;
+        auto lerped = lerp(1.0 / 8.0, 1.0 / 4.0, SharedSettings::GetInstance().ControlSettings.ZoomSensitivity.Native());
+        isometricScale *= closer ? (1.f - lerped) : (1.f + lerped);
         auto distance = isometricScale.x() * m_isometricCoef.x();
         auto far90 = m_far * 0.90f;
         if(distance > far90) {
@@ -210,7 +211,8 @@ void GtCamera::Zoom(bool closer)
         m_state.AddFlags(State_NeedUpdateProjection | State_NeedUpdateView);
         MoveFocused(Point2F(screenPoint.x(), screenPoint.y()));
     } else {
-        float denum = closer ? 8.f : -8.f;
+        auto lerped = lerp(8.0, 4.0, SharedSettings::GetInstance().ControlSettings.ZoomSensitivity.Native());
+        float denum = closer ? lerped : -lerped;
         Point3F neye = m_eye + ray / denum;
         m_eye = neye;
         m_state.AddFlag(State_NeedUpdateView);

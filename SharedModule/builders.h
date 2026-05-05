@@ -151,6 +151,11 @@ public:
     static QString XMLCreateHyperlink(const QString& text, const FAction* handler, const QColor& color);
     static QString XMLCreateHyperlink(const QString& text, const FAction* handler);
     StringBuilder& XMLAddEnumerated(const QString& text);
+    template<class ... Args>
+    static SP<FAction> XMLCreateHandler(const Args&... args)
+    {
+        return ::make_shared<FAction>(args...);
+    }
 
 
     template<typename Stream, typename T, typename Container, typename FAdapter>
