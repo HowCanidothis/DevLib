@@ -44,10 +44,12 @@ class IconsSvgIcon : public QIcon
 public:
     IconsSvgIcon();
     IconsSvgIcon(const QString& filePath);
+    IconsSvgIcon(const QString& filePath, const std::function<void(const IconsPalette&, QByteArray&)>& preload);
 
     QIcon MergedIcon(const QSize& size, const QVector<QIcon>& icons) const;
     QIcon MergedIcon(const QSize& size, const QVector<QIcon>& icons, Mode mode, State state) const;
 
+    class QSvgRenderer* GetRenderer() const;
     IconsPalette& EditPalette() const;
 
 private:

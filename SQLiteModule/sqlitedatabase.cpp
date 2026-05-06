@@ -152,10 +152,12 @@ AsyncResult SQLiteDatabase::Query(const std::function<bool (QSqlQuery& query)>& 
         if(h()) {
             return AsyncSuccess();
         }
+        qCCritical(LC_CONSOLE) << db.lastError().text();
         return AsyncError();
     }
-    return PushTask([h]{
+    return PushTask([h, db]{
         if(!h()) {
+            qCCritical(LC_CONSOLE) << db.lastError().text();
             throw 0;
         }
     }, EPriority::High);

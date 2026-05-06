@@ -6,6 +6,20 @@
 
 IconsManager* IconsManager::m_instance = nullptr;
 
+
+enum FileType { OtherFile, SvgFile, CompressedSvgFile };
+static FileType fileType(const QFileInfo& fi)
+{
+    const QString &abs = fi.absoluteFilePath();
+    if (abs.endsWith(QLatin1String(".svg"), Qt::CaseInsensitive))
+        return SvgFile;
+    if (abs.endsWith(QLatin1String(".svgz"), Qt::CaseInsensitive)
+        || abs.endsWith(QLatin1String(".svg.gz"), Qt::CaseInsensitive)) {
+        return CompressedSvgFile;
+    }
+    return OtherFile;
+}
+
 class SvgIconEngineData
 {
     struct Size : public QSize
@@ -23,8 +37,63 @@ class SvgIconEngineData
     };
 
 public:
+    using FPreload = std::function<void (const IconsPalette&, QByteArray&)>;
+    SvgIconEngineData(const FPreload& preload = nullptr)
+        : Preload(preload)
+    {
+        FilePath.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
+            generateSource();
+        }).MakeSafe(m_connections);
+
+        auto resetCache = [this](QIcon::Mode ) {
+            m_clearCacheDelayed.Call(CONNECTION_DEBUG_LOCATION, [this]{
+                if(Preload == nullptr) {
+                    Cache.clear();
+                } else {
+                    if(Renderer == nullptr) {
+                        Renderer = new QSvgRenderer();
+                    }
+                    auto ba = Source.toByteArray();
+                    Preload(Palette, ba);
+                    Renderer->load(ba);
+                    if(Renderer->animated()) {
+                        Renderer->connect(Renderer.get(), &QSvgRenderer::repaintNeeded, [this]{
+                            Cache.clear();
+                        });
+                    }
+                }
+            });
+            // TODO. Not working
+            /*SvgIconEngineData::HashKey modeOn { mode, QIcon::On };
+            SvgIconEngineData::HashKey modeOff { mode, QIcon::Off };
+            for(auto& modes : d->Cache) {
+                modes.remove(modeOn);
+                modes.remove(modeOff);
+            }*/
+        };
+
+        Palette.ActiveColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
+            resetCache(QIcon::Active);
+        }).MakeSafe(m_connections);
+        Palette.NormalColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
+            resetCache(QIcon::Normal);
+        }).MakeSafe(m_connections);
+        Palette.SelectedColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
+            resetCache(QIcon::Selected);
+        }).MakeSafe(m_connections);
+        Palette.DisabledColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
+            resetCache(QIcon::Disabled);
+        }).MakeSafe(m_connections);
+    }
+
+    QPixmap Pixmap(const QSize& size, QIcon::Mode mode,
+                               QIcon::State state);
+
     LocalPropertyString FilePath;
     IconsPalette Palette;
+    mutable ScopedPointer<QSvgRenderer> Renderer;
+    FPreload Preload;
+    bool IsValid;
 
     void Clear()
     {
@@ -32,6 +101,11 @@ public:
         Source.clear();
         IsValid = false;
     }
+
+private:
+    void setAttributeRecursive(QDomElement elem, QString strtagname, QString strattr, QString strattrval) const;
+    QPixmap generatePixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) const;
+    void generateSource();
 
 private:
     struct HashKey
@@ -42,17 +116,129 @@ private:
         operator qint64() const { return *(qint64*)this; }
     };
 
-    friend class SvgIconEngine;
-    QSvgRenderer Renderer;
     QHash<Size, QHash<HashKey, QPixmap>> Cache;
     QDomDocument Source;
-    bool IsValid;
+
+private:
+    DispatcherConnectionsSafe m_connections;
+    DelayedCallObject m_clearCacheDelayed;
 };
+
+void SvgIconEngineData::setAttributeRecursive(QDomElement elem, QString strtagname, QString strattr, QString strattrval) const
+{
+    // if it has the tagname then overwritte desired attribute
+    if (elem.tagName().compare(strtagname) == 0)
+    {
+        elem.setAttribute(strattr, strattrval);
+    }
+    // loop all children
+    for (int i = 0; i < elem.childNodes().count(); i++)
+    {
+        if (!elem.childNodes().at(i).isElement())
+        {
+            continue;
+        }
+        setAttributeRecursive(elem.childNodes().at(i).toElement(), strtagname, strattr, strattrval);
+    }
+}
+
+QPixmap SvgIconEngineData::Pixmap(const QSize& size, QIcon::Mode mode, QIcon::State state)
+{
+    if(!IsValid) {
+        return QPixmap();
+    }
+    auto foundIt = Cache.find(size);
+    if(foundIt != Cache.end()) {
+        auto foundItPixmap = foundIt.value().find({ mode, state });
+        if(foundItPixmap != foundIt.value().end()) {
+            return foundItPixmap.value();
+        }
+
+        auto pixmap = generatePixmap(size,mode,state);
+        foundIt.value().insert({ mode, state }, pixmap);
+        return pixmap;
+    }
+    auto pixmap = generatePixmap(size,mode,state);
+    Cache.insert(size, { { { mode, state }, pixmap} });
+    return pixmap;
+}
+
+QPixmap SvgIconEngineData::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) const
+{
+    Q_ASSERT(IsValid);
+
+    if(Renderer != nullptr) {
+        QPixmap pix(size);
+        pix.fill(Qt::transparent);
+        QPainter pixPainter(&pix);
+        Renderer->render(&pixPainter);
+        return pix;
+    }
+
+    auto& doc = Source;
+    // recurivelly change color
+    if(state == QIcon::On) {
+        if(Palette.SelectedColor.IsValid) {
+            setAttributeRecursive(doc.documentElement(), "path", "fill", Palette.SelectedColor.Value.Native().name());
+            setAttributeRecursive(doc.documentElement(), "rect", "stroke", Palette.SelectedColor.Value.Native().name());
+        }
+    } else {
+        switch (mode) {
+        case QIcon::Active:
+            if(Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", Palette.NormalColor.Value.Native().name());
+            }
+            break;
+        case QIcon::Disabled:
+            if(Palette.DisabledColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", Palette.DisabledColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", Palette.DisabledColor.Value.Native().name());
+            }
+            break;
+        case QIcon::Selected:
+            if(Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", Palette.NormalColor.Value.Native().name());
+            }
+            break;
+        default:
+            if(Palette.NormalColor.IsValid) {
+                setAttributeRecursive(doc.documentElement(), "path", "fill", Palette.NormalColor.Value.Native().name());
+                setAttributeRecursive(doc.documentElement(), "rect", "stroke", Palette.NormalColor.Value.Native().name());
+            }
+            break;
+        }
+    }
+
+    // create svg renderer with edited contents
+    QSvgRenderer svgRenderer(doc.toByteArray());
+    QPixmap pix(size);
+    pix.fill(Qt::transparent);
+    QPainter pixPainter(&pix);
+    svgRenderer.render(&pixPainter);
+    return pix;
+}
+
+void SvgIconEngineData::generateSource()
+{
+    Cache.clear();
+    if(fileType(QFileInfo(FilePath)) == SvgFile) {
+        QFile file(FilePath);
+        if(file.open(QFile::ReadOnly)) {
+            auto parseResult = Source.setContent(file.readAll());
+            IsValid = parseResult;
+            return;
+        }
+    }
+    IsValid = false;
+}
 
 class SvgIconEngine : public QIconEngine
 {
 public:
     SvgIconEngine();
+    SvgIconEngine(const SvgIconEngineData::FPreload& preload);
     SvgIconEngine(const SvgIconEngine& another);
     ~SvgIconEngine();
 
@@ -74,49 +260,18 @@ public:
     const SharedPointer<SvgIconEngineData>& GetData() const { return d; }
 
 private:
-    void setAttributeRecursive(QDomElement elem, QString strtagname, QString strattr, QString strattrval) const;
-    void generateSource();
-    QPixmap generatePixmap(const QSize &size, QIcon::Mode mode,
-                           QIcon::State state) const;
-
-private:
     SharedPointer<SvgIconEngineData> d;
-    DispatcherConnectionsSafe m_connections;
-    DelayedCallObject m_clearCacheDelayed;
 };
+
+SvgIconEngine::SvgIconEngine(const SvgIconEngineData::FPreload& preload)
+    : d(new SvgIconEngineData(preload))
+{
+
+}
 
 SvgIconEngine::SvgIconEngine()
     : d(new SvgIconEngineData)
 {
-    d->FilePath.OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-        generateSource();
-    }).MakeSafe(m_connections);
-
-    auto resetCache = [this](QIcon::Mode ) {
-        m_clearCacheDelayed.Call(CONNECTION_DEBUG_LOCATION, [this]{
-            d->Cache.clear();
-        });
-        // TODO. Not working
-        /*SvgIconEngineData::HashKey modeOn { mode, QIcon::On };
-        SvgIconEngineData::HashKey modeOff { mode, QIcon::Off };
-        for(auto& modes : d->Cache) {
-            modes.remove(modeOn);
-            modes.remove(modeOff);
-        }*/
-    };
-
-    d->Palette.ActiveColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
-        resetCache(QIcon::Active);
-    }).MakeSafe(m_connections);
-    d->Palette.NormalColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
-        resetCache(QIcon::Normal);
-    }).MakeSafe(m_connections);
-    d->Palette.SelectedColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
-        resetCache(QIcon::Selected);
-    }).MakeSafe(m_connections);
-    d->Palette.DisabledColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [resetCache]{
-        resetCache(QIcon::Disabled);
-    }).MakeSafe(m_connections);
 }
 
 SvgIconEngine::SvgIconEngine(const SvgIconEngine& another)
@@ -128,57 +283,10 @@ SvgIconEngine::~SvgIconEngine()
 {
 }
 
-enum FileType { OtherFile, SvgFile, CompressedSvgFile };
-
-static FileType fileType(const QFileInfo& fi)
-{
-    const QString &abs = fi.absoluteFilePath();
-    if (abs.endsWith(QLatin1String(".svg"), Qt::CaseInsensitive))
-        return SvgFile;
-    if (abs.endsWith(QLatin1String(".svgz"), Qt::CaseInsensitive)
-        || abs.endsWith(QLatin1String(".svg.gz"), Qt::CaseInsensitive)) {
-        return CompressedSvgFile;
-    }
-    return OtherFile;
-}
-
-
-void SvgIconEngine::generateSource()
-{
-    d->Cache.clear();
-    if(fileType(QFileInfo(d->FilePath)) == SvgFile) {
-        QFile file(d->FilePath);
-        if(file.open(QFile::ReadOnly)) {
-            auto parseResult = d->Source.setContent(file.readAll());
-            d->IsValid = parseResult;
-            return;
-        }
-    }
-    d->IsValid = false;
-}
-
 QPixmap SvgIconEngine::pixmap(const QSize& size, QIcon::Mode mode,
                                QIcon::State state)
 {
-    if(!d->IsValid) {
-        return QPixmap();
-    }
-
-    auto foundIt = d->Cache.find(size);
-    if(foundIt != d->Cache.end()) {
-        auto foundItPixmap = foundIt.value().find({ mode, state });
-        if(foundItPixmap != foundIt.value().end()) {
-            return foundItPixmap.value();
-        }
-
-        auto pixmap = generatePixmap(size,mode,state);
-        foundIt.value().insert({ mode, state }, pixmap);
-        return pixmap;
-    }
-
-    auto pixmap = generatePixmap(size,mode,state);
-    d->Cache.insert(size, { { { mode, state }, pixmap} });
-    return pixmap;
+    return d->Pixmap(size, mode, state);
 }
 
 
@@ -222,78 +330,18 @@ void SvgIconEngine::virtual_hook(int id, void* data)
     QIconEngine::virtual_hook(id, data);
 }
 
-void SvgIconEngine::setAttributeRecursive(QDomElement elem, QString strtagname, QString strattr, QString strattrval) const
-{
-    // if it has the tagname then overwritte desired attribute
-    if (elem.tagName().compare(strtagname) == 0)
-    {
-        elem.setAttribute(strattr, strattrval);
-    }
-    // loop all children
-    for (int i = 0; i < elem.childNodes().count(); i++)
-    {
-        if (!elem.childNodes().at(i).isElement())
-        {
-            continue;
-        }
-        setAttributeRecursive(elem.childNodes().at(i).toElement(), strtagname, strattr, strattrval);
-    }
-}
-
-QPixmap SvgIconEngine::generatePixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) const
-{
-    Q_ASSERT(d->IsValid);
-
-    auto& doc = d->Source;
-    // recurivelly change color
-    if(state == QIcon::On) {
-        if(d->Palette.SelectedColor.IsValid) {
-            setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.SelectedColor.Value.Native().name());
-            setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.SelectedColor.Value.Native().name());
-        }
-    } else {
-        switch (mode) {
-        case QIcon::Active:
-            if(d->Palette.NormalColor.IsValid) {
-                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
-                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
-            }
-            break;
-        case QIcon::Disabled:
-            if(d->Palette.DisabledColor.IsValid) {
-                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.DisabledColor.Value.Native().name());
-                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.DisabledColor.Value.Native().name());
-            }
-            break;
-        case QIcon::Selected:
-            if(d->Palette.NormalColor.IsValid) {
-                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
-                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
-            }
-            break;
-        default:
-            if(d->Palette.NormalColor.IsValid) {
-                setAttributeRecursive(doc.documentElement(), "path", "fill", d->Palette.NormalColor.Value.Native().name());
-                setAttributeRecursive(doc.documentElement(), "rect", "stroke", d->Palette.NormalColor.Value.Native().name());
-            }
-            break;
-        }
-    }
-
-    // create svg renderer with edited contents
-    QSvgRenderer svgRenderer(doc.toByteArray());
-    QPixmap pix(size);
-    pix.fill(Qt::transparent);
-    QPainter pixPainter(&pix);
-    svgRenderer.render(&pixPainter);
-    return pix;
-}
-
 IconsSvgIcon::IconsSvgIcon()
+    : m_engine(nullptr)
 {}
 
 IconsSvgIcon::IconsSvgIcon(const QString& filePath)
     : Super(m_engine = new SvgIconEngine())
+{
+    m_engine->GetData()->FilePath = filePath;
+}
+
+IconsSvgIcon::IconsSvgIcon(const QString& filePath, const std::function<void(const IconsPalette&, QByteArray&)>& preload)
+    : Super(m_engine = new SvgIconEngine(preload))
 {
     m_engine->GetData()->FilePath = filePath;
 }
@@ -348,6 +396,14 @@ QIcon IconsSvgIcon::MergedIcon(const QSize& size, const QVector<QIcon>& icons) c
     addPixmap(QIcon::Selected, QIcon::Off);
 
     return result;
+}
+
+QSvgRenderer* IconsSvgIcon::GetRenderer() const
+{
+    if(m_engine == nullptr) {
+        return nullptr;
+    }
+    return m_engine->GetData()->Renderer.get();
 }
 
 IconsPalette& IconsSvgIcon::EditPalette() const
