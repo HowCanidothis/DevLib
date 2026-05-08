@@ -49,8 +49,16 @@ QPushButton* WidgetsToolBar::CreateDrawerButton(QWidget* drawer, qint32 drawerSi
         }
     }
     auto* result = CreateButton(buttonObjectName);
+    auto forceExpanded = ::make_shared<bool>(false);
+    WidgetAbstractButtonWrapper(result).SetOnClicked([forceExpanded, result, this]{
+        *forceExpanded = WidgetAbstractButtonWrapper(result).WidgetChecked();
+        *Expanded = *forceExpanded;
+    });
     Expanded = &WidgetWrapper(drawer).WidgetCollapsing(m_buttonsOrientation, drawerSize);
-    Expanded->ConnectBoth(CDL, WidgetAbstractButtonWrapper(result).WidgetChecked());
+    Expanded->SetValidator([forceExpanded](bool expanded){
+        return *forceExpanded ? true : expanded;
+    });
+    WidgetAbstractButtonWrapper(result).WidgetChecked().ConnectFrom(CDL, *Expanded);
     Expanded->OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, result]{
         result->setProperty("isOpen", Expanded->Native());
         WidgetWrapper(result).UpdateStyle();
