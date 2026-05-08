@@ -63,6 +63,11 @@ public:
 class StateParameters
 {
 public:
+    struct IStateParameterComponent {
+        virtual const Name& GetType() const = 0;
+        virtual void Initialize(StateParameters*) {}
+    };
+
     StateParameters(bool valid = true);
 
     virtual void Initialize() final;
@@ -79,11 +84,29 @@ public:
 
     virtual SmartPointerWatcherPtr Capture() { return nullptr; }
 
+    template<typename T>
+    SharedPointer<T> GetComponent() const {
+        auto iter = m_components.find(T::Type);
+        if(iter == m_components.end()){
+            return nullptr;
+        }
+        return iter.value().template Cast<T>();
+    }
+
+    template<typename T>
+    SharedPointer<T> CreateComponent() {
+        const auto& key = T::Type;
+        Q_ASSERT(!m_components.contains(key));
+        auto ret = ::make_shared<T>();
+        m_components[key].template Cast<T>() = ret;
+        return ret;
+    }
 protected:
     virtual void onInitialized() {}
 
 private:
     QVector<class IStateParameterBase*> m_parameters;
+    QHash<Name, SharedPointer<IStateParameterComponent>> m_components;
 
 private:
     friend class IStateParameterBase;
@@ -93,6 +116,17 @@ private:
     FAction m_initializer;
 };
 
+struct StateParameterCaptureComponent : public StateParameters::IStateParameterComponent
+{
+    static const Name Type;
+    const Name& GetType() const { return Type; }
+
+    SmartPointerWatcherPtr Capture();
+    void SetCaptureHandler(const std::function<SmartPointerWatcherPtr()>& handler){ m_captureHandler = handler; }
+private:
+    std::function<SmartPointerWatcherPtr()> m_captureHandler;
+};
+
 class CapturedStateParameters : public StateParameters
 {
     using Super = StateParameters;
@@ -100,9 +134,10 @@ public:
     CapturedStateParameters(bool valid = true);
 
     LocalPropertyBool IsActive;
-    SmartPointerWatcherPtr Capture() override { return m_used.Capture(); }
+    SmartPointerWatcherPtr Capture() override;
 private:
     SmartPointer m_used;
+    StateParameterCaptureComponent* m_component;
 };
 
 class IStateParameterBase
@@ -269,16 +304,19 @@ public:
         : Super(false)
         , m_parameter(this)
     {
+        m_capture = CreateComponent<StateParameterCaptureComponent>().get();
     }
     StateParametersContainer(const TPtr& initial)
         : Super(false)
         , m_parameter(this, initial)
     {
+        m_capture = CreateComponent<StateParameterCaptureComponent>().get();
     }
     StateParametersContainer(const TPtr& initial, InitializationWithLock)
         : Super(false)
         , m_parameter(this)
     {
+        m_capture = CreateComponent<StateParameterCaptureComponent>().get();
         SetLockedParameter(initial);
     }
 
@@ -364,11 +402,11 @@ public:
         return GetInputData()->GetData()->Native();
     }
 
-    SmartPointerWatcherPtr Capture() { return m_captureHandler != nullptr ? m_captureHandler() : nullptr; }
-    void SetCaptureHandler(const std::function<SmartPointerWatcherPtr()>& handler){ m_captureHandler = handler; }
+    SmartPointerWatcherPtr Capture() { return m_capture->Capture(); }
+    void SetCaptureHandler(const std::function<SmartPointerWatcherPtr()>& handler){ m_capture->SetCaptureHandler(handler); }
 private:
-    std::function<SmartPointerWatcherPtr()> m_captureHandler;
     StateParameterImmutableData<T> m_parameter;
+    StateParameterCaptureComponent* m_capture;
 #ifdef QT_DEBUG
     DispatcherConnectionsSafe m_lockConnections;
 #endif

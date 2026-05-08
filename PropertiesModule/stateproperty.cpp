@@ -64,6 +64,9 @@ void StateParameters::Initialize()
         return;
     }
     m_initializer();
+    for(auto& component : m_components){
+        component->Initialize(this);
+    }
     onInitialized();
     m_initializer = nullptr;
 }
@@ -124,7 +127,13 @@ CapturedStateParameters::CapturedStateParameters(bool valid)
         IsActive = false;
     })
 {
+    m_component = CreateComponent<StateParameterCaptureComponent>().get();
+    m_component->SetCaptureHandler([this]{ return m_used.Capture(); });
+}
 
+SmartPointerWatcherPtr CapturedStateParameters::Capture()
+{
+    return m_component->Capture();
 }
 
 DispatcherConnection DispatcherConnectionChain::OnFailed(const char* cdl, const FAction& action)
@@ -211,4 +220,10 @@ void DispatcherConnectionChain::update()
         disp->Connect(CDL, [this]{ update(); }).MakeSafe(m_depConnections);
     }
     validResult();
+}
+
+const Name StateParameterCaptureComponent::Type("Capture");
+SmartPointerWatcherPtr StateParameterCaptureComponent::Capture()
+{
+    return m_captureHandler != nullptr ? m_captureHandler() : nullptr;
 }
