@@ -41,11 +41,11 @@ public:
 struct NotifyErrorContainerData
 {
     FAction Action;
-    class LocalPropertyErrorsContainer* Container;
+    class LocalPropertyErrorsViewModel* Container;
     Name Id;
     DispatcherConnectionsSafe Connections;
 
-    NotifyErrorContainerData(const FAction& action, LocalPropertyErrorsContainer* container, const Name& id)
+    NotifyErrorContainerData(const FAction& action, LocalPropertyErrorsViewModel* container, const Name& id)
         : Action(action)
         , Container(container)
         , Id(id)

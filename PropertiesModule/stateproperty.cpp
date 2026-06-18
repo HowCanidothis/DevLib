@@ -1,5 +1,9 @@
 #include "stateproperty.h"
 
+#include "localpropertyerrorscontainer.h"
+
+IMPLEMENT_GLOBAL_ERROR(SP_IncompleteData, TRS(etr::tr("Incomplete output")))
+
 void StateProperty::SetState(bool state)
 {
     Super::SetValue(state);
@@ -38,15 +42,18 @@ DispatcherConnection StateProperty::OnFirstInvokePerformWhenEveryIsValid(const c
 
 StatePropertyBoolCommutator::StatePropertyBoolCommutator(bool defaultState)
     : Super(And)
+#ifdef QT_DEBUG
+    , OnDirectChanged(m_commutator.OnDirectChanged)
+#endif
 {
     m_property.EditSilent() = defaultState;
     m_commutator.OnDirectChanged += { this, [this]{
         if(!value()) {
-#ifdef QT_DEBUG
-            m_property.SetValueForceInvoke(false);
-#else
+//#ifdef QT_DEBUG
+//            m_property.SetValueForceInvoke(false);
+//#else
             m_property.SetValue(false);
-#endif
+//#endif
         }
     }};
     adapters::ResetThread(m_commutator.OnDirectChanged);
@@ -58,6 +65,19 @@ void StatePropertyBoolCommutator::Update()
     m_commutator.Invoke();
 }
 
+void StateParameters::setIncludable()
+{
+    auto included = SmartPointerWatcherCreate();
+    auto* includer = m_chainData->GetCapturer();
+    m_chainData->Include->InputValue.ConnectAndCall(CDL, [included, includer](bool include){
+        if(include) {
+            *included = includer->Capture();
+        } else {
+            *included = nullptr;
+        }
+    });
+}
+
 void StateParameters::Initialize()
 {
     if(m_initializer == nullptr) {
@@ -65,7 +85,112 @@ void StateParameters::Initialize()
     }
     m_initializer();
     onInitialized();
+    if(m_chainData != nullptr) {
+        if(m_chainData->GetInclude() != nullptr) {
+            setIncludable();
+            IsValid.ConnectFromProperties(CDL, [](bool include, bool valid){
+                return !include || valid;
+            }, m_chainData->Include->InputValue, m_chainData->Errors->IsValid);
+        } else {
+            IsValid.ConnectFrom(CDL, m_chainData->Errors->IsValid);
+        }
+    }
     m_initializer = nullptr;
+}
+
+LocalPropertyErrorsModel& StateParameters::GetInjectedErrors()
+{
+    Q_ASSERT(m_injectedErrors != nullptr);
+    return *m_injectedErrors;
+}
+
+void StateParameters::SetChained(const ChainOptions& params)
+{
+    Q_ASSERT(m_chainData == nullptr && !m_hasEmptyChainData);
+    if(params.InjectErrors) {
+        Q_ASSERT(m_injectedErrors == nullptr);
+        m_injectedErrors = new LocalPropertyErrorsModel();
+    }
+
+    m_chainData = ::make_shared<StateParametersChainData>(this, [](auto&){}, [](StateParametersChainData& data){
+        data.Errors->Clear();
+        data.Captures.clear();
+        data.Processes->Clear();
+    });
+    if(params.Includable) {
+        m_chainData->Include = ::make_shared<StateParameterProperty<LocalPropertyBool>>(this, params.Included);
+    }
+//    const_cast<LocalPropertyBool&>(IsValid.AsProperty()).EditSilent() = false;
+}
+
+void StateParameters::DisconnectChain()
+{
+    Q_ASSERT(m_chainData != nullptr);
+    m_chainData->SetCaptureHandler([](auto&){});
+}
+
+void StateParameters::ConnectChain(const char* cdl, const ChainConnectionOptions& params)
+{
+    if(m_chainData == nullptr)
+    {
+        Q_ASSERT(!m_hasEmptyChainData);
+        SetChained(SPCO());
+    }
+    auto errorsToConnect = params.Errors;
+    if(m_injectedErrors != nullptr) {
+        errorsToConnect.append(m_injectedErrors.get());
+    }
+    auto capturers = params.Capturers;
+    auto processes = params.Processes;
+    const auto& processId = params.ProcessId;
+    auto captureHandler = [cdl, errorsToConnect, processId, capturers, processes](StateParametersChainData& data){
+        if(!processId.IsNull()) {
+            data.Processes->Add(processId);
+        }
+        data.Errors->ConnectFromModels(CDL, errorsToConnect);
+        data.Processes->ConnectFromModels(CDL, processes);
+        for(const auto& capturer : capturers) {
+            data.Captures.append(capturer->Capture());
+        }
+    };
+    m_chainData->SetCaptureHandler(captureHandler);
+}
+
+void StateParameters::ConnectChainAsProxyOf(const char* cdl, const SP<StateParameters>& another, const ChainConnectionOptions& options)
+{
+    auto* cd = another->GetChainData();
+    Q_ASSERT(cd != nullptr);
+
+    ConnectChain(cdl, const_cast<ChainConnectionOptions&>(options).AddCapturers(cd->GetCapturer()).AddErrors(cd->GetErrors()).AddProcesses(cd->GetProcesses()));
+}
+
+bool StateParameters::IsIncludedImmutable() const
+{
+    return m_chainData == nullptr || m_chainData->Include == nullptr ? true : m_chainData->Include->GetImmutable();
+}
+
+LocalPropertyBool& StateParameters::GetIncluded() const
+{
+    Q_ASSERT(m_chainData != nullptr && m_chainData->GetInclude() != nullptr);
+    return m_chainData->GetInclude()->InputValue;
+}
+
+const LocalPropertyErrorsModel& StateParameters::GetErrors() const
+{
+    Q_ASSERT(m_chainData != nullptr);
+    return m_chainData->GetErrors();
+}
+
+const LocalPropertyErrorsModel& StateParameters::GetProcesses() const
+{
+    Q_ASSERT(m_chainData != nullptr);
+    return m_chainData->GetProcesses();
+}
+
+SmartPointer* StateParameters::GetCapturer() const
+{
+    Q_ASSERT(m_chainData != nullptr);
+    return m_chainData->GetCapturer();
 }
 
 IStateParameterBase::IStateParameterBase(StateParameters* params)
@@ -116,15 +241,36 @@ void StateParameters::Reset()
     m_isValid.SetState(false);
 }
 
-CapturedStateParameters::CapturedStateParameters(bool valid)
-    : Super(valid)
-    , m_used([this]{
-        IsActive = true;
-    }, [this]{
-        IsActive = false;
-    })
+void StateParameters::extract(const SP<StateParameters>& params,
+                              QVector<const LocalPropertyErrorsModel*>& errors,
+                              QVector<const LocalPropertyErrorsModel*>& processes,
+                              QVector<SmartPointer*>& captures)
 {
+#ifdef QT_DEBUG
+    if(params->m_hasEmptyChainData) {
+        return;
+    }
+#endif
+    auto* chainData = params->GetChainData();
+    if(chainData == nullptr) {
+        params->SetEmptyChained();
+        return;
+    }
+    errors.append(chainData->Errors.get());
+    processes.append(chainData->Processes.get());
+    if(chainData->Include == nullptr) {
+        captures.append(chainData->GetCapturer());
+    }
+}
 
+void StateParameters::extract(const StateParametersGroup& wrapper,
+             QVector<const LocalPropertyErrorsModel*>& errors,
+             QVector<const LocalPropertyErrorsModel*>& processes,
+             QVector<SmartPointer*>& captures)
+{
+    wrapper.Foreach([&](const SP<StateParameters>& param) {
+        extract(param, errors, processes, captures);
+    });
 }
 
 DispatcherConnection DispatcherConnectionChain::OnFailed(const char* cdl, const FAction& action)
@@ -211,4 +357,26 @@ void DispatcherConnectionChain::update()
         disp->Connect(CDL, [this]{ update(); }).MakeSafe(m_depConnections);
     }
     validResult();
+}
+
+StateParametersChainData::StateParametersChainData(StateParameters* params, const FCapture& capture, const FCapture& release)
+    : Errors(::make_shared<LocalPropertyErrorsModel>())
+    , Processes(::make_shared<LocalPropertyErrorsModel>())
+    , m_capture(capture)
+    , m_release(release)
+    , m_includer([this]{
+        m_capture(*this);
+    }, [this]{
+        m_release(*this);
+    })
+{
+}
+
+void StateParametersChainData::SetCaptureHandler(const FCapture& capture)
+{
+    m_capture = capture;
+    if(m_includer.IsCaptured()) {
+        m_release(*this);
+        m_capture(*this);
+    }
 }

@@ -2,6 +2,7 @@
 #include "ui_topnotifierframe.h"
 
 #include <QResizeEvent>
+#include <QLineEdit>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 #include "WidgetsModule/Attachments/widgetslocationattachment.h"
@@ -51,39 +52,62 @@ LocalProperty<QPoint>& TopNotifierFrame::WidgetOffset()
 }
 
 TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(TopNotifierFrame* frame)
-    : TopNotifierFrameErrorsComponent(new LocalPropertyErrorsContainer(), frame)
+    : TopNotifierFrameErrorsComponent(new LocalPropertyErrorsViewModel(), frame)
 {
     m_internalErrors = true;
 }
 
-TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsContainer* errors, TopNotifierFrame* frame)
+TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyErrorsViewModel* errors, TopNotifierFrame* frame)
     : Super(frame)
     , m_updateText(1000)
     , m_errors(errors)
     , m_internalErrors(false)
+    , m_useDefaultActionHandlers(false)
 {
-    auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [frame, errors]{
-        frame->WidgetText()->SetTranslationHandler([errors]{
+    auto setText = m_updateText.Wrap(CONNECTION_DEBUG_LOCATION, [this, frame, errors]{
+        m_defaultActivationHandlers.clear();
+        frame->WidgetText()->SetTranslationHandler([this, errors]{
             StringBuilder message;
-            for(const LocalPropertyErrorsContainerValue& error : *errors) {
-                switch(error.Type) {
-                case QtWarningMsg:
-                    message.XMLAddEnumerated(message.XMLCreateStyleColorized(error.Error->Native(), SharedSettings::GetInstance().StyleSettings.WarningColor));
-                    break;
-                case QtCriticalMsg:
-                    message.XMLAddEnumerated(message.XMLCreateStyleColorized(error.Error->Native(), SharedSettings::GetInstance().StyleSettings.ErrorColor));
-                    break;
-                default:
-                    message.XMLAddEnumerated(error.Error->Native());
-                    break;
+            for(const Name& error : *errors) {
+                const auto& desc = errors->GetDescription(error);
+                if(desc.ActivationHandler != nullptr) {
+                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc.Text->Native(), &desc.ActivationHandler));
+                } else if(m_useDefaultActionHandlers){
+                    auto activationHandler = ::make_shared<FAction>([this, error]{
+                        OnErrorActivated()(error);
+                    });
+                    m_defaultActivationHandlers.append(activationHandler);
+                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc.Text->Native(), activationHandler.get()));
+                } else {
+                    message.XMLAddEnumerated(desc.Text->Native());
                 }
             }
             return message;
         });
-        WidgetWrapper(frame).SetVisibleAnimated(!errors->IsEmpty());
+        WidgetWrapper(frame).SetVisibleAnimated(!errors->GetModel()->IsEmpty());
     });
-    errors->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);
+    errors->GetModel()->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);
     errors->OnErrorsLabelsChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, setText).MakeSafe(m_connections);
+    setText();
+}
+
+DispatcherConnections TopNotifierFrameErrorsComponent::AddFocusComponent(TopNotifierFrameErrorsFocusComponent* component)
+{
+    Q_ASSERT(!m_focusComponents.contains(component));
+    auto result = component->ConnectFromViewModel(CDL, m_errors);
+    result += OnErrorActivated().Connect(CDL, [component](const Name& error){
+        component->FocusWidget(error);
+    });
+#ifdef QT_DEBUG
+    m_focusComponents.insert(component);
+#endif
+    return result;
+}
+
+CommonDispatcher<const Name&>& TopNotifierFrameErrorsComponent::OnErrorActivated()
+{
+    m_useDefaultActionHandlers = true;
+    return m_defaultActionHandler;
 }
 
 TopNotifierFrameErrorsComponent::~TopNotifierFrameErrorsComponent()
@@ -91,4 +115,72 @@ TopNotifierFrameErrorsComponent::~TopNotifierFrameErrorsComponent()
     if(m_internalErrors) {
         delete m_errors;
     }
+}
+
+void TopNotifierFrameErrorsFocusComponent::updateHighlighted() {
+    m_updater.Call(CDL, [this]{
+        QHash<Name, TranslatedStringPtr> activeErrors;
+        m_collectActiveErrors(activeErrors);
+        for(auto iter = m_map.cbegin(); iter != m_map.cend(); ++iter){
+            auto errors = iter.value();
+            QVector<TranslatedStringPtr> errDescs;
+            for(const auto& e : errors) {
+                auto foundIt = activeErrors.constFind(e);
+                if(foundIt != activeErrors.cend()) {
+                    errDescs.append(foundIt.value());
+                }
+            }
+            auto hasError = !errDescs.isEmpty();
+            auto* w = reinterpret_cast<QWidget*>(iter.key());
+            for(auto* le : w->children()) {
+                auto* qle = qobject_cast<QLineEdit*>(le);
+                if(qle != nullptr) {
+                    WidgetLineEditWrapper(qle).AddWarningIcon(hasError);
+                }
+            }
+            WidgetWrapper(w).WidgetHighlighted() = hasError ? HighLightEnum::Critical : HighLightEnum::None;
+            if(hasError) {
+                StringBuilder desc;
+                for(const auto& error : errDescs) {
+                    desc.XMLAddEnumerated(error->Native());
+                }
+                WidgetWrapper(w).SetToolTip(TR(desc, =));
+            } else {
+                WidgetWrapper(w).SetToolTip(TR_NONE);
+            }
+        }
+    });
+}
+
+TopNotifierFrameErrorsFocusComponent::TopNotifierFrameErrorsFocusComponent(QObject* parent)
+    : Super(parent)
+{}
+
+TopNotifierFrameErrorsFocusComponent::~TopNotifierFrameErrorsFocusComponent()
+{
+
+}
+
+void TopNotifierFrameErrorsFocusComponent::FocusWidget(const Name& focusError)
+{
+    for(auto it(m_map.cbegin()), e(m_map.cend()); it != e; ++it) {
+        if(it.value().contains(focusError)) {
+            OnWidgetFocused(focusError, it.key());
+            return;
+        }
+    }
+}
+
+DispatcherConnections TopNotifierFrameErrorsFocusComponent::ConnectFromViewModel(const char* cdl, const LocalPropertyErrorsViewModel* model)
+{
+    DispatcherConnections result;
+    result += model->GetModel()->OnChanged.Connect(cdl, [this]{
+        updateHighlighted();
+    });
+    result += m_collectActiveErrors.Connect(CDL, [model](QHash<Name, TranslatedStringPtr>& errors) {
+        for(const auto& error : *model->GetModel()) {
+            errors[error] = model->GetDescription(error).Text;
+        }
+    });
+    return result;
 }

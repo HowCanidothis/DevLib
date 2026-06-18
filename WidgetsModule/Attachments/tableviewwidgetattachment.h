@@ -64,6 +64,10 @@ private:
     DelayedCallObject m_adjustGeometry;
 };
 
+DECLARE_GLOBAL_ERROR(WMA_IncorrectDoubleConversion)
+DECLARE_GLOBAL_ERROR(WMA_IncorrectIntConversion)
+DECLARE_GLOBAL_ERROR(WMA_AutoMatchDisabled)
+
 class WidgetsMatchingAttachment
 {
 public:
@@ -80,11 +84,7 @@ public:
     CommonDispatcher<qint32, qint32> OnMatchingChanged;
     StateProperty TransitionState;
 
-    LocalPropertyErrorsContainer Errors;
-
-    static const Name ErrorIncorrectDoubleConversion;
-    static const Name ErrorIncorrectIntConversion;
-    static const Name WarningAutoMatchDisabled;
+    LocalPropertyErrorsViewModel Errors;
 
 private:
     bool hasHeader() const;

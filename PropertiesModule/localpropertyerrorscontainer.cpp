@@ -1,193 +1,349 @@
-#include "localpropertyerrorscontainer.h"
+﻿#include "localpropertyerrorscontainer.h"
 
 #include "translatormanager.h"
 
-LocalPropertyErrorsContainer::LocalPropertyErrorsContainer()
-    : HasErrors(false)
-    , HasErrorsOrWarnings(false)
-    , OnErrorsLabelsChanged(500)
+void LocalPropertyErrorsModel::DisconnectFromExternalModels()
 {
-    OnChanged += {this, [this]{
-        HasErrorsOrWarnings = !IsEmpty();
-        for(const auto& value : *this) {
-            if(value.Type == QtMsgType::QtCriticalMsg || value.Type == QtMsgType::QtFatalMsg) {
-                HasErrors = true;
-                return;
+    m_containerConnections.clear();
+    QVector<std::pair<Name, const LocalPropertyErrorsModel*>> externErrors;
+    for(auto it(Super::begin()), e(Super::end()); it != e; ++it) {
+        for(const auto* c : it.value()) {
+            if(c != this) {
+                externErrors.append(std::make_pair(it.key(), c));
             }
         }
-        HasErrors = false;
-    }};
-    adapters::SetThreadSafe(OnChanged);
-
-//    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CONNECTION_DEBUG_LOCATION, [this]{
-//        OnErrorsLabelsChanged();
-//    }).MakeSafe(m_connections);
-}
-
-void LocalPropertyErrorsContainer::AddError(const Name& errorName, const QString& errorString, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible)
-{
-    AddError(errorName, ::make_shared<TranslatedString>([errorString]{ return errorString; }), severity, visible);
-}
-
-void LocalPropertyErrorsContainer::AddError(const Name& errorName, const TranslatedStringPtr& errorString, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
-{
-    LocalPropertyErrorsContainerValue toInsert{ errorName, errorString, severity, visible, focus };
-    if(Super::Native().contains(toInsert)) {
-       return;
     }
-    toInsert.Connection = OnErrorsLabelsChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, errorString->OnChanged).MakeSafe();
-    if(Super::Insert(toInsert)) {
-        OnErrorAdded(toInsert);
+    for(const auto& c : externErrors) {
+        Remove(c.first, c.second);
     }
 }
 
-bool LocalPropertyErrorsContainer::HasError(const Name& errorName) const
+LocalPropertyErrorsModel& LocalPropertyErrorsModel::ConnectFromModels(const char* cdl, const QVector<const LocalPropertyErrorsModel*>& containers, const FFilterFunc& filterFunc)
 {
-    LocalPropertyErrorsContainerValue toRemove{ errorName };
-    return Super::IsContains(toRemove);
-}
-
-const LocalPropertyErrorsContainerValue* LocalPropertyErrorsContainer::GetError(const Name& errorName) const
-{
-    LocalPropertyErrorsContainerValue toRemove{ errorName };
-    auto iter = Super::Find(toRemove);
-    return iter == Super::end() ? nullptr : &(*iter);
-}
-
-void LocalPropertyErrorsContainer::RemoveError(const Name& errorName)
-{
-    LocalPropertyErrorsContainerValue toRemove{ errorName };
-    if(Super::Remove(toRemove)) {
-        OnErrorRemoved(toRemove);
+    if(!m_containerConnections.isEmpty()) {
+        DisconnectFromExternalModels();
     }
-}
-
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const LocalPropertyBool& property, bool inverted, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
-{
-#ifdef QT_DEBUG
-    Q_ASSERT(!m_registeredErrors.contains(errorId));
-    m_registeredErrors.insert(errorId);
-#endif
-    return property.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, errorId, errorString, inverted, severity, visible, focus](bool value){
-        if(value ^ inverted) {
-            AddError(errorId, errorString, severity, visible, focus);
-        } else {
-            RemoveError(errorId);
+    for(const LocalPropertyErrorsModel* errorContainer : containers) {
+        auto add = [this, filterFunc, errorContainer](const Name& id){
+            if(filterFunc(id)) {
+                Add(id, errorContainer);
+            }
+        };
+        auto remove = [this, errorContainer, filterFunc](const Name& id) {
+            if(filterFunc(id)) {
+                Remove(id, errorContainer);
+            }
+        };
+        errorContainer->OnErrorAdded.Connect(cdl, add).MakeSafe(m_containerConnections);
+        errorContainer->OnErrorRemoved.Connect(cdl, remove).MakeSafe(m_containerConnections);
+        for(const auto& id : *errorContainer) {
+            add(id);
         }
-    });
+    }
+    return *this;
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::RegisterError(const Name& errorId, const TranslatedStringPtr& errorString, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers, QtMsgType severity, const SharedPointer<LocalPropertyBool>& visible, const FAction& focus)
+LocalPropertyErrorsModel& LocalPropertyErrorsModel::RegisterBool(const char* cdl, const Name& errorId, const LocalPropertyBool& property, bool inverted)
 {
 #ifdef QT_DEBUG
     Q_ASSERT(!m_registeredErrors.contains(errorId));
     m_registeredErrors.insert(errorId);
 #endif
-    DispatcherConnections result;
-    auto update = [this, validator, errorId, errorString, severity, visible, focus]{
-        if(!validator()) {
-            AddError(errorId, errorString, severity, visible, focus);
+    property.ConnectAndCall(cdl, [this, errorId, inverted](bool value){
+        if(value ^ inverted) {
+            Add(errorId);
         } else {
-            RemoveError(errorId);
+            Remove(errorId);
+        }
+    }).MakeSafe(m_connections);
+    return *this;
+}
+
+LocalPropertyErrorsModel& LocalPropertyErrorsModel::Register(const char* cdl, const Name& errorId, const std::function<bool ()>& validator, const QVector<Dispatcher*>& dispatchers)
+{
+#ifdef QT_DEBUG
+    Q_ASSERT(!m_registeredErrors.contains(errorId));
+    m_registeredErrors.insert(errorId);
+#endif
+    auto update = [this, validator, errorId]{
+        if(!validator()) {
+            Add(errorId);
+        } else {
+            Remove(errorId);
         }
     };
 
     for(auto* dispatcher : dispatchers) {
-        result += dispatcher->Connect(CONNECTION_DEBUG_LOCATION, update);
+        dispatcher->Connect(cdl, update).MakeSafe(m_connections);
     }
 
     update();
-    return result;
+    return *this;
 }
 
-void LocalPropertyErrorsContainer::Clear()
+void LocalPropertyErrorsModel::Set(const QSet<Name>& ids)
 {
-    for(const auto& error : *this) {
-        OnErrorRemoved(error);
+    Clear();
+    QHash<Name, QSet<const LocalPropertyErrorsModel*>> r;
+    for(const auto& id : ids) {
+        r.insert(id, {this});
+    }
+    Super::operator=(r);
+    for(const auto& id : ids) {
+        OnErrorAdded(id);
+    }
+}
+
+void LocalPropertyErrorsModel::Clear()
+{
+#ifdef QT_DEBUG
+    m_registeredErrors.clear();
+#endif
+    m_containerConnections.clear();
+    for(const auto& id : *this) {
+        OnErrorRemoved(id);
     }
     Super::Clear();
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::Connect(const QString& prefix, const LocalPropertyErrorsContainer& errors)
+void LocalPropertyErrorsModel::Remove(const LocalPropertyErrorsModel* errors)
 {
-    auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
-    auto addError = [this, prefix](const LocalPropertyErrorsContainerValue& value){
-        AddError(Name(prefix + value.Id.AsString()), value.Error);
-    };
-    auto removeError = [this, prefix](const LocalPropertyErrorsContainerValue& value) {
-        RemoveError(Name(prefix + value.Id.AsString()));
-    };
-    DispatcherConnections result;
-    result += pErrors->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError);
-    result += pErrors->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError);
-    for(const auto& error : errors) {
-        AddError(Name(prefix + error.Id.AsString()), error.Error);
+    QVector<Name> errorsToRemove;
+    for(auto it(Super::begin()), e(Super::end()); it != e; ++it) {
+        if(it.value().contains(errors)) {
+            errorsToRemove.append(it.key());
+        }
     }
-    return result;
+    for(const auto& error: errorsToRemove) {
+        Remove(error, errors);
+    }
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::ConnectFromError(const Name& errorId, const LocalPropertyErrorsContainer& errors)
+LocalPropertyErrorsModel::LocalPropertyErrorsModel()
+    : IsValid(true)
 {
-    auto* pErrors = const_cast<LocalPropertyErrorsContainer*>(&errors);
-    auto addError = [this, errorId](const LocalPropertyErrorsContainerValue& value){
-        if(errorId == value.Id) {
-            AddError(errorId, value.Error);
-        }
-    };
-    auto removeError = [this, errorId](const LocalPropertyErrorsContainerValue& value) {
-        if(errorId == value.Id) {
-            RemoveError(errorId);
-        }
-    };
-    DispatcherConnections result;
-    result += pErrors->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError);
-    result += pErrors->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError);
-    auto foundIt = errors.Native().find(LocalPropertyErrorsContainerValue{ errorId });
-    if(foundIt != errors.end()) {
-        AddError(errorId, foundIt->Error);
-    }
-    return result;
+    Connect(CDL, [this](const auto& errors){
+        IsValid.SetState(errors.isEmpty());
+    });
+    adapters::ResetThread(OnChanged);
 }
 
-DispatcherConnections LocalPropertyErrorsContainer::ConnectFromErrors(const char* debugLocation, const LocalPropertyErrorsContainer& errors, const QSet<Name>& activeErrors)
+void LocalPropertyErrorsModel::Add(const Name& errorName, const LocalPropertyErrorsModel* source)
 {
-    return ConnectFrom(debugLocation, [activeErrors](const QSet<LocalPropertyErrorsContainerValue>& errors){
-        QSet<LocalPropertyErrorsContainerValue> result;
-        for(const auto& errorId : activeErrors){
-            auto iter = errors.find({errorId});
-            if(iter != errors.end()){
-                result.insert(*iter);
+    auto& s = Super::EditSilent();
+    auto foundIt = s.find(errorName);
+    if(foundIt != s.end()) {
+        foundIt.value().insert(source);
+        return;
+    }
+    if(Super::Insert(errorName, {source})) {
+        OnErrorAdded(errorName);
+    }
+    return;
+}
+
+void LocalPropertyErrorsModel::Remove(const Name& errorName, const LocalPropertyErrorsModel* source)
+{
+    auto& s = Super::EditSilent();
+    auto foundIt = s.find(errorName);
+    if(foundIt != s.end()) {
+        if(foundIt.value().remove(source)) {
+            if(foundIt.value().isEmpty()) {
+                Super::Remove(errorName);
+                OnErrorRemoved(errorName);
             }
         }
-        return result;
-    }, errors);
-}
-
-QString LocalPropertyErrorsContainer::ToString() const
-{
-    QString resultText;
-    for(const auto& error : *this) {
-        resultText += error.Error->Native() + "\n";
     }
-    return resultText;
 }
 
-QString LocalPropertyErrorsContainer::ToErrorString(const QString& separator) const
+bool LocalPropertyErrorsModel::Has(const Name& errorName) const
+{
+    return Super::IsContains(errorName);
+}
+
+namespace internal {
+QHash<Name, LocalPropertyErrorsViewModelDescription> GlobalErrorDescriptions;
+}
+
+LocalPropertyErrorsViewModel::LocalPropertyErrorsViewModel()
+    : IsValid(true)
+    , HasErrorsOrWarnings(false)
+    , OnErrorsLabelsChanged(500)
+    , m_model(new LocalPropertyErrorsModel())
+    , m_internalModel(true)
+    , m_useGlobalDescriptions(true)
+{
+    init();
+}
+
+LocalPropertyErrorsViewModel::LocalPropertyErrorsViewModel(LocalPropertyErrorsModel* model)
+    : IsValid(true)
+    , HasErrorsOrWarnings(false)
+    , OnErrorsLabelsChanged(500)
+    , m_model(model)
+    , m_internalModel(false)
+    , m_useGlobalDescriptions(true)
+{
+    init();
+}
+
+void LocalPropertyErrorsViewModel::SetUseGlobalDescriptions()
+{
+    m_getDescDelegate = [this](const Name& id) -> const LocalPropertyErrorsViewModelDescription* {
+        auto foundIt = m_viewModel.constFind(id);
+        if(foundIt == m_viewModel.cend()) {
+            auto errIt = internal::GlobalErrorDescriptions.constFind(id);
+            if(errIt == internal::GlobalErrorDescriptions.cend()) {
+                return nullptr;
+            }
+            return &errIt.value();
+        }
+        return &foundIt.value();
+    };
+}
+
+LocalPropertyErrorsViewModel::~LocalPropertyErrorsViewModel()
+{
+    if(m_internalModel) {
+        delete m_model;
+    }
+}
+
+void LocalPropertyErrorsViewModel::AddAndRegisterError(const Name& errorName, const RegisterParams& params)
+{
+    Q_ASSERT(!m_model->Has(errorName));
+    m_viewModel.insert(errorName, params.Value);
+    AddError(errorName);
+}
+
+void LocalPropertyErrorsViewModel::RemoveAndUnregisterError(const Name& errorName)
+{
+    if(HasError(errorName)) {
+        RemoveError(errorName);
+    }
+    m_viewModel.remove(errorName);
+    Q_ASSERT(!m_model->Has(errorName));
+}
+
+LocalPropertyErrorsViewModelDescription* LocalPropertyErrorsViewModel::EditDescription(const Name& id)
+{
+    Q_ASSERT(!m_useGlobalDescriptions);
+    return const_cast<LocalPropertyErrorsViewModelDescription*>(find(id));
+}
+
+const LocalPropertyErrorsViewModelDescription& LocalPropertyErrorsViewModel::GetDescription(const Name& id) const
+{
+    static const LocalPropertyErrorsViewModelDescription defaultDesc(TRS("Unregistered Error"));
+    auto* found = find(id);
+    if(found == nullptr) {
+        return defaultDesc;
+    }
+    return *found;
+}
+
+LocalPropertyErrorsViewModel& LocalPropertyErrorsViewModel::Register(const Name& errorId, const RegisterParams& params)
+{
+    Q_ASSERT(!m_viewModel.contains(errorId));
+    m_viewModel.insert(errorId, params.Value);
+    return *this;
+}
+
+LocalPropertyErrorsViewModel& LocalPropertyErrorsViewModel::ConnectFromModels(const char* cdl, const QVector<const LocalPropertyErrorsModel*>& containers, const LocalPropertyErrorsModel::FFilterFunc& filter)
+{
+    GetModel()->ConnectFromModels(cdl, containers, [this, filter](const Name& id) {
+        return find(id) && filter(id);
+    });
+    return *this;
+}
+
+QString LocalPropertyErrorsViewModel::ToString() const
 {
     QString resultText;
-    for(const auto& error : *this) {
-        if(error.Type == QtCriticalMsg) {
-            resultText += error.Error->Native() + separator;
+    for(const auto& id : *this) {
+        if(!find(id)) {
+            resultText += id.AsString();
+        } else {
+            resultText += GetDescription(id).Text->Native() + "\n";
         }
     }
     return resultText;
 }
 
-QStringList LocalPropertyErrorsContainer::ToStringList() const
+QString LocalPropertyErrorsViewModel::ToErrorString(const QString& separator) const
+{
+    QString resultText;
+    for(const auto& id : *this) {
+        if(!find(id)) {
+            resultText += id.AsString() + separator;
+        } else {
+            const auto& desc = GetDescription(id);
+            if(desc.IsError()){
+                resultText += desc.Text->Native() + separator;
+            }
+        }
+    }
+    return resultText;
+}
+
+QStringList LocalPropertyErrorsViewModel::ToStringList() const
 {
     QStringList result;
-    for(const auto& error : *this) {
-        result += error.Error->Native();
+    for(const auto& id : *this) {
+        if(!find(id)) {
+            result += id.AsString();
+        } else {
+            const auto& desc = GetDescription(id);
+            if(desc.IsError()){
+                result += desc.Text->Native();
+            }
+        }
     }
     return result;
+}
+
+void LocalPropertyErrorsViewModel::init()
+{
+    m_getDescDelegate = [this](const Name& id) -> const LocalPropertyErrorsViewModelDescription* {
+        auto foundIt = m_viewModel.constFind(id);
+        if(foundIt == m_viewModel.cend()) {
+            return nullptr;
+        }
+        return &foundIt.value();
+    };
+    auto labelsConnections = DispatcherConnectionsSafeCreate();
+    auto connection = m_model->OnChanged.Connect(CDL, m_updateState.Wrap(CDL, [this, labelsConnections]{
+        QVector<Name> registeredIds;
+        for(const auto& value : *this) {
+            if(find(value)) {
+                registeredIds.append(value);
+            }
+        }
+        HasErrorsOrWarnings = !registeredIds.isEmpty();
+        for(const auto& value : registeredIds) {
+            OnErrorsLabelsChanged.ConnectFrom(CDL, GetDescription(value).Text->OnChanged).MakeSafe(*labelsConnections);
+        }
+        for(const auto& value : registeredIds) {
+            if(GetDescription(value).IsError()) {
+                IsValid.SetState(false);
+                return;
+            }
+        }
+        IsValid.SetState(true);
+    }, [this, labelsConnections]{
+        labelsConnections->clear();
+        IsValid.SetState(false);
+        HasErrorsOrWarnings = !m_model->IsEmpty();
+    }));
+    if(!m_internalModel) {
+        connection.MakeSafe(m_connections);
+    }
+
+//    TranslatorManager::GetInstance().OnLanguageChanged.Connect(CDL, [this]{
+//        OnErrorsLabelsChanged();
+    //    }).MakeSafe(m_connections);
+}
+
+const LocalPropertyErrorsViewModelDescription* LocalPropertyErrorsViewModel::find(const Name& id) const
+{
+    return m_getDescDelegate(id);
 }

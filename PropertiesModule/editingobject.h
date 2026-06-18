@@ -28,7 +28,7 @@ public:
 
     LocalPropertyBool ForceDirty;
 
-    LocalPropertyErrorsContainer HasErrors;
+    LocalPropertyErrorsModel ErrorsModel; // Prevent Saving Enablity (currently only in Ui);
 
     Dispatcher DiffRequest;
     Dispatcher OnEnteredEditingMode;

@@ -69,6 +69,14 @@ const Type name(__VA_ARGS__);
 #define IMPLEMENT_GLOBAL_CHAR_1(name) \
     const char* name = QT_STRINGIFY(name);
 
+#define DECLARE_GLOBAL_EXCEPTION(name) \
+    DECLARE_GLOBAL(std::runtime_error, name); \
+    DECLARE_GLOBAL(std::exception_ptr, name##ptr)
+
+#define IMPLEMENT_GLOBAL_EXCEPTION(name) \
+    const std::runtime_error name(std::runtime_error(QT_STRINGIFY(name))); \
+    const std::exception_ptr name##ptr(std::make_exception_ptr(name));
+
 template<class T>
 struct Default
 {
@@ -370,7 +378,7 @@ bool Foreach(const FFunction& handler, T& c1, T2& c2, Args&... args)
 {
     qint32 minSize = std::numeric_limits<qint32>().max();
     adapters::Combine([&](const auto& t){
-        minSize = std::min(t.size(), minSize);
+        minSize = std::min(qint32(std::distance(t.begin(), t.end())), minSize);
     }, c1, c2, args...);
 
 
@@ -390,7 +398,7 @@ bool ForeachConst(const FFunction& handler, const T& c1, const T2& c2, const Arg
 {
     qint32 minSize = std::numeric_limits<qint32>().max();
     adapters::Combine([&](const auto& t){
-        minSize = std::min(t.size(), minSize);
+        minSize = std::min(qint32(std::distance(t.begin(), t.end())), minSize);
     }, c1, c2, args...);
 
 

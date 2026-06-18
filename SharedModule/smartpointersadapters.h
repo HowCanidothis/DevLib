@@ -115,6 +115,7 @@ public:
     ~SmartPointer();
 
     SmartPointerWatcherPtr Capture();
+    bool IsCaptured() const { return !m_watcher.expired(); }
 
 private:
     std::function<void ()> m_onCaptured;

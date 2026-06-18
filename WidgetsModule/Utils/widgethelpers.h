@@ -403,6 +403,7 @@ public:
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetLineEditWrapper, QLineEdit)
     const WidgetLineEditWrapper& SetDynamicSizeAdjusting() const;
 
+    const WidgetLineEditWrapper& AddWarningIcon(bool add) const;
     const WidgetLineEditWrapper& AddCompleter(const QStringList& keys) const;
     const WidgetLineEditWrapper& AddPasswordButton() const;
 

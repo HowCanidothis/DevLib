@@ -583,27 +583,30 @@ void NotifyConsole::SetInfoIcon(const IconsSvgIcon& icon)
     ui->BtnShowInfo->setIcon(icon);
 }
 
-void NotifyConsole::AttachErrorsContainer(const Name& folderId, LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler, const TranslatedStringPtr& folderText)
+void NotifyConsole::AttachErrorsContainer(const Name& folderId, LocalPropertyErrorsViewModel* container, const std::function<void (const Name&)>& handler, const TranslatedStringPtr& folderText)
 {
     Q_ASSERT(!m_permanentErrors.contains(container));
 
-    auto addError = [this, handler, container, folderId, folderText](const LocalPropertyErrorsContainerValue& error){
-        auto id = error.Id;
+    auto addError = [this, handler, container, folderId, folderText](const Name& id){
+        const auto& desc = container->GetDescription(id);
+        const auto& text = desc.Text;
+        const auto& visible = desc.Visible;
+        QtMsgType severity = desc.Severity;
         auto consoleData = ::make_shared<NotifyConsoleData>();
         consoleData->ErrorHandler = new NotifyErrorContainerData( [handler, id]{ handler(id); }, container, id );
-        switch(error.Type) {
+        switch(severity) {
         case QtMsgType::QtCriticalMsg:
         case QtMsgType::QtFatalMsg:
-            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, error.Error->Native(), error.Visible);
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Error, text->Native(), visible);
             break;
         default:
-            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, error.Error->Native(), error.Visible);
+            consoleData->Data = ::make_shared<NotifyData>(NotifyManager::Warning, text->Native(), visible);
             break;
         }
 
         auto* pConsoleData = consoleData.get();
-        auto* pError = error.Error.get();
-        error.Error->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, pError, pConsoleData]{
+        auto* pError = text.get();
+        text->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this, pError, pConsoleData]{
             pConsoleData->Data->Body = pError->Native();
             m_updateErrors();
         }).MakeSafe(pConsoleData->ErrorHandler->Connections);
@@ -616,17 +619,17 @@ void NotifyConsole::AttachErrorsContainer(const Name& folderId, LocalPropertyErr
         m_model->Insert(0, ::make_shared<NotifyTreeNode>(consoleData), getOrCreateFolder(folderId, folderText));
     };
 
-    auto removeError = [this, handler, container](const LocalPropertyErrorsContainerValue& error) {
-        m_permanentErrorsToErase[container].insert(error.Id);
+    auto removeError = [this, handler, container](const Name& id) {
+        m_permanentErrorsToErase[container].insert(id);
         erasePermanentErrors();
     };
 
-    for(const auto& error : *container) {
-        addError(error);
+    for(const auto& id : *container) {
+        addError(id);
     }
 
-    container->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError).MakeSafe(m_permanentErrors[container]);
-    container->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError).MakeSafe(m_permanentErrors[container]);
+    container->GetModel()->OnErrorAdded.Connect(CONNECTION_DEBUG_LOCATION, addError).MakeSafe(m_permanentErrors[container]);
+    container->GetModel()->OnErrorRemoved.Connect(CONNECTION_DEBUG_LOCATION, removeError).MakeSafe(m_permanentErrors[container]);
 }
 
 void NotifyConsole::erasePermanentErrors()
@@ -698,13 +701,13 @@ void NotifyConsole::removeFolder(const Name& folderId)
     }
 }
 
-void NotifyConsole::DetachErrorsContainer(LocalPropertyErrorsContainer* container)
+void NotifyConsole::DetachErrorsContainer(LocalPropertyErrorsViewModel* container)
 {
     if(!m_permanentErrors.contains(container)) {
         return;
     }
-    for(const auto& error : *container) {
-        m_permanentErrorsToErase[container].insert(error.Id);
+    for(const auto& id : *container) {
+        m_permanentErrorsToErase[container].insert(id);
     }
 
     m_permanentErrors.remove(container);

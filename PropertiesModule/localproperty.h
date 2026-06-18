@@ -797,6 +797,84 @@ public:
     typename QSet<T>::const_iterator end() const { return this->m_value.end(); }
 };
 
+template<class T1, class T2>
+class LocalPropertyHash : public LocalProperty<QHash<T1,T2>>
+{
+    using Super = LocalProperty<QHash<T1,T2>>;
+public:
+    LocalPropertyHash(){}
+    LocalPropertyHash(const QHash<T1,T2>& value)
+        : Super(value)
+    {}
+
+    bool IsEmpty() const { return this->m_value.isEmpty(); }
+    qint32 Size() const { return this->m_value.size(); }
+    bool IsContains(const T1& value) const { return this->m_value.contains(value); }
+    typename Super::value_type::const_iterator Find(const T1& value) const { return this->m_value.find(value); }//TODO
+
+    bool Insert(const T1& v, const T2& v2)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value.insert(v, v2);
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+            return true;
+        }
+        return false;
+    }
+
+    bool Remove(const T1& v)
+    {
+        auto result = this->m_value.remove(v);
+        if(result) {
+            this->Invoke();
+        }
+        return result;
+    }
+
+    LocalPropertyHash& operator-=(const typename Super::value_type& another)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value -= another;
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+        }
+        return *this;
+    }
+
+    LocalPropertyHash& operator+=(const typename Super::value_type& another)
+    {
+        auto prevSize = this->m_value.size();
+        this->m_value += another;
+        if(prevSize != this->m_value.size()) {
+            this->Invoke();
+        }
+        return *this;
+    }
+
+    LocalPropertyHash& operator=(const typename Super::value_type& another)
+    {
+        if(IsEmpty() && another.isEmpty()) {
+            return *this;
+        }
+
+        this->m_value = another;
+        this->Invoke();
+        return *this;
+    }
+
+    void Clear()
+    {
+        if(!this->m_value.isEmpty()) {
+            this->m_value.clear();
+            this->Invoke();
+        }
+    }
+
+    typename Super::value_type::const_iterator begin() const { return this->m_value.begin(); }
+    typename Super::value_type::const_iterator end() const { return this->m_value.end(); }
+};
+
 class LocalPropertyBool : public LocalProperty<bool>
 {
     using Super = LocalProperty<bool>;

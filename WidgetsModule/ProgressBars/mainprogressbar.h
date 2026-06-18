@@ -20,6 +20,17 @@ public:
     ~MainProgressBar();
 
     void SetProcessIds(const QSet<Name>& processIds);
+
+    template<class T>
+    void SetProcessIds(const QHash<Name, T>& processIds)
+    {
+        QSet<Name> res;
+        for(const auto& id : adapters::range(processIds.keyBegin(), processIds.keyEnd())) {
+            res.insert(id);
+        }
+        SetProcessIds(res);
+    }
+
 private:
     Ui::MainProgressBar *ui;
     DispatcherConnectionsSafe m_connections;

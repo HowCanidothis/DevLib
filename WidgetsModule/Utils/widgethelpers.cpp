@@ -78,7 +78,7 @@ Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<const Name&>>)
 Q_DECLARE_METATYPE(SharedPointer<Dispatcher>)
 Q_DECLARE_METATYPE(SharedPointer<CommonDispatcher<qint32>>)
 Q_DECLARE_METATYPE(SharedPointer<LocalPropertySequentialEnum<HighLightEnum>>)
-Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsContainer>)
+Q_DECLARE_METATYPE(SharedPointer<LocalPropertyErrorsViewModel>)
 Q_DECLARE_METATYPE(FCurrentChanged)
 Q_DECLARE_METATYPE(SP<QVector<QWidget*>>)
 Q_DECLARE_METATYPE(SP<QCompleter>)
@@ -158,6 +158,17 @@ const WidgetLineEditWrapper& WidgetLineEditWrapper::AddPasswordButton() const
         }
     });
     WidgetWrapper(eyeButton).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleRight).SetOffset({10,0}).DisableFullParentSize());
+    return *this;
+}
+
+const WidgetLineEditWrapper& WidgetLineEditWrapper::AddWarningIcon(bool add) const
+{
+    static QAction* dummyAction(new QAction(IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId), ""));
+    if(add){
+        GetWidget()->addAction(dummyAction, QLineEdit::TrailingPosition);
+    } else {
+        GetWidget()->removeAction(dummyAction);
+    }
     return *this;
 }
 

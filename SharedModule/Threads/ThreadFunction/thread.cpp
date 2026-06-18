@@ -64,6 +64,7 @@ void Thread::run()
         }
         catch (...)
         {
+            m_task->Result.SetException(std::current_exception());
             return false;
         }
     });

@@ -2,10 +2,12 @@
 
 #include <PropertiesModule/internal.hpp>
 
+#include "modelstablebase.h"
+
 ViewModelsTreeBase::ViewModelsTreeBase(QObject* parent)
     : Super(parent)
     , m_errorIcon(IconsManager::GetInstance().GetIcon("ErrorIcon"))
-    , m_warningIcon(IconsManager::GetInstance().GetIcon("WarningIcon"))
+    , m_warningIcon(IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId))
     , m_infoIcon(IconsManager::GetInstance().GetIcon("InfoIcon"))
 {
 }

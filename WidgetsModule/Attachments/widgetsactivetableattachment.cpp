@@ -10,10 +10,10 @@
 WidgetsActiveTableViewAttachment::WidgetsActiveTableViewAttachment()
     : m_contextMenuRequest(false)
 {
-    HasSelection.ConnectFrom(CONNECTION_DEBUG_LOCATION, [](qint32 count){
+    HasSelection.ConnectFrom(CDL, [](qint32 count){
         return count != 0;
     }, SelectedRowsCount);
-    ActiveTable.Connect(CONNECTION_DEBUG_LOCATION, [this](QTableView* tv){
+    ActiveTable.Connect(CDL, [this](QTableView* tv){
         if(tv == nullptr) {
             SelectedRowsCount = 0;
             return;

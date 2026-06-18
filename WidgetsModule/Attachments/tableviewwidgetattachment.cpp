@@ -5,9 +5,9 @@
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
-const Name WidgetsMatchingAttachment::ErrorIncorrectDoubleConversion = "ErrorIncorrectDoubleConversion";
-const Name WidgetsMatchingAttachment::ErrorIncorrectIntConversion = "ErrorIncorrectIntConversion";
-const Name WidgetsMatchingAttachment::WarningAutoMatchDisabled = "WarningAutoMatchDisabled";
+IMPLEMENT_GLOBAL_ERROR(WMA_IncorrectDoubleConversion, LocalPropertyErrorsViewModel::RegisterParams(TRS(etr::tr("Unable to convert to double value"))).SetSeverity(QtWarningMsg))
+IMPLEMENT_GLOBAL_ERROR(WMA_IncorrectIntConversion, LocalPropertyErrorsViewModel::RegisterParams(TRS(etr::tr("Unable to convert to integer value"))).SetSeverity(QtWarningMsg))
+IMPLEMENT_GLOBAL_ERROR(WMA_AutoMatchDisabled, LocalPropertyErrorsViewModel::RegisterParams(TRS(etr::tr("Can't recognize header row, automatic fields matching is disabled"))).SetSeverity(QtWarningMsg))
 
 WidgetTableViewColumnsAttachment::WidgetTableViewColumnsAttachment(QTableView* targetTableView)
     : IsVisible(false)
@@ -113,6 +113,10 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
     , m_targetModel(targetModel)
     , m_transite(1000)
 {
+    Errors.Register(COMBINE_GLOBAL_ERROR(WMA_IncorrectDoubleConversion));
+    Errors.Register(COMBINE_GLOBAL_ERROR(WMA_IncorrectIntConversion));
+    Errors.Register(COMBINE_GLOBAL_ERROR(WMA_AutoMatchDisabled));
+
     Match += { this, [this]{
         match();
     }};
@@ -226,19 +230,19 @@ WidgetsMatchingAttachment::WidgetsMatchingAttachment(QTableView* table, QAbstrac
             }
         });
 
-        Errors.ErrorsMetaData[ErrorIncorrectIntConversion] = QVariant::fromValue(intErrorsMetaData);
-        Errors.ErrorsMetaData[ErrorIncorrectDoubleConversion] = QVariant::fromValue(doubleErrorsMetaData);
+        Errors.EditDescription(Error::WMA_IncorrectIntConversion)->Metadata = QVariant::fromValue(intErrorsMetaData);
+        Errors.EditDescription(Error::WMA_IncorrectDoubleConversion)->Metadata = QVariant::fromValue(doubleErrorsMetaData);
 
         if(!intErrorsMetaData.isEmpty()) {
-            Errors.AddError(ErrorIncorrectIntConversion, QObject::tr("Unable to convert to integer value"), QtMsgType::QtWarningMsg);
+            Errors.AddError(Error::WMA_IncorrectIntConversion);
         } else {
-            Errors.RemoveError(ErrorIncorrectIntConversion);
+            Errors.RemoveError(Error::WMA_IncorrectIntConversion);
         }
 
         if(!doubleErrorsMetaData.isEmpty()) {
-            Errors.AddError(ErrorIncorrectDoubleConversion, QObject::tr("Unable to convert to double value"), QtMsgType::QtWarningMsg);
+            Errors.AddError(Error::WMA_IncorrectDoubleConversion);
         } else {
-            Errors.RemoveError(ErrorIncorrectDoubleConversion);
+            Errors.RemoveError(Error::WMA_IncorrectDoubleConversion);
         }
 
         TransitionState.SetState(false);
@@ -288,7 +292,7 @@ void WidgetsMatchingAttachment::Transite()
 void WidgetsMatchingAttachment::match()
 {
     if(hasHeader()) {
-        Errors.RemoveError(WarningAutoMatchDisabled);
+        Errors.RemoveError(Error::WMA_AutoMatchDisabled);
         qint32 counter = 0;
         for(const auto& requestedColumn : m_requestedColumns) {
             m_matchObject->AddRow(requestedColumn, Name::FromValue(counter));
@@ -297,7 +301,7 @@ void WidgetsMatchingAttachment::match()
 
         matchComboboxes();
     } else {
-        Errors.AddError(WarningAutoMatchDisabled, QObject::tr("Can't recognize header row, automatic fields matching is disabled"), QtWarningMsg);
+        Errors.AddError(Error::WMA_AutoMatchDisabled);
         m_attachment->ForeachAttachment<QComboBox>([this](qint32 index, QComboBox* comboBox){
             auto currentIndex = index + 1;
             if(comboBox->count() > currentIndex) {

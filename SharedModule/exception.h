@@ -41,9 +41,12 @@ public:
     QException* clone() const override;
 
     QString Message() const;
+    Name GetError() const { return ExceptionData.value<Name>(); }
 
     static bool Handle(const QString& module, const FAction& action);
     static bool Handle(const ExceptionHandleParams& params);
 };
+
+inline void throwException(const Name& errorId) { throw Exception(QVariant::fromValue(errorId));  }
 
 #endif // EXCEPTION_H

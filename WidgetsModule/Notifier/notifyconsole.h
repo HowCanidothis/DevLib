@@ -39,8 +39,8 @@ public:
     void AddWarning(const QString& data, const FAction& handler);
     void Add(const NotifyConsoleDataPtr& data);
 
-    void AttachErrorsContainer(const Name& folderId, LocalPropertyErrorsContainer* container, const std::function<void (const Name&)>& handler, const TranslatedStringPtr& folderText = nullptr);
-    void DetachErrorsContainer(LocalPropertyErrorsContainer* container);
+    void AttachErrorsContainer(const Name& folderId, LocalPropertyErrorsViewModel* container, const std::function<void (const Name&)>& handler, const TranslatedStringPtr& folderText = nullptr);
+    void DetachErrorsContainer(LocalPropertyErrorsViewModel* container);
 
     LocalPropertyBool IsOpened;
     LocalPropertyBool IsShowWarnings;
@@ -69,9 +69,9 @@ private:
 private:
     Ui::NotifyConsole *ui;
     LocalPropertiesWidgetConnectorsContainer m_connectors;
-    QHash<LocalPropertyErrorsContainer*, DispatcherConnectionsSafe> m_permanentErrors;
+    QHash<LocalPropertyErrorsViewModel*, DispatcherConnectionsSafe> m_permanentErrors;
     DelayedCallObject m_erasePermanentErrors;
-    QHash<LocalPropertyErrorsContainer*, QSet<Name>> m_permanentErrorsToErase;
+    QHash<LocalPropertyErrorsViewModel*, QSet<Name>> m_permanentErrorsToErase;
     LocalPropertyColor m_showWarningsNormalColor;
     LocalPropertyColor m_showWarningsSelectedColor;
     DispatchersCommutator m_updateErrors;

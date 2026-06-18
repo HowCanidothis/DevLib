@@ -14,7 +14,7 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
     WidgetAbstractButtonWrapper(ui->BtnCancel).SetControl(ButtonRole::IconWithText);
 
     auto connections = DispatcherConnectionsSafeCreate();
-    Object.Connect(CONNECTION_DEBUG_LOCATION, [this, connections](const EditingObject* o){
+    Object.Connect(CDL, [this, connections](const EditingObject* o){
         connections->clear();
         ui->BtnSave->setVisible(o != nullptr);
         ui->BtnCancel->setVisible(o != nullptr);
@@ -22,13 +22,13 @@ WidgetsEditingObjectSaveCancelButtons::WidgetsEditingObjectSaveCancelButtons(QWi
             return;
         }
 
-        FocusManager::GetInstance().FocusedWidget().ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this, o](const QWidget* widget){
+        FocusManager::GetInstance().FocusedWidget().ConnectAndCall(CDL, [this, o](const QWidget* widget){
             setVisible(o->IsDirty() && WidgetWrapper(this).HasParent(widget));
         }, const_cast<EditingObject*>(o)->OnDirtyChanged()).MakeSafe(*connections);
 
-        WidgetAbstractButtonWrapper(ui->BtnSave).WidgetEnablity().ConnectFrom(CONNECTION_DEBUG_LOCATION, [](bool e){
-            return !e;
-        }, o->HasErrors.HasErrors).MakeSafe(*connections);
+        WidgetAbstractButtonWrapper(ui->BtnSave).WidgetEnablity().ConnectFromDispatchers(CDL, [o]{
+            return o->ErrorsModel.IsEmpty();
+        }, o->ErrorsModel.OnChanged).MakeSafe(*connections);
     });
 #ifdef BUILD_MASTER
 	ui->BtnDiff->setVisible(false);

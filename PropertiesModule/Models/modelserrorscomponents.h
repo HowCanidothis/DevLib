@@ -143,15 +143,15 @@ public:
         return QString();
     }
 
-    void AttachToErrorsContainer(LocalPropertyErrorsContainer* container, const DescModelsErrorComponentAttachToErrorsContainerParameters& parameters)
+    void AttachToErrorsContainer(LocalPropertyErrorsViewModel* container, const DescModelsErrorComponentAttachToErrorsContainerParameters& parameters)
     {
         Q_ASSERT(!AttachedErrors.contains(parameters.ErrorName) && !m_errors.contains(parameters.ErrorFlags));
         auto errorFlags = parameters.ErrorFlags;
         Q_ASSERT(!parameters.ErrorName.IsNull() && parameters.Label != nullptr && errorFlags != 0);
         SharedPointer<LocalPropertyBool> visibleProperty = parameters.EnableFilter ? ::make_shared<LocalPropertyBool>(true) : nullptr;
-        container->RegisterError(parameters.ErrorName, parameters.Label, [this, errorFlags]{
-            return !(ErrorState.Native() & errorFlags);
-        }, { &ErrorState.OnChanged }, parameters.MessageType, visibleProperty);
+        container->Register(CDL, parameters.ErrorName, LPEVMPARAMS(parameters.Label).SetSeverity(parameters.MessageType).SetVisible(visibleProperty), [this, errorFlags](auto state){
+            return !(state & errorFlags);
+        }, ErrorState);
         if(visibleProperty != nullptr) {
             auto* pProperty = visibleProperty.get();
             visibleProperty->OnChanged.Connect(CONNECTION_DEBUG_LOCATION, [this,pProperty, errorFlags]{
@@ -362,6 +362,27 @@ private:
     FAction m_updateHandler;
     QHash<qint64, DescModelsErrorComponentAttachToErrorsContainerParameters> m_errors;
     FModelHandler m_customErrors;
+};
+
+class LocalPropertyErrorsModelWithErrorComponentMapper
+{
+public:
+    LocalPropertyErrorsModelWithErrorComponentMapper(const char* cdl, class LocalPropertyErrorsModel* model, const LocalPropertyInt64& state);
+
+    const LocalPropertyErrorsModelWithErrorComponentMapper& Map(const std::initializer_list<std::pair<qint64, Name>>& pairs) const
+    {
+        for(const auto& pair : pairs) {
+            Map(pair.first, pair.second);
+        }
+        return *this;
+    }
+
+    const LocalPropertyErrorsModelWithErrorComponentMapper& Map(qint64 errorFlag, const Name& errorId) const;
+
+private:
+    LocalPropertyErrorsModel* m_model;
+    const LocalPropertyInt64& m_state;
+    const char* m_cdl;
 };
 
 #endif // MODELSERRORSCOMPONENTS_H

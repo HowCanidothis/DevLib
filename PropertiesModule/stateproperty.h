@@ -2,6 +2,7 @@
 #define STATEPROPERTY_H
 
 #include "localproperty.h"
+#include "SharedModule/exception.h"
 
 template<class T> class StateCalculator;
 
@@ -58,29 +59,164 @@ public:
     StatePropertyBoolCommutator(bool defaultState = true);
 
     void Update();
+
+#ifdef QT_DEBUG
+    const Dispatcher& OnDirectChanged;
+#endif
 };
+
+class LocalPropertyErrorsModel;
+class StateParametersGroup;
+
+#define SPCO StateParameters::ChainOptions
+#define SPCCO StateParameters::ChainConnectionOptions
 
 class StateParameters
 {
 public:
     StateParameters(bool valid = true);
 
-    virtual void Initialize() final;
+    class ChainOptions
+    {
+    public:
+        ChainOptions()
+            : Includable(false)
+            , Included(false)
+            , InjectErrors(false)
+        {}
+
+        ~ChainOptions()
+        {
+        }
+
+        bool Includable;
+        bool Included;
+        bool InjectErrors;
+
+
+        ChainOptions& SetIncludable() { Includable = true; return *this; }
+        ChainOptions& SetNotIncluded() { Included = false; return *this; }
+        ChainOptions& AddInjectedErrors() { InjectErrors = true; return *this; }
+        Q_DISABLE_COPY(ChainOptions);
+    };
+
+    void SetId(const QString& id)
+    {
+#ifdef QT_DEBUG
+        Id = id;
+#endif
+    }
+
+#ifdef QT_DEBUG
+    QString Id;
+#endif
+
+    struct ChainConnectionOptions
+    {
+        QVector<const LocalPropertyErrorsModel*> Errors;
+        QVector<const LocalPropertyErrorsModel*> Processes;
+        QVector<SmartPointer*> Capturers;
+        Name ProcessId;
+
+        ChainConnectionOptions& SetProcessId(const Name& id) { ProcessId = id; return *this; }
+
+        template<typename ... Args>
+        ChainConnectionOptions& AddCapturers(SmartPointer* capture, const Args&... captures)
+        {
+             adapters::Combine([&](auto* capturer) {
+                Capturers.append(capturer);
+            }, capture, captures...);
+            return *this;
+        }
+
+        template<typename ... Args>
+        ChainConnectionOptions& AddErrors(const LocalPropertyErrorsModel& eModel, const Args&... args)
+        {
+            adapters::Combine([&](const auto& errorModel) {
+                Errors.append(&errorModel);
+            }, eModel, args...);
+            return *this;
+        }
+
+        template<typename ... Args>
+        ChainConnectionOptions& AddProcesses(const LocalPropertyErrorsModel& eModel, const Args&... args)
+        {
+            adapters::Combine([&](const auto& errorModel) {
+                Processes.append(&errorModel);
+            }, eModel, args...);
+            return *this;
+        }
+    };
+
+    // For debug proposes only. Use it for params which does not have errors, captures but still is used in chain
+    void SetEmptyChained()
+    {
+#ifdef QT_DEBUG
+        m_hasEmptyChainData = true;
+#endif
+    }
+
+    // Input parameter with errors support
+    void SetChained(const ChainOptions& params = ChainOptions());
+    void DisconnectChain();
+    template<class T>
+    void ConnectChainWithCalculator(const char* cdl, const ChainConnectionOptions& options, StateCalculator<T>& calculator)
+    {
+        calculator.OnCalculated += { this, [this](const auto& container){
+            GetChainData()->EditErrors().Remove(nullptr);
+        }};
+        calculator.OnExceptionCaught += { this, [this](const Exception& ex) {
+            GetChainData()->EditErrors().Add(ex.GetError(), nullptr);
+        }};
+        ConnectChain(cdl, const_cast<ChainConnectionOptions&>(options).AddCapturers(calculator.GetCapturer()));
+    }
+    void ConnectChain(const char* cdl, const ChainConnectionOptions& params);
+    void ConnectChain(const char* cdl, const std::function<void (LocalPropertyErrorsModel&)>& errorInitializer, const ChainConnectionOptions& params = ChainConnectionOptions())
+    {
+        errorInitializer(GetInjectedErrors());
+        ConnectChain(cdl, params);
+    }
+
+    template<class T, typename ... Args>
+    void ConnectChain(const char* cdl, const ChainConnectionOptions& chainParams, const T& param1, const Args&... params)
+    {
+        auto& cp = const_cast<ChainConnectionOptions&>(chainParams);
+        adapters::Combine([&](const auto& param){
+            extract(param, cp.Errors, cp.Processes, cp.Capturers);
+        }, param1, params...);
+
+        ConnectChain(cdl, cp);
+    }
+
+    void ConnectChainAsProxyOf(const char* cdl, const SP<StateParameters>& another, const ChainConnectionOptions& options = ChainConnectionOptions());
+
+    void Initialize();
     bool IsInitialized() { return m_initializer == nullptr; }
 
     void Lock();
     void Unlock();
     void Reset();
 
-    Dispatcher OnChanged; // StateParameters are primary used in Calculators, then calculators must be reset when any property changed immediatly
+    LocalPropertyErrorsModel& GetInjectedErrors();
+    class StateParametersChainData* GetChainData() { return m_chainData.get(); }
+    bool IsIncludedImmutable() const;
+    LocalPropertyBool& GetIncluded() const;
+    const LocalPropertyErrorsModel& GetErrors() const;
+    const LocalPropertyErrorsModel& GetProcesses() const;
+    SmartPointer* GetCapturer() const;
+
     StatePropertyBoolCommutator IsValid;
+    Dispatcher OnChanged; // StateParameters are primary used in Calculators, then calculators must be reset when any property changed immediatly
     LocalPropertyBool IsLocked;
     DispatcherConnectionsSafe Connections;
 
-    virtual SmartPointerWatcherPtr Capture() { return nullptr; }
-
 protected:
     virtual void onInitialized() {}
+
+private:
+    void setIncludable();
+    void extract(const SP<StateParameters>& params, QVector<const LocalPropertyErrorsModel*>& errors, QVector<const LocalPropertyErrorsModel*>& processes, QVector<SmartPointer*>& captures);
+    void extract(const StateParametersGroup& wrapper, QVector<const LocalPropertyErrorsModel*>& errors, QVector<const LocalPropertyErrorsModel*>& processes, QVector<SmartPointer*>& captures);
 
 private:
     QVector<class IStateParameterBase*> m_parameters;
@@ -91,19 +227,115 @@ private:
     std::atomic_int m_counter;
     StateProperty m_isValid;
     FAction m_initializer;
+    SP<StateParametersChainData> m_chainData;
+    mutable ScopedPointer<LocalPropertyErrorsModel> m_injectedErrors;
+#ifdef QT_DEBUG
+    bool m_hasEmptyChainData = false;
+#endif
 };
 
-class CapturedStateParameters : public StateParameters
+template<class T>
+SP<T> make_chained(const SP<T>& target)
 {
-    using Super = StateParameters;
-public:
-    CapturedStateParameters(bool valid = true);
+    target->SetEmptyChained();
+    return std::move(target);
+}
 
-    LocalPropertyBool IsActive;
-    SmartPointerWatcherPtr Capture() override { return m_used.Capture(); }
-private:
-    SmartPointer m_used;
+template<class T>
+SP<T> make_chained(const SP<T>& target, const StateParameters::ChainOptions& chainOptions)
+{
+    target->SetChained(chainOptions);
+    return std::move(target);
+}
+
+template<class T>
+class StateParametersProxy : public StateParameters
+{
+public:
+    StateParametersProxy(const SP<T>& parameters)
+        : Proxy(parameters)
+    {}
+
+    SP<T> Proxy;
+
+    const auto& GetImmutableData() const { return Proxy->GetImmutableData(); }
+    const auto& GetImmutable() const { return Proxy->GetImmutable(); }
 };
+
+template<class T> using StateParametersProxyPtr = SP<StateParametersProxy<T>>;
+
+template<class T>
+SP<StateParametersProxy<T>> StateParametersProxyCreate(const char* cdl, const SP<T>& stateParameter, const StateParameters::ChainOptions& params, const StateParameters::ChainConnectionOptions& connectionParams, const std::function<void (LocalPropertyErrorsModel&)>& errorsInitializer)
+{
+    auto result = ::make_shared<StateParametersProxy<T>>(stateParameter);
+    if(errorsInitializer == nullptr) {
+        result->SetChained(params);
+    } else {
+        result->SetChained(const_cast<SPCO&>(params).AddInjectedErrors());
+        errorsInitializer(result->GetInjectedErrors());
+    }
+    result->ConnectChainAsProxyOf(cdl, stateParameter, connectionParams);
+    return result;
+}
+
+class StateParametersGroup
+{
+public:
+    using FForeachHandler = std::function<void (const SP<StateParameters>)>;
+
+    template<class T>
+    T Cloned(const std::function<void (T&)>& handler) const
+    {
+        T result = *reinterpret_cast<const T*>(this);
+        handler(result);
+        return result;
+    }
+
+    template<class T>
+    void ForeachT(const std::function<void (const SP<T>&)>& handler) const
+    {
+        Foreach([&](const SP<StateParameters>& param) {
+            handler(param.Cast<T>());
+        });
+    }
+
+    template<class T>
+    void ForeachT(const std::function<void (SP<T>&)>& handler)
+    {
+        Foreach([&](const SP<StateParameters>& param) {
+            handler(const_cast<SP<StateParameters>&>(param).Cast<T>());
+        });
+    }
+
+    virtual void Foreach(const FForeachHandler& handler) const = 0;
+};
+
+template<class T>
+class StateParametersContainerGroup : public StateParametersGroup
+{
+public:
+    QVector<SP<T>> Container;
+
+    void ForeachT(const std::function<void (const SP<T>&)>& handler) const
+    {
+        for(const auto& param : Container) {
+            handler(param);
+        }
+    }
+
+    void Foreach(const std::function<void (const SP<StateParameters>)>& handler) const override
+    {
+        for(const auto& param : Container) {
+            handler(param);
+        }
+    }
+};
+
+template<class T, typename FHandler>
+inline T StateParametersGroupCloned(const T& target, const FHandler& handler)
+{
+    return target.template Cloned<T>(handler);
+}
 
 class IStateParameterBase
 {
@@ -163,7 +395,7 @@ class StateParameterProperty : public StateParameterBase<T>
 public:
     using value_type = typename T::value_type;
     template<typename ... Args>
-    StateParameterProperty(StateParameters* params, Args ... args)
+    StateParameterProperty(StateParameters* params, const Args&... args)
         : Super(params,
                 [this]{ m_connections.clear(); },
                 [this]{ m_immutableValue.ConnectFrom(CONNECTION_DEBUG_LOCATION, Super::InputValue).MakeSafe(m_connections); },
@@ -199,8 +431,8 @@ public:
     }
 
     operator T&() { THREAD_ASSERT_IS_MAIN(); return Super::InputValue; }
-    const T& GetImmutableProperty() const { return m_immutableValue; }
-    auto GetImmutable() const { return m_immutableValue.Native(); }
+    const T& GetImmutableData() const { return m_immutableValue; }
+    const auto& GetImmutable() const { return m_immutableValue.Native(); }
     value_type GetImmutable(const value_type& v) const { return m_immutableValue.ValueOr(v); }
 
 private:
@@ -231,6 +463,7 @@ public:
             }
         })
         , m_modelIsValid(false)
+        , m_errorId(Error::SP_IncompleteData)
     {
         Super::m_initializer = [this]{
             Super::InputValue.OnChanged.ConnectAndCall(CONNECTION_DEBUG_LOCATION, [this]{
@@ -243,15 +476,35 @@ public:
                 Super::m_parameters->OnChanged.Invoke();
             });
 
-            Super::m_parameters->IsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_modelIsValid);
+            auto* cd = Super::m_parameters->GetChainData();
+            if(cd != nullptr) {
+                if(cd->Include == nullptr) {
+                    cd->Errors->Register(CDL, m_errorId, [](bool valid) {
+                        return valid;
+                    }, m_modelIsValid);
+                    Super::m_parameters->IsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_modelIsValid);
+                } else {
+                    cd->Errors->Register(CDL, m_errorId, [](bool valid, bool included) {
+                        return !included || valid;
+                    }, m_modelIsValid, cd->Include->InputValue);
+                    Super::m_parameters->IsValid.ConnectFromProperties(CONNECTION_DEBUG_LOCATION, [](bool include, bool valid) {
+                        return !include || valid;
+                    }, cd->Include->InputValue, m_modelIsValid);
+                }
+            } else {
+                Super::m_parameters->IsValid.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_modelIsValid);
+            }
         };
     }
+
+    void SetErrorId(const Name& id) { m_errorId = id; }
 
 private:
     friend class StateParametersContainer<T>;
     SharedPointer<T> m_lockedModel;
     LocalPropertyBool m_modelIsValid;
     DispatcherConnectionsSafe m_modelConnections;
+    Name m_errorId;
 };
 
 enum InitializationWithLock {
@@ -261,6 +514,12 @@ enum InitializationWithLock {
 template<class T>
 class StateParametersContainer : public StateParameters
 {
+    template <typename U, typename = void>
+    struct has_model_type : std::false_type {};
+
+    template <typename U>
+    struct has_model_type<U, std::void_t<typename U::model_type>> : std::true_type {};
+
     using Super = StateParameters;
 public:
     using container_type = typename T::container_type;
@@ -272,14 +531,28 @@ public:
     }
     StateParametersContainer(const TPtr& initial)
         : Super(false)
-        , m_parameter(this, initial)
+        , m_parameter(this)
     {
+        SetParameter(initial);
     }
     StateParametersContainer(const TPtr& initial, InitializationWithLock)
         : Super(false)
         , m_parameter(this)
     {
         SetLockedParameter(initial);
+    }
+
+    void SetId(const Name& id)
+    {
+        SetErrorId(id);
+#ifdef QT_DEBUG
+        Id = id.AsString();
+#endif
+    }
+
+    void SetErrorId(const Name& id)
+    {
+        m_parameter.SetErrorId(id);
     }
 
     bool HasValue() const
@@ -299,6 +572,26 @@ public:
         adapters::ResetThread(GetProperty());
     }
 
+    void SetChainedParameter(const char* cdl, const SP<StateParametersContainer<T>>& another, const ChainConnectionOptions& options = ChainConnectionOptions())
+    {
+        SetParameter(another->GetInputData());
+        if(another->GetInputData() == nullptr) {
+            DisconnectChain();
+        } else {
+            ConnectChain(cdl, const_cast<ChainConnectionOptions&>(options).AddCapturers(another->GetCapturer()), another);
+        }
+    }
+
+    void SetChainedParameter(const char* cdl, const SP<T>& another, const ChainConnectionOptions& options = ChainConnectionOptions())
+    {
+        SetParameter(another);
+        if(another == nullptr) {
+            DisconnectChain();
+        } else {
+            ConnectChain(cdl, const_cast<ChainConnectionOptions&>(options).AddCapturers(another->GetCapturer()));
+        }
+    }
+
     template<class T2>
     void SetLockedParameter(const T2& data)
     {
@@ -314,15 +607,22 @@ public:
 #endif
     }
 
-    const TPtr& GetLockedImmutableData() const
+    template<class T2>
+    void SetLockedParameter(const T2& data, const ChainOptions& options)
+    {
+        SetLockedParameter(data);
+        SetChained(options);
+    }
+
+    const TPtr& GetImmutableData() const
     {
         THREAD_ASSERT_IS_NOT_MAIN()
         return m_parameter.m_lockedModel;
     }
 
-    const container_type& GetLockedImmutable() const
+    const container_type& GetImmutable() const
     {
-        return GetLockedImmutableData()->GetData()->Native();
+        return GetImmutableData()->GetData()->Native();
     }
 
     template<typename ... Dispatchers>
@@ -359,13 +659,18 @@ public:
         return m_parameter.InputValue;
     }
 
+    template <typename U = T, typename = typename std::enable_if<has_model_type<U>::value>::type>
+    const SP<typename U::model_type>& GetInputDataData() const
+    {
+        THREAD_ASSERT_IS_MAIN()
+        return m_parameter.InputValue->GetData();
+    }
+
     const container_type& GetInput() const
     {
         return GetInputData()->GetData()->Native();
     }
 
-    SmartPointerWatcherPtr Capture() { return m_captureHandler != nullptr ? m_captureHandler() : nullptr; }
-    void SetCaptureHandler(const std::function<SmartPointerWatcherPtr()>& handler){ m_captureHandler = handler; }
 private:
     std::function<SmartPointerWatcherPtr()> m_captureHandler;
     StateParameterImmutableData<T> m_parameter;
@@ -389,11 +694,10 @@ class StateCalculatorSwitcher
         }, [calculator]{
             calculator->Enabled = false;
         })
-    {
-        calculator->SetRecalculateOnEnabled(true);
-    }
+    {}
 public:
     SmartPointerWatcherPtr Capture() { return m_pointer.Capture(); }
+    SmartPointer* GetCapturer() { return &m_pointer; }
 
 private:
     SmartPointer m_pointer;
@@ -404,12 +708,11 @@ class StateCalculator : public ThreadCalculator<T>
 {
     using Super = ThreadCalculator<T>;
 public:
-    StateCalculator(bool recalculateOnEnabled = false)
+    StateCalculator()
         : Super(ThreadHandlerMain)
         , Enabled(false)
         , Valid(false)
         , m_dependenciesAreUpToDate(true)
-        , m_recalculateOnEnabled(recalculateOnEnabled)
     {
         m_onChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, m_dependenciesAreUpToDate);
 
@@ -432,6 +735,13 @@ public:
 
                     DEBUG_PRINT_INFO_ACTION(this,
                         qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
+                        StringBuilder paramsDebug;
+                        for(const auto& parameter : m_stateParameters) {
+                            if(!parameter->IsValid) {
+                                paramsDebug.Add(",", parameter->Id.isEmpty() ? "Unnamed" : parameter->Id);
+                            }
+                        }
+                        qDebug() << "Invalid Parameters:" << paramsDebug;
                     );
 
 //                    Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
@@ -445,9 +755,7 @@ public:
                         OnCalculationRejected();
                     }
                 }};
-                if(m_recalculateOnEnabled) {
-                    RequestRecalculate();
-                }
+                RequestRecalculate();
             } else {
                 m_onChanged -= this;
                 m_onChanged.OnDirectChanged -= this;
@@ -476,18 +784,20 @@ public:
         return *m_interruptor;
     }
 
-    SmartPointerWatcherPtr Capture()
+    SmartPointerWatcherPtr Capture() const
     {
         if(m_switcher == nullptr) {
-            m_switcher = new StateCalculatorSwitcher<StateCalculator>(this);
+            m_switcher = new StateCalculatorSwitcher<StateCalculator>(const_cast<StateCalculator*>(this));
         }
         return m_switcher->Capture();
     }
 
-    StateCalculator& SetRecalculateOnEnabled(bool recalculate)
+    SmartPointer* GetCapturer() const
     {
-        m_recalculateOnEnabled = recalculate;
-        return *this;
+        if(m_switcher == nullptr) {
+            m_switcher = new StateCalculatorSwitcher<StateCalculator>(const_cast<StateCalculator*>(this));
+        }
+        return m_switcher->GetCapturer();
     }
 
     void RequestRecalculate() const
@@ -538,20 +848,6 @@ public:
         });
     }
 
-    template<typename ... Args, typename Function>
-    void SetCalculatorWithCaptureParams(const char* connectionInfo, const Function& handler, Args... args){
-        SetCalculatorWithParams(connectionInfo, handler, args...);
-
-        auto container = SmartPointerWatchersCreate();
-        Enabled.ConnectAndCall(connectionInfo, [=](bool enable){
-            if(!enable){
-                container->clear();
-                return ;
-            }
-            ([](SmartPointerWatchers& container, StateParameters* p){ container.append(p->Capture()); }(*container, args.get()), ...);
-        });
-    }
-
     void SetCalculatorBasedOnStateParameters(const typename ThreadCalculatorData<T>::Calculator& calculator)
     {
         auto params = m_stateParameters;
@@ -564,7 +860,6 @@ public:
             for(const auto& parameters : params) {
                 parameters->Unlock();
             }
-
         };
         m_calculator = calculator;
     }
@@ -617,6 +912,21 @@ public:
         buffer->IsValid.ConnectFromStateProperty(connectionInfo, Valid);
     }
 
+    const StateCalculator& Connect(const char* cdl, const LocalPropertyErrorsModel& errors) const
+    {
+        THREAD_ASSERT_IS_MAIN();
+        return Connect(cdl, errors.IsValid);
+    }
+
+    const StateCalculator& Connect(const char* cdl, const StateParametersGroup& wrapper) const
+    {
+        THREAD_ASSERT_IS_MAIN();
+        wrapper.Foreach([&](const auto& param) {
+            Connect(cdl, param);
+        });
+        return *this;
+    }
+
     template<class T2>
     const StateCalculator& Connect(const char* connection, const StateCalculator<T2>& calculator) const
     {
@@ -637,6 +947,20 @@ public:
     const StateCalculator& ConnectCombined(const char* connection, const Args&... args) const
     {
         (Connect(connection, args), ...);
+        return *this;
+    }
+
+    template<class T2>
+    const StateCalculator& Connect(const char* connection, const SharedPointer<StateParametersProxy<T2>>& params) const
+    {
+        Connect(connection, params.template Cast<StateParameters>());
+        const auto& proxy = params->Proxy;
+        if(!proxy->IsInitialized()) {
+            proxy->Initialize();
+        }
+        Connect(connection, proxy->OnChanged);
+        Connect(connection, proxy->m_isValid);
+        m_stateParameters.insert(proxy);
         return *this;
     }
 
@@ -678,6 +1002,7 @@ public:
     mutable LocalPropertyBool Enabled;
     StateProperty Valid;
     Dispatcher OnCalculationRejected;
+    CommonDispatcher<const Exception&> OnExceptionCaught;
 
 protected:
     void onPreRecalculate() override
@@ -695,6 +1020,16 @@ protected:
         return m_calculator != nullptr && m_dependenciesAreUpToDate;
     }
 
+    void onExceptionCaught(const std::exception_ptr& e) override
+    {
+        OnCalculationRejected();
+        try {
+            std::rethrow_exception(e);
+        }  catch (const Exception& e) {
+            OnExceptionCaught(e);
+        }
+    }
+
 private:
     void Calculate(const typename ThreadCalculatorData<T>::Calculator& calculator, const typename ThreadCalculatorData<T>::Preparator& preparator = []{},
                    const typename ThreadCalculatorData<T>::Releaser& releaser = []{})
@@ -710,18 +1045,44 @@ private:
     mutable DispatcherConnectionsSafe m_connections;
     mutable DispatchersCommutatorWithDirect m_onChanged;
     mutable QSet<SharedPointer<StateParameters>> m_stateParameters;
-    bool m_recalculateOnEnabled;
-    ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
+    mutable ScopedPointer<StateCalculatorSwitcher<StateCalculator>> m_switcher;
     ScopedPointer<Interruptor> m_interruptor;
 #ifdef QT_DEBUG
     const char* m_calculatorProblemLocation = "initialization";
 #endif
 };
 
+class StateParametersChainData
+{
+public:
+    using FCapture = std::function<void (StateParametersChainData&)>;
+    StateParametersChainData(StateParameters* params, const FCapture& capture, const FCapture& release);
+
+    const LocalPropertyErrorsModel& GetErrors() const { return *Errors; }
+    LocalPropertyErrorsModel& EditErrors() { return *Errors; }
+    const LocalPropertyErrorsModel& GetProcesses() const { return *Processes; }
+    StateParameterProperty<LocalPropertyBool>* GetInclude() const { return Include.get(); }
+    SmartPointerWatcherPtr Capture() const { return m_includer.Capture(); }
+    SmartPointer* GetCapturer() const { return &m_includer; }
+    void SetCaptureHandler(const FCapture& capture);
+
+private:
+    friend class StateParameters;
+    template<class T> friend class StateParameterImmutableData;
+    SP<LocalPropertyErrorsModel> Errors;
+    SP<LocalPropertyErrorsModel> Processes;
+    SP<StateParameterProperty<LocalPropertyBool>> Include;
+    SmartPointerWatchers Captures;
+    FCapture m_capture;
+    FCapture m_release;
+    mutable SmartPointer m_includer;
+};
+
 template<class T>
 class StateImmutableData {
     using TPtr = SharedPointer<T>;
 public:
+    using model_type = T;
     using container_type = typename T::container_type;
     using FHandler = std::function<container_type ()>;
     StateImmutableData(const TPtr& data = ::make_shared<T>())
@@ -875,6 +1236,7 @@ public:
     const TPtr& GetData() const { return m_data; }
     qint32 GetLockCounter() const { return m_lockCounter; }
     const StateCalculator<bool>& GetCalculator() const { return m_calculator; }
+    SmartPointer* GetCapturer() { return m_calculator.GetCapturer(); }
 
 protected:
     TPtr m_data;
@@ -1002,6 +1364,7 @@ public:
     const TPtr& EditData() { return m_data; }
     const TPtr& EditData() const { return m_data; }
     const StateImmutableDataPtr<T>& GetImmutableData() const { return m_immutableData; }
+    SmartPointer* GetCapturer() { return m_immutableData->GetCapturer(); }
 
 private:
     StateImmutableDataPtr<T> m_immutableData;

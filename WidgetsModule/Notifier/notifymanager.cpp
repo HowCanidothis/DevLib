@@ -30,7 +30,7 @@ NotifyManager::NotifyManager(QObject *parent)
     });
 
     m_icons[Info] = IconsManager::GetInstance().GetIcon("InfoIcon");
-    m_icons[Warning] = IconsManager::GetInstance().GetIcon("WarningIcon");
+    m_icons[Warning] = IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId);
     m_icons[Error] = IconsManager::GetInstance().GetIcon("ErrorIcon");
 }
 

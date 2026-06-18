@@ -15,12 +15,14 @@ class PromiseData ATTACH_MEMORY_SPY(PromiseData)
 {
 public:
     using FCallback = std::function<void (qint8)>;
+    using FExceptionCallback = std::function<void (const std::exception_ptr&)>;
     PromiseData();
     ~PromiseData();
 
 private:
     void resolve(qint8 value);
     void resolve(const std::function<qint8 ()>& handler);
+    DispatcherConnection then(const FExceptionCallback& handler);
     DispatcherConnection then(const FCallback& handler);
     void mute();
     template<class ... Connections>
@@ -44,6 +46,7 @@ private:
     SharedPointer<QMutex> m_mutex;
     CommonDispatcher<qint8> onFinished;
     DispatcherConnectionSafePtr m_connection;
+    std::exception_ptr m_exception;
 };
 
 struct SafeCallData
@@ -147,9 +150,12 @@ class Promise
 public:
     Promise();
 
+    void SetException(const std::exception_ptr& exception) { m_data->m_exception = exception; }
+    const std::exception_ptr& GetException() const { return m_data->m_exception; }
     PromiseData* GetData() const { return m_data.get(); }
     qint8 GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isCompleted; }
+    DispatcherConnection Then(const PromiseData::FExceptionCallback& handler) { return m_data->then(handler); }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler, const class FutureResult& future) const;
     template<class Ret>

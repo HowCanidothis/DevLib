@@ -49,6 +49,18 @@ void PromiseData::resolve(const std::function<qint8 ()>& handler)
     }
 }
 
+DispatcherConnection PromiseData::then(const FExceptionCallback& exceptionHandler)
+{
+    QMutexLocker lock(m_mutex.get());
+    if(m_isCompleted) {
+        exceptionHandler(m_exception);
+        return DispatcherConnection();
+    }
+    return onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, exceptionHandler](auto){
+        exceptionHandler(m_exception);
+    });
+}
+
 DispatcherConnection PromiseData::then(const FCallback& handler)
 {
     QMutexLocker lock(m_mutex.get());

@@ -509,7 +509,9 @@ private:
     using TypeName##ImmutableModelPtr = SharedPointer<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameter = StateParametersContainer<StateImmutableData<TypeName##Model>>; \
     using TypeName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<TypeName##Model>>; \
-    using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>;
+    using TypeName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<TypeName##Model>>; \
+    using TypeName##ProxyStateParameter = StateParametersProxy<TypeName##StateParameter>; \
+    using TypeName##ProxyStateParameterPtr = SP<TypeName##ProxyStateParameter>;
 
 #define DECLARE_MODEL_TYPENAME(ModelName) \
     using ModelName##Ptr = SharedPointer<ModelName>; \
@@ -518,10 +520,259 @@ private:
     using ModelName##ImmutableModelPtr = SharedPointer<StateImmutableData<ModelName>>; \
     using ModelName##StateParameter = StateParametersContainer<StateImmutableData<ModelName>>; \
     using ModelName##StateParameterPtr = StateParametersContainerPtr<StateImmutableData<ModelName>>; \
-    using ModelName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<ModelName>>;
+    using ModelName##StateParameterPtrInitialized = StateParametersContainerPtrInitialized<StateImmutableData<ModelName>>; \
+    using ModelName##ProxyStateParameter = StateParametersProxy<ModelName##StateParameter>; \
+    using ModelName##ProxyStateParameterPtr = SP<ModelName##ProxyStateParameter>;
 
 #define DECLARE_MODEL(ModelName) \
     class ModelName; \
     DECLARE_MODEL_TYPENAME(ModelName)
+
+
+template<class ModelType>
+class StateChainedContainerCalculator
+{
+public:
+    using container_type = typename ModelType::container_type;
+    using model_type = ModelType;
+    using state_parameter_type = StateParametersContainer<StateImmutableData<ModelType>>;
+
+    StateChainedContainerCalculator()
+    {
+        Result->SetLockedParameter(m_calculatorResult.GetImmutableData(), SPCO());
+    }
+
+    void Initialize(const char* cdl)
+    {
+        m_calculator.OnCalculationRejected += { this, [this]{
+            m_calculatorResult.EditData()->Clear();
+        }};
+        m_calculator.OnCalculated += { this, [this](const auto& container){
+            Result->GetChainData()->EditErrors().Remove(nullptr);
+            m_calculatorResult.EditData()->Set(container);
+            m_calculatorResult.EditData()->IsValid.SetState(true);
+        }};
+        m_calculator.OnExceptionCaught += { this, [this](const Exception& ex) {
+            Result->GetChainData()->EditErrors().Add(ex.GetError(), nullptr);
+        }};
+        m_calculatorResult.EditData()->IsValid.ConnectFromStateProperty(cdl, m_calculator.Valid);
+        m_calculatorResult.Enabled.ConnectFrom(cdl, m_calculator.Enabled);
+    }
+
+    template<typename FFunction, typename ... Args>
+    void Initialize(const char* cdl, const FFunction& handler, const Args&... args)
+    {
+        InitializeWithId(cdl, Name(), handler, args...);
+    }
+
+    template<typename FFunction, typename ... Args>
+    void InitializeWithId(const char* cdl, const Name& processId, const FFunction& handler, const Args&... args)
+    {
+        Initialize(cdl);
+        SetCalculator(cdl, processId, handler, args...);
+    }
+
+    template<typename FFunction, typename ... Args>
+    void SetCalculator(const char* cdl, const Name& processId, const FFunction& handler, const Args&... args)
+    {
+        m_calculator.SetCalculatorWithParams(cdl, handler, args...);
+        Result->ConnectChain(cdl, SPCCO().SetProcessId(processId).AddCapturers(m_calculator.GetCapturer()), args...);
+    }
+
+    void UnsetCalculator(const char* cdl)
+    {
+        m_calculator.Disconnect(cdl);
+        Result->GetChainData()->SetCaptureHandler([](StateParametersChainData&){});
+    }
+
+    StateCalculator<container_type>& GetCalculator() { return m_calculator; }
+    Interruptor GetInterruptor() { return m_calculator.GetInterruptor(); }
+    SmartPointerWatcherPtr Capture()
+    {
+        if(!Result->IsInitialized()) {
+            Result->Initialize();
+        }
+        return Result->GetChainData()->Capture();
+    }
+
+    SharedPointerInitialized<state_parameter_type> Result;
+
+protected:
+    StateCalculator<container_type> m_calculator;
+    StateDoubleBufferData<model_type> m_calculatorResult;
+};
+
+template<class Property>
+class StateChainedValueCalculator
+{
+public:
+    class ResultParameter : public StateParameters
+    {
+    public:
+        ResultParameter()
+            : Value(this)
+        {}
+
+        StateParameterProperty<LocalPropertyOptional<Property>> Value;
+    };
+
+    using value_type = typename Property::value_type;
+
+    StateChainedValueCalculator()
+    {
+        Result->SetChained(SPCO());
+    }
+
+    template<typename FFunction, typename ... Args>
+    void Initialize(const char* cdl, const FFunction& handler, const Args&... args)
+    {
+        InitializeWithId(cdl, Name(), handler, args...);
+    }
+
+    template<typename FFunction, typename ... Args>
+    void InitializeWithId(const char* cdl, const Name& processId, const FFunction& handler, const Args&... args)
+    {
+        m_calculator.SetCalculatorWithParams(cdl, handler, args...);
+        m_calculator.OnCalculated += {this, [this](const auto& v) {
+            Result->GetChainData()->EditErrors().Remove(nullptr);
+            Result->Value.InputValue = v;
+        }};
+        m_calculator.OnExceptionCaught += { this, [this](const Exception& ex) {
+            Result->GetChainData()->EditErrors().Add(ex.GetError(), nullptr);
+        }};
+        m_calculator.OnCalculationRejected += { this, [this]{
+            Result->Value.InputValue = std::nullopt;
+        }};
+        Result->IsValid.ConnectFrom(CDL, m_calculator.Valid).MakeSafe(m_connections);
+        Result->ConnectChain(cdl, SPCCO().SetProcessId(processId).AddCapturers(m_calculator.GetCapturer()), args...);
+    }
+
+    SharedPointerInitialized<ResultParameter> Result;
+
+    StateCalculator<std::optional<value_type>>& GetCalculator() { return m_calculator; }
+    Interruptor GetInterruptor() { return m_calculator.GetInterruptor(); }
+
+protected:
+    StateCalculator<std::optional<value_type>> m_calculator;
+    DispatcherConnectionsSafe m_connections;
+};
+
+template<class Result>
+class StateChainedComplexCalculator
+{
+public:
+    template<typename FFunction, typename ... Args>
+    void SetCalculator(const char* cdl, const Name& processId, const FFunction& handler, const Args&... args)
+    {
+        m_calculator.SetCalculatorWithParams(cdl, handler, args...);
+        for(const auto& parameter : m_parameters) {
+            parameter->ConnectChain(cdl, SPCCO().SetProcessId(processId).AddCapturers(m_calculator.GetCapturer()), args...);
+        }
+    }
+
+    void Initialize()
+    {
+        Q_ASSERT(!m_initialized);
+        m_calculator.OnCalculated += { this, [this](const auto&){
+            for(const auto& parameter : m_parameters) {
+                parameter->GetChainData()->EditErrors().Remove(nullptr);
+            }
+        }};
+        m_calculator.OnExceptionCaught += { this, [this](const Exception& ex){
+            for(const auto& parameter : m_parameters) {
+                parameter->GetChainData()->EditErrors().Add(ex.GetError(), nullptr);
+            }
+        }};
+        m_initialized = true;
+    }
+
+    template<typename FFunction, typename ... Args>
+    void SetCalculator(const char* cdl, const FFunction& handler, const Args&... args)
+    {
+        Q_ASSERT(m_initialized);
+        SetCalculator(cdl, Name(), handler, args...);
+    }
+
+    void UnsetCalculator(const char* cdl)
+    {
+        m_calculator.Disconnect(cdl);
+        for(const auto& parameter : m_parameters) {
+            parameter->GetChainData()->SetCaptureHandler([](StateParametersChainData&){});
+        }
+    }
+
+    template<class ImmutableModel, class Model = typename ImmutableModel::model_type>
+    void RegisterOutput(const char* cdl, const StateParametersContainerPtr<ImmutableModel>& parameter, StateDoubleBufferData<Model>& dbuffer, const std::function<const typename Model::container_type& (const Result&)>& getter)
+    {
+        Q_ASSERT(parameter->GetInputData() == dbuffer.GetImmutableData());
+        m_calculator.OnCalculationRejected.Connect(CDL, [&dbuffer]{
+            dbuffer.EditData()->Clear();
+        });
+        m_calculator.OnCalculated.Connect(cdl, [&dbuffer, cdl, getter](const Result& result){
+            auto r = getter(result);
+            dbuffer.EditData()->Set(r);
+            dbuffer.EditData()->IsValid.SetState(true);
+        });
+        dbuffer.GetImmutableData()->Enabled.ConnectFrom(cdl, m_calculator.Enabled);
+        dbuffer.EditData()->IsValid.ConnectFromStateProperty(CDL, m_calculator.Valid);
+        m_parameters.append(parameter);
+    }
+
+    template<class DBuffer, class ImmutableModel, class Model = typename ImmutableModel::model_type>
+    void RegisterOutput(const char* cdl, const StateParametersContainerPtr<ImmutableModel>& parameter, DBuffer& dbuffer, const std::function<void (const Result&)>& onDone, const FAction& onRejected)
+    {
+        Q_ASSERT(parameter->GetInputData() == dbuffer.GetImmutableData());
+        m_calculator.OnCalculationRejected.Connect(CDL, onRejected);
+        m_calculator.OnCalculated.Connect(cdl, onDone);
+        dbuffer.GetImmutableData()->Enabled.ConnectFrom(cdl, m_calculator.Enabled);
+        dbuffer.EditData()->IsValid.ConnectFromStateProperty(CDL, m_calculator.Valid);
+        m_parameters.append(parameter);
+    }
+
+    template<class Model>
+    void RegisterOutput(const char* cdl, SP<Model>& parameter, const std::function<const typename Model::container_type& (const Result&)>& getter)
+    {
+        RegisterOutput(cdl, [&parameter, getter](const Result& result){
+            auto r = getter(result);
+            parameter->Set(r);
+            parameter->IsValid.SetState(true);
+        },[&parameter]{
+            parameter->IsValid.SetState(false);
+        }, parameter->IsValid);
+    }
+
+    template<class T>
+    void RegisterOutput(const char* cdl, const SP<T>& parameter, const std::function<void (T&, const Result&)>& onDone)
+    {
+        m_calculator.OnCalculated.Connect(CDL, [onDone, parameter](const Result& result) {
+            onDone(*parameter, result);
+        });
+        parameter->IsValid.ConnectFromStateProperty(CDL, m_calculator.Valid);
+        m_parameters.append(parameter);
+    }
+
+    void RegisterOutput(const char* cdl, const std::function<void (const Result&)>& onDone, const FAction& onRejected = []{})
+    {
+        m_calculator.OnCalculationRejected.Connect(CDL, onRejected);
+        m_calculator.OnCalculated.Connect(CDL, onDone);
+    }
+
+    void RegisterOutput(const char* cdl, const std::function<void (const Result&)>& onDone, const FAction& onRejected, StateProperty& stateProperty)
+    {
+        m_calculator.OnCalculationRejected.Connect(CDL, onRejected);
+        m_calculator.OnCalculated.Connect(CDL, onDone);
+        stateProperty.ConnectFromStateProperty(CDL, m_calculator.Valid);
+    }
+
+    SmartPointerWatcherPtr Capture() { return m_calculator.Capture(); }
+    Interruptor GetInterruptor() { return m_calculator.GetInterruptor(); }
+
+private:
+    StateCalculator<Result> m_calculator;
+    QVector<SP<StateParameters>> m_parameters;
+#ifdef QT_DEBUG
+    bool m_initialized = false;
+#endif
+};
 
 #endif // WRAPPERS_H

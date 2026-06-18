@@ -39,12 +39,15 @@ void DebugObjectManager::PrintInfo(const char* location, const void* object, con
 {
     QMutexLocker locker(&m_mutex);
     const auto& info = debugInfo();
-    auto foundIt = info.find(reinterpret_cast<size_t>(object));
-    if(foundIt != info.end() && !foundIt.value().ObjectName.isEmpty()) {
-        qDebug() << PrintPattern.arg(location, foundIt.value().Location, foundIt.value().ObjectName);
-        locker.unlock();
-        if(onPrinted != nullptr) {
-            onPrinted();
+    auto foundIt = info.constFind(reinterpret_cast<size_t>(object));
+    if(foundIt != info.cend()) {
+        const auto& oName = foundIt.value().ObjectName;
+        if(!oName.isEmpty()) {
+            qDebug() << PrintPattern.arg(location, foundIt.value().Location, foundIt.value().ObjectName);
+            locker.unlock();
+            if(onPrinted != nullptr) {
+                onPrinted();
+            }
         }
     }
 }

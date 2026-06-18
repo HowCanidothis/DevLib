@@ -19,6 +19,7 @@ struct ThreadCalculatorData
     Calculator CalculatorHandler = []{ return T(); };
     Preparator PreparatorHandler = []{};
     Releaser ReleaserHandler = []{};
+    std::exception_ptr Exception;
 
     ThreadCalculatorData(const ThreadHandler& handler)
         : Handler(handler)
@@ -49,7 +50,7 @@ class ThreadCalculator
         
         ~CurrentData()
         {
-            Q_ASSERT(m_released);
+            Q_ASSERT(ThreadsBase::IsTerminated() || m_released);
             auto data = Data;
             auto currentCalculator = CurrentCalculator;
             auto currentReleaser = m_currentReleaser;
@@ -122,6 +123,7 @@ public:
                 auto result = currentData->CurrentCalculator();
                 currentData->Data->Handler([this, result, currentData]{
                     currentData->Release();
+                    currentData->Data->Exception = nullptr;
                     const auto& data = currentData->Data;
                     if(data->Destroyed) {
                         return;
@@ -138,15 +140,24 @@ public:
                     }
                 });
             }, EPriority::Low);
-            m_latestTask.Then([currentData](bool){
-                currentData->Data->Handler([currentData]{
+            m_latestTask.Then([this, currentData](const std::exception_ptr& exception){
+                currentData->Data->Handler([this, exception, currentData]{
                     currentData->Release();
+                    const auto& data = currentData->Data;
+                    if(data->Destroyed) {
+                        return;
+                    }
+                    data->Calculating = false;
+                    if(exception != nullptr) {
+                        onExceptionCaught(exception);
+                    }
                 });
             });
         });
     }
     
     bool IsCalculating() const {return m_data->Calculating; }
+    const std::exception_ptr& GetException() const { return m_data->Exception; }
     void SafeQuit()
     {
         m_data->Destroyed = true;
@@ -159,11 +170,13 @@ protected:
     virtual bool acceptResult() { return true; }
     virtual void onPostRecalculate() {}
     virtual void onPreRecalculate() {}
+    virtual void onExceptionCaught(const std::exception_ptr&) {}
 
 protected:
     ThreadCalculatorDataPtr<T> m_data;
     SharedPointer<CurrentData> m_prevData;
     AsyncResult m_latestTask;
+    std::exception_ptr m_lastException;
 };
 
 #endif // THREADCALCULATOR_H
