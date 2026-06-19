@@ -592,7 +592,7 @@ public:
         if(!Result->IsInitialized()) {
             Result->Initialize();
         }
-        return Result->GetChainData()->Capture();
+        return Result->Capture();
     }
 
     SharedPointerInitialized<state_parameter_type> Result;
@@ -672,7 +672,9 @@ public:
 
     void Initialize()
     {
+#ifdef QT_DEBUG
         Q_ASSERT(!m_initialized);
+#endif
         m_calculator.OnCalculated += { this, [this](const auto&){
             for(const auto& parameter : m_parameters) {
                 parameter->GetChainData()->EditErrors().Remove(nullptr);
@@ -683,13 +685,17 @@ public:
                 parameter->GetChainData()->EditErrors().Add(ex.GetError(), nullptr);
             }
         }};
+#ifdef QT_DEBUG
         m_initialized = true;
+#endif
     }
 
     template<typename FFunction, typename ... Args>
     void SetCalculator(const char* cdl, const FFunction& handler, const Args&... args)
     {
+#ifdef QT_DEBUG
         Q_ASSERT(m_initialized);
+#endif
         SetCalculator(cdl, Name(), handler, args...);
     }
 

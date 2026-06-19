@@ -106,7 +106,9 @@ LocalPropertyErrorsModel& StateParameters::GetInjectedErrors()
 
 void StateParameters::SetChained(const ChainOptions& params)
 {
+#ifdef QT_DEBUG
     Q_ASSERT(m_chainData == nullptr && !m_hasEmptyChainData);
+#endif
     if(params.InjectErrors) {
         Q_ASSERT(m_injectedErrors == nullptr);
         m_injectedErrors = new LocalPropertyErrorsModel();
@@ -133,7 +135,9 @@ void StateParameters::ConnectChain(const char* cdl, const ChainConnectionOptions
 {
     if(m_chainData == nullptr)
     {
+#ifdef QT_DEBUG
         Q_ASSERT(!m_hasEmptyChainData);
+#endif
         SetChained(SPCO());
     }
     auto errorsToConnect = params.Errors;

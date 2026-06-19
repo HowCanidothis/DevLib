@@ -199,6 +199,7 @@ public:
 
     LocalPropertyErrorsModel& GetInjectedErrors();
     class StateParametersChainData* GetChainData() { return m_chainData.get(); }
+    SmartPointerWatcherPtr Capture() { return GetCapturer()->Capture(); }
     bool IsIncludedImmutable() const;
     LocalPropertyBool& GetIncluded() const;
     const LocalPropertyErrorsModel& GetErrors() const;
@@ -733,16 +734,7 @@ public:
                 m_onChanged += { this, [this]{
                     Valid.SetState(false);
 
-                    DEBUG_PRINT_INFO_ACTION(this,
-                        qDebug() << m_dependenciesAreUpToDate << (m_dependenciesAreUpToDate ? QString() : m_dependenciesAreUpToDate.ToString());
-                        StringBuilder paramsDebug;
-                        for(const auto& parameter : m_stateParameters) {
-                            if(!parameter->IsValid) {
-                                paramsDebug.Add(",", parameter->Id.isEmpty() ? "Unnamed" : parameter->Id);
-                            }
-                        }
-                        qDebug() << "Invalid Parameters:" << paramsDebug;
-                    );
+                    DEBUG_PRINT_INFO_ACTION(this, DebugParameters(););
 
 //                    Q_ASSERT_X(m_calculator != nullptr, __FUNCTION__, m_calculatorProblemLocation);
                     if(m_calculator == nullptr) {
@@ -771,6 +763,19 @@ public:
         if(m_interruptor != nullptr) {
             m_interruptor->Interrupt();
         }
+    }
+
+    void DebugParameters() const
+    {
+#ifdef QT_DEBUG
+        StringBuilder paramsDebug;
+        for(const auto& parameter : m_stateParameters) {
+            if(!parameter->IsValid) {
+                paramsDebug.Add(",", parameter->Id.isEmpty() ? "Unnamed" : parameter->Id);
+            }
+        }
+        qDebug() << "Invalid Parameters:" << paramsDebug;
+#endif
     }
 
     Interruptor GetInterruptor()
@@ -972,6 +977,11 @@ public:
         Connect(connection, params->OnChanged);
         Connect(connection, params->m_isValid);
         Connect(connection, params->IsValid);
+#ifdef QT_DEBUG
+        params->IsValid.Connect(connection, [this](bool){
+            DEBUG_PRINT_INFO_ACTION(this, DebugParameters(););
+        }).MakeSafe(m_connections);
+#endif
         m_stateParameters.insert(params);
         return *this;
     }

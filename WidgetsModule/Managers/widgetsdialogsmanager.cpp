@@ -350,7 +350,7 @@ void WidgetsDialogsManager::SetDefaultParentWindow(QWidget* window)
 
 QWidget* WidgetsDialogsManager::GetParentWindow() const
 {
-    return qApp->activeWindow() == nullptr ? m_defaultParent : qApp->activeWindow();
+    return m_defaultParent;
 }
 
 QList<QUrl> WidgetsDialogsManager::SelectDirectory(const DescImportExportSourceParams& params){

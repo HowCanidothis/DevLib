@@ -93,7 +93,9 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
 
 DispatcherConnections TopNotifierFrameErrorsComponent::AddFocusComponent(TopNotifierFrameErrorsFocusComponent* component)
 {
+#ifdef QT_DEBUG
     Q_ASSERT(!m_focusComponents.contains(component));
+#endif
     auto result = component->ConnectFromViewModel(CDL, m_errors);
     result += OnErrorActivated().Connect(CDL, [component](const Name& error){
         component->FocusWidget(error);
