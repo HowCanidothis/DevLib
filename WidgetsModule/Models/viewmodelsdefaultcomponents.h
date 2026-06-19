@@ -735,6 +735,11 @@ public:
         }, min, max);
     }
 
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(double min, double max)
+    {
+        return AddMeasurementColumnLimits([min](ConstValueType){ return min; }, [max](ConstValueType){ return max; });
+    }
+
     void AttachDependencies()
     {
         if(!m_currentMeasurementColumns.isEmpty()) {

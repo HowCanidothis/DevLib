@@ -5,6 +5,7 @@
 
 namespace ThermalExpansionUnits
 {
+    DECLARE_MEASUREMENT_UNIT(SiPerDegreeFahrenheit)
     DECLARE_MEASUREMENT_UNIT(PerDegreeFahrenheit)
     DECLARE_MEASUREMENT_UNIT(PerDegreeCelsius)
     DECLARE_MEASUREMENT_UNIT(PerDegreeKelvin)
