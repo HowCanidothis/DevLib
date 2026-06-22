@@ -16,6 +16,8 @@ namespace DistanceUnits
     IMPLEMENT_MEASUREMENT_UNIT(Point, TR(MeasurementTr::tr("point")), TR(MeasurementTr::tr("pt")), 0.0003527778)
 
     IMPLEMENT_GLOBAL(double, DiameterPrecision, Inches.FromUnitToBase(1.e-4));
+    IMPLEMENT_GLOBAL(double, DiameterMin, Inches.FromUnitToBase(0.1));
+    IMPLEMENT_GLOBAL(double, DiameterMax, Inches.FromUnitToBase(100.));
 }
 
 IMPLEMENT_MEASUREMENT(Distance, TR(MeasurementTr::tr("Distances")))

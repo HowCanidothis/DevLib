@@ -17,6 +17,8 @@ namespace DistanceUnits
     DECLARE_MEASUREMENT_UNIT(Point)
 
     DECLARE_GLOBAL(double, DiameterPrecision)
+    DECLARE_GLOBAL(double, DiameterMin)
+    DECLARE_GLOBAL(double, DiameterMax)
 };
 
 DECLARE_MEASUREMENT(Distance)
