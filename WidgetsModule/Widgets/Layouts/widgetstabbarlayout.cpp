@@ -248,7 +248,7 @@ void WidgetsTabBarLayout::SetVisible(int index, bool visible)
     if(index >= m_buttons.size()){
         return;
     }
-    if(m_currentIndex == index){
+    if(!visible && m_currentIndex == index){
         m_currentIndex = index - 1;
     }
     WidgetWrapper(m_buttons[index]).WidgetVisibility() = visible;
