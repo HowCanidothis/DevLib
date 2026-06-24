@@ -171,7 +171,7 @@ LocalPropertyErrorsViewModel::LocalPropertyErrorsViewModel()
     , OnErrorsLabelsChanged(500)
     , m_model(new LocalPropertyErrorsModel())
     , m_internalModel(true)
-    , m_useGlobalDescriptions(true)
+    , m_useGlobalDescriptions(false)
 {
     init();
 }
@@ -182,7 +182,7 @@ LocalPropertyErrorsViewModel::LocalPropertyErrorsViewModel(LocalPropertyErrorsMo
     , OnErrorsLabelsChanged(500)
     , m_model(model)
     , m_internalModel(false)
-    , m_useGlobalDescriptions(true)
+    , m_useGlobalDescriptions(false)
 {
     init();
 }
@@ -200,6 +200,7 @@ void LocalPropertyErrorsViewModel::SetUseGlobalDescriptions()
         }
         return &foundIt.value();
     };
+    m_useGlobalDescriptions = true;
 }
 
 LocalPropertyErrorsViewModel::~LocalPropertyErrorsViewModel()
