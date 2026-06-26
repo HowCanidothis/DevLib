@@ -176,7 +176,7 @@ void TopNotifierFrameErrorsFocusComponent::FocusWidget(const Name& focusError)
 DispatcherConnections TopNotifierFrameErrorsFocusComponent::ConnectFromViewModel(const char* cdl, const LocalPropertyErrorsViewModel* model)
 {
     DispatcherConnections result;
-    result += model->GetModel()->OnChanged.Connect(cdl, [this]{
+    result += model->GetModel()->OnChanged.ConnectAndCall(cdl, [this]{
         updateHighlighted();
     });
     result += m_collectActiveErrors.Connect(CDL, [model](QHash<Name, TranslatedStringPtr>& errors) {
