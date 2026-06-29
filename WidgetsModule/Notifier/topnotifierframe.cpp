@@ -186,3 +186,7 @@ DispatcherConnections TopNotifierFrameErrorsFocusComponent::ConnectFromViewModel
     });
     return result;
 }
+
+void TopNotifierFrameErrorsFocusComponent::Update(){
+    updateHighlighted();
+}
