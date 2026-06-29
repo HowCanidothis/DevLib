@@ -56,6 +56,7 @@ public:
     TopNotifierFrameErrorsFocusComponent& Register(QWidget* w, const Name& id) { m_map[w] += id; return *this; }
     void FocusWidget(const Name& focusError);
     DispatcherConnections ConnectFromViewModel(const char* cdl, const LocalPropertyErrorsViewModel* models);
+    void Update();
 
     CommonDispatcher<const Name&, QWidget*> OnWidgetFocused;
 
