@@ -525,7 +525,7 @@ public:
     bool operator==(Enum value) const { return Super::m_value == (qint32)value; }
     bool operator!=(Enum value) const { return Super::m_value != (qint32)value; }
 
-    Enum Native() const { return (Enum)Super::m_value; }
+    const Enum& Native() const { return reinterpret_cast<const Enum&>(Super::m_value); }
     int Value() const { return Super::m_value; }
 
     QString GetName() const
