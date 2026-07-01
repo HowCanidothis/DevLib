@@ -19,7 +19,7 @@ public:
     bool SelectCurrentRow();
     void ConnectButton(const Latin1Name& action, const WidgetAbstractButtonWrapper& button, const FTranslationHandler& dialogText = nullptr, const WidgetsDialogsManagerButtonStruct& confirmButton = WidgetsDialogsManagerDefaultButtons::DiscardButton());
 
-    LocalProperty<QModelIndex> CurrentIndex;
+    LocalProperty<QPersistentModelIndex> CurrentIndex;
 
 private:
     QAbstractItemView* m_target;

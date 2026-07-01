@@ -68,27 +68,29 @@ void WidgetsAbstractViewRowAttachment::Attach(QAbstractItemView* v)
         m_pane->move(left, rect.top() + (rect.height() - sh.height()) / 2);
         m_target = v;
     });
-    v->connect(v, &QTableView::viewportEntered, [this, v] {
+    auto reset = [this, v] {
         v->setTabKeyNavigation(false);
         m_pane->hide();
         m_pane->setParent(nullptr);
         v->setTabKeyNavigation(true);
         CurrentIndex = QModelIndex();
         m_target = nullptr;
-    });
+    };
+    v->connect(v, &QTableView::viewportEntered, reset);
 }
 
 bool WidgetsAbstractViewRowAttachment::SelectCurrentRow()
 {
-    if(!CurrentIndex.Native().isValid()) {
+    QModelIndex mi(CurrentIndex.Native());
+    if(!mi.isValid()) {
         return false;
     }
     auto* sm = m_target->selectionModel();
     if(sm == nullptr) {
         return false;
     }
-    sm->setCurrentIndex(CurrentIndex, QItemSelectionModel::Current);
-    sm->select(CurrentIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    sm->setCurrentIndex(mi, QItemSelectionModel::Current);
+    sm->select(mi, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
     if(auto* tv = qobject_cast<QTableView*>(m_target)) {
         WidgetsActiveTableViewAttachment::GetInstance()->ActiveTable = tv;
