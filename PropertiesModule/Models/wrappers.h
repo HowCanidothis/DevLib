@@ -589,9 +589,6 @@ public:
     Interruptor GetInterruptor() { return m_calculator.GetInterruptor(); }
     SmartPointerWatcherPtr Capture()
     {
-        if(!Result->IsInitialized()) {
-            Result->Initialize();
-        }
         return Result->Capture();
     }
 

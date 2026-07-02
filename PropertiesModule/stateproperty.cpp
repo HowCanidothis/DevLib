@@ -104,6 +104,14 @@ LocalPropertyErrorsModel& StateParameters::GetInjectedErrors()
     return *m_injectedErrors;
 }
 
+SmartPointerWatcherPtr StateParameters::Capture()
+{
+    if(!IsInitialized()) {
+        Initialize();
+    }
+    return GetCapturer()->Capture();
+}
+
 void StateParameters::SetChained(const ChainOptions& params)
 {
 #ifdef QT_DEBUG

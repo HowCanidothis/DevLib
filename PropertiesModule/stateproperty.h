@@ -199,7 +199,7 @@ public:
 
     LocalPropertyErrorsModel& GetInjectedErrors();
     class StateParametersChainData* GetChainData() { return m_chainData.get(); }
-    SmartPointerWatcherPtr Capture() { return GetCapturer()->Capture(); }
+    SmartPointerWatcherPtr Capture();
     bool IsIncludedImmutable() const;
     LocalPropertyBool& GetIncluded() const;
     const LocalPropertyErrorsModel& GetErrors() const;
