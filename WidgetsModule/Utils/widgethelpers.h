@@ -359,6 +359,7 @@ public:
 
     DECLARE_WIDGET_WRAPPER_FUNCTIONS(WidgetScrollAreaWrapper, QScrollArea)
 
+    WidgetScrollAreaWrapper& SetUp(QWidget* target);
     WidgetScrollAreaWrapper& AddScrollByWheel(Qt::Orientation orientation);
 };
 

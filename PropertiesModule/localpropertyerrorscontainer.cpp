@@ -187,7 +187,7 @@ LocalPropertyErrorsViewModel::LocalPropertyErrorsViewModel(LocalPropertyErrorsMo
     init();
 }
 
-void LocalPropertyErrorsViewModel::SetUseGlobalDescriptions()
+LocalPropertyErrorsViewModel& LocalPropertyErrorsViewModel::SetUseGlobalDescriptions()
 {
     m_getDescDelegate = [this](const Name& id) -> const LocalPropertyErrorsViewModelDescription* {
         auto foundIt = m_viewModel.constFind(id);
@@ -201,6 +201,7 @@ void LocalPropertyErrorsViewModel::SetUseGlobalDescriptions()
         return &foundIt.value();
     };
     m_useGlobalDescriptions = true;
+    return *this;
 }
 
 LocalPropertyErrorsViewModel::~LocalPropertyErrorsViewModel()

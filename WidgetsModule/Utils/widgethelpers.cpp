@@ -2884,6 +2884,18 @@ WidgetScrollAreaWrapper::WidgetScrollAreaWrapper(QScrollArea* button)
 
 }
 
+WidgetScrollAreaWrapper& WidgetScrollAreaWrapper::SetUp(QWidget* contents)
+{
+    if(contents->layout() != nullptr) {
+        contents->layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    }
+    auto* scrollArea = GetWidget();
+    scrollArea->setObjectName("dockWidgetScrollArea");
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(contents);
+    return *this;
+}
+
 WidgetScrollAreaWrapper& WidgetScrollAreaWrapper::AddScrollByWheel(Qt::Orientation orientation)
 {
 #ifdef QT_DEBUG

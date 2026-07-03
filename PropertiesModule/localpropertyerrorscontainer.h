@@ -160,7 +160,7 @@ public:
     LocalPropertyErrorsViewModel(LocalPropertyErrorsModel* model);
     ~LocalPropertyErrorsViewModel();
 
-    void SetUseGlobalDescriptions();
+    LocalPropertyErrorsViewModel& SetUseGlobalDescriptions();
 
     void AddError(const Name& errorName) { m_model->Add(errorName); }
     void RemoveError(const Name& errorName) { m_model->Remove(errorName); }
