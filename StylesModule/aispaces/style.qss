@@ -460,12 +460,15 @@ TopControlBar QComboBox {
     min-height: 20px;
 }
 
-VisualizationLegendWidget,
-VisualizationLegendItemWidget
+VisualizationLegendWidget
 {
     background: @cbg.2;
 }
 
+VisualizationLegendItemWidget
+{
+    background: transparent;
+}
 QWidget#LoginInfoProfileWidget {
     padding: 0px;
     max-width: 28px;

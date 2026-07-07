@@ -233,7 +233,7 @@ LocalPropertyErrorsViewModelDescription* LocalPropertyErrorsViewModel::EditDescr
     return const_cast<LocalPropertyErrorsViewModelDescription*>(find(id));
 }
 
-const LocalPropertyErrorsViewModelDescription& LocalPropertyErrorsViewModel::GetDescription(const Name& id) const
+const LocalPropertyErrorsViewModelDescription& LocalPropertyErrorsViewModel::GetDescriptionOrDefault(const Name& id) const
 {
     static const LocalPropertyErrorsViewModelDescription defaultDesc(TRS("Unregistered Error"));
     auto* found = find(id);
@@ -241,6 +241,11 @@ const LocalPropertyErrorsViewModelDescription& LocalPropertyErrorsViewModel::Get
         return defaultDesc;
     }
     return *found;
+}
+
+const LocalPropertyErrorsViewModelDescription* LocalPropertyErrorsViewModel::GetDescription(const Name& id) const
+{
+    return find(id);
 }
 
 LocalPropertyErrorsViewModel& LocalPropertyErrorsViewModel::Register(const Name& errorId, const RegisterParams& params)
@@ -265,7 +270,7 @@ QString LocalPropertyErrorsViewModel::ToString() const
         if(!find(id)) {
             resultText += id.AsString();
         } else {
-            resultText += GetDescription(id).Text->Native() + "\n";
+            resultText += GetDescriptionOrDefault(id).Text->Native() + "\n";
         }
     }
     return resultText;
@@ -278,7 +283,7 @@ QString LocalPropertyErrorsViewModel::ToErrorString(const QString& separator) co
         if(!find(id)) {
             resultText += id.AsString() + separator;
         } else {
-            const auto& desc = GetDescription(id);
+            const auto& desc = GetDescriptionOrDefault(id);
             if(desc.IsError()){
                 resultText += desc.Text->Native() + separator;
             }
@@ -294,7 +299,7 @@ QStringList LocalPropertyErrorsViewModel::ToStringList() const
         if(!find(id)) {
             result += id.AsString();
         } else {
-            const auto& desc = GetDescription(id);
+            const auto& desc = GetDescriptionOrDefault(id);
             if(desc.IsError()){
                 result += desc.Text->Native();
             }
@@ -322,10 +327,10 @@ void LocalPropertyErrorsViewModel::init()
         }
         HasErrorsOrWarnings = !registeredIds.isEmpty();
         for(const auto& value : registeredIds) {
-            OnErrorsLabelsChanged.ConnectFrom(CDL, GetDescription(value).Text->OnChanged).MakeSafe(*labelsConnections);
+            OnErrorsLabelsChanged.ConnectFrom(CDL, GetDescriptionOrDefault(value).Text->OnChanged).MakeSafe(*labelsConnections);
         }
         for(const auto& value : registeredIds) {
-            if(GetDescription(value).IsError()) {
+            if(GetDescriptionOrDefault(value).IsError()) {
                 IsValid.SetState(false);
                 return;
             }

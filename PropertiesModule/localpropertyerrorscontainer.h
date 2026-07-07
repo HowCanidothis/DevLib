@@ -170,7 +170,8 @@ public:
 
     bool HasError(const Name& errorName) const { return m_model->Has(errorName); }
     LocalPropertyErrorsViewModelDescription* EditDescription(const Name& id);
-    const LocalPropertyErrorsViewModelDescription& GetDescription(const Name& id) const;
+    const LocalPropertyErrorsViewModelDescription& GetDescriptionOrDefault(const Name& id) const;
+    const LocalPropertyErrorsViewModelDescription* GetDescription(const Name& id) const;
     const QHash<Name, LocalPropertyErrorsViewModelDescription>& GetDescriptions() const { return m_viewModel; }
 
     const LocalPropertyErrorsModel* GetModel() const { return m_model; }

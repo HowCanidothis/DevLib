@@ -588,7 +588,7 @@ void NotifyConsole::AttachErrorsContainer(const Name& folderId, LocalPropertyErr
     Q_ASSERT(!m_permanentErrors.contains(container));
 
     auto addError = [this, handler, container, folderId, folderText](const Name& id){
-        const auto& desc = container->GetDescription(id);
+        const auto& desc = container->GetDescriptionOrDefault(id);
         const auto& text = desc.Text;
         const auto& visible = desc.Visible;
         QtMsgType severity = desc.Severity;

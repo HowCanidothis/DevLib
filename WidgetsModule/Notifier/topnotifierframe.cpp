@@ -69,17 +69,19 @@ TopNotifierFrameErrorsComponent::TopNotifierFrameErrorsComponent(LocalPropertyEr
         frame->WidgetText()->SetTranslationHandler([this, errors]{
             StringBuilder message;
             for(const Name& error : *errors) {
-                const auto& desc = errors->GetDescription(error);
-                if(desc.ActivationHandler != nullptr) {
-                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc.Text->Native(), &desc.ActivationHandler));
+                const auto* desc = errors->GetDescription(error);
+                if(desc == nullptr) {
+                    message.XMLAddEnumerated(error.AsString());
+                } else if(desc->ActivationHandler != nullptr) {
+                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc->Text->Native(), &desc->ActivationHandler));
                 } else if(m_useDefaultActionHandlers){
                     auto activationHandler = ::make_shared<FAction>([this, error]{
                         OnErrorActivated()(error);
                     });
                     m_defaultActivationHandlers.append(activationHandler);
-                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc.Text->Native(), activationHandler.get()));
+                    message.XMLAddEnumerated(message.XMLCreateHyperlink(desc->Text->Native(), activationHandler.get()));
                 } else {
-                    message.XMLAddEnumerated(desc.Text->Native());
+                    message.XMLAddEnumerated(desc->Text->Native());
                 }
             }
             return message;
@@ -181,7 +183,7 @@ DispatcherConnections TopNotifierFrameErrorsFocusComponent::ConnectFromViewModel
     });
     result += m_collectActiveErrors.Connect(CDL, [model](QHash<Name, TranslatedStringPtr>& errors) {
         for(const auto& error : *model->GetModel()) {
-            errors[error] = model->GetDescription(error).Text;
+            errors[error] = model->GetDescriptionOrDefault(error).Text;
         }
     });
     return result;

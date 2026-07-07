@@ -74,28 +74,28 @@ WidgetBuilder& WidgetBuilder::Make(const std::function<void (WidgetBuilder&)>& h
     return *this;
 }
 
-WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler)
+WidgetBuilder& WidgetBuilder::StartLabeledLayout(const WidgetBuilderLayoutParams& params, QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler)
 {
     guards::BooleanGuard guard(&m_usedDefaultDelegate, guards::BooleanGuard::Inverted);
     switch(location)
     {
     case QuadTreeF::Location_MiddleLeft:
-        m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
-            StartLayout(Qt::Horizontal, [translation, widget](WidgetBuilder& builder){
+        m_addWidgetDelegate = [this, params](const FTranslationHandler& translation, QWidget* widget) {
+            StartLayout(WidgetBuilderLayoutParams(params).SetOrientation(Qt::Horizontal), [translation, widget](WidgetBuilder& builder){
                 builder.defaultAddDelegate()(translation, new QLabel(translation()));
                 builder.defaultAddDelegate()(translation, widget);
             });
         }; break;
     case QuadTreeF::Location_MiddleRight:
-        m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
-            StartLayout(Qt::Horizontal, [translation, widget](WidgetBuilder& builder){
+        m_addWidgetDelegate = [this, params](const FTranslationHandler& translation, QWidget* widget) {
+            StartLayout(WidgetBuilderLayoutParams(params).SetOrientation(Qt::Horizontal), [translation, widget](WidgetBuilder& builder){
                 builder.defaultAddDelegate()(translation, widget);
                 builder.defaultAddDelegate()(translation, new QLabel(translation()));
             });
         }; break;
     case QuadTreeF::Location_MiddleTop:
-        m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
-            StartLayout(Qt::Vertical, [translation, widget](WidgetBuilder& builder){
+        m_addWidgetDelegate = [this, params](const FTranslationHandler& translation, QWidget* widget) {
+            StartLayout(WidgetBuilderLayoutParams(params).SetOrientation(Qt::Vertical), [translation, widget](WidgetBuilder& builder){
                 auto* newLabel = new QLabel(translation());
                 newLabel->setAlignment(Qt::AlignCenter);
                 builder.defaultAddDelegate()(translation, newLabel);
@@ -103,8 +103,8 @@ WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Locatio
             });
         }; break;
     case QuadTreeF::Location_MiddleBottom:
-        m_addWidgetDelegate = [this](const FTranslationHandler& translation, QWidget* widget) {
-            StartLayout(Qt::Vertical, [translation, widget](WidgetBuilder& builder){
+        m_addWidgetDelegate = [this, params](const FTranslationHandler& translation, QWidget* widget) {
+            StartLayout(WidgetBuilderLayoutParams(params).SetOrientation(Qt::Vertical), [translation, widget](WidgetBuilder& builder){
                 auto* newLabel = new QLabel(translation());
                 newLabel->setAlignment(Qt::AlignCenter);
                 builder.defaultAddDelegate()(translation, widget);
@@ -117,6 +117,12 @@ WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Locatio
     handler(*this);
     m_addWidgetDelegate = defaultAddDelegate();
     return *this;
+}
+
+
+WidgetBuilder& WidgetBuilder::StartLabeledLayout(QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler)
+{
+    return StartLabeledLayout(WidgetBuilderLayoutParams(), location, handler);
 }
 
 WidgetsDoubleSpinBoxWithCustomDisplay* WidgetBuilder::AddDoubleSpinBox(const FTranslationHandler& label)

@@ -45,7 +45,7 @@ void GtView::mouseMoveEvent(QMouseEvent* event)
     if(screen() == nullptr) {
         return;
     }
-    QMouseEvent e(event->type(), QHighDpi::toNativePixels(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
+    QMouseEvent e(event->type(), QHighDpi::toNativeLocalPosition(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
     m_clicked = false;
     if(!hasFocus()) {
         setFocus();
@@ -58,7 +58,7 @@ void GtView::mousePressEvent(QMouseEvent* event)
     if(screen() == nullptr) {
         return;
     }
-    QMouseEvent e(event->type(), QHighDpi::toNativePixels(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
+    QMouseEvent e(event->type(), QHighDpi::toNativeLocalPosition(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
     m_clicked = true;
     m_controller->MousePressEvent(&e);
 }
@@ -68,7 +68,7 @@ void GtView::mouseReleaseEvent(QMouseEvent* event)
     if(screen() == nullptr) {
         return;
     }
-    QMouseEvent e(event->type(), QHighDpi::toNativePixels(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
+    QMouseEvent e(event->type(), QHighDpi::toNativeLocalPosition(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
 
     if(m_clicked) {
         m_controller->MouseClickedEvent(&e);
@@ -82,7 +82,7 @@ void GtView::mouseDoubleClickEvent(QMouseEvent *event)
     if(screen() == nullptr) {
         return;
     }
-    QMouseEvent e(event->type(), QHighDpi::toNativePixels(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
+    QMouseEvent e(event->type(), QHighDpi::toNativeLocalPosition(event->pos(), screen()), event->button(), event->buttons(), event->modifiers());
     m_controller->MouseDoubleClickEvent(&e);
 }
 
@@ -91,7 +91,7 @@ void GtView::wheelEvent(QWheelEvent* event)
     if(screen() == nullptr) {
         return;
     }
-    QWheelEvent e(QHighDpi::toNativePixels(event->position(), screen()), event->delta(), event->buttons(), event->modifiers(), event->orientation());
+    QWheelEvent e(QHighDpi::toNativeLocalPosition(event->position(), screen()), event->delta(), event->buttons(), event->modifiers(), event->orientation());
     m_controller->WheelEvent(&e);
 }
 
@@ -108,7 +108,7 @@ void GtView::resizeEvent(QResizeEvent* event)
     }
     auto scale = QHighDpiScaling::scaleAndOrigin(screen).factor;
     m_controller->SetScaleFactor(scale);
-    auto size = QHighDpi::toNativePixels(event->size(), screen);
+    auto size = QHighDpi::toNativeLocalPosition(event->size(), screen);
     m_controller->Resize(size.width(), size.height());
 }
 

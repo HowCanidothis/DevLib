@@ -15,16 +15,24 @@ struct WidgetBuilderLayoutParams
     QLayout::SizeConstraint SizeConstraint;
 
     WidgetBuilderLayoutParams(Qt::Orientation orientation)
-        : Orientation(orientation)
+        : WidgetBuilderLayoutParams()
+    {
+        Orientation = orientation;
+    }
+
+    WidgetBuilderLayoutParams()
+        : Orientation(Qt::Vertical)
         , AddSpacerToTheEnd(false)
         , Margin(9)
         , Spacing(6)
         , SizeConstraint(QLayout::SetDefaultConstraint)
     {}
 
+    
     WidgetBuilderLayoutParams& SetSpacing(qint32 spacing) { Spacing = spacing; return *this; }
     WidgetBuilderLayoutParams& SetMargin(qint32 margins) { Margin = margins; return *this; }
     WidgetBuilderLayoutParams& AddSpacer() { AddSpacerToTheEnd = true; return *this; }
+    WidgetBuilderLayoutParams& SetOrientation(Qt::Orientation orientation) { Orientation = orientation; return *this; }
     WidgetBuilderLayoutParams& SetSizeConstraint(QLayout::SizeConstraint constraint) { SizeConstraint = constraint; return *this; }
 };
 
@@ -43,6 +51,7 @@ public:
     {
         return StartLabeledLayout(QuadTreeF::Location_MiddleLeft, handler);
     }
+    WidgetBuilder& StartLabeledLayout(const WidgetBuilderLayoutParams& params, QuadTreeF::BoundingRect_Location location, const std::function<void (WidgetBuilder&)>& handler);
 
     class WidgetsDoubleSpinBoxWithCustomDisplay* AddDoubleSpinBox(const FTranslationHandler& label = TR_NONE);
     class WidgetsSpinBoxWithCustomDisplay* AddSpinBox(const FTranslationHandler& label = TR_NONE);
