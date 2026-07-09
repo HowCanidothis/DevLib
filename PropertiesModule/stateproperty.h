@@ -545,7 +545,9 @@ public:
 
     void SetId(const Name& id)
     {
+#ifdef DEBUG_DETAILS
         SetErrorId(id);
+#endif
 #ifdef QT_DEBUG
         Id = id.AsString();
 #endif

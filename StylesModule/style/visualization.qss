@@ -7,6 +7,7 @@ VisualizationToolTipWidget QAbstractSpinBox {
     border: none;
     min-height: 0px;
     padding: 0px;
+    background: transparent;
     qproperty-alignment: "Qt::AlignRight | Qt::AlignBottom";
 }
 
@@ -32,8 +33,8 @@ VisualizationLegendWidget QLabel[a_selected=true] {
 }
 
 VisualizationLegendColorItemWidget {
-    max-height: 2px;
-    min-height: 2px;
-    max-width: 15px;
-    min-width: 15px;
+    max-height: 20px;
+    min-height: 20px;
+    max-width: 4px;
+    min-width: 4px;
 }
