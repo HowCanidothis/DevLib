@@ -33,8 +33,8 @@ VisualizationLegendWidget QLabel[a_selected=true] {
 }
 
 VisualizationLegendColorItemWidget {
-    max-height: 20px;
-    min-height: 20px;
+    max-height: 25px;
+    min-height: 25px;
     max-width: 4px;
     min-width: 4px;
 }
