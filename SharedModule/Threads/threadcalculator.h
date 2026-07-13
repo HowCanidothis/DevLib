@@ -140,7 +140,7 @@ public:
                     }
                 });
             }, EPriority::Low);
-            m_latestTask.Then([this, currentData](const std::exception_ptr& exception){
+            m_latestTask.ThenException([this, currentData](const std::exception_ptr& exception){
                 currentData->Data->Handler([this, exception, currentData]{
                     currentData->Release();
                     const auto& data = currentData->Data;

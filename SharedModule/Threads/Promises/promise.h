@@ -155,7 +155,7 @@ public:
     PromiseData* GetData() const { return m_data.get(); }
     qint8 GetValue() const { return m_data->m_result; }
     bool IsResolved() const { return m_data->m_isCompleted; }
-    DispatcherConnection Then(const PromiseData::FExceptionCallback& handler) { return m_data->then(handler); }
+    DispatcherConnection ThenException(const PromiseData::FExceptionCallback& handler) { return m_data->then(handler); }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler) const { return m_data->then(handler); }
     DispatcherConnection Then(const typename PromiseData::FCallback& handler, const class FutureResult& future) const;
     template<class Ret>

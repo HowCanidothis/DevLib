@@ -335,7 +335,7 @@ LineData PropertiesToolView::AddData(const Name& id, QWidget* widget, const FTra
     switch(orientation){
     case Qt::Horizontal: {
         header->setProperty("HorizontalLabel", true);
-        widget->setFixedWidth(150);
+        widget->setFixedWidth(200);
         header->setProperty("a_ptvLeft", true);
         header->setProperty("a_ptvRight", false);
 //        header->setContentsMargins(8, 0, 0, 0);

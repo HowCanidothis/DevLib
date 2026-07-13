@@ -7,6 +7,10 @@ QVariant ViewModelsStandardListModel::data(const QModelIndex& index, int role) c
         return QVariant();
     }
 
+    if(role == Qt::ToolTipRole) {
+        qDebug() << "here";
+    }
+
     return GetData()->At(index.row()).value(role, QVariant());
 }
 

@@ -46,7 +46,10 @@ const ModelsVocabulary::HeaderDataValue& ModelsVocabulary::GetHeader(qint32 colu
 TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 column, QObject* parent)
 {
     return new TViewModelsListBase<ModelsVocabulary>(parent, [column](const SharedPointer<ModelsVocabulary>& ptr, const QModelIndex& index, qint32 role) -> QVariant {
-        if(role == Qt::DisplayRole || role == Qt::EditRole) {
+        switch(role) {
+        case Qt::ToolTipRole:
+        case Qt::DisplayRole:
+        case Qt::EditRole: {
             if(index.row() == 0) {
                 return QString();
             }
@@ -61,9 +64,10 @@ TViewModelsListBase<ModelsVocabulary>* ModelsVocabulary::CreateListModel(qint32 
 #else
             return ptr->SelectValue(header.ColumnKey, ptr->At(index.row() - 1));
 #endif
-
-        } else if(role == Qt::UserRole) {
+        }
+        case Qt::UserRole:
             return QVariant(index.row() - 1);
+        default: break;
         }
         return QVariant();
     }, [](const SharedPointer<ModelsVocabulary>& ptr){

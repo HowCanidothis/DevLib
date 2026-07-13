@@ -123,6 +123,7 @@ public:
                     const auto& label = names.at((qint32)index);
                     data.insert(Qt::DisplayRole, label);
                     data.insert(Qt::EditRole, label);
+                    data.insert(Qt::ToolTipRole, label);
                     data.insert(IdRole, (qint32)index);
                     native.append(data);
                 }
