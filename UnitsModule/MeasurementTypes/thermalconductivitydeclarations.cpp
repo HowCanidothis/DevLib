@@ -4,8 +4,8 @@
 
 namespace ThermalConductivityUnits
 {
-    IMPLEMENT_MEASUREMENT_UNIT(WattMeterCelsius,             TR(MeasurementTr::tr("watt/meter/Celsius")),               TR(MeasurementTr::tr("W/(m*C)")),           1.0)
-    IMPLEMENT_MEASUREMENT_UNIT(FootHourSquareFootFahrenheit, TR(MeasurementTr::tr("foot/hour/square foot/Fahrenheit")), TR(MeasurementTr::tr("BTU/(Hr*ft2*F)")),    1.7295772)
+    IMPLEMENT_MEASUREMENT_UNIT(WattMeterCelsius,             TR(MeasurementTr::tr("watt/meter/Celsius")),               TR(MeasurementTr::tr("W/(m∙°C)")),           1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(FootHourSquareFootFahrenheit, TR(MeasurementTr::tr("foot/hour/square foot/Fahrenheit")), TR(MeasurementTr::tr("BTU/(h∙ft²∙°F)")),    1.7295772)
 
     IMPLEMENT_GLOBAL(double, Mud, WattMeterCelsius.FromUnitToBase(0.635));
     IMPLEMENT_GLOBAL(double, Water, WattMeterCelsius.FromUnitToBase(0.6));
