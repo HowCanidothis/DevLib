@@ -280,8 +280,6 @@ WPSCVisualizationFiltersDrawer QPushButton#btnIsometric{
 
 WPSCVisualizationFiltersDrawer {
     background: @cbg.1;
-    min-width: 450px;
-    max-width: 450px;
 }
 
 WPSCVisualizationTCDrawer {

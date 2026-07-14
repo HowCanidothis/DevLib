@@ -27,6 +27,7 @@ VisualizationLegendWidget {
 
 VisualizationLegendWidget QLabel {
     font-size: 10px;
+    margin-left: 1px;
 }
 
 VisualizationLegendWidget QLabel[a_selected=true] {
@@ -44,7 +45,7 @@ VisualizationLegendItemWidget QCheckBox {
     max-width: 16px;
     max-height: 16px;
     margin-left: 8px;
-    margin-right: 0px; /* Force right margin to zero */
+    margin-right: 1px; /* Force right margin to zero */
     padding: 0px;      /* Erase default inner text padding */
     spacing: 0px;
 }

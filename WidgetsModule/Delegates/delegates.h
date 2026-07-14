@@ -127,6 +127,7 @@ class DelegatesColor : public QStyledItemDelegateBase
 public:
     DelegatesColor(QObject* parent)
         : Super(parent)
+        , m_addResetColor(false)
         , m_alphaEnabled(true)
     {}
 
@@ -136,12 +137,14 @@ public:
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    DelegatesColor* DisableAlpha(){ m_alphaEnabled = false; return this;}
+    DelegatesColor* RemoveAlpha(){ m_alphaEnabled = false; return this;}
+    DelegatesColor* AddResetColor() { m_addResetColor = true; return this; }
 
     CommonDispatcher<class QWidget*, const QModelIndex&> OnEditorAboutToBeShown;
     CommonDispatcher<QDateTime, const QModelIndex&> OnEditorValueChanged;
 
 private:
+    bool m_addResetColor;
     bool m_alphaEnabled;
     mutable class WidgetsDialog* m_editor;
 };

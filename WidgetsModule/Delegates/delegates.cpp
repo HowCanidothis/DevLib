@@ -667,7 +667,16 @@ QWidget* DelegatesColor::createEditor(QWidget*, const QStyleOptionViewItem&, con
     wdialog->SetContent(dialog);
     wdialog->AddButton(WidgetsDialogsManagerDefaultButtons::CancelButton())->hide();
     wdialog->AddButton(WidgetsDialogsManagerDefaultButtons::ApplyButton());
-    wdialog->Initialize();
+    if(m_addResetColor) {
+        wdialog->AddButton(WidgetsDialogsManagerDefaultButtons::ActionRoleButton(TR(tr("Reset Color")), Name()));
+    }
+    wdialog->Initialize([wdialog](qint32 onDone) {
+        if(onDone == 2) {
+            wdialog->setProperty("a_resetColor", true);
+            wdialog->close();
+        }
+        return true;
+    });
 
     wdialog->setWindowFlag(Qt::FramelessWindowHint);
     m_editor = wdialog;
@@ -683,6 +692,10 @@ void DelegatesColor::setEditorData(QWidget*, const QModelIndex& index) const
 
 void DelegatesColor::setModelData(QWidget*, QAbstractItemModel* model, const QModelIndex& index) const
 {
+    if(m_editor->property("a_resetColor").toBool()) {
+        model->setData(index, QColor());
+        return;
+    }
     if(m_editor->result() == QDialog::Accepted) {
         model->setData(index, m_editor->GetView<QColorDialog>()->currentColor());
     }

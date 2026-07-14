@@ -76,7 +76,7 @@ static QVector<QStringList> clipboardData()
     QClipboard* clipboard = qApp->clipboard();
     auto rows = clipboard->text().split('\n', QString::SkipEmptyParts);
     for(const auto& row : rows){
-        ret.append(row.split('\t'));
+        ret.append(row.split(QRegExp(R"(\s+)")));
     }
     return ret;
 }
