@@ -14,6 +14,7 @@ namespace TemperatureUnits
 namespace TemperaturePerDistanceUnits
 {
     DECLARE_MEASUREMENT_UNIT(CelsiusPerMeter)
+    DECLARE_MEASUREMENT_UNIT(CelsiusPer100Meter)
     DECLARE_MEASUREMENT_UNIT(CelsiusPerFeet)
     DECLARE_MEASUREMENT_UNIT(CelsiusPer100Feet)
     DECLARE_MEASUREMENT_UNIT(FahrenheitPerMeter)
