@@ -433,7 +433,7 @@ public:
 
     operator T&() { THREAD_ASSERT_IS_MAIN(); return Super::InputValue; }
     const T& GetImmutableData() const { return m_immutableValue; }
-    const auto& GetImmutable() const { return m_immutableValue.Native(); }
+    decltype(auto) GetImmutable() const { return m_immutableValue.Native(); }
     value_type GetImmutable(const value_type& v) const { return m_immutableValue.ValueOr(v); }
 
 private:
