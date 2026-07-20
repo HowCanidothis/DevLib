@@ -740,6 +740,7 @@ typedef quint32 gRenderbufferID;
 typedef Point3F Color3F;
 
 inline Color3F Color3FCreate(const QColor& color) { return Color3F(color.redF(), color.greenF(), color.blueF()); }
+inline QColor Color3FtoQColor(const Color3F& color) { return QColor::fromRgbF(color.x(), color.y(), color.z()); }
 
 #pragma pack(1)
 struct TexturedVertex2F
