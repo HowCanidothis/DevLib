@@ -635,6 +635,7 @@ bool ViewModelsVerticalCompoundTable::insertRows(int row, int count, const QMode
             count = 0;
         }
     }, m_modelsRows, m_models);
+    return true;
 }
 
 bool ViewModelsVerticalCompoundTable::removeRows(int row, int count, const QModelIndex&)

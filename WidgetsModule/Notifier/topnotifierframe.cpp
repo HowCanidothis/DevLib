@@ -36,7 +36,7 @@ TopNotifierFrame::~TopNotifierFrame()
     delete ui;
 }
 
-const TranslatedStringPtr& TopNotifierFrame::WidgetText()
+TranslatedStringPtr TopNotifierFrame::WidgetText()
 {
     return WidgetLabelWrapper(ui->Label).WidgetText();
 }
