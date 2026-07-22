@@ -500,7 +500,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
             auto max = index.data(MaxLimitRole);
-            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>::lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>::max());
         });
         for(int section(0); section < count; ++section){
             auto data = model->headerData(section, Qt::Horizontal, UnitRole);
@@ -595,7 +595,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
             auto max = index.data(MaxLimitRole);
-            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>::lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>::max());
         });
         for(int section(0); section < count; ++section){
             auto data = model->headerData(section, Qt::Vertical, UnitRole);

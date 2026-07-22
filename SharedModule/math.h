@@ -48,8 +48,8 @@ public:
     std::pair<HashDouble<Eps>, double> ClosestPointDistance(const T& p, const std::function<double (const T&,const T&)>& handler) const
     {
         auto left = 0.0, right = 1.0;
-        auto eps = std::numeric_limits<double>().max();
-        auto dist = std::numeric_limits<double>().max();
+        auto eps = std::numeric_limits<double>::max();
+        auto dist = std::numeric_limits<double>::max();
         do {
             auto d = chooseDirection(p, handler, left, right);
             dist = d.second;
@@ -97,7 +97,7 @@ const double Epsilon01::Value = 0.01;
 template<class T, typename Eps>
 inline std::pair<T, double> ClosestPoint(const T& p, const std::function<double (const T&, const T&)>& distHandler, const QVector<Geometry<T, Eps>>& geometries, qint32* index = nullptr)
 {
-    auto result = std::make_pair(T(), std::numeric_limits<double>().max());
+    auto result = std::make_pair(T(), std::numeric_limits<double>::max());
     auto i = 0;
     for(const Geometry<T, Eps>& m : geometries) {
         auto tmp = m.ClosestPointDistance(p, distHandler);

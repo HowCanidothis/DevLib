@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <cmath>
+#include <optional>
 
 #include "flags.h"
 #include "debugobjectinfo.h"
@@ -189,7 +190,7 @@ inline double sign(double value)
     return 0.0;
 }
 
-inline bool fuzzyCompare(double v1, double v2, double epsilon = std::numeric_limits<double>().epsilon())
+inline bool fuzzyCompare(double v1, double v2, double epsilon = std::numeric_limits<double>::epsilon())
 {
     return qAbs(v1 - v2) < epsilon;
 }
@@ -204,7 +205,7 @@ inline bool fuzzyIsNull(float v1, float epsilon = std::numeric_limits<float>().e
     return qAbs(v1) < epsilon;
 }
 
-inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>().epsilon())
+inline bool fuzzyIsNull(double v1, double epsilon = std::numeric_limits<double>::epsilon())
 {
     return qAbs(v1) < epsilon;
 }
@@ -261,6 +262,68 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+template<class Container, class FTargetGetter, typename FInterpolatedValueGetter>
+inline std::optional<double> interpolated(
+    double targetValue,
+    const Container& c,
+    const FTargetGetter& targetGetter,
+    const FInterpolatedValueGetter& igetter,
+    double eps = std::numeric_limits<double>::epsilon())
+{
+    // Return early if the container doesn't contain elements to interpolate between
+    if (c.empty()) {
+        return std::nullopt;
+    }
+
+    // Fixed lessThan logic to correctly utilize fuzzy compare parameters
+    static const auto lessThan = [](double v1, double v2, double epsilon) {
+        if (fuzzyCompare(v1, v2, epsilon)) {
+            return false; // If they match within epsilon, v1 is NOT strictly less than v2
+        }
+        return v1 < v2;
+    };
+
+    auto fv = std::invoke(targetGetter, c.first());
+
+    // Edge Case 1: Value is less than, or effectively equal to, the first element bounds
+    if (fuzzyCompare(targetValue, fv, eps)) {
+        return std::invoke(igetter, c.first());
+    }
+
+    auto lv = std::invoke(targetGetter, c.last());
+
+    // Edge Case 2: Value is greater than, or effectively equal to, the last element bounds
+    if (fuzzyCompare(targetValue, lv, eps)) {
+        return std::invoke(igetter, c.last());
+    }
+
+    // Binary search to find the first element where the search condition fails
+    // (i.e., finding where element >= target value)
+    auto it = std::lower_bound(c.begin(), c.end(), targetValue,
+        [&](const typename Container::value_type& element, const auto& v) {
+            return lessThan(std::invoke(targetGetter, element), v, eps);
+        });
+
+    // Guard constraints to ensure iterators are valid for linear mix sampling
+    if (it == c.begin() || it == c.end()) {
+        return std::nullopt;
+    }
+
+    const auto& nextNode = *it;
+    const auto& prevNode = *(it - 1);
+
+    auto prev = std::invoke(targetGetter, prevNode);
+    auto next = std::invoke(targetGetter, nextNode);
+
+    // Safety guard to prevent division by zero on identical keys
+    double delta = next - prev;
+    if (std::abs(delta) < eps) {
+        return std::invoke(igetter, prevNode);
+    }
+
+    return ::lerp(std::invoke(igetter, prevNode), std::invoke(igetter, nextNode), (targetValue - prev) / delta);
+}
+
 inline double Intersection(double left1, double right1, double left2, double right2)
 {
     auto intersection_lower = std::max(left1, left2);
@@ -272,7 +335,7 @@ inline double Intersection(double left1, double right1, double left2, double rig
     return intersection_upper - intersection_lower;
 }
 
-inline bool IsIntersects(double left1, double right1, double left2, double right2, double epsilon = std::numeric_limits<double>().epsilon())
+inline bool IsIntersects(double left1, double right1, double left2, double right2, double epsilon = std::numeric_limits<double>::epsilon())
 {
     if(fuzzyCompare(left1, left2, epsilon) || fuzzyCompare(left1, right2, epsilon)) {
         return true;

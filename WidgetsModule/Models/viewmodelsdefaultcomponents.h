@@ -727,7 +727,7 @@ public:
     using FDoubleSetter = std::function<void (ValueType, double)>;
     using FDoubleOptSetter = std::function<void (ValueType, const std::optional<double>&)>;
 
-    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); }, const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
+    TViewModelsColumnComponentsBuilder& AddMeasurementColumnLimits(const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>::lowest(); }, const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         return addMeasurementLimits([this](qint32 role, qint32 column, const ViewModelsTableColumnComponents::ColumnComponentData& data) {
             bool installedComponent = m_viewModel->ColumnComponents.SetComponent(role, column, 0, data);
@@ -862,7 +862,7 @@ public:
 
 private:
     TViewModelsColumnComponentsBuilder& addMeasurementLimits(const std::function<void (qint32, qint32, const ViewModelsTableColumnComponents::ColumnComponentData&)>& addDelegate,
-                                                             const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>().lowest(); },
+                                                             const FDoubleGetterConst& min = [](ConstValueType){ return std::numeric_limits<double>::lowest(); },
                                                              const FDoubleGetterConst& max = [](ConstValueType){ return (std::numeric_limits<double>::max)(); })
     {
         qint32 column = m_currentColumn;
@@ -873,14 +873,14 @@ private:
         addDelegate(MinLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([min, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::numeric_limits<double>().max();
+                return std::numeric_limits<double>::max();
             }
             return pMeasurement->FromBaseToUnit(min(viewModel->At(index.row())));
         }));
         addDelegate(MaxLimitRole, column, ViewModelsTableColumnComponents::ColumnComponentData().SetGetter([max, pMeasurement, modelGetter](const QModelIndex& index) -> QVariant {
             const auto& viewModel = modelGetter();
             if(viewModel == nullptr || index.row() >= viewModel->GetSize()) {
-                return std::numeric_limits<double>().max();
+                return std::numeric_limits<double>::max();
             }
             return pMeasurement->FromBaseToUnit(max(viewModel->At(index.row())));
         }));

@@ -445,7 +445,7 @@ public:
         return Vector3D(m_x + another.m_x, m_y + another.m_y, m_z + another.m_z);
     }
 
-    bool EqualTo(const Vector3D& another, double epsilon = std::numeric_limits<double>().epsilon()) const
+    bool EqualTo(const Vector3D& another, double epsilon = std::numeric_limits<double>::epsilon()) const
     {
         return ::fuzzyCompare(another.X(), X(), epsilon) && ::fuzzyCompare(another.Y(), Y(), epsilon) && ::fuzzyCompare(another.Z(), Z(), epsilon);
     }

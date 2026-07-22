@@ -1287,17 +1287,14 @@ SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreat
     auto result = ::make_shared<StateParametersImmutableData<T>>();
     result->InputValue = ::make_shared<T>();
     result->InputValue->AttachSource(source, connectorHandler, handler);
-    result->InputValue = true;
     return result;
 }
 
-template<class T, class T2, typename TPtr = SharedPointer<T>>
-SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T2>& source, const typename StateImmutableData<T>::FHandler& handler = nullptr)
+template<class T>
+SharedPointer<StateParametersImmutableData<T>> StateParametersImmutableDataCreate(const SharedPointer<T>& source, const typename StateImmutableData<T>::FHandler& handler = nullptr)
 {
-    auto result = ::make_shared<StateParametersImmutableData<T>>();
-    result->InputValue = ::make_shared<T>();
-    result->InputValue->AttachSource(source, handler);
-    result->InputValue = true;
+    auto result = ::make_shared<StateParametersImmutableData<T>>(::make_shared<StateImmutableData<T>>());
+    result->GetInputData()->AttachSource(source, handler);
     return result;
 }
 

@@ -105,7 +105,7 @@ class MeasurementValueWrapper
 {
 public:
     MeasurementValueWrapper();
-    MeasurementValueWrapper(const Measurement* measurement, double* value, double min = std::numeric_limits<double>().lowest(), double max = std::numeric_limits<double>().max());
+    MeasurementValueWrapper(const Measurement* measurement, double* value, double min = std::numeric_limits<double>::lowest(), double max = std::numeric_limits<double>::max());
 
     void SetCurrentUnit(double value);
 
