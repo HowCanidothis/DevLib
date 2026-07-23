@@ -400,7 +400,6 @@ void MeasurementManager::Initialize()
 
     AddMeasurement(MeasurementTemperaturePerDistance::Value)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerMeter)
-            .AddUnit(&TemperaturePerDistanceUnits::CelsiusPer100Meter)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPerFeet)
             .AddUnit(&TemperaturePerDistanceUnits::CelsiusPer100Feet)
             .AddUnit(&TemperaturePerDistanceUnits::FahrenheitPerMeter)
