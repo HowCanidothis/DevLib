@@ -502,6 +502,7 @@ public:
     }
     Point2F GetCenter() const { return (m_right + m_left) / 2.f; }
 
+    bool IsNull() const { return m_left.isNull() && m_right.isNull(); }
     bool IsInf() const { return qIsInf(m_left.x()) || qIsInf(m_left.y()) || qIsInf(m_right.x()) || qIsInf(m_right.y()); }
 
     bool Intersects(const BoundingRect& other) const;
