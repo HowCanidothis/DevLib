@@ -561,7 +561,7 @@ void WidgetsTableViewBase::drawAndClipSpans(const QRegion &area, QPainter *paint
         int rowh = sectionSpanSize(verticalHeader(), row, span.height());
         // horizontal
         int column = span.left();
-        int colw = sectionSpanSize(horizontalHeader(), row, span.width());
+        int colw = sectionSpanSize(horizontalHeader(), column, span.width());
         if (isRightToLeft())
             column = span.right();
         int colp = horizontalHeader()->sectionViewportPosition(column);
