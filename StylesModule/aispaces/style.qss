@@ -768,3 +768,43 @@ WPSCAddItemWidget QLabel {
     min-height: 24px;
     border-radius: 12px;
 }
+
+QWidget#LayoutWithWarning QCheckBox {
+    min-width: 20px;
+    max-width: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    padding: 0px;
+    margin-left: 2px;
+}
+
+QWidget#LayoutWithWarning QCheckBox::indicator:hover {
+    background-color: transparent; 
+}
+
+QWidget#LayoutWithWarning QPushButton {
+    min-width: 16px;
+    max-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    margin: 0px;
+    padding: 0px;
+}
+
+QWidget#LayoutWithWarning QLabel {
+    color: @ctext.active;
+}
+
+QWidget#LayoutWithWarning QLabel[a_focus="true"] {
+    color: @ctext.1;
+}
+
+QWidget#LayoutWithWarning {
+    background: transparent;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+QWidget#LayoutWithWarning:hover {
+    background: @cbg.hover;
+}
