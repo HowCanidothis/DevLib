@@ -49,23 +49,6 @@ private:
     std::exception_ptr m_exception;
 };
 
-struct SafeCallData
-{
-    bool ObjectIsDead = false;
-};
-
-class SafeCall
-{
-public:
-    SafeCall();
-    ~SafeCall();
-
-    FAction Wrap(const FAction& handler) const;
-
-private:
-    SharedPointer<SafeCallData> m_data;
-};
-
 template<class T>
 class PromisedValue
 {

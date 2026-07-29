@@ -8,6 +8,6 @@
 class GtMeshLoader
 {
 public:
-    static GtMeshPtr LoadObj(const QString& fileName);
+    static GtMeshBufferPtr LoadObj(const QString& fileName);
 };
 #endif // GTMESHLOADER_H

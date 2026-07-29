@@ -20,6 +20,7 @@ ResourcesSystem::~ResourcesSystem()
 
 void ResourcesSystem::RegisterResource(const Name& name, const DescRegisterResourceParams& params)
 {
+    THREAD_ASSERT_IS_MAIN();
     ResourceCache& cache = m_resources;
     auto find = cache.find(name);
     if(find == cache.end()) {

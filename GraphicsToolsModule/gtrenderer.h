@@ -51,6 +51,7 @@ public:
     void CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName);
     GtShaderProgramPtr CreateShaderProgram(const Name& name);
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
+    GtMeshBufferResource GetOrCreateMeshBuffer(const Name& name, const std::function<GtMeshBufferPtr ()>& resourceRegister);
     template<class T>
     TResource<T> GetResource(const Name& name)
     {

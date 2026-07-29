@@ -18,6 +18,8 @@ void ProcessManager::unregisterProcessValue(qint32 depth)
 {
     QMutexLocker locker(&m_mutex);
     auto depthToRemove = m_registeredValues.FindSorted(depth);
-    m_registeredValues.Remove(depthToRemove);
+    if(depthToRemove != m_registeredValues.end()) {
+        m_registeredValues.Remove(depthToRemove);
+    }
 }
 

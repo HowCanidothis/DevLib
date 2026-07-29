@@ -19,6 +19,7 @@ typedef TResource<Matrix4> Matrix4Resource;
 typedef TResource<GtTexture> GtTextureResource;
 typedef TResource<GtFrameTexture> GtFrameTextureResource;
 typedef TResource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
+using GtMeshBufferResource = TResource<GtMeshBufferPtr>;
 
 #ifdef WORK
 #include <functional>

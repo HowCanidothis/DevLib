@@ -1,6 +1,6 @@
 #include "gtmeshloader.h"
 
-GtMeshPtr GtMeshLoader::LoadObj(const QString& fileName){
+GtMeshBufferPtr GtMeshLoader::LoadObj(const QString& fileName){
     QVector<Point3F> vertices;
     QVector<Point3F> texCoords;
     QVector<Vertex3f3f> vertexes;
@@ -71,6 +71,5 @@ GtMeshPtr GtMeshLoader::LoadObj(const QString& fileName){
 
     auto meshBuffer = ::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Vertex3f3f, QOpenGLBuffer::StaticDraw);
     meshBuffer->UpdateVertexArray(vertexes);
-    auto mesh = ::make_shared<GtMesh>(meshBuffer);
-    return mesh;
+    return meshBuffer;
 }

@@ -32,7 +32,10 @@ GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera*
 
 void GtCameraAnimationEngine::MoveDelta(float deltaX, float deltaY, float deltaZ)
 {
-    m_animation = new QParallelAnimationGroup();
+    {
+        QMutexLocker locker(&m_mutex);
+        m_animation = new QParallelAnimationGroup();
+    }
     Point3F newEye = m_camera->GetEye() + Vector3F(deltaX, deltaY, deltaZ);
     auto eyeAnimation = new QVariantAnimation(m_animation.get());
     eyeAnimation->setStartValue(m_camera->GetEye());
@@ -111,7 +114,10 @@ void GtCameraAnimationEngine::Move(const Point3F& center, float distance)
 
 void GtCameraAnimationEngine::Move(const Point3F& newEye)
 {
-    m_animation = new QParallelAnimationGroup();
+    {
+        QMutexLocker locker(&m_mutex);
+        m_animation = new QParallelAnimationGroup();
+    }
     auto eyeAnimation = new QVariantAnimation(m_animation.get());
     eyeAnimation->setStartValue(m_camera->GetEye());
     eyeAnimation->setEasingCurve(m_movementCurve);
@@ -135,7 +141,6 @@ bool GtCameraAnimationEngine::IsRunning() const
     if(m_animation == nullptr) {
         return false;
     }
-
     return m_animation->state() == QAbstractAnimation::Running;
 }
 

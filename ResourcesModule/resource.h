@@ -24,6 +24,8 @@ private:
     T& get() const { return *static_cast<T*>(Value); }
     void lock() { if(m_lock) m_lock(); }
     void unlock() { if(m_unlock) m_unlock(); }
+    void lock() const { if(m_lock) m_lock(); }
+    void unlock() const { if(m_unlock) m_unlock(); }
 
 private:
     template<class> friend class TResource;
@@ -52,29 +54,10 @@ class ResourceDataThreadSafe : public ResourceData
 public:
     using Super::Super;
 
-    virtual ResourceDataCapture Capture()
-    {
-        ResourceDataCapture result;
-        if(m_watcher.expired()) {
-            auto mutex = ::make_shared<QMutex>();
-            result.m_lock = m_lock = [mutex] { mutex->lock(); };
-            result.m_unlock = m_unlock = [mutex] { mutex->unlock(); };
-            auto* data = m_data = result.Value = m_onCaptured();
-            auto releaser = m_onReleased;
-            m_watcher = result.Capture = ::make_shared<SmartPointerWatcher>([data, releaser]{
-                releaser(data);
-            });
-        } else {
-            result.Capture = m_watcher.lock();
-            result.Value = m_data;
-            result.m_lock = m_lock;
-            result.m_unlock = m_unlock;
-        }
-
-        return result;
-    }
+    virtual ResourceDataCapture Capture();
 
 private:
+    QMutex m_mutex;
     FAction m_lock;
     FAction m_unlock;
 };

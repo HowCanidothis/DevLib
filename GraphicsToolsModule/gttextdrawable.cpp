@@ -147,7 +147,6 @@ void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)
             }
         }
         m_buffer->UpdateVertexArray(mesh, m_builder);
-        m_buffer->UpdateVao(f);
     });
 }
 
@@ -249,7 +248,6 @@ void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
             }
         }
         m_buffer->UpdateVertexArray(mesh, m_builder);
-        m_buffer->UpdateVao(f);
     });
 }
 

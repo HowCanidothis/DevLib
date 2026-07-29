@@ -4,6 +4,10 @@
 
 #include "gtmeshquad2D.h"
 
+// ============================================================================
+// GtMeshBufferBuilder Implementation
+// ============================================================================
+
 GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glType, qint32 typeSize, bool normalized, qint32 divisor)
 {
     qint32 attributeIndex = m_currentIndex;
@@ -20,134 +24,71 @@ GtMeshBufferBuilder& GtMeshBufferBuilder::AddComponent(qint32 count, qint32 glTy
     return *this;
 }
 
-GtMeshBuffer::GtMeshBuffer(GtMeshBuffer::VertexType vertexType, QOpenGLBuffer::UsagePattern pattern)
+// ============================================================================
+// GtMeshBuffer Implementation
+// ============================================================================
+
+GtMeshBuffer::GtMeshBuffer(VertexType vertexType, QOpenGLBuffer::UsagePattern pattern)
     : m_verticesCount(0)
     , m_vertexType(VertexType_Invalid)
     , m_pattern(pattern)
 {
-    setVertexType(vertexType);
+    m_vertexType = vertexType;
 }
 
 GtMeshBuffer::~GtMeshBuffer()
 {
-
+    // The VBO can be cleanly destroyed here since it belongs to a shared memory group
+    if (m_vbo) {
+        m_vbo->destroy();
+    }
 }
 
-void GtMeshBuffer::Initialize(OpenGLFunctions* f, const SP<QOpenGLVertexArrayObject>& vao)
+void GtMeshBuffer::SetShared()
 {
-    Q_ASSERT(m_vbo == nullptr && m_vao == nullptr);
-    m_vao = vao;
-    m_verticesCount = 0;
+    m_shared = new std::pair<QMutex, std::atomic_bool>();
+    m_shared->second = false;
+}
 
-    if(createBuffers()) {
-        if(m_updateOnInitialized != nullptr) {
-            m_updateOnInitialized();
-            m_updateOnInitialized = nullptr;
+void GtMeshBuffer::Initialize(OpenGLFunctions*)
+{
+    if(m_shared != nullptr) {
+        if(m_shared->second.load(std::memory_order_acquire)) {
+            return;
         }
-        m_vaoBinder(f);
+        QMutexLocker locker(&m_shared->first);
+        if(m_shared->second.load(std::memory_order_relaxed)) {
+            return;
+        }
+        if (createBuffers()) {
+            if (m_updateOnInitialized != nullptr) {
+                m_updateOnInitialized();
+                m_updateOnInitialized = nullptr;
+            }
+            m_shared->second.store(true, std::memory_order_release);
+        }
+    } else {
+        if(m_vbo != nullptr) {
+            return;
+        }
+
+        if (createBuffers()) {
+            if (m_updateOnInitialized != nullptr) {
+                m_updateOnInitialized();
+                m_updateOnInitialized = nullptr;
+            }
+        }
     }
 }
 
 void GtMeshBuffer::Clear()
 {
     m_verticesCount = 0;
-    m_vbo->bind();
-    m_vbo->allocate(0);
-    m_vbo->release();
-}
-
-void GtMeshBuffer::setVertexType(GtMeshBuffer::VertexType vertexType)
-{
-    switch(vertexType){
-    case VertexType_TexturedVertex2F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(TexturedVertex2F),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(TexturedVertex2F),(const void*)sizeof(Point2F));
-        }; break;
-    case VertexType_Vertex3f3f:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(Vertex3f3f),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(Vertex3f3f),(const void*)sizeof(Point3F));
-        }; break;
-    case VertexType_3f2f2f:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(Vertex3f2f2f),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(Vertex3f2f2f),(const void*)sizeof(Point3F));
-            f->glEnableVertexAttribArray(2);
-            f->glVertexAttribPointer(2,2,GL_FLOAT,false,sizeof(Vertex3f2f2f),(const void*)(sizeof(Point3F) + sizeof(Point2F)));
-        }; break;
-    case VertexType_TexturedVertex3F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(TexturedVertex3F),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,2,GL_FLOAT,false,sizeof(TexturedVertex3F),(const void*)sizeof(Point3F));
-        }; break;
-    case VertexType_StatedVertex3F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(StatedVertex3F),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribIPointer(1,1,GL_UNSIGNED_BYTE,sizeof(StatedVertex3F),(const void*)sizeof(Point3F));
-            f->glEnableVertexAttribArray(2);
-            f->glVertexAttribIPointer(2,1,GL_UNSIGNED_BYTE,sizeof(StatedVertex3F),(const void*)(sizeof(Point3F) + sizeof(quint8)));
-        }; break;
-    case VertexType_ColoredVertex2F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,2,GL_FLOAT,false,sizeof(ColoredVertex2F),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(ColoredVertex2F),(const void*)sizeof(Point2F));
-        }; break;
-    case VertexType_ColoredVertex3F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(ColoredVertex3F),nullptr);
-            f->glEnableVertexAttribArray(1);
-            f->glVertexAttribPointer(1,3,GL_FLOAT,false,sizeof(ColoredVertex3F),(const void*)sizeof(Point3F));
-        }; break;
-    case VertexType_Point3F:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            f->glEnableVertexAttribArray(0);
-            f->glVertexAttribPointer(0,3,GL_FLOAT,false,sizeof(Point3F),nullptr);
-        }; break;
-    case VertexType_IntIndex:
-        m_vaoBinder = [](OpenGLFunctions*){};
-        break;
-    case VertexType_Custom:
-        m_vaoBinder = [this](OpenGLFunctions* f) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
-            m_vbo->bind();
-            for(const auto& functor : m_builder.GetResult()) {
-                functor(f);
-            }
-        }; break;
-    default: Q_ASSERT(false);
+    if (m_vbo && m_vbo->isCreated()) {
+        m_vbo->bind();
+        m_vbo->allocate(nullptr, 0);
+        m_vbo->release();
     }
-
-    m_vertexType = vertexType;
 }
 
 void* GtMeshBuffer::Map(qint32 offset, qint32 count, QOpenGLBuffer::RangeAccessFlags flags)
@@ -165,49 +106,159 @@ bool GtMeshBuffer::UnMap()
 
 bool GtMeshBuffer::createBuffers()
 {
-    if(m_vbo == nullptr) {
-        if(m_vertexType == VertexType_IntIndex) {
-            m_vbo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
+    if (m_vbo == nullptr) {
+        if (m_vertexType == VertexType_IntIndex) {
+            m_vbo = make_scoped<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
         } else {
-            m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+            m_vbo = make_scoped<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
         }
         m_vbo->create();
         m_vbo->setUsagePattern(m_pattern);
     }
-
-    if(m_vertexType == VertexType_IntIndex) {
-        return m_vbo->isCreated();
-    }
-
-    if(m_vao == nullptr) {
-        m_vao = new QOpenGLVertexArrayObject();
-        m_vao->create();
-    }
-    return m_vao->isCreated() && m_vbo->isCreated();
+    return m_vbo->isCreated();
 }
+
+// Emits the specific layout attributes down to a target context-private VAO
+void GtMeshBuffer::ExecuteLayoutBinding(OpenGLFunctions* f, QOpenGLVertexArrayObject* targetVao)
+{
+    if (m_vertexType == VertexType_IntIndex || !m_vbo || !m_vbo->isCreated()) {
+        return;
+    }
+
+    QOpenGLVertexArrayObject::Binder binder(targetVao);
+    m_vbo->bind();
+
+    switch (m_vertexType) {
+    case VertexType_TexturedVertex2F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F), reinterpret_cast<const void*>(sizeof(Point2F)));
+        break;
+
+    case VertexType_Vertex3f3f:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f), reinterpret_cast<const void*>(sizeof(Point3F)));
+        break;
+
+    case VertexType_3f2f2f:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glEnableVertexAttribArray(2);
+        f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), reinterpret_cast<const void*>(sizeof(Point3F) + sizeof(Point2F)));
+        break;
+
+    case VertexType_TexturedVertex3F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        break;
+
+    case VertexType_StatedVertex3F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(StatedVertex3F), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribIPointer(1, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glEnableVertexAttribArray(2);
+        f->glVertexAttribIPointer(2, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F) + sizeof(quint8)));
+        break;
+
+    case VertexType_ColoredVertex2F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F), reinterpret_cast<const void*>(sizeof(Point2F)));
+        break;
+
+    case VertexType_ColoredVertex3F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F), nullptr);
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        break;
+
+    case VertexType_Point3F:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point3F), nullptr);
+        break;
+
+    case VertexType_Custom:
+        for (const auto& functor : m_builder.GetResult()) {
+            functor(f);
+        }
+        break;
+
+    default:
+        Q_ASSERT(false);
+    }
+}
+
+// ============================================================================
+// GtMesh Base Implementation
+// ============================================================================
 
 GtMesh::GtMesh(const GtMeshBufferPtr& buffer)
     : m_buffer(buffer)
     , m_visible(true)
 {
-
 }
 
 GtMesh::~GtMesh()
 {
+    // Local safe deletion because GtMesh objects do not jump threads
+    if (m_vao && m_vao->isCreated()) {
+        m_vao->destroy();
+    }
+}
+
+void GtMesh::BindLayoutForCurrentContext(OpenGLFunctions* f, QOpenGLBuffer* indices, GtMeshBuffer* instanceBuffer)
+{
+    // Lazy Evaluation: Create VAO locally on whichever thread owns this object instance
+    if (m_vao == nullptr) {
+        m_vao = make_scoped<QOpenGLVertexArrayObject>();
+        m_vao->create();
+
+        // Pass layout mapping configuration instructions to target local VAO
+        m_buffer->ExecuteLayoutBinding(f, m_vao.get());
+
+        // Lock the Index EBO state inside this VAO context permanently if required
+        if (indices != nullptr) {
+            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
+            indices->bind();
+        }
+
+        if (instanceBuffer != nullptr) {
+            instanceBuffer->ExecuteLayoutBinding(f, m_vao.get());
+        }
+    }
+
+    m_vao->bind();
 }
 
 void GtMesh::Draw(gRenderType renderType, OpenGLFunctions* f)
 {
-    QOpenGLVertexArrayObject::Binder binder(m_buffer->GetVaoObject());
+    if (!IsVisible()) return;
+
+    BindLayoutForCurrentContext(f);
     f->glDrawArrays(renderType, 0, m_buffer->GetVerticesCount());
 }
 
 void GtMesh::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount)
 {
-    QOpenGLVertexArrayObject::Binder binder(m_buffer->GetVaoObject());
+    if (!IsVisible()) return;
+
+    BindLayoutForCurrentContext(f, nullptr, m_instanceBuffer.get());
     f->glDrawArraysInstanced(renderType, 0, m_buffer->GetVerticesCount(), instancesCount);
 }
+
+// ============================================================================
+// GtMeshIndices Implementation
+// ============================================================================
 
 GtMeshIndices::GtMeshIndices(const GtMeshBufferPtr& indices, const GtMeshBufferPtr& buffer)
     : GtMesh(buffer)
@@ -218,29 +269,42 @@ GtMeshIndices::GtMeshIndices(const GtMeshBufferPtr& indices, const GtMeshBufferP
 
 GtMeshIndices::~GtMeshIndices()
 {
-
 }
 
 void GtMeshIndices::Draw(gRenderType renderType, OpenGLFunctions* f)
 {
-    QOpenGLVertexArrayObject::Binder binder(m_buffer->GetVaoObject());
-    m_indicesBuffer->GetVboObject()->bind();
-    f->glDrawElements(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, (const void*)0);
+    if (!IsVisible()) return;
+
+    // Passes down EBO handler to cache it into our context-bound VAO permanently
+    BindLayoutForCurrentContext(f, m_indicesBuffer->GetVboObject());
+
+    f->glDrawElements(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 void GtMeshIndices::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount)
 {
-    QOpenGLVertexArrayObject::Binder binder(m_buffer->GetVaoObject());
-    m_indicesBuffer->GetVboObject()->bind();
-    f->glDrawElementsInstanced(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, (const void*)0, instancesCount);
+    if (!IsVisible()) return;
+
+    BindLayoutForCurrentContext(f, m_indicesBuffer->GetVboObject(), m_instanceBuffer.get());
+    f->glDrawElementsInstanced(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, nullptr, instancesCount);
 }
 
+// ============================================================================
+// GtStandardMeshs Implementation
+// ============================================================================
+
 GtStandardMeshs::GtStandardMeshs()
-    : m_quad2DMesh(::make_shared<GtMesh>(GtMeshBufferQuad2D::Create()))
+    : m_quad2DMesh(new GtMesh(GtMeshBufferQuad2D::Create()))
 {
 }
 
 void GtStandardMeshs::initialize(OpenGLFunctions* f)
 {
     m_quad2DMesh->GetBuffer()->Initialize(f);
+}
+
+void GtStandardMeshs::reset(OpenGLFunctions* f)
+{
+    Q_UNUSED(f);
+    m_quad2DMesh->GetBuffer()->Clear();
 }
