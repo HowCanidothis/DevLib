@@ -18,11 +18,21 @@ Thread::Thread(ThreadPool* pool)
 Thread::~Thread()
 {
     m_aboutToBeDestroyed = true;
-    while(isRunning()) {
+    {
         QMutexLocker locker(&m_taskMutex);
         m_taskCondition.wakeAll();
-        ThreadsBase::ProcessMainEvents();
     }
+
+    while (isRunning()) {
+        {
+            QMutexLocker locker(&m_taskMutex);
+            m_taskCondition.wakeAll();
+        }
+        ThreadsBase::ProcessMainEvents();
+        QThread::yieldCurrentThread();
+    }
+
+//    wait();
 }
 
 AsyncResult Thread::RunTask(ThreadTaskDesc* task)
@@ -38,44 +48,53 @@ AsyncResult Thread::RunTask(ThreadTaskDesc* task)
 
 void Thread::run()
 {
-    {
-    waitAgain:
-        QMutexLocker locker(&m_taskMutex);
-        if(m_aboutToBeDestroyed) {
-            OnFinished();
-            return;
-        }
-        while(m_task == nullptr) {
-            m_taskCondition.wait(&m_taskMutex);
-            if(m_aboutToBeDestroyed) {
+    while (true) {
+        ThreadTaskDesc* currentTask = nullptr;
+
+        {
+            QMutexLocker locker(&m_taskMutex);
+
+            if (m_aboutToBeDestroyed) {
                 OnFinished();
                 return;
             }
-        }        
-    }
 
-    eventDispatcher()->processEvents(QEventLoop::AllEvents);
-    
-    m_task->Result.Resolve([this]{
-        try
-        {
-            m_task->Task();
-            return true;
+            while (m_task == nullptr) {
+                if (m_aboutToBeDestroyed) {
+                    OnFinished();
+                    return;
+                }
+                m_taskCondition.wait(&m_taskMutex);
+            }
+            currentTask = m_task.get();
         }
-        catch (...)
+
+        eventDispatcher()->processEvents(QEventLoop::AllEvents);
+
+        currentTask->Result.Resolve([currentTask]{
+            try {
+                currentTask->Task();
+                return true;
+            } catch (...) {
+                currentTask->Result.SetException(std::current_exception());
+                return false;
+            }
+        });
+
         {
-            m_task->Result.SetException(std::current_exception());
-            return false;
+            QMutexLocker locker(&m_taskMutex);
+            ThreadTaskDesc* nextTask = m_pool->takeTask();
+            if (nextTask != nullptr) {
+                m_task = nextTask;
+            } else {
+                m_task = nullptr;
+                m_pool->markFree(this);
+            }
+
+            if (m_aboutToBeDestroyed) {
+                OnFinished();
+                return;
+            }
         }
-    });
-
-    ThreadTaskDesc* nextTask = m_pool->takeTask();
-    if(nextTask != nullptr) {
-        m_task = nextTask;
-    } else {
-        m_task = nullptr;
-        m_pool->markFree(this);
     }
-
-    goto waitAgain;
 }
