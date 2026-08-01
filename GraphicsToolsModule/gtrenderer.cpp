@@ -251,6 +251,9 @@ GtMeshBufferResource GtRenderer::GetOrCreateMeshBuffer(const Name& name, const s
     if(resource == nullptr) {
         resource = m_sharedData->SharedResourcesSystem.RegisterResourceAndGet<GtMeshBufferPtr>(name, true);
         auto res = resourceRegister();
+        if(res == nullptr) {
+            return resource;
+        }
         res->SetShared();
         resource = res;
     }
