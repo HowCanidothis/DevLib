@@ -644,6 +644,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementReynoldNumber::Value)
             .AddUnit(&ReynoldNumberUnits::Reynold);
 
+    AddMeasurement(MeasurementTemperatureDerationCorrection::Value)
+            .AddUnit(&TemperatureDerationCorrectionUnits::CorrectionRatio);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,      {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,             {AngleUnits::Degrees.Id,                       2})
@@ -709,7 +712,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
-            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -776,7 +780,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactor.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
-            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -844,7 +849,8 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementWearFactor::NAME, {WearFactorUnits::WearFactorSI.Id,    2})
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
-            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10});
+            .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);

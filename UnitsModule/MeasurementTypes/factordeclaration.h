@@ -48,4 +48,9 @@ namespace ReynoldNumberUnits {
     DECLARE_MEASUREMENT_UNIT(Reynold)
 }
 DECLARE_MEASUREMENT(ReynoldNumber)
+
+namespace TemperatureDerationCorrectionUnits {
+    DECLARE_MEASUREMENT_UNIT(CorrectionRatio)
+}
+DECLARE_MEASUREMENT(TemperatureDerationCorrection)
 #endif // FACTORDECLARATION_H

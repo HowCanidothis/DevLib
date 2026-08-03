@@ -48,3 +48,8 @@ namespace ReynoldNumberUnits {
     IMPLEMENT_MEASUREMENT_UNIT(Reynold, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(ReynoldNumber, TR(MeasurementTr::tr("Reynold Number")))
+
+namespace TemperatureDerationCorrectionUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(CorrectionRatio, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(TemperatureDerationCorrection, TR(MeasurementTr::tr("Temperature Deration Correction")))
