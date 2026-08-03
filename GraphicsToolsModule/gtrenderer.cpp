@@ -58,6 +58,19 @@ void GtRenderer::construct()
     };
 
     OnAboutToBeDestroyed.SetAutoThreadSafe();
+
+    m_mvp = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::mvp);
+    m_screenSize = m_resourceSystem->RegisterResourceAndGet<Vector2F>(GtNames::screenSize);
+    m_invertedMv = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::invertedMVP);
+    m_eye = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::eye);
+    m_side = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::side);
+    m_up = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::up);
+    m_forward = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::forward);
+    m_view = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::view);
+    m_projection = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::projection);
+    m_rotation = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::rotation);
+    m_viewport = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::viewportProjection);
+    m_camera = m_resourceSystem->RegisterResourceAndGet<GtCamera*>(GtNames::camera);
 }
 
 void GtRenderer::enableDepthTest()
@@ -85,19 +98,6 @@ GtRenderer::GtRenderer(const QString& defaultShadersPath)
     CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext.geom", "sdftext.frag");
     CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
     CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath, "sdfscreentext.vert", "sdfscreentext.geom", "sdfscreentext.frag");
-
-    m_mvp = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::mvp);
-    m_screenSize = m_resourceSystem->RegisterResourceAndGet<Vector2F>(GtNames::screenSize);
-    m_invertedMv = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::invertedMVP);
-    m_eye = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::eye);
-    m_side = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::side);
-    m_up = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::up);
-    m_forward = m_resourceSystem->RegisterResourceAndGet<Vector3F>(GtNames::forward);
-    m_view = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::view);
-    m_projection = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::projection);
-    m_rotation = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::rotation);
-    m_viewport = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::viewportProjection);
-    m_camera = m_resourceSystem->RegisterResourceAndGet<GtCamera*>(GtNames::camera);
 }
 
 GtRenderer::~GtRenderer()
