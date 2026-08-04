@@ -2,9 +2,11 @@
 #define WIDGETSDECLARATIONS_H
 
 #include <QHash>
-#include <QDialogButtonBox>
-
 #include <SharedModule/internal.hpp>
+
+#ifdef WIDGETS_MODULE_LIB
+#include <QDialogButtonBox>
+#endif
 
 enum class GroupKeyboardSeparator {
     Space,
@@ -81,6 +83,7 @@ struct DescWidgetsLocationAttachmentParams
     DescWidgetsLocationAttachmentParams& RemoveSizeAdjuster() { AddSizeAdjuster = false; return *this; }
 };
 
+#ifdef WIDGETS_MODULE_LIB
 struct WidgetsDialogsManagerButtonStruct
 {
     QDialogButtonBox::ButtonRole Role;
@@ -322,6 +325,7 @@ inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumn
         ColumnsParams.insert(column, ColumnParam().ShowAlways());
     }
 }
+#endif
 
 using WidgetsGlobalTableActionsScopeHandlersPtr = SharedPointer<struct WidgetsGlobalTableActionsScopeHandlers>;
 template<class Enum>
