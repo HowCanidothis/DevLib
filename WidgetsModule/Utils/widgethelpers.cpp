@@ -485,6 +485,19 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
         WidgetTableViewWrapper(tableView).SetDefaultActionHandlers(false);
     }
 
+    if(params.EnableEditableTableError) {
+        WidgetToolTip()->Connect(CDL, [tableView](const QString& tooltip){
+            auto viewModel = tableView->model();
+            viewModel->setProperty(WidgetProperties::EditableTableError, tooltip);
+            if(viewModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
+                auto rowCount = viewModel->rowCount();
+                auto columnCount = viewModel->columnCount();
+                auto from = viewModel->index(rowCount - 1, 0);
+                auto to = viewModel->index(rowCount - 1, columnCount - 1);
+                emit viewModel->dataChanged(from, to, {Qt::ToolTipRole, FieldHasErrorRole});
+            }
+        });
+    }
 #ifdef UNITS_MODULE_LIB
     auto* model = tableView->model();
     if(model != nullptr) {

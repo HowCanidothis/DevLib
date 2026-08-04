@@ -310,12 +310,14 @@ struct DescTableViewParams
     bool HighlightSections = true;
     bool DropIndicatorShown = true;
     bool SortIndicatorShown = true;
+    bool EnableEditableTableError = true;
     DescTableViewParams& SetStretchLastSection (bool state) { StretchLastSection = state; return *this; }
     DescTableViewParams& SetSectionsMovable    (bool state) { SectionsMovable = state; return *this; }
     DescTableViewParams& SetSectionsClickable  (bool state) { SectionsClickable = state; return *this; }
     DescTableViewParams& SetHighlightSections  (bool state) { HighlightSections = state; return *this; }
     DescTableViewParams& SetDropIndicatorShown (bool state) { DropIndicatorShown = state; return *this; }
     DescTableViewParams& SetSortIndicatorShown (bool state) { SortIndicatorShown = state; return *this; }
+    DescTableViewParams& SetEnableEditableTableError (bool state) { EnableEditableTableError = state; return *this; }
 };
 
 inline DescTableViewParams::DescTableViewParams(const QSet<qint32>& ignoreColumns)
@@ -340,6 +342,7 @@ DECLARE_GLOBAL_CHAR(InnerSplitter)
 DECLARE_GLOBAL_CHAR(Footer)
 DECLARE_GLOBAL_CHAR(InvertedModel)
 DECLARE_GLOBAL_CHAR(ActionWidget)
+DECLARE_GLOBAL_CHAR(EditableTableError)
 }
 
 #endif // WIDGETSDECLARATIONS_H
