@@ -488,6 +488,15 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
     if(params.EnableEditableTableError) {
         WidgetToolTip()->Connect(CDL, [tableView](const QString& tooltip){
             auto viewModel = tableView->model();
+            if(viewModel == nullptr){
+                return;
+            }
+            if(auto filterModel = qobject_cast<QSortFilterProxyModel*>(viewModel)){
+                viewModel = filterModel->sourceModel();
+                if(viewModel == nullptr){
+                    return;
+                }
+            }
             viewModel->setProperty(WidgetProperties::EditableTableError, tooltip);
             if(viewModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
                 auto rowCount = viewModel->rowCount();

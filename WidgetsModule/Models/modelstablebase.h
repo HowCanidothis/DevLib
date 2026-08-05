@@ -496,7 +496,7 @@ public:
             }
             if(IsEditColumn(index.column())) {
                 auto error = property(WidgetProperties::EditableTableError).toString();
-                if(!error.isEmpty()){
+                if(GetData() != nullptr && GetData()->IsEmpty() && !error.isEmpty()){
                     switch(role){
                     case FieldHasErrorRole: return 2;
                     case Qt::ToolTipRole: return error;
