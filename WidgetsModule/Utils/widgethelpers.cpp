@@ -32,6 +32,8 @@
 
 #include <optional>
 
+#include "WidgetsModule/Components/componentplacer.h"
+
 #include "WidgetsModule/Dialogs/widgetsdebugjsondialog.h"
 
 #include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
@@ -2072,8 +2074,46 @@ QVector<QWidget*>& WidgetWrapper::WidgetTrueFocusWidgets() const
     return *Injected<QVector<QWidget*>>("a_trueFocusWidgets");
 }
 
-LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const
+static void UpdateWarningButton(QCheckBox* chb, bool highlighted, const QPoint& offsetPoint)
 {
+    static const IconsSvgIcon& warningIcon = IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId);
+    auto* button = chb->property("w_warningButton").value<QPushButton*>();
+    if (highlighted) {
+        if (button == nullptr) {
+            auto* warningButton = new QPushButton(chb->parentWidget());
+            auto* offset = WidgetWrapper(warningButton).LocateToParent(
+                DescWidgetsLocationAttachmentParams(QuadTreeF::Location_TopLeft).SetRelativeParent(chb)
+            );
+            offset->GetComponentPlacer()->Offset = offsetPoint;
+            warningButton->setObjectName("WarningButton");
+            chb->setProperty("w_warningButton", QVariant::fromValue(warningButton));
+            warningButton->setEnabled(false);
+            warningButton->setIcon(warningIcon);
+            warningButton->setFocusPolicy(Qt::NoFocus);
+            WidgetAbstractButtonWrapper(warningButton).SetControl(ButtonRole::Icon);
+        }
+    } else {
+        if (button != nullptr) {
+            button->deleteLater();
+            chb->setProperty("w_warningButton", QVariant::fromValue<QPushButton*>(nullptr));
+        }
+    }
+}
+
+LocalPropertySequentialEnum<HighLightEnum>& WidgetWrapper::WidgetHighlighted() const
+{
+    auto* chb = qobject_cast<QCheckBox*>(GetWidget());
+    if (chb != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [chb](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(chb);
+            wrapper.ApplyStyleProperty("w_highlighted", highlighted.Value());
+
+            highlighted.ConnectAndCall(CDL, [chb](auto highlightedVal) {
+                UpdateWarningButton(chb, static_cast<bool>(highlightedVal), QPoint(13,10));
+            });
+        }, HighLightEnum::None);
+    }
+
     return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [](QObject* object, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
         WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty("w_highlighted", highlighted.Value());
     }, HighLightEnum::None);

@@ -769,15 +769,11 @@ WPSCAddItemWidget QLabel {
     border-radius: 12px;
 }
 
-WPSCEOWReportDialogView QPushButton#WarningButton {
+QPushButton#WarningButton {
     min-width: 12px;
     max-width: 12px;
     min-height: 12px;
     max-height: 12px;
     margin: 0px;
     padding: 0px;
-}
-
-WPSCEOWReportDialogView {
-    qproperty-warningOffset: 13px 10px;
 }
