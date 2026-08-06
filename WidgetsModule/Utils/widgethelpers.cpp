@@ -1307,7 +1307,7 @@ CommonDispatcher<qint32>& WidgetComboboxWrapper::OnActivated() const
 
 void WidgetWrapper::Highlight(qint32 unhightlightIn) const
 {
-    ApplyStyleProperty("w_highlighted", true);
+    ApplyStyleProperty(WidgetProperties::Highlighted, true);
 
     if(unhightlightIn > 0) {
         auto wrapper = *this;
@@ -1451,7 +1451,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 
 void WidgetWrapper::Lowlight() const
 {
-    ApplyStyleProperty("w_highlighted", false);
+    ApplyStyleProperty(WidgetProperties::Highlighted, false);
 }
 
 MainProgressBar* WidgetWrapper::AddModalProgressBar(const Name& processId) const
@@ -2091,6 +2091,8 @@ static void UpdateWarningButton(QCheckBox* chb, bool highlighted, const QPoint& 
             warningButton->setIcon(warningIcon);
             warningButton->setFocusPolicy(Qt::NoFocus);
             WidgetAbstractButtonWrapper(warningButton).SetControl(ButtonRole::Icon);
+            warningButton->raise();
+            warningButton->show();
         }
     } else {
         if (button != nullptr) {
@@ -2106,16 +2108,40 @@ LocalPropertySequentialEnum<HighLightEnum>& WidgetWrapper::WidgetHighlighted() c
     if (chb != nullptr) {
         return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [chb](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
             WidgetWrapper wrapper(chb);
-            wrapper.ApplyStyleProperty("w_highlighted", highlighted.Value());
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
 
             highlighted.ConnectAndCall(CDL, [chb](auto highlightedVal) {
                 UpdateWarningButton(chb, static_cast<bool>(highlightedVal), QPoint(13,10));
             });
         }, HighLightEnum::None);
     }
+    auto* table = qobject_cast<QTableView*>(GetWidget());
+    if(table != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [table](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(table);
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
+
+            highlighted.ConnectAndCall(CDL, [table](auto highlightedVal) {
+                auto* sourceModel = table->model();
+                while(auto* filterModel = qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
+                    sourceModel = filterModel->sourceModel();
+                }
+                if(sourceModel != nullptr) {
+                    sourceModel->setProperty(WidgetProperties::Highlighted, highlightedVal);
+                    if(sourceModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
+                        auto rowCount = sourceModel->rowCount();
+                        auto columnCount = sourceModel->columnCount();
+                        auto from = sourceModel->index(rowCount - 1, 0);
+                        auto to = sourceModel->index(rowCount - 1, columnCount - 1);
+                        emit sourceModel->dataChanged(from, to, {FieldHasErrorRole});
+                    }
+                }
+            });
+        }, HighLightEnum::None);
+    }
 
     return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [](QObject* object, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
-        WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty("w_highlighted", highlighted.Value());
+        WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
     }, HighLightEnum::None);
 }
 

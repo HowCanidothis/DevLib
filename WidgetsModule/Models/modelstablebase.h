@@ -495,6 +495,15 @@ public:
                 return ret;
             }
             if(IsEditColumn(index.column())) {
+                auto highlighted = property(WidgetProperties::Highlighted).toBool();
+                if(GetData() != nullptr && GetData()->IsEmpty() && highlighted){
+                    switch(role){
+                    case FieldHasErrorRole: return 2;
+                    case Qt::BackgroundRole: return SharedSettings::GetInstance().StyleSettings.WarningCellColor.Native();
+                    case BackgroundAltRole: return SharedSettings::GetInstance().StyleSettings.WarningCellAltColor.Native();
+                    default: break;
+                    }
+                }
                 switch(role) {
                 case Qt::FontRole: {
                     QFont result;
