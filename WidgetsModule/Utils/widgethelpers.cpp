@@ -2074,20 +2074,21 @@ QVector<QWidget*>& WidgetWrapper::WidgetTrueFocusWidgets() const
     return *Injected<QVector<QWidget*>>("a_trueFocusWidgets");
 }
 
-static void UpdateWarningButton(QCheckBox* chb, bool highlighted, const QPoint& offsetPoint)
+template<class T>
+static void UpdateWarningButton(T* chb, bool highlighted, QuadTreeF::BoundingRect_Location location, const QPoint& offsetPoint)
 {
     static const IconsSvgIcon& warningIcon = IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId);
-    auto* button = chb->property("w_warningButton").value<QPushButton*>();
+    auto* button = chb->property("w_warningButton").template value<QPushButton*>();
     if (highlighted) {
         if (button == nullptr) {
             auto* warningButton = new QPushButton(chb->parentWidget());
             auto* offset = WidgetWrapper(warningButton).LocateToParent(
-                DescWidgetsLocationAttachmentParams(QuadTreeF::Location_TopLeft).SetRelativeParent(chb)
+                DescWidgetsLocationAttachmentParams(location).SetRelativeParent(chb)
             );
             offset->GetComponentPlacer()->Offset = offsetPoint;
             warningButton->setObjectName("WarningButton");
             chb->setProperty("w_warningButton", QVariant::fromValue(warningButton));
-            warningButton->setEnabled(false);
+            warningButton->setAttribute(Qt::WA_TransparentForMouseEvents);
             warningButton->setIcon(warningIcon);
             warningButton->setFocusPolicy(Qt::NoFocus);
             WidgetAbstractButtonWrapper(warningButton).SetControl(ButtonRole::Icon);
@@ -2110,9 +2111,7 @@ LocalPropertySequentialEnum<HighLightEnum>& WidgetWrapper::WidgetHighlighted() c
             WidgetWrapper wrapper(chb);
             wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
 
-            highlighted.ConnectAndCall(CDL, [chb](auto highlightedVal) {
-                UpdateWarningButton(chb, static_cast<bool>(highlightedVal), QPoint(13,10));
-            });
+            UpdateWarningButton(chb, highlighted.Value(), QuadTreeF::Location_TopLeft, QPoint(13,10));
         }, HighLightEnum::None);
     }
     auto* table = qobject_cast<QTableView*>(GetWidget());
@@ -2121,22 +2120,34 @@ LocalPropertySequentialEnum<HighLightEnum>& WidgetWrapper::WidgetHighlighted() c
             WidgetWrapper wrapper(table);
             wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
 
-            highlighted.ConnectAndCall(CDL, [table](auto highlightedVal) {
-                auto* sourceModel = table->model();
-                while(auto* filterModel = qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
-                    sourceModel = filterModel->sourceModel();
+            auto* sourceModel = table->model();
+            while(auto* filterModel = qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
+                sourceModel = filterModel->sourceModel();
+            }
+            if(sourceModel != nullptr) {
+                sourceModel->setProperty(WidgetProperties::Highlighted, highlighted.Value());
+                if(sourceModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
+                    auto rowCount = sourceModel->rowCount();
+                    auto columnCount = sourceModel->columnCount();
+                    auto from = sourceModel->index(rowCount - 1, 0);
+                    auto to = sourceModel->index(rowCount - 1, columnCount - 1);
+                    emit sourceModel->dataChanged(from, to, {FieldHasErrorRole});
                 }
-                if(sourceModel != nullptr) {
-                    sourceModel->setProperty(WidgetProperties::Highlighted, highlightedVal);
-                    if(sourceModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
-                        auto rowCount = sourceModel->rowCount();
-                        auto columnCount = sourceModel->columnCount();
-                        auto from = sourceModel->index(rowCount - 1, 0);
-                        auto to = sourceModel->index(rowCount - 1, columnCount - 1);
-                        emit sourceModel->dataChanged(from, to, {FieldHasErrorRole});
-                    }
-                }
-            });
+            }
+        }, HighLightEnum::None);
+    }
+    auto* cb = qobject_cast<QComboBox*>(GetWidget());
+    if(cb != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [cb](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(cb);
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
+            QPoint pOffset;
+            if(qobject_cast<WidgetsComboBoxLayout*>(cb->parentWidget())) {
+                pOffset = QPoint(7,9);
+            } else {
+                pOffset = QPoint(15,9);
+            }
+            UpdateWarningButton(cb, highlighted.Value(), QuadTreeF::Location_TopRight, pOffset);
         }, HighLightEnum::None);
     }
 
