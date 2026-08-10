@@ -647,6 +647,21 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementTemperatureDerationCorrection::Value)
             .AddUnit(&TemperatureDerationCorrectionUnits::CorrectionRatio);
 
+    AddMeasurement(MeasurementDesignSafetyFactor::Value)
+            .AddUnit(&DesignSafetyFactorUnits::SafetyFactor);
+
+    AddMeasurement(MeasurementPressurePerDistance::Value)
+            .AddUnit(&PressurePerDistanceUnits::PascalsPerMeter)
+            .AddUnit(&PressurePerDistanceUnits::KilopascalsPerMeter)
+            .AddUnit(&PressurePerDistanceUnits::BarsPerMeter)
+            .AddUnit(&PressurePerDistanceUnits::MegapascalsPerMeter)
+            .AddUnit(&PressurePerDistanceUnits::PoundsPerSquareInchPerFeet)
+            .AddUnit(&PressurePerDistanceUnits::PoundsPerSquareInchPer100Feet)
+            .AddUnit(&PressurePerDistanceUnits::KilopoundsPerSquareInchPerFeet)
+            .AddUnit(&PressurePerDistanceUnits::PoundsPerSquareInchPerUSFeet)
+            .AddUnit(&PressurePerDistanceUnits::PoundsPerSquareInchPer100USFeet)
+            .AddUnit(&PressurePerDistanceUnits::KilopoundsPerSquareInchPerUSFeet);
+
     AddSystem(UNIT_SYSTEM_API_USFT, true)
             .AddParameter(MeasurementAcceleration::NAME,      {AccelerationUnits::Gravity.Id,         3})
             .AddParameter(MeasurementAngle::NAME,             {AngleUnits::Degrees.Id,                       2})
@@ -713,7 +728,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
-            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
+            .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PoundsPerSquareInchPerUSFeet.Id, 2, 10});
 
     AddSystem(UNIT_SYSTEM_API, true)
             .AddParameter(MeasurementAcceleration::NAME,     {AccelerationUnits::Gravity.Id,         3})
@@ -781,7 +798,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
-            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
+            .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PoundsPerSquareInchPerFeet.Id, 2, 10});
 
 
     AddSystem(UNIT_SYSTEM_SI, true)
@@ -850,7 +869,9 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementFatigueRatio::NAME, {FatigueRatioUnits::FatigueRatio.Id,    2})
             .AddParameter(MeasurementThermalFactor::NAME, {ThermalFactorUnits::ThermalFactor.Id,    6, 1e-3})
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
-            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2});
+            .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
+            .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PascalsPerMeter.Id, 0, 1e3});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);

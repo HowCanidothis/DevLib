@@ -22,3 +22,19 @@ IMPLEMENT_MEASUREMENT(MudPressure, TR(MeasurementTr::tr("Mud Pressure")))
 IMPLEMENT_MEASUREMENT(YieldPoint, TR(MeasurementTr::tr("Yield Point")))
 IMPLEMENT_MEASUREMENT(YieldStrength, TR(MeasurementTr::tr("Yield Strength")))
 IMPLEMENT_MEASUREMENT(YoungModulus, TR(MeasurementTr::tr("Young Modulus")))
+
+namespace PressurePerDistanceUnits
+{
+    IMPLEMENT_MEASUREMENT_UNIT(PascalsPerMeter,              TR(MeasurementTr::tr("pascals per meter")),                 TR(MeasurementTr::tr("Pa/m")),      1.0)
+    IMPLEMENT_MEASUREMENT_UNIT(KilopascalsPerMeter,          TR(MeasurementTr::tr("kilopascals per meter")),             TR(MeasurementTr::tr("kPa/m")),     1000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(BarsPerMeter,                 TR(MeasurementTr::tr("bars per meter")),                    TR(MeasurementTr::tr("bars/m")),    100000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(MegapascalsPerMeter,          TR(MeasurementTr::tr("megapascals per meter")),             TR(MeasurementTr::tr("MPa/m")),     1000000.0)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInchPerFeet,   TR(MeasurementTr::tr("pounds-force/sq.inch per feet")),     TR(MeasurementTr::tr("psi/ft")),    22620.593832)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInchPer100Feet,TR(MeasurementTr::tr("pounds-force/sq.inch per 100 feet")), TR(MeasurementTr::tr("psi/100ft")),  226.205938)
+    IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInchPerFeet, TR(MeasurementTr::tr("kilopounds-force/sq.inch per feet")), TR(MeasurementTr::tr("ksi/ft")),   22620593.832)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInchPerUSFeet,   TR(MeasurementTr::tr("pounds-force/sq.inch per US feet")),  TR(MeasurementTr::tr("psi/usft")),      22620.548598)
+    IMPLEMENT_MEASUREMENT_UNIT(PoundsPerSquareInchPer100USFeet,TR(MeasurementTr::tr("pounds-force/sq.inch per 100 US feet")),TR(MeasurementTr::tr("psi/100usft")),  226.205486)
+    IMPLEMENT_MEASUREMENT_UNIT(KilopoundsPerSquareInchPerUSFeet, TR(MeasurementTr::tr("kilopounds-force/sq.inch per US feet")),TR(MeasurementTr::tr("ksi/usft")),     22620548.598)
+}
+
+IMPLEMENT_MEASUREMENT(PressurePerDistance, TR(MeasurementTr::tr("Pressure Gradient")))

@@ -53,4 +53,10 @@ namespace TemperatureDerationCorrectionUnits {
     DECLARE_MEASUREMENT_UNIT(CorrectionRatio)
 }
 DECLARE_MEASUREMENT(TemperatureDerationCorrection)
+
+namespace DesignSafetyFactorUnits {
+    DECLARE_MEASUREMENT_UNIT(SafetyFactor)
+}
+DECLARE_MEASUREMENT(DesignSafetyFactor)
+
 #endif // FACTORDECLARATION_H

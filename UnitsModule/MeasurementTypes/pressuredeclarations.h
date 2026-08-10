@@ -28,5 +28,19 @@ DECLARE_MEASUREMENT(YieldPoint)
 DECLARE_MEASUREMENT(YieldStrength)
 DECLARE_MEASUREMENT(YoungModulus)
 
+namespace PressurePerDistanceUnits
+{
+    DECLARE_MEASUREMENT_UNIT(PascalsPerMeter)
+    DECLARE_MEASUREMENT_UNIT(KilopascalsPerMeter)
+    DECLARE_MEASUREMENT_UNIT(BarsPerMeter)
+    DECLARE_MEASUREMENT_UNIT(MegapascalsPerMeter)
+    DECLARE_MEASUREMENT_UNIT(PoundsPerSquareInchPerFeet)
+    DECLARE_MEASUREMENT_UNIT(PoundsPerSquareInchPer100Feet)
+    DECLARE_MEASUREMENT_UNIT(KilopoundsPerSquareInchPerFeet)
+    DECLARE_MEASUREMENT_UNIT(PoundsPerSquareInchPerUSFeet)
+    DECLARE_MEASUREMENT_UNIT(PoundsPerSquareInchPer100USFeet)
+    DECLARE_MEASUREMENT_UNIT(KilopoundsPerSquareInchPerUSFeet)
+}
 
+DECLARE_MEASUREMENT(PressurePerDistance)
 #endif // PRESSUREDECLARATIONS_H

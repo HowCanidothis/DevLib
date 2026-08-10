@@ -53,3 +53,8 @@ namespace TemperatureDerationCorrectionUnits {
     IMPLEMENT_MEASUREMENT_UNIT(CorrectionRatio, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(TemperatureDerationCorrection, TR(MeasurementTr::tr("Temperature Deration Correction")))
+
+namespace DesignSafetyFactorUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(SafetyFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(DesignSafetyFactor, TR(MeasurementTr::tr("Design Safety Factor")))
