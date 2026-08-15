@@ -1,6 +1,13 @@
 #include "gtobjectbase.h"
 
 #include "GraphicsToolsModule/gtrenderer.h"
+#include "GraphicsToolsModule/gtviewcontext.h"
+
+GtDrawableBase::GtDrawableBase(const GtViewContext& viewContext)
+    : GtDrawableBase(viewContext.GetRenderer())
+{
+
+}
 
 GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
     : m_renderer(renderer)

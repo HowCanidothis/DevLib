@@ -47,6 +47,7 @@ public:
         VertexType_Invalid,
         VertexType_Point3F,
         VertexType_Vertex3f3f,
+        VertexType_Vertex3f3f3f,
         VertexType_TexturedVertex3F,
         VertexType_TexturedVertex2F,
         VertexType_StatedVertex3F,
@@ -67,6 +68,7 @@ public:
     void Clear();
     VertexType GetType() const { return m_vertexType; }
 
+    void UpdateVertexArray(const QVector<Vertex3f3f3f>& vertices) { update(vertices, VertexType_Vertex3f3f3f); }
     void UpdateVertexArray(const QVector<Vertex3f3f>& vertices) { update(vertices, VertexType_Vertex3f3f); }
     void UpdateVertexArray(const QVector<Point3F>& vertices) { update(vertices, VertexType_Point3F); }
     void UpdateVertexArray(const QVector<ColoredVertex3F>& vertices) { update(vertices, VertexType_ColoredVertex3F); }

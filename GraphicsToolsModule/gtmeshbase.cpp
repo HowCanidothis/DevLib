@@ -125,61 +125,93 @@ void GtMeshBuffer::ExecuteLayoutBinding(OpenGLFunctions* f, QOpenGLVertexArrayOb
         return;
     }
 
-    QOpenGLVertexArrayObject::Binder binder(targetVao);
     m_vbo->bind();
 
     switch (m_vertexType) {
+    case VertexType_Vertex3f3f3f:
+        f->glEnableVertexAttribArray(0);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f3f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f3f3f, Position)));
+
+        // Attribute 1: Normal (Location 1 in shader)
+        f->glEnableVertexAttribArray(1);
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f3f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f3f3f, Normal)));
+
+        // Attribute 2: TexCoord (Location 2 in shader)
+        f->glEnableVertexAttribArray(2);
+        f->glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f3f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f3f3f, TexCoord)));
+        break;
+
     case VertexType_TexturedVertex2F:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F), nullptr);
+        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F),
+                                 reinterpret_cast<const void*>(offsetof(TexturedVertex2F, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F), reinterpret_cast<const void*>(sizeof(Point2F)));
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex2F),
+                                 reinterpret_cast<const void*>(offsetof(TexturedVertex2F, TexCoord)));
         break;
 
     case VertexType_Vertex3f3f:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f), nullptr);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f3f, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f3f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f3f, Normal)));
         break;
 
     case VertexType_3f2f2f:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), nullptr);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f2f2f, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f2f2f, A))); // update names if needed
         f->glEnableVertexAttribArray(2);
-        f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f), reinterpret_cast<const void*>(sizeof(Point3F) + sizeof(Point2F)));
+        f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3f2f2f),
+                                 reinterpret_cast<const void*>(offsetof(Vertex3f2f2f, B)));
         break;
 
     case VertexType_TexturedVertex3F:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F), nullptr);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F),
+                                 reinterpret_cast<const void*>(offsetof(TexturedVertex3F, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex3F),
+                                 reinterpret_cast<const void*>(offsetof(TexturedVertex3F, TexCoord)));
         break;
 
     case VertexType_StatedVertex3F:
+        // Core Fix: offsetof safely bridges the byte alignment padding between point and state variables
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(StatedVertex3F), nullptr);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(StatedVertex3F),
+                                 reinterpret_cast<const void*>(offsetof(StatedVertex3F, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribIPointer(1, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glVertexAttribIPointer(1, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F),
+                                  reinterpret_cast<const void*>(offsetof(StatedVertex3F, State)));
         f->glEnableVertexAttribArray(2);
-        f->glVertexAttribIPointer(2, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F), reinterpret_cast<const void*>(sizeof(Point3F) + sizeof(quint8)));
+        f->glVertexAttribIPointer(2, 1, GL_UNSIGNED_BYTE, sizeof(StatedVertex3F),
+                                  reinterpret_cast<const void*>(offsetof(StatedVertex3F, Transparency)));
         break;
 
     case VertexType_ColoredVertex2F:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F), nullptr);
+        f->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F),
+                                 reinterpret_cast<const void*>(offsetof(ColoredVertex2F, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F), reinterpret_cast<const void*>(sizeof(Point2F)));
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex2F),
+                                 reinterpret_cast<const void*>(offsetof(ColoredVertex2F, Color)));
         break;
 
     case VertexType_ColoredVertex3F:
         f->glEnableVertexAttribArray(0);
-        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F), nullptr);
+        f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F),
+                                 reinterpret_cast<const void*>(offsetof(ColoredVertex3F, Position)));
         f->glEnableVertexAttribArray(1);
-        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F), reinterpret_cast<const void*>(sizeof(Point3F)));
+        f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex3F),
+                                 reinterpret_cast<const void*>(offsetof(ColoredVertex3F, Color)));
         break;
 
     case VertexType_Point3F:
@@ -223,12 +255,13 @@ void GtMesh::BindLayoutForCurrentContext(OpenGLFunctions* f, QOpenGLBuffer* indi
         m_vao = make_scoped<QOpenGLVertexArrayObject>();
         m_vao->create();
 
+        m_vao->bind();
+
         // Pass layout mapping configuration instructions to target local VAO
         m_buffer->ExecuteLayoutBinding(f, m_vao.get());
 
         // Lock the Index EBO state inside this VAO context permanently if required
         if (indices != nullptr) {
-            QOpenGLVertexArrayObject::Binder binder(m_vao.get());
             indices->bind();
         }
 
@@ -246,6 +279,7 @@ void GtMesh::Draw(gRenderType renderType, OpenGLFunctions* f)
 
     BindLayoutForCurrentContext(f);
     f->glDrawArrays(renderType, 0, m_buffer->GetVerticesCount());
+    m_vao->release();
 }
 
 void GtMesh::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount)
@@ -254,6 +288,7 @@ void GtMesh::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 in
 
     BindLayoutForCurrentContext(f, nullptr, m_instanceBuffer.get());
     f->glDrawArraysInstanced(renderType, 0, m_buffer->GetVerticesCount(), instancesCount);
+    m_vao->release();
 }
 
 // ============================================================================
@@ -279,6 +314,7 @@ void GtMeshIndices::Draw(gRenderType renderType, OpenGLFunctions* f)
     BindLayoutForCurrentContext(f, m_indicesBuffer->GetVboObject());
 
     f->glDrawElements(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, nullptr);
+    m_vao->release();
 }
 
 void GtMeshIndices::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qint32 instancesCount)
@@ -287,6 +323,7 @@ void GtMeshIndices::DrawInstanced(gRenderType renderType, OpenGLFunctions* f, qi
 
     BindLayoutForCurrentContext(f, m_indicesBuffer->GetVboObject(), m_instanceBuffer.get());
     f->glDrawElementsInstanced(renderType, m_indicesBuffer->GetVerticesCount(), GL_UNSIGNED_INT, nullptr, instancesCount);
+    m_vao->release();
 }
 
 // ============================================================================

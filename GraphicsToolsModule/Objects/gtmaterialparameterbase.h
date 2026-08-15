@@ -7,6 +7,7 @@
 #include <SharedModule/internal.hpp>
 
 #include "gtobjectbase.h"
+#include "GraphicsToolsModule/gtmeshloader.h"
 
 template<class T> class TResource;
 class GtTexture;
@@ -16,10 +17,11 @@ class GtFrameTexture;
 typedef TResource<Vector2F> Vector2FResource;
 typedef TResource<Vector3F> Vector3FResource;
 typedef TResource<Matrix4> Matrix4Resource;
+using Matrix3Resource = TResource<Matrix3>;
 typedef TResource<GtTexture> GtTextureResource;
 typedef TResource<GtFrameTexture> GtFrameTextureResource;
 typedef TResource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
-using GtMeshBufferResource = TResource<GtMeshBufferPtr>;
+using GtMaterialMeshResource = TResource<GtMeshLoader::Mesh>;
 
 #ifdef WORK
 #include <functional>
@@ -63,7 +65,7 @@ protected:
     void installDelegate();
     virtual FDelegate apply();
     virtual void updateTextureUnit(gTexUnit&) {}
-    void updateLocation(const QOpenGLShaderProgram* program);
+    void updateLocation(const QOpenGLShaderProgram* program, const GtShaderProgram* gtProgram);
 
 protected:
     FDelegate m_delegate;

@@ -164,7 +164,7 @@ void GtShaderProgram::Update()
         }
     }
     if(!m_shaderProgram->link()) {
-        qCCritical(LC_SYSTEM) << "unable to link program" << m_shaderProgram->log();
+        qCCritical(LC_SYSTEM) << "unable to link program %1" << ShadersPaths() << m_shaderProgram->log();
     } else {
         m_isValid = true;
     }

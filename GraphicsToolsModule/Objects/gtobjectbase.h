@@ -18,6 +18,7 @@ public:
 class GtDrawableBase : public GtObjectBase ATTACH_MEMORY_SPY_2(GtDrawableBase)
 {
 public:
+    GtDrawableBase(const class GtViewContext& viewContext);
     GtDrawableBase(class GtRenderer* renderer);
     ~GtDrawableBase();
 
@@ -55,6 +56,7 @@ public:
     T* As() { return reinterpret_cast<T*>(this); }
 
 protected:
+    friend class GtViewContext;
     friend class GtScene;
     friend class GtRenderer;
     friend class GtRendererController;

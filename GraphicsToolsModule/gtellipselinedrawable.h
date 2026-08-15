@@ -7,7 +7,7 @@ class GtEllipseLineDrawable : public GtDrawableBase
 {
     using Super = GtDrawableBase;
 public:
-    GtEllipseLineDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram);
+    GtEllipseLineDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram);
 
     bool AutoUpdateTransform;
     LocalProperty<Vector3F> Up;

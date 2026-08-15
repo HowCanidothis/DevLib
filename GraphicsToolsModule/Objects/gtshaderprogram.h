@@ -41,6 +41,7 @@ public:
     void SetShaders(const QString& path, const QString& vertFile, const QString& tessControlShader, const QString& tessEvalShader, const QString& fragShader);
 
     class QOpenGLShaderProgram* GetQOpenGLShaderProgram() { return m_shaderProgram.get(); }
+    QString ShadersPaths() const { return StringBuilder().Join("->", m_shaders, [](const auto& it) { return (*it)->File; }); }
 
     bool Bind();
     void Release();

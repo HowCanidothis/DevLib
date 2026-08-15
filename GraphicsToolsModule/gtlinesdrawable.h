@@ -7,7 +7,7 @@ class GtLinesDrawable : public GtDrawableBase
 {
     using Super = GtDrawableBase;
 public:
-    GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram);
+    GtLinesDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram);
 
     LocalPropertyVector<Point3F> Points;
     LocalPropertyColor Color;

@@ -8,6 +8,8 @@
 class ToolTipWidget : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY(double opacity MEMBER m_opacity)
+
     using Super = QFrame;
 public:
     ToolTipWidget(QWidget* parent);
@@ -26,6 +28,9 @@ private:
     QWidget* m_content;
     QPoint m_target;
     std::unique_ptr<class QPropertyAnimation, std::function<void(QPropertyAnimation*)>> m_animation;
+
+protected:
+    LocalPropertyDouble m_opacity;
 
     // QWidget interface
 protected:

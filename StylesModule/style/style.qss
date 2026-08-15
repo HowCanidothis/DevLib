@@ -49,6 +49,12 @@ QLabel[a_label=true] {
     font-size: 12px;
 }
 
+QLabel[a_tooltipTitle="true"] {
+    font-weight: bold;
+    qproperty-alignment: 'AlignCenter';
+    background-color: transparent;
+}
+
 QLabel[a_focus=true] {
     color: @ctext.1;
 }

@@ -21,6 +21,7 @@ typedef QPoint Point2I;
 typedef QVector4D Point4F;
 typedef Point4F Vector4F;
 typedef QMatrix4x4 Matrix4;
+typedef QMatrix3x3 Matrix3;
 typedef QSizeF SizeF;
 typedef QSize SizeI;
 typedef QRect RectI;
@@ -744,6 +745,12 @@ inline Color3F Color3FCreate(const QColor& color) { return Color3F(color.redF(),
 inline QColor Color3FtoQColor(const Color3F& color) { return QColor::fromRgbF(color.x(), color.y(), color.z()); }
 
 #pragma pack(1)
+
+struct Vertex3f
+{
+    Point3F Position;
+};
+
 struct TexturedVertex2F
 {
     Point2F Position;
@@ -759,7 +766,23 @@ struct TexturedVertex3F
 struct Vertex3f3f
 {
     Point3F Position;
+    union {
     Point3F Normal;
+    Point3F TexCoord;
+    };
+
+    Vertex3f3f() {}
+    Vertex3f3f(const Point3F& pos, const Point3F& nvt)
+        : Position(pos)
+        , Normal(nvt)
+    {}
+};
+
+struct Vertex3f3f3f
+{
+    Point3F Position;
+    Point3F Normal;
+    Point3F TexCoord;
 };
 
 struct Vertex3f2f2f

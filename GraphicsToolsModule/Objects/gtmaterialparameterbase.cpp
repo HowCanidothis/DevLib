@@ -1,6 +1,7 @@
 #include "gtmaterialparameterbase.h"
 
 #include <QOpenGLShaderProgram>
+#include "gtshaderprogram.h"
 #include "gtmaterial.h"
 #include "../gtcamera.h"
 #include "../gttexture2D.h"
@@ -23,14 +24,11 @@ GtMaterialParameterBase::FDelegate GtMaterialParameterBase::apply()
     return m_delegate;
 }
 
-void GtMaterialParameterBase::updateLocation(const QOpenGLShaderProgram* program)
+void GtMaterialParameterBase::updateLocation(const QOpenGLShaderProgram* program, const GtShaderProgram* gtProgram)
 {
     auto it = m_locations.insert(program, program->uniformLocation(m_name));
     if(*it == -1 && m_required) {
-        qCWarning(LC_SYSTEM) << "location not found" << m_name << "for shaders:";
-        for(const auto* shader : program->shaders()) {
-            qCWarning(LC_SYSTEM) << shader->sourceCode();
-        }
+        qCWarning(LC_SYSTEM) << "location not found" << m_name << "for shaders:" << gtProgram->ShadersPaths();
     }
 }
 

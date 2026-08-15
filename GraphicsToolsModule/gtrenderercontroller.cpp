@@ -15,6 +15,7 @@
 #include "decl.h"
 #include "gtrenderer.h"
 #include "gtrenderpath.h"
+#include "gtscene.h"
 
 GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera* camera)
     : m_camera(camera)
@@ -196,6 +197,11 @@ GtRendererController::~GtRendererController()
 {
     OnAboutToBeDestroyed();
     m_onDeleted.Interrupt();
+}
+
+void GtRendererController::CreateScene()
+{
+    m_scene = new GtScene();
 }
 
 void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)

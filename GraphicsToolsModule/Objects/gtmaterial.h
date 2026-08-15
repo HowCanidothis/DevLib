@@ -4,6 +4,7 @@
 #include "gtobjectbase.h"
 #include "SharedModule/array.h"
 #include "SharedModule/stack.h"
+#include "GraphicsToolsModule/gtmeshloader.h"
 
 class GtMesh;
 class GtCamera;
@@ -15,6 +16,7 @@ public:
     GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program);
     virtual ~GtMaterial();
 
+    void ApplyShadingMaterial(const GtMeshLoader::Material& shading);
     void AddParameter(const SharedPointer<GtMaterialParameterBase>&, bool required = true);
     void AddMesh(const SharedPointer<GtMesh>& mesh);
     void Draw(OpenGLFunctions* f);

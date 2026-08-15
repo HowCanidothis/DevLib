@@ -8,12 +8,14 @@
 
 #include "gtrendererbase.h"
 #include "decl.h"
+#include "gtmeshloader.h"
 
 class GtRendererSharedData
 {
 public:
     GtRendererSharedData(class GtRenderer* base);
 
+    QHash<Name, GtMeshLoader::Material> ShadingMaterials;
     QHash<Name, GtShaderProgramPtr> ShaderPrograms;
     GtRenderer* BaseRenderer;
     ResourcesSystem SharedResourcesSystem;
@@ -46,12 +48,16 @@ public:
     void AddController(const GtRendererControllerPtr& controller);
     void RemoveController(const GtRendererControllerPtr& controller);
 
-    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
+    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);
 
+    const GtMeshLoader::Material* GetShadingMaterial(const Name& materialId) const;
+    void RegisterShadingMaterial(const Name& id, const GtMeshLoader::Material& material);
+    void RegisterShadingMaterials(const QString& folderPath);
     void CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName);
     GtShaderProgramPtr CreateShaderProgram(const Name& name);
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
-    GtMeshBufferResource GetOrCreateMeshBuffer(const Name& name, const std::function<GtMeshBufferPtr ()>& resourceRegister);
+    void RegisterMaterialMesh(const Name& name, const std::function<GtMeshLoader::Mesh ()>& resourceGetter);
+    GtMaterialMeshResource GetMaterialMesh(const Name& name) const;
     template<class T>
     TResource<T> GetResource(const Name& name)
     {
@@ -67,7 +73,7 @@ public:
     template<class T, typename ... Args>
     T* CreateDrawableQueued(qint32 queueNumber, Args... args)
     {
-        auto* result = new T(this, args...);
+        auto* result = new T(GtViewContext(this), args...);
         AddDrawable(result, queueNumber);
         return result;
     }
@@ -121,6 +127,8 @@ private:
     friend class GtRendererController;
     friend class GtDrawableBase;
     friend class GtRenderPath;
+    friend class GtViewContext;
+    friend class GtSharedViewContext;
 
     QHash<GtRendererController*, GtRendererControllerPtr> m_controllers;
     Matrix4Resource m_mvp;
@@ -129,6 +137,7 @@ private:
     Matrix4Resource m_rotation;
     Matrix4Resource m_invertedMv;
     Matrix4Resource m_viewport;
+    Matrix3Resource m_normalMatrix;
     TResource<Vector3F> m_eye;
     TResource<Vector3F> m_forward;
     TResource<Vector3F> m_side;
@@ -139,11 +148,10 @@ private:
 
     qint32 m_queueNumber;
 
-    ScopedPointer<class GtScene> m_scene;
+    SP<class GtScene> m_scene;
 
     SharedPointer<GtRendererSharedData> m_sharedData;
     SharedPointer<ResourcesSystem> m_resourceSystem;
-    QVector<GtRendererPtr> m_childRenderers;
     GtRenderProperties m_renderProperties;
     GtRendererController* m_currentRenderController;
     QVector<FAction> m_delayedDraws;

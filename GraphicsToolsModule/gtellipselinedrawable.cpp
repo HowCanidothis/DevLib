@@ -7,7 +7,7 @@
 #include "Objects/gtmaterialparametermatrix.h"
 #include "gtmeshbase.h"
 
-GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram)
+GtEllipseLineDrawable::GtEllipseLineDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram)
     : Super(renderer)
     , AutoUpdateTransform(true)
     , Color(QColor(Qt::white))

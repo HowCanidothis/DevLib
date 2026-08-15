@@ -1,6 +1,7 @@
 #include "gtrenderer.h"
 
 #include <QOpenGLFramebufferObject>
+#include <QDirIterator>
 
 #include "GraphicsToolsModule/internal.hpp"
 #include "GraphicsToolsModule/gtdepthbuffer.h"
@@ -36,6 +37,7 @@ void GtRenderer::CreateShaderProgramAlias(const Name& aliasName, const Name& sou
 
 void GtRenderer::construct()
 {
+    m_scene = new GtScene();
     m_queueNumber = 0;
     m_resourceSystem = ::make_shared<ResourcesSystem>();
     m_standardMeshs = new GtStandardMeshs();
@@ -71,6 +73,7 @@ void GtRenderer::construct()
     m_rotation = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::rotation);
     m_viewport = m_resourceSystem->RegisterResourceAndGet<Matrix4>(GtNames::viewportProjection);
     m_camera = m_resourceSystem->RegisterResourceAndGet<GtCamera*>(GtNames::camera);
+    m_normalMatrix = m_resourceSystem->RegisterResourceAndGet<Matrix3>(GtNames::normalMatrix);
 }
 
 void GtRenderer::enableDepthTest()
@@ -245,19 +248,23 @@ GtShaderProgramPtr GtRenderer::GetShaderProgram(const Name& name) const
     return nullptr;
 }
 
-GtMeshBufferResource GtRenderer::GetOrCreateMeshBuffer(const Name& name, const std::function<GtMeshBufferPtr ()>& resourceRegister)
+void GtRenderer::RegisterMaterialMesh(const Name& name, const std::function<GtMeshLoader::Mesh ()>& resourceGetter)
 {
-    auto resource = m_sharedData->SharedResourcesSystem.GetResource<GtMeshBufferPtr>(name);
-    if(resource == nullptr) {
-        resource = m_sharedData->SharedResourcesSystem.RegisterResourceAndGet<GtMeshBufferPtr>(name, true);
-        auto res = resourceRegister();
-        if(res == nullptr) {
-            return resource;
+    m_sharedData->SharedResourcesSystem.RegisterResource<GtMeshLoader::Mesh>(name, [resourceGetter]{
+        auto res = resourceGetter();
+        if(res.Buffer != nullptr) {
+            res.Buffer->SetShared();
         }
-        res->SetShared();
-        resource = res;
-    }
-    return resource;
+        for(const auto& buffer : res.MaterialIndicesBuffer) {
+            buffer->SetShared();
+        }
+        return new GtMeshLoader::Mesh(res);
+    }, true);
+}
+
+GtMaterialMeshResource GtRenderer::GetMaterialMesh(const Name &name) const
+{
+    return m_sharedData->SharedResourcesSystem.GetResource<GtMeshLoader::Mesh>(name);
 }
 
 /*Point3F GtRenderer::Project(const Point3F& position) const
@@ -269,9 +276,11 @@ GtMeshBufferResource GtRenderer::GetOrCreateMeshBuffer(const Name& name, const s
 
 GtRendererPtr GtRenderer::CreateSharedRenderer()
 {
-    Q_ASSERT(!isRunning() && IsBaseRenderer());
-    m_childRenderers.append(GtRendererPtr(new GtRenderer(this)));
-    return m_childRenderers.last();
+    Q_ASSERT(IsBaseRenderer());
+
+    QMutexLocker locker(&initializationMutex());
+
+    return GtRendererPtr(new GtRenderer(this));
 }
 
 bool GtRenderer::onInitialize()
@@ -288,8 +297,6 @@ bool GtRenderer::onInitialize()
             shaderProgram->Update();
         }
     }
-
-    m_scene = new GtScene();
 
     /*if(m_params->DebugMode) {
         auto* logger = new QOpenGLDebugLogger(this);
@@ -326,6 +333,64 @@ SharedPointer<guards::LambdaGuard> GtRenderer::SetDefaultQueueNumber(qint32 queu
     auto old = m_queueNumber;
     m_queueNumber = queueNumber;
     return ::make_shared<guards::LambdaGuard>([this, old]{ m_queueNumber = old; });
+}
+
+const GtMeshLoader::Material* GtRenderer::GetShadingMaterial(const Name& materialId) const
+{
+    auto foundIt = m_sharedData->ShadingMaterials.constFind(materialId);
+    if(foundIt == m_sharedData->ShadingMaterials.cend()) {
+        return nullptr;
+    }
+    return &foundIt.value();
+}
+
+void GtRenderer::RegisterShadingMaterial(const Name& id, const GtMeshLoader::Material& material)
+{
+    Q_ASSERT(!m_isInitialized);
+    m_sharedData->ShadingMaterials[id] = material;
+}
+
+void GtRenderer::RegisterShadingMaterials(const QString& folderPath)
+{
+    Q_ASSERT(!m_isInitialized);
+    QDir targetDir(folderPath);
+    if (!targetDir.exists()) {
+        qCWarning(LC_SYSTEM) << "Target material folder does not exist:" << folderPath;
+        return;
+    }
+
+    QStringList nameFilters;
+    nameFilters << "*.mtl"; // Filter explicitly for standard Wavefront material configuration assets
+
+    QDirIterator it(folderPath, nameFilters, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        QString currentFilePath = it.next();
+
+        QHash<Name, GtMeshLoader::Material> rawMtlPool = GtMeshLoader::LoadMaterials(currentFilePath);
+
+        for (auto mapIt = rawMtlPool.cbegin(); mapIt != rawMtlPool.cend(); ++mapIt) {
+            auto* first = &mapIt.value().MapKaFileName;
+            auto* last = &mapIt.value().MapKnFileName + 1;
+            while(first != last) {
+                if(first->IsNull()) {
+                    ++first;
+                    continue;
+                }
+                auto texturePath = targetDir.filePath(first->AsString());
+                GtTextureFormat format;
+                format.MagFilter = GL_LINEAR;
+                format.MinFilter = GL_LINEAR;
+                format.WrapS = GL_REPEAT;
+                format.WrapT = GL_REPEAT;
+                format.MipMapLevels = 0;
+
+                CreateTexture(Name(*first), texturePath, format);
+                ++first;
+            }
+            m_sharedData->ShadingMaterials.insert(mapIt.key(), mapIt.value());
+        }
+    }
 }
 
 void GtRenderer::onDraw()
@@ -370,6 +435,7 @@ void GtRenderer::onDraw()
         m_screenSize = Vector2F(fbo->size().width(), fbo->size().height());
         m_side = camera->GetSideCalculated();
         m_camera = camera;
+        //m_normalMatrix = camera->GetWorld().normalMatrix();
 
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);
@@ -383,6 +449,9 @@ void GtRenderer::onDraw()
                 glEnable(GL_DEPTH_TEST);
             }
             controller->m_renderPath->Render(m_scene.get(), fbo->handle());
+            if(controller->GetScene() != nullptr) {
+                controller->m_renderPath->Render(controller->GetScene().get(), fbo->handle());
+            }
             //m_scene->DrawAll(this);
             controller->draw(this);
             for(const auto& draws : m_delayedDraws) {
@@ -399,6 +468,9 @@ void GtRenderer::onDraw()
             glEnable(GL_DEPTH_TEST);
 
             m_scene->DrawDepth(this);
+            if(controller->GetScene() != nullptr) {
+                controller->GetScene()->DrawDepth(this);
+            }
             controller->drawDepth(this);
 
             m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE] = false;

@@ -5,7 +5,7 @@
 #include "gtmeshbase.h"
 #include "gtrenderer.h"
 
-GtLinesDrawable::GtLinesDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram)
+GtLinesDrawable::GtLinesDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram)
     : Super(renderer)
     , Visible(0xffffffff)
     , Width(1.f)

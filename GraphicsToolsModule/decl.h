@@ -17,6 +17,7 @@ DECLARE_GLOBAL_NAME(projection)
 DECLARE_GLOBAL_NAME(rotation)
 DECLARE_GLOBAL_NAME(viewportProjection)
 DECLARE_GLOBAL_NAME(camera)
+DECLARE_GLOBAL_NAME(normalMatrix)
 }
 
 struct GtControllersContext
