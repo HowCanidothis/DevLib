@@ -182,6 +182,7 @@ GtMeshLoader::Mesh GtMeshLoader::Parser::Parse(const QString& fileName)
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
+        qCritical(LC_CONSOLE) << "Unable to open file: " << fileName;
         return result;
     }
 
