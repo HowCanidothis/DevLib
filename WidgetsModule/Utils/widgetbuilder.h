@@ -43,6 +43,7 @@ public:
     WidgetBuilder(QWidget* parent, qint32 margin = 9);
     ~WidgetBuilder();
 
+    WidgetBuilder& AddSpacer(qint32 w, qint32 h);
     WidgetBuilder& StartSplitter(const std::function<void (WidgetBuilder&, QSplitter*)>& handler);
     WidgetBuilder& StartLayout(const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler);
     WidgetBuilder& Make(const std::function<void (WidgetBuilder&)>& handler);
