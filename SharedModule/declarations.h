@@ -286,15 +286,21 @@ inline std::optional<double> interpolated(
     auto fv = std::invoke(targetGetter, c.first());
 
     // Edge Case 1: Value is less than, or effectively equal to, the first element bounds
-    if (fuzzyCompare(targetValue, fv, eps) || targetValue < fv) {
+    if (fuzzyCompare(targetValue, fv, eps)) {
         return std::invoke(igetter, c.first());
+    }
+    if(targetValue < fv) {
+        return std::nullopt;
     }
 
     auto lv = std::invoke(targetGetter, c.last());
 
     // Edge Case 2: Value is greater than, or effectively equal to, the last element bounds
-    if (fuzzyCompare(targetValue, lv, eps) || targetValue > fv) {
+    if (fuzzyCompare(targetValue, lv, eps)) {
         return std::invoke(igetter, c.last());
+    }
+    if(targetValue > lv) {
+        return std::nullopt;
     }
 
     // Binary search to find the first element where the search condition fails
