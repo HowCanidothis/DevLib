@@ -24,6 +24,8 @@ public:
     void Draw(qint32 queue, OpenGLFunctions* f);
     void DrawDepth(OpenGLFunctions* f);
 
+    void Clear();
+
 private:
     FInitializationFunction m_initFunction;
     bool m_initialized;

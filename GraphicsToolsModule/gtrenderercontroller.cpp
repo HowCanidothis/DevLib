@@ -195,6 +195,9 @@ void GtRendererController::UpdateFrame()
 
 GtRendererController::~GtRendererController()
 {
+    if(m_scene != nullptr) {
+        m_scene->Clear();
+    }
     OnAboutToBeDestroyed();
     m_onDeleted.Interrupt();
 }

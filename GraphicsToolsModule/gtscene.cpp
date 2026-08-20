@@ -8,11 +8,18 @@ GtScene::GtScene()
 
 GtScene::~GtScene()
 {
+    Clear();
+}
+
+void GtScene::Clear()
+{
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
-            delete drawable;
+            drawable->AboutToDestroy();
+            drawable->Destroy();
         }
     }
+    m_drawables.clear();
 }
 
 void GtScene::DrawFilter(OpenGLFunctions* f, const std::function<bool (qint32)>& filter)
