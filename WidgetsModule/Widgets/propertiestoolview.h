@@ -439,7 +439,7 @@ struct TPropertiesToolWrapper {
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDoubleOptional&(T*)>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){
         auto property = &propertyGetter(m_object);
         FTranslationHandler titleUnit;
-        if(title().contains(MEASUREMENT_UN)){
+        if(title().contains(MEASUREMENT_UN) || measurement->CurrentUnitLabel.Native().isEmpty()){
             titleUnit = title;
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
@@ -449,7 +449,7 @@ struct TPropertiesToolWrapper {
     LineData AddDoubleProperty(const Name& propertyName, const Measurement* measurement, const FTranslationHandler& title, const std::function<LocalPropertyDouble&(T*)>& propertyGetter, const QVector<Dispatcher*>& labelUpdaters = QVector<Dispatcher*>()){
         auto property = &propertyGetter(m_object);
         FTranslationHandler titleUnit;
-        if(title().contains(MEASUREMENT_UN)){
+        if(title().contains(MEASUREMENT_UN) || measurement->CurrentUnitLabel.Native().isEmpty()){
             titleUnit = title;
         } else {
             titleUnit = TR(QString("%1 (%un)").arg(title()), title);
