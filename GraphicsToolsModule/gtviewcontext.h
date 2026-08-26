@@ -36,6 +36,7 @@ public:
 
     GtRenderer* GetRenderer() const { return m_renderer; }
     const GtMeshLoader::Material* GetShadingMaterial(const Name& id) const { return m_renderer->GetShadingMaterial(id); }
+    const GtMeshLoader::Material& GetDefaultShadingMaterial() const { return m_renderer->GetDefaultShadingMaterial(); }
     const GtFontPtr& GetFont(const Name& id) const { return m_renderer->GetFont(id); }
     GtShaderProgramPtr GetShaderProgram(const Name& id) const { return m_renderer->GetShaderProgram(id); }
     GtMaterialMeshResource GetMaterialMesh(const Name& id) const { return m_renderer->GetMaterialMesh(id); }

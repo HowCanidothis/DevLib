@@ -110,7 +110,7 @@ QByteArray GtShaderProgram::extractShader(const QString& fileName) const
         auto shader = file.readAll();
         return GtSharedShaderManager::GetInstance().Merge(shader);
     } else {
-        qDebug() << QString("Unable to open shader file %1").arg(fileName);
+        qCCritical(LC_CONSOLE).noquote() << QString("Unable to open shader file %1").arg(fileName);
     }
     return QByteArray();
 }
@@ -144,6 +144,8 @@ void GtShaderProgram::Update()
                 QOpenGLShader* shaderObject = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
                 if(shaderObject->compileSourceCode(extractShader(shader->File))) {
                     m_shaderProgram->addShader(shaderObject);
+                } else {
+                    qCWarning(LC_CONSOLE) << shader->File << shaderObject->log();
                 }
             }
         } else {
@@ -153,18 +155,20 @@ void GtShaderProgram::Update()
                 });
             });
             for(Shader* shader : m_shaders) {
-                QOpenGLShader* shader_object = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
+                QOpenGLShader* shaderObject = new QOpenGLShader((QOpenGLShader::ShaderTypeBit)shader->Type, m_shaderProgram.data());
                 m_shadersWatcher->AddFileObserver(shader->File, [this]{
                     Update();
                 });
-                if(shader_object->compileSourceCode(extractShader(shader->File))) {
-                    m_shaderProgram->addShader(shader_object);
+                if(shaderObject->compileSourceCode(extractShader(shader->File))) {
+                    m_shaderProgram->addShader(shaderObject);
+                } else {
+                    qCWarning(LC_CONSOLE) << shader->File << shaderObject->log();
                 }
             }
         }
     }
     if(!m_shaderProgram->link()) {
-        qCCritical(LC_SYSTEM) << "unable to link program %1" << ShadersPaths() << m_shaderProgram->log();
+        qCCritical(LC_CONSOLE).noquote() << "unable to link program" << ShadersPaths() << m_shaderProgram->log();
     } else {
         m_isValid = true;
     }

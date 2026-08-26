@@ -13,10 +13,11 @@ class GtMaterialParameterBase;
 class GtMaterial : public GtObjectBase
 {
 public:
-    GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program);
+    GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program, bool addDefaultParameters = true);
     virtual ~GtMaterial();
 
     void ApplyShadingMaterial(const GtMeshLoader::Material& shading);
+    void ApplySimpleShadingMaterial(const GtMeshLoader::Material& shading, float shininess = 2.f);
     void AddParameter(const SharedPointer<GtMaterialParameterBase>&, bool required = true);
     void AddMesh(const SharedPointer<GtMesh>& mesh);
     void Draw(OpenGLFunctions* f);

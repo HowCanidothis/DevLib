@@ -98,9 +98,9 @@ GtRenderer::GtRenderer(const QString& defaultShadersPath)
     , m_sharedData(new GtRendererSharedData(this))
 {   
     construct();
-    CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(defaultShadersPath, "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
-    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath, "sdfscreentext.vert", "sdfscreentext.geom", "sdfscreentext.frag");
+    CreateShaderProgram("DefaultTextShaderProgram")->SetShaders(defaultShadersPath + "sdf/", "sdftext.vert", "sdftext.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultText3DShaderProgram")->SetShaders(defaultShadersPath + "sdf/", "sdftext.vert", "sdftext3d.geom", "sdftext.frag");
+    CreateShaderProgram("DefaultScreenTextShaderProgram")->SetShaders(defaultShadersPath + "sdf/", "sdfscreentext.vert", "sdfscreentext.geom", "sdfscreentext.frag");
 }
 
 GtRenderer::~GtRenderer()
@@ -285,10 +285,15 @@ GtRendererPtr GtRenderer::CreateSharedRenderer()
 
 bool GtRenderer::onInitialize()
 {
-    if(!initializeOpenGLFunctions()) {
-        qCInfo(LC_SYSTEM) << "Cannot initialize opengl functions";
+    QOpenGLContext* currentContext = QOpenGLContext::currentContext();
+
+    // 2. Verify that a valid context exists and is actively current
+    if (!currentContext || !currentContext->isValid()) {
+        qCInfo(LC_SYSTEM) << "Cannot initialize: No active or valid QOpenGLContext exists.";
         return false;
     }
+
+    initializeOpenGLFunctions();
 
     currentRenderer() = this;
 
@@ -344,6 +349,12 @@ const GtMeshLoader::Material* GtRenderer::GetShadingMaterial(const Name& materia
     return &foundIt.value();
 }
 
+const GtMeshLoader::Material& GtRenderer::GetDefaultShadingMaterial() const
+{
+    thread_local static const GtMeshLoader::Material result;
+    return result;
+}
+
 void GtRenderer::RegisterShadingMaterial(const Name& id, const GtMeshLoader::Material& material)
 {
     Q_ASSERT(!m_isInitialized);
@@ -395,7 +406,7 @@ void GtRenderer::RegisterShadingMaterials(const QString& folderPath)
 
 void GtRenderer::onDraw()
 {
-    if(!isInitialized()) {
+    if(!m_isInitialized) {
         return;
     }
 

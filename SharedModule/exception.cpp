@@ -60,7 +60,7 @@ ExceptionHandleParams::ExceptionHandleParams(const QString& processName, const F
     , Action(action)
 {
     SetDefaultNotificatorHandler([](const QString& module, const QString& message){
-        qCCritical(LC_CONSOLE) << QString("%1: %2").arg(module, message);
+        qCCritical(LC_CONSOLE).noquote() << QString("%1: %2").arg(module, message);
     });
 }
 

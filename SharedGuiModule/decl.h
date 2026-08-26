@@ -10,10 +10,12 @@
 #include <QVector4D>
 #include <QMatrix4x4>
 #include <QDateTime>
-#include <QOpenGLFunctions_4_5_Core>
 
-#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
-typedef QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#if !defined(QT_NO_OPENGL)
+    // QOpenGLExtraFunctions gives you ES 3.0/3.1 features natively on ARM,
+    // AND maps them automatically to Core Context commands on Desktop.
+    #include <QOpenGLExtraFunctions>
+    typedef QOpenGLExtraFunctions OpenGLFunctions;
 #endif
 typedef QQuaternion Quaternion;
 typedef QPoint Point2I;

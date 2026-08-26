@@ -169,6 +169,6 @@ void GtTexture2DMultisampled::Allocate()
 {
     if(IsCreated() || Create()) {
         GtTextureBinder binder(this);
-        f->glTexImage2DMultisample(GL_TEXTURE_2D, m_samples, m_internalFormat, m_size.width(), m_size.height(), true);
+        f->glTexStorage2DMultisample(m_target, m_samples, m_internalFormat, m_size.width(), m_size.height(), GL_TRUE);
     }
 }

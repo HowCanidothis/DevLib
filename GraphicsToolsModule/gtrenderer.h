@@ -51,6 +51,7 @@ public:
     SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);
 
     const GtMeshLoader::Material* GetShadingMaterial(const Name& materialId) const;
+    const GtMeshLoader::Material& GetDefaultShadingMaterial() const;
     void RegisterShadingMaterial(const Name& id, const GtMeshLoader::Material& material);
     void RegisterShadingMaterials(const QString& folderPath);
     void CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName);

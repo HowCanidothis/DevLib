@@ -56,6 +56,7 @@ public:
     virtual ~GtMaterialParameterBase();
 
     void SetRequired(bool required);
+    const QString& GetName() const { return m_name; }
 
 protected:
     friend class GtMaterial;

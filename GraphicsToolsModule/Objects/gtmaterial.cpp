@@ -8,8 +8,10 @@
 #include "../gtrenderer.h"
 #include "gtshaderprogram.h"
 #include "gtmaterialparametertexture.h"
+#include "gtmaterialparametermatrix.h"
+#include "gtmaterialparametervector3f.h"
 
-GtMaterial::GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program)
+GtMaterial::GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program, bool addDefaultParameters)
     : m_renderType(renderType)
     , m_visible(true)
     , m_isDirty(true)
@@ -19,6 +21,11 @@ GtMaterial::GtMaterial(gRenderType renderType, const GtShaderProgramPtr& program
     program->OnUpdated += { this, [this]{
         m_isDirty = true;
     }};
+
+    if(addDefaultParameters) {
+        AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp), false);
+        AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", GtNames::screenSize), false);
+    }
 }
 
 GtMaterial::~GtMaterial()
@@ -28,6 +35,8 @@ GtMaterial::~GtMaterial()
 
 void GtMaterial::ApplyShadingMaterial(const GtMeshLoader::Material& shading)
 {
+    AddParameter(::make_shared<GtMaterialParameterConst>("SHININESS", 2.f), false);
+
     // 2. Map Scalar Properties via uniform parameters
     AddParameter(make_shared<GtMaterialParameterConst>("Ns", shading.Ns), false);
     AddParameter(make_shared<GtMaterialParameterConst>("Ni", shading.Ni), false);
@@ -109,9 +118,22 @@ void GtMaterial::ApplyShadingMaterial(const GtMeshLoader::Material& shading)
     }
 }
 
+void GtMaterial::ApplySimpleShadingMaterial(const GtMeshLoader::Material& shading, float shininess)
+{
+    AddParameter(::make_shared<GtMaterialParameterConst>("SHININESS", shininess), false);
+
+    AddParameter(make_shared<GtMaterialParameterConst>("Ka", shading.Ka));
+    AddParameter(make_shared<GtMaterialParameterConst>("Kd", shading.Kd));
+    AddParameter(make_shared<GtMaterialParameterConst>("Ks", shading.Ks));
+}
 
 void GtMaterial::AddParameter(const SharedPointer<GtMaterialParameterBase>& parameter, bool required)
 {
+#ifdef QT_DEBUG
+    for(const auto& param : m_parameters) {
+        Q_ASSERT(param->GetName() != parameter->GetName());
+    }
+#endif
     parameter->SetRequired(required);
     m_parameters.append(parameter);
 }
