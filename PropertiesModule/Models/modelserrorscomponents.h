@@ -28,7 +28,7 @@ public:
     using FModelHandler = std::function<void (typename Wrapper::container_type&, const FMarkHasError& markError)>;
 
     ModelsErrorComponent(int delay = 1000)
-        : ErrorFilter(0xffffffff)
+        : ErrorFilter(0xFFFFFFFFFFFFFFFF)
         , SkipErrorRows(true)
         , m_updater(delay)
     {
