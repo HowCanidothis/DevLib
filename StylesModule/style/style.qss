@@ -813,6 +813,10 @@ QMenu {
     color: @ctext.active;
 }
 
+QMenu WidgetsTableViewBase {
+    background: @cbg.2;
+}
+
 QMenu::separator {
     height: 1px;
     background-color: @cbg.disabled;

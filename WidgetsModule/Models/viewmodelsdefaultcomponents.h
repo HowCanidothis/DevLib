@@ -361,6 +361,20 @@ public:
         });
     }
 
+    template<typename T>
+    typename std::enable_if<std::is_same<Name, T>::value, TViewModelsColumnComponentsBuilder&>::type AddColumn(qint32 column, const FTranslationHandler& header, const std::function<Name& (ValueType)>& getter) {
+        return AddColumn(column, header, [getter](ConstValueType constData)-> QVariant {
+            ValueType& data = const_cast<ValueType>(constData);
+            auto& v = getter(data);
+            return v.AsString();
+        }, [getter](const QVariant& v, ValueType data) {
+            return [&]{
+                auto& ref = getter(data);
+                ref = Name(v.toString());
+            };
+        });
+    }
+
 #define ViewModelsColumnComponentsBuilder_DECLARE_TYPE(name, type, property) \
     TViewModelsColumnComponentsBuilder& Add##name##ByRef(qint32 column, const FTranslationHandler& header, const std::function<property& (ValueType)>& getter) \
     { \

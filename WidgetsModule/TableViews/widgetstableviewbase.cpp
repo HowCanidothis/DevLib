@@ -331,7 +331,7 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
     const int gridSize = showGrid ? 1 : 0;
     const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, &option, this);
     const QColor gridColor = QColor::fromRgba(static_cast<QRgb>(gridHint));
-    const QPen gridPen = QPen(gridColor, 0, gridStyle());
+    const QPen gridPen = QPen(gridColor, 1, gridStyle());
     const QHeaderView *verticalHeader = this->verticalHeader();
     const QHeaderView *horizontalHeader = this->horizontalHeader();
     const bool alternate = this->alternatingRowColors();
