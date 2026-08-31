@@ -95,9 +95,10 @@ public:
     void RemoveComponent(qint32 column);
     void AddDragField(qint32 column);
     void AddFlagsOverrideComponent(const ColumnFlagsComponentData::FHandler& handler) { AddFlagsComponent(-2, handler); }
-    void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
-    void AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
+    qint32 AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData);
+    qint32 AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler);
     void AddFlagsComponent(const QVector<qint32>& columns, const ColumnFlagsComponentData::FHandler& handler);
+    bool SetFlagsComponent(qint32 column, qint32 index, const ColumnFlagsComponentData::FHandler& handler);
     void RemoveFlagsComponent(qint32 column);
 
     std::optional<bool> SetData(const QModelIndex& index, const QVariant& data, qint32 role);
