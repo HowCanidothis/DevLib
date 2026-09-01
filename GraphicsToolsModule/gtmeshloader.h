@@ -13,6 +13,7 @@ public:
         // Buffer reference
         GtMeshBufferPtr Buffer;
         QHash<Name, GtMeshBufferPtr> MaterialIndicesBuffer;
+        BoundingBox Box;
     };
 
     struct Material

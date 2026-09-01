@@ -173,6 +173,46 @@ void UnifyStructuredMaterialTracks(
     outVertexArray.resize(uniqueVertexCounter);
 }
 
+BoundingBox CalculateMeshBoundingBox(const QVector<Point3F>& vertices)
+{
+    // 1. Handle the edge case if the mesh has no vertices
+    if (vertices.isEmpty()) {
+        BoundingBox nullBox;
+        nullBox.SetNull();
+        return nullBox;
+    }
+
+    // 2. Initialize min/max values with the first vertex's values
+    // Using lowercase x(), y(), z() since these are const readers
+    float minX = vertices[0].x();
+    float maxX = minX;
+    float minY = vertices[0].y();
+    float maxY = minY;
+    float minZ = vertices[0].z();
+    float maxZ = minZ;
+
+    // 3. Find the absolute extremes across all vertices
+    for (int i = 1; i < vertices.size(); ++i) {
+        const auto& pt = vertices[i];
+        float x = pt.x();
+        float y = pt.y();
+        float z = pt.z();
+
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+
+        if (z < minZ) minZ = z;
+        if (z > maxZ) maxZ = z;
+    }
+
+    // 4. Construct the box using your specific min/max layout constructor
+    // Passing true as the last argument triggers: m_topLeftFront(minX, maxY, maxZ)
+    return BoundingBox(minX, minY, minZ, maxX, maxY, maxZ, true);
+}
+
 } // namespace
 
 
@@ -206,6 +246,8 @@ GtMeshLoader::Mesh GtMeshLoader::Parser::Parse(const QString& fileName)
             stream.readLine();
         }
     }
+
+    result.Box = CalculateMeshBoundingBox(m_vertices);
 
     // Intermediate tracking lane to hold optimized index arrays before allocating on GPU
     QHash<Name, QVector<qint32>> unifiedIndicesLanes;
