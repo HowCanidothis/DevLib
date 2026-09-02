@@ -20,6 +20,9 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <property name="sizeConstraint">
     <enum>QLayout::SetDefaultConstraint</enum>
    </property>
@@ -37,7 +40,7 @@
    </property>
    <item>
     <layout class="QGridLayout" name="Layout">
-     <property name="horizontalSpacing">
+     <property name="spacing">
       <number>0</number>
      </property>
     </layout>

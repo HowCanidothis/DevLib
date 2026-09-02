@@ -1253,6 +1253,7 @@ QComboBoxListView:disabled{
 
 QLabel[DialogTitle] {
     font-size: 24px;
+    max-height: 40px;
     color: @ctext.active;
 }
 

@@ -777,3 +777,9 @@ QPushButton#WarningButton {
     margin: 0px;
     padding: 0px;
 }
+
+QLabel#BtnChangeWellbore,
+QLabel#BtnChangeViewTemplateId {
+    padding-left: 4px;
+    padding-right: 8px;
+}
