@@ -871,7 +871,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
             .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
             .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
-            .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PascalsPerMeter.Id, 0, 1e3});
+            .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::KilopascalsPerMeter.Id, 2, 1e3});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{
         const auto& system = GetSystem(CurrentMeasurementSystem);
