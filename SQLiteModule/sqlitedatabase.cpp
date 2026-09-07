@@ -36,7 +36,6 @@ void SQLiteDatabase::Terminate()
     }, EPriority::Low);
     Await();
     *m_deleted = true;
-    Super::Terminate();
 }
 
 AsyncResult SQLiteDatabase::QueryWhereIdIn(const QString& operation, const QSet<Name>& ids, Op op)
