@@ -121,5 +121,7 @@
         <file>style/res/chevron-up-alt.svg</file>
         <file>aispaces/res/cloud-upload-filled.svg</file>
         <file>style/res/star-outline.svg</file>
+        <file>style/res/play.svg</file>
+        <file>style/res/stop.svg</file>
     </qresource>
 </RCC>

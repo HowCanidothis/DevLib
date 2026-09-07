@@ -637,6 +637,24 @@ QAbstractButton::menu-indicator {
     height: 0px;
 }
 
+QPushButton[a_play] {
+    qproperty-text: "";
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
+    padding: 6px;
+}
+
+QPushButton[a_play]:checked {
+    border-image: url("@cPath/stop.svg");
+}
+
+QPushButton[a_play]:!checked {
+    border-image: url("@cPath/play.svg");
+}
+
+
 QPushButton[a_control="1"]{  /* Icon */
     qproperty-text: "";
     min-width: 16px;

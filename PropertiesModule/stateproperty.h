@@ -103,6 +103,7 @@ public:
     void SetId(const QString& id)
     {
 #ifdef QT_DEBUG
+        Q_ASSERT(Id.isEmpty());
         Id = id;
 #endif
     }
@@ -681,6 +682,13 @@ private:
     DispatcherConnectionsSafe m_lockConnections;
 #endif
 };
+
+template<class T, class T2>
+inline T& add_id(T& v, const T2& id)
+{
+    v->SetId(id);
+    return v;
+}
 
 template<class T> using StateParametersContainerPtr = SharedPointer<StateParametersContainer<T>>;
 template<class T> using StateParametersContainerPtrInitialized = SharedPointerInitialized<StateParametersContainer<T>>;
