@@ -1303,3 +1303,47 @@ QToolButton#qt_toolbar_ext_button {
     margin: 0px;
 }
 
+QSlider::horizontal {
+    height: 20px;
+    background: transparent;
+}
+
+QSlider::vertical {
+    width: 20px;
+    background: transparent;
+}
+
+QSlider::groove:horizontal {
+    border: none;
+    height: 2px;                 /* Thin grey line */
+    background: @cbg.3;         /* Dark grey track background */
+    border-radius: 1px;
+}
+
+QSlider::groove:vertical {
+    border: none;
+    width: 2px;                 /* Thin grey line */
+    background: @cbg.3;         /* Dark grey track background */
+    border-radius: 1px;
+}
+
+QSlider::sub-page {
+    background: @ctext.1;         /* Darker teal for the filled track portion */
+    border-radius: 1px;
+}
+
+QSlider::handle {
+    background: @ctext.1;         /* Bright cyan/teal knob color */
+    border: none;
+    width: 10px;                 /* Diameter of the inner circle */
+    height: 10px;
+    border-radius: 5px;          /* Makes the handle a perfect circle (width / 2) */
+    
+    margin-top: -4px;            
+    margin-bottom: -4px;
+}
+
+QSlider::handle:hover {
+    background: @cbg.selected;         /* Slightly brighter cyan glow on hover */
+}
+
