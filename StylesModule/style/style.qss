@@ -764,6 +764,10 @@ QAbstractButton[a_control="13"]:hover {
     background: @cbg.hover;
 }
 
+QAbstractButton[a_control="13"]:checked {
+    color: @ctext.1;
+}
+
 QAbstractButton:disabled,[ForceDisabled=true] {
     color: @ctext.disabled;
     background: transparent;
