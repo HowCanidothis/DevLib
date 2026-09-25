@@ -12,6 +12,7 @@
 template<class T> class TResource;
 class GtTexture;
 class GtShadowMapTechnique;
+class GtFramebufferObject;
 class GtFrameTexture;
 
 typedef TResource<Vector2F> Vector2FResource;
@@ -21,6 +22,7 @@ using Matrix3Resource = TResource<Matrix3>;
 typedef TResource<GtTexture> GtTextureResource;
 typedef TResource<GtFrameTexture> GtFrameTextureResource;
 typedef TResource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
+typedef TResource<GtFramebufferObject> GtFramebufferObjectResource;
 using GtMaterialMeshResource = TResource<GtMeshLoader::Mesh>;
 
 #ifdef WORK

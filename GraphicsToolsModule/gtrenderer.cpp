@@ -76,6 +76,24 @@ void GtRenderer::construct()
     m_normalMatrix = m_resourceSystem->RegisterResourceAndGet<Matrix3>(GtNames::normalMatrix);
 }
 
+void GtRenderer::setUpCamera(const GtCamera* ccamera)
+{
+    auto* camera = const_cast<GtCamera*>(ccamera);
+    m_viewport = camera->GetViewportProjection();
+    m_rotation = camera->GetRotation();
+    m_projection = camera->GetProjection();
+    m_view = camera->GetView();
+    m_mvp = camera->GetWorld();
+    m_eye = camera->GetEye();
+    m_up = camera->GetUp();
+    m_forward = camera->GetForward();
+    m_invertedMv = camera->GetView().inverted().transposed();
+    m_side = camera->GetSideCalculated();
+    auto camSize = camera->GetViewport();
+    m_screenSize = Point2F(camSize.width(), camSize.height());
+    m_camera = camera;
+}
+
 void GtRenderer::enableDepthTest()
 {
     if(!m_renderProperties[RENDER_PROPERTY_FORCE_DISABLE_DEPTH_TEST].toBool() || m_renderProperties[RENDER_PROPERTY_DRAWING_DEPTH_STAGE].toBool()) {
@@ -124,6 +142,13 @@ void GtRenderer::LoadFont(const Name& fontName, const QString& fntFilePath, cons
     GtFontPtr font(new GtFont(fontName, fntFilePath));
     m_sharedData->Fonts.insert(fontName, font);
     CreateTexture(fontName, texturePath);
+}
+
+void GtRenderer::CreateFrameBuffer(const Name& frameBufferId, const std::function<GtFramebufferObject* (OpenGLFunctions*f)>& frameBufferBinder)
+{
+    m_resourceSystem->RegisterResource<GtFramebufferObject>(frameBufferId, [this, frameBufferBinder]{
+        return frameBufferBinder(this);
+    });
 }
 
 void GtRenderer::CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions*)>& textureLoader)
@@ -237,6 +262,11 @@ GtShaderProgramPtr GtRenderer::CreateShaderProgram(const Name& name)
     auto result = GtShaderProgramPtr(new GtShaderProgram(this));
     m_sharedData->ShaderPrograms.insert(name, result);
     return result;
+}
+
+GtFramebufferObjectResource GtRenderer::GetFrameBuffer(const Name& name) const
+{
+    return m_resourceSystem->GetResource<GtFramebufferObject>(name);
 }
 
 GtShaderProgramPtr GtRenderer::GetShaderProgram(const Name& name) const
@@ -430,26 +460,21 @@ void GtRenderer::onDraw()
         m_currentRenderController = controller.get();
         m_renderProperties[RENDER_PROPERTY_CAMERA_STATE_CHANGED] = cameraStateChanged;
 
-        controller->drawSpace(this);
-
-        glViewport(0,0, fbo->width(), fbo->height());
-
-        m_viewport = camera->GetViewportProjection();
-        m_rotation = camera->GetRotation();
-        m_projection = camera->GetProjection();
-        m_view = camera->GetView();
-        m_mvp = camera->GetWorld();
-        m_eye = camera->GetEye();
-        m_up = camera->GetUp();
-        m_forward = camera->GetForward();
-        m_invertedMv = camera->GetView().inverted().transposed();
-        m_screenSize = Vector2F(fbo->size().width(), fbo->size().height());
-        m_side = camera->GetSideCalculated();
-        m_camera = camera;
-        //m_normalMatrix = camera->GetWorld().normalMatrix();
-
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);
+
+            controller->m_renderPath->Prerender(m_scene.get());
+            if(controller->GetScene() != nullptr) {
+                controller->m_renderPath->Prerender(controller->GetScene().get());
+            }
+
+            controller->drawSpace(this);
+
+            glViewport(0,0, fbo->width(), fbo->height());
+
+            setUpCamera(controller->GetCamera());
+            m_screenSize = Vector2F(fbo->size().width(), fbo->size().height());
+
             fbo->bind();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

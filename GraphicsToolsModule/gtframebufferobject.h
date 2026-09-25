@@ -85,6 +85,8 @@ public:
     void Create(const GtFramebufferFormat& format);
     GtTexture* GetColorTexture(qint32 index) const { return m_colorAttachments.At(index); }
 
+    QImage ToImage(GLenum colorAttachment) const;
+
 private:
     StackPointers<GtTexture> m_colorAttachments;
 };
@@ -97,6 +99,8 @@ public:
 
     void Create(const GtFramebufferFormat& format);
     gRenderbufferID GetColorRenderbuffer(qint32 index) const { return m_colorAttachments.At(index); }
+
+    QImage ToImage(GLenum colorAttachment) const;
 
 private:
     Stack<gRenderbufferID> m_colorAttachments;

@@ -44,6 +44,12 @@ public:
     void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
     void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
     void CreateTexture(const Name& textureName, const QString& fileName);
+    void CreateFrameBuffer(const Name& frameBufferId, const std::function<GtFramebufferObject* (OpenGLFunctions*f)>& frameBufferBinder);
+    template<class T, typename ... Args>
+    void CreateResource(const Name& resourceId, const Args&... args)
+    {
+        m_resourceSystem->RegisterResource<T>(resourceId, args...);
+    }
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
     void RemoveController(const GtRendererControllerPtr& controller);
@@ -59,6 +65,7 @@ public:
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
     void RegisterMaterialMesh(const Name& name, const std::function<GtMeshLoader::Mesh ()>& resourceGetter);
     GtMaterialMeshResource GetMaterialMesh(const Name& name) const;
+    GtFramebufferObjectResource GetFrameBuffer(const Name& name) const;
     template<class T>
     TResource<T> GetResource(const Name& name)
     {
@@ -109,6 +116,7 @@ public:
     Dispatcher OnAboutToBeDestroyed;
 
 private:
+    void setUpCamera(const GtCamera* camera);
     void addDelayedDraw(const FAction& drawAction);
     void enableDepthTest();
     void disableDepthTest();

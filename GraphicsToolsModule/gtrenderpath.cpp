@@ -76,6 +76,11 @@ GtRenderPath::~GtRenderPath()
 
 }
 
+void GtRenderPath::setUpCamera(const GtCamera* camera)
+{
+    m_renderer->setUpCamera(camera);
+}
+
 void GtRenderPath::disableDepthTest()
 {
     m_renderer->disableDepthTest();
@@ -89,6 +94,16 @@ void GtRenderPath::enableDepthTest()
 void GtRenderPath::drawDrawable(GtDrawableBase* drawable)
 {
     drawable->draw(f);
+}
+
+void GtRenderPath::setRenderProperty(const Name& id, const QVariant& value)
+{
+    m_renderer->m_renderProperties[id] = value;
+}
+
+void GtRenderPath::removeRenderProperty(const Name& id)
+{
+    m_renderer->m_renderProperties.remove(id);
 }
 
 GtRenderPath::GtRenderPath(GtRenderer* f)

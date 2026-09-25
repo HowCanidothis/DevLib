@@ -62,11 +62,13 @@ protected:
     friend class GtRendererController;
     friend class GtRenderPath;
     virtual void drawDepth(OpenGLFunctions* f) { draw(f); }
+    virtual void preDraw(OpenGLFunctions*) {};
     virtual void draw(OpenGLFunctions* f) = 0;
     void initialize(class GtRenderer* renderer);
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
     virtual void onAboutToDestroy() = 0;
+    virtual bool isCustomRenderStageAccepted(const Name& renderStageId) const { return false; }
 
     void delayedDraw(const FAction& draw);
     void enableDepthTest();

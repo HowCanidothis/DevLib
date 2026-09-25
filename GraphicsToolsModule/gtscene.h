@@ -19,6 +19,8 @@ public:
     void AddDrawable(GtDrawableBase* drawable, qint32 queueNumber);
     void RemoveDrawable(GtDrawableBase* drawable);
 
+    void PreDrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage);
+    void DrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage);
     void DrawFilter(OpenGLFunctions* f, const std::function<bool (qint32)>& filter);
     void DrawAll(OpenGLFunctions* f);
     void Draw(qint32 queue, OpenGLFunctions* f);

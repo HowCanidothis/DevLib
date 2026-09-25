@@ -22,6 +22,28 @@ void GtScene::Clear()
     m_drawables.clear();
 }
 
+void GtScene::PreDrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage)
+{
+    for(const auto& set : m_drawables){
+        for(auto* drawable : set) {
+            if(drawable->isCustomRenderStageAccepted(customRenderStage)) {
+                drawable->preDraw(f);
+            }
+        }
+    }
+}
+
+void GtScene::DrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage)
+{
+    for(const auto& set : m_drawables){
+        for(auto* drawable : set) {
+            if(drawable->isCustomRenderStageAccepted(customRenderStage)) {
+                drawable->draw(f);
+            }
+        }
+    }
+}
+
 void GtScene::DrawFilter(OpenGLFunctions* f, const std::function<bool (qint32)>& filter)
 {
     auto it = m_drawables.cbegin();

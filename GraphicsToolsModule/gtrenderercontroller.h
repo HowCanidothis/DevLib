@@ -216,6 +216,7 @@ public:
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;
 
+    const GtRenderPathPtr& GetRenderPath() const { return m_renderPath; }
     AsyncResult MapToScreen(const Point3F& point, Point2I& result) const;
     const ControllersContainer* GetContainer() const { return m_controllers.get(); }
     GtRenderer* GetRenderer() const { return m_renderer; }
