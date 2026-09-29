@@ -1,5 +1,7 @@
 #include "gttexture2D.h"
 
+#include <QDir>
+#include <QFileInfoList>
 #include <QImage>
 #include <QOpenGLContext>
 #include "DDS/nv_dds.h"
@@ -170,5 +172,131 @@ void GtTexture2DMultisampled::Allocate()
     if(IsCreated() || Create()) {
         GtTextureBinder binder(this);
         f->glTexStorage2DMultisample(m_target, m_samples, m_internalFormat, m_size.width(), m_size.height(), GL_TRUE);
+    }
+}
+
+GtTexture3D::GtTexture3D(OpenGLFunctions* f, gTexTarget target)
+    : GtTexture(f, target)
+    , m_depth(0)
+{
+}
+
+void GtTexture3D::SetDepth(quint32 depth)
+{
+    if (m_depth != depth) {
+        m_depth = depth;
+        m_allocated = false;
+    }
+}
+
+void GtTexture3D::LoadImages(const QString& path)
+{
+    // 1. Scan the directory and filter for target image formations dynamically
+    QDir directory(path);
+    if (!directory.exists()) {
+        qCWarning(LC_SYSTEM) << "GtTexture3D: Specified formations folder path does not exist:" << path;
+        return;
+    }
+
+    QStringList nameFilters;
+    nameFilters << "*.png";
+
+    QFileInfoList fileList = directory.entryInfoList(
+        nameFilters,
+        QDir::Files,
+        QDir::Name  // Alphabetical sorting handles Basalt -> Coal -> Dolomite in order
+    );
+
+    if (fileList.isEmpty()) {
+        qCWarning(LC_SYSTEM) << "GtTexture3D: No .png files discovered within path folder:" << path;
+        return;
+    }
+
+    if (!IsCreated() && !Create()) {
+        qCWarning(LC_SYSTEM) << "GtTexture3D: Unable to create texture handle";
+        return;
+    }
+
+    // Inspect the first baseline slice to auto-extract dimensions uniformly
+    QString firstFilePath = fileList.first().absoluteFilePath();
+    QImage firstImg(firstFilePath);
+    if (firstImg.isNull()) {
+        qCWarning(LC_SYSTEM) << "GtTexture3D: Cannot read first layout file:" << firstFilePath;
+        return;
+    }
+
+    // Configure structural dimensions derived dynamically from data discovery
+    SetSize(firstImg.width(), firstImg.height());
+    SetDepth(fileList.size()); // Adjusts array count on the fly
+
+    // Allocate the mutable storage structure via your framework's abstract layer pipeline
+    // This calls your Allocate() method, using your configured instance m_format filters/wrapping safely
+    Allocate();
+
+    // Sequentially stream individual images straight into designated layers (Z depth offsets)
+    Bind();
+    f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    for (int i = 0; i < fileList.size(); ++i) {
+        QString currentFilePath = fileList.at(i).absoluteFilePath();
+        QImage img(currentFilePath);
+        if (img.isNull() || img.size() != firstImg.size()) {
+            qCWarning(LC_SYSTEM) << "GtTexture3D: Failed to stream sub-image layer at array index:" << i << "-" << currentFilePath;
+            continue;
+        }
+
+        QImage gl_img = img.convertToFormat(QImage::Format_RGBA8888);
+
+        f->glTexSubImage3D(
+            m_target,
+            0,                          // Mipmap level
+            0, 0, i,                    // xOffset, yOffset, zOffset (zOffset is our array slot layer!)
+            m_size.width(),             // Layer width
+            m_size.height(),            // Layer height
+            1,                          // Updating exactly 1 array slice depth width
+            m_format.PixelFormat,       // Uses the runtime parameter instance formats safely
+            m_format.PixelType,         // Uses the runtime parameter instance types safely
+            gl_img.constBits()
+        );
+    }
+
+    // Safely generate mipmaps down the line if requested by format presets
+    if (m_format.MipMapLevels != 0) {
+        f->glGenerateMipmap(m_target);
+    }
+
+    Release();
+}
+
+void GtTexture3D::Allocate()
+{
+    if (IsCreated() || Create()) {
+        GtTextureBinder binder(this);
+        if (!m_allocated) {
+            // Allocate blank device context container to span W x H x Layers
+            f->glTexImage3D(
+                m_target,
+                0,
+                m_internalFormat,
+                m_size.width(),
+                m_size.height(),
+                m_depth,
+                0,
+                m_format.PixelFormat,
+                m_format.PixelType,
+                nullptr // Kept nullptr: sub-allocated systematically in LoadImages pass
+            );
+
+            // Apply texture sampler constraints uniform with your framework filters
+            f->glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_format.MinFilter);
+            f->glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_format.MagFilter);
+            f->glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_format.WrapS);
+            f->glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_format.WrapT);
+
+            // Texture Arrays use an R coordinate component for layer wrapping rules
+            f->glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+            m_allocated = true;
+        }
     }
 }

@@ -41,8 +41,9 @@ public:
     void UpdateFrame();
     void CreateFontAlias(const Name& aliasName, const Name& sourceName);
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
+    void CreateTexture3D(const Name& textureName, const struct GtTextureFormat& format, const QString& path);
     void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
-    void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
+    void CreateTexture(const Name& textureName, const QString& fileName, const GtTextureFormat& format);
     void CreateTexture(const Name& textureName, const QString& fileName);
     void CreateFrameBuffer(const Name& frameBufferId, const std::function<GtFramebufferObject* (OpenGLFunctions*f)>& frameBufferBinder);
     template<class T, typename ... Args>

@@ -27,7 +27,7 @@ public:
         , m_target(target)
         , m_allocated(false)
     {}
-    ~GtTexture();
+    virtual ~GtTexture();
 
     void SetData(const void* pixels);
     void SetFormat(const GtTextureFormat& format);
@@ -71,6 +71,26 @@ public:
     void Allocate() Q_DECL_OVERRIDE;
 
 private:
+};
+
+class GtTexture3D : public GtTexture
+{
+public:
+    // Supports both GL_TEXTURE_2D_ARRAY and GL_TEXTURE_3D target formats safely
+    GtTexture3D(OpenGLFunctions* f, gTexTarget target = GL_TEXTURE_2D_ARRAY);
+    ~GtTexture3D() override = default;
+
+    // Direct sequential loader for the 10 geological formation images
+    void LoadImages(const QString& path);
+
+    // Override mandated abstract framework baseline allocator
+    void Allocate() Q_DECL_OVERRIDE;
+
+    void SetDepth(quint32 depth);
+    quint32 GetDepth() const { return m_depth; }
+
+private:
+    quint32 m_depth;
 };
 
 class GtTexture2DMultisampled : public GtTexture

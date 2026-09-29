@@ -168,6 +168,19 @@ void GtRenderer::CreateTexture(const Name& textureName, const QString& fileName,
     });
 }
 
+void GtRenderer::CreateTexture3D(const Name& textureName, const GtTextureFormat& format, const QString& path)
+{
+    CreateTexture(textureName, [path, format](OpenGLFunctions* f) {
+        auto* result = new GtTexture3D(f, GL_TEXTURE_2D_ARRAY);
+
+        result->SetFormat(format);
+        result->SetInternalFormat(GL_RGBA8);
+
+        result->LoadImages(path);
+        return result;
+    });
+}
+
 void GtRenderer::CreateTexture(const Name& textureName, const QString& fileName)
 {
     GtTextureFormat format;

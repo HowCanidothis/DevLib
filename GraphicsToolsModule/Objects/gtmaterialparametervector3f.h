@@ -28,4 +28,16 @@ private:
     virtual FDelegate apply() override;
 };
 
+class GtMaterialParameterVector2FArray : public GtMaterialResourceParameterBase
+{
+    using Super = GtMaterialResourceParameterBase;
+    GtVector2FArrayResource m_gpuData;
+    int m_totalCount = 0;
+public:
+    GtMaterialParameterVector2FArray(const QString& name, const Name& resource);
+
+private:
+    FDelegate apply() override;
+};
+
 #endif // GTMATERIALPARAMETERVECTOR3F_H

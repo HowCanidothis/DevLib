@@ -16,6 +16,7 @@ class GtFramebufferObject;
 class GtFrameTexture;
 
 typedef TResource<Vector2F> Vector2FResource;
+typedef TResource<QVector<Vector2F>> GtVector2FArrayResource;
 typedef TResource<Vector3F> Vector3FResource;
 typedef TResource<Matrix4> Matrix4Resource;
 using Matrix3Resource = TResource<Matrix3>;
@@ -55,6 +56,7 @@ public:
         })
         , m_name(name)
     {}
+    GtMaterialParameterBase(const QString& name, const QVector<Vector2F>* array);
     virtual ~GtMaterialParameterBase();
 
     void SetRequired(bool required);
