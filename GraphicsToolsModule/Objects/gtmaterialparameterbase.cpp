@@ -19,11 +19,9 @@ GtMaterialParameterBase::GtMaterialParameterBase(const QString& name, const QVec
         const void* rawDataPtr = array->constData();
         int elementCount = qMin(array->size(), 32);
 
-        if (elementCount == 0 || rawDataPtr == nullptr) {
-            return;
+        if (elementCount != 0 && rawDataPtr != nullptr) {
+            f->glUniform2fv(loc, elementCount, reinterpret_cast<const GLfloat*>(rawDataPtr));
         }
-
-        f->glUniform2fv(loc, elementCount, reinterpret_cast<const GLfloat*>(rawDataPtr));
 
         gLocID countLoc = program->uniformLocation(m_name + "_COUNT");
         if (countLoc != -1) {
