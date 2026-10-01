@@ -40,6 +40,7 @@ public:
     const GtFontPtr& GetFont(const Name& id) const { return m_renderer->GetFont(id); }
     GtShaderProgramPtr GetShaderProgram(const Name& id) const { return m_renderer->GetShaderProgram(id); }
     GtMaterialMeshResource GetMaterialMesh(const Name& id) const { return m_renderer->GetMaterialMesh(id); }
+    GtScene* GetScene() const { return m_scene.get(); }
 
     template<class T, typename ... Args>
     T* CreateDrawableQueued(qint32 queueNumber, Args... args) const

@@ -2,12 +2,14 @@
 #include "Objects/gtobjectbase.h"
 
 GtScene::GtScene()
+    : m_destroyed(::make_shared<std::atomic_bool>(false))
 {
     m_initialized = false;
 }
 
 GtScene::~GtScene()
 {
+    *m_destroyed = true;
     Clear();
 }
 
@@ -15,7 +17,6 @@ void GtScene::Clear()
 {
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
-            drawable->AboutToDestroy();
             drawable->Destroy();
         }
     }
@@ -41,6 +42,15 @@ void GtScene::DrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& custom
                 drawable->draw(f);
             }
         }
+    }
+}
+
+void GtScene::RemoveDrawable(qint32 queue, GtDrawableBase* drawable)
+{
+    auto foundIt = m_drawables.find(queue);
+    if(foundIt != m_drawables.end()) {
+        foundIt.value().remove(drawable);
+        drawable->Destroy();
     }
 }
 
@@ -82,6 +92,17 @@ void GtScene::DrawDepth(OpenGLFunctions* f)
         for(auto* drawable : set) {
             drawable->drawDepth(f);
         }
+    }
+}
+
+void GtScene::Clear(qint32 queue)
+{
+    auto foundIt = m_drawables.find(queue);
+    if(foundIt != m_drawables.end()) {
+        for(auto* drawable : ::make_const(foundIt.value())) {
+            drawable->Destroy();
+        }
+        m_drawables.erase(foundIt);
     }
 }
 

@@ -231,11 +231,6 @@ void GtRenderer::RemoveController(const GtRendererControllerPtr& controller)
 {
     if(IsRunning()) {
         Asynch([this, controller]{
-            for(const auto& queue : controller->m_drawables) {
-                for(auto* drawable : queue) {
-                    drawable->Destroy();
-                }
-            }
             controller->onDestroy();
             m_controllers.remove(controller.get());
             ThreadsBase::FreeAtMainThread(controller);
@@ -476,9 +471,10 @@ void GtRenderer::onDraw()
         { // TODO. Fixing binding issues with shared resources
             QMutexLocker locker(&m_sharedData->Mutex);
 
-            controller->m_renderPath->Prerender(m_scene.get());
             if(controller->GetScene() != nullptr) {
                 controller->m_renderPath->Prerender(controller->GetScene().get());
+            } else {
+                controller->m_renderPath->Prerender(m_scene.get());
             }
 
             controller->drawSpace(this);
@@ -497,9 +493,11 @@ void GtRenderer::onDraw()
             } else {
                 glEnable(GL_DEPTH_TEST);
             }
-            controller->m_renderPath->Render(m_scene.get(), fbo->handle());
+
             if(controller->GetScene() != nullptr) {
                 controller->m_renderPath->Render(controller->GetScene().get(), fbo->handle());
+            } else {
+                controller->m_renderPath->Render(m_scene.get(), fbo->handle());
             }
             //m_scene->DrawAll(this);
             controller->draw(this);

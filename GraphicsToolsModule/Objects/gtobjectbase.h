@@ -19,7 +19,6 @@ class GtDrawableBase : public GtObjectBase ATTACH_MEMORY_SPY_2(GtDrawableBase)
 {
 public:
     GtDrawableBase(const class GtViewContext& viewContext);
-    GtDrawableBase(class GtRenderer* renderer);
     ~GtDrawableBase();
 
     DispatcherConnectionsSafe Connections;
@@ -85,6 +84,7 @@ protected:
 
 protected:
     GtRenderer* m_renderer;
+    GtScene* m_scene;
     SharedPointer<std::atomic_bool> m_destroyed;
     bool m_rendererDrawable;
     ThreadHandler m_threadHandler;

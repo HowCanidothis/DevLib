@@ -18,6 +18,7 @@ public:
 
     void AddDrawable(GtDrawableBase* drawable, qint32 queueNumber);
     void RemoveDrawable(GtDrawableBase* drawable);
+    void RemoveDrawable(qint32 queue, GtDrawableBase* drawable);
 
     void PreDrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage);
     void DrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& customRenderStage);
@@ -27,10 +28,14 @@ public:
     void DrawDepth(OpenGLFunctions* f);
 
     void Clear();
+    void Clear(qint32 queue);
+
+    const SP<std::atomic_bool>& GetDestroyed() const { return m_destroyed; }
 
 private:
     FInitializationFunction m_initFunction;
     bool m_initialized;
+    SP<std::atomic_bool> m_destroyed;
 };
 
 #endif // GTSCENE_H

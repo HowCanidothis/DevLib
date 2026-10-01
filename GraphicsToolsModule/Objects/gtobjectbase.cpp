@@ -4,13 +4,8 @@
 #include "GraphicsToolsModule/gtviewcontext.h"
 
 GtDrawableBase::GtDrawableBase(const GtViewContext& viewContext)
-    : GtDrawableBase(viewContext.GetRenderer())
-{
-
-}
-
-GtDrawableBase::GtDrawableBase(GtRenderer* renderer)
-    : m_renderer(renderer)
+    : m_renderer(viewContext.GetRenderer())
+    , m_scene(viewContext.GetScene())
     , m_destroyed(::make_shared<std::atomic_bool>(false))
     , m_rendererDrawable(false)
 {
@@ -72,21 +67,26 @@ void GtDrawableBase::disableDepthTest()
 
 AsyncResult GtDrawableBase::Destroy()
 {
+    if(*m_destroyed) {
+        return AsyncError();
+    }
     if(m_renderer->IsDisabled()) {
         delete this;
         return AsyncError();
     }
-    auto result = Update([this](OpenGLFunctions* f){
+    Update([this](OpenGLFunctions* f){
         onDestroy(f);
     });
     *m_destroyed = true;
-    if(!m_rendererDrawable) {
-        m_renderer->RemoveDrawable(this);
-    } else {
-        m_renderer->Asynch([this]{
+    auto sceneDestroyed = m_scene->GetDestroyed();
+    auto* scene = m_scene;
+    auto result = m_renderer->Asynch([this, scene, sceneDestroyed]{
+        if(*sceneDestroyed) {
             delete this;
-        });
-    }
+            return;
+        }
+        scene->RemoveDrawable(this);
+    });
     return result;
 }
 

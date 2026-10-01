@@ -47,6 +47,7 @@ struct GtDrawableDeleter
 
 inline GtDrawableBasePtr make_shared(GtDrawableBase* drawable)
 {
+    Q_ASSERT(drawable != nullptr);
     return GtDrawableBasePtr(drawable, GtDrawableDeleter());
 }
 
