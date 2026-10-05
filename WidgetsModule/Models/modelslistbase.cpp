@@ -20,9 +20,10 @@ int ViewModelsStandardListModel::columnCount(const QModelIndex& index) const
 
 void ModelsStandardListModel::fillContainerWithEnum(container_type& container, const QStringList& names, qint32 startsWith, qint32 endsWith)
 {
-    for(qint32 i(startsWith), e(endsWith); i <= e; i++) {
+    auto cindex = 0;
+    for(qint32 i(startsWith), e(endsWith); i <= e; i++, cindex++) {
         ModelsStandardListModel::value_type data;
-        const auto& label = names.at(i);
+        const auto& label = names.at(cindex);
         data.insert(Qt::DisplayRole, label);
         data.insert(Qt::EditRole, label);
         data.insert(Qt::ToolTipRole, label);

@@ -513,12 +513,39 @@ void Delegates::AdjustDialogEditorToCell(QWidget* editor, const QStyleOptionView
     auto sh = editor->sizeHint();
     auto editorHeight = sh.height();
     auto editorWidth = sh.width();
-    if((editorHeight + mappedPos.y() + 100) > screenSize.height()) {
+
+    bool fitsBelow = (editorHeight + mappedPos.y() + 100) <= (screenSize.y() + screenSize.height());
+    bool fitsAbove = (mappedPos.y() - editorHeight - option.rect.height()) >= screenSize.y();
+
+    if (fitsBelow) {
+        // Keep original placement below the cell
+    }
+    else if (fitsAbove) {
+        // Flip to the top of the cell
         mappedPos -= QPoint(0, editorHeight + option.rect.height());
     }
-    if((editorWidth + mappedPos.x()) > screenSize.width()) {
+    else {
+        // Case: Fits neither up nor down -> Center completely on the screen
+        int targetX = screenSize.x() + (screenSize.width() - editorWidth) / 2;
+        int targetY = screenSize.y() + (screenSize.height() - editorHeight) / 2;
+
+        // Final sanity check to make sure it doesn't bleed out of top-left boundary
+        if (targetX < screenSize.x()) targetX = screenSize.x();
+        if (targetY < screenSize.y()) targetY = screenSize.y();
+
+        editor->move(targetX, targetY);
+        return; // Exit early since it's already perfectly positioned
+    }
+
+    // Standard horizontal positioning if placed near the cell
+    if((editorWidth + mappedPos.x()) > (screenSize.x() + screenSize.width())) {
         mappedPos -= QPoint(editorWidth - option.rect.width(), 0);
     }
+
+    // Safety checks to prevent bleeding out of top-left bounds
+    if (mappedPos.x() < screenSize.x()) mappedPos.setX(screenSize.x());
+    if (mappedPos.y() < screenSize.y()) mappedPos.setY(screenSize.y());
+
     editor->move(mappedPos);
 }
 
