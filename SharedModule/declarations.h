@@ -262,6 +262,74 @@ inline QString dToStr(double value, qint32 precision = 2)
 
 namespace adapters {
 
+template<class T, class Container, class FTargetGetter, typename FInterpolatedValueGetter>
+inline std::optional<T> interpolated(
+    double targetValue,
+    const Container& c,
+    const FTargetGetter& targetGetter,
+    const FInterpolatedValueGetter& interpolator,
+    double eps = std::numeric_limits<double>::epsilon())
+{
+    // Return early if the container doesn't contain elements to interpolate between
+    if (c.empty()) {
+        return std::nullopt;
+    }
+
+    // Fixed lessThan logic to correctly utilize fuzzy compare parameters
+    static const auto lessThan = [](double v1, double v2, double epsilon) {
+        if (fuzzyCompare(v1, v2, epsilon)) {
+            return false; // If they match within epsilon, v1 is NOT strictly less than v2
+        }
+        return v1 < v2;
+    };
+
+    auto fv = std::invoke(targetGetter, c.first());
+
+    // Edge Case 1: Value is less than, or effectively equal to, the first element bounds
+    if (fuzzyCompare(targetValue, fv, eps)) {
+        return std::invoke(interpolator, c.first(), c.first(), 0.0);
+    }
+    if(targetValue < fv) {
+        return std::nullopt;
+    }
+
+    auto lv = std::invoke(targetGetter, c.last());
+
+    // Edge Case 2: Value is greater than, or effectively equal to, the last element bounds
+    if (fuzzyCompare(targetValue, lv, eps)) {
+        return std::invoke(interpolator, c.last(), c.last(), 0.0);
+    }
+    if(targetValue > lv) {
+        return std::nullopt;
+    }
+
+    // Binary search to find the first element where the search condition fails
+    // (i.e., finding where element >= target value)
+    auto it = std::lower_bound(c.begin(), c.end(), targetValue,
+        [&](const typename Container::value_type& element, const auto& v) {
+            return lessThan(std::invoke(targetGetter, element), v, eps);
+        });
+
+    // Guard constraints to ensure iterators are valid for linear mix sampling
+    if (it == c.begin() || it == c.end()) {
+        return std::nullopt;
+    }
+
+    const auto& nextNode = *it;
+    const auto& prevNode = *(it - 1);
+
+    auto prev = std::invoke(targetGetter, prevNode);
+    auto next = std::invoke(targetGetter, nextNode);
+
+    // Safety guard to prevent division by zero on identical keys
+    double delta = next - prev;
+    if (std::abs(delta) < eps) {
+        return std::invoke(interpolator, prevNode, prevNode, 0.0);
+    }
+
+    return std::invoke(interpolator, prevNode, nextNode, (targetValue - prev) / delta);
+}
+
 template<class Container, class FTargetGetter, typename FInterpolatedValueGetter>
 inline std::optional<double> interpolated(
     double targetValue,
