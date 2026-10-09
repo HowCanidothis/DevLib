@@ -6,6 +6,7 @@
 #include "gttexture2D.h"
 #include "gtrenderer.h"
 #include "gtrenderercontroller.h"
+#include "gtviewcontext.h"
 
 void GtTextMap::LoadFromFnt(const QString& fntFile)
 {
@@ -76,15 +77,13 @@ QFontMetrics GtTextMap::FontMetrics() const
     return QFontMetrics(font);
 }
 
-GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
+GtTextDrawable::GtTextDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
     : Super(renderer)
     , m_material(GL_POINTS, shaderProgram)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Custom, QOpenGLBuffer::StaticDraw))
     , m_font(font)
 {
     m_material.AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material.AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));
-    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", GtNames::screenSize), false);
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("ENABLE_DIR_CORRECTION", &Settings.UseDirectionCorrection.Native()), false);
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
@@ -105,14 +104,14 @@ GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& s
     MoveToThread(Settings.Visible, Transform, Settings.BorderWidth, Settings.Contrast, Settings.Scale, Settings.Color, Settings.BorderColor);
 }
 
-GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font)
-    : GtTextDrawable(renderer, renderer->GetShaderProgram("DefaultTextShaderProgram"), font)
+GtTextDrawable::GtTextDrawable(const GtViewContext& renderer, const GtFontPtr& font)
+    : GtTextDrawable(renderer, renderer.GetShaderProgram("DefaultTextShaderProgram"), font)
 {
 
 }
 
-GtTextDrawable::GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font, Initializer)
-    : GtTextDrawable(renderer, renderer->GetShaderProgram("DefaultText3DShaderProgram"), font)
+GtTextDrawable::GtTextDrawable(const GtViewContext& renderer, const GtFontPtr& font, Initializer)
+    : GtTextDrawable(renderer, renderer.GetShaderProgram("DefaultText3DShaderProgram"), font)
 {
 
 }
@@ -147,7 +146,6 @@ void GtTextDrawable::DisplayText(const QVector<GtTextDrawable::TextInfo>& texts)
             }
         }
         m_buffer->UpdateVertexArray(mesh, m_builder);
-        m_buffer->UpdateVao(f);
     });
 }
 
@@ -161,7 +159,7 @@ void GtTextDrawable::draw(OpenGLFunctions* f)
     scale *= getRendererController()->GetScaleFactor();
     m_material.Draw(f);
     scale = prevScale;
-    f->glPointSize(10.f); // TODO. ?
+//    f->glPointSize(10.f); // TODO. ?
 }
 
 void GtTextDrawable::drawDepth(OpenGLFunctions* )
@@ -187,14 +185,13 @@ GtFont::GtFont(const Name& fontName, const QString& fntPath)
     m_map.LoadFromFnt(fntPath);
 }
 
-GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
+GtTextScreenDrawable::GtTextScreenDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font)
     : Super(renderer)
     , m_material(GL_POINTS, shaderProgram)
     , m_buffer(::make_shared<GtMeshBuffer>(GtMeshBuffer::VertexType_Custom, QOpenGLBuffer::StaticDraw))
     , m_font(font)
 {
     m_material.AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material.AddParameter(::make_shared<GtMaterialParameterVector2F>("SCREEN_SIZE", GtNames::screenSize));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("BORDER_WIDTH", &Settings.BorderWidth.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("CONTRAST", &Settings.Contrast.Native()));
     m_material.AddParameter(::make_shared<GtMaterialParameterBase>("TEXT_SCALE", &Settings.Scale.Native()));
@@ -212,8 +209,8 @@ GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtShaderP
     MoveToThread(Settings.Visible, Settings.BorderWidth, Settings.Contrast, Settings.Scale, Settings.Color, Settings.BorderColor);
 }
 
-GtTextScreenDrawable::GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font)
-    : GtTextScreenDrawable(renderer, renderer->GetShaderProgram("DefaultScreenTextShaderProgram"), font)
+GtTextScreenDrawable::GtTextScreenDrawable(const GtViewContext& renderer, const GtFontPtr& font)
+    : GtTextScreenDrawable(renderer, renderer.GetShaderProgram("DefaultScreenTextShaderProgram"), font)
 {
 
 }
@@ -249,7 +246,6 @@ void GtTextScreenDrawable::DisplayText(const QVector<TextInfo>& texts)
             }
         }
         m_buffer->UpdateVertexArray(mesh, m_builder);
-        m_buffer->UpdateVao(f);
     });
 }
 
@@ -263,7 +259,7 @@ void GtTextScreenDrawable::draw(OpenGLFunctions* f)
     scale *= getRendererController()->GetScaleFactor();
     m_material.Draw(f);
     scale = prevScale;
-    f->glPointSize(10.f);
+//    f->glPointSize(10.f);
 }
 
 void GtTextScreenDrawable::drawDepth(OpenGLFunctions* )

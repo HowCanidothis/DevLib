@@ -41,12 +41,12 @@ void GtRendererBase::run()
     }
 
     if(!m_context->isValid()) {
-        qCCritical(LC_CONSOLE) << "Unable to initialize opengl context";
+        qCCritical(LC_CONSOLE).noquote() << "Unable to initialize opengl context";
         return;
     }
 
     if(!m_surface->isValid()) {
-        qCCritical(LC_CONSOLE) << "Unable to create offscreen surface";
+        qCCritical(LC_CONSOLE).noquote() << "Unable to create offscreen surface";
         return;
     }
 

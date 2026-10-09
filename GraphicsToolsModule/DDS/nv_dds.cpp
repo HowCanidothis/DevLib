@@ -792,9 +792,6 @@ void DDSImage::Clear() {
     m_images.clear();
 }
 
-#ifndef NV_DDS_NO_GL_SUPPORT
-#if !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0)
-///////////////////////////////////////////////////////////////////////////////
 // uploads a compressed/uncompressed 1D texture
 void DDSImage::UploadTexture1D() {
     assert(m_valid);
@@ -805,13 +802,17 @@ void DDSImage::UploadTexture1D() {
     assert(baseImage.GetHeight() == 1);
     assert(baseImage.GetWidth() > 0);
 
-    if (IsCompressed()) {
-        f->glCompressedTexImage1D(GL_TEXTURE_1D, 0, m_format, baseImage.GetWidth(), 0, baseImage.GetSize(), baseImage);
+    // Force 2D texture target since 1D is not available in QOpenGLExtraFunctions
+    const GLenum target = GL_TEXTURE_2D;
 
-        // load all mipmaps
+    if (IsCompressed()) {
+        // Emulate 1D by passing an explicit Height of 1 into the 2D pipeline
+        f->glCompressedTexImage2D(target, 0, m_format, baseImage.GetWidth(), 1, 0, baseImage.GetSize(), baseImage);
+
+        // Load all mipmaps
         for (unsigned int i = 0; i < baseImage.GetNumMipmaps(); i++) {
             const DDSSurface &mipmap = baseImage.GetMipmap(i);
-            f->glCompressedTexImage1D(GL_TEXTURE_1D, i + 1, m_format, mipmap.GetWidth(), 0, mipmap.GetSize(), mipmap);
+            f->glCompressedTexImage2D(target, i + 1, m_format, mipmap.GetWidth(), 1, 0, mipmap.GetSize(), mipmap);
         }
     } else {
         GLint alignment = -1;
@@ -820,20 +821,19 @@ void DDSImage::UploadTexture1D() {
             f->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         }
 
-        f->glTexImage1D(GL_TEXTURE_1D, 0, m_components, baseImage.GetWidth(), 0, m_format, GL_UNSIGNED_BYTE, baseImage);
+        // Emulate 1D by passing an explicit Height of 1 into the 2D pipeline
+        f->glTexImage2D(target, 0, m_components, baseImage.GetWidth(), 1, 0, m_format, GL_UNSIGNED_BYTE, baseImage);
 
-        // load all mipmaps
+        // Load all mipmaps
         for (unsigned int i = 0; i < baseImage.GetNumMipmaps(); i++) {
             const DDSSurface &mipmap = baseImage.GetMipmap(i);
-
-            f->glTexImage1D(GL_TEXTURE_1D, i + 1, m_components, mipmap.GetWidth(), 0, m_format, GL_UNSIGNED_BYTE, mipmap);
+            f->glTexImage2D(target, i + 1, m_components, mipmap.GetWidth(), 1, 0, m_format, GL_UNSIGNED_BYTE, mipmap);
         }
 
         if (alignment != -1)
             f->glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     }
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // uploads a compressed/uncompressed 2D texture
@@ -890,8 +890,7 @@ void DDSImage::UploadTexture2D(uint32_t imageIndex, uint32_t target) {
     }
 }
 
-#ifndef GL_ES_VERSION_2_0
-///////////////////////////////////////////////////////////////////////////////
+
 // uploads a compressed/uncompressed 3D texture
 void DDSImage::UploadTexture3D() {
     assert(m_valid);
@@ -935,9 +934,7 @@ void DDSImage::UploadTexture3D() {
             f->glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     }
 }
-#endif
 
-///////////////////////////////////////////////////////////////////////////////
 // uploads a compressed/uncompressed cubemap texture
 void DDSImage::UploadTextureCubemap() {
     assert(m_valid);
@@ -954,7 +951,6 @@ void DDSImage::UploadTextureCubemap() {
         UploadTexture2D(n, target);
     }
 }
-#endif
 
 bool DDSImage::IsCompressed() {
 	return (m_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)

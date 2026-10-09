@@ -15,6 +15,7 @@
 #include "decl.h"
 #include "gtrenderer.h"
 #include "gtrenderpath.h"
+#include "gtscene.h"
 
 GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera* camera)
     : m_camera(camera)
@@ -32,7 +33,10 @@ GtCameraAnimationEngine::GtCameraAnimationEngine(GtRenderer* renderer, GtCamera*
 
 void GtCameraAnimationEngine::MoveDelta(float deltaX, float deltaY, float deltaZ)
 {
-    m_animation = new QParallelAnimationGroup();
+    {
+        QMutexLocker locker(&m_mutex);
+        m_animation = new QParallelAnimationGroup();
+    }
     Point3F newEye = m_camera->GetEye() + Vector3F(deltaX, deltaY, deltaZ);
     auto eyeAnimation = new QVariantAnimation(m_animation.get());
     eyeAnimation->setStartValue(m_camera->GetEye());
@@ -111,7 +115,10 @@ void GtCameraAnimationEngine::Move(const Point3F& center, float distance)
 
 void GtCameraAnimationEngine::Move(const Point3F& newEye)
 {
-    m_animation = new QParallelAnimationGroup();
+    {
+        QMutexLocker locker(&m_mutex);
+        m_animation = new QParallelAnimationGroup();
+    }
     auto eyeAnimation = new QVariantAnimation(m_animation.get());
     eyeAnimation->setStartValue(m_camera->GetEye());
     eyeAnimation->setEasingCurve(m_movementCurve);
@@ -135,7 +142,6 @@ bool GtCameraAnimationEngine::IsRunning() const
     if(m_animation == nullptr) {
         return false;
     }
-
     return m_animation->state() == QAbstractAnimation::Running;
 }
 
@@ -144,6 +150,7 @@ GtRendererController::GtRendererController(GtRenderer* renderer, ControllersCont
     , Enabled(true)
     , m_renderer(renderer)
     , m_camera(new GtCamera())
+    , m_controllerScene(new GtScene())
     , m_controllersContext(context)
     , m_controllers(controllersContainer)
     , m_renderTime(0)    
@@ -196,24 +203,14 @@ GtRendererController::~GtRendererController()
 void GtRendererController::RemoveDrawable(qint32 queueNumber, GtDrawableBase* drawable)
 {
     m_renderer->Asynch([this, queueNumber, drawable]{
-        auto foundIt = m_drawables.find(queueNumber);
-        if(foundIt != m_drawables.end()) {
-            foundIt.value().removeOne(drawable);
-            drawable->Destroy();
-        }
+        m_controllerScene->RemoveDrawable(queueNumber, drawable);
     });
 }
 
 void GtRendererController::ClearQueue(qint32 queueNumber)
 {
     m_renderer->Asynch([this, queueNumber]{
-        auto foundIt = m_drawables.find(queueNumber);
-        if(foundIt != m_drawables.end()) {
-            for(auto* drawable : ::make_const(foundIt.value())) {
-                drawable->Destroy();
-            }
-            m_drawables.erase(foundIt);
-        }
+        m_controllerScene->Clear(queueNumber);
     });
 }
 
@@ -355,6 +352,11 @@ QImage GtRendererController::GetCurrentImage() const
     return QImage();
 }
 
+void GtRendererController::SetScene(const SP<GtScene>& scene)
+{
+    m_scene = scene;
+}
+
 void GtRendererController::setCurrentImage(QImage* image, double renderTime)
 {
     QMutexLocker locker(&m_outputImageMutex);
@@ -365,16 +367,12 @@ void GtRendererController::setCurrentImage(QImage* image, double renderTime)
 
 void GtRendererController::draw(OpenGLFunctions* f)
 {
-    m_renderPath->Render(m_drawables);
+    m_controllerScene->DrawAll(f);
 }
 
 void GtRendererController::drawDepth(OpenGLFunctions* f)
 {
-    for(const auto& queue : m_drawables) {
-        for(auto* drawable : queue) {
-            drawable->drawDepth(f);
-        }
-    }
+    m_controllerScene->DrawDepth(f);
 }
 
 void GtRendererController::SetRenderPath(const GtRenderPathPtr& renderPath)
@@ -390,6 +388,10 @@ void GtRendererController::onInitialize()
 
 void GtRendererController::onDestroy()
 {
+    if(m_scene != nullptr) {
+        m_scene->Clear();
+    }
+    m_controllerScene->Clear();
     m_connections.clear();
     m_renderPath = nullptr;
     m_depthFbo = nullptr;

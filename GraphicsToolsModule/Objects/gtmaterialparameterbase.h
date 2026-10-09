@@ -7,18 +7,24 @@
 #include <SharedModule/internal.hpp>
 
 #include "gtobjectbase.h"
+#include "GraphicsToolsModule/gtmeshloader.h"
 
 template<class T> class TResource;
 class GtTexture;
 class GtShadowMapTechnique;
+class GtFramebufferObject;
 class GtFrameTexture;
 
 typedef TResource<Vector2F> Vector2FResource;
+typedef TResource<QVector<Vector2F>> GtVector2FArrayResource;
 typedef TResource<Vector3F> Vector3FResource;
 typedef TResource<Matrix4> Matrix4Resource;
+using Matrix3Resource = TResource<Matrix3>;
 typedef TResource<GtTexture> GtTextureResource;
 typedef TResource<GtFrameTexture> GtFrameTextureResource;
 typedef TResource<GtShadowMapTechnique> GtShadowMapTechniqueResource;
+typedef TResource<GtFramebufferObject> GtFramebufferObjectResource;
+using GtMaterialMeshResource = TResource<GtMeshLoader::Mesh>;
 
 #ifdef WORK
 #include <functional>
@@ -50,9 +56,11 @@ public:
         })
         , m_name(name)
     {}
+    GtMaterialParameterBase(const QString& name, const QVector<Vector2F>* array);
     virtual ~GtMaterialParameterBase();
 
     void SetRequired(bool required);
+    const QString& GetName() const { return m_name; }
 
 protected:
     friend class GtMaterial;
@@ -62,7 +70,7 @@ protected:
     void installDelegate();
     virtual FDelegate apply();
     virtual void updateTextureUnit(gTexUnit&) {}
-    void updateLocation(const QOpenGLShaderProgram* program);
+    void updateLocation(const QOpenGLShaderProgram* program, const GtShaderProgram* gtProgram);
 
 protected:
     FDelegate m_delegate;

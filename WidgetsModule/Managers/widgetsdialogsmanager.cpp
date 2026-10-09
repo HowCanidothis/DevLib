@@ -113,7 +113,7 @@ std::optional<QString> WidgetsDialogsManager::GetText(const FTranslationHandler&
     auto* dialogView = new WidgetsInputDialogView();
     dialogView->AddLineText(QString(), &v, keys, encrypted);
 
-    auto res = ShowTempDialog(DescCustomDialogParams().SetTitle(TR(tr("Input Text:"))).SetView(dialogView).SetTitle(title)
+    auto res = ShowTempDialog(DescCustomDialogParams().SetView(dialogView).SetTitle(title)
         .AddButtons(WidgetsDialogsManagerDefaultButtons::CancelButton(),
                     WidgetsDialogsManagerDefaultButtons::ConfirmButton())
         .SetOnDone([&](qint32 v) {

@@ -8,7 +8,7 @@ GtMeshBufferQuad2D::GtMeshBufferQuad2D()
 {
 }
 
-void GtMeshBufferQuad2D::Initialize(OpenGLFunctions* f, const SP<QOpenGLVertexArrayObject>&)
+void GtMeshBufferQuad2D::Initialize(OpenGLFunctions* f)
 {
     Super::Initialize(f);
     QVector<TexturedVertex2F> vertices = {

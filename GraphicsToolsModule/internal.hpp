@@ -23,6 +23,7 @@
 #include "gtellipselinedrawable.h"
 #include "gtlinesdrawable.h"
 #include "gtrenderpath.h"
+#include "gtviewcontext.h"
 #endif
 
 #endif // INTERNAL_HPP

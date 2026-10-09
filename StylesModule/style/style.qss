@@ -49,6 +49,12 @@ QLabel[a_label=true] {
     font-size: 12px;
 }
 
+QLabel[a_tooltipTitle="true"] {
+    font-weight: bold;
+    qproperty-alignment: 'AlignCenter';
+    background-color: transparent;
+}
+
 QLabel[a_focus=true] {
     color: @ctext.1;
 }
@@ -631,6 +637,24 @@ QAbstractButton::menu-indicator {
     height: 0px;
 }
 
+QPushButton[a_play] {
+    qproperty-text: "";
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
+    padding: 6px;
+}
+
+QPushButton[a_play]:checked {
+    border-image: url("@cPath/stop.svg");
+}
+
+QPushButton[a_play]:!checked {
+    border-image: url("@cPath/play.svg");
+}
+
+
 QPushButton[a_control="1"]{  /* Icon */
     qproperty-text: "";
     min-width: 16px;
@@ -740,6 +764,10 @@ QAbstractButton[a_control="13"]:hover {
     background: @cbg.hover;
 }
 
+QAbstractButton[a_control="13"]:checked {
+    color: @ctext.1;
+}
+
 QAbstractButton:disabled,[ForceDisabled=true] {
     color: @ctext.disabled;
     background: transparent;
@@ -805,6 +833,10 @@ QMenu {
     margin: 0px;
     background: @cbg.3;
     color: @ctext.active;
+}
+
+QMenu WidgetsTableViewBase {
+    background: @cbg.2;
 }
 
 QMenu::separator {
@@ -1243,6 +1275,7 @@ QComboBoxListView:disabled{
 
 QLabel[DialogTitle] {
     font-size: 24px;
+    max-height: 40px;
     color: @ctext.active;
 }
 
@@ -1272,5 +1305,49 @@ QToolButton#qt_toolbar_ext_button {
     qproperty-icon: url("@cPath/dots-vertical.svg");
     padding: 0px;
     margin: 0px;
+}
+
+QSlider::horizontal {
+    height: 20px;
+    background: transparent;
+}
+
+QSlider::vertical {
+    width: 20px;
+    background: transparent;
+}
+
+QSlider::groove:horizontal {
+    border: none;
+    height: 2px;                 /* Thin grey line */
+    background: @cbg.3;         /* Dark grey track background */
+    border-radius: 1px;
+}
+
+QSlider::groove:vertical {
+    border: none;
+    width: 2px;                 /* Thin grey line */
+    background: @cbg.3;         /* Dark grey track background */
+    border-radius: 1px;
+}
+
+QSlider::sub-page {
+    background: @ctext.1;         /* Darker teal for the filled track portion */
+    border-radius: 1px;
+}
+
+QSlider::handle {
+    background: @ctext.1;         /* Bright cyan/teal knob color */
+    border: none;
+    width: 10px;                 /* Diameter of the inner circle */
+    height: 10px;
+    border-radius: 5px;          /* Makes the handle a perfect circle (width / 2) */
+    
+    margin-top: -4px;            
+    margin-bottom: -4px;
+}
+
+QSlider::handle:hover {
+    background: @cbg.selected;         /* Slightly brighter cyan glow on hover */
 }
 

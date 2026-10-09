@@ -8,12 +8,14 @@
 
 #include "gtrendererbase.h"
 #include "decl.h"
+#include "gtmeshloader.h"
 
 class GtRendererSharedData
 {
 public:
     GtRendererSharedData(class GtRenderer* base);
 
+    QHash<Name, GtMeshLoader::Material> ShadingMaterials;
     QHash<Name, GtShaderProgramPtr> ShaderPrograms;
     GtRenderer* BaseRenderer;
     ResourcesSystem SharedResourcesSystem;
@@ -39,18 +41,32 @@ public:
     void UpdateFrame();
     void CreateFontAlias(const Name& aliasName, const Name& sourceName);
     void LoadFont(const Name& fontName, const QString& fntFilePath, const QString& texturePath);
+    void CreateTexture3D(const Name& textureName, const struct GtTextureFormat& format, const QString& path);
     void CreateTexture(const Name& textureName, const std::function<GtTexture* (OpenGLFunctions* f)>& textureLoader);
-    void CreateTexture(const Name& textureName, const QString& fileName, const struct GtTextureFormat& format);
+    void CreateTexture(const Name& textureName, const QString& fileName, const GtTextureFormat& format);
     void CreateTexture(const Name& textureName, const QString& fileName);
+    void CreateFrameBuffer(const Name& frameBufferId, const std::function<GtFramebufferObject* (OpenGLFunctions*f)>& frameBufferBinder);
+    template<class T, typename ... Args>
+    void CreateResource(const Name& resourceId, const Args&... args)
+    {
+        m_resourceSystem->RegisterResource<T>(resourceId, args...);
+    }
     const GtFontPtr& GetFont(const Name& fontName) const;
     void AddController(const GtRendererControllerPtr& controller);
     void RemoveController(const GtRendererControllerPtr& controller);
 
-    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);  
+    SharedPointer<guards::LambdaGuard> SetDefaultQueueNumber(qint32 queueNumber);
 
+    const GtMeshLoader::Material* GetShadingMaterial(const Name& materialId) const;
+    const GtMeshLoader::Material& GetDefaultShadingMaterial() const;
+    void RegisterShadingMaterial(const Name& id, const GtMeshLoader::Material& material);
+    void RegisterShadingMaterials(const QString& folderPath);
     void CreateShaderProgramAlias(const Name& aliasName, const Name& sourceName);
     GtShaderProgramPtr CreateShaderProgram(const Name& name);
     GtShaderProgramPtr GetShaderProgram(const Name& name) const;
+    void RegisterMaterialMesh(const Name& name, const std::function<GtMeshLoader::Mesh ()>& resourceGetter);
+    GtMaterialMeshResource GetMaterialMesh(const Name& name) const;
+    GtFramebufferObjectResource GetFrameBuffer(const Name& name) const;
     template<class T>
     TResource<T> GetResource(const Name& name)
     {
@@ -66,7 +82,7 @@ public:
     template<class T, typename ... Args>
     T* CreateDrawableQueued(qint32 queueNumber, Args... args)
     {
-        auto* result = new T(this, args...);
+        auto* result = new T(GtViewContext(this), args...);
         AddDrawable(result, queueNumber);
         return result;
     }
@@ -101,6 +117,7 @@ public:
     Dispatcher OnAboutToBeDestroyed;
 
 private:
+    void setUpCamera(const GtCamera* camera);
     void addDelayedDraw(const FAction& drawAction);
     void enableDepthTest();
     void disableDepthTest();
@@ -120,6 +137,8 @@ private:
     friend class GtRendererController;
     friend class GtDrawableBase;
     friend class GtRenderPath;
+    friend class GtViewContext;
+    friend class GtSharedViewContext;
 
     QHash<GtRendererController*, GtRendererControllerPtr> m_controllers;
     Matrix4Resource m_mvp;
@@ -128,6 +147,7 @@ private:
     Matrix4Resource m_rotation;
     Matrix4Resource m_invertedMv;
     Matrix4Resource m_viewport;
+    Matrix3Resource m_normalMatrix;
     TResource<Vector3F> m_eye;
     TResource<Vector3F> m_forward;
     TResource<Vector3F> m_side;
@@ -138,11 +158,10 @@ private:
 
     qint32 m_queueNumber;
 
-    ScopedPointer<class GtScene> m_scene;
+    SP<class GtScene> m_scene;
 
     SharedPointer<GtRendererSharedData> m_sharedData;
     SharedPointer<ResourcesSystem> m_resourceSystem;
-    QVector<GtRendererPtr> m_childRenderers;
     GtRenderProperties m_renderProperties;
     GtRendererController* m_currentRenderController;
     QVector<FAction> m_delayedDraws;

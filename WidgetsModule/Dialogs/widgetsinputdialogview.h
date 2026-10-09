@@ -26,14 +26,14 @@ public:
 
     LocalPropertyString Content;
 #ifdef UNITS_MODULE_LIB
-    void AddMeasurement(const QString& label, const Measurement* measurement, LocalPropertyDouble* property);
+    WidgetsDoubleSpinBoxLayout* AddMeasurement(const QString& label, const Measurement* measurement, LocalPropertyDouble* property);
 #endif
-    void AddInt(const QString& label, LocalPropertyInt* property);
-    void AddDouble(const QString& label, LocalPropertyDouble* property);
-    void AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList(), bool encrypted = false);
-    void AddMonth(const QString& label, LocalPropertyDate* property);
-    void AddDate(const QString& label, LocalPropertyDate* property);
-    void AddDateTime(const QString& label, LocalPropertyDateTime* property);
+    class WidgetsSpinBoxLayout* AddInt(const QString& label, LocalPropertyInt* property);
+    class WidgetsDoubleSpinBoxLayout* AddDouble(const QString& label, LocalPropertyDouble* property);
+    class WidgetsLineEditLayout* AddLineText(const QString& label, LocalPropertyString* property, const QStringList& keys = QStringList(), bool encrypted = false);
+    class WidgetsMonthPicker* AddMonth(const QString& label, LocalPropertyDate* property);
+    class WidgetsDateTimeLayout* AddDate(const QString& label, LocalPropertyDate* property);
+    class WidgetsDateTimeLayout* AddDateTime(const QString& label, LocalPropertyDateTime* property);
     void AddDateRange(const QString& label, LocalPropertyDate* from, LocalPropertyDate* to);
     void AddDateTimeRange(const QString& label, LocalPropertyDateTime* from, LocalPropertyDateTime* to);
     void Reset();

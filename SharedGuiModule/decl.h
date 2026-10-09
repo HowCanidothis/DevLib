@@ -10,10 +10,12 @@
 #include <QVector4D>
 #include <QMatrix4x4>
 #include <QDateTime>
-#include <QOpenGLFunctions_4_5_Core>
 
-#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
-typedef QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#if !defined(QT_NO_OPENGL)
+    // QOpenGLExtraFunctions gives you ES 3.0/3.1 features natively on ARM,
+    // AND maps them automatically to Core Context commands on Desktop.
+    #include <QOpenGLExtraFunctions>
+    typedef QOpenGLExtraFunctions OpenGLFunctions;
 #endif
 typedef QQuaternion Quaternion;
 typedef QPoint Point2I;
@@ -21,6 +23,7 @@ typedef QPoint Point2I;
 typedef QVector4D Point4F;
 typedef Point4F Vector4F;
 typedef QMatrix4x4 Matrix4;
+typedef QMatrix3x3 Matrix3;
 typedef QSizeF SizeF;
 typedef QSize SizeI;
 typedef QRect RectI;
@@ -445,7 +448,7 @@ public:
         return Vector3D(m_x + another.m_x, m_y + another.m_y, m_z + another.m_z);
     }
 
-    bool EqualTo(const Vector3D& another, double epsilon = std::numeric_limits<double>().epsilon()) const
+    bool EqualTo(const Vector3D& another, double epsilon = std::numeric_limits<double>::epsilon()) const
     {
         return ::fuzzyCompare(another.X(), X(), epsilon) && ::fuzzyCompare(another.Y(), Y(), epsilon) && ::fuzzyCompare(another.Z(), Z(), epsilon);
     }
@@ -502,6 +505,7 @@ public:
     }
     Point2F GetCenter() const { return (m_right + m_left) / 2.f; }
 
+    bool IsNull() const { return m_left.isNull() && m_right.isNull(); }
     bool IsInf() const { return qIsInf(m_left.x()) || qIsInf(m_left.y()) || qIsInf(m_right.x()) || qIsInf(m_right.y()); }
 
     bool Intersects(const BoundingRect& other) const;
@@ -743,6 +747,12 @@ inline Color3F Color3FCreate(const QColor& color) { return Color3F(color.redF(),
 inline QColor Color3FtoQColor(const Color3F& color) { return QColor::fromRgbF(color.x(), color.y(), color.z()); }
 
 #pragma pack(1)
+
+struct Vertex3f
+{
+    Point3F Position;
+};
+
 struct TexturedVertex2F
 {
     Point2F Position;
@@ -758,7 +768,23 @@ struct TexturedVertex3F
 struct Vertex3f3f
 {
     Point3F Position;
+    union {
     Point3F Normal;
+    Point3F TexCoord;
+    };
+
+    Vertex3f3f() {}
+    Vertex3f3f(const Point3F& pos, const Point3F& nvt)
+        : Position(pos)
+        , Normal(nvt)
+    {}
+};
+
+struct Vertex3f3f3f
+{
+    Point3F Position;
+    Point3F Normal;
+    Point3F TexCoord;
 };
 
 struct Vertex3f2f2f

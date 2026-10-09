@@ -41,6 +41,14 @@ WidgetBuilder& WidgetBuilder::StartSplitter(const std::function<void (WidgetBuil
     return *this;
 }
 
+WidgetBuilder& WidgetBuilder::AddSpacer(qint32 w, qint32 h)
+{
+    auto* spacerWidget = new QWidget();
+    spacerWidget->setFixedSize(w, h);
+    m_addWidgetFunctors.last()(spacerWidget);
+    return *this;
+}
+
 WidgetBuilder& WidgetBuilder::StartLayout(const WidgetBuilderLayoutParams& params, const std::function<void (WidgetBuilder&)>& handler)
 {
     auto* dummyWidget = new QWidget();

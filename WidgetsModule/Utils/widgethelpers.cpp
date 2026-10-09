@@ -32,6 +32,8 @@
 
 #include <optional>
 
+#include "WidgetsModule/Components/componentplacer.h"
+
 #include "WidgetsModule/Dialogs/widgetsdebugjsondialog.h"
 
 #include "WidgetsModule/Models/viewmodelsdefaultfieldmodel.h"
@@ -500,7 +502,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeHorizontal(const DescTableViewPar
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
             auto max = index.data(MaxLimitRole);
-            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>::lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>::max());
         });
         for(int section(0); section < count; ++section){
             auto data = model->headerData(section, Qt::Horizontal, UnitRole);
@@ -595,7 +597,7 @@ QHeaderView* WidgetTableViewWrapper::InitializeVertical(const DescTableViewParam
             editor->setDecimals(unit->CurrentPrecision);
             auto min = index.data(MinLimitRole);
             auto max = index.data(MaxLimitRole);
-            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>().lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>().max());
+            editor->setRange(min.isValid() ? min.toDouble() : std::numeric_limits<double>::lowest(), max.isValid() ? max.toDouble() : std::numeric_limits<double>::max());
         });
         for(int section(0); section < count; ++section){
             auto data = model->headerData(section, Qt::Vertical, UnitRole);
@@ -1305,7 +1307,7 @@ CommonDispatcher<qint32>& WidgetComboboxWrapper::OnActivated() const
 
 void WidgetWrapper::Highlight(qint32 unhightlightIn) const
 {
-    ApplyStyleProperty("w_highlighted", true);
+    ApplyStyleProperty(WidgetProperties::Highlighted, true);
 
     if(unhightlightIn > 0) {
         auto wrapper = *this;
@@ -1449,7 +1451,7 @@ LocalPropertyBool& WidgetWrapper::WidgetEnablity() const
 
 void WidgetWrapper::Lowlight() const
 {
-    ApplyStyleProperty("w_highlighted", false);
+    ApplyStyleProperty(WidgetProperties::Highlighted, false);
 }
 
 MainProgressBar* WidgetWrapper::AddModalProgressBar(const Name& processId) const
@@ -2072,10 +2074,85 @@ QVector<QWidget*>& WidgetWrapper::WidgetTrueFocusWidgets() const
     return *Injected<QVector<QWidget*>>("a_trueFocusWidgets");
 }
 
-LocalPropertySequentialEnum<HighLightEnum> & WidgetWrapper::WidgetHighlighted() const
+template<class T>
+static void UpdateWarningButton(T* chb, bool highlighted, QuadTreeF::BoundingRect_Location location, const QPoint& offsetPoint)
 {
+    static const IconsSvgIcon& warningIcon = IconsManager::GetInstance().GetIcon(ModelsIconsContext::WarningIconId);
+    auto* button = chb->property("w_warningButton").template value<QPushButton*>();
+    if (highlighted) {
+        if (button == nullptr) {
+            auto* warningButton = new QPushButton(chb->parentWidget());
+            auto* offset = WidgetWrapper(warningButton).LocateToParent(
+                DescWidgetsLocationAttachmentParams(location).SetRelativeParent(chb)
+            );
+            offset->GetComponentPlacer()->Offset = offsetPoint;
+            warningButton->setObjectName("WarningButton");
+            chb->setProperty("w_warningButton", QVariant::fromValue(warningButton));
+            warningButton->setAttribute(Qt::WA_TransparentForMouseEvents);
+            warningButton->setIcon(warningIcon);
+            warningButton->setFocusPolicy(Qt::NoFocus);
+            WidgetAbstractButtonWrapper(warningButton).SetControl(ButtonRole::Icon);
+            warningButton->raise();
+            warningButton->show();
+        }
+    } else {
+        if (button != nullptr) {
+            button->deleteLater();
+            chb->setProperty("w_warningButton", QVariant::fromValue<QPushButton*>(nullptr));
+        }
+    }
+}
+
+LocalPropertySequentialEnum<HighLightEnum>& WidgetWrapper::WidgetHighlighted() const
+{
+    auto* chb = qobject_cast<QCheckBox*>(GetWidget());
+    if (chb != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [chb](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(chb);
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
+
+            UpdateWarningButton(chb, highlighted.Value(), QuadTreeF::Location_TopLeft, QPoint(13,10));
+        }, HighLightEnum::None);
+    }
+    auto* table = qobject_cast<QTableView*>(GetWidget());
+    if(table != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [table](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(table);
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
+
+            auto* sourceModel = table->model();
+            while(auto* filterModel = qobject_cast<QSortFilterProxyModel*>(sourceModel)) {
+                sourceModel = filterModel->sourceModel();
+            }
+            if(sourceModel != nullptr) {
+                sourceModel->setProperty(WidgetProperties::Highlighted, highlighted.Value());
+                if(sourceModel->property(WidgetProperties::ExtraFieldsCount).toInt()){
+                    auto rowCount = sourceModel->rowCount();
+                    auto columnCount = sourceModel->columnCount();
+                    auto from = sourceModel->index(rowCount - 1, 0);
+                    auto to = sourceModel->index(rowCount - 1, columnCount - 1);
+                    emit sourceModel->dataChanged(from, to, {FieldHasErrorRole});
+                }
+            }
+        }, HighLightEnum::None);
+    }
+    auto* cb = qobject_cast<QComboBox*>(GetWidget());
+    if(cb != nullptr) {
+        return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [cb](QObject*, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
+            WidgetWrapper wrapper(cb);
+            wrapper.ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
+            QPoint pOffset;
+            if(qobject_cast<WidgetsComboBoxLayout*>(cb->parentWidget())) {
+                pOffset = QPoint(7,9);
+            } else {
+                pOffset = QPoint(15,9);
+            }
+            UpdateWarningButton(cb, highlighted.Value(), QuadTreeF::Location_TopRight, pOffset);
+        }, HighLightEnum::None);
+    }
+
     return *GetOrCreateProperty<LocalPropertySequentialEnum<HighLightEnum>>("a_highlighted", [](QObject* object, const LocalPropertySequentialEnum<HighLightEnum>& highlighted){
-        WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty("w_highlighted", highlighted.Value());
+        WidgetWrapper(reinterpret_cast<QWidget*>(object)).ApplyStyleProperty(WidgetProperties::Highlighted, highlighted.Value());
     }, HighLightEnum::None);
 }
 

@@ -3,6 +3,7 @@
 #include <QPropertyAnimation>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QGraphicsOpacityEffect>
 
 #include "WidgetsModule/Utils/widgethelpers.h"
 
@@ -10,9 +11,17 @@ ToolTipWidget::ToolTipWidget(QWidget* parent)
     : Super(parent)
     , m_content(nullptr)
 {
+    setAttribute(Qt::WA_TransparentForMouseEvents);
     setLayout(new QVBoxLayout());
     layout()->setContentsMargins(0,0,0,0);
     layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(this);
+    setGraphicsEffect(effect);
+
+    m_opacity.Subscribe([this, effect]{
+        effect->setOpacity(m_opacity);
+    });
 
     OffsetFromTarget.Subscribe([this]{
         updateLocation();

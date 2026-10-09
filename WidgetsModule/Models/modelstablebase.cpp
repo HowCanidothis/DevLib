@@ -344,24 +344,26 @@ void ViewModelsTableColumnComponents::RemoveComponent(qint32 column)
     m_columnComponents.remove(column);
 }
 
-void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData)
+qint32 ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData& flagsColumnData)
 {
     if(column == -2) {
         for(auto& c : m_columnFlagsComponents) {
             c.append(flagsColumnData);
         }
-        return;
+        return -2;
     }
     auto foundIt = m_columnFlagsComponents.find(column);
     if(foundIt == m_columnFlagsComponents.end()) {
         foundIt = m_columnFlagsComponents.insert(column, {});
     }
-    foundIt.value().append(flagsColumnData);
+    auto& components = foundIt.value();
+    components.append(flagsColumnData);
+    return components.size() - 1;
 }
 
-void ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler)
+qint32 ViewModelsTableColumnComponents::AddFlagsComponent(qint32 column, const ColumnFlagsComponentData::FHandler& handler)
 {
-    AddFlagsComponent(column, ColumnFlagsComponentData(handler));
+    return AddFlagsComponent(column, ColumnFlagsComponentData(handler));
 }
 
 void ViewModelsTableColumnComponents::AddDragField(qint32 column)
@@ -378,6 +380,20 @@ void ViewModelsTableColumnComponents::AddFlagsComponent(const QVector<qint32>& c
     for(auto column : columns) {
         AddFlagsComponent(column, ColumnFlagsComponentData(handler));
     }
+}
+
+bool ViewModelsTableColumnComponents::SetFlagsComponent(qint32 column, qint32 index, const ColumnFlagsComponentData::FHandler& handler)
+{
+    auto foundIt = m_columnFlagsComponents.find(column);
+    if(foundIt == m_columnFlagsComponents.end()) {
+        return false;
+    }
+    auto& components = foundIt.value();
+    if(components.size() <= index) {
+        return false;
+    }
+    components[index] = handler;
+    return true;
 }
 
 void ViewModelsTableColumnComponents::RemoveFlagsComponent(qint32 column)

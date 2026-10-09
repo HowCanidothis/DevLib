@@ -36,7 +36,6 @@ void SQLiteDatabase::Terminate()
     }, EPriority::Low);
     Await();
     *m_deleted = true;
-    Super::Terminate();
 }
 
 AsyncResult SQLiteDatabase::QueryWhereIdIn(const QString& operation, const QSet<Name>& ids, Op op)
@@ -152,12 +151,18 @@ AsyncResult SQLiteDatabase::Query(const std::function<bool (QSqlQuery& query)>& 
         if(h()) {
             return AsyncSuccess();
         }
-        qCCritical(LC_CONSOLE) << db.lastError().text();
+        const auto lastError = db.lastError().text();
+        if(!lastError.isEmpty()) {
+            qCCritical(LC_CONSOLE).noquote() << lastError;
+        }
         return AsyncError();
     }
     return PushTask([h, db]{
         if(!h()) {
-            qCCritical(LC_CONSOLE) << db.lastError().text();
+            const auto lastError = db.lastError().text();
+            if(!lastError.isEmpty()) {
+                qCCritical(LC_CONSOLE).noquote() << lastError;
+            }
             throw 0;
         }
     }, EPriority::High);

@@ -138,9 +138,9 @@ public:
         TextInfo& SetOffsetDirection(const Vector4F& offsetDirection) { OffsetDirection = offsetDirection; return *this; }
     };
 
-    GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font, Initializer);
-    GtTextDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
-    GtTextDrawable(GtRenderer* renderer, const GtFontPtr& font);
+    GtTextDrawable(const GtViewContext& renderer, const GtFontPtr& font, Initializer);
+    GtTextDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
+    GtTextDrawable(const GtViewContext& renderer, const GtFontPtr& font);
 
     void DisplayText(const QVector<TextInfo>& texts);
 
@@ -201,8 +201,8 @@ public:
         std::function<Color3F (const Color3F&)> m_colorHandler;
     };
 
-    GtTextScreenDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
-    GtTextScreenDrawable(GtRenderer* renderer, const GtFontPtr& font);
+    GtTextScreenDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram, const GtFontPtr& font);
+    GtTextScreenDrawable(const GtViewContext& renderer, const GtFontPtr& font);
 
     GtTextDrawableSettings Settings;
 

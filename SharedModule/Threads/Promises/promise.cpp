@@ -91,24 +91,6 @@ DispatcherConnection Promise::Then(const PromiseData::FCallback& handler, const 
     });
 }
 
-SafeCall::SafeCall()
-    : m_data(::make_shared<SafeCallData>())
-{}
-SafeCall::~SafeCall()
-{
-    m_data->ObjectIsDead = true;
-}
-
-FAction SafeCall::Wrap(const FAction& handler) const
-{
-    auto data = m_data;
-    return [handler, data]{
-        if(!data->ObjectIsDead) {
-            handler();
-        }
-    };
-}
-
 qint8 Promise::Wait()
 {
     FutureResult result;
@@ -188,16 +170,19 @@ void FutureResultData::then(const std::function<void (qint8)>& action)
     if(isFinished()) {
         action(getResult());
     } else {
-        auto called = ::make_shared<std::atomic_bool>(false);
-        {
-            QMutexLocker lock(m_mutex.get());
-            onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action, called]{
-                *called = true;
+        bool executeImmediately = false;
+        qint8 immediateResult = 0;
+        QMutexLocker lock(m_mutex.get());
+        if (isFinished()) {
+            executeImmediately = true;
+            immediateResult = getResult();
+        } else {
+            onFinished.Connect(CONNECTION_DEBUG_LOCATION, [this, action]{
                 action(m_result);
             });
         }
-        if(isFinished() && !*called) { // extra check if connected after getting result
-            action(getResult());
+        if(executeImmediately) {
+            action(immediateResult);
         }
     }
 }
@@ -207,6 +192,7 @@ void FutureResultData::wait()
     if(qApp != nullptr && QThread::currentThread() == qApp->thread()) {
         while(!isFinished()) {
             ThreadsBase::ProcessMainEvents();
+            QThread::yieldCurrentThread();
         }
     } else {
         QMutexLocker lock(m_mutex.get());

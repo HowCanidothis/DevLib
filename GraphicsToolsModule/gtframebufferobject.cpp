@@ -134,3 +134,86 @@ void GtFramebufferObjectMultisampled::Create(const GtFramebufferFormat& format)
         qCWarning(LC_SYSTEM) << "incomplete framebuffer";
     }
 }
+
+QImage GtFramebufferObject::ToImage(GLenum colorAttachment) const
+{
+    if (m_id == 0 || m_resolution.isEmpty()) {
+        return QImage();
+    }
+
+    GLint prevReadFbo = 0;
+    f->glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
+
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, m_id);
+    f->glReadBuffer(colorAttachment);
+
+    // Allocate matching image memory
+    QImage image(m_resolution.width(), m_resolution.height(), QImage::Format_RGBA8888);
+
+    GLint prevPackAlignment = 4;
+    f->glGetIntegerv(GL_PACK_ALIGNMENT, &prevPackAlignment);
+    f->glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    // Read the pixels raw directly into the QImage memory layout
+    f->glReadPixels(0, 0, m_resolution.width(), m_resolution.height(),
+                    GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+
+    f->glPixelStorei(GL_PACK_ALIGNMENT, prevPackAlignment);
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
+
+    return image;
+}
+
+// For Multisampled Framebuffers
+QImage GtFramebufferObjectMultisampled::ToImage(GLenum colorAttachment) const
+{
+    if (m_id == 0 || m_resolution.isEmpty()) {
+        return QImage();
+    }
+
+    GLuint resolveFbo = 0;
+    GLuint resolveTex = 0;
+    f->glGenFramebuffers(1, &resolveFbo);
+    f->glGenTextures(1, &resolveTex);
+
+    f->glBindTexture(GL_TEXTURE_2D, resolveTex);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_resolution.width(), m_resolution.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    GLint prevDrawFbo = 0, prevReadFbo = 0;
+    f->glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFbo);
+    f->glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
+
+    f->glBindFramebuffer(GL_FRAMEBUFFER, resolveFbo);
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, resolveTex, 0);
+
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, m_id);
+    f->glReadBuffer(colorAttachment);
+    f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, resolveFbo);
+    GLenum drawBuf = GL_COLOR_ATTACHMENT0;
+    f->glDrawBuffers(1, &drawBuf);
+
+    f->glBlitFramebuffer(0, 0, m_resolution.width(), m_resolution.height(),
+                         0, 0, m_resolution.width(), m_resolution.height(),
+                         GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, resolveFbo);
+    f->glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+    QImage image(m_resolution.width(), m_resolution.height(), QImage::Format_RGBA8888);
+
+    GLint prevPackAlignment = 4;
+    f->glGetIntegerv(GL_PACK_ALIGNMENT, &prevPackAlignment);
+    f->glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+    f->glReadPixels(0, 0, m_resolution.width(), m_resolution.height(),
+                    GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+
+    f->glPixelStorei(GL_PACK_ALIGNMENT, prevPackAlignment);
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
+    f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevDrawFbo);
+
+    f->glDeleteFramebuffers(1, &resolveFbo);
+    f->glDeleteTextures(1, &resolveTex);
+
+    return image;
+}

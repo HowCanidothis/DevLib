@@ -14,15 +14,7 @@ namespace ForceUnits
 
 DECLARE_MEASUREMENT(Force)
 DECLARE_MEASUREMENT(SmallForce)
-
-namespace NormalizedForceUnits
-{
-    DECLARE_MEASUREMENT_UNIT(NewtonLength)
-    DECLARE_MEASUREMENT_UNIT(KilonewtonLength)
-    DECLARE_MEASUREMENT_UNIT(PoundsForceLength)
-    DECLARE_MEASUREMENT_UNIT(KiloGrammForceLength)
-    DECLARE_MEASUREMENT_UNIT(KiloPoundsForceLength)
-}
-
 DECLARE_MEASUREMENT(NormalizedForce)
+
+
 #endif // FORCEDECLARATIONS_H

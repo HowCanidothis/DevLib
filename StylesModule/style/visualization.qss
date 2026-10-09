@@ -1,9 +1,9 @@
-VisualizationToolTipWidget {
+ToolTipWidget {
     qproperty-opacity: 0.9;
     background: @cbg.3;
 }
 
-VisualizationToolTipWidget QAbstractSpinBox {
+ToolTipWidget QAbstractSpinBox {
     border: none;
     min-height: 0px;
     padding: 0px;
@@ -15,7 +15,7 @@ ToolTipArrowWidget {
     background: @cbg.3;
 }
 
-VisualizationToolTipWidget QWidget{
+ToolTipWidget QWidget{
     font-size: 12px;
 }
 

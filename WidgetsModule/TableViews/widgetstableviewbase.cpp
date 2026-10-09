@@ -5,6 +5,7 @@
 #include <QBitArray>
 #include <QStyledItemDelegate>
 #include <QApplication>
+#include <QToolTip>
 
 #include "WidgetsModule/widgetsdeclarations.h"
 #include "WidgetsModule/Utils/widgethelpers.h"
@@ -105,6 +106,26 @@ WidgetsTableViewBase::WidgetsTableViewBase(QWidget* parent)
     }, m_hoverColor);
 
     setItemDelegate(new QStyledItemDelegateBase(this));
+
+    WidgetWrapper(viewport()).AddEventFilter([this](QObject*, QEvent* event){
+        if (event->type() == QEvent::ToolTip) {
+            QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
+            QModelIndex index = indexAt(helpEvent->pos());
+            QVariant cellToolTip = index.isValid() ? index.data(Qt::ToolTipRole) : QVariant();
+
+            if (!cellToolTip.isValid() || cellToolTip.toString().trimmed().isEmpty()) {
+                QString tableToolTip = toolTip();
+
+                if (!tableToolTip.isEmpty()) {
+                    // Display the main table's tooltip at the current mouse position
+                    QToolTip::showText(helpEvent->globalPos(), tableToolTip, this);
+                    event->accept();
+                    return true;
+                }
+            }
+        }
+        return false;
+    });
 }
 
 WidgetsTableViewBase::~WidgetsTableViewBase()
@@ -310,7 +331,7 @@ void WidgetsTableViewBase::paintEvent(QPaintEvent* event)
     const int gridSize = showGrid ? 1 : 0;
     const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, &option, this);
     const QColor gridColor = QColor::fromRgba(static_cast<QRgb>(gridHint));
-    const QPen gridPen = QPen(gridColor, 0, gridStyle());
+    const QPen gridPen = QPen(gridColor, 1, gridStyle());
     const QHeaderView *verticalHeader = this->verticalHeader();
     const QHeaderView *horizontalHeader = this->horizontalHeader();
     const bool alternate = this->alternatingRowColors();

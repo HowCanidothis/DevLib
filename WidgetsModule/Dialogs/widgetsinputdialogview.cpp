@@ -23,7 +23,7 @@ WidgetsInputDialogView::~WidgetsInputDialogView()
 }
 
 #ifdef UNITS_MODULE_LIB
-void WidgetsInputDialogView::AddMeasurement(const QString& text, const Measurement* measurement, LocalPropertyDouble* property)
+WidgetsDoubleSpinBoxLayout* WidgetsInputDialogView::AddMeasurement(const QString& text, const Measurement* measurement, LocalPropertyDouble* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsDoubleSpinBoxLayout();
@@ -34,10 +34,11 @@ void WidgetsInputDialogView::AddMeasurement(const QString& text, const Measureme
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector(measurement, property, widget);
     saveProperty(property);
+    return widget;
 }
 #endif
 
-void WidgetsInputDialogView::AddDouble(const QString& text, LocalPropertyDouble* property)
+WidgetsDoubleSpinBoxLayout* WidgetsInputDialogView::AddDouble(const QString& text, LocalPropertyDouble* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsDoubleSpinBoxLayout();
@@ -48,9 +49,10 @@ void WidgetsInputDialogView::AddDouble(const QString& text, LocalPropertyDouble*
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesDoubleSpinBoxConnector>(property, widget);
     saveProperty(property);
+    return widget;
 }
 
-void WidgetsInputDialogView::AddInt(const QString& label, LocalPropertyInt* property)
+WidgetsSpinBoxLayout* WidgetsInputDialogView::AddInt(const QString& label, LocalPropertyInt* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsSpinBoxLayout();
@@ -61,9 +63,10 @@ void WidgetsInputDialogView::AddInt(const QString& label, LocalPropertyInt* prop
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesSpinBoxConnector>(property, widget);
     saveProperty(property);
+    return widget;
 }
 
-void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyString* property, const QStringList& keys, bool encrypted)
+WidgetsLineEditLayout* WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyString* property, const QStringList& keys, bool encrypted)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsLineEditLayout();
@@ -80,9 +83,10 @@ void WidgetsInputDialogView::AddLineText(const QString& text, LocalPropertyStrin
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesLineEditConnector>(property, widget, false);
     saveProperty(property);
+    return widget;
 }
 
-void WidgetsInputDialogView::AddDate(const QString& text, LocalPropertyDate* property)
+WidgetsDateTimeLayout* WidgetsInputDialogView::AddDate(const QString& text, LocalPropertyDate* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsDateTimeLayout();
@@ -94,9 +98,10 @@ void WidgetsInputDialogView::AddDate(const QString& text, LocalPropertyDate* pro
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(property, widget);
     saveProperty(property);
+    return widget;
 }
 
-void WidgetsInputDialogView::AddMonth(const QString& label, LocalPropertyDate* property)
+WidgetsMonthPicker* WidgetsInputDialogView::AddMonth(const QString& label, LocalPropertyDate* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsMonthPicker();
@@ -109,9 +114,10 @@ void WidgetsInputDialogView::AddMonth(const QString& label, LocalPropertyDate* p
     ui->Layout->addWidget(widget, count, 0);
     property->ConnectBoth(CDL, widget->Date).MakeSafe(m_connections);
     saveProperty(property);
+    return widget;
 }
 
-void WidgetsInputDialogView::AddDateTime(const QString& label, LocalPropertyDateTime* property)
+WidgetsDateTimeLayout* WidgetsInputDialogView::AddDateTime(const QString& label, LocalPropertyDateTime* property)
 {
     auto count = ui->Layout->rowCount();
     auto* widget = new WidgetsDateTimeLayout();
@@ -122,6 +128,7 @@ void WidgetsInputDialogView::AddDateTime(const QString& label, LocalPropertyDate
     ui->Layout->addWidget(widget, count, 0);
     m_connectors.AddConnector<LocalPropertiesDateTimeConnector>(property, widget);
     saveProperty(property);
+    return widget;
 }
 
 void WidgetsInputDialogView::AddDateRange(const QString& label, LocalPropertyDate* from, LocalPropertyDate* to)

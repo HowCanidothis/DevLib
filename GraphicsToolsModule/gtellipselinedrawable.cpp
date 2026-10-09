@@ -7,7 +7,7 @@
 #include "Objects/gtmaterialparametermatrix.h"
 #include "gtmeshbase.h"
 
-GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShaderProgramPtr& shaderProgram)
+GtEllipseLineDrawable::GtEllipseLineDrawable(const GtViewContext& renderer, const GtShaderProgramPtr& shaderProgram)
     : Super(renderer)
     , AutoUpdateTransform(true)
     , Color(QColor(Qt::white))
@@ -18,7 +18,6 @@ GtEllipseLineDrawable::GtEllipseLineDrawable(GtRenderer* renderer, const GtShade
     , m_recompute(DelayedCallObjectParams(0, GetThreadHandlerNoCheck()))
 {
     m_material->AddMesh(::make_shared<GtMesh>(m_buffer));
-    m_material->AddParameter(::make_shared<GtMaterialParameterMatrix>("MVP", GtNames::mvp));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("COLOR", &Color.Native()));
     m_material->AddParameter(::make_shared<GtMaterialParameterBase>("MODEL_MATRIX", &Transform.Native()));
 
@@ -35,9 +34,7 @@ void GtEllipseLineDrawable::draw(OpenGLFunctions* f)
         return;
     }
 
-    f->glLineWidth(Width);
     m_material->Draw(f);
-    f->glLineWidth(1.f);
 }
 
 void GtEllipseLineDrawable::onInitialize(OpenGLFunctions* f)

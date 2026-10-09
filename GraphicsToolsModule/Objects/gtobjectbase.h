@@ -18,7 +18,7 @@ public:
 class GtDrawableBase : public GtObjectBase ATTACH_MEMORY_SPY_2(GtDrawableBase)
 {
 public:
-    GtDrawableBase(class GtRenderer* renderer);
+    GtDrawableBase(const class GtViewContext& viewContext);
     ~GtDrawableBase();
 
     DispatcherConnectionsSafe Connections;
@@ -55,16 +55,19 @@ public:
     T* As() { return reinterpret_cast<T*>(this); }
 
 protected:
+    friend class GtViewContext;
     friend class GtScene;
     friend class GtRenderer;
     friend class GtRendererController;
     friend class GtRenderPath;
     virtual void drawDepth(OpenGLFunctions* f) { draw(f); }
+    virtual void preDraw(OpenGLFunctions*) {};
     virtual void draw(OpenGLFunctions* f) = 0;
     void initialize(class GtRenderer* renderer);
     virtual void onInitialize(OpenGLFunctions* f) = 0;
     virtual void onDestroy(OpenGLFunctions* f) = 0;
     virtual void onAboutToDestroy() = 0;
+    virtual bool isCustomRenderStageAccepted(const Name& renderStageId) const { return false; }
 
     void delayedDraw(const FAction& draw);
     void enableDepthTest();
@@ -81,6 +84,7 @@ protected:
 
 protected:
     GtRenderer* m_renderer;
+    GtScene* m_scene;
     SharedPointer<std::atomic_bool> m_destroyed;
     bool m_rendererDrawable;
     ThreadHandler m_threadHandler;

@@ -15,4 +15,16 @@ private:
     virtual FDelegate apply() Q_DECL_OVERRIDE;
 };
 
+class GtMaterialParameterMatrix3 : public GtMaterialResourceParameterBase
+{
+    using Super = GtMaterialResourceParameterBase;
+    Matrix3Resource m_matrix;
+public:
+    GtMaterialParameterMatrix3(const QString& m_name, const Name& m_resource);
+
+    // GtObjectBase interface
+private:
+    virtual FDelegate apply() Q_DECL_OVERRIDE;
+};
+
 #endif // GTMATERIALMATRIX4X4_H

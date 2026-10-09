@@ -169,6 +169,8 @@ public:
     GtRendererController(GtRenderer* renderer, class ControllersContainer* controllersContainer, struct GtControllersContext* context);
     ~GtRendererController();
 
+    void SetScene(const SP<class GtScene>& scene);
+
     void UpdateFrame();
 
     template<class T, typename ...Args>
@@ -180,11 +182,11 @@ public:
     template<class T, typename ...Args>
     T* CreateDrawableQueued(qint32 queueNumber, Args... args)
     {
-        auto result = new T(m_renderer, args...);
+        auto result = new T(GtViewContext(m_renderer, m_controllerScene), args...);
         result->m_rendererDrawable = true;
         m_renderer->Asynch([this, result, queueNumber]{
             result->initialize(m_renderer);
-            m_drawables[queueNumber].append(result);
+            m_controllerScene->AddDrawable(result, queueNumber);
         });        
         return result;
     }
@@ -214,11 +216,13 @@ public:
     LocalPropertyColor SpaceColor;
     LocalPropertyBool Enabled;
 
+    const GtRenderPathPtr& GetRenderPath() const { return m_renderPath; }
     AsyncResult MapToScreen(const Point3F& point, Point2I& result) const;
     const ControllersContainer* GetContainer() const { return m_controllers.get(); }
     GtRenderer* GetRenderer() const { return m_renderer; }
     GtCameraAnimationEngine& GetCameraAnimationEngine() { return m_cameraAnimationEngine; }
     GtCamera* GetCamera() { return m_camera.get(); }
+    const SP<GtScene>& GetScene() const { return m_scene; }
     QImage GetCurrentImage() const;
     double GetRenderTime() const { return m_renderTime; }
     const SizeF& GetVisibleSize() const { return m_visibleSize; }
@@ -246,6 +250,8 @@ private:
     GtRenderer* m_renderer;
     ScopedPointer<QImage> m_outputImage;
     ScopedPointer<GtCamera> m_camera;
+    SP<GtScene> m_controllerScene;
+    SP<GtScene> m_scene;
     ScopedPointer<GtControllersContext> m_controllersContext;
     ScopedPointer<ControllersContainer> m_controllers;
 
@@ -257,7 +263,6 @@ private:
     double m_renderTime;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
-    QMap<qint32, QVector<GtDrawableBase*>> m_drawables;
     DispatcherConnectionsSafe m_connections;
     SizeF m_visibleSize;
     DelayedCallObject m_resize;

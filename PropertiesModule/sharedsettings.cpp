@@ -38,7 +38,7 @@ StyleSettings::StyleSettings()
     #ifdef QT_DEBUG
     , ShadersPath("C:/Work/wps-client/libs/Content/Shaders/")
     #else
-    , ShadersPath(":/")
+    , ShadersPath(":/Content/Shaders/")
     #endif
 #ifdef VISUALIZATION_MODULE_LIB
     , VisualSettings(::make_shared<VisualizationSettings>())
