@@ -1,17 +1,17 @@
 ---
-name: "wps-properties-module"
-description: "Use for wps-client C++/Qt code that uses PropertiesModule or SharedModule: LocalProperty, StateParameters calculators, Dispatcher, threads, serialization."
+name: wps-properties-module
+description: Use for wps-client C++/Qt code that uses PropertiesModule or SharedModule: LocalProperty, StateParameters calculators, Dispatcher, threads, serialization.
 ---
 
 # PropertiesModule и SharedModule (wps-client)
 
-Правила работы с PropertiesModule и SharedModule живут в одном месте — `CONVENTIONS.md` в корне `D:\Work\wps-client\libs\DevLib`. Здесь их не дублировать: копии расходятся. При расхождении прав `CONVENTIONS.md`.
+Правила работы с PropertiesModule и SharedModule живут в одном месте — `libs/DevLib/CONVENTIONS.md` (`D:\Work\wps-client\libs\DevLib`). Здесь их не дублировать: копии расходятся. При расхождении прав `CONVENTIONS.md`.
 
 ## Как пользоваться
 
-В Cowork — через `mcp__remote-devices__device_bash`, команды с префиксом `cd "$HOME/mnt/DevLib" && ` (нет доступа к DevLib — см. скилл `wps-devlib-folder-access`).
+В Cowork — через `mcp__remote-devices__device_bash` с префиксом `cd "$HOME/mnt/wps-client" && ` (если подключена только DevLib — `cd "$HOME/mnt/DevLib" && ` и пути без `libs/DevLib/`; нет доступа — см. `codemap-search`).
 
-1. Прочитай разделы по теме: `python3 codemap.py section РАЗДЕЛ --show --file CONVENTIONS.md`
+1. Прочитай разделы по теме: `python3 codemap.py section РАЗДЕЛ --show --file libs/DevLib/CONVENTIONS.md`
    - какой механизм брать (LocalProperty / Property / мост PropertyFromLocalProperty) → «Выбор механизма»;
    - SetValue, тихие пути, подписки, типы свойств, коммутаторы → «LocalProperty»;
    - StateParameters, StateChained*Calculator, Initialize, захват выхода, исключения, отмена, пример PrimeCounter → «Вычисления»;

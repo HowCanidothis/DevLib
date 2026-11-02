@@ -10,12 +10,15 @@ Run from the project root.
   python codemap.py find NAME                   (where NAME is declared / implemented / used)
   python codemap.py status                      (OK/OLD/CHANGED/MISSING per indexed folder, by content hash)
   python codemap.py reindex [--all]             (rebuild OLD/CHANGED indexes; free, no AI)
+  python codemap.py sync                        (copy codemap.py from `script` to this project and linked ones)
+  python codemap.py index .                     (whole project as one folder; its map section is '## <name>')
 
 Several projects (e.g. an app and a library submodule) keep separate maps that work as one:
 codemap.conf in the project root (commit it):
   name = wps-client              # map title "# Карта кода <name>" (default: folder name)
   links = libs/DevLib            # other codemap projects: find/status/reindex cover them too
-  exclude = 3rdparty thirdparty  # extra folders to skip (names or paths from the project root)
+  exclude = 3rdparty bin_*       # extra folders to skip: names or paths from the project root, * allowed
+  script = libs/DevLib           # where the master copy of codemap.py lives; `sync` copies it here and to links
 A subfolder that has its own codemap.py / codemap.conf is a separate project and is never
 indexed into this map; link it instead.
 
@@ -467,14 +470,14 @@ NESTED_SKIPPED = set()
 
 
 def load_conf(root='.'):
-    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': []}
+    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': [], 'script': ''}
     for line in _read(os.path.join(root, CONF_FILE)).splitlines():
         line = line.split('#', 1)[0].strip()
         if '=' not in line:
             continue
         k, v = (x.strip() for x in line.split('=', 1))
-        if k == 'name' and v:
-            conf['name'] = v
+        if k in ('name', 'script') and v:
+            conf[k] = v.replace('\\', '/').rstrip('/')
         elif k in ('links', 'exclude'):
             conf[k] += [x.replace('\\', '/').strip('/') for x in v.replace(',', ' ').split()]
     return conf
@@ -485,7 +488,8 @@ def is_project(path):
 
 
 def walk(root):
-    excl = set((CONF or {}).get('exclude', []))
+    import fnmatch
+    excl = (CONF or {}).get('exclude', [])
     for dp, dns, fns in os.walk(root):
         keep = []
         for d in sorted(dns):
@@ -493,13 +497,16 @@ def walk(root):
                 continue
             full = os.path.join(dp, d)
             rel = os.path.relpath(full, '.').replace('\\', '/')
-            if d in excl or rel in excl:
+            if any(fnmatch.fnmatchcase(d, e) or fnmatch.fnmatchcase(rel, e) for e in excl):
                 continue
             if is_project(full):  # a separate codemap project (e.g. a library submodule)
                 NESTED_SKIPPED.add(rel)
                 continue
             keep.append(d)
         dns[:] = keep
+        if excl:
+            fns = [f for f in fns if not any(fnmatch.fnmatchcase(f, e) or fnmatch.fnmatchcase(
+                os.path.relpath(os.path.join(dp, f), '.').replace('\\', '/'), e) for e in excl)]
         for fn in sorted(fns):
             yield os.path.join(dp, fn)
 
@@ -567,23 +574,49 @@ def sources_hash(root):
     return h.hexdigest()[:16]
 
 
+def owner_project(path):
+    """Deepest separate codemap project (below cwd) that contains `path`, or None."""
+    rel = os.path.relpath(os.path.abspath(path), os.getcwd()).replace('\\', '/')
+    if rel.startswith('..'):
+        return None
+    parts = [x for x in rel.split('/') if x not in ('', '.')]
+    for i in range(len(parts), 0, -1):
+        p = '/'.join(parts[:i])
+        if is_project(p):
+            return p
+    return None
+
+
 def cmd_index(a):
+    if a.out is None:
+        p = owner_project(a.root)
+        if p:  # the folder belongs to a linked project (e.g. libs/DevLib/X): index it there, into its map
+            rel = os.path.relpath(os.path.abspath(a.root), os.path.abspath(p)).replace('\\', '/')
+            global OUT_PREFIX
+            print(f'(project {p}: index {rel})')
+            with in_project(p):
+                a.root = rel
+                OUT_PREFIX = p
+                try:
+                    return cmd_index(a)
+                finally:
+                    OUT_PREFIX = ''
     root = os.path.abspath(a.root)
     if not os.path.isdir(root):
         print(f'ERROR: folder not found: {a.root}')
         sys.exit(2)
     cwd = os.getcwd()
     inside = os.path.commonpath([root, cwd]) == cwd
-    if inside and root != cwd and is_project(root):
-        print(f'ERROR: {a.root} is a separate codemap project (has its own codemap.py/{CONF_FILE}). '
-              f'Index it from its own folder and add it to "links" in {CONF_FILE}.')
+    if a.out is None and root == cwd and [f for f in _registered_folders() if f != '.']:
+        print(f'ERROR: project {CONF["name"]} is indexed folder by folder ({FOLDERS_FILE}); '
+              f'name one folder instead of the whole project')
         sys.exit(2)
     base = cwd if inside else root  # paths in the index are relative to the project root (cwd)
     if a.out is None:
         slug = os.path.relpath(root, cwd).replace('\\', '/').strip('./').replace('/', '__') if inside else os.path.basename(root)
         a.out = os.path.join('.codemap', slug or '_root')
-        if inside and slug:
-            _register_folder(slug.replace('__', '/'))
+        if inside:
+            _register_folder(slug.replace('__', '/') or '.')
     os.makedirs(a.out, exist_ok=True)
     for old in os.listdir(a.out):
         if re.match(r'(index_\d+|00_overview)\.md$', old):
@@ -661,9 +694,9 @@ def cmd_index(a):
         f.write(''.join(ov))
     parts = write_parts(a.out, 'index', blocks, a.part_chars, 'Code index')
     report([ov_path] + parts, errors)
-    if NESTED_SKIPPED:
-        print('skipped separate codemap projects: ' + ', '.join(sorted(NESTED_SKIPPED))
-              + f' (link them in {CONF_FILE})')
+    unlinked = sorted(NESTED_SKIPPED - set(CONF['links']))
+    if unlinked:
+        print('skipped separate codemap projects: ' + ', '.join(unlinked) + f' (link them in {CONF_FILE})')
 
 
 def cmd_dump(a):
@@ -683,10 +716,13 @@ def cmd_dump(a):
     report(write_parts(a.out, 'dump', blocks, a.part_chars, 'File dump'), errors)
 
 
+OUT_PREFIX = ''  # path of the linked project when index was redirected into it
+
+
 def report(files, errors):
     print('CODEMAP DONE')
     for f in files:
-        print(f'{f}\t{os.path.getsize(f)} bytes')
+        print(f'{os.path.join(OUT_PREFIX, f).replace(chr(92), "/")}\t{os.path.getsize(f)} bytes')
     if errors:
         print(f'ERRORS: {len(errors)} (see list above / in 00_overview.md)')
         for e in errors[:20]:
@@ -755,8 +791,19 @@ def _anchor(title):
 
 
 def cmd_section(a):
+    if a.map_file == MAP_FILE and not getattr(a, '_redirected', False):
+        p = owner_project(a.folder)
+        if p:  # section of a linked project's folder: work in that project's map
+            if a.file:
+                a.file = os.path.abspath(a.file)
+            a.folder = os.path.relpath(os.path.abspath(a.folder), os.path.abspath(p)).replace('\\', '/')
+            a._redirected = True
+            with in_project(p):
+                return cmd_section(a)
     map_file = a.map_file
     folder = a.folder.replace('\\', '/').strip('/')
+    if folder in ('', '.'):
+        folder = CONF['name']
     if a.show:
         _, secs = _split_sections(_read(map_file))
         for t, lines in secs:
@@ -862,11 +909,17 @@ def _register_folder(folder):
 
 
 def _index_dirs():
-    """Indexed folders: from codemap.folders (survives git clone) plus any existing .codemap/<dir>."""
-    names = {f.replace('/', '__') for f in _registered_folders()}
+    """Indexed folders: from codemap.folders (survives git clone) plus any existing .codemap/<dir>.
+    Folder '.' (the whole project) lives in .codemap/_root."""
+    names = {('_root' if f == '.' else f.replace('/', '__')) for f in _registered_folders()}
     if os.path.isdir('.codemap'):
-        names |= {n for n in os.listdir('.codemap') if os.path.isdir(os.path.join('.codemap', n)) and not n.startswith('_')}
-    return [(n.replace('__', '/'), os.path.join('.codemap', n)) for n in sorted(names)]
+        names |= {n for n in os.listdir('.codemap') if os.path.isdir(os.path.join('.codemap', n))
+                  and (not n.startswith('_') or n == '_root')}
+    return [('.' if n == '_root' else n.replace('__', '/'), os.path.join('.codemap', n)) for n in sorted(names)]
+
+
+def section_name(folder):
+    return CONF['name'] if folder == '.' else folder
 
 
 def folder_status(folder, d):
@@ -884,37 +937,47 @@ def folder_status(folder, d):
     return 'OK'
 
 
-def cmd_status(a, label=''):
+def _shown(folder, prefix):
+    """Folder path as seen from the top project (linked projects get their path prefix)."""
+    if not prefix:
+        return folder
+    return prefix.rstrip('/') if folder == '.' else prefix + folder
+
+
+def cmd_status(a, label='', prefix=''):
     sections = {t for t, _ in _split_sections(_read(MAP_FILE))[1]}
     for folder, d in _index_dirs():
         st = folder_status(folder, d)
-        print(f'{label}{st} {folder} section={1 if folder in sections else 0}')
+        print(f'{label}{st} {_shown(folder, prefix)} section={1 if section_name(folder) in sections else 0}')
     if not _index_dirs():
         print(f'{label}no indexes in .codemap/')
     if not label:
+        mine = _file_sig('codemap.py')
         for path, name in linked_projects():
+            if mine and _file_sig(os.path.join(path, 'codemap.py')) != mine:
+                print(f'[{name}] WARNING: its codemap.py differs from this one; run: python3 codemap.py sync')
             with in_project(path):
-                cmd_status(a, label=f'[{name}] ')
+                cmd_status(a, label=f'[{name}] ', prefix=path + '/')
 
 
-def cmd_reindex(a, label=''):
+def cmd_reindex(a, label='', prefix=''):
     """Rebuild indexes of already indexed folders (no AI, free). Default: only OLD/CHANGED."""
     done, skipped, missing = [], [], []
     for folder, d in _index_dirs():
         st = folder_status(folder, d)
         if st == 'MISSING':
-            missing.append(folder)
+            missing.append(_shown(folder, prefix))
             continue
         _register_folder(folder)
         if st == 'OK' and not a.all:
-            skipped.append(folder)
+            skipped.append(_shown(folder, prefix))
             continue
         ns = argparse.Namespace(root=folder, out=d, private=a.private, part_chars=a.part_chars)
         import io, contextlib
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             cmd_index(ns)
-        done.append(f'{folder} ({st})')
+        done.append(f'{_shown(folder, prefix)} ({st})')
     if not label:
         print('REINDEX DONE')
     print(f'{label}reindexed: ' + (', '.join(done) or '-'))
@@ -924,7 +987,7 @@ def cmd_reindex(a, label=''):
     if not label and not a.no_links:
         for path, name in linked_projects():
             with in_project(path):
-                cmd_reindex(a, label=f'[{name}] ')
+                cmd_reindex(a, label=f'[{name}] ', prefix=path + '/')
 
 
 def _find_in(name, prefix):
@@ -962,6 +1025,33 @@ def _find_in(name, prefix):
             if pat.search(line) and not line.startswith(LINKS_PREFIX):
                 hits.append(f'{prefix}{MAP_FILE}:{k} [## {section}] {line.strip()[:160]}')
     return decl, impl, other, sorted(set(uses)), hits
+
+
+def _file_sig(path):
+    import hashlib
+    try:
+        with open(path, 'rb') as f:
+            return hashlib.sha1(f.read().replace(b'\r\n', b'\n')).hexdigest()
+    except OSError:
+        return ''
+
+
+def cmd_sync(a):
+    """Copy the master codemap.py (conf `script`) into this project and every linked project."""
+    import shutil
+    src = os.path.join(CONF['script'], 'codemap.py') if CONF['script'] else 'codemap.py'
+    if not os.path.isfile(src):
+        print(f'ERROR: master script not found: {src}')
+        sys.exit(2)
+    sig = _file_sig(src)
+    changed = []
+    for dst_dir in ['.'] + [p for p, _ in linked_projects()]:
+        dst = os.path.join(dst_dir, 'codemap.py')
+        if os.path.abspath(dst) == os.path.abspath(src) or _file_sig(dst) == sig:
+            continue
+        shutil.copyfile(src, dst)
+        changed.append(dst_dir)
+    print('SYNC DONE: ' + ('updated ' + ', '.join(changed) if changed else 'all copies are up to date'))
 
 
 def cmd_find(a):
@@ -1010,6 +1100,7 @@ def main():
     pd.add_argument('--out', default='.codemap/_dump')
     for p in (pi, pd):
         p.add_argument('--part-chars', type=int, default=150000)
+    sub.add_parser('sync', help='copy codemap.py from `script` (codemap.conf) here and to linked projects')
     sub.add_parser('status', help='OK/OLD/CHANGED/MISSING for every indexed folder (content hash, not mtime)')
     pr = sub.add_parser('reindex', help='rebuild indexes of indexed folders that are OLD/CHANGED (free, no AI)')
     pr.add_argument('--all', action='store_true', help='rebuild every index')
@@ -1031,7 +1122,7 @@ def main():
     if a.cmd == 'section' and not a.show and not a.file:
         ap.error('section: give FILE or --show')
     {'index': cmd_index, 'dump': cmd_dump, 'section': cmd_section, 'find': cmd_find,
-     'status': cmd_status, 'reindex': cmd_reindex}[a.cmd](a)
+     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync}[a.cmd](a)
 
 
 if __name__ == '__main__':
