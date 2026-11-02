@@ -1001,7 +1001,8 @@ def _find_in(name, prefix):
         for line in open(idx, encoding='utf-8', errors='replace'):
             line = line.rstrip('\n')
             if line.startswith('### '):
-                cur = prefix + line[4:]
+                # '### path (N)': N is the file's line count, not a line number - say so explicitly
+                cur = prefix + re.sub(r' \((\d+)\)$', r' (\1 lines total)', line[4:])
                 continue
             if not cur or not pat.search(line):
                 continue
