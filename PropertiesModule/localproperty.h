@@ -406,14 +406,14 @@ public:
     LocalPropertyLimitedDecimal& FlagRemove(const T& flags)
     {
         T result = Native();
-        *this = FlagsHelpers<T>::Add(result, flags);
+        *this = FlagsHelpers<T>::Remove(result, flags);
         return *this;
     }
 
     LocalPropertyLimitedDecimal& FlagAdd(const T& flags)
     {
         T result = Native();
-        *this = FlagsHelpers<T>::Remove(result, flags);
+        *this = FlagsHelpers<T>::Add(result, flags);
         return *this;
     }
 

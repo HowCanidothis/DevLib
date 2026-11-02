@@ -98,6 +98,7 @@ defineTest(setBuildDirectory) {
     MOC_DIR = $$OUT_PWD/$$BUILDTYPE/moc
     RCC_DIR = $$OUT_PWD/$$BUILDTYPE/rcc
     UI_DIR = $$OUT_PWD/$$BUILDTYPE/ui
+    PRECOMPILED_DIR = $$OUT_PWD/$$BUILDTYPE/pch
 
     export(DESTDIR)
     export(OBJECTS_DIR)
@@ -105,6 +106,7 @@ defineTest(setBuildDirectory) {
     export(RCC_DIR)
     export(UI_DIR)
     export(CONFIG)
+    export(PRECOMPILED_DIR)
 }
 
 defineTest(makeDeploy) {

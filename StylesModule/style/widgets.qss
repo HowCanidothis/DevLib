@@ -186,11 +186,12 @@ QPushButton#btnDrawerVerticalM[isOpen=false]
 }
 
 QFrame#WidgetsTVRAWidget {
-    background: transparent;
-    border: none;
+    background: @cbg.2;
+    border: 1px solid @ctext.1;
+    border-radius: 5px;
     margin: 0px;
     padding: 0px;
-    min-height: 28px;
+    min-height: 30px;
 }
 
 QFrame#TreeViewActionAttachment {
