@@ -19,6 +19,9 @@ codemap.conf in the project root (commit it):
   links = libs/DevLib            # other codemap projects: find/status/reindex cover them too
   exclude = 3rdparty bin_*       # extra folders to skip: names or paths from the project root, * allowed
   script = libs/DevLib           # where the master copy of codemap.py lives; `sync` copies it here and to links
+  units = WPSClient/Objects WPSClient/Ui   # big folders split into parts: each unit has its own index and
+                                 # map section; a parent's index never includes its sub-units
+  python codemap.py ensure PATH   (which unit PATH belongs to; builds/refreshes its index; SECTION 0/1)
 A subfolder that has its own codemap.py / codemap.conf is a separate project and is never
 indexed into this map; link it instead.
 
@@ -470,7 +473,7 @@ NESTED_SKIPPED = set()
 
 
 def load_conf(root='.'):
-    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': [], 'script': ''}
+    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': [], 'script': '', 'units': []}
     for line in _read(os.path.join(root, CONF_FILE)).splitlines():
         line = line.split('#', 1)[0].strip()
         if '=' not in line:
@@ -478,7 +481,7 @@ def load_conf(root='.'):
         k, v = (x.strip() for x in line.split('=', 1))
         if k in ('name', 'script') and v:
             conf[k] = v.replace('\\', '/').rstrip('/')
-        elif k in ('links', 'exclude'):
+        elif k in ('links', 'exclude', 'units'):
             conf[k] += [x.replace('\\', '/').strip('/') for x in v.replace(',', ' ').split()]
     return conf
 
@@ -487,9 +490,16 @@ def is_project(path):
     return os.path.isfile(os.path.join(path, 'codemap.py')) or os.path.isfile(os.path.join(path, CONF_FILE))
 
 
+def unit_dirs():
+    """Folders indexed on their own (codemap.folders + `units` in codemap.conf); '.' excluded."""
+    return {f for f in _registered_folders() + list((CONF or {}).get('units', [])) if f not in ('', '.')}
+
+
 def walk(root):
     import fnmatch
     excl = (CONF or {}).get('exclude', [])
+    units = unit_dirs()
+    root_rel = os.path.relpath(os.path.abspath(root), os.getcwd()).replace('\\', '/')
     for dp, dns, fns in os.walk(root):
         keep = []
         for d in sorted(dns):
@@ -501,6 +511,8 @@ def walk(root):
                 continue
             if is_project(full):  # a separate codemap project (e.g. a library submodule)
                 NESTED_SKIPPED.add(rel)
+                continue
+            if rel in units and rel != root_rel:  # indexed as its own unit
                 continue
             keep.append(d)
         dns[:] = keep
@@ -911,7 +923,8 @@ def _register_folder(folder):
 def _index_dirs():
     """Indexed folders: from codemap.folders (survives git clone) plus any existing .codemap/<dir>.
     Folder '.' (the whole project) lives in .codemap/_root."""
-    names = {('_root' if f == '.' else f.replace('/', '__')) for f in _registered_folders()}
+    names = {('_root' if f == '.' else f.replace('/', '__'))
+             for f in _registered_folders() + list(CONF.get('units', []))}
     if os.path.isdir('.codemap'):
         names |= {n for n in os.listdir('.codemap') if os.path.isdir(os.path.join('.codemap', n))
                   and (not n.startswith('_') or n == '_root')}
@@ -1080,6 +1093,46 @@ def cmd_zip_skills(a):
     print(f'ZIP DONE: {len(made)} skills in {a.out}')
 
 
+def cmd_ensure(a):
+    """PATH (file or folder) -> its unit; build/refresh the unit's index (free); report SECTION 0/1."""
+    path = os.path.relpath(os.path.abspath(a.path), os.getcwd()).replace('\\', '/')
+    if path.startswith('..') or not os.path.exists(path):
+        print(f'ERROR: not found in this project: {a.path}')
+        sys.exit(2)
+    p = owner_project(path)
+    if p and not getattr(a, '_prefix', ''):
+        a._prefix = p + '/'
+        a.path = os.path.relpath(path, p).replace('\\', '/')
+        with in_project(p):
+            return cmd_ensure(a)
+    prefix = getattr(a, '_prefix', '')
+    folder = path if os.path.isdir(path) else (os.path.dirname(path) or '.')
+    cands = [u for u in unit_dirs() if folder == u or folder.startswith(u + '/')]
+    if cands:
+        unit = max(cands, key=len)
+    elif '.' in _registered_folders():
+        unit = '.'
+    else:
+        parts = [x for x in folder.split('/') if x not in ('', '.')]
+        if not parts:
+            print('ERROR: a file in the project root belongs to no unit; name a folder')
+            sys.exit(2)
+        unit = '/'.join(parts[:2]) if parts[0] == 'libs' and len(parts) > 1 else parts[0]
+    d = os.path.join('.codemap', '_root' if unit == '.' else unit.replace('/', '__'))
+    st = folder_status(unit, d)
+    if st != 'OK':
+        ns = argparse.Namespace(root=unit, out=d, private=False, part_chars=150000)
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()):
+            cmd_index(ns)
+        _register_folder(unit)
+        st = {'NOINDEX': 'created'}.get(st, 'updated')
+    sections = {t for t, _ in _split_sections(_read(MAP_FILE))[1]}
+    print(f'UNIT {_shown(unit, prefix)}')
+    print(f'INDEX {(prefix + d).replace(chr(92), "/")} ({st})')
+    print(f'SECTION {1 if section_name(unit) in sections else 0}')
+
+
 def cmd_find(a):
     """Look a name up in all indexes and maps (this project + linked ones)."""
     projects = [('', CONF['name'])] + [(p + '/', nm) for p, nm in linked_projects()]
@@ -1126,6 +1179,8 @@ def main():
     pd.add_argument('--out', default='.codemap/_dump')
     for p in (pi, pd):
         p.add_argument('--part-chars', type=int, default=150000)
+    pe = sub.add_parser('ensure', help='unit of a file/folder: build its index if needed, say if it has a map section')
+    pe.add_argument('path')
     pz = sub.add_parser('zip-skills', help='pack .claude/skills/* as zip files for upload to a Claude account')
     pz.add_argument('out')
     sub.add_parser('sync', help='copy codemap.py from `script` (codemap.conf) here and to linked projects')
@@ -1150,7 +1205,7 @@ def main():
     if a.cmd == 'section' and not a.show and not a.file:
         ap.error('section: give FILE or --show')
     {'index': cmd_index, 'dump': cmd_dump, 'section': cmd_section, 'find': cmd_find,
-     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills}[a.cmd](a)
+     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills, 'ensure': cmd_ensure}[a.cmd](a)
 
 
 if __name__ == '__main__':
