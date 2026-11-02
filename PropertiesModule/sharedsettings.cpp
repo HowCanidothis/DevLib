@@ -36,7 +36,7 @@ StyleSettings::StyleSettings()
     , DefaultPurpleColor("#7B1FA2")
     , ShowFocusMinFrame(3, 0, 9)
     #ifdef QT_DEBUG
-    , ShadersPath("C:/Work/wps-client/libs/Content/Shaders/")
+    , ShadersPath("D:/Work/wps-client/libs/Content/Shaders/")
     #else
     , ShadersPath(":/Content/Shaders/")
     #endif

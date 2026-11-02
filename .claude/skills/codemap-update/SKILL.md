@@ -37,7 +37,7 @@ python3 codemap.py sync && python3 codemap.py status
 
 ## Шаг 2. Индексы
 
-`python3 codemap.py reindex` (или `reindex --all`). Ждёшь `REINDEX DONE` и строки `reindexed:` / `up to date:` по каждому проекту. Нет `REINDEX DONE` — покажи последние 20 строк и остановись. Скрипт не чини.
+`python3 codemap.py reindex` (или `reindex --all`). Если нет файла `.codemap/_extern.tsv` или пользователь сказал «принудительно» — ещё `python3 codemap.py extern` (список классов сторонних библиотек для `find`, около минуты). Обе команды — `device_bash` с `timeout_ms: 180000`. Ждёшь `REINDEX DONE` и строки `reindexed:` / `up to date:` по каждому проекту. Нет `REINDEX DONE` — покажи последние 20 строк и остановись. Скрипт не чини.
 
 «только индексы» или нет запусков Opus — к шагу 4.
 

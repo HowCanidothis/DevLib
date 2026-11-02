@@ -1136,7 +1136,7 @@ def cmd_ensure(a):
 def cmd_find(a):
     """Look a name up in all indexes and maps (this project + linked ones)."""
     projects = [('', CONF['name'])] + [(p + '/', nm) for p, nm in linked_projects()]
-    found = False
+    found = declared = False
     for prefix, pname in projects:
         if prefix:
             with in_project(prefix.rstrip('/')):
@@ -1147,6 +1147,7 @@ def cmd_find(a):
             continue
         found = True
         decl, impl, other, uses, hits = res
+        declared = declared or bool(decl)
         if len(projects) > 1:
             print(f'=== {pname}' + (f' ({prefix.rstrip("/")})' if prefix else ''))
         def show(title, items, limit):
@@ -1161,9 +1162,113 @@ def cmd_find(a):
         show('members/signatures mentioning it', other, 15)
         show('used by files', uses, 30)
         show(f'{prefix}{MAP_FILE}', hits, 8)
-    if not found:
+    if found and not declared:  # used in our code, declared nowhere in the maps: third-party?
+        ext = []
+        for prefix, _ in projects:
+            if prefix:
+                with in_project(prefix.rstrip('/')):
+                    ext += _find_extern(a.name, prefix)
+            else:
+                ext += _find_extern(a.name, '')
+        if ext:
+            print('== declared outside the maps (excluded third-party code)')
+            for h in ext[:10]:
+                print('  ' + h)
+    if not found:  # not a class/function/alias: maybe a data member, or a class from excluded third-party code
+        hits = []
+        for prefix, pname in projects:
+            if prefix:
+                with in_project(prefix.rstrip('/')):
+                    hits += _find_members(a.name, prefix) + _find_extern(a.name, prefix)
+            else:
+                hits += _find_members(a.name, '') + _find_extern(a.name, '')
+        if hits:
+            print(f'== not in indexes; found as field/member or in excluded (third-party) code ({len(hits)})')
+            for h in hits[:15]:
+                print('  ' + h)
+            if len(hits) > 15:
+                print(f'  ... +{len(hits) - 15}')
+            return
         where = ' and linked projects' if len(projects) > 1 else ''
-        print(f'NOT FOUND in .codemap indexes{where}. Try: grep -rn -w "{a.name}" --include=*.h --include=*.hpp --include=*.cpp .')
+        ext = '' if os.path.exists(EXTERN_FILE) else ' (third-party code is not listed yet: run `python3 codemap.py extern` once)'
+        print(f'NOT FOUND in .codemap indexes{where}{ext}. Try: grep -rn -w "{a.name}" --include=*.h --include=*.hpp --include=*.cpp .')
+
+
+EXTERN_FILE = os.path.join('.codemap', '_extern.tsv')
+
+
+def _find_members(name, prefix):
+    """Data members / fields named NAME in headers of indexed folders (the index stores no fields)."""
+    pat = re.compile(r'^\s*(?!return\b|#)[\w:<>,*&\s]*[\w>*&]\s*[*&]?\s*\b' + re.escape(name) + r'\s*(?:;|=(?!=)|\{|\[)')
+    out, seen = [], set()
+    for folder, _ in _index_dirs():
+        if not os.path.isdir(folder):
+            continue
+        for path in walk(folder):
+            if os.path.splitext(path)[1].lower() not in HDR_EXT or path in seen:
+                continue
+            seen.add(path)
+            try:
+                lines = read(path).split('\n')
+            except OSError:
+                continue
+            for k, line in enumerate(lines, 1):
+                if name in line and pat.match(line):
+                    rel = os.path.relpath(path, '.').replace('\\', '/')
+                    out.append(f'{prefix}{rel}:{k}: field  {line.strip()[:150]}')
+    return out
+
+
+def _find_extern(name, prefix):
+    if not os.path.exists(EXTERN_FILE):
+        return []
+    out = []
+    for line in open(EXTERN_FILE, encoding='utf-8', errors='replace'):
+        n, _, path = line.rstrip('\n').partition('\t')
+        if n == name:
+            out.append(f'{prefix}{path}: external class {name} (excluded from the map: third-party)')
+    return out
+
+
+def cmd_extern(a):
+    """List classes declared in excluded folders (third-party) -> .codemap/_extern.tsv, so `find` can
+    say where e.g. CDockManager comes from. Names only; run once and after updating third-party code."""
+    import fnmatch
+    excl = CONF.get('exclude', [])
+    roots = []
+    for dp, dns, _ in os.walk('.'):
+        keep = []
+        for d in sorted(dns):
+            if d.startswith('.') or skip_dir(d) or d.startswith('bin_'):
+                continue
+            rel = os.path.relpath(os.path.join(dp, d), '.').replace('\\', '/')
+            if any(fnmatch.fnmatchcase(d, e) or fnmatch.fnmatchcase(rel, e) for e in excl):
+                roots.append(rel)
+            elif not is_project(os.path.join(dp, d)):
+                keep.append(d)
+        dns[:] = keep
+    pat = re.compile(r'^\s*(?:template\s*<[^>]*>\s*)?(?:class|struct)\s+(?:\w+\s+)*?(\w+)\s*(?:final\s*)?(?::(?!:)|\{|$)')
+    rows = set()
+    for r in roots:
+        for dp, dns, fns in os.walk(r):
+            dns[:] = [d for d in dns if not d.startswith('.')]
+            for fn in fns:
+                if os.path.splitext(fn)[1].lower() not in HDR_EXT:
+                    continue
+                path = os.path.join(dp, fn)
+                try:
+                    text = read(path)
+                except OSError:
+                    continue
+                rel = os.path.relpath(path, '.').replace('\\', '/')
+                for line in text.split('\n'):
+                    if ('class' in line or 'struct' in line) and not line.rstrip().endswith(';'):
+                        m = pat.match(line)
+                        if m and not m.group(1).isupper():
+                            rows.add((m.group(1), rel))
+    os.makedirs('.codemap', exist_ok=True)
+    _write(EXTERN_FILE, ''.join(f'{n}\t{p}\n' for n, p in sorted(rows)))
+    print(f'EXTERN DONE: {len(rows)} classes from {len(roots)} excluded folders -> {EXTERN_FILE}')
 
 
 def main():
@@ -1179,6 +1284,7 @@ def main():
     pd.add_argument('--out', default='.codemap/_dump')
     for p in (pi, pd):
         p.add_argument('--part-chars', type=int, default=150000)
+    sub.add_parser('extern', help='list classes of excluded (third-party) folders for find')
     pe = sub.add_parser('ensure', help='unit of a file/folder: build its index if needed, say if it has a map section')
     pe.add_argument('path')
     pz = sub.add_parser('zip-skills', help='pack .claude/skills/* as zip files for upload to a Claude account')
@@ -1205,7 +1311,7 @@ def main():
     if a.cmd == 'section' and not a.show and not a.file:
         ap.error('section: give FILE or --show')
     {'index': cmd_index, 'dump': cmd_dump, 'section': cmd_section, 'find': cmd_find,
-     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills, 'ensure': cmd_ensure}[a.cmd](a)
+     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills, 'ensure': cmd_ensure, 'extern': cmd_extern}[a.cmd](a)
 
 
 if __name__ == '__main__':
