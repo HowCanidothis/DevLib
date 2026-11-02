@@ -46,10 +46,11 @@ if exist "..\..\codemap.conf" (
 
 echo.
 echo [3/3] Packing skills...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$o = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Claude-skills';" ^
-  "New-Item -ItemType Directory $o -Force | Out-Null; Get-ChildItem $o -Filter *.zip | Remove-Item;" ^
-  "Get-ChildItem '.claude\skills' -Directory | ForEach-Object { Compress-Archive $_.FullName (Join-Path $o ($_.Name + '.zip')) -Force; Write-Host ('  ' + $_.Name + '.zip') };" ^
-  "Write-Host ''; Write-Host ('Done. Upload all zip files from ' + $o + ' in Claude: Settings - Skills (only needed when skills changed).');" ^
-  "Start-Process explorer $o"
+set "DESK="
+for /f "usebackq delims=" %%D in (`powershell -NoProfile -Command "[Environment]::GetFolderPath('Desktop')"`) do set "DESK=%%D"
+if not defined DESK set "DESK=%USERPROFILE%\Desktop"
+%PY% codemap.py zip-skills "%DESK%\Claude-skills"
+echo.
+echo Upload all zip files from %DESK%\Claude-skills in Claude: Settings - Skills (only needed when skills changed).
+explorer "%DESK%\Claude-skills"
 pause

@@ -1054,6 +1054,31 @@ def cmd_sync(a):
     print('SYNC DONE: ' + ('updated ' + ', '.join(changed) if changed else 'all copies are up to date'))
 
 
+def cmd_zip_skills(a):
+    """Pack each .claude/skills/<name>/ into OUT/<name>.zip (entries '<name>/...', forward slashes)
+    for upload in Claude settings -> Skills."""
+    import zipfile
+    src = os.path.join('.claude', 'skills')
+    if not os.path.isdir(src):
+        print(f'ERROR: {src} not found (run from the folder that has .claude/skills)')
+        sys.exit(2)
+    os.makedirs(a.out, exist_ok=True)
+    made = []
+    for name in sorted(os.listdir(src)):
+        d = os.path.join(src, name)
+        if not os.path.isfile(os.path.join(d, 'SKILL.md')):
+            continue
+        zp = os.path.join(a.out, name + '.zip')
+        with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
+            for dp, _, fns in os.walk(d):
+                for fn in sorted(fns):
+                    full = os.path.join(dp, fn)
+                    z.write(full, os.path.relpath(full, src).replace(os.sep, '/'))
+        made.append(name)
+        print(f'  {name}.zip')
+    print(f'ZIP DONE: {len(made)} skills in {a.out}')
+
+
 def cmd_find(a):
     """Look a name up in all indexes and maps (this project + linked ones)."""
     projects = [('', CONF['name'])] + [(p + '/', nm) for p, nm in linked_projects()]
@@ -1100,6 +1125,8 @@ def main():
     pd.add_argument('--out', default='.codemap/_dump')
     for p in (pi, pd):
         p.add_argument('--part-chars', type=int, default=150000)
+    pz = sub.add_parser('zip-skills', help='pack .claude/skills/* as zip files for upload to a Claude account')
+    pz.add_argument('out')
     sub.add_parser('sync', help='copy codemap.py from `script` (codemap.conf) here and to linked projects')
     sub.add_parser('status', help='OK/OLD/CHANGED/MISSING for every indexed folder (content hash, not mtime)')
     pr = sub.add_parser('reindex', help='rebuild indexes of indexed folders that are OLD/CHANGED (free, no AI)')
@@ -1122,7 +1149,7 @@ def main():
     if a.cmd == 'section' and not a.show and not a.file:
         ap.error('section: give FILE or --show')
     {'index': cmd_index, 'dump': cmd_dump, 'section': cmd_section, 'find': cmd_find,
-     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync}[a.cmd](a)
+     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills}[a.cmd](a)
 
 
 if __name__ == '__main__':
