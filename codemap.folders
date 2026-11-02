@@ -1,0 +1,16 @@
+# folders indexed by codemap.py (commit this file; .codemap/ is generated)
+CloudModule
+CommandsModule
+ComputeGraphModule
+ControllersModule
+GraphicsToolsModule
+NetworkModule
+ProgressModule
+PropertiesModule
+ResourcesModule
+SQLiteModule
+SharedGuiModule
+SharedModule
+StylesModule
+UnitsModule
+WidgetsModule

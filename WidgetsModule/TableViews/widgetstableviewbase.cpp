@@ -99,6 +99,7 @@ WidgetsTableViewBase::WidgetsTableViewBase(QWidget* parent)
 {
     horizontalHeader()->setFocusProxy(this);
     verticalHeader()->setFocusProxy(this);
+    verticalHeader()->setDefaultSectionSize(42);
     setMouseTracking(true);
 
     m_selectionColor.OnChanged.ConnectCombined(CDL, [this]{

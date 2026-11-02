@@ -76,7 +76,13 @@ void QStyledItemDelegateBase::paint(QPainter *painter, const QStyleOptionViewIte
         doc.documentLayout()->draw(painter, ctx);
         painter->restore();
     } else {
-        Super::paint(painter, inOption, index);
+        if(index.model()->headerData(index.column(), Qt::Horizontal, UnitRole).isValid()) {
+            auto opt = inOption;
+            opt.displayAlignment = Qt::AlignVCenter | Qt::AlignRight;
+            Super::paint(painter, opt, index);
+        } else {
+            Super::paint(painter, inOption, index);
+        }
     }
 }
 

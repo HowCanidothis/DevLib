@@ -616,13 +616,13 @@ QHeaderView::up-arrow {
     image: url("@cPath/arrow-up-sort.svg");
 }
 
-QHeaderView::section::horizontal:hover {
+/*QHeaderView::section::horizontal:hover {
     background-color: @cbg.hover;
 }
 
 QHeaderView::section::vertical:hover {
     background-color: @cbg.hover;
-}
+}*/
 
 QHeaderView::section::horizontal {
     border-bottom: 1px solid @cbg.disabled;
