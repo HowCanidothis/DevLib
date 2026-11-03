@@ -19,6 +19,9 @@ codemap.conf in the project root (commit it):
   links = libs/DevLib            # other codemap projects: find/status/reindex cover them too
   exclude = 3rdparty bin_*       # extra folders to skip: names or paths from the project root, * allowed
   script = libs/DevLib           # where the master copy of codemap.py lives; `sync` copies it here and to links
+  units = WPSClient/Objects WPSClient/Ui   # big folders split into parts: each unit has its own index and
+                                 # map section; a parent's index never includes its sub-units
+  python codemap.py ensure PATH   (which unit PATH belongs to; builds/refreshes its index; SECTION 0/1)
 A subfolder that has its own codemap.py / codemap.conf is a separate project and is never
 indexed into this map; link it instead.
 
@@ -470,7 +473,7 @@ NESTED_SKIPPED = set()
 
 
 def load_conf(root='.'):
-    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': [], 'script': ''}
+    conf = {'name': os.path.basename(os.path.abspath(root)), 'links': [], 'exclude': [], 'script': '', 'units': []}
     for line in _read(os.path.join(root, CONF_FILE)).splitlines():
         line = line.split('#', 1)[0].strip()
         if '=' not in line:
@@ -478,7 +481,7 @@ def load_conf(root='.'):
         k, v = (x.strip() for x in line.split('=', 1))
         if k in ('name', 'script') and v:
             conf[k] = v.replace('\\', '/').rstrip('/')
-        elif k in ('links', 'exclude'):
+        elif k in ('links', 'exclude', 'units'):
             conf[k] += [x.replace('\\', '/').strip('/') for x in v.replace(',', ' ').split()]
     return conf
 
@@ -487,9 +490,16 @@ def is_project(path):
     return os.path.isfile(os.path.join(path, 'codemap.py')) or os.path.isfile(os.path.join(path, CONF_FILE))
 
 
+def unit_dirs():
+    """Folders indexed on their own (codemap.folders + `units` in codemap.conf); '.' excluded."""
+    return {f for f in _registered_folders() + list((CONF or {}).get('units', [])) if f not in ('', '.')}
+
+
 def walk(root):
     import fnmatch
     excl = (CONF or {}).get('exclude', [])
+    units = unit_dirs()
+    root_rel = os.path.relpath(os.path.abspath(root), os.getcwd()).replace('\\', '/')
     for dp, dns, fns in os.walk(root):
         keep = []
         for d in sorted(dns):
@@ -501,6 +511,8 @@ def walk(root):
                 continue
             if is_project(full):  # a separate codemap project (e.g. a library submodule)
                 NESTED_SKIPPED.add(rel)
+                continue
+            if rel in units and rel != root_rel:  # indexed as its own unit
                 continue
             keep.append(d)
         dns[:] = keep
@@ -911,7 +923,8 @@ def _register_folder(folder):
 def _index_dirs():
     """Indexed folders: from codemap.folders (survives git clone) plus any existing .codemap/<dir>.
     Folder '.' (the whole project) lives in .codemap/_root."""
-    names = {('_root' if f == '.' else f.replace('/', '__')) for f in _registered_folders()}
+    names = {('_root' if f == '.' else f.replace('/', '__'))
+             for f in _registered_folders() + list(CONF.get('units', []))}
     if os.path.isdir('.codemap'):
         names |= {n for n in os.listdir('.codemap') if os.path.isdir(os.path.join('.codemap', n))
                   and (not n.startswith('_') or n == '_root')}
@@ -1001,7 +1014,8 @@ def _find_in(name, prefix):
         for line in open(idx, encoding='utf-8', errors='replace'):
             line = line.rstrip('\n')
             if line.startswith('### '):
-                cur = prefix + line[4:]
+                # '### path (N)': N is the file's line count, not a line number - say so explicitly
+                cur = prefix + re.sub(r' \((\d+)\)$', r' (\1 lines total)', line[4:])
                 continue
             if not cur or not pat.search(line):
                 continue
@@ -1079,10 +1093,50 @@ def cmd_zip_skills(a):
     print(f'ZIP DONE: {len(made)} skills in {a.out}')
 
 
+def cmd_ensure(a):
+    """PATH (file or folder) -> its unit; build/refresh the unit's index (free); report SECTION 0/1."""
+    path = os.path.relpath(os.path.abspath(a.path), os.getcwd()).replace('\\', '/')
+    if path.startswith('..') or not os.path.exists(path):
+        print(f'ERROR: not found in this project: {a.path}')
+        sys.exit(2)
+    p = owner_project(path)
+    if p and not getattr(a, '_prefix', ''):
+        a._prefix = p + '/'
+        a.path = os.path.relpath(path, p).replace('\\', '/')
+        with in_project(p):
+            return cmd_ensure(a)
+    prefix = getattr(a, '_prefix', '')
+    folder = path if os.path.isdir(path) else (os.path.dirname(path) or '.')
+    cands = [u for u in unit_dirs() if folder == u or folder.startswith(u + '/')]
+    if cands:
+        unit = max(cands, key=len)
+    elif '.' in _registered_folders():
+        unit = '.'
+    else:
+        parts = [x for x in folder.split('/') if x not in ('', '.')]
+        if not parts:
+            print('ERROR: a file in the project root belongs to no unit; name a folder')
+            sys.exit(2)
+        unit = '/'.join(parts[:2]) if parts[0] == 'libs' and len(parts) > 1 else parts[0]
+    d = os.path.join('.codemap', '_root' if unit == '.' else unit.replace('/', '__'))
+    st = folder_status(unit, d)
+    if st != 'OK':
+        ns = argparse.Namespace(root=unit, out=d, private=False, part_chars=150000)
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()):
+            cmd_index(ns)
+        _register_folder(unit)
+        st = {'NOINDEX': 'created'}.get(st, 'updated')
+    sections = {t for t, _ in _split_sections(_read(MAP_FILE))[1]}
+    print(f'UNIT {_shown(unit, prefix)}')
+    print(f'INDEX {(prefix + d).replace(chr(92), "/")} ({st})')
+    print(f'SECTION {1 if section_name(unit) in sections else 0}')
+
+
 def cmd_find(a):
     """Look a name up in all indexes and maps (this project + linked ones)."""
     projects = [('', CONF['name'])] + [(p + '/', nm) for p, nm in linked_projects()]
-    found = False
+    found = declared = False
     for prefix, pname in projects:
         if prefix:
             with in_project(prefix.rstrip('/')):
@@ -1093,6 +1147,7 @@ def cmd_find(a):
             continue
         found = True
         decl, impl, other, uses, hits = res
+        declared = declared or bool(decl)
         if len(projects) > 1:
             print(f'=== {pname}' + (f' ({prefix.rstrip("/")})' if prefix else ''))
         def show(title, items, limit):
@@ -1107,9 +1162,113 @@ def cmd_find(a):
         show('members/signatures mentioning it', other, 15)
         show('used by files', uses, 30)
         show(f'{prefix}{MAP_FILE}', hits, 8)
-    if not found:
+    if found and not declared:  # used in our code, declared nowhere in the maps: third-party?
+        ext = []
+        for prefix, _ in projects:
+            if prefix:
+                with in_project(prefix.rstrip('/')):
+                    ext += _find_extern(a.name, prefix)
+            else:
+                ext += _find_extern(a.name, '')
+        if ext:
+            print('== declared outside the maps (excluded third-party code)')
+            for h in ext[:10]:
+                print('  ' + h)
+    if not found:  # not a class/function/alias: maybe a data member, or a class from excluded third-party code
+        hits = []
+        for prefix, pname in projects:
+            if prefix:
+                with in_project(prefix.rstrip('/')):
+                    hits += _find_members(a.name, prefix) + _find_extern(a.name, prefix)
+            else:
+                hits += _find_members(a.name, '') + _find_extern(a.name, '')
+        if hits:
+            print(f'== not in indexes; found as field/member or in excluded (third-party) code ({len(hits)})')
+            for h in hits[:15]:
+                print('  ' + h)
+            if len(hits) > 15:
+                print(f'  ... +{len(hits) - 15}')
+            return
         where = ' and linked projects' if len(projects) > 1 else ''
-        print(f'NOT FOUND in .codemap indexes{where}. Try: grep -rn -w "{a.name}" --include=*.h --include=*.hpp --include=*.cpp .')
+        ext = '' if os.path.exists(EXTERN_FILE) else ' (third-party code is not listed yet: run `python3 codemap.py extern` once)'
+        print(f'NOT FOUND in .codemap indexes{where}{ext}. Try: grep -rn -w "{a.name}" --include=*.h --include=*.hpp --include=*.cpp .')
+
+
+EXTERN_FILE = os.path.join('.codemap', '_extern.tsv')
+
+
+def _find_members(name, prefix):
+    """Data members / fields named NAME in headers of indexed folders (the index stores no fields)."""
+    pat = re.compile(r'^\s*(?!return\b|#)[\w:<>,*&\s]*[\w>*&]\s*[*&]?\s*\b' + re.escape(name) + r'\s*(?:;|=(?!=)|\{|\[)')
+    out, seen = [], set()
+    for folder, _ in _index_dirs():
+        if not os.path.isdir(folder):
+            continue
+        for path in walk(folder):
+            if os.path.splitext(path)[1].lower() not in HDR_EXT or path in seen:
+                continue
+            seen.add(path)
+            try:
+                lines = read(path).split('\n')
+            except OSError:
+                continue
+            for k, line in enumerate(lines, 1):
+                if name in line and pat.match(line):
+                    rel = os.path.relpath(path, '.').replace('\\', '/')
+                    out.append(f'{prefix}{rel}:{k}: field  {line.strip()[:150]}')
+    return out
+
+
+def _find_extern(name, prefix):
+    if not os.path.exists(EXTERN_FILE):
+        return []
+    out = []
+    for line in open(EXTERN_FILE, encoding='utf-8', errors='replace'):
+        n, _, path = line.rstrip('\n').partition('\t')
+        if n == name:
+            out.append(f'{prefix}{path}: external class {name} (excluded from the map: third-party)')
+    return out
+
+
+def cmd_extern(a):
+    """List classes declared in excluded folders (third-party) -> .codemap/_extern.tsv, so `find` can
+    say where e.g. CDockManager comes from. Names only; run once and after updating third-party code."""
+    import fnmatch
+    excl = CONF.get('exclude', [])
+    roots = []
+    for dp, dns, _ in os.walk('.'):
+        keep = []
+        for d in sorted(dns):
+            if d.startswith('.') or skip_dir(d) or d.startswith('bin_'):
+                continue
+            rel = os.path.relpath(os.path.join(dp, d), '.').replace('\\', '/')
+            if any(fnmatch.fnmatchcase(d, e) or fnmatch.fnmatchcase(rel, e) for e in excl):
+                roots.append(rel)
+            elif not is_project(os.path.join(dp, d)):
+                keep.append(d)
+        dns[:] = keep
+    pat = re.compile(r'^\s*(?:template\s*<[^>]*>\s*)?(?:class|struct)\s+(?:\w+\s+)*?(\w+)\s*(?:final\s*)?(?::(?!:)|\{|$)')
+    rows = set()
+    for r in roots:
+        for dp, dns, fns in os.walk(r):
+            dns[:] = [d for d in dns if not d.startswith('.')]
+            for fn in fns:
+                if os.path.splitext(fn)[1].lower() not in HDR_EXT:
+                    continue
+                path = os.path.join(dp, fn)
+                try:
+                    text = read(path)
+                except OSError:
+                    continue
+                rel = os.path.relpath(path, '.').replace('\\', '/')
+                for line in text.split('\n'):
+                    if ('class' in line or 'struct' in line) and not line.rstrip().endswith(';'):
+                        m = pat.match(line)
+                        if m and not m.group(1).isupper():
+                            rows.add((m.group(1), rel))
+    os.makedirs('.codemap', exist_ok=True)
+    _write(EXTERN_FILE, ''.join(f'{n}\t{p}\n' for n, p in sorted(rows)))
+    print(f'EXTERN DONE: {len(rows)} classes from {len(roots)} excluded folders -> {EXTERN_FILE}')
 
 
 def main():
@@ -1125,6 +1284,9 @@ def main():
     pd.add_argument('--out', default='.codemap/_dump')
     for p in (pi, pd):
         p.add_argument('--part-chars', type=int, default=150000)
+    sub.add_parser('extern', help='list classes of excluded (third-party) folders for find')
+    pe = sub.add_parser('ensure', help='unit of a file/folder: build its index if needed, say if it has a map section')
+    pe.add_argument('path')
     pz = sub.add_parser('zip-skills', help='pack .claude/skills/* as zip files for upload to a Claude account')
     pz.add_argument('out')
     sub.add_parser('sync', help='copy codemap.py from `script` (codemap.conf) here and to linked projects')
@@ -1149,7 +1311,7 @@ def main():
     if a.cmd == 'section' and not a.show and not a.file:
         ap.error('section: give FILE or --show')
     {'index': cmd_index, 'dump': cmd_dump, 'section': cmd_section, 'find': cmd_find,
-     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills}[a.cmd](a)
+     'status': cmd_status, 'reindex': cmd_reindex, 'sync': cmd_sync, 'zip-skills': cmd_zip_skills, 'ensure': cmd_ensure, 'extern': cmd_extern}[a.cmd](a)
 
 
 if __name__ == '__main__':

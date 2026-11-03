@@ -9,7 +9,7 @@ description: Use when the user asks about code in D:\Work\wps-client or its subm
 
 1. `ls "$HOME/mnt/"`: есть `wps-client` → КОРЕНЬ = `$HOME/mnt/wps-client`; есть только `DevLib` → КОРЕНЬ = `$HOME/mnt/DevLib` (пути без `libs/DevLib/`). Тогда доступ не запрашивай.
 2. Иначе ОДИН раз `device_request_folder_access` для `D:\Work\wps-client` с короткой причиной на русском. Нет такой папки на машине — спроси путь. Отказ — не повторяй; предложи «Add folder» в приложении, прикрепить файлы или вставить код.
-3. Индексация и обновление карт — только скиллами `codemap` и `codemap-update`. Исключение: `find` пишет, что индексов нет, или `status` показывает `NOINDEX`/`OLD` — можно сразу `python3 codemap.py sync && python3 codemap.py reindex` (бесплатно, меняет только `.codemap/`). В остальном этот скилл только читает.
+3. Индексы и разделы карт меняются только так: `ensure` и автосоздание раздела (раздел «Раздел карты» ниже); `python3 codemap.py sync && python3 codemap.py reindex`, если `find` пишет, что индексов нет, или `status` показывает `NOINDEX`/`OLD` (бесплатно); остальное — скиллами `codemap` и `codemap-update`.
 
 Команды — `mcp__remote-devices__device_bash` с префиксом `cd "КОРЕНЬ" && `, `python3`. Без Cowork — терминал в корне (`python`/`py`). Если в корне wps-client нет `codemap.py` (корневая карта не настроена на этой машине) — работай из `libs/DevLib`: `find` там видит только DevLib, остальное ищи grep-ом.
 
@@ -19,10 +19,19 @@ description: Use when the user asks about code in D:\Work\wps-client or its subm
 
 Карты: у корня wps-client (локальная) и у сабмодулей `libs/DevLib`, `libs/WPSModule`, `libs/RModule` (в git) — свои `CODEMAP.md` и `.codemap/`. Из корня команды работают по всем картам, пути — от корня.
 
-- `python3 codemap.py find ИМЯ` — где ИМЯ объявлено, реализовано, кто использует, строки карт; результаты сгруппированы по проектам.
+- `python3 codemap.py find ИМЯ` — где ИМЯ объявлено, реализовано, кто использует, строки карт; результаты сгруппированы по проектам. Если ИМЯ — поле класса или класс сторонней библиотеки (Qt-Ads-Custom, Eigen и т.п., исключены из карты), `find` сам это покажет (строки `field` и «declared outside the maps»). Сторонний список строится один раз командой `python3 codemap.py extern`; если `find` пишет, что его нет, — выполни её.
 - `python3 codemap.py section ПАПКА --show` — раздел карты о папке (`WPSClient`, `libs/BHAModule`, `libs/DevLib/PropertiesModule`, `libs/WPSModule`). Без раздела — скрипт покажет список имеющихся.
 - `python3 codemap.py status` — какие папки проиндексированы.
 - Соглашения DevLib — `libs/DevLib/CONVENTIONS.md` (единственный источник правил по DevLib): `python3 codemap.py section РАЗДЕЛ --show --file libs/DevLib/CONVENTIONS.md` (список — `section ? --show --file libs/DevLib/CONVENTIONS.md`). Если у другого проекта есть свой `CONVENTIONS.md` в корне — он обязателен для его кода.
+
+## Раздел карты: читать или создать (автоматически)
+
+Когда нужен обзор папки или вопрос касается конкретного файла или папки:
+
+1. `python3 codemap.py ensure ПУТЬ` (файл или папка, путь от корня; вызывай `device_bash` с `timeout_ms: 180000`, при таймауте повтори один раз — первый проход по диску бывает медленным). Скрипт сам определит ЧАСТЬ карты, к которой относится путь (большие папки вроде WPSClient поделены на части — `units` в `codemap.conf`), при необходимости бесплатно создаст или обновит её индекс и напечатает:
+   `UNIT ЧАСТЬ` / `INDEX КАТАЛОГ_ИНДЕКСА (OK|created|updated)` / `SECTION 1|0`.
+2. `SECTION 1` — `python3 codemap.py section ЧАСТЬ --show` и работай по нему.
+3. `SECTION 0` — раздела ещё нет, создай его, НЕ спрашивая пользователя: напиши одну строку «Создаю раздел карты для ЧАСТЬ», загрузи скилл `codemap` (инструмент Skill) и выполни его шаги 4–5 для ЧАСТЬ с этим КАТАЛОГОМ_ИНДЕКСА (шаг 3 уже сделан `ensure`). Затем `section ЧАСТЬ --show`. Один раз на часть; если создание не удалось или нет инструмента Agent — скажи об этом одной строкой и продолжай по `find` и исходникам.
 
 ## Как искать класс, функцию или тип
 
@@ -31,7 +40,7 @@ description: Use when the user asks about code in D:\Work\wps-client or its subm
 3. Не нашлось и там — его нет в проекте. `ui_X.h` не ищи — его генерирует Qt из `X.ui`.
 4. Исходник читай точечно — только найденные файлы.
 
-Вопрос про модуль целиком: сначала `section ПАПКА --show`, потом при необходимости индекс. Не подменяй модуль: раздел `SharedModule` не отвечает про `PropertiesModule`. Нет раздела и индекса — скажи и предложи `/codemap ПАПКА`.
+Вопрос про модуль целиком — раздел «Раздел карты» выше. Не подменяй модуль: раздел `SharedModule` не отвечает про `PropertiesModule`.
 
 ## Перед написанием или ревью кода
 
