@@ -584,7 +584,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Поменять зависимости цели CommandsModule | `CommandsModule/CMakeLists.txt` |
 | Подключить модуль в qmake-проект | `CommandsModule/CommandsModule.pri` (пустой) |
 | Понять, кто линкуется с модулем | `ControllersModule/CMakeLists.txt` |
-| Найти реализацию команд и операций | В DevLib её нет; вероятно, она вне DevLib, в wps-client (?) |
+| Найти реализацию команд и операций | В DevLib её нет; вероятно, она в проекте, который использует DevLib (?) |
 
 ## ComputeGraphModule
 
@@ -678,7 +678,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 
 Кто зависит от NetworkModule (из уже описанных):
 - **CloudModule** — не использует, сеть идёт напрямую через `QNetworkAccessManager` [раздел CloudModule этой карты].
-- Grep по исходникам DevLib вне `NetworkModule/` (`*.h`, `*.hpp`, `*.cpp`, `*.pri`, `*.pro`) не нашёл ни одного упоминания `NetworkModule` [grep]; grep по индексам других папок — ни одного упоминания `NetworkPackage`/`NetworkServerBase`/`NetworkConnection`/`NetworkModule` [grep]. Видимо, модуль используется только вне DevLib (wps-client) (?).
+- Grep по исходникам DevLib вне `NetworkModule/` (`*.h`, `*.hpp`, `*.cpp`, `*.pri`, `*.pro`) не нашёл ни одного упоминания `NetworkModule` [grep]; grep по индексам других папок — ни одного упоминания `NetworkPackage`/`NetworkServerBase`/`NetworkConnection`/`NetworkModule` [grep]. Видимо, модуль используется только вне DevLib, в проектах-пользователях (?).
 
 ### Точки входа и сборочные цели
 
@@ -846,7 +846,7 @@ API по индексу: `Install(const QString& mainQSSFile)`, `ReadAll()`, `Se
 - Пути `:/style/res` и `:/aispaces/res` в `@resource` требуют, чтобы `main.qrc` был вкомпилирован в приложение [grep].
 
 Кто зависит от StylesModule:
-- Grep по индексам всех папок `.codemap/*` не нашёл `StylesModule`, `main.qrc`, `aispaces` или `.qss` [grep]. В `.pri`/`.pro`/`.cpp` DevLib нет `main.qrc` и `Q_INIT_RESOURCE` [grep]. Ресурс подключает внешнее приложение (wps-client) (?).
+- Grep по индексам всех папок `.codemap/*` не нашёл `StylesModule`, `main.qrc`, `aispaces` или `.qss` [grep]. В `.pri`/`.pro`/`.cpp` DevLib нет `main.qrc` и `Q_INIT_RESOURCE` [grep]. Ресурс подключает внешнее приложение (?).
 - WidgetsModule (уже описан) — единственный потребитель формата: `QtQSSReader` [индекс WidgetsModule].
 - PropertiesModule (уже описан): `StyleSettings::InstallQSSReader(const QString& path, bool dynamic = true)` и `Release()` — условно, `[if SHARED_LIB_ADD_UI]`; `sharedsettings.cpp` подключает `<WidgetsModule/internal.hpp>` `[if WIDGETS_MODULE_LIB]` [индекс PropertiesModule]. Внутри создаётся `QtQSSReader`, вызываются `SetEnableObserver(dynamic)` и `Install(path)` [grep]. Какой файл темы передаёт приложение, в DevLib не видно (?).
 - Не описаны в карте: `Sandbox/gtwindow.cpp` — свойство `main_qss("Common/QSS import file", GT_STYLES_PATH "main.qss")`, где `GT_STYLES_PATH` = `GT_CONTENT_PATH "CSS/"` (`SharedGuiModule/decl.h:844`); `Install(main_qss.Native())` при старте и по `Subscribe` [grep]. Файл читается с диска из `Content/CSS/`; по имени это копия `style/main.qss` (?). `DatabaseBrowser/databasebrowser.cpp` — свойство `m_qssFile("Style/Path", "")`, `SetEnableObserver(true)`, `Install(m_qssFile)` по `Subscribe` [grep]; подключает `<SharedModule/External/qtqssreader.h>`, которого в `SharedModule` нет [grep] — устаревший include (?).

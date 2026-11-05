@@ -15,11 +15,11 @@ Run from the project root.
 
 Several projects (e.g. an app and a library submodule) keep separate maps that work as one:
 codemap.conf in the project root (commit it):
-  name = wps-client              # map title "# Карта кода <name>" (default: folder name)
+  name = MyApp                   # map title "# Карта кода <name>" (default: folder name)
   links = libs/DevLib            # other codemap projects: find/status/reindex cover them too
   exclude = 3rdparty bin_*       # extra folders to skip: names or paths from the project root, * allowed
   script = libs/DevLib           # where the master copy of codemap.py lives; `sync` copies it here and to links
-  units = WPSClient/Objects WPSClient/Ui   # big folders split into parts: each unit has its own index and
+  units = App/Objects App/Ui     # big folders split into parts: each unit has its own index and
                                  # map section; a parent's index never includes its sub-units
   python codemap.py ensure PATH   (which unit PATH belongs to; builds/refreshes its index; SECTION 0/1)
 A subfolder that has its own codemap.py / codemap.conf is a separate project and is never

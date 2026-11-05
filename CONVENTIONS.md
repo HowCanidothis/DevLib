@@ -1,6 +1,6 @@
 # Соглашения по коду DevLib
 
-Единый источник правил для кода, который использует DevLib (`D:\Work\wps-client\libs\DevLib`). Скиллы и промпты ссылаются сюда; при расхождении прав этот файл.
+Единый источник правил для кода, который использует DevLib. Скиллы и промпты ссылаются сюда; при расхождении прав этот файл.
 
 Как читать: целиком не нужно. Один раздел — `python3 codemap.py section РАЗДЕЛ --show --file CONVENTIONS.md`. Где лежит класс — `python3 codemap.py find ИМЯ`. Номера строк здесь намеренно не указаны: они устаревают; место находится через `find`.
 
@@ -190,7 +190,7 @@ void PrimeCounter::Initialize()
 1. `QT += core gui widgets concurrent printsupport network xml svg gui-private`
 2. `DEFINES += STATIC_LINK` (без него `_Export` → dllimport: C2491/LNK2019)
 3. `CONFIG += console c++17`
-4. `DEV_LIB_PATH = D:/Work/wps-client/libs/DevLib`
+4. `DEV_LIB_PATH = <путь к DevLib>` (абсолютный путь к папке DevLib на этой машине)
 5. `include($$DEV_LIB_PATH/Global.pri)` — до модулей (даёт `includeAll`, `setBuildDirectory`)
 6. `include` модулей: SharedModule, PropertiesModule, UnitsModule, WidgetsModule (их `.pri`)
 7. `INCLUDEPATH += $$DEV_LIB_PATH`
