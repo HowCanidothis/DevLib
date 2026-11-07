@@ -53,7 +53,7 @@
 - `LocalPropertySet/Hash/Vector`: `Insert/Remove/Clear/operator=` обходят валидатор; `operator=` уведомляет даже при равных значениях (кроме «оба пустые»).
 - Подписка:
   - `Subscribe(fn)` / `SetAndSubscribe(fn)` **отменить нельзя** [проверено]. Только если подписчик живёт не меньше свойства.
-  - Иначе — `Connect(CDL, h)`, `ConnectAndCall(CDL, h)`, `ConnectAction(CDL, a)` и **всегда** `.MakeSafe(...)` (см. «Подписки и время жизни»).
+  - Иначе — `Connect(CDL, h)`, `ConnectAndCall(CDL, h)`, `ConnectAction(CDL, a)` и `.MakeSafe(...)` только если обработчик может быть вызван для уничтоженного объекта (см. «Подписки и время жизни»).
 - `ConnectFrom(CDL, h, a, b…)` и `ConnectProperties` захватывают источники **по ссылке** — источники должны пережить соединение.
 - `ConnectBoth` — двусторонняя связь, рекурсия гасится флагом.
 - Типы:
@@ -138,7 +138,10 @@ void PrimeCounter::Initialize()
 ## Подписки и время жизни
 
 - Свойство — поле объекта-модели по значению.
-- **`DispatcherConnection` сам не отключается.** Каждый `Connect`, `ConnectAndCall`, `ConnectFrom`, `ConnectCombined` заканчивается `.MakeSafe(m_connections)` [проверено: `MakeSafe` в `SharedModule/dispatcher.h`].
+- **`DispatcherConnection` сам не отключается.** `.MakeSafe(m_connections)` в конце `Connect`, `ConnectAndCall`, `ConnectFrom`, `ConnectCombined` ставится не всегда, а только если обработчик потенциально может быть вызван для уже уничтоженного объекта: захвачен `this` или указатели на объекты, которые могут умереть раньше источника, либо целевое свойство `ConnectFrom` принадлежит такому объекту [проверено: `MakeSafe` в `SharedModule/dispatcher.h`].
+  - Источник и всё, к чему обращается обработчик (включая целевое свойство `ConnectFrom`), принадлежат одному объекту и умирают вместе — `MakeSafe` не нужен (например, подписка на свойство кнопки, которая меняет ту же кнопку).
+  - Глобальный источник (синглтон, `SharedSettings`) и обработчик захватывает `this` — `MakeSafe` нужен.
+  - Если источник уничтожается раньше контейнера, подписка исчезает вместе с ним, поздний `Disconnect` из `MakeSafe` безопасен.
 - `m_connections` — член `DispatcherConnectionsSafe` (`= QVector<DispatcherConnectionSafePtr>`) [проверено], объявленный **после** всех свойств, на которые ссылаются лямбды (уничтожится раньше них).
 - Хранить соединения рядом с объектом — `WithDispatcherConnectionsSafe` (`DECLARE_WITH_FIELD(DispatcherConnectionsSafe, Connections)` в `dispatcher.h`) [проверено].
 - `obj.OnChanged += { this, handler }` / `-= this` — снимать явно; повтор ключа — ассерт.
@@ -232,7 +235,7 @@ void PrimeCounter::Initialize()
 
 1. Классы и методы найдены через `codemap.py find` или grep, а не угаданы; сигнатуры сверены с заголовком.
 2. Новых `Property` / `TProperty` нет; для INI/дерева — `PropertyFromLocalProperty`, контейнер адаптеров живёт достаточно долго.
-3. Каждая подписка с `CDL` заканчивается `.MakeSafe(...)`; `Subscribe` и `+=` — только где подписчик живёт не меньше источника.
+3. `.MakeSafe(...)` стоит у каждой подписки с `CDL`, обработчик которой может быть вызван после уничтожения объекта (захвачен `this` или указатели, целевое свойство `ConnectFrom` живёт меньше источника, глобальный источник с захватом `this`); у подписок, где источник и всё, к чему обращается обработчик, принадлежат одному объекту, его нет; `Subscribe` и `+=` — только где подписчик живёт не меньше источника.
 4. `DispatcherConnectionsSafe` объявлен после свойств, на которые ссылаются лямбды.
 5. Расчёт: `StateParameters` + `StateChained*Calculator`; входы и выходы публичные; есть `Initialize()`; нет `enable` и ручного `Enabled`; нет `SetCalculator` и ручных `Connect`.
 6. Лямбда расчёта читает только `GetImmutable()`, не захватывает `this`, не трогает `InputValue` / `GetInputData`.
