@@ -184,6 +184,8 @@ void PrimeCounter::Initialize()
 - `WidgetBuilder(QWidget* parent, qint32 margin = 9)` [проверено] удаляет существующий layout родителя вместе с виджетами — вызывать на пустом окне.
 - **Порядок:** `WidgetBuilder` создаётся первым на пустом окне; все вложенные виджеты (таблицы, кнопки, layout) создаются после него и добавляются через builder (`AddWidget`, `AddButton`, `StartLayout`). Виджеты, созданные до builder, в его layout не попадают и не управляются им.
 - Методы: `StartLayout(params, handler)`, `StartSplitter`, `StartLabeledLayout`, `AddWidget(QWidget*)`, `AddButton(label)` (→ `WidgetAbstractButtonWrapper`, у него `SetOnClicked`), `AddLabel`, `AddLineEdit`, `AddCheckBox`, `AddCombobox`, `AddSpinBox`, `AddDoubleSpinBox`, `AddSpacer(w, h)` [проверено по индексу].
+- **Настройка — в лямбде builder.** Виджет, созданный `Add*`, настраивается внутри той же лямбды `StartLayout`/`StartSplitter`, сразу после создания: методами обёртки (`SetControl`, `SetIcon`, `SetMenu` и т. д.), а то, чего у обёртки нет (`setObjectName`, `setAttribute`), — через `->` обёртки. После лямбды созданные в ней виджеты не донастраиваются.
+- Виджет, нужный вне конструктора, хранится в члене-обёртке (`WidgetPushButtonWrapper m_btn;`, в списке инициализации `m_btn(nullptr)` — конструктора без аргументов у обёртки нет), присваивается в лямбде (`m_btn = button;`) и дальше используется через методы обёртки, без `qobject_cast` к конкретному классу [проверено: `wpscvisualizationfooter`].
 - Отступы: корневой layout уже даёт отступ 9; вложенный `StartLayout` добавит второй — для него `WidgetBuilderLayoutParams(...).SetMargin(0)` [проверено: `SetMargin`] или не вызывать `StartLayout`.
 - Таблица в окно — `AddWidget(view)`, где `view` — `new WidgetsTableViewBase()` с `setModel`.
 
@@ -209,6 +211,9 @@ void PrimeCounter::Initialize()
 - Проверка указателя всегда с явным сравнением: `if(ptr != nullptr) { ... }` или `if(ptr == nullptr) { ... }`. Запись `if(ptr)` и `if(!ptr)` не использовать.
 - Для `std::function`, `SharedPointer`, `std::optional` и других не-bool типов проверка тоже явная: `handler != nullptr`, `value.has_value()`.
 - Условие без сравнения (`if(x)`) допускается только если `x` — переменная типа `bool` или вызов функции/метода, возвращающий `bool`, например `if(isVisible) { ... }` и `if(map.contains(key)) { ... }`.
+- Только что созданный объект (`new`, `Add*` у `WidgetBuilder`, результат конструктора) на `nullptr` не проверяется — ни через `if`, ни через `Q_ASSERT`.
+- Инвариант, нарушение которого означает ошибку программиста (аргумент, который не может быть `nullptr`; обязательное состояние), проверяется `Q_ASSERT(условие)`, а не `if` с ранним выходом.
+- Результат `qobject_cast` и других приведений, которые могут вернуть `nullptr`, разыменовывается только внутри ветки `if(ptr != nullptr) { ... }`. Если неудача приведения — ошибка программиста, у ветки есть `else { Q_ASSERT(false); }`: в debug ошибка видна, в release нет разыменования `nullptr`. Если неудача допустима, `else` обрабатывает её или отсутствует. Разыменовывать результат вне такой ветки нельзя.
 
 ## Известные ошибки
 
@@ -245,5 +250,5 @@ void PrimeCounter::Initialize()
 10. Таблицы: нет самописного `QAbstractTableModel` при наличии `TViewModelsTableBase`; нет `AddColumn` с лямбдами там, где есть `Add<Type>`; `IconsManager` создан до моделей; объект захвата живёт до конца окна.
 11. Не используются места из «Известных ошибок»; `Cast` заменён на `std::static_pointer_cast`.
 12. Для `EditingObject` есть `OnLeavingDirtyEditingMode`, если молча откатывать нельзя.
-13. UI: `WidgetBuilder` создан до вложенных виджетов; окно пустое на момент конструктора; `StartLayout` вложенный (с `SetMargin(0)`), а не корневой.
-14. Указатели и обработчики проверяются явно (`!= nullptr`); `if(x)` без сравнения — только для `bool` (переменная или функция, возвращающая `bool`; см. «Стиль кода»).
+13. UI: `WidgetBuilder` создан до вложенных виджетов; окно пустое на момент конструктора; `StartLayout` вложенный (с `SetMargin(0)`), а не корневой; виджеты настроены внутри лямбды builder; кнопка, нужная вне конструктора, хранится как обёртка (`WidgetPushButtonWrapper`), а не как `QPushButton*` из `qobject_cast`.
+14. Указатели и обработчики сравниваются с `nullptr` явно; `if(x)` без сравнения — только для `bool` (см. «Стиль кода»). Только что созданное (`new`, `Add*` у builder, конструктор) на `nullptr` не проверяется; инварианты — `Q_ASSERT(условие)`; результат `qobject_cast` разыменовывается только внутри `if(ptr != nullptr) { ... }`, а если неудача приведения — ошибка программиста, ветка `else { Q_ASSERT(false); }`.

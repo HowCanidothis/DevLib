@@ -57,8 +57,8 @@ WPSCSimulationTitleBar QLabel {
 }
 
 MenuBar {
-    min-height: 40px;
-    max-height: 40px;
+    min-height: 48px;
+    max-height: 48px;
     background: @cbg.1;
 }
 
@@ -80,8 +80,8 @@ MenuBar QLabel#LogoIcon {
 }
 
 MenuBar MenuBarMovePane {
-    min-height: 40px;
-    max-height: 40px;
+    min-height: 48px;
+    max-height: 48px;
     border: none;
     background: transparent;
     padding-top: 1px;
@@ -437,8 +437,8 @@ QPushButton#btnXSLReport:hover {
 }
 
 TopControlBar {
-    min-height: 28px;
-    max-height: 28px;
+    min-height: 32px;
+    max-height: 32px;
 }
 
 TopControlBar QFrame#lbRefColor {
@@ -782,12 +782,17 @@ QLabel#BtnChangeWellbore,
 QLabel#BtnChangeViewTemplateId {
     padding-left: 4px;
     padding-right: 8px;
+    font-size: 12px;
 }
 
 /* Header (MenuBar): burger, aidriller logo, wellbore selection, cloud sync */
 MenuBar QLabel#LogoIcon[a_aidriller=true] {
-    min-width: 96px;
-    image: url(:/aidriller.svg);
+    min-width: 114px;
+    max-width: 114px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0px;
+    image: url(:/aidriller_logo.svg);
 }
 
 MenuBar QPushButton#BtnMainMenu {
@@ -796,7 +801,7 @@ MenuBar QPushButton#BtnMainMenu {
     min-height: 32px;
     max-height: 32px;
     padding: 0px;
-    margin-left: 4px;
+    margin-left: 8px;
 }
 
 MenuBar QPushButton#BtnMainMenu::menu-indicator {
@@ -805,8 +810,8 @@ MenuBar QPushButton#BtnMainMenu::menu-indicator {
 }
 
 MenuBar QPushButton#BtnSelectWellbore {
-    min-height: 28px;
-    max-height: 28px;
+    min-height: 36px;
+    max-height: 36px;
     background: @ctext.1;
     color: @ctext.active;
     qproperty-iconSize: 16px 16px;
@@ -816,20 +821,96 @@ MenuBar QPushButton#BtnSelectWellbore:hover {
     background: @cbg.disabled;
 }
 
-MenuBar QLabel#BtnChangeWellbore {
+MenuBar QFrame#ChangeWellboreFrame {
+    min-height: 36px;
+    max-height: 36px;
     border-radius: 4px;
     border: 1px solid @cbg.2;
+}
+
+MenuBar QFrame#ChangeWellboreFrame:hover {
+    background: @cbg.hover;
+}
+
+MenuBar QLabel#BtnChangeWellbore {
     padding-top: -2px;
     padding-bottom: -2px;
     color: @ctext.active;
 }
 
-MenuBar QLabel#BtnChangeWellbore:hover {
-    background: @cbg.hover;
+MenuBar QLabel#ChangeWellboreIcon {
+    min-width: 16px;
+    max-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
 }
 
 MenuBar QPushButton#BtnCloudSync:hover {
     background: @cbg.widget;
+}
+
+/* Header (MenuBar): sizes as in Figma 1331:5559 */
+MenuBar QFrame#HeaderSeparator {
+    min-width: 1px;
+    max-width: 1px;
+    min-height: 28px;
+    max-height: 28px;
+    margin-left: 8px;
+    margin-right: 8px;
+    border: none;
+}
+
+TopControlBar QFrame[VSeparator] {
+    min-height: 28px;
+    max-height: 28px;
+    margin-left: 4px;
+    margin-right: 4px;
+    border: none;
+}
+
+TopControlBar QLabel#lbRef {
+    margin-left: 4px;
+}
+
+TopControlBar QToolButton#BtnProjection,
+TopControlBar QToolButton#BtnReference {
+    min-height: 20px;
+    max-height: 20px;
+    padding: 4px 8px;
+}
+
+TopControlBar QToolButton#BtnSpaces {
+    min-height: 24px;
+    max-height: 24px;
+    padding: 4px 8px;
+}
+
+TopControlBar QPushButton#BtnSettings {
+    padding: 8px;
+}
+
+TopControlBar WidgetsUserProfile#BtnUser {
+    min-width: 32px;
+    max-width: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0px;
+}
+
+MenuBar QPushButton#BtnMinimize,
+MenuBar QPushButton#BtnMaximize,
+MenuBar QPushButton#BtnMaximize[windowMaximized=true],
+MenuBar QPushButton#BtnMaximize[windowMaximized=false],
+MenuBar QPushButton#BtnClose {
+    min-width: 16px;
+    max-width: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    padding: 6px 12px;
+}
+
+MenuBar QPushButton#BtnClose {
+    margin-right: 8px;
 }
 
 /* Header (MenuBar): dashboard template selector */
