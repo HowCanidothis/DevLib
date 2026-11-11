@@ -406,6 +406,7 @@ public:
     ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Color, QColor, LocalPropertyColor)
     ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Double, double, LocalPropertyDouble)
     ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Int, qint32, LocalPropertyInt)
+    ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Int64, qint64, LocalPropertyInt64)
     ViewModelsColumnComponentsBuilder_DECLARE_TYPE(Bool, bool, LocalPropertyBool)
 
 

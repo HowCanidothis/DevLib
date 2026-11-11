@@ -437,7 +437,7 @@ public:
                 }
                 return handler();
             } catch (...) {
-                source->SetError(tr("Undefined error"));
+                source->SetError(tr("Unknown error"));
                 return false;
             }
         };
@@ -598,7 +598,7 @@ private:
             if(foundIt != factory.end()) {
                 future += delegateCall(source, foundIt.value());
             } else {
-                source->SetError(tr("%1 extension is not supported").arg(source->GetExtension().AsString()));
+                source->SetError(tr("The %1 extension is not supported.").arg(source->GetExtension().AsString()));
             }
         }
         return future.ToAsyncResult();
