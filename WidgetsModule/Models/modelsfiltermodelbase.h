@@ -39,6 +39,7 @@ public:
         };
     }
     QVariant DefaultGetData(const QModelIndex& mi, qint32 role) const;
+    QVariant DefaultHeaderData(qint32 section, Qt::Orientation orientation, qint32 role) const;
 
 
     void setSourceModel(QAbstractItemModel* m) override;
@@ -63,6 +64,7 @@ public:
     std::function<bool (const QModelIndex&, const QVariant&, qint32 role)> SetDataHandler;
     std::function<Qt::ItemFlags (const QModelIndex&)> GetFlagsHandler;
     std::function<QVariant (const QModelIndex&, qint32)> GetDataHandler;
+    std::function<QVariant (qint32 section, Qt::Orientation orientation, qint32 role)> HeaderDataHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterColumnHandler;
     std::function<bool (qint32, const QModelIndex&)> FilterHandler;
     std::function<bool (const QModelIndex&, const QModelIndex&)> LessThan;

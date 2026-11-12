@@ -391,6 +391,7 @@ public:
     TranslatedStringPtr WidgetText() const;
     Dispatcher& OnClicked() const;
     const WidgetAbstractButtonWrapper& SetIcon(const Name& iconId) const;
+    const WidgetAbstractButtonWrapper& SetMenu(class QMenu* menu) const;
 };
 
 using WidgetPushButtonWrapper = WidgetAbstractButtonWrapper;
@@ -571,6 +572,9 @@ public:
     TranslatedStringPtr WidgetText() const;
 
     CommonDispatcher<const Name&>& OnLinkActivated() const;
+    // Иконка IconsManager в QLabel; размер = contentsRect() метки (задаётся стилем),
+    // пересчёт по Show/StyleChange/Resize и при смене NormalColor палитры иконки
+    const WidgetLabelWrapper& SetIcon(const Name& iconId) const;
 };
 
 class WidgetElidedLabelWrapper : public WidgetWrapper

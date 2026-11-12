@@ -29,6 +29,7 @@
 #include <QMenu>
 #include <QSettings>
 #include <QHBoxLayout>
+#include <QPointer>
 
 #include <optional>
 
@@ -663,6 +664,22 @@ const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetControl(Butto
         ApplyStyleProperty("a_control", (qint32)i);
     } else {
         GetWidget()->setProperty("a_control", (qint32)i);
+    }
+    return *this;
+}
+
+const WidgetAbstractButtonWrapper& WidgetAbstractButtonWrapper::SetMenu(QMenu* menu) const
+{
+    auto* button = qobject_cast<QPushButton*>(GetWidget());
+    if(button != nullptr) {
+        button->setMenu(menu);
+    } else {
+        auto* tbutton = qobject_cast<QToolButton*>(GetWidget());
+        if(tbutton != nullptr) {
+            tbutton->setMenu(menu);
+        } else {
+            Q_ASSERT(false);
+        }
     }
     return *this;
 }
@@ -2605,6 +2622,58 @@ TranslatedStringPtr WidgetLabelWrapper::WidgetText() const
     return GetOrCreateProperty<TranslatedString>("a_text", [label](QObject*, const TranslatedString& text){
         label->setText(text.Native());
     });
+}
+
+const WidgetLabelWrapper& WidgetLabelWrapper::SetIcon(const Name& iconId) const
+{
+    auto* label = GetWidget();
+    label->setProperty("a_icon_id", QVariant::fromValue(iconId));
+
+    QPointer<QLabel> guard(label);
+    auto install = [guard]{
+        if(guard.isNull()) {
+            return;
+        }
+        const auto size = guard->contentsRect().size();
+        const auto& icon = IconsManager::GetInstance().GetIcon(guard->property("a_icon_id").value<Name>());
+        if(icon.isNull() || size.isEmpty()) {
+            guard->setPixmap(QPixmap());
+            return;
+        }
+        guard->setPixmap(icon.pixmap(size));
+    };
+
+    // Фильтр ставится один раз; EventFilterObject — дочерний объект метки и удаляется вместе с ней
+    if(!label->property("a_icon_filter").toBool()) {
+        label->setProperty("a_icon_filter", true);
+        auto updater = DelayedCallObjectCreate();
+        AddEventFilter([updater, install](QObject*, QEvent* e) {
+            switch(e->type()) {
+            case QEvent::Show:
+            case QEvent::StyleChange:
+            case QEvent::Resize:
+                updater->Call(CONNECTION_DEBUG_LOCATION, install);
+                break;
+            default:
+                break;
+            }
+            return false;
+        });
+    }
+
+    // SvgIconEngineData сбрасывает кэш через ThreadHandlerNoCheckMainLowPriority;
+    // обновление ставится в ту же очередь и выполняется после сброса
+    auto connections = Injected<DispatcherConnectionsSafe>("a_icon_connections");
+    connections->clear();
+    const auto& icon = IconsManager::GetInstance().GetIcon(iconId);
+    if(!icon.isNull()) {
+        icon.EditPalette().NormalColor.ConnectAction(CONNECTION_DEBUG_LOCATION, [install]{
+            ThreadHandlerNoCheckMainLowPriority(install);
+        }).MakeSafe(*connections);
+    }
+
+    install();
+    return *this;
 }
 
 const WidgetWrapper& WidgetWrapper::CreateCustomContextMenu(const std::function<void (QMenu*)>& creatorHandler, bool preventFromClosing) const

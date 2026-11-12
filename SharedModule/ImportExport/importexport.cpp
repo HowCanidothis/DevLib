@@ -182,10 +182,10 @@ AsyncResult ImportExportFormatFactory::Import(const QList<ImportExportSourcePtr>
                 Name shortExtension(extensionParts.constLast());
                 source->SetExtension(shortExtension);
                 if(!handleExtension(shortExtension, source)) {
-                    source->SetError(tr("%1 extension is not supported").arg(extension.AsString()));
+                    source->SetError(tr("The %1 extension is not supported.").arg(extension.AsString()));
                 }
             } else {
-                source->SetError(tr("%1 extension is not supported").arg(extension.AsString()));
+                source->SetError(tr("The %1 extension is not supported.").arg(extension.AsString()));
             }
         }
     }

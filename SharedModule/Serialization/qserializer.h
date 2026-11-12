@@ -238,6 +238,27 @@ struct Serializer<QPointF>
 };
 
 template<>
+struct Serializer<QLocale>
+{
+    using TypeName = QLocale;
+
+    template<class Buffer>
+    static void Write(Buffer& buffer, const TypeName& data)
+    {
+        QString localeStr = data.bcp47Name();
+        buffer << buffer.Sect("LocaleName", localeStr);
+    }
+
+    template<class Buffer>
+    static void Read(Buffer& buffer, TypeName& data)
+    {
+        QString localeStr;
+        buffer << buffer.Sect("LocaleName", localeStr);
+        data = QLocale(localeStr);
+    }
+};
+
+template<>
 struct Serializer<QRectF>
 {
     using TypeName = QRectF;

@@ -5,6 +5,7 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
     , SetDataHandler([this](const QModelIndex& index, const QVariant& data, qint32 role) -> bool { return Super::setData(index, data, role); })
     , GetFlagsHandler([this](const QModelIndex& index) { return Super::flags(index); })
     , GetDataHandler([this](const QModelIndex& index, qint32 role){ return Super::data(index, role); })
+    , HeaderDataHandler([this](qint32 section, Qt::Orientation orientation, qint32 role) { return DefaultHeaderData(section, orientation, role); })
     , FilterColumnHandler([](qint32, const QModelIndex&){ return true; })
     , FilterHandler([](qint32, const QModelIndex&){ return true; })
     , LessThan([this](const QModelIndex& f, const QModelIndex& s){ return Super::lessThan(f,s); })
@@ -14,7 +15,7 @@ ViewModelsFilterModelBase::ViewModelsFilterModelBase(QObject* parent)
 {
     UseSourceEnumeration.Connect(CDL, [this](bool) {
         auto rc = rowCount();
-        if(rc) {
+        if(rc > 0) {
             emit headerDataChanged(Qt::Vertical, 0, rc - 1);
         }
     });
@@ -98,7 +99,7 @@ QVariant ViewModelsFilterModelBase::data(const QModelIndex& index, qint32 role) 
     return GetDataHandler(index, role);
 }
 
-QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
+QVariant ViewModelsFilterModelBase::DefaultHeaderData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
     if(UseSourceEnumeration) {
         return Super::headerData(section, orientation, role);
@@ -108,6 +109,11 @@ QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation o
         return section + 1;
     }
     return Super::headerData(section, orientation, role);
+}
+
+QVariant ViewModelsFilterModelBase::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
+{
+    return HeaderDataHandler(section, orientation, role);
 }
 
 Qt::ItemFlags ViewModelsFilterModelBase::flags(const QModelIndex& index) const

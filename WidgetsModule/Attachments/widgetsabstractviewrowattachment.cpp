@@ -34,7 +34,9 @@ WidgetsAbstractViewRowAttachment::WidgetsAbstractViewRowAttachment(const std::fu
 {
     m_pane = widgetCreator(this);
     Q_ASSERT(m_pane->parent() == nullptr);
-    m_pane->setObjectName("WidgetsTVRAWidget");
+    if(m_pane->objectName().isEmpty()) {
+        m_pane->setObjectName("WidgetsTVRAWidget");
+    }
     StyleUtils::InstallSizeAdjuster(m_pane);
 }
 
@@ -62,6 +64,10 @@ void WidgetsAbstractViewRowAttachment::Attach(QAbstractItemView* v)
         m_pane->setParent(v->viewport());
         CurrentIndex = index;
         m_pane->show();        
+        // The pane may already be visible (e.g. moving from a folder row to a leaf row), then show() is a no-op
+        // and the size adjuster resizes the pane only later (deferred). Bring the size up to date now,
+        // otherwise the position below is computed from the stale size.
+        m_pane->adjustSize();
         QRect rect = v->visualRect(index);
         auto sh = m_pane->size();
         auto left = v->viewport()->width() - sh.width() - 8;
