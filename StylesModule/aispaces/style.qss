@@ -932,6 +932,58 @@ WPSCDashboardBar QPushButton[a_hoverButton]:hover {
     background: @cbg.widget;
 }
 
+/* WPSClient: dashboard bar "Customize" and its popup with the DockArea grid mode switch (Figma 1382:14801).
+   Scoped by objectName: other WidgetsSwitchLayout keep the base style/style.qss rules. */
+WPSCDashboardBar QPushButton#BtnCustomize {
+    min-height: 16px;
+    max-height: 16px;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+QMenu#DockCustomizeMenu {
+    background: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+QMenu#DockCustomizeMenu QFrame#DockCustomizePanel {
+    background: #3c3c3c;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+QMenu#DockCustomizeMenu WidgetsSwitchLayout {
+    background: #121212;
+    padding: 2px;
+    border-radius: 8px;
+}
+
+QMenu#DockCustomizeMenu WidgetsSwitchLayout QPushButton {
+    padding: 2px 16px 2px 16px;
+    min-height: 20px;
+    max-height: 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+QMenu#DockCustomizeMenu WidgetsSwitchLayout QPushButton:checked {
+    color: #ffffff;
+    background: rgba(255,255,255,0.18);
+}
+
+QMenu#DockCustomizeMenu WidgetsSwitchLayout QPushButton:!checked {
+    color: #c8c8c8;
+    background: transparent;
+}
+
+QMenu#DockCustomizeMenu WidgetsSwitchLayout QPushButton:!checked:hover {
+    background: rgba(255,255,255,0.08);
+}
+
 /* WPSClient: WPSCDDSpaceView favorite pin button (row attachment) */
 QPushButton#BtnFavorite {
     qproperty-text: "";
