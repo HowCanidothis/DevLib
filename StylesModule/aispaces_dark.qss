@@ -39,7 +39,6 @@
 @resource.1::/style/res;
 @resource.2::/aispaces/res;
 @import url("style/style.qss");
-@import url("style/ads.qss");
 @import url("style/palette.qss");
 @import url("style/widgets.qss");
 @import url("style/notify.qss");
@@ -47,3 +46,4 @@
 @import url("style/progressbar.qss");
 @import url("aispaces/style.qss");
 @import url("aispaces/palette.qss");
+@import url("style/dock.qss");

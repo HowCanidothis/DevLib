@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>style/ads.qss</file>
+        <file>style/dock.qss</file>
         <file>style/main.qss</file>
         <file>style/notify.qss</file>
         <file>style/palette.qss</file>
@@ -87,6 +88,7 @@
         <file>style/res/ruler.svg</file>
         <file>aispaces/res/full_logo_black.svg</file>
         <file>aispaces/res/full_logo_white.svg</file>
+        <file>aispaces/res/aidriller_logo.svg</file>
         <file>style/res/out.svg</file>
         <file>style/res/open-in-app.svg</file>
         <file>style/res/adjust.svg</file>

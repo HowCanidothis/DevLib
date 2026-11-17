@@ -1,6 +1,6 @@
 # Карта кода DevLib
 
-> Карта собирается по папкам скиллом codemap-devlib: у каждой папки свой раздел «## Папка», источники указаны в начале раздела.
+> Карта собирается по папкам через `codemap.py` и Опуса по процедуре из `CONVENTIONS.md` корня wps-client (раздел «Карты кода: обслуживание»): у каждой папки свой раздел «## Папка», источники указаны в начале раздела.
 
 > Метка «(?)» означает предположение, которого нет ни в индексе, ни в дампе.
 
@@ -19,8 +19,9 @@
 - [StylesModule](#stylesmodule)
 
 ## SharedModule
+<!-- sources: c9ead2d395e491b6 -->
 
-> Источник: индекс `.codemap/SharedModule/` (`codemap: v4`, совпадает с `python3 codemap.py --version`; `00_overview.md`, `index_01.md`: 108 файлов, 15 823 строки; 63 `.h`, 40 `.cpp`, 2 `.hpp`, 2 `.pri`, 1 `.txt`). Связи с другими папками сверены grep-ом по индексам `.codemap/<Папка>/` (у всех папок `codemap: v4`). Типы, которых индекс не показал (`Stack`, `ArrayCommon`, `ScopedPointer`, `ThreadHandlerMain`), найдены grep-ом по исходникам SharedModule. Метки источника: [индекс], [grep], [дамп] (текущий `.codemap/_dump/dump_01.md`: `ImportExport/importexport.h`, `CMakeLists.txt`, `SharedModule.pri`, `StdSharedModule.pri`), [дамп v1] (дамп первой версии карты, сейчас недоступен). Метка «(?)» означает предположение.
+> Источник: индекс `.codemap/SharedModule/` (`codemap: v5`, совпадает с `python3 codemap.py --version`; `00_overview.md`, `index_01.md`: 108 файлов, 15 844 строки; 63 `.h`, 40 `.cpp`, 2 `.hpp`, 2 `.pri`, 1 `.txt`). Связи с другими папками сверены grep-ом по индексам `.codemap/<Папка>/` (у всех папок `codemap: v5`). Типы, которых индекс не показал (`Stack`, `ArrayCommon`, `ScopedPointer`, `ThreadHandlerMain`), найдены grep-ом по исходникам SharedModule. Метки источника: [индекс], [grep], [дамп] (текущий `.codemap/_dump/dump_01.md`: `ImportExport/importexport.h`, `CMakeLists.txt`, `SharedModule.pri`, `StdSharedModule.pri`), [дамп v1] (дамп первой версии карты, сейчас недоступен). Метка «(?)» означает предположение.
 
 ### Назначение
 
@@ -43,7 +44,7 @@
 | `Logger/` | Логгер-синглтон: файл и консоль, уровни, срок хранения | `Logger : Singletone<Logger>` (`EnableLogging`, `SetSeverity`, `SetMaxDays`, `SetConsoleEnabled`, `Print`, `Terminate`) |
 | `MemoryManager/` | Учёт живых объектов, отчёт о памяти | `MemoryManager` (`MakeMemoryReport`), `MemorySpy` |
 | `Process/` | Прогресс долгих операций и отмена | `ProcessBase`, `ProcessIncrementGuard`, `ProcessFactory`, `ProcessValue`, `ProcessDeterminateValue`, `DescProcess*ValueState`, `ProcessManager` |
-| `Serialization/` | Бинарная сериализация через специализации `Serializer<T>`, версии | `streambuffer.h` (`SerializerBufferBase`, `TSerializerWriteBuffer`/`TSerializerReadBuffer`, `SerializerVersion`, `StandardVariantPropertiesContainer`), `stdserializer.h` (`PlainData`, std-типы), `qserializer.h` (Qt-типы, `SerializeToArray`/`DeSerializeFromArray`), `libserializer.h` (`Name`, `Id::Id`, `Latin1Name`) |
+| `Serialization/` | Бинарная сериализация через специализации `Serializer<T>`, версии | `streambuffer.h` (`SerializerBufferBase`, `TSerializerWriteBuffer`/`TSerializerReadBuffer`, `SerializerVersion`, `StandardVariantPropertiesContainer`), `stdserializer.h` (`PlainData`, std-типы), `qserializer.h` (Qt-типы, в т. ч. `Serializer<QLocale>` через `bcp47Name()` в секции `LocaleName` [grep]; `SerializeToArray`/`DeSerializeFromArray`), `libserializer.h` (`Name`, `Id::Id`, `Latin1Name`) |
 | `Serialization/string/` | XML, JSON, значение ↔ строка | `xmlserializer.h` (`SerializerXml<T>`, `SerializerXmlObject`, `SerializerXmlWrite/ReadBuffer`, `SerializerXmlVersion`), `jsonserializer.h` (`SerializerJsonWrite/ReadBuffer`), `textconverter.h` (`TextConverter<T>`, `TextHelper`), `qtextconverters.h` (QUrl, QDateTime, QImage; QColor и QMatrix4x4 — [if QT_GUI_LIB]), `textconvertercontext.h` |
 | `Threads/` | Главный и рабочие потоки, очереди событий потока, таймеры, фоновые вычислители | `ThreadsBase`, `threads_declarations.h` (`ThreadHandler`, `ThreadHandlerNoThreadCheck`; константы `ThreadHandlerMain`, `ThreadHandlerNoCheckMainLowPriority` [grep]), `ThreadEventsContainer`/`ThreadEvent`/`TagThreadEvent`, `MainThreadTaskContainer`, `ThreadComputingBase : QThread`, `ThreadCalculator<T>`, `ThreadTimer`/`ThreadTimerManager` |
 | `Threads/Promises/` | Промисы и агрегаторы ожидания | `Promise` (`AsyncResult = Promise`), `PromisedValue<T>`, `FutureResult`, `AsyncSafeResult`, `AsyncError`, `AsyncSuccess`, `QtFutureWatcher<T>` |
@@ -116,7 +117,7 @@
 
 ### Подробный разбор
 
-> Перенесено из прошлой версии раздела и сверено с индексом v4. Сборочные файлы и `importexport.h` сверены с текущим дампом. Остальные сведения «по дампу» (`Global.pri`, `threadsbase.cpp`, номера строк `builders.h`, макрос `PROPERTIES_LIB` в `PropertiesModule.pri`) взяты из дампа первой версии карты и сейчас не перепроверены.
+> Перенесено из прошлой версии раздела и сверено с индексом v4, затем с индексом v5 (2026-11-16). Сборочные файлы и `importexport.h` сверены с текущим дампом. Остальные сведения «по дампу» (`Global.pri`, `threadsbase.cpp`, номера строк `builders.h`, макрос `PROPERTIES_LIB` в `PropertiesModule.pri`) взяты из дампа первой версии карты и сейчас не перепроверены.
 
 #### Назначение
 
@@ -142,7 +143,7 @@ SharedModule — базовая C++/Qt5 библиотека утилит DevLib
 | `Logger/` | Логгер-синглтон: файл и консоль, уровни, хранение логов N дней | `Logger : Singletone<Logger>` (`EnableLogging`, `SetSeverity`, `SetMaxDays`, `Print`, `Terminate`) | `External/external.hpp`, `Threads/threadsbase.h`, `FileSystem/filesguard.h` |
 | `MemoryManager/` | Отслеживание живых объектов и отчёт о памяти | `MemoryManager` (`MakeMemoryReport`, `TestObjects<T>`), `MemorySpy` | `QHash`, `QMutex` |
 | `Process/` | Модель прогресса долгих операций: (не)детерминированные процессы, отмена | `ProcessBase`, `ProcessIncrementGuard`, `ProcessFactory::Instance()`, `ProcessValue`, `ProcessDeterminateValue`, `DescProcess*ValueState`, `ProcessManager` (весь API private, `friend ProcessValue`; хранит `Array<qint32>` под `QMutex`, `registerNewProcessValue()` / `unregisterProcessValue(depth)` — учёт глубины вложенных процессов) | `interruptor.h`, `name.h`, `dispatcher.h` |
-| `Serialization/` | Бинарная сериализация через специализации `Serializer<T>` (std, Qt и библиотечные типы), версии | `streambuffer.h` (`SerializerBufferBase`, `TSerializerWriteBuffer`, `TSerializerReadBuffer`, `SerializerVersion`), `stdserializer.h` (`PlainData`, std-контейнеры, указатели), `qserializer.h` (Qt-типы; `SerializeToArray`, `DeSerializeFromArray`, `SerializeCopyObject`, `*Versioned`), `libserializer.h` (`Id`) | `smartpointersadapters.h`, `array.h`, `stack.h`, `flags.h`, `name.h`, `idgenerator.h`, `QDataStream` |
+| `Serialization/` | Бинарная сериализация через специализации `Serializer<T>` (std, Qt и библиотечные типы), версии | `streambuffer.h` (`SerializerBufferBase`, `TSerializerWriteBuffer`, `TSerializerReadBuffer`, `SerializerVersion`), `stdserializer.h` (`PlainData`, std-контейнеры, указатели), `qserializer.h` (Qt-типы, включая `QLocale`; `SerializeToArray`, `DeSerializeFromArray`, `SerializeCopyObject`, `*Versioned`), `libserializer.h` (`Id`) | `smartpointersadapters.h`, `array.h`, `stack.h`, `flags.h`, `name.h`, `idgenerator.h`, `QDataStream` |
 | `Serialization/string/` | Текстовая сериализация (XML, JSON) и `TextConverter<T>` (значение ↔ строка) | `xmlserializer.h` (`SerializerXml<T>`, `SerializerXmlObject`, `SerializerXmlWriteBuffer/ReadBuffer`, `SerializerXmlVersion`, `SerializeToXML`, `DeSerializeFromXML`), `jsonserializer.h` (`SerializerJsonWriteBuffer/ReadBuffer`, `SerializeToJson`, `DeSerializeFromJson`), `textconverter.h` (`TextHelper`), `qtextconverters.h` (конвертеры для QUrl, QColor, QImage, QMatrix4x4 и т. д.), `textconvertercontext.h` (точность и формат изображений) | `qserializer.h`, `declarations.h`, `QXmlStreamReader`, `QJsonDocument` |
 | `Threads/` | Главный поток и рабочие потоки, очереди событий потока, таймеры, фоновые вычислители | `ThreadsBase` (`Initialize`, `DoMain*`, `Async`, `DoQThreadWorker*`, `FreeAtMainThread`, `Terminate`), `threads_declarations.h` (`ThreadHandler` / `ThreadHandlerNoThreadCheck` = `std::function<AsyncResult(const FAction&)>`; готовые `ThreadHandlerMain` и `ThreadHandlerNoCheckMainLowPriority`), `ThreadEventsContainer`/`ThreadEvent`/`TagThreadEvent`, `ThreadComputingBase : QThread` (цикл с целевым временем кадра), `ThreadCalculator<T>`, `ThreadTimer`/`ThreadTimerManager` (`SingleShot*`) | `promise.h`, `dispatcher.h`, `External/qtinlineevent.h`, `ThreadFunction/`, `ImportExport/importexport.h` (`threadsbase.cpp` управляет `ImportExport::threadPool()`) |
 | `Threads/Promises/` | Промисы с кодом результата `qint8`, ожидание, перенос продолжения в главный поток | `Promise` (`Then`, `Resolve`, `Wait`, `MoveToMain`, `ThenException`, `MakeSafe`, статический `OnFirstInvokeWithResult(dispatcher)`); **`using AsyncResult = Promise;`**; `PromiseData` (`CommonDispatcher<qint8> onFinished`, `std::exception_ptr`), `FutureResult` (агрегирует промисы через `+=`, `Wait`), `AsyncSafeResult`, `AsyncError`, `AsyncSuccess`, `PromisedValue<T>` (цепочка `Then` с данными типа `T`), `QtFutureWatcher` (`QFuture` → `Promise.Resolve(true)`) | `dispatcher.h`, `QFuture`; `ATTACH_MEMORY_SPY` → `MemoryManager` |
@@ -249,9 +250,24 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Математика: clamp, lerp, fuzzyCompare, round, интерполяция | `declarations.h` (`adapters::interpolated`), `math.h` |
 | Сборка и подключение модуля | `SharedModule/CMakeLists.txt`, `SharedModule/SharedModule.pri`, `SharedModule/StdSharedModule.pri`, `SharedModule/internal.hpp` (PCH), `Global.pri` (`includeAll`, `setBuildDirectory`, `makeDeploy`) |
 
-## PropertiesModule
+### Замечания
+- [2026-11-16] риск: условный цикл SharedModule ↔ PropertiesModule по `PROPERTIES_LIB` (`builders.h` → `<PropertiesModule/internal.hpp>`); разрывается только include guard'ами, результат зависит от порядка include [индекс].
+- [2026-11-16] риск: неполная защита `#ifdef PROPERTIES_LIB` в `builders.h` — часть методов `ParseFactoryBuilder` с `LocalProperty*`/`MeasurementUnit` без пометки `[if PROPERTIES_LIB]` [индекс].
+- [2026-11-16] риск: неявный цикл SharedModule ↔ WidgetsModule в шаблонах `ImportExport/importexport.h` без include и без макроса; собирается только если WidgetsModule подключён раньше или компилятор не делает строгий двухфазный поиск (MSVC без `/permissive-`) (?) [дамп].
+- [2026-11-16] вопрос: для `MeasurementUnit`/`Measurement` в SharedModule достаточно forward-declaration (?) [индекс, индекс UnitsModule].
+- [2026-11-16] вопрос: как CMake собирает список исходников SharedModule и где определена CMake-функция `library` (?) [дамп].
+- [2026-11-16] вопрос: где задаётся `PROPERTIES_LIB` в CMake-сборке (?) [дамп].
+- [2026-11-16] риск: `StdSharedModule.pri` перечисляет файлы в `process/` (нижний регистр), а папка — `Process/`; на регистрозависимой ФС пути не совпадут (?); работоспособность варианта `NO_QT` не проверена (?) [дамп].
+- [2026-11-16] вопрос: кто вызывает `ThreadsBase::Initialize()` — в модуле не видно, вероятно приложение (?).
+- [2026-11-16] мёртвый код: ветка `MainThreadTaskContainer` в `threadsbase.cpp` (макрос `ENABLE` закомментирован), `ProcessUiOnly` пустой; `errors.h` закомментирован в `internal.hpp` [дамп v1].
+- [2026-11-16] риск: двунаправленная связь Threads ↔ ImportExport на уровне `.cpp` (`threadsbase.cpp` управляет `ImportExport::threadPool()`) [индекс].
+- [2026-11-16] риск: `GraphicsToolsModule/gtcamera.h` подключает `SharedModule/external/external.hpp` в нижнем регистре — на регистрозависимой ФС не найдётся [индекс GraphicsToolsModule].
+- [2026-11-16] внешнее: `RegistryManager` использует WinAPI (`<windows.h>`, `<shellapi.h>`) только `[if WIN64]` [индекс].
 
-> Источники: индекс `.codemap/PropertiesModule/` (`00_overview.md`, `index_01.md`; `codemap: v4` совпадает с `python3 codemap.py --version`; 81 файл, 14 229 строк: 41 `.h`, 36 `.cpp`, 2 `.hpp`, 1 `.txt`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `.codemap/SharedGuiModule/`, `.codemap/WidgetsModule/`, `.codemap/UnitsModule/` (все v4); не найденные в индексах — grep по исходникам. Обратные связи — по строкам `inc:` индексов CloudModule, ComputeGraphModule, GraphicsToolsModule, SQLiteModule, SharedModule, UnitsModule, WidgetsModule. Метки: [индекс], [grep], [сборка] — файл сборки прочитан напрямую, так как в индексе его содержимое пустое. «(?)» — предположение.
+## PropertiesModule
+<!-- sources: 31d7241b55d005c0 -->
+
+> Источники: индекс `.codemap/PropertiesModule/` (`00_overview.md`, `index_01.md`; `codemap: v5` совпадает с `python3 codemap.py --version`; 77 файлов, 13 970 строк: 39 `.h`, 34 `.cpp`, 2 `.hpp`, 1 `.txt`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `.codemap/SharedGuiModule/`, `.codemap/WidgetsModule/`, `.codemap/UnitsModule/` (все v5); не найденные в индексах — grep по исходникам. Обратные связи — по строкам `inc:` индексов CloudModule, ComputeGraphModule, GraphicsToolsModule, SQLiteModule, SharedModule, UnitsModule, WidgetsModule. Метки: [индекс], [grep], [сборка] — файл сборки прочитан напрямую, так как в индексе его содержимое пустое. «(?)» — предположение.
 
 ### Назначение
 
@@ -271,15 +287,14 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | `./` (сериализация) | Специализации `Serializer<…>` / `SerializerXml<…>` и `TextConverter<…>` для свойств | `propertiesserializer.h` (586 строк: `LocalProperty<T>`, `StateProperty`, `StateParameterProperty`, `LocalPropertyFilePath`, `LocalPropertySequentialEnum`, `LocalPropertyLimitedDecimal`, `LocalPropertySet`, `LocalPropertySharedPtr`, `LocalPropertyVector`, `LocalPropertyDate/DateTime`, `LocalPropertyOptional`; `LocalPropertyPalette` — `[if SHARED_LIB_ADD_UI]`; макрос `SERIALIZER_XML_DECLARE_PROPERTY_TYPE()`), `textconverters.h` (`LocalProperty`, `LocalPropertyOptional`, `LocalPropertyLimitedDecimal`) |
 | `./` (настройки, переводы, логи, редактирование) | Синглтон настроек приложения, enum ↔ строка, переводимые строки, логгер, ротация файлов, Save/Discard-редактирование | `sharedsettings.h/.cpp` (`SharedSettings : Singletone<SharedSettings>`; группы `NetworkSettings`, `StyleSettings` `[if SHARED_LIB_ADD_UI]` (`InstallQSSReader`), `PathSettings`, `MetricsSettings`, `SaveLoadSettings`, `LanguageSettings` (`LocaleType`), `ControlSettings`), `translatormanager.h/.cpp` (`TranslatorManager`, `TranslatedString : LocalPropertyString`; макросы `TM_TS()`, `TRANSLATED_PTR()`, `TRS()`, `TR_ENUM()`), `propertieslogger.h/.cpp` (`PropertiesLogger : Logger`), `propertiesfilenamesgenerator.h/.cpp` (`PropertiesFileNamesGenerator : FileNamesGeneratorWithGuard`), `editingobject.h/.cpp` (`EditingObject` с `DirtyMode` Save/Discard/Cancel, `EditingObjectComponentBase`, `TEditingObjectComponent<T>`, `CompareXmlObject`) |
 | `Models/` (10 файлов) | Обёртки данных для Qt-моделей: таблица, дерево, словарь; цепочечные калькуляторы над `StateParameters`; ошибки строк модели | `wrappers.h` (782 строки: `ModelsWrapperBase` (`ConnectModel/DisconnectModel` `[if SHARED_LIB_ADD_UI]`), `ModelsTreeWrapper`, `ModelsTableWrapper`, `TModelsTableWrapper<Container>`, `ModelsTableView`, `StateChainedContainerCalculator`, `StateChainedValueCalculator`, `StateChainedComplexCalculator`; макросы `DECLARE_MODEL*()`), `modelstree.h/.cpp` (`ModelsTree : ModelsTreeWrapper`), `modelstreeitembase.h/.cpp` (`ModelsTreeItemBase`, `ModelsStandardTreeItem`, `ModelsTreeBuilder`), `modelsvacabulary.h/.cpp` (`ModelsVocabulary : TModelsTableWrapper<QVector<QHash<Name, QVariant>>>`; `CreateListModel` → `TViewModelsListBase<ModelsVocabulary>*` `[if WIDGETS_MODULE_LIB]`), `modelserrorscomponents.h/.cpp` (`ModelsErrorComponent`, `LocalPropertyErrorsModelWithErrorComponentMapper`), `modelsserializer.h` |
-| `Ui/` (31 файл; подключается из `internal.hpp` `[if SHARED_LIB_ADD_UI]`) | Qt-модели и виды глобальных свойств, делегаты и их фабрика, связывание `Property`/`LocalProperty` с виджетами, палитра, диалог и окно свойств | `propertiesmodel.h/.cpp` (`PropertiesModel : QAbstractItemModel`, Q_OBJECT), `propertiestablemodel.*` (`PropertiesTableModel`), `propertiesview.*` (`PropertiesView : QTreeView, PropertiesViewBase`), `propertiestableview.*`, `propertiesviewbase.*`, `propertiesdelegate.*` (`PropertiesDelegate : QStyledItemDelegate`), `propertiesdelegatefactory.*` (`PropertiesDelegateFactory::SetFactory/Instance`), `propertiesstyleddelegatelistener.*`, `propertieswidgetsconnector.h/.cpp` (`PropertiesConnectorsContainer`, `PropertiesConnectorBase` и коннекторы CheckBox/ComboBox/LineEdit/SpinBox/DoubleSpinBox/TextEdit/GroupBox/RadioButtonsGroupBox), `localpropertieswidgetconnector.h/.cpp` (`LocalPropertiesWidgetConnectorsContainer`, `LocalPropertiesWidgetConnectorBase : QObject` и коннекторы PushButton/MenuLabel/MenuActions/Label/Slider/CheckBox/ComboBox/LineEdit/SpinBox/DoubleSpinBox/TextEdit/DateTime), `localpropertypalette.h/.cpp` (`LocalPropertyPalette`, `LocalPropertyPaletteBuilder`, `LocalPropertyPaletteObject`), `propertiesdialogbase.*`/`propertiesdialog.*`, `propertieswindow.*` (`PropertiesWindow : QMainWindow`; `.cpp` подключает `ui_propertieswindow.h`, файла `.ui` в индексе нет (?)), `styleutils.*` (`namespace WidgetProperties`), `internal.hpp` |
-| `Claude outputs/` (4 файла) | Примеры `StateParameters`/`StateCalculator` и `StateChainedValueCalculator` на подсчёте простых чисел; похоже, не библиотечный код (?) | `prime_counter_stateparams.h/.cpp` (`PrimeCounterInput/Output : StateParameters`, `PrimeCounter`, `PrimeCounterUsageExample()`), `prime_counter_chained.h/.cpp`. При `includeAll(true)` в qmake, вероятно, попадают в сборку библиотеки (?) |
+| `Ui/` (31 файл; подключается из `internal.hpp` `[if SHARED_LIB_ADD_UI]`) | Qt-модели и виды глобальных свойств, делегаты и их фабрика, связывание `Property`/`LocalProperty` с виджетами, палитра, диалог и окно свойств | `propertiesmodel.h/.cpp` (`PropertiesModel : QAbstractItemModel`, Q_OBJECT), `propertiestablemodel.*` (`PropertiesTableModel`), `propertiesview.*` (`PropertiesView : QTreeView, PropertiesViewBase`), `propertiestableview.*`, `propertiesviewbase.*`, `propertiesdelegate.*` (`PropertiesDelegate : QStyledItemDelegate`), `propertiesdelegatefactory.*` (`PropertiesDelegateFactory::SetFactory/Instance`), `propertiesstyleddelegatelistener.*`, `propertieswidgetsconnector.h/.cpp` (`PropertiesConnectorsContainer`, `PropertiesConnectorBase` и коннекторы CheckBox/ComboBox/LineEdit/SpinBox/DoubleSpinBox/TextEdit/GroupBox/RadioButtonsGroupBox), `localpropertieswidgetconnector.h/.cpp` (`LocalPropertiesWidgetConnectorsContainer`, `LocalPropertiesWidgetConnectorBase : QObject` и коннекторы PushButton/MenuLabel/MenuActions/Label/Slider/CheckBox/ComboBox/LineEdit/SpinBox/DoubleSpinBox/TextEdit/DateTime), `localpropertypalette.h/.cpp` (`LocalPropertyPalette`, `LocalPropertyPaletteBuilder`, `LocalPropertyPaletteObject`), `propertiesdialogbase.*`/`propertiesdialog.*`, `propertieswindow.*` (`PropertiesWindow : QMainWindow`; `.cpp` подключает `ui_propertieswindow.h`, форма — `Ui/propertieswindow.ui` (ls; индекс `.ui` не включает)), `styleutils.*` (`namespace WidgetProperties`), `internal.hpp` |
 
 ### Зависимости
 
 **От каких папок DevLib зависит**
 - **SharedModule** — безусловно, link-зависимость (`LINKS SharedModule` [сборка]):
   - `<SharedModule/internal.hpp>` подключают `property.h`, `propertiessystem.h`, `propertiesscope.h`, `propertieslogger.h`, `propertiesfilenamesgenerator.h`, `Models/modelstree.h`, `Models/modelstreeitembase.h`, `Ui/propertieswindow.h`, `Ui/localpropertieswidgetconnector.h` (он же — `<SharedModule/External/external.hpp>`); точечно: `declarations.h` (`localpropertydeclarations.h`, `Ui/styleutils.h`), `exception.h` (`stateproperty.h`), `stack.h` и `Threads/threadeventshelper.h` (`propertiessystem.cpp`) [индекс].
-  - Типы из `uses:` → объявление в индексе SharedModule [grep]: `Singletone`, `FTranslationHandler`, `FMeasurementGetter`, `EnumHelper` → `declarations.h`; `Comparator`; `StringBuilder`; `Flags`, `FlagsHelpers`, `LongFlagsHelpers`; `DelayedCallObject`; `DispatcherConnectionSafePtr`; `StackPointers : Stack<T*>`; `SmartPointerWatchers`; `Logger : Singletone<Logger>`; `FileNamesGeneratorWithGuard`; `TextConverterContext`, `SerializerXmlObject`, `SerializerXmlWriteBuffer`, `SerializerXmlReadBuffer`; `ThreadCalculator`, `ThreadCalculatorData`, `ThreadsBase`; `AsyncResult = Promise`. `ScopedPointer` в индексах не найден, по grep — `SharedModule/smartpointersadapters.h` [grep исходников]. `WithDispatcherConnectionsSafe` не найден ни в индексах, ни grep-ом по `class/struct/using/typedef` (?).
+  - Типы из `uses:` → объявление в индексе SharedModule [grep]: `Singletone`, `FTranslationHandler`, `FMeasurementGetter`, `EnumHelper` → `declarations.h`; `Comparator`; `StringBuilder`; `Flags`, `FlagsHelpers`, `LongFlagsHelpers`; `DelayedCallObject`; `DispatcherConnectionSafePtr`; `StackPointers : Stack<T*>`; `SmartPointerWatchers`; `Logger : Singletone<Logger>`; `FileNamesGeneratorWithGuard`; `TextConverterContext`, `SerializerXmlObject`, `SerializerXmlWriteBuffer`, `SerializerXmlReadBuffer`; `ThreadCalculator`, `ThreadCalculatorData`, `ThreadsBase`; `AsyncResult = Promise`. `ScopedPointer` в индексах не найден, по grep — `SharedModule/smartpointersadapters.h` [grep исходников]. `WithDispatcherConnectionsSafe` объявлен макросом `DECLARE_WITH_FIELD(DispatcherConnectionsSafe, Connections)` в `SharedModule/dispatcher.h:409` (макрос — `SharedModule/declarations.h:118`) [grep].
 - **SharedGuiModule** — частично условно [индекс]: `property.h` → `<SharedGuiModule/decl.h>` безусловно и `<SharedGuiModule/internal.hpp>` `[if QT_GUI_LIB]`; `externalproperty.cpp` → `<SharedGuiModule/internal.hpp>`; `Ui/propertiesview.cpp` → `"SharedGuiModule/decl.h"`. Используются `Vector3F : QVector3D` и `RectI = QRect`, оба в индексе SharedGuiModule объявлены `[if QT_GUI_LIB]` [grep]; у PropertiesModule они нужны только в `[if QT_GUI_LIB]`-классах (`Vector3FProperty`, `ExternalVector3FProperty`, `RectProperty`). В `LINKS` CMake SharedGuiModule не указан [сборка] — как он линкуется (?).
 - **WidgetsModule** — в основном условно, `[if WIDGETS_MODULE_LIB]` (макрос задаётся в `WidgetsModule/WidgetsModule.pri` [grep]); только из `.cpp` [индекс]:
   - условно: `<WidgetsModule/internal.hpp>` в `sharedsettings.cpp` и `Models/modelsvacabulary.cpp`; `<WidgetsModule/Utils/widgethelpers.h>` и `<WidgetsModule/Managers/widgetsdialogsmanager.h>` в `Ui/propertiesdelegatefactory.cpp`; `ModelsVocabulary::CreateListModel` (`TViewModelsListBase<T> : TViewModelsTableBase<T>`);
@@ -287,7 +302,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
   - Типы из `uses:` → индекс WidgetsModule [grep]: `WidgetsDialogsManager : SingletoneGlobal` → `Managers/widgetsdialogsmanager.h`; `WidgetColorDialogWrapper`, `WidgetAbstractButtonWrapper`/`WidgetPushButtonWrapper`, `MenuWrapper`, `ImageWrapper`, `LocalPropertyDoubleDisplay : LocalPropertyDouble` → `Utils/widgethelpers.h`; а также `WidgetsColorPicker`, `ElidedLabel`, `WidgetsDateTimeEdit`, `WidgetsComboBoxLayout`, `WidgetsDateTimeLayout`, `WidgetsDoubleSpinBoxLayout`, `TViewModelsListBase`.
   - Заголовки PropertiesModule WidgetsModule не подключают (в `.h` — только forward-объявления), а WidgetsModule подключает PropertiesModule в 50 файлах → цикл WidgetsModule ↔ PropertiesModule на уровне `.cpp`; безусловный для `Ui/localpropertieswidgetconnector.cpp` и `Ui/propertiesview.cpp`, остальное — при `WIDGETS_MODULE_LIB` [индекс].
 - **UnitsModule** — условно, `[if UNITS_MODULE_LIB]` (макрос — `UnitsModule/UnitsModule.pri` [grep]): `<UnitsModule/internal.hpp>` только в `Models/modelsvacabulary.cpp` [индекс]. Тип `Measurement` (в `uses:` у `localproperty.h` и `modelsvacabulary.cpp`) — `class Measurement` в индексе UnitsModule; в `localproperty.h` include на UnitsModule нет, значит там он только forward-объявлен (через `FMeasurementGetter = TCachedExpression<const class Measurement*>` из SharedModule) (?) [grep]. Цикл UnitsModule ↔ PropertiesModule — условный, `UNITS_MODULE_LIB`.
-- **VisualizationModule** — `<VisualizationModule/internal.hpp>` `[if VISUALIZATION_MODULE_LIB]` в `sharedsettings.cpp` [индекс]; такой папки в DevLib нет (`ls`), макрос нигде в `.pri`/CMake DevLib не задаётся [grep] — ветка в DevLib неактивна (?).
+- **VisualizationModule** — `<VisualizationModule/internal.hpp>` `[if VISUALIZATION_MODULE_LIB]` в `sharedsettings.cpp` [индекс]. В DevLib такой папки нет (`ls`), связь ведёт в проект wps-client: `libs/VisualizationModule/VisualizationModule.pri:3` задаёт `DEFINES += VISUALIZATION_MODULE_LIB` [grep]; в сборках, где этот `.pri` подключён, ветка активна.
 - **Внутри модуля**: `internal.hpp` → `Ui/internal.hpp` и `propertiesserializer.h` → `Ui/localpropertypalette.h` — оба `[if SHARED_LIB_ADD_UI]` [индекс]. QtWidgets в CMake подключён безусловно (`PRE_BUILD_LINKS Qt5::Core Qt5::Widgets`) [сборка].
 - Типы, объявленные внутри модуля во вложенных областях (не внешние): `ImageConnectorParams`, `SubmitType` (`Ui/localpropertieswidgetconnector.h`), `PropertyChangeGuard` (`Ui/propertieswidgetsconnector.h`), `StdHandle` (`Ui/propertiesdialogbase.h`) [grep исходников].
 
@@ -319,7 +334,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Свойство поверх внешней переменной или другого свойства | `externalproperty.h/.cpp` |
 | Опубликовать `LocalProperty` как глобальный `Property` | `localproperty.h` (`PropertyFromLocalProperty`), `sharedsettings.h` (`CreateGlobalProperties`) |
 | Флаг готовности, ожидание нескольких условий | `stateproperty.h/.cpp` (`StateProperty`, `StatePropertyCreate`) |
-| Цепочка параметров → фоновый калькулятор | `stateproperty.h/.cpp` (`StateParameters`, `StateParametersContainer`, `StateCalculator`, `StateImmutableData`, `StateDoubleBufferData`), `Models/wrappers.h` (`StateChained*Calculator`), примеры `Claude outputs/prime_counter_*` |
+| Цепочка параметров → фоновый калькулятор | `stateproperty.h/.cpp` (`StateParameters`, `StateParametersContainer`, `StateCalculator`, `StateImmutableData`, `StateDoubleBufferData`), `Models/wrappers.h` (`StateChained*Calculator`) |
 | Ошибки валидации и их показ | `localpropertyerrorscontainer.h/.cpp`, `Models/modelserrorscomponents.h/.cpp` |
 | Сериализация свойств (binary/XML/текст) | `propertiesserializer.h`, `textconverters.h`, `Models/modelsserializer.h` |
 | Enum ↔ строка, переводимые строки | `translatormanager.h/.cpp` |
@@ -336,9 +351,22 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Условная компиляция (`QT_GUI_LIB`, `SHARED_LIB_ADD_UI`, `WIDGETS_MODULE_LIB`, `UNITS_MODULE_LIB`) | `internal.hpp`, `property.h`, `externalproperty.h`, `sharedsettings.*`, `propertiesserializer.h`, `Models/modelsvacabulary.*`, `Ui/propertiesdelegatefactory.cpp` |
 | Сборка и подключение | `CMakeLists.txt`, `PropertiesModule.pri`, `internal.hpp`, `Ui/internal.hpp` |
 
-## GraphicsToolsModule
+### Замечания
+- [2026-11-16] вопрос: папка `Claude outputs/` (примеры `prime_counter_*`) попадает в сборку через `includeAll(true)` (?). ✔ закрыто [2026-11-16]: папка удалена (ls), в индексе её нет (77 файлов вместо 81).
+- [2026-11-16] вопрос: файла `.ui` для `PropertiesWindow` нет (?). ✔ закрыто [2026-11-16]: есть `Ui/propertieswindow.ui` (ls), индекс `.ui` не включает.
+- [2026-11-16] вопрос: при каком условии задаётся `SHARED_LIB_ADD_UI` — из индекса не видно (?) [индекс SharedModule].
+- [2026-11-16] вопрос: `LocalPropertyFilePath`, `LocalPropertySetFromVariant` объявлены макросом `DECLARE_LOCAL_PROPERTY_TYPE()`, поэтому их нет в индексах (?) [индекс, grep].
+- [2026-11-16] вопрос: `WithDispatcherConnectionsSafe` не найден ни в индексах, ни grep-ом по объявлениям (`codemap.py find` — только использования) (?). ✔ закрыто [2026-11-16]: макрос `DECLARE_WITH_FIELD(DispatcherConnectionsSafe, Connections)` в `SharedModule/dispatcher.h:409` (grep).
+- [2026-11-16] вопрос: SharedGuiModule, WidgetsModule, UnitsModule не указаны в `LINKS` CMake — как они линкуются (?) [сборка].
+- [2026-11-16] риск: цикл WidgetsModule ↔ PropertiesModule на уровне `.cpp`: безусловный для `Ui/localpropertieswidgetconnector.cpp` и `Ui/propertiesview.cpp`, остальное — при `WIDGETS_MODULE_LIB`; UI-слой без WidgetsModule не собирается (?) [индекс].
+- [2026-11-16] риск: условный цикл UnitsModule ↔ PropertiesModule (`UNITS_MODULE_LIB`); `Measurement` в `localproperty.h` только forward-объявлен через `FMeasurementGetter` (?) [индекс, grep].
+- [2026-11-16] риск: условный цикл SharedModule ↔ PropertiesModule (`builders.h` → `<PropertiesModule/internal.hpp>` `[if PROPERTIES_LIB]`) [индекс SharedModule].
+- [2026-11-16] внешнее: `sharedsettings.cpp` при `VISUALIZATION_MODULE_LIB` подключает `<VisualizationModule/internal.hpp>` из проекта wps-client — библиотека DevLib условно зависит от проекта-пользователя [индекс, grep].
 
-> Источники: индекс `.codemap/GraphicsToolsModule/` (`00_overview.md`, `index_01.md`; `codemap: v4` = `python3 codemap.py --version`; 72 файла, 9 278 строк: 35 `.cpp`, 35 `.h`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `.codemap/SharedGuiModule/`, `.codemap/PropertiesModule/`, `.codemap/ResourcesModule/`, `.codemap/ControllersModule/` (все `codemap: v4`); типы, которых нет в индексах, найдены grep-ом по исходникам `*.h` [grep src]. Подключения `.pri` и `DEFINES` — grep по `*.pro`/`*.pri` [grep pro]. Пометки: [индекс] — индекс GraphicsToolsModule, [grep X] — найдено grep-ом в индексе папки X, [grep src] — в исходниках, [дамп] — `.codemap/_dump/dump_01.md`. «(?)» — предположение. В текущем дампе исходников GraphicsToolsModule нет (только `Sandbox/gtwindow.cpp`), поэтому сведения о поведении из прежнего дампа помечены «[дамп, прежний] (?)» — по свежим данным они не перепроверены.
+## GraphicsToolsModule
+<!-- sources: 58c2731e28f90a9d -->
+
+> Источники: индекс `.codemap/GraphicsToolsModule/` (`00_overview.md`, `index_01.md`; `codemap: v5` = `python3 codemap.py --version`; 72 файла, 9 278 строк: 35 `.cpp`, 35 `.h`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `.codemap/SharedGuiModule/`, `.codemap/PropertiesModule/`, `.codemap/ResourcesModule/`, `.codemap/ControllersModule/` (все `codemap: v5`); типы, которых нет в индексах, найдены grep-ом по исходникам `*.h` [grep src]. Подключения `.pri` и `DEFINES` — grep по `*.pro`/`*.pri` [grep pro]. Пометки: [индекс] — индекс GraphicsToolsModule, [grep X] — найдено grep-ом в индексе папки X, [grep src] — в исходниках, [дамп] — `.codemap/_dump/dump_01.md`. «(?)» — предположение. В текущем дампе исходников GraphicsToolsModule нет (только `Sandbox/gtwindow.cpp`), поэтому сведения о поведении из прежнего дампа помечены «[дамп, прежний] (?)» — по свежим данным они не перепроверены.
 
 ### Назначение
 
@@ -377,7 +405,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 
 ### Точки входа и сборочные цели
 
-- Сборка: `GraphicsToolsModule.pri` содержит только `QT *= gui-private` [индекс]; своей цели нет, `.pri` включается в `.pro` потребителей (см. выше) [grep pro]. Как туда попадают исходники модуля — в индексе не видно (?). `CMakeLists.txt` нет [индекс].
+- Сборка: `GraphicsToolsModule.pri` содержит `QT *= gui-private` [индекс] и `includeAll(true)` [grep: cat] — исходники подключаются функцией `includeAll` из `Global.pri:20`; индекс показывает в Build files только первую строку. Своей цели нет, `.pri` включается в `.pro` потребителей (см. выше) [grep pro]. `CMakeLists.txt` нет [индекс].
 - Подключение: `#include <GraphicsToolsModule/internal.hpp>` [индекс]; `gtframetexture.h`, `gtdepthbuffer.h`, `gtshadowmaptechnique.h` и меши circle/grid/surface подключаются отдельно.
 - Типовой запуск (по сигнатурам) [индекс]: `GtRenderer(defaultShadersPath)` → `CreateDefaultController()` или `GtRendererController(renderer, controllersContainer, context)` → `GtView::SetController(...)`. Объекты создаются через `CreateDrawable<T>(...)` / `CreateDrawableQueued<T>(queue, ...)` у `GtRenderer`, `GtRendererController` или `GtViewContext`. Ранее по дампу новый `GtRendererController` ставит камере `SetProjectionProperties(45, 1, 100000)`, render path по умолчанию — `GtDefaultRenderPath` [дамп, прежний] (?). Связь `defaultShadersPath` с `GtSharedShaderManager::Initialize` не видна (?).
 
@@ -405,9 +433,21 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Текст в 3D и на экране, шрифты `.fnt` | `gttextdrawable.h/.cpp` |
 | Кадр OpenCV как текстура (только с `OPENCV`) | `gtframetexture.*`, `Objects/gtmaterialparameterframetexture.*` |
 
-## WidgetsModule
+### Замечания
+- [2026-11-16] вопрос: как исходники попадают в сборку через `.pri` (?). ✔ закрыто [2026-11-16]: `GraphicsToolsModule.pri` вызывает `includeAll(true)` (grep: cat, `Global.pri:20`).
+- [2026-11-16] вопрос: `BoundingBox` объявлен и в SharedGuiModule, и в SharedModule — какой используется в модуле (предположительно SharedGuiModule) (?) [grep].
+- [2026-11-16] вопрос: связь `GtRenderer(defaultShadersPath)` с `GtSharedShaderManager::Initialize` по индексу не видна (?).
+- [2026-11-16] вопрос: сведения о поведении из прежнего дампа (`CameraObserverProperties` с путями eye/forward/up, своя `ResourcesSystem` у `GtRenderer`, пересылка ввода в `ControllersContainer` в потоке рендера, `SetProjectionProperties(45, 1, 100000)`) свежим дампом не перепроверены (?) [дамп, прежний].
+- [2026-11-16] риск: все математические и GL-типы из `SharedGuiModule/decl.h` условные `[if QT_GUI_LIB]` (`OpenGLFunctions` — `[if QT_GUI_LIB && !QT_NO_OPENGL]`); без QtGui модуль не соберётся [grep SharedGuiModule].
+- [2026-11-16] риск: `GtFrameTexture` и `GtMaterialParameterFrameTexture` целиком под `[if OPENCV]`; `UploadTexture*` в `DDS/nv_dds` — под `NV_DDS_NO_GL_SUPPORT`/`GL_ES_VERSION_*` [индекс].
+- [2026-11-16] риск (потоки): рендер в отдельном потоке (`GtRendererBase : ThreadComputingBase`), drawable переносят свойства в поток рендера через `GtDrawableBase::MoveToThread` [индекс].
+- [2026-11-16] внешнее: `DDS/nv_dds.*` — сторонний код NVIDIA; `<private/qhighdpiscaling_p.h>` — приватный API Qt (`gui-private`) [индекс].
+- [2026-11-16] мёртвый код: `<functional>` в `Objects/gtmaterialparameterbase.h` подключён под `[if WORK]` — макрос нигде не задан (?) [индекс].
 
-> Источники: индекс `.codemap/WidgetsModule/` (`00_overview.md`, `index_01.md`, `index_02.md`; `codemap: v4` совпадает с `python3 codemap.py --version`; 167 файлов, 25 632 строки: 81 `.cpp`, 83 `.h`, 2 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `PropertiesModule/`, `UnitsModule/` и др.; не найденные в индексах — grep по исходникам. Метки: [индекс] — индекс WidgetsModule, [индекс X] — индекс папки X, [grep] — grep по исходникам/ФС, [дамп] — `.codemap/_dump`. «(?)» — предположение.
+## WidgetsModule
+<!-- sources: da34d7f4aa7346fd -->
+
+> Источники: индекс `.codemap/WidgetsModule/` (`00_overview.md`, `index_01.md`, `index_02.md`; `codemap: v5` совпадает с `python3 codemap.py --version`; 167 файлов, 25 720 строк: 81 `.cpp`, 83 `.h`, 2 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/`, `PropertiesModule/`, `UnitsModule/` и др.; не найденные в индексах — grep по исходникам. Метки: [индекс] — индекс WidgetsModule, [индекс X] — индекс папки X, [grep] — grep по исходникам/ФС, [дамп] — `.codemap/_dump`. «(?)» — предположение.
 
 ### Назначение
 
@@ -428,12 +468,12 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | `Dialogs/` | Базовый диалог и типовые содержимые | `WidgetsDialog : QDialog`, `WidgetsInputDialogView` (`AddInt/AddDouble/AddLineText/AddDate/AddMonth/AddDateTime/AddDateRange/AddDateTimeRange`, `AddMeasurement` `[if UNITS_MODULE_LIB]`; алиас `WidgetsInputDialogConnectors` = `MeasurementWidgetConnectors` `[if UNITS_MODULE_LIB]`, иначе `LocalPropertiesWidgetConnectorsContainer`), `WidgetsHyperlinkedListDialogView`, `WidgetsDebugJsonDialog` |
 | `Layouts/` | Раскладка «потоком» | `FlowLayout : QLayout`, `FlowWidget : QScrollArea` |
 | `Managers/` | Синглтоны: диалоги, фокус, словарные модели, состояние заголовков | `WidgetsDialogsManager : SingletoneGlobal` (`ShowTempDialog`, `ShowDeleteCancelDialog`, `ShowTextDialog`, `ShowHyperlinkedListDialog`, `GetText/GetInt/GetDate/GetMonth/GetDateTime/GetDateRange/GetColor`, `SelectDirectory`, `SetDefaultParentWindow`, `MakeFrameless`, `AttachShadow`), `FocusManager`, `ModelsVocabularyManager` (`RegisterModel`, `CreateViewModel`, `GetViewModel`), `WidgetsStandardTableHeaderManager : SingletoneGlobal` (`Register`, save/restore состояния) |
-| `Models/` | Модели представления: таблицы, списки, деревья; колонки, декораторы, фильтры, поиск | `modelstablebase.h` (1072 стр.: `ModelsAbstractItemModel`, `ViewModelsTableBase`, `TViewModelsTableBase<T>`, `TViewModelsEditTable`, `ViewModelsTableColumnComponents`, `TViewModelsDataInitializerComponent`, `TViewModelsDragAndDropComponent`, `TViewModelsDecoratedTable`, `ModelsTableSearchComponent`, `ViewModelsVerticalCompoundTable`, `ModelsIconsContext`), `viewmodelsdefaultcomponents.h` (970 стр.: `TViewModelsColumnComponentsStandardBuilder`, `TViewModelsColorFormatingRule`, макросы `ViewModelsBuilderColumn*`), `modelsfiltermodelbase.h` (`ViewModelsFilterModelBase : QSortFilterProxyModel`, `ViewModelsTableFilterComponent`, `ViewModelsTreeFilterComponent`, `ViewModelsSelectionFilterModel`), `modelslistbase.h` (`TViewModelsListBase`, `ModelsStandardListModel`, `ViewModelsStandardListModel`), `viewmodeltreebase.h` (`ViewModelsTreeBase`, `TViewModelTreeBase`), `viewmodelsstandard.h` (`ViewModelsStandard`, `ModelsStandardRow`), `viewmodelvacabulary.h` (`ModelsVocabularyViewModel`), `viewmodelsdefaultfieldmodel.h` |
+| `Models/` | Модели представления: таблицы, списки, деревья; колонки, декораторы, фильтры, поиск | `modelstablebase.h` (1072 стр.: `ModelsAbstractItemModel`, `ViewModelsTableBase`, `TViewModelsTableBase<T>`, `TViewModelsEditTable`, `ViewModelsTableColumnComponents`, `TViewModelsDataInitializerComponent`, `TViewModelsDragAndDropComponent`, `TViewModelsDecoratedTable`, `ModelsTableSearchComponent`, `ViewModelsVerticalCompoundTable`, `ModelsIconsContext`), `viewmodelsdefaultcomponents.h` (971 стр.: `TViewModelsColumnComponentsStandardBuilder` (типы колонок, в т. ч. `Int64` → `LocalPropertyInt64` [grep]), `TViewModelsColorFormatingRule`, макросы `ViewModelsBuilderColumn*`), `modelsfiltermodelbase.h` (`ViewModelsFilterModelBase : QSortFilterProxyModel` с обработчиками `GetDataHandler`, `HeaderDataHandler`/`DefaultHeaderData`, `FilterHandler` [grep], `ViewModelsTableFilterComponent`, `ViewModelsTreeFilterComponent`, `ViewModelsSelectionFilterModel`), `modelslistbase.h` (`TViewModelsListBase`, `ModelsStandardListModel`, `ViewModelsStandardListModel`), `viewmodeltreebase.h` (`ViewModelsTreeBase`, `TViewModelTreeBase`), `viewmodelsstandard.h` (`ViewModelsStandard`, `ModelsStandardRow`), `viewmodelvacabulary.h` (`ModelsVocabularyViewModel`), `viewmodelsdefaultfieldmodel.h` |
 | `Notifier/` | Всплывающие уведомления, консоль сообщений, верхняя панель ошибок | `NotifyManager : QObject` (enum `MessageType {Info, Warning, Error}`, `Notify`, `GetInstance`), `NotifyWidget`, `NotifyButton`, `NotifyConsole` (в `.cpp`: `NotifyConsoleViewModel : TViewModelTreeBase<ModelsTree>`, `NotifyTreeNode`/`NotifyTreeFolderNode : ModelsTreeItemBase`), `TopNotifierFrame`/`NotifierFrame`, `TopNotifierFrameErrorsComponent`, `TopNotifierFrameErrorsFocusComponent`; `notifydeclarations.h` (`NotifyData`, `NotifyConsoleData`, `NotifyConsoleDataWrapper = TModelsTableWrapper<…>`) |
 | `ProgressBars/` | Индикаторы прогресса процессов | `MainProgressBar`, `ShadowProgressBar`, `ShadowProgressBarOneForAll`, `QRoundProgressBar`, `ProgressBar : QObject` |
 | `TableViews/` (+ `Header/`) | Базовые таблица и дерево; заголовок с ресайзом и выбором колонок | `WidgetsTableViewBase : QTableView` (спаны, рисование), `WidgetsAdjustableTableView`, `WidgetsTreeViewBase : QTreeView`, `WidgetsResizableHeaderAttachment : QHeaderView`, `WidgetsResizableHeaderAttachmentShowColumnsWidget` |
 | `ToolTip/` | Подсказки со стрелкой | `ToolTipWidget : QFrame`, `ToolTipArrowWidget` |
-| `Utils/` | Обёртки виджетов со свойствами, fluent-построитель UI, SVG-иконки, стили | `widgethelpers.h/.cpp` (852 + 3084 стр.: `ObjectWrapper`, `WidgetWrapper` и `Widget*Wrapper` — LineEdit/TextEdit/CheckBox/Combobox/SpinBox/DoubleSpinBox/TableView/HeaderView/Splitter/Dialog/ColorDialog/Groupbox/TabBarLayout/Label/ElidedLabel/ScrollArea/ProgressBar, `MenuWrapper`, `ActionWrapper`, `ViewModelWrapper`, `ImageWrapper`, `WidgetsObserver`, `EventFilterObject`, `LocalPropertyDoubleDisplay`, enum `HighLightEnum`), `widgetbuilder.h` (`WidgetBuilder`), `iconsmanager.h` (`IconsManager`, `IconsSvgIcon : QIcon`, `IconsPalette`), `widgetsstylesettings.h` (`WidgetsStyleSettings : QWidget`), `widgetstyleutils.h` (`namespace StyleUtils`) |
+| `Utils/` | Обёртки виджетов со свойствами, fluent-построитель UI, SVG-иконки, стили | `widgethelpers.h/.cpp` (856 + 3153 стр.; `WidgetAbstractButtonWrapper::SetMenu`, `WidgetLabelWrapper::SetIcon` — иконка `IconsManager` в `QLabel` [grep]; `ObjectWrapper`, `WidgetWrapper` и `Widget*Wrapper` — LineEdit/TextEdit/CheckBox/Combobox/SpinBox/DoubleSpinBox/TableView/HeaderView/Splitter/Dialog/ColorDialog/Groupbox/TabBarLayout/Label/ElidedLabel/ScrollArea/ProgressBar, `MenuWrapper`, `ActionWrapper`, `ViewModelWrapper`, `ImageWrapper`, `WidgetsObserver`, `EventFilterObject`, `LocalPropertyDoubleDisplay`, enum `HighLightEnum`), `widgetbuilder.h` (`WidgetBuilder`), `iconsmanager.h` (`IconsManager`, `IconsSvgIcon : QIcon`, `IconsPalette`), `widgetsstylesettings.h` (`WidgetsStyleSettings : QWidget`), `widgetstyleutils.h` (`namespace StyleUtils`) |
 | `Widgets/` | Отдельные виджеты | `ElidedLabel`, `WidgetsSpinBoxWithCustomDisplay`/`WidgetsDoubleSpinBoxWithCustomDisplay`, `WidgetsColorPicker`, `WidgetsPicturePicker : QLabel`, `WidgetsImportView`, `WidgetsEditingObjectSaveCancelButtons`, `propertiestoolview.h` (`PropertiesToolView`, `PropertiesToolFolderView`, `WidgetPropertiesToolViewWrapper`, `TPropertiesToolWrapper`) |
 | `Widgets/DateTime/` | Редакторы и попапы даты, времени, месяца | `WidgetsDateTimeEdit : QDateTimeEdit`, `WidgetsDateTimeWidget`, `WidgetsDatetimePopupPicker`, `WidgetsTimePicker`, `WidgetsTimeWidget`, `WidgetsCalendarWidget`, `WidgetsMonthPicker`, `WidgetsMonthPopupPicker` |
 | `Widgets/Layouts/` | Составные «подпись + редактор» | `WidgetsLayoutComponent`, `WidgetsButtonLayout`, `WidgetsComboBoxLayout`, `WidgetsDateTimeLayout`, `WidgetsDoubleSpinBoxLayout`, `WidgetsSpinBoxLayout`, `WidgetsGroupBoxLayout`, `WidgetsHeaderLayout`, `WidgetsLineEditLayout`, `WidgetsSwitchLayout`, `WidgetsTabBarLayout`, `WidgetsTextEditLayout`; агрегатор `internal.hpp` |
@@ -445,7 +485,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 - **SharedModule** (безусловно). `<SharedModule/internal.hpp>` — 18 включений, `<SharedModule/External/external.hpp>` — `qtqssreader.cpp`, `ProgressBars/shadowprogressbar.h`, `TableViews/widgetsadjustabletableview.h`; `<SharedModule/hacks.h>` — `TableViews/Header/widgetsresizableheaderattachment.cpp` [индекс]. Типы из `uses:`, найденные в индексе SharedModule [индекс SharedModule]: `Name`, `Latin1Name`, `FTranslationHandler`, `FAction`, `SharedPointer`, `Singletone`, `SingletoneGlobal` (база `ActionsManager`, `WidgetsDialogsManager`, `WidgetsStandardTableHeaderManager`), `Stack`, `Array`, `ContainerBuilder`, `StringBuilder`, `Dispatcher`/`CommonDispatcher`/`DispatcherConnectionsSafe`, `DispatchersCommutator`, `DelayedCallObject`/`DelayedCallObjectParams`, `ThreadsBase`, `ProcessFactory`/`ProcessValue`/`DescProcessValueState` (прогресс-бары), `ImportExportSource`/`DescImportExportSourceParams` (`WidgetsDialogsManager`), `SerializerXmlVersion`/`SerializerVersion`/`DescSerializationXMLWriteParams`. Не в индексах, найдены grep-ом по исходникам: `ScopedPointer` — `SharedModule/smartpointersadapters.h`; `QuadTreeF` — пространство имён через `#define QUADTREE_NAMESPACE QuadTreeF` в `SharedModule/Trees/quadtreef_decl.h` [grep]. `Optional` (в `uses:` `viewmodelsdefaultcomponents.h`) не найден ни в индексах, ни grep-ом по объявлениям (?).
 - **PropertiesModule** (безусловно). `<PropertiesModule/internal.hpp>` — 46 включений, `<PropertiesModule/Ui/internal.hpp>` — `Widgets/widgetspicturepicker.h`, `Widgets/DateTime/widgetsdatetimepopuppicker.cpp`, `Widgets/Layouts/widgetsdoublespinboxlayout.cpp`, `Widgets/Layouts/widgetsgroupboxlayout.cpp` [индекс]. Типы [индекс PropertiesModule]: `LocalProperty` и семейство `LocalPropertyBool/Int/Double/String/Color/Date/DateTime/SequentialEnum/Optional/DoubleOptional`, `StateProperty`, `LocalPropertyBoolCommutator`, `TranslatedString`/`TranslatedStringPtr`, `TranslatorManager`, `LanguageSettings`, `SharedSettings`, `LocalPropertyErrorsViewModel`, `LocalPropertiesWidgetConnectorsContainer`, `LocalPropertiesLabelConnector`, `EditingObject` (`WidgetsEditingObjectSaveCancelButtons`), `ModelsTree`/`ModelsTreeItemBase`/`ModelsTreeWrapperPtr`, `TModelsTableWrapper`, `ModelsVocabulary`/`ModelsVocabularyPtr`. Наследование от классов PropertiesModule: `ModelsStandardListModel : TModelsTableWrapper<…>`, `ModelsVocabularyViewModel` (на `TViewModelsTableBase<ModelsVocabulary>`), `NotifyTreeNode`/`NotifyTreeFolderNode : ModelsTreeItemBase`, `LocalPropertyDoubleDisplay : LocalPropertyDouble` [индекс + индекс PropertiesModule].
 - **UnitsModule** — в основном условно. `[if UNITS_MODULE_LIB]`: `<UnitsModule/internal.hpp>` в `Dialogs/widgetsinputdialogview.h`, `Models/modelstablebase.cpp`, `Models/viewmodelsdefaultcomponents.cpp`, `Models/viewmodelvacabulary.cpp`, `TableViews/Header/widgetsresizableheaderattachmentshowcolumnswidget.cpp`, `Widgets/propertiestoolview.h`; `<UnitsModule/measurementunitmanager.h>` в `Models/viewmodelsstandard.cpp`; условные методы `WidgetsInputDialogView::AddMeasurement`, `MenuWrapper::AddMeasurementAction`, `PropertiesToolView::AddDoubleProperty`, `ViewModelsTableBase::AttachDependence/AttachTempDependence` (перегрузки) [индекс]. **Без пометки `[if]`** `<UnitsModule/internal.hpp>` подключают `Managers/modelsvocabularymanager.cpp` и `Utils/widgethelpers.cpp` [индекс]. Типы [индекс UnitsModule]: `Measurement`, `MeasurementManager`, `MeasurementWidgetConnectors`.
-- **VisualizationModule** — условно, `[if VISUALIZATION_MODULE_LIB]`: `<VisualizationModule/internal.hpp>` в `Utils/widgetsstylesettings.cpp` [индекс]; папки `VisualizationModule/` в DevLib нет [grep: ls] — внешний модуль (?).
+- **VisualizationModule** — условно, `[if VISUALIZATION_MODULE_LIB]`: `<VisualizationModule/internal.hpp>` в `Utils/widgetsstylesettings.cpp` [индекс]; папки `VisualizationModule/` в DevLib нет [grep: ls] — связь ведёт в проект wps-client (`libs/VisualizationModule`, задаёт `VISUALIZATION_MODULE_LIB` в своём `.pri`) [grep].
 - SharedGuiModule, GraphicsToolsModule, ResourcesModule, ControllersModule и прочие: ни include, ни типов из их индексов в WidgetsModule нет [grep по индексам].
 
 Кто зависит от WidgetsModule (из уже описанных в CODEMAP.md):
@@ -470,7 +510,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Собрать форму кодом | `Utils/widgetbuilder.h/.cpp` |
 | Показать диалог (подтверждение, ввод текста/числа/даты/цвета, выбор папки, свой диалог) | `Managers/widgetsdialogsmanager.h/.cpp`, `widgetsdeclarations.h` (`DescCustomDialogParams`, кнопки), `Dialogs/widgetsdialog.*`, `Dialogs/widgetsinputdialogview.*` |
 | Табличная модель, колонки, редактирование, drag&drop | `Models/modelstablebase.h/.cpp`, `Models/viewmodelsdefaultcomponents.h`, `Models/viewmodelsstandard.*` |
-| Фильтрация и поиск в таблице | `Models/modelsfiltermodelbase.h/.cpp`, `ModelsTableSearchComponent` в `modelstablebase.h` |
+| Фильтрация и поиск в таблице, свой заголовок прокси-модели | `Models/modelsfiltermodelbase.h/.cpp` (`HeaderDataHandler`), `ModelsTableSearchComponent` в `modelstablebase.h` |
 | Дерево | `Models/viewmodeltreebase.*`, `TableViews/widgetstreeviewbase.*` |
 | Настроить таблицу (колонки, видимость, состояние заголовка) | `widgetsdeclarations.h` (`DescTableViewParams`), `Managers/widgetsstandardtableheadermanager.*`, `TableViews/Header/*`, `Attachments/tableviewwidgetattachment.*` |
 | Копировать/вставить/удалить строки таблицы (горячие клавиши) | `Actions/widgetsglobaltableactionsscope.*`, `Attachments/widgetsactivetableattachment.*`, `Attachments/widgetsabstractviewrowattachment.*` |
@@ -487,9 +527,20 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Панель свойств объекта | `Widgets/propertiestoolview.h/.cpp` |
 | Фокус | `Managers/widgetsfocusmanager.*` |
 
-## CloudModule
+### Замечания
+- [2026-11-16] вопрос: `VisualizationModule` — внешний модуль (?). ✔ закрыто [2026-11-16]: это `libs/VisualizationModule` проекта wps-client, макрос `VISUALIZATION_MODULE_LIB` задаёт его `.pri` (grep); DevLib условно зависит от проекта-пользователя.
+- [2026-11-16] вопрос: тип `Optional` из `uses:` `viewmodelsdefaultcomponents.h` не найден ни в индексах, ни grep-ом по объявлениям (?) [индекс, grep].
+- [2026-11-16] вопрос: порядок инициализации менеджеров (`ActionsManager::Initialize`, `WidgetsDialogsManager::SetDefaultParentWindow`, `QtQSSReader::Install`, `IconsManager::RegisterIcon*`) в приложении не установлен (?) [индекс].
+- [2026-11-16] риск: цикл PropertiesModule ↔ WidgetsModule на уровне `.cpp` (частично условный по `WIDGETS_MODULE_LIB`) [индекс PropertiesModule].
+- [2026-11-16] риск: цикл UnitsModule ↔ WidgetsModule — `Managers/modelsvocabularymanager.cpp` и `Utils/widgethelpers.cpp` подключают `<UnitsModule/internal.hpp>` без `[if UNITS_MODULE_LIB]`, хотя остальные места защищены; без UnitsModule модуль не соберётся [индекс].
+- [2026-11-16] риск: неявная зависимость SharedModule → WidgetsModule в шаблонах `ImportExport/importexport.h` без include [индекс SharedModule, дамп].
+- [2026-11-16] внешнее: `WidgetsModule.pri` добавляет `user32.lib` (`win32`), `MenuBarMovePane` использует WinAPI `[if Q_OS_WIN]` [индекс, grep: cat].
+- [2026-11-16] внешнее: индекс показывает в Build files только строку `LIBS *= user32.lib`; `includeAll(true)` и `DEFINES += WIDGETS_MODULE_LIB` видны только в самом `.pri` [индекс, grep: cat].
 
-> Источники: индекс `.codemap/CloudModule/` (`00_overview.md`, `index_01.md`; `codemap: v4`, совпадает с `python3 codemap.py --version`; 4 файла, 273 строки: 1 `.cpp`, 1 `.h`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/PropertiesModule/` (у обоих `codemap: v4`). То, чего нет в индексах, найдено grep-ом по исходникам. Текущий дамп `.codemap/_dump/dump_01.md` файлов CloudModule не содержит. Метки: [индекс] — индекс CloudModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС, [дамп, пред.] — дамп из прошлой версии раздела, заново не сверялся. «(?)» — предположение.
+## CloudModule
+<!-- sources: bc31ab5aea6cca76 -->
+
+> Источники: индекс `.codemap/CloudModule/` (`00_overview.md`, `index_01.md`; `codemap: v5`, совпадает с `python3 codemap.py --version`; 4 файла, 273 строки: 1 `.cpp`, 1 `.h`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/PropertiesModule/` (у обоих `codemap: v5`). То, чего нет в индексах, найдено grep-ом по исходникам. Текущий дамп `.codemap/_dump/dump_01.md` файлов CloudModule не содержит. Метки: [индекс] — индекс CloudModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС, [дамп, пред.] — дамп из прошлой версии раздела, заново не сверялся. «(?)» — предположение.
 
 ### Назначение
 
@@ -526,12 +577,12 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 - **NetworkModule** не используется: в CloudModule нет ни его include, ни его типов. Сеть работает напрямую через Qt Network (`QNetworkAccessManager`, `QNetworkReply`, `QNetworkRequest`, `QHttpMultiPart`) [индекс].
 - **Условные зависимости.** В индексе CloudModule нет ни меток `[if X]`, ни строк `defines:` [индекс]. Условная часть приходит только транзитивно: SharedGuiModule подключается через PropertiesModule при `QT_GUI_LIB` [индекс PropertiesModule]. Циклов нет: от CloudModule не зависит никто (см. ниже).
 
-Кто зависит от CloudModule: ни один индекс в `.codemap/` вне папки не упоминает `CloudModule`/`CloudService`, в том числе ни один из модулей, уже описанных в этой карте [grep]. В исходниках (`*.h/*.hpp/*.cpp`), `.pri`/`.pro`/`CMakeLists.txt` вне папки упоминаний тоже нет [grep]. Видимо, модуль используется только приложением вне DevLib (?).
+Кто зависит от CloudModule: ни один индекс в `.codemap/` вне папки не упоминает `CloudModule`/`CloudService`, в том числе ни один из модулей, уже описанных в этой карте [grep]. В исходниках (`*.h/*.hpp/*.cpp`), `.pri`/`.pro`/`CMakeLists.txt` вне папки упоминаний тоже нет [grep]. Модуль используется только вне DevLib: наследники `CloudService` есть в другом проекте (`codemap.py find CloudService`).
 
 ### Точки входа и сборочные цели
 
 - `CloudModule/internal.hpp` — публичный заголовок, подключает `cloudservice.h` [индекс].
-- `CloudModule/CloudModule.pri` указан в индексе как build-файл, но его содержимое индекс не показывает. Сам файл состоит из одной строки `includeAll(true)` [grep: cat]. Функция `includeAll` определена через `defineTest(includeAll)` в корневом `Global.pri` [grep]. `QT += network` в `.pri` нет, откуда сборка получает Qt Network, неизвестно (?).
+- `CloudModule/CloudModule.pri` указан в индексе как build-файл, но его содержимое индекс не показывает. Сам файл состоит из одной строки `includeAll(true)` [grep: cat]. Функция `includeAll` определена через `defineTest(includeAll)` в корневом `Global.pri` [grep]. `QT += network` в `.pri` нет: Qt Network должен подключать .pro приложения-потребителя (?).
 - `CMakeLists.txt` в папке нет, в ней только 4 файла [grep: ls].
 - Жизненный цикл: создать `CloudService` или наследника → задать параметры (`CloudServiceParams`) → `Initialize()` → `Request`/`PostFile` → `Terminate()` [индекс; порядок — дамп, пред.].
 
@@ -548,9 +599,21 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Поток сети, запуск и остановка | `CloudService::Initialize/Terminate` в `cloudservice.cpp`; `ThreadsBase::DoQThreadWorkerWithResult` в `SharedModule/Threads/threadsbase.h` |
 | Написать свой сервис-наследник | `onInitialize`/`onTerminate` в `cloudservice.h` |
 
-## CommandsModule
+### Замечания
+- [2026-11-16] вопрос: `onInitialize`/`onTerminate` рассчитаны на наследование (?). ✔ закрыто [2026-11-16]: у `CloudService` есть наследники вне DevLib (`codemap.py find CloudService`).
+- [2026-11-16] вопрос: кто использует CloudModule (?). ✔ закрыто [2026-11-16]: внутри DevLib никто, пользователи только в другом проекте (`codemap.py find CloudService`, grep).
+- [2026-11-16] вопрос: include `<PropertiesModule/internal.hpp>` нужен только ради транзитивных SharedModule/SharedGuiModule — типов PropertiesModule в `uses:` нет (?) (индекс).
+- [2026-11-16] риск (потоки): колбэки `FOnReplied`/`FOnError` предположительно выполняются в потоке `m_thread`, а не в потоке вызывающего (?) (дамп, пред.).
+- [2026-11-16] риск: если запрос прерван через `ResultInterruptor` до отправки, `Result` может не резолвиться (?) (дамп, пред.).
+- [2026-11-16] риск: `OnReplied` вызывается без проверки на `nullptr`; `Terminate()` вызывает `QThread::terminate()` — аварийная остановка потока (дамп, пред.).
+- [2026-11-16] вопрос: в `PostFile` не применяются `DefaultContentType`, `RawHeaders`, `Verb`, `Payload` — намеренно ли (?) (дамп, пред.).
+- [2026-11-16] мёртвый код: закомментированный `Authorize`, неиспользуемый `Routes::Login`; `<QJsonDocument>`/`<QJsonObject>` в `cloudservice.cpp` нужны только ему (дамп, пред.; индекс).
+- [2026-11-16] внешнее: `CloudModule.pri` не добавляет `QT += network` — модуль соберётся только в .pro, где Qt Network уже подключён (?) (grep: cat .pri).
 
-> Источники: индекс `.codemap/CommandsModule/` (codemap v4 совпадает с `codemap.py --version`; 3 файла, 15 строк), сами сборочные файлы `CommandsModule/CMakeLists.txt`, `CommandsModule/CommandsModule.pri` и `CommandsModule/internal.hpp` (только чтение), grep по `.codemap/` и по исходникам DevLib.
+## CommandsModule
+<!-- sources: 811970a24d8167e2 -->
+
+> Источники: индекс `.codemap/CommandsModule/` (codemap v5 совпадает с `codemap.py --version`; 3 файла, 15 строк — пустой .pri индекс считает за 1 строку), сами сборочные файлы `CommandsModule/CMakeLists.txt`, `CommandsModule/CommandsModule.pri` и `CommandsModule/internal.hpp` (только чтение), grep по `.codemap/` и по исходникам DevLib.
 
 ### Назначение
 
@@ -562,7 +625,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 |---|---|---|
 | `CommandsModule/` | Корень модуля, подпапок нет (индекс) | `internal.hpp`: общий include модуля, подключает отсутствующий `operations.h`; `CMakeLists.txt`; `CommandsModule.pri` (пустой) |
 
-Классов и функций в индексе нет. Строк `uses:` и `defines:` у `internal.hpp` нет, поэтому внешних типов файл не использует (индекс). В самом файле видно, что `#include "operations.h"` стоит под `#ifdef __cplusplus`, а include guard называется `INTERNAL_H` (файл). Индекс v4 не помечает это условие как `[if __cplusplus]`.
+Классов и функций в индексе нет. Строк `uses:` и `defines:` у `internal.hpp` нет, поэтому внешних типов файл не использует (индекс). В самом файле видно, что `#include "operations.h"` стоит под `#ifdef __cplusplus`, а include guard называется `INTERNAL_H` (файл). Индекс v5 тоже не помечает это условие как `[if __cplusplus]`.
 
 ### Зависимости
 
@@ -586,9 +649,17 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Понять, кто линкуется с модулем | `ControllersModule/CMakeLists.txt` |
 | Найти реализацию команд и операций | В DevLib её нет; вероятно, она в проекте, который использует DevLib (?) |
 
-## ComputeGraphModule
+### Замечания
+- [2026-11-16] вопрос: `internal.hpp` — остаток вынесенной или ещё не написанной подсистемы команд/операций (undo/redo) (?) (индекс, файл).
+- [2026-11-16] риск: `internal.hpp` включает отсутствующий `"operations.h"` (find, grep `.codemap/`) — любой код, подключивший `<CommandsModule/internal.hpp>` в C++, не соберётся (?).
+- [2026-11-16] вопрос: где реализация команд и операций — в DevLib её нет, возможно в проекте-пользователе (?).
+- [2026-11-16] мёртвый код: `CMakeLists.txt` линкует SharedModule, Qt5::Core, Qt5::Widgets, хотя кода нет; `ControllersModule/CMakeLists.txt:3` линкует CommandsModule без единого include (grep).
+- [2026-11-16] внешнее: индекс не отмечает условие `#ifdef __cplusplus` вокруг `#include "operations.h"` как `[if __cplusplus]` (файл, индекс).
 
-> Источники: индекс `.codemap/ComputeGraphModule/` (codemap v4, 38 файлов, 1651 строка: 18 `.cpp`, 18 `.h`, 1 `.hpp`, 1 `.pri`); типы из `uses:` сверены по индексам `.codemap/SharedModule/`, `.codemap/PropertiesModule/`, `.codemap/SharedGuiModule/` (все v4) и grep по исходникам (помечено «grep»).
+## ComputeGraphModule
+<!-- sources: 43818c4ba0f5c608 -->
+
+> Источники: индекс `.codemap/ComputeGraphModule/` (codemap v5, 38 файлов, 1651 строка: 18 `.cpp`, 18 `.h`, 1 `.hpp`, 1 `.pri`); типы из `uses:` сверены по индексам `.codemap/SharedModule/`, `.codemap/PropertiesModule/`, `.codemap/SharedGuiModule/` (все v5) и grep по исходникам (помечено «grep»).
 
 ### Назначение
 
@@ -645,9 +716,19 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Распознавание | `computenodevolcanorecognition.*` |
 | Учёт памяти узлов | `computenodebase.cpp` (`totalMemoryUsage`, `getMemoryUsage`) |
 
-## NetworkModule
+### Замечания
+- [2026-11-16] вопрос: что именно распознаёт `ComputeNodeVolcanoRecognition` — по индексу не установлено (?).
+- [2026-11-16] вопрос: назначение `BoolProperty` в `GtComputeNodeBase` (вероятно, флаг enabled) (?) (индекс, uses computenodebase.h).
+- [2026-11-16] вопрос: точный порядок запуска графа (`ComputeGraphCore::Initialize` → `GtComputeGraph::AddCalculationGraph` → `Start`) не проверен (?) (индекс).
+- [2026-11-16] риск: `Point2I` (SharedGuiModule/decl.h) доступен только при `QT_GUI_LIB` — `computenodevolcanorecognition.cpp` не соберётся без Qt GUI (индекс SharedGuiModule).
+- [2026-11-16] риск (потоки): граф считается в отдельном потоке `GtComputeGraph`; безопасное чтение выхода — только через `GtComputeNodeThreadSafe::GetThreadOutput`/`MatGuard` (индекс).
+- [2026-11-16] внешнее: OpenCV (`<opencv2/opencv.hpp>`) и OpenNI2 (`<OpenNI.h>`, `<OniEnums.h>`) — сторонние зависимости вне DevLib; `.pri` их пути не задаёт (индекс, файл .pri) (?).
+- [2026-11-16] мёртвый код: модуль подключает только `Sandbox/Sandbox.pro:18` (через `$$CABOODLE`), других пользователей в DevLib нет (grep).
 
-> Источники: индекс `.codemap/NetworkModule/` (`00_overview.md`, `index_01.md`, `codemap: v4` — совпадает с `python3 codemap.py --version`; 15 файлов, 775 строк; 8 `.h`, 5 `.cpp`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/SharedGuiModule/` (оба `codemap: v4`); то, чего нет в индексах, — grep-ом по исходникам. Метки: [индекс] — индекс NetworkModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС. «(?)» — предположение. Условных (`[if X]`) include и объявлений в самом NetworkModule индекс не показывает; строк `defines:` нет.
+## NetworkModule
+<!-- sources: 61bc584712a39bde -->
+
+> Источники: индекс `.codemap/NetworkModule/` (`00_overview.md`, `index_01.md`, `codemap: v5` — совпадает с `python3 codemap.py --version`; 15 файлов, 775 строк; 8 `.h`, 5 `.cpp`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/SharedGuiModule/` (оба `codemap: v5`); то, чего нет в индексах, — grep-ом по исходникам. Метки: [индекс] — индекс NetworkModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС. «(?)» — предположение. Условных (`[if X]`) include и объявлений в самом NetworkModule индекс не показывает; строк `defines:` нет.
 
 ### Назначение
 
@@ -701,9 +782,19 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Базовый запрос RI-протокола | `NetworkModule/riprotocholquerybase.h` |
 | Что подключается одним include | `NetworkModule/internal.hpp` |
 
-## ProgressModule
+### Замечания
+- [2026-11-16] вопрос: `NetworkThreadPool::findEmtiestThread` выбирает наименее загруженный поток — вывод по имени, тело не смотрели (?) [индекс].
+- [2026-11-16] вопрос: include `<SharedGuiModule/internal.hpp>` в `networkpackage.h` нужен только транзитивно ради SharedModule — типов SharedGuiModule в `uses:` нет (?) [индекс, индекс SharedGuiModule].
+- [2026-11-16] внешнее: `NetworkModule.pri` = `includeAll(true)` без `QT += network`; Qt Network должен подключать .pro проекта-пользователя (?) [grep: cat].
+- [2026-11-16] вопрос: внутри DevLib модуль никто не использует; пользователи — только вне DevLib (?) [grep].
+- [2026-11-16] вопрос: порядок вызовов на сервере (`incomingConnection` → `NetworkThreadPool::AddSocket` → `NetworkThread::AddSocket` → `NetworkConnection::SetSocketDescriptor` → `onReadyRead` → `onPackageRecieved`) выведен из сигнатур, тела не проверены (?) [индекс].
+- [2026-11-16] риск (потоки): `onPackageRecieved` вызывается из потоков `NetworkThread` пула, а не из потока сервера — обработчик в наследнике `NetworkServerBase` должен быть потокобезопасным (?) [индекс].
+- [2026-11-16] мёртвый код: опечатки в публичных именах (`onPackageRecieved`, `findEmtiestThread`, `Protochol`) — переименование затронет наследников вне DevLib [индекс].
 
-> Источники: индекс `.codemap/ProgressModule/` (`00_overview.md`, `index_01.md`, `codemap: v4` — совпадает с `python3 codemap.py --version`; 7 файлов, 405 строк; 3 `.h`, 2 `.cpp`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам других папок (`.codemap/*/index_*.md`); не найденные там — grep-ом по исходникам. Метки: [индекс] — индекс ProgressModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС. «(?)» — предположение.
+## ProgressModule
+<!-- sources: 3e24d1119de03a47 -->
+
+> Источники: индекс `.codemap/ProgressModule/` (`00_overview.md`, `index_01.md`, `codemap: v5` — совпадает с `python3 codemap.py --version`; 7 файлов, 405 строк; 3 `.h`, 2 `.cpp`, 1 `.hpp`, 1 `.pri`). Типы из строк `uses:` сверены grep-ом по индексам других папок (`.codemap/*/index_*.md`); не найденные там — grep-ом по исходникам. Метки: [индекс] — индекс ProgressModule, [индекс X] — индекс папки X, [grep] — grep по исходникам или ФС. «(?)» — предположение.
 
 ### Назначение
 
@@ -715,7 +806,7 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 
 | Путь | Назначение | Ключевые классы/файлы |
 |---|---|---|
-| `./` (7 файлов, 405 строк) | Весь модуль: интерфейс, реализации, фабрика и состояния прогресса | `iprogress.h` (`IProgress`: `BeginProgress(title, isShadow)`, `BeginProgress(title, count, isShadow)`, `SetProgressTitle`, `IncreaseProgressStepsCount`, `IncrementProgress`, `IsProgressCanceled` — все чисто виртуальные; `ProgressIncrementGuard(IProgress*)` с inline-деструктором, который, судя по имени, вызывает `IncrementProgress` (?)); `progress.h/.cpp` (`Progress : IProgress`, по умолчанию `shadow = false`, использует `ScopedPointer`, реализация через `ProgressFactory`; `ProgressDummy : IProgress` — `final`-методы без вывода); `progressfactory.h/.cpp` (`DescProgressValueState::IsShouldStayVisible`; `ProgressValue`: `GetState`, `GetDepth`, `GetTitle`, `IsCanceled`, `IsNextProgressExpected`, `IsFinished`, `AsDeterminate`, protected `setTitle`/`finish`/`setNextProgressExpected`/`incrementStep`/`init`, в `.cpp` ещё `depthCounter`; `DescProgressDeterminateValueState : DescProgressValueState`; `ProgressDeterminateValue : ProgressValue` (`GetCurrentStep`, `GetStepsCount`, `increaseStepsCount`; `typedef ProgressValue Super`, `progressfactory.h:66`); `ProgressFactory::Instance`, `Set{,Shadow}{Determinate,Indeterminate}Callback`, `create{,Shadow}{Indeterminate,Determinate}`; статический `DoNothingCallback(ProgressValue*)` в `.cpp` — callback по умолчанию (?)); `internal.hpp` — агрегатор (`progressfactory.h`, `progress.h`); `ProgressModule.pri` [индекс, grep] |
+| `./` (7 файлов, 405 строк) | Весь модуль: интерфейс, реализации, фабрика и состояния прогресса | `iprogress.h` (`IProgress`: `BeginProgress(title, isShadow)`, `BeginProgress(title, count, isShadow)`, `SetProgressTitle`, `IncreaseProgressStepsCount`, `IncrementProgress`, `IsProgressCanceled` — все чисто виртуальные; `ProgressIncrementGuard(IProgress*)` с inline-деструктором, который вызывает `_progress->IncrementProgress()` (grep `iprogress.h:36`)); `progress.h/.cpp` (`Progress : IProgress`, по умолчанию `shadow = false`, использует `ScopedPointer`, реализация через `ProgressFactory`; `ProgressDummy : IProgress` — `final`-методы без вывода); `progressfactory.h/.cpp` (`DescProgressValueState::IsShouldStayVisible`; `ProgressValue`: `GetState`, `GetDepth`, `GetTitle`, `IsCanceled`, `IsNextProgressExpected`, `IsFinished`, `AsDeterminate`, protected `setTitle`/`finish`/`setNextProgressExpected`/`incrementStep`/`init`, в `.cpp` ещё `depthCounter`; `DescProgressDeterminateValueState : DescProgressValueState`; `ProgressDeterminateValue : ProgressValue` (`GetCurrentStep`, `GetStepsCount`, `increaseStepsCount`; `typedef ProgressValue Super`, `progressfactory.h:66`); `ProgressFactory::Instance`, `Set{,Shadow}{Determinate,Indeterminate}Callback`, `create{,Shadow}{Indeterminate,Determinate}`; статический `DoNothingCallback(ProgressValue*)` в `.cpp` — callback по умолчанию для всех четырёх вариантов (grep `progressfactory.cpp:78–83`)); `internal.hpp` — агрегатор (`progressfactory.h`, `progress.h`); `ProgressModule.pri` [индекс, grep] |
 
 Замечание: `progressfactory.cpp` подключает `"Progressfactory.h"` (с заглавной `P`), а файл на диске — `progressfactory.h` [индекс, grep]. На регистрозависимой ФС это не скомпилируется (?).
 
@@ -751,9 +842,17 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Пример использования | `OpenGLMultithreadingTest/main.cpp` |
 | Что подключается одним include | `ProgressModule/internal.hpp` |
 
-## SQLiteModule
+### Замечания
+- [2026-11-16] вопрос: ProgressModule — старый или параллельный вариант `SharedModule/Process/*` (`ProcessFactory`, `ProcessValue`) (?) [индекс, индекс SharedModule].
+- [2026-11-16] вопрос: деструктор `ProgressIncrementGuard` вызывает `IncrementProgress` (?). ✔ закрыто [2026-11-16]: да, `iprogress.h:36` (grep).
+- [2026-11-16] вопрос: `DoNothingCallback` — callback по умолчанию (?). ✔ закрыто [2026-11-16]: им инициализируются все четыре callback-а в конструкторе `ProgressFactory` (grep `progressfactory.cpp:78–83`).
+- [2026-11-16] риск: `progressfactory.cpp` подключает `"Progressfactory.h"` с заглавной `P`, файл на диске — `progressfactory.h`; на регистрозависимой ФС (Linux) не скомпилируется (индекс, grep).
+- [2026-11-16] мёртвый код: в DevLib модуль подключает только непроиндексированный `OpenGLMultithreadingTest` (grep); прогресс-бары WidgetsModule используют `ProcessFactory` из SharedModule.
 
-> Источники: индекс `.codemap/SQLiteModule/` (`00_overview.md`, `index_01.md`; `codemap: v4` совпадает с `python3 codemap.py --version`; 4 файла, 677 строк); зависимости сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/PropertiesModule/` (оба `codemap: v4`). Условных (`[if X]`) include/объявлений и строк `defines:` в индексе нет.
+## SQLiteModule
+<!-- sources: e05fab1fa5ea899c -->
+
+> Источники: индекс `.codemap/SQLiteModule/` (`00_overview.md`, `index_01.md`; `codemap: v5` совпадает с `python3 codemap.py --version`; 4 файла, 677 строк); зависимости сверены grep-ом по индексам `.codemap/SharedModule/` и `.codemap/PropertiesModule/` (оба `codemap: v5`). Условных (`[if X]`) include/объявлений и строк `defines:` в индексе нет.
 
 ### Назначение
 
@@ -786,11 +885,11 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
   - `StateProperty` — `PropertiesModule/stateproperty.h`.
 - Внешние: Qt SQL (`QSqlDatabase`, `QSqlQuery`, `QSqlError`) — [индекс], `SQLiteModule.pri`.
 
-Кто зависит от SQLiteModule: среди индексов `.codemap/*` (кроме самого модуля) упоминаний `SQLiteModule`/`SQLiteDatabase` нет [grep]; в описанных разделах CODEMAP.md модуль упоминается только как потребитель PropertiesModule. Потребители, вероятно, вне DevLib (?).
+Кто зависит от SQLiteModule: среди индексов `.codemap/*` (кроме самого модуля) упоминаний `SQLiteModule`/`SQLiteDatabase` нет [grep]; в описанных разделах CODEMAP.md модуль упоминается только как потребитель PropertiesModule. Потребители — только вне DevLib (`codemap.py find SQLiteDatabase`: использование в другом проекте).
 
 ### Точки входа и сборочные цели
 
-- Сборка: `SQLiteModule/SQLiteModule.pri` — подключается в .pro потребителя, добавляет `QT += sql`; собственной цели (`.pro`/CMake) нет [индекс].
+- Сборка: `SQLiteModule/SQLiteModule.pri` — подключается в .pro потребителя: `includeAll(true)`, `QT += sql`, `DEFINES += SQLITE_MODULE_LIB` (grep: cat; индекс показывает только `QT += sql`); собственной цели (`.pro`/CMake) нет [индекс].
 - Точка входа в API: `SQLiteDatabase::Create(connection, user, password)` → `SP<SQLiteDatabase>`; подключение через `#include <SQLiteModule/internal.hpp>` [индекс].
 
 ### Где искать
@@ -805,13 +904,21 @@ declarations.h / flags.h / smartpointersadapters.h / array.h / stack.h   <- фу
 | Табличная модель для UI из таблицы БД | `TSQLiteModelsTableModel<T>` — `Connect`, `Disconnect`, `Select`; опции `SQLiteModelsTableModelParams::AddUpdatedAt`, `AddMarkedAsDeleted` |
 | Подключение Qt SQL к проекту | `SQLiteModule.pri` |
 
-## StylesModule
+### Замечания
+- [2026-11-16] вопрос: потребители SQLiteModule вне DevLib (?). ✔ закрыто [2026-11-16]: внутри DevLib пользователей нет, `SQLiteDatabase` используется в другом проекте (`codemap.py find`).
+- [2026-11-16] вопрос: в `sqlitedatabase.h` типы SharedModule приходят транзитивно через `<PropertiesModule/internal.hpp>` (?) [индекс].
+- [2026-11-16] мёртвый код: `DEFINES += SQLITE_MODULE_LIB` из `.pri` в самом модуле не проверяется (строк `[if SQLITE_MODULE_LIB]` в индексе нет); проверку в других папках не искали (?) (grep: cat, индекс).
+- [2026-11-16] риск (потоки): `SQLiteDatabase : ThreadPool` — запросы выполняются в фоновом потоке, результат через `AsyncResult`; `TSQLiteModelsTableModel<T>` обновляет модель UI из результатов — поток обновления не проверен (?) [индекс].
+- [2026-11-16] внешнее: Qt SQL (`QSqlDatabase`, `QSqlQuery`, `QSqlError`), драйвер SQLite Qt [индекс].
 
-> Источники: индекс `.codemap/StylesModule/00_overview.md` (`codemap: v4`, совпадает с `python3 codemap.py --version`). В индексе 1 файл (`StylesModule.pri`, 2 строки); файлов `index_*.md` нет, строк `inc:`/`uses:` нет: в папке нет ни одного `.h`/`.cpp`. Остальное взято из листинга ФС, grep по исходникам и индексам других папок (`WidgetsModule/index_01.md`, `PropertiesModule/index_01.md`) и из дампа прежнего прогона (`WidgetsModule/qtqssreader.cpp`, `style/main.qss`, `style/ads.qss`, `aispaces_dark.qss`, `Sandbox/gtwindow.cpp`). Текущий `.codemap/_dump/dump_01.md` содержит только SharedModule. Метки: [индекс] — индекс StylesModule, [индекс X] — индекс папки X, [ФС] — листинг файлов, [grep], [дамп] — дамп прежнего прогона. «(?)» — предположение.
+## StylesModule
+<!-- sources: 29ae51b10348ec00 -->
+
+> Источники: индекс `.codemap/StylesModule/00_overview.md` (`codemap: v5`, совпадает с `python3 codemap.py --version`). В индексе 1 файл (`StylesModule.pri`, 2 строки); файлов `index_*.md` нет, строк `inc:`/`uses:` нет: в папке нет ни одного `.h`/`.cpp`. Остальное взято из листинга ФС, grep по исходникам и индексам других папок (`WidgetsModule/index_01.md`, `PropertiesModule/index_01.md`) и из дампа прежнего прогона (`WidgetsModule/qtqssreader.cpp`, `style/main.qss`, `style/ads.qss`, `aispaces_dark.qss`, `Sandbox/gtwindow.cpp`). Текущий `.codemap/_dump/dump_01.md` содержит только SharedModule. Метки: [индекс] — индекс StylesModule, [индекс X] — индекс папки X, [ФС] — листинг файлов, [grep], [дамп] — дамп прежнего прогона. «(?)» — предположение.
 
 ### Назначение
 
-Ресурсная папка без C++-кода: шаблоны таблиц стилей Qt (QSS) и SVG-иконки, собранные в `main.qrc` (`prefix="/"`, 123 записи `<file>`) [индекс, ФС, grep].
+Ресурсная папка без C++-кода: шаблоны таблиц стилей Qt (QSS) и SVG-иконки, собранные в `main.qrc` (`prefix="/"`, 124 записи `<file>`) [индекс, ФС, grep].
 QSS написан на расширенном синтаксисе, который понимает только `QtQSSReader` из WidgetsModule [индекс WidgetsModule, дамп]:
 - `@cИмя: значение;` — палитра; `@cbg.*`, `@cbr.*`, `@ctext.*`, `@cIcon.*`, `@cpal.*`, `@c.*` подставляются во все файлы;
 - `@import url("...");` — склейка файлов;
@@ -824,8 +931,8 @@ QSS написан на расширенном синтаксисе, котор�
 
 | Путь | Назначение | Ключевые классы/файлы |
 |---|---|---|
-| `./` | Сборка, ресурсный файл, корневые файлы тем AiSpaces | `StylesModule.pri` (`includeAll(true)`) [индекс, grep]; `main.qrc` [ФС]; `aispaces_dark.qss`, `aispaces_light.qss`: палитра `@c*`, `@cPath:@temp`, `@cLogoPath:@temp/full_logo_white.svg` (dark) / `full_logo_black.svg` (light), `@resource.1::/style/res`, `@resource.2::/aispaces/res`, 7 `@import "style/*.qss"` (вместе с `progressbar.qss`) + `aispaces/style.qss`, `aispaces/palette.qss` [grep]; `tmp_dark.qss` в `main.qrc` не входит — черновик (?) [grep] |
-| `style/` (8 `.qss` + `res/`, 92 `.svg`) | Базовая тема и стили виджетов | `main.qss` — точка входа базовой темы: палитра, `@cPath:@temp`, `@resource.1::/style/res`, `@import` `style`, `ads`, `palette`, `widgets`, `notify`, `visualization` (без `progressbar.qss`) [дамп]; `ads.qss` — стили Qt Advanced Docking System (`ads--CDockManager`, `CDockWidgetTab`, `CDockAreaWidget[a_focus_view=true]`, `CDockAreaTitleBar`; иконки `url(@cPath/close.svg)` и др.) [дамп]; `style.qss`, `widgets.qss`, `palette.qss`, `notify.qss`, `visualization.qss`, `progressbar.qss` [ФС]; `res/*.svg` — иконки-шаблоны (стрелки, chevron, checkbox, lock, pin, close, detach и т. п.) [ФС, дамп] |
+| `./` | Сборка, ресурсный файл, корневые файлы тем AiSpaces | `StylesModule.pri` (`includeAll(true)`) [индекс, grep]; `main.qrc` [ФС]; `aispaces_dark.qss`, `aispaces_light.qss`: палитра `@c*`, `@cPath:@temp`, `@cLogoPath:@temp/full_logo_white.svg` (dark) / `full_logo_black.svg` (light), `@resource.1::/style/res`, `@resource.2::/aispaces/res`, `@import "style/*.qss"` (dark — 6, без `ads.qss`; light — 7, с `ads.qss`; оба с `progressbar.qss`) + `aispaces/style.qss`, `aispaces/palette.qss` и последним `style/dock.qss` [grep]; `tmp_dark.qss` в `main.qrc` не входит — черновик (?) [grep] |
+| `style/` (9 `.qss` + `res/`, 92 `.svg`) | Базовая тема и стили виджетов | `main.qss` — точка входа базовой темы: палитра, `@cPath:@temp`, `@resource.1::/style/res`, `@import` `style`, `ads`, `palette`, `widgets`, `notify`, `visualization` (без `progressbar.qss`) [дамп]; `ads.qss` — стили Qt Advanced Docking System (`ads--CDockManager`, `CDockWidgetTab`, `CDockAreaWidget[a_focus_view=true]`, `CDockAreaTitleBar`; иконки `url(@cPath/close.svg)` и др.) [дамп]; `dock.qss` — стили собственной док-системы `libs/DockModule` проекта wps-client через `qproperty-*` (`DockArea { qproperty-stripThickness; qproperty-controlOffset; qproperty-moveColor: @ctext.1; … }`), подключается только из тем AiSpaces [grep]; `style.qss`, `widgets.qss`, `palette.qss`, `notify.qss`, `visualization.qss`, `progressbar.qss` [ФС]; `res/*.svg` — иконки-шаблоны (стрелки, chevron, checkbox, lock, pin, close, detach и т. п.) [ФС, дамп] |
 | `aispaces/` (2 `.qss` + `res/`, 19 `.svg`) | Надстройка темы AiSpaces | `style.qss`, `palette.qss`; `res/`: `logo.svg`, `full_logo*.svg`, `save`/`discard`, `cloud_upload`/`cloud_download`, `view_3d`/`view_left`/`view_top`, `insertBefore`/`insertAfter` и др. [ФС] |
 
 ### Как применяется тема (`QtQSSReader`, `WidgetsModule/qtqssreader.h/.cpp`)
@@ -864,6 +971,7 @@ API по индексу: `Install(const QString& mainQSSFile)`, `ReadAll()`, `Se
 | Цвета темы (переменные `@cbg.*`, `@ctext.*`, `@cIcon.*` и др.) | `StylesModule/aispaces_dark.qss`, `aispaces_light.qss`, `style/main.qss` (палитра только здесь) |
 | Стили стандартных виджетов | `StylesModule/style/style.qss`, `style/widgets.qss`, `style/palette.qss` |
 | Док-панели (Qt ADS): вкладки, заголовки, кнопки close/detach | `StylesModule/style/ads.qss` |
+| Док-система DockModule (цвета превью, полоса, кнопки контейнера) | `StylesModule/style/dock.qss` (свойства — `Q_PROPERTY` класса `DockArea`) |
 | Уведомления, прогресс-бары, визуализация | `style/notify.qss`, `style/progressbar.qss`, `style/visualization.qss` |
 | Специфика AiSpaces, логотипы | `StylesModule/aispaces/style.qss`, `aispaces/palette.qss`, `aispaces/res/*.svg` |
 | Добавить иконку | SVG в `style/res/` или `aispaces/res/` + запись в `main.qrc`; в QSS `url(@cPath/имя.svg)`; цвета в SVG можно задавать через `@c*` |
@@ -871,3 +979,13 @@ API по индексу: `Install(const QString& mainQSSFile)`, `ReadAll()`, `Se
 | Разбор `@import`/`@c*`/`@resource`, горячая перезагрузка | `WidgetsModule/qtqssreader.cpp` |
 | Установить тему из настроек приложения | `PropertiesModule/sharedsettings.h/.cpp` (`StyleSettings::InstallQSSReader`) |
 | Пример подключения темы | `Sandbox/gtwindow.cpp` (`GtWindow::GtWindow`), `DatabaseBrowser/databasebrowser.cpp` |
+
+### Замечания
+- [2026-11-16] вопрос: `tmp_dark.qss` не входит в `main.qrc` — черновик (?) [grep].
+- [2026-11-16] вопрос: ресурс `main.qrc` подключает внешнее приложение — в DevLib нет `main.qrc`/`Q_INIT_RESOURCE` (?) [grep].
+- [2026-11-16] вопрос: какой файл темы передаёт приложение в `StyleSettings::InstallQSSReader` — в DevLib не видно (?).
+- [2026-11-16] вопрос: `Sandbox` читает `Content/CSS/main.qss` с диска — по имени копия `style/main.qss` (?) [grep].
+- [2026-11-16] мёртвый код: `DatabaseBrowser/databasebrowser.cpp` подключает `<SharedModule/External/qtqssreader.h>`, которого нет (`QtQSSReader` в WidgetsModule) — устаревший include (?) [grep].
+- [2026-11-16] риск: темы AiSpaces расходятся — `aispaces_light.qss` импортирует `style/ads.qss`, `aispaces_dark.qss` нет (grep); после перехода на DockModule `ads.qss`, вероятно, лишний (?).
+- [2026-11-16] риск: `aispaces_dark.qss`, `aispaces_light.qss`, `main.qrc` изменены, `style/dock.qss` и `tmp_dark.qss` не в git, рядом лежат `*.bak_dockimport`, `dock.qss.bak_qss2` (git status, только чтение) — раздел описывает рабочую копию, не коммит.
+- [2026-11-16] внешнее: `libs/DockModule/DockModule.pri` ждёт `../StylesModule/dock.qss` (т. е. `libs/StylesModule`), а файл лежит в `libs/DevLib/StylesModule/style/dock.qss` [grep; раздел libs/DockModule карты wps-client].

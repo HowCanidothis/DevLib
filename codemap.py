@@ -5,11 +5,16 @@ Run from the project root.
   python codemap.py index [FOLDER] [--out DIR] [--part-chars 150000] [--private]
   python codemap.py dump FILE [FILE ...] [--out .codemap/_dump]
   python codemap.py section FOLDER FILE.md      (replace '## FOLDER' in CODEMAP.md under a lock)
+                                (adds '<!-- sources: HASH -->' of the folder's index after the heading,
+                                saves the old text to .codemap/_sections/_backup/, refuses if
+                                '### Замечания' lost items; --force writes anyway)
   python codemap.py section FOLDER --show       (print the current section)
   python codemap.py section NAME --show --file CONVENTIONS.md   (any '## NAME' section of another file)
-  python codemap.py find NAME                   (where NAME is declared / implemented / used)
-  python codemap.py status                      (OK/OLD/CHANGED/MISSING per indexed folder, by content hash)
-  python codemap.py reindex [--all]             (rebuild OLD/CHANGED indexes; free, no AI)
+  python codemap.py find NAME [NAME ...]        (where NAMEs are declared / implemented / used;
+                                --all: no per-group limits, --lines: exact source lines that mention them)
+  python codemap.py status                      (OK/NOINDEX/OLD/CHANGED/MISSING per indexed folder, by content hash;
+                                plus 'SECTION_STALE FOLDER' when its map section was written for other sources)
+  python codemap.py reindex [--all]             (rebuild NOINDEX/OLD/CHANGED indexes; free, no AI)
   python codemap.py sync                        (copy codemap.py from `script` to this project and linked ones)
   python codemap.py index .                     (whole project as one folder; its map section is '## <name>')
 
@@ -43,7 +48,7 @@ OTHER_EXT = {'.cs', '.java', '.go', '.rs', '.kt', '.swift', '.qml'}
 BUILD_NAMES = {'CMakeLists.txt', 'package.json', 'pyproject.toml', 'setup.py', 'Cargo.toml', 'go.mod'}
 BUILD_EXT = {'.pro', '.pri', '.cmake', '.qbs', '.sln', '.vcxproj'}
 MAX_FILE = 2_000_000
-CODEMAP_VERSION = 5
+CODEMAP_VERSION = 6
 USES_LIMIT = 40
 
 
@@ -180,6 +185,8 @@ def func_name(stmt):
 
 
 def parse_cpp(text, is_header, show_private):
+    if text.startswith('\ufeff'):
+        text = ' ' + text[1:]
     includes = []
     src = cpp_clean(text)
     line_cond, defines = pp_conditions(src)
@@ -190,9 +197,14 @@ def parse_cpp(text, is_header, show_private):
             continue  # commented out
         c = line_cond[ln]
         includes.append(m.group(1) + (f'[if {c}]' if c else ''))
-    src = re.sub(r'^[ \t]*#(?:[^\n]*\\\n)*[^\n]*', lambda m: '\n' * m.group(0).count('\n'), src, flags=re.M)  # drop preprocessor
+    src = re.sub(r'^[ \t]*#(?:[^\n]*\\\r?\n)*[^\n]*', lambda m: '\n' * m.group(0).count('\n'), src, flags=re.M)  # drop preprocessor
     nl = [k for k, ch in enumerate(src) if ch == '\n']
     cur = [0]
+    line_at = [None]  # source line for the next out.append(); set right before it
+
+    def start_line(s):
+        """1-based source line where `s` (a suffix of the current statement) starts, leading blanks skipped."""
+        return bisect.bisect_left(nl, stmt_pos + len(stmt) - len(s.lstrip())) + 1
 
     def cond_tag():
         c = line_cond[bisect.bisect_left(nl, cur[0])] if line_cond else ''
@@ -200,11 +212,13 @@ def parse_cpp(text, is_header, show_private):
 
     class _Out(list):
         def append(self, item):
-            list.append(self, item + cond_tag())
+            ln, line_at[0] = line_at[0], None
+            list.append(self, item + (f' @{ln}' if ln else '') + cond_tag())
     out = _Out()
     defs = defaultdict(list)  # cpp: class -> methods
     stack = [{'kind': 'ns', 'access': 'public', 'indent': 0}]
     stmt, paren = '', 0
+    stmt_pos = 0  # index in src of stmt[0]
 
     def indent():
         return '  ' * (sum(1 for s in stack if s['kind'] in ('class', 'ns') and s.get('named')))
@@ -221,6 +235,7 @@ def parse_cpp(text, is_header, show_private):
             if m and (m.group(2) or not re.match(r'\s*[\w:<]', s[m.end():] or 'x') or m.group(1).startswith('Q_')):
                 name, args = m.group(1), m.group(2) or ''
                 if name == 'Q_PROPERTY' and is_header:
+                    line_at[0] = start_line(s)
                     out.append(indent() + 'prop ' + ws(args[1:-1], 140))
                 elif name in ('Q_OBJECT', 'Q_GADGET') and scope['kind'] == 'class':
                     scope['qobj'] = name
@@ -229,6 +244,7 @@ def parse_cpp(text, is_header, show_private):
             return s
 
     def record_decl(s, scope, definition):
+        ln = start_line(s)
         s = ws(s)
         name = func_name(s)
         if not name or SKIP_START.match(s):
@@ -243,13 +259,14 @@ def parse_cpp(text, is_header, show_private):
             m = INIT_LIST.search(sig)
             if m:
                 sig = sig[:m.end() - 1].rstrip()
+            line_at[0] = ln
             out.append(indent() + tag + sig)
         elif definition:
             if '::' in name:
                 cls, meth = name.rsplit('::', 1)
-                defs[cls].append(meth + cond_tag().replace(' [', '['))
+                defs[cls].append(f'{meth}@{ln}' + cond_tag().replace(' [', '['))
             else:
-                defs[''].append(ws(s, 120) + cond_tag())
+                defs[''].append(ws(s, 120) + f' @{ln}' + cond_tag())
 
     def record_alias(s, scope):
         """using X = ...; / typedef ... X; in headers -> 'alias X = ...'."""
@@ -260,10 +277,12 @@ def parse_cpp(text, is_header, show_private):
         t = ws(s, 400)
         m = re.match(r'(?:template\s*<.*?>\s*)?using\s+(\w+)\s*=\s*(.+)$', t)
         if m:
+            line_at[0] = start_line(s)
             out.append(indent() + f'alias {m.group(1)} = {ws(m.group(2), 140)}')
             return True
         m = re.match(r'typedef\s+(.+?)\s*\b(\w+)\s*(\[[^\]]*\])?$', t)
         if m and '(' not in t:
+            line_at[0] = start_line(s)
             out.append(indent() + f'alias {m.group(2)} = {ws(m.group(1), 140)}')
             return True
         return t.startswith(('using ', 'typedef '))
@@ -301,6 +320,7 @@ def parse_cpp(text, is_header, show_private):
             if m_ns or m_ext:
                 name = m_ns.group(1) if m_ns else ''
                 if name and is_header:
+                    line_at[0] = start_line(s)
                     out.append(indent() + 'namespace ' + name)
                 stack.append({'kind': 'ns', 'access': 'public', 'named': bool(name and is_header)})
             elif m_enum and '(' not in s:
@@ -309,6 +329,7 @@ def parse_cpp(text, is_header, show_private):
                 vals = [v for v in vals if v]
                 if is_header or scope['kind'] == 'class':
                     shown = ', '.join(vals[:12]) + (', ...' if len(vals) > 12 else '')
+                    line_at[0] = start_line(s)
                     out.append(indent() + f'enum {m_enum.group(1) or "(anon)"} {{{shown}}}')
                 stack.append({'kind': 'skip'})
             elif m_cls and '(' not in m_cls.group(2) and '=' not in s_head:
@@ -320,6 +341,7 @@ def parse_cpp(text, is_header, show_private):
                 kind = m_cls.group(1)
                 new = {'kind': 'class', 'access': 'private' if kind == 'class' else 'public', 'named': True, 'name': name}
                 stack.append(new)
+                line_at[0] = start_line(s)
                 out.append(indent()[:-2] + f'{kind} {name}' + (f' : {bases}' if bases else '') + '  @@QOBJ' + str(id(new)))
                 new['line'] = len(out) - 1
             elif func_name(ws(s)) and not re.search(r'=\s*\[', s):
@@ -346,6 +368,8 @@ def parse_cpp(text, is_header, show_private):
                 record_decl(s, scope, False)
             stmt = ''
         else:
+            if not stmt:
+                stmt_pos = i
             stmt += ch
             if ch == ':' and paren == 0:
                 s2 = strip_macros(stmt, scope)  # consume access labels eagerly
@@ -698,7 +722,7 @@ def cmd_index(a):
         ov.append('\n## Build files\n\n' + ''.join(build_blocks))
     if errors:
         ov.append('\n## Errors\n' + '\n'.join(errors) + '\n')
-    ov.append('\n## Legend\n(N)=lines, inc=includes/imports, fn=function, # protected, - private, sig=Qt signal, '
+    ov.append('\n## Legend\n(N)=lines, @N=source line where the declaration starts, inc=includes/imports, fn=function, # protected, - private, sig=Qt signal, '
               'slot=Qt slot, prop=Q_PROPERTY, alias=typedef/using, impl X: methods defined in this .cpp, '
               'uses=types referenced in the file but declared elsewhere (look them up in other indexes)\n')
     ov_path = os.path.join(a.out, '00_overview.md')
@@ -802,6 +826,67 @@ def _anchor(title):
     return a
 
 
+SOURCES_MARK = re.compile(r'^<!-- sources: (\w+) -->\s*$')  # line after '## FOLDER': sources the section describes
+NOTES_TITLE = 'Замечания'  # '### Замечания': its items must not disappear when a section is rewritten
+BACKUP_DIR = os.path.join('.codemap', '_sections', '_backup')
+
+
+def _index_dir(folder):
+    return os.path.join('.codemap', '_root' if folder == '.' else folder.replace('/', '__'))
+
+
+def _index_hash(d):
+    """`sources:` hash recorded in the index .codemap/<d>/00_overview.md, or ''."""
+    m = re.search(r'^sources: (\w+)$', _read(os.path.join(d, '00_overview.md')), re.M)
+    return m.group(1) if m else ''
+
+
+def _section_hash(lines):
+    """Sources hash written into a map section ('<!-- sources: HASH -->'), or ''."""
+    for line in lines[1:]:
+        m = SOURCES_MARK.match(line)
+        if m:
+            return m.group(1)
+    return ''
+
+
+def section_stale(lines, cur):
+    """-> '' if the section was written for sources hash `cur`, else why it is stale."""
+    h = _section_hash(lines)
+    if not h:
+        return 'no sources hash in section'
+    if h != cur:
+        return f'section {h}, sources {cur}'
+    return ''
+
+
+def _notes_count(lines):
+    """Number of list items in the section's '### Замечания' subsection."""
+    n, inside = 0, False
+    for line in lines:
+        m = re.match(r'(#{2,3}) +(.*)', line)
+        if m:
+            inside = len(m.group(1)) == 3 and m.group(2).strip().startswith(NOTES_TITLE)
+        elif inside and re.match(r'(?:[-*+]|\d+[.)])\s', line):
+            n += 1
+    return n
+
+
+def _backup_section(map_file, folder, lines):
+    """Save the text of a section that is about to be replaced; -> backup path."""
+    import time
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    stem = os.path.splitext(os.path.basename(map_file))[0]
+    slug = re.sub(r'[^\w.-]+', '_', folder.replace('/', '__'), flags=re.U) or '_'
+    base = os.path.join(BACKUP_DIR, f'{slug}_{time.strftime("%Y-%m-%d_%H%M%S")}'
+                        + ('' if os.path.basename(map_file) == MAP_FILE else f'.{stem}'))
+    path, k = base + '.md', 1
+    while os.path.exists(path):
+        path, k = f'{base}-{k}.md', k + 1
+    _write(path, '\n'.join(lines).strip('\n') + '\n')
+    return path
+
+
 def cmd_section(a):
     if a.map_file == MAP_FILE and not getattr(a, '_redirected', False):
         p = owner_project(a.folder)
@@ -810,6 +895,7 @@ def cmd_section(a):
                 a.file = os.path.abspath(a.file)
             a.folder = os.path.relpath(os.path.abspath(a.folder), os.path.abspath(p)).replace('\\', '/')
             a._redirected = True
+            a._project = p
             with in_project(p):
                 return cmd_section(a)
     map_file = a.map_file
@@ -835,6 +921,16 @@ def cmd_section(a):
     if os.path.dirname(os.path.abspath(map_file)) != os.getcwd():
         print(f'ERROR: {map_file} belongs to another project; write its sections from that project folder')
         sys.exit(2)
+    body_lines = [l for l in body.split('\n') if not SOURCES_MARK.match(l)]  # old mark (e.g. copied from --show)
+    if os.path.basename(map_file) == MAP_FILE:
+        idx = _index_dir('.' if folder == CONF['name'] else folder)
+        src = _index_hash(idx)
+        if src:  # the section describes the sources of the index it was built from
+            body_lines.insert(1, f'<!-- sources: {src} -->')
+        else:
+            print(f'WARNING: no index {idx}/00_overview.md: section written without a sources hash '
+                  f'(status will show SECTION_STALE)')
+    body = '\n'.join(body_lines)
     token = lock_acquire()
     try:
         text = _read(map_file)  # re-read under the lock: never write a stale copy
@@ -860,6 +956,16 @@ def cmd_section(a):
             if rest:
                 head += [''] + rest
         new_lines = body.split('\n')
+        old_lines = next((l for t, l in secs if t == folder), None)
+        backup = ''
+        if old_lines is not None:
+            was, now = _notes_count(old_lines), _notes_count(new_lines)
+            if now < was and not getattr(a, 'force', False):
+                print(f'ERROR: "## {folder}": "### {NOTES_TITLE}" has {now} items, the current section has {was}; '
+                      f'old notes must be kept (mark resolved ones "✔ закрыто [ДАТА]: чем"). '
+                      f'{map_file} not changed; add --force to write anyway')
+                sys.exit(4)
+            backup = _backup_section(map_file, folder, old_lines)
         replaced = False
         for i, (t, _) in enumerate(secs):
             if t == folder:
@@ -875,6 +981,8 @@ def cmd_section(a):
     finally:
         lock_release(token)
     print(f'SECTION DONE: "## {folder}" {"replaced" if replaced else "added"} in {map_file}')
+    if backup:
+        print(f'SECTION BACKUP: {os.path.join(getattr(a, "_project", ""), backup).replace(chr(92), "/")}')
 
 
 LINKS_PREFIX = 'Связанные карты: '
@@ -935,8 +1043,9 @@ def section_name(folder):
     return CONF['name'] if folder == '.' else folder
 
 
-def folder_status(folder, d):
-    """-> OK | NOINDEX (fresh clone) | OLD (other script version) | CHANGED (sources differ) | MISSING (folder gone)"""
+def folder_status(folder, d, cur=None):
+    """-> OK | NOINDEX (fresh clone) | OLD (other script version) | CHANGED (sources differ) | MISSING (folder gone)
+    cur: sources_hash(folder) if the caller already has it."""
     if not os.path.isdir(folder):
         return 'MISSING'
     if not os.path.isdir(d):
@@ -945,7 +1054,7 @@ def folder_status(folder, d):
     if f'codemap: v{CODEMAP_VERSION}' not in ov.split('\n'):
         return 'OLD'
     m = re.search(r'^sources: (\w+)$', ov, re.M)
-    if not m or m.group(1) != sources_hash(folder):
+    if not m or m.group(1) != (cur if cur is not None else sources_hash(folder)):
         return 'CHANGED'
     return 'OK'
 
@@ -958,10 +1067,15 @@ def _shown(folder, prefix):
 
 
 def cmd_status(a, label='', prefix=''):
-    sections = {t for t, _ in _split_sections(_read(MAP_FILE))[1]}
+    sections = dict(_split_sections(_read(MAP_FILE))[1])
     for folder, d in _index_dirs():
-        st = folder_status(folder, d)
-        print(f'{label}{st} {_shown(folder, prefix)} section={1 if section_name(folder) in sections else 0}')
+        sec = sections.get(section_name(folder))
+        cur = sources_hash(folder) if sec is not None and os.path.isdir(folder) else None
+        st = folder_status(folder, d, cur)
+        print(f'{label}{st} {_shown(folder, prefix)} section={1 if sec is not None else 0}')
+        why = section_stale(sec, cur) if cur is not None else ''
+        if why:  # the section describes other sources than the folder has now (reindex does not change this)
+            print(f'{label}SECTION_STALE {_shown(folder, prefix)} ({why})')
     if not _index_dirs():
         print(f'{label}no indexes in .codemap/')
     if not label:
@@ -974,8 +1088,9 @@ def cmd_status(a, label='', prefix=''):
 
 
 def cmd_reindex(a, label='', prefix=''):
-    """Rebuild indexes of already indexed folders (no AI, free). Default: only OLD/CHANGED."""
-    done, skipped, missing = [], [], []
+    """Rebuild indexes of already indexed folders (no AI, free). Default: only NOINDEX/OLD/CHANGED."""
+    done, skipped, missing, stale = [], [], [], []
+    sections = dict(_split_sections(_read(MAP_FILE))[1])
     for folder, d in _index_dirs():
         st = folder_status(folder, d)
         if st == 'MISSING':
@@ -984,19 +1099,26 @@ def cmd_reindex(a, label='', prefix=''):
         _register_folder(folder)
         if st == 'OK' and not a.all:
             skipped.append(_shown(folder, prefix))
-            continue
-        ns = argparse.Namespace(root=folder, out=d, private=a.private, part_chars=a.part_chars)
-        import io, contextlib
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            cmd_index(ns)
-        done.append(f'{_shown(folder, prefix)} ({st})')
+        else:
+            ns = argparse.Namespace(root=folder, out=d, private=a.private, part_chars=a.part_chars)
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                cmd_index(ns)
+            done.append(f'{_shown(folder, prefix)} ({st})')
+        sec = sections.get(section_name(folder))
+        # the index is fresh now, so its hash is the current sources hash; a fresh index never makes
+        # the section fresh: only rewriting it with `section` does
+        if sec is not None and section_stale(sec, _index_hash(d)):
+            stale.append(_shown(folder, prefix))
     if not label:
         print('REINDEX DONE')
     print(f'{label}reindexed: ' + (', '.join(done) or '-'))
     print(f'{label}up to date: ' + (', '.join(skipped) or '-'))
     if missing:
         print(f'{label}missing folders (index kept): ' + ', '.join(missing))
+    if stale:
+        print(f'{label}SECTION_STALE (rewrite with `section`): ' + ', '.join(stale))
     if not label and not a.no_links:
         for path, name in linked_projects():
             with in_project(path):
@@ -1020,6 +1142,10 @@ def _find_in(name, prefix):
             if not cur or not pat.search(line):
                 continue
             s = line.strip()
+            if s.startswith('impl '):  # 'impl Cls: m@12, n@40': keep only entries naming NAME (unless NAME is Cls)
+                cls, _, meths = s[5:].partition(': ')
+                if not re.search(rf'(^|::){n}$', cls):
+                    s = f'impl {cls}: ' + ', '.join(x for x in meths.split(', ') if pat.search(x))
             item = f'{cur}: {s[:200]}'
             if re.match(rf'(class|struct|union|enum|alias|namespace)\s+(\w+::)*{n}\b', s) or \
                     re.match(rf'(fn|sig|slot|prop|# |- )?\s*[^(]*\b{n}\s*\(', s) and not s.startswith(('uses:', 'inc:', 'impl ')) and \
@@ -1127,22 +1253,74 @@ def cmd_ensure(a):
             cmd_index(ns)
         _register_folder(unit)
         st = {'NOINDEX': 'created'}.get(st, 'updated')
-    sections = {t for t, _ in _split_sections(_read(MAP_FILE))[1]}
+    sec = dict(_split_sections(_read(MAP_FILE))[1]).get(section_name(unit))
     print(f'UNIT {_shown(unit, prefix)}')
     print(f'INDEX {(prefix + d).replace(chr(92), "/")} ({st})')
-    print(f'SECTION {1 if section_name(unit) in sections else 0}')
+    print(f'SECTION {1 if sec is not None else 0}')
+    if sec is not None:  # the index is up to date here, so its hash is the current sources hash
+        why = section_stale(sec, _index_hash(d) or sources_hash(unit))
+        if why:
+            print(f'SECTION_STALE {_shown(unit, prefix)} ({why})')
 
 
 def cmd_find(a):
+    """Look names up in all indexes and maps (this project + linked ones); --lines adds exact source lines."""
+    for k, name in enumerate(a.names):
+        if len(a.names) > 1:
+            print(('\n' if k else '') + f'##### {name}')
+        _find_one(name, a.all)
+    if a.lines:
+        _find_lines(a.names, a.all)
+
+
+def _find_lines(names, show_all):
+    """Source lines that mention NAMEs as whole words, in the files of indexed folders of this project and
+    linked ones (excluded third-party code is not scanned). One pass over the files for all names."""
+    pat = re.compile(r'(?<![\w])(' + '|'.join(re.escape(x) for x in names) + r')(?![\w])')
+    hits = defaultdict(list)
+
+    def scan(prefix):
+        seen = set()
+        for folder, _d in _index_dirs():
+            if not os.path.isdir(folder):
+                continue
+            for path in walk(folder):
+                rel = os.path.normpath(os.path.relpath(path, '.')).replace('\\', '/')
+                if rel in seen or classify(path) != 'cpp':
+                    continue
+                seen.add(rel)
+                try:
+                    lines = read(path).split('\n')
+                except OSError:
+                    continue
+                for k, line in enumerate(lines, 1):
+                    found = set(pat.findall(line))
+                    for x in found:
+                        hits[x].append(f'{prefix}{rel}:{k}: {line.strip()[:160]}')
+    scan('')
+    for p, _nm in linked_projects():
+        with in_project(p):
+            scan(p + '/')
+    limit = None if show_all else 40
+    for x in names:
+        items = hits.get(x, [])
+        print(f'\n== source lines mentioning {x} ({len(items)})')
+        for it in items[:limit]:
+            print('  ' + it)
+        if limit is not None and len(items) > limit:
+            print(f'  ... +{len(items) - limit} (--all shows everything)')
+
+
+def _find_one(name, show_all=False):
     """Look a name up in all indexes and maps (this project + linked ones)."""
     projects = [('', CONF['name'])] + [(p + '/', nm) for p, nm in linked_projects()]
     found = declared = False
     for prefix, pname in projects:
         if prefix:
             with in_project(prefix.rstrip('/')):
-                res = _find_in(a.name, prefix)
+                res = _find_in(name, prefix)
         else:
-            res = _find_in(a.name, '')
+            res = _find_in(name, '')
         if not any(res):
             continue
         found = True
@@ -1151,12 +1329,14 @@ def cmd_find(a):
         if len(projects) > 1:
             print(f'=== {pname}' + (f' ({prefix.rstrip("/")})' if prefix else ''))
         def show(title, items, limit):
+            if show_all:
+                limit = len(items)
             if items:
                 print(f'== {title} ({len(items)})')
                 for it in items[:limit]:
                     print('  ' + it)
                 if len(items) > limit:
-                    print(f'  ... +{len(items) - limit}')
+                    print(f'  ... +{len(items) - limit} (--all shows everything)')
         show('declared', decl, 20)
         show('implemented in', impl, 10)
         show('members/signatures mentioning it', other, 15)
@@ -1167,9 +1347,9 @@ def cmd_find(a):
         for prefix, _ in projects:
             if prefix:
                 with in_project(prefix.rstrip('/')):
-                    ext += _find_extern(a.name, prefix)
+                    ext += _find_extern(name, prefix)
             else:
-                ext += _find_extern(a.name, '')
+                ext += _find_extern(name, '')
         if ext:
             print('== declared outside the maps (excluded third-party code)')
             for h in ext[:10]:
@@ -1179,9 +1359,9 @@ def cmd_find(a):
         for prefix, pname in projects:
             if prefix:
                 with in_project(prefix.rstrip('/')):
-                    hits += _find_members(a.name, prefix) + _find_extern(a.name, prefix)
+                    hits += _find_members(name, prefix) + _find_extern(name, prefix)
             else:
-                hits += _find_members(a.name, '') + _find_extern(a.name, '')
+                hits += _find_members(name, '') + _find_extern(name, '')
         if hits:
             print(f'== not in indexes; found as field/member or in excluded (third-party) code ({len(hits)})')
             for h in hits[:15]:
@@ -1191,7 +1371,7 @@ def cmd_find(a):
             return
         where = ' and linked projects' if len(projects) > 1 else ''
         ext = '' if os.path.exists(EXTERN_FILE) else ' (third-party code is not listed yet: run `python3 codemap.py extern` once)'
-        print(f'NOT FOUND in .codemap indexes{where}{ext}. Try: grep -rn -w "{a.name}" --include=*.h --include=*.hpp --include=*.cpp .')
+        print(f'NOT FOUND in .codemap indexes{where}{ext}. Try: grep -rn -w "{name}" --include=*.h --include=*.hpp --include=*.cpp .')
 
 
 EXTERN_FILE = os.path.join('.codemap', '_extern.tsv')
@@ -1290,18 +1470,23 @@ def main():
     pz = sub.add_parser('zip-skills', help='pack .claude/skills/* as zip files for upload to a Claude account')
     pz.add_argument('out')
     sub.add_parser('sync', help='copy codemap.py from `script` (codemap.conf) here and to linked projects')
-    sub.add_parser('status', help='OK/OLD/CHANGED/MISSING for every indexed folder (content hash, not mtime)')
-    pr = sub.add_parser('reindex', help='rebuild indexes of indexed folders that are OLD/CHANGED (free, no AI)')
+    sub.add_parser('status', help='OK/NOINDEX/OLD/CHANGED/MISSING for every indexed folder (content hash, not mtime); '
+                   'SECTION_STALE when a map section was written for other sources')
+    pr = sub.add_parser('reindex', help='rebuild indexes of indexed folders that are NOINDEX/OLD/CHANGED (free, no AI)')
     pr.add_argument('--all', action='store_true', help='rebuild every index')
     pr.add_argument('--private', action='store_true')
     pr.add_argument('--part-chars', type=int, default=150000)
     pr.add_argument('--no-links', action='store_true', help='do not reindex linked projects')
-    pf = sub.add_parser('find', help='where a class/function/alias is declared, implemented and used')
-    pf.add_argument('name')
+    pf = sub.add_parser('find', help='where classes/functions/aliases are declared, implemented and used')
+    pf.add_argument('names', nargs='+', metavar='NAME')
+    pf.add_argument('--all', action='store_true', help='print every hit (no per-group limits)')
+    pf.add_argument('--lines', action='store_true',
+                    help='also list exact source lines that mention each NAME (indexed project code only)')
     ps = sub.add_parser('section', help='write/replace one "## FOLDER" section of CODEMAP.md under a lock')
     ps.add_argument('folder')
     ps.add_argument('file', nargs='?', help='markdown file with the section text')
     ps.add_argument('--show', action='store_true', help='print the current section and exit')
+    ps.add_argument('--force', action='store_true', help='write even if "### Замечания" has fewer items than before')
     ps.add_argument('--file', dest='map_file', default=MAP_FILE, help='markdown file to work with (default CODEMAP.md), e.g. CONVENTIONS.md')
     a = ap.parse_args()
     global CONF

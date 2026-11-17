@@ -1351,3 +1351,8 @@ QSlider::handle:hover {
     background: @cbg.selected;         /* Slightly brighter cyan glow on hover */
 }
 
+
+QFrame[Footer=true] QLabel[Title=true]
+{
+    font-size: 20px;
+}

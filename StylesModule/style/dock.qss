@@ -1,0 +1,48 @@
+DockArea {
+    qproperty-stripThickness: 0;
+    qproperty-controlOffset: 4;
+    qproperty-moveColor: @ctext.1;
+    qproperty-makeRoomColor: @c.warning;
+    qproperty-insertLineColor: @c.warning;
+    qproperty-mergeColor: @c.success;
+    qproperty-previewFillAlpha: 70;
+    qproperty-controlColor: @cbg.2;
+    qproperty-controlHoverColor: @cbg.hover;
+    qproperty-controlGlyphColor: @ctext.label;
+    qproperty-controlGlyphHoverColor: @ctext.active;
+    qproperty-controlShadowColor: @cbg.alt;
+}
+
+QWidget#DockStrip {
+    background: @cbg.1;
+}
+
+DockTabBar {
+    background: @cbg.1;
+}
+
+DockTabBar::tab:top:!selected {
+    background: @cbg.1;
+}
+
+DockTabBar::tab:top:selected {
+    background: @cbg.2;
+}
+
+DockFloatingWindow {
+    background: @cbg.2;
+}
+
+QFrame#DockTitleBar {
+    background: @cbg.1;
+}
+
+QToolButton#DockTitleBarClose {
+    qproperty-icon: url(@cPath/close.svg);
+    background: transparent;
+    border: none;
+}
+
+QToolButton#DockTitleBarClose:hover {
+    background: @c.error;
+}

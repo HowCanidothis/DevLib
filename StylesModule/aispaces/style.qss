@@ -792,7 +792,7 @@ MenuBar QLabel#LogoIcon[a_aidriller=true] {
     min-height: 32px;
     max-height: 32px;
     padding: 0px;
-    image: url(:/aidriller_logo.svg);
+    image: url(@cPath/aidriller_logo.svg);
 }
 
 MenuBar QPushButton#BtnMainMenu {
