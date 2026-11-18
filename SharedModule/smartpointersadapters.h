@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <functional>
+#include <utility>
 
 template<typename T, typename deleter = std::default_delete<T>>
 class ScopedPointer : public std::unique_ptr<T, deleter>
@@ -28,7 +29,7 @@ public:
 };
 
 template<class T, typename ... Args>
-ScopedPointer<T> make_scoped(Args ... args) { return ScopedPointer<T>(new T(args...)); }
+ScopedPointer<T> make_scoped(Args&& ... args) { return ScopedPointer<T>(new T(std::forward<Args>(args)...)); }
 
 template<class T, typename ... Args>
 ScopedPointer<T> make_unique(Args ... args) { return ScopedPointer<T>(new T(args...)); }
