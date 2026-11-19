@@ -59,4 +59,9 @@ namespace DesignSafetyFactorUnits {
 }
 DECLARE_MEASUREMENT(DesignSafetyFactor)
 
+namespace GasGravityUnits {
+    DECLARE_MEASUREMENT_UNIT(GasGravity)
+}
+DECLARE_MEASUREMENT(GasGravity)
+
 #endif // FACTORDECLARATION_H

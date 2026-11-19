@@ -658,6 +658,9 @@ void MeasurementManager::Initialize()
     AddMeasurement(MeasurementDesignSafetyFactor::Value)
             .AddUnit(&DesignSafetyFactorUnits::SafetyFactor);
 
+    AddMeasurement(MeasurementGasGravity::Value)
+            .AddUnit(&GasGravityUnits::GasGravity);
+
     AddMeasurement(MeasurementPressurePerDistance::Value)
             .AddUnit(&PressurePerDistanceUnits::PascalsPerMeter)
             .AddUnit(&PressurePerDistanceUnits::KilopascalsPerMeter)
@@ -739,6 +742,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
             .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
             .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementGasGravity::NAME, {GasGravityUnits::GasGravity.Id, 2, 1e-2})
             .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PoundsPerSquareInchPerUSFeet.Id, 2, 10});
 
     AddSystem(UNIT_SYSTEM_API, true)
@@ -810,6 +814,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
             .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
             .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementGasGravity::NAME, {GasGravityUnits::GasGravity.Id, 2, 1e-2})
             .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::PoundsPerSquareInchPerFeet.Id, 2, 10});
 
 
@@ -882,6 +887,7 @@ void MeasurementManager::Initialize()
             .AddParameter(MeasurementReynoldNumber::NAME, {ReynoldNumberUnits::Reynold.Id,    1, 10})
             .AddParameter(MeasurementTemperatureDerationCorrection::NAME, {TemperatureDerationCorrectionUnits::CorrectionRatio.Id, 3, 1e-2})
             .AddParameter(MeasurementDesignSafetyFactor::NAME, {DesignSafetyFactorUnits::SafetyFactor.Id, 3, 1e-2})
+            .AddParameter(MeasurementGasGravity::NAME, {GasGravityUnits::GasGravity.Id, 2, 1e-2})
             .AddParameter(MeasurementPressurePerDistance::NAME, {PressurePerDistanceUnits::KilopascalsPerMeter.Id, 2, 1e3});
 
     CurrentMeasurementSystem.SetAndSubscribe([this]{

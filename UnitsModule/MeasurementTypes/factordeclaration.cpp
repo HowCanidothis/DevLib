@@ -58,3 +58,8 @@ namespace DesignSafetyFactorUnits {
     IMPLEMENT_MEASUREMENT_UNIT(SafetyFactor, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
 }
 IMPLEMENT_MEASUREMENT(DesignSafetyFactor, TR(MeasurementTr::tr("Design Safety Factor")))
+
+namespace GasGravityUnits {
+    IMPLEMENT_MEASUREMENT_UNIT(GasGravity, TR(MeasurementTr::tr("")), TR(MeasurementTr::tr("")), 1.0)
+}
+IMPLEMENT_MEASUREMENT(GasGravity, TR(MeasurementTr::tr("Gas Gravity")))
