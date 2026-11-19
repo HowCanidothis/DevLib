@@ -55,4 +55,9 @@ namespace ReynoldNumberUnits {
     DECLARE_GLOBAL(double, Precision)
 }
 DECLARE_MEASUREMENT(ReynoldNumber)
+namespace GasGravityUnits {
+    DECLARE_MEASUREMENT_UNIT(GasGravity)
+}
+DECLARE_MEASUREMENT(GasGravity)
+
 #endif // FACTORDECLARATION_H
