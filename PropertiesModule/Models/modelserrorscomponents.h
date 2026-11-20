@@ -28,7 +28,7 @@ public:
     using FModelHandler = std::function<void (typename Wrapper::container_type&, const FMarkHasError& markError)>;
 
     ModelsErrorComponent(int delay = 1000)
-        : ErrorFilter(0xffffffff)
+        : ErrorFilter(0xFFFFFFFFFFFFFFFF)
         , SkipErrorRows(true)
         , m_updater(delay)
     {
@@ -176,6 +176,14 @@ public:
         }
         m_errorTypes.insert(error, type);
     }
+
+//    void RegisterErrorOpt(qint64 error, const std::function<std::optional<double>(const T&)>& getter, const TranslatedStringPtr& errorComment, QtMsgType type = QtCriticalMsg)
+//    {
+//        RegisterError(error, [getter](const T& current){
+//            return getter(current).has_value();
+//        }, TRS(QObject::tr("%1 is not set.").arg(errorComment->Native()), errorComment), type);
+//    }
+
 
     void RegisterError(qint64 error, const FPerRowHandler& checkHandler, const TranslatedStringPtr& errorComment, QtMsgType type = QtCriticalMsg)
     {

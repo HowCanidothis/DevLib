@@ -11,8 +11,6 @@ namespace AreaUnits
     DECLARE_MEASUREMENT_UNIT(SqFeets)
     DECLARE_MEASUREMENT_UNIT(SqUSFeets)
     DECLARE_MEASUREMENT_UNIT(SqInches)
-
-    DECLARE_GLOBAL(double, Precision)
 };
 
 DECLARE_MEASUREMENT(Area)

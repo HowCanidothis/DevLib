@@ -9,6 +9,7 @@
 class WidgetsAdjustableTableView : public WidgetsTableViewBase
 {
     using Super = WidgetsTableViewBase;
+    Q_PROPERTY(bool keepStrictWidth MEMBER KeepStrictWidth DESIGNABLE true)
 public:
     WidgetsAdjustableTableView(QWidget* parent = nullptr);
     bool KeepStrictWidth;

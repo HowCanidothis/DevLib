@@ -73,6 +73,38 @@ void WidgetsGroupBoxLayout::setCollapsable(bool collapsable)
     }
 }
 
+//bool WidgetsGroupBoxLayout::removable() const
+//{
+//    return m_removable;
+//}
+
+//void WidgetsGroupBoxLayout::setRemovable(bool removable)
+//{
+//    m_removable = removable;
+//    if(removable) {
+//        if(m_remove == nullptr) {
+//            m_remove = new QPushButton(ui->groupBar);
+////            Opened.ConnectAndCall(CDL, [this](bool opened) {
+////                WidgetWrapper(m_remove).ApplyStyleProperty("a_opened", opened);
+////            });
+//            WidgetPushButtonWrapper(m_remove).SetIcon(ActionIcons::Delete).SetText(TR_NONE).SetOnClicked([this]{
+//                OnDelete();
+//            }).LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_MiddleRight).SetOffset());
+////            WidgetGroupboxLayoutWrapper(this).AddCollapsing();
+////            auto updateChecked = [this]{
+////                Opened = !Opened;
+////            };
+////            WidgetAbstractButtonWrapper(ui->groupBar).SetOnClicked(updateChecked);
+//        }
+//        m_remove->show();
+////        ui->groupBar->setFocusPolicy(Qt::StrongFocus);
+//    } else if(m_remove != nullptr){
+//        m_remove->hide();
+////        ui->groupBar->setFocusPolicy(Qt::NoFocus);
+//    }
+//}
+
+
 qint32 WidgetsGroupBoxLayout::gap() const
 {
     return ui->verticalLayout->spacing();
@@ -99,4 +131,9 @@ void WidgetsGroupBoxLayout::setTitle(const QString& title)
     if(title.isEmpty()) {
         return;
     }
+}
+
+QPushButton* WidgetsGroupBoxLayout::groupBar()
+{
+    return ui->groupBar;
 }

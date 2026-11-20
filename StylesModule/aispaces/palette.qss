@@ -28,10 +28,11 @@ MainWindow {
     qproperty-iconNetworkOnlineColor: #22b14c;
     qproperty-iconNetworkOfflineColor: @cpal.survey;
 
-    qproperty-iconScenarioColor: #009688;
+    qproperty-iconScenarioColor: #80cbc4;
     qproperty-iconBHADEColor: #009688;
     qproperty-iconSectionSummaryColor: #00897B;
     qproperty-iconBHADEColor: #00796B;
-    qproperty-iconCaseColor: #00695C;
+    qproperty-iconCaseColor: #26a69a;
+    qproperty-iconCasingDesignColor: #00695C;
     qproperty-iconSyncColor: #22b14c;
 }

@@ -6,8 +6,6 @@
 namespace FrictionFactorUnits
 {
     DECLARE_MEASUREMENT_UNIT(FrictionFactor)
-    DECLARE_GLOBAL(double, Min)
-    DECLARE_GLOBAL(double, Max)
 }
 DECLARE_MEASUREMENT(FrictionFactor)
 
@@ -33,9 +31,6 @@ namespace WearFactorUnits {
     DECLARE_MEASUREMENT_UNIT(Pascal)
     DECLARE_MEASUREMENT_UNIT(WearFactorSI)
     DECLARE_MEASUREMENT_UNIT(WearFactor)
-
-    DECLARE_GLOBAL(double, Min)
-    DECLARE_GLOBAL(double, Max)
 }
 DECLARE_MEASUREMENT(WearFactor)
 
@@ -51,10 +46,24 @@ DECLARE_MEASUREMENT(ThermalFactor)
 
 namespace ReynoldNumberUnits {
     DECLARE_MEASUREMENT_UNIT(Reynold)
-
-    DECLARE_GLOBAL(double, Precision)
 }
 DECLARE_MEASUREMENT(ReynoldNumber)
+
+namespace TemperatureDerationCorrectionUnits {
+    DECLARE_MEASUREMENT_UNIT(CorrectionRatio)
+}
+DECLARE_MEASUREMENT(TemperatureDerationCorrection)
+
+namespace DesignSafetyFactorUnits {
+    DECLARE_MEASUREMENT_UNIT(SafetyFactor)
+}
+DECLARE_MEASUREMENT(DesignSafetyFactor)
+
+namespace GasGravityUnits {
+    DECLARE_MEASUREMENT_UNIT(GasGravity)
+}
+DECLARE_MEASUREMENT(GasGravity)
+
 namespace GasGravityUnits {
     DECLARE_MEASUREMENT_UNIT(GasGravity)
 }

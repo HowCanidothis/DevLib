@@ -20,7 +20,6 @@ namespace SpeedUnits
     DECLARE_MEASUREMENT_UNIT(USfeetPerSecond)
     DECLARE_MEASUREMENT_UNIT(MilesPerHour)
 
-    DECLARE_GLOBAL(double, Precision)
 }
 
 DECLARE_MEASUREMENT(Speed)
