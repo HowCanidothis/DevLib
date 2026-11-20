@@ -28,7 +28,9 @@ void GtScene::PreDrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& cus
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
             if(drawable->isCustomRenderStageAccepted(customRenderStage)) {
-                drawable->preDraw(f);
+                if(drawable->isShownInCurrentView()) {
+                    drawable->preDraw(f);
+                }
             }
         }
     }
@@ -39,7 +41,9 @@ void GtScene::DrawFilterCustomRenderStage(OpenGLFunctions* f, const Name& custom
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
             if(drawable->isCustomRenderStageAccepted(customRenderStage)) {
-                drawable->draw(f);
+                if(drawable->isShownInCurrentView()) {
+                    drawable->draw(f);
+                }
             }
         }
     }
@@ -60,7 +64,9 @@ void GtScene::DrawFilter(OpenGLFunctions* f, const std::function<bool (qint32)>&
     while(it != m_drawables.cend()) {
         if(filter(it.key())) {
             for(auto* drawable : it.value()) {
-                drawable->draw(f);
+                if(drawable->isShownInCurrentView()) {
+                    drawable->draw(f);
+                }
             }
         }
         it++;
@@ -71,7 +77,9 @@ void GtScene::DrawAll(OpenGLFunctions* f)
 {
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
-            drawable->draw(f);
+            if(drawable->isShownInCurrentView()) {
+                drawable->draw(f);
+            }
         }
     }
 }
@@ -81,7 +89,9 @@ void GtScene::Draw(qint32 queue, OpenGLFunctions* f)
     auto foundIt = m_drawables.find(queue);
     if(foundIt != m_drawables.end()) {
         for(auto* drawable : *foundIt){
-            drawable->draw(f);
+            if(drawable->isShownInCurrentView()) {
+                drawable->draw(f);
+            }
         }
     }
 }
@@ -90,7 +100,9 @@ void GtScene::DrawDepth(OpenGLFunctions* f)
 {
     for(const auto& set : m_drawables){
         for(auto* drawable : set) {
-            drawable->drawDepth(f);
+            if(drawable->isShownInCurrentView()) {
+                drawable->drawDepth(f);
+            }
         }
     }
 }

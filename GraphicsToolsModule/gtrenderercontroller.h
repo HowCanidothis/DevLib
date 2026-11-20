@@ -197,6 +197,8 @@ public:
     void ClearQueue(qint32 queueNumber);
 
     void SetVisibilityMask(qint32 mask);
+    // Show flags of this view (WPS: WPSVisualizationShowFlag); a drawable tests its flag with isShown. Default: all.
+    void SetShowFlags(qint32 flags);
     void SetRenderPath(const GtRenderPathPtr& renderPath);
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
@@ -263,6 +265,7 @@ private:
     double m_renderTime;
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
+    qint32 m_showFlags = -1; // SetShowFlags; render thread
     DispatcherConnectionsSafe m_connections;
     SizeF m_visibleSize;
     DelayedCallObject m_resize;

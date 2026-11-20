@@ -93,7 +93,9 @@ void GtRenderPath::enableDepthTest()
 
 void GtRenderPath::drawDrawable(GtDrawableBase* drawable)
 {
-    drawable->draw(f);
+    if(drawable->isShownInCurrentView()) {
+        drawable->draw(f);
+    }
 }
 
 void GtRenderPath::setRenderProperty(const Name& id, const QVariant& value)

@@ -236,6 +236,14 @@ void GtRendererController::SetVisibilityMask(qint32 mask)
     m_controllers->SetVisibilityMask(mask);
 }
 
+void GtRendererController::SetShowFlags(qint32 flags)
+{
+    m_renderer->Asynch([this, flags]{
+        m_showFlags = flags;
+        m_dirty = true;
+    });
+}
+
 void GtRendererController::calculateVisibleSize()
 {
     m_visibleSize = m_camera->CalculateVisibleSize();

@@ -20,6 +20,9 @@ public:
     class QPushButton* CreateDrawerButton(QWidget* drawer, qint32 drawerSize = 450);
     QPushButton* CreateButton(const QString& objectName);
 
+    static LocalPropertyBool* BindDrawerButton(class QAbstractButton* button, QWidget* drawer, qint32 drawerSize = 450);
+    static void CreateDrawerCloseButton(QWidget* drawer, class QAbstractButton* toggleButton);
+
     LocalPropertyBool* Expanded;
 private:
     class QBoxLayout* m_layout;

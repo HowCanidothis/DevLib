@@ -40,6 +40,7 @@
 
 #include "Layouts/flowlayout.h"
 #include "Layouts/flowwidget.h"
+#include "Layouts/horizontalscrollstrip.h"
 
 #include "Utils/iconsmanager.h"
 #include "Utils/widgetstyleutils.h"
@@ -66,6 +67,8 @@
 #include "Widgets/DateTime/widgetsmonthpicker.h"
 #include "Widgets/DateTime/widgetsmonthpopuppicker.h"
 #include "Widgets/elidedlabel.h"
+#include "Widgets/widgetsreactivestripbuttons.h"
+#include "Widgets/widgetsgroupedpopuplist.h"
 #include "Widgets/widgetscolorpicker.h"
 #include "Widgets/widgetspicturepicker.h"
 #include "Widgets/propertiestoolview.h"

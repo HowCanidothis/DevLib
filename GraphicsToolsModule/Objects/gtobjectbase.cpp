@@ -43,6 +43,17 @@ bool GtDrawableBase::isVisibleFromMask(qint32 mask) const
     return m_renderer->m_currentVisibilityMask & mask;
 }
 
+bool GtDrawableBase::isShown(qint32 flag) const
+{
+    return (m_renderer->m_currentShowFlags & flag) != 0;
+}
+
+bool GtDrawableBase::isShownInCurrentView() const
+{
+    const qint32 flags = m_showFlag;
+    return (m_renderer->m_currentShowFlags & flags) == flags;
+}
+
 void GtDrawableBase::AboutToDestroy()
 {
     THREAD_ASSERT_IS_MAIN()
