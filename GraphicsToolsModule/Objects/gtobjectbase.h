@@ -1,6 +1,8 @@
 #ifndef GTOBJECTBASE_H
 #define GTOBJECTBASE_H
 
+#include <atomic>
+
 #include "SharedGuiModule/decl.h"
 #include "PropertiesModule/internal.hpp"
 #include <SharedModule/External/external.hpp>
@@ -54,6 +56,10 @@ public:
     template<class T>
     T* As() { return reinterpret_cast<T*>(this); }
 
+    // Show flags of the drawable (WPS: WPSVisualizationShowFlag): drawn only in views whose show flags contain all of them
+    // (GtRendererController::SetShowFlags). 0 - drawn in every view. Any thread.
+    void SetShowFlag(qint32 flag) { m_showFlag = flag; }
+
 protected:
     friend class GtViewContext;
     friend class GtScene;
@@ -73,6 +79,10 @@ protected:
     void enableDepthTest();
     void disableDepthTest();
     bool isVisibleFromMask(qint32 mask) const;
+    // Flag of the current view's show flags (GtRendererController::SetShowFlags).
+    bool isShown(qint32 flag) const;
+    // SetShowFlag against the current view (every bit required); the scene skips the drawable otherwise.
+    bool isShownInCurrentView() const;
     template<typename ... Args>
     auto isVisibleFromMasks(const Args&... masks) const
     {
@@ -88,6 +98,7 @@ protected:
     SharedPointer<std::atomic_bool> m_destroyed;
     bool m_rendererDrawable;
     ThreadHandler m_threadHandler;
+    std::atomic<qint32> m_showFlag{0}; // SetShowFlag
     ThreadHandlerNoThreadCheck m_threadHandlerNoCheck;
 };
 

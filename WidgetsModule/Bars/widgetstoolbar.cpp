@@ -2,6 +2,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QAbstractButton>
+#include <QPointer>
 
 #include <WidgetsModule/internal.hpp>
 
@@ -74,4 +76,45 @@ QPushButton* WidgetsToolBar::CreateButton(const QString& objectName)
     result->setChecked(true);
     m_layout->addWidget(result);
     return result;
+}
+
+LocalPropertyBool* WidgetsToolBar::BindDrawerButton(QAbstractButton* button, QWidget* drawer, qint32 drawerSize)
+{
+    Q_ASSERT(button != nullptr);
+    Q_ASSERT(drawer != nullptr);
+    WidgetAbstractButtonWrapper buttonWrapper(button);
+    button->setCheckable(true);
+    auto forceExpanded = ::make_shared<bool>(false);
+    auto* expanded = &WidgetWrapper(drawer).WidgetCollapsing(Qt::Horizontal, drawerSize);
+    buttonWrapper.SetOnClicked([forceExpanded, buttonWrapper, expanded]{
+        *forceExpanded = buttonWrapper.WidgetChecked();
+        *expanded = *forceExpanded;
+    });
+    expanded->SetValidator([forceExpanded](bool value){
+        return *forceExpanded ? true : value;
+    });
+    buttonWrapper.WidgetChecked().ConnectFrom(CDL, *expanded);
+    return expanded;
+}
+
+void WidgetsToolBar::CreateDrawerCloseButton(QWidget* drawer, QAbstractButton* toggleButton)
+{
+    Q_ASSERT(drawer != nullptr);
+    Q_ASSERT(toggleButton != nullptr);
+    QPointer<QAbstractButton> toggle(toggleButton);
+    WidgetPushButtonWrapper closeButton(new QPushButton(drawer));
+    closeButton->setObjectName("BtnCloseMinor");
+    closeButton.LocateToParent(DescWidgetsLocationAttachmentParams(QuadTreeF::Location_TopRight).SetOffset(QPoint(9,9)));
+    closeButton.SetOnClicked([toggle]{
+        if(toggle != nullptr && toggle->isChecked()) {
+            toggle->click();
+        }
+    });
+    WidgetWrapper(drawer).AddEventFilter([closeButton](QObject*, QEvent* e){
+        if(e->type() == QEvent::ChildAdded) {
+            closeButton->raise();
+        }
+        return false;
+    });
+    closeButton->raise();
 }

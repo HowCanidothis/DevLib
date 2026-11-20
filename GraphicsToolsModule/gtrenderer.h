@@ -169,6 +169,7 @@ private:
     ThreadHandler m_threadHandler;
     ThreadHandlerNoThreadCheck m_threadHandlerNoCheck;
     qint32 m_currentVisibilityMask;
+    qint32 m_currentShowFlags = -1; // show flags of the view being rendered (GtRendererController::SetShowFlags)
 };
 
 #endif // GTRENDERER_H
