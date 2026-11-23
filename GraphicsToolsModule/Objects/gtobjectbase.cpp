@@ -1,6 +1,7 @@
 #include "gtobjectbase.h"
 
 #include "GraphicsToolsModule/gtrenderer.h"
+#include "GraphicsToolsModule/gtrenderercontroller.h"
 #include "GraphicsToolsModule/gtviewcontext.h"
 
 GtDrawableBase::GtDrawableBase(const GtViewContext& viewContext)
@@ -50,8 +51,12 @@ bool GtDrawableBase::isShown(qint32 flag) const
 
 bool GtDrawableBase::isShownInCurrentView() const
 {
-    const qint32 flags = m_showFlag;
-    return (m_renderer->m_currentShowFlags & flags) == flags;
+    const GtRendererController* controller = m_renderer->m_currentRenderController;
+    if(controller == nullptr) { // outside a view pass: show flags only, as before
+        const qint32 flags = m_showFlag;
+        return (m_renderer->m_currentShowFlags & flags) == flags;
+    }
+    return controller->IsShown(this);
 }
 
 void GtDrawableBase::AboutToDestroy()

@@ -59,6 +59,14 @@ public:
     // Show flags of the drawable (WPS: WPSVisualizationShowFlag): drawn only in views whose show flags contain all of them
     // (GtRendererController::SetShowFlags). 0 - drawn in every view. Any thread.
     void SetShowFlag(qint32 flag) { m_showFlag = flag; }
+    // Visibility key (WPS: id of the visualization object; every drawable of the object gets the same key): a view hides
+    // the drawable while the key is in its hidden keys (GtRendererController::SetHiddenKeys). Empty - never hidden by key.
+    // Stored as the 64-bit value of the name (Name::operator qint64): any thread, no lock.
+    void SetVisibilityKey(const Name& key) { m_visibilityKey = key.IsNull() ? 0 : qint64(key); }
+    qint64 GetVisibilityKey() const { return m_visibilityKey; }
+    // Owner view (GtRendererController::SetViewId): drawn only in that view. 0 - every view. Any thread.
+    void SetOwnerView(qint64 viewId) { m_ownerView = viewId; }
+    qint64 GetOwnerView() const { return m_ownerView; }
 
 protected:
     friend class GtViewContext;
@@ -81,7 +89,8 @@ protected:
     bool isVisibleFromMask(qint32 mask) const;
     // Flag of the current view's show flags (GtRendererController::SetShowFlags).
     bool isShown(qint32 flag) const;
-    // SetShowFlag against the current view (every bit required); the scene skips the drawable otherwise.
+    // Shown in the current view: SetShowFlag (every bit required), SetOwnerView and SetVisibilityKey against the view
+    // (GtRendererController::IsShown); the scene skips the drawable otherwise.
     bool isShownInCurrentView() const;
     template<typename ... Args>
     auto isVisibleFromMasks(const Args&... masks) const
@@ -99,6 +108,8 @@ protected:
     bool m_rendererDrawable;
     ThreadHandler m_threadHandler;
     std::atomic<qint32> m_showFlag{0}; // SetShowFlag
+    std::atomic<qint64> m_ownerView{0}; // SetOwnerView
+    std::atomic<qint64> m_visibilityKey{0}; // SetVisibilityKey; 0 - none
     ThreadHandlerNoThreadCheck m_threadHandlerNoCheck;
 };
 

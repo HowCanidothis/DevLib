@@ -208,7 +208,7 @@ QWidget#ThemesSpacer {
 
 TopNotifierFrame {
     background: @cbg.error;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 TopNotifierFrame QLabel{

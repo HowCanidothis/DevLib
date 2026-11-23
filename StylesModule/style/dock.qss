@@ -11,14 +11,34 @@ DockArea {
     qproperty-controlGlyphColor: @ctext.label;
     qproperty-controlGlyphHoverColor: @ctext.active;
     qproperty-controlShadowColor: @cbg.alt;
+    qproperty-cellSpacing: 8;
+    qproperty-gridTopMargin: 0;
+    qproperty-borderHandleWidth: 6;
+    qproperty-containerRadius: @cRadius.1n;
+    qproperty-containerBorderColor: transparent;
+    qproperty-canvasColor: @cbg.1;
 }
 
 QWidget#DockStrip {
-    background: @cbg.1;
+    background: transparent;
+}
+
+DockWidgetsContainer > QStackedWidget {
+    background: @cbg.2;
+    border-radius: @cRadius.1;
+}
+
+DockWidgetsContainer[a_strip="true"] > QStackedWidget {
+    border-top-left-radius: 0px;
 }
 
 DockTabBar {
-    background: @cbg.1;
+    background: transparent;
+}
+
+DockTabBar::tab:top {
+    border-top-left-radius: @cRadius.1;
+    border-top-right-radius: @cRadius.1;
 }
 
 DockTabBar::tab:top:!selected {

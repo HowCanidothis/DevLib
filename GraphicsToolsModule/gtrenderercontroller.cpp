@@ -10,6 +10,7 @@
 #include <ControllersModule/internal.hpp>
 
 #include "gtframebufferobject.h"
+#include "Objects/gtobjectbase.h"
 #include "gtdepthbuffer.h"
 #include "gtcamera.h"
 #include "decl.h"
@@ -242,6 +243,40 @@ void GtRendererController::SetShowFlags(qint32 flags)
         m_showFlags = flags;
         m_dirty = true;
     });
+}
+
+void GtRendererController::SetViewId(qint64 viewId)
+{
+    m_renderer->Asynch([this, viewId]{
+        m_viewId = viewId;
+        m_dirty = true;
+    });
+}
+
+void GtRendererController::SetHiddenKeys(const QSet<Name>& keys)
+{
+    QSet<qint64> values;
+    for(const Name& key : keys) {
+        values.insert(qint64(key));
+    }
+    m_renderer->Asynch([this, values]{
+        m_hiddenKeys = values;
+        m_dirty = true;
+    });
+}
+
+bool GtRendererController::IsShown(const GtDrawableBase* drawable) const
+{
+    const qint32 flags = drawable->m_showFlag;
+    if((m_showFlags & flags) != flags) {
+        return false;
+    }
+    const qint64 owner = drawable->m_ownerView;
+    if(owner != 0 && owner != m_viewId) {
+        return false;
+    }
+    const qint64 key = drawable->m_visibilityKey;
+    return key == 0 || !m_hiddenKeys.contains(key);
 }
 
 void GtRendererController::calculateVisibleSize()

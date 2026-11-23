@@ -38,7 +38,9 @@ HorizontalScrollStrip::HorizontalScrollStrip(QWidget* parent)
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setWidgetResizable(false);
     m_scrollArea->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    m_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // Vertical Expanding: the area takes the strip height (the strip is Fixed by its own sizeHint = content height),
+    // not its own sizeHint, which can stay below the content height - then the bottom of the buttons was clipped.
+    m_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_scrollArea->setWidget(m_content);
     m_content->installEventFilter(this);
 

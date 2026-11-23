@@ -199,6 +199,13 @@ public:
     void SetVisibilityMask(qint32 mask);
     // Show flags of this view (WPS: WPSVisualizationShowFlag); a drawable tests its flag with isShown. Default: all.
     void SetShowFlags(qint32 flags);
+    // Identity of this view (not a bit, no limit): drawables with an owner view are drawn only in it (SetOwnerView).
+    void SetViewId(qint64 viewId);
+    qint64 GetViewId() const { return m_viewId; } // render thread
+    // Visibility keys hidden in this view (GtDrawableBase::SetVisibilityKey). Default: none.
+    void SetHiddenKeys(const QSet<Name>& keys);
+    // Show flags, owner view and visibility key of the drawable against this view. Render thread.
+    bool IsShown(const GtDrawableBase* drawable) const;
     void SetRenderPath(const GtRenderPathPtr& renderPath);
     void SetRenderProperties(const GtRenderProperties& renderProperties);
     void SetRenderProperty(const Name& name, const QVariant& value);
@@ -266,6 +273,8 @@ private:
     GtCameraAnimationEngine m_cameraAnimationEngine;
     GtRenderProperties m_renderProperties;
     qint32 m_showFlags = -1; // SetShowFlags; render thread
+    qint64 m_viewId = 0; // SetViewId; render thread
+    QSet<qint64> m_hiddenKeys; // SetHiddenKeys (Name values); render thread
     DispatcherConnectionsSafe m_connections;
     SizeF m_visibleSize;
     DelayedCallObject m_resize;

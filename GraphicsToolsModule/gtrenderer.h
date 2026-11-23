@@ -163,7 +163,7 @@ private:
     SharedPointer<GtRendererSharedData> m_sharedData;
     SharedPointer<ResourcesSystem> m_resourceSystem;
     GtRenderProperties m_renderProperties;
-    GtRendererController* m_currentRenderController;
+    GtRendererController* m_currentRenderController = nullptr; // the view being rendered; null before the first pass
     QVector<FAction> m_delayedDraws;
     std::atomic_bool m_updateRequested;
     ThreadHandler m_threadHandler;

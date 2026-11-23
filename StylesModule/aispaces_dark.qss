@@ -30,6 +30,8 @@
 @c.warning: rgb(251,140,0);
 @c.success: rgb(76,175,80);
 @c.areaAlpha: 0.2;
+@cRadius.1: 8px;
+@cRadius.1n: 8;
 @cPath:@temp;
 @cLogoPath:@temp/full_logo_white.svg;
 @cIcon.f1:rgb(200,200,200);

@@ -26,7 +26,7 @@ QAbstractButton {
     padding: 4px 6px 4px 6px;
     color: @ctext.1;
     background: transparent;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     outline: 0;
 }
 
@@ -80,7 +80,7 @@ QLineEdit{
     padding-left: 8px;
     min-height: 28px;
     color: @ctext.active;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border: 1px solid @cbr.normal;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
@@ -99,14 +99,14 @@ QDateTimeEdit{
     padding-left: 8px;
     min-height: 28px;
     color: @ctext.active;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border: 1px solid @cbr.normal;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
 }
 
 WidgetsDatetimePopupPicker {
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border: 1px solid @cbr.normal;
     background: @cbg.control;
 }
@@ -122,7 +122,7 @@ WidgetsDatetimePopupPicker WidgetsDateTimeEdit {
 WidgetsSwitchLayout {
     background: @cbg.1;
     padding: 2px;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 WidgetsSwitchLayout QPushButton {
@@ -148,7 +148,7 @@ QDoubleSpinBox {
     background: @cbg.control;
     border: 1px solid @cbr.normal; 
     min-height: 28px;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     color: @ctext.active;
     selection-background-color: @ctext.1;
     selection-color: @ctext.active;
@@ -167,7 +167,7 @@ QDoubleSpinBox[readOnly=false]:focus {
 QSpinBox {
     background: @cbg.control;
     min-height: 28px;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border: 1px solid @cbr.normal;
     color: @ctext.active;
     selection-background-color: @ctext.1;
@@ -229,12 +229,12 @@ WidgetsGroupBoxLayout {
     padding: 8px;
     margin: 0px;
     background: @cbg.widget;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 WidgetsGroupBoxLayout[collapsable=true] QPushButton#groupBar:hover {
     background: @cbg.hover;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 WidgetsGroupBoxLayout WidgetsGroupBoxLayout {
@@ -244,8 +244,8 @@ WidgetsGroupBoxLayout WidgetsGroupBoxLayout {
 
 QWidget[a_is_page=true] {
     background: transparent;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: @cRadius.1;
+    border-bottom-right-radius: @cRadius.1;
     padding: 8px;
 }
 
@@ -952,7 +952,7 @@ WidgetsTabBarLayout {
     padding: 0px;
     margin: 0px;
     background: @cbg.widget;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 QPushButton[a_tab_button=true] {
@@ -1022,7 +1022,7 @@ WidgetsSpinBoxLayout QLineEdit#lineedit {
 }
 
 QTextEdit {
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border: 1px solid @cbr.normal;
     min-height: 100px;
 }
@@ -1133,7 +1133,7 @@ WidgetsTimePicker {
 
 WidgetsTimePicker QLabel {
     font: bold;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
 }
 
 WidgetsDateTimeWidget {
@@ -1227,7 +1227,7 @@ QComboBox {
     min-height: 28px;
     max-height: 28px;
     border: 1px solid @cbr.normal;
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     color: @ctext.active;
 }
 
@@ -1261,8 +1261,14 @@ QComboBox:hover:!open {
     border: 1px solid @cbr.hover;
 }
 
+QAbstractItemView QComboBox {
+    min-height: 0px;
+    max-height: 16777215px;
+    border-radius: 0px;
+}
+
 QComboBoxListView {
-    border-radius: 4px;
+    border-radius: @cRadius.1;
     border-bottom: 1px solid @ctext.1;
     border-right: 1px solid @ctext.1;
     border-left: 1px solid @ctext.1;
@@ -1350,7 +1356,6 @@ QSlider::handle {
 QSlider::handle:hover {
     background: @cbg.selected;         /* Slightly brighter cyan glow on hover */
 }
-
 
 QFrame[Footer=true] QLabel[Title=true]
 {

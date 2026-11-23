@@ -12,10 +12,10 @@ class QHBoxLayout;
 // Горизонтальная полоса виджетов, обрезаемая по ширине.
 // Скроллбары скрыты, прокрутка - стрелками по краям (опционально колесом).
 // Стилей нет: цвета, размеры и иконки задаёт пользователь (QSS по objectName кнопок).
-class HorizontalScrollStrip : public QWidget
+class HorizontalScrollStrip : public QFrame
 {
     Q_OBJECT
-    using Super = QWidget;
+    using Super = QFrame;
     Q_PROPERTY(qint32 spacing MEMBER Spacing);
 
 public:

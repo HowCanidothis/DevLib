@@ -116,6 +116,7 @@
   - `LocalPropertyDate/Time/DateTime` — невалидная дата означает открытую границу.
 - `LocalPropertyBoolCommutator` / `LocalPropertyIntCommutator` (And/Or) пересчитываются отложенно, не синхронно [проверено: alias на `…CommutatorBase<DispatchersCommutator>`].
 - `ConnectFromDispatchers(…, QVector<Dispatcher*>)` у коммутаторов объявлен, но не определён — даст ошибку линковки [не проверено повторно].
+- `Q_PROPERTY` поверх `LocalProperty` (настройка из QSS `qproperty-*`, `setProperty`, Designer) — через `MEMBER`, без геттера и сеттера: `Q_PROPERTY(int cellSpacing MEMBER CellSpacing)`. moc читает через `operator const T&` и пишет через `operator!=` и `operator=`, поэтому валидатор, min/max и подписки срабатывают как при `SetValue`. Меньше строк и нет второго, дублирующего интерфейса к тому же значению; в коде читать и писать само свойство (`CellSpacing.Native()`, `CellSpacing = v`). Примеры: `DockArea`, `HorizontalScrollStrip::Spacing`, `FlowWidget`, `QRoundProgressBar` [проверено: grep]. `READ`/`WRITE` — только если запись должна делать то, чего нет в подписках свойства.
 
 ## Вычисления
 
@@ -344,3 +345,7 @@ Git в репозиториях ведёт только пользователь
 - Ресурсы подключаются через `main.qrc` с путём `style/<имя>`; в темах общий файл импортируется как `@import url("style/<имя>");`.
 - В общих QSS нет символа `@` вне токенов тем: `QtQSSReader` подставляет любой `@c…` из импортируемого файла.
 - В QSS-файлах (включая `libs/DevLib/StylesModule/**/*.qss` и темы `aispaces_*.qss`) комментарии `/* ... */` не добавлять; пояснения выносить в коммит-сообщение или описание задачи.
+- Токены задаются в каждом файле темы (`aispaces_dark.qss` и `aispaces_light.qss` одинаково) строкой `@c<имя>: значение;`. Имя токена обязано начинаться с `@c` (регулярка `@c[\d\w_\.]+` в `QtQSSReader`); ненайденный токен заменяется на `red` и пишется в qDebug `Can't find … color`.
+- Скругление: обычный радиус — токен `@cRadius.1` (8px, по мокапам), вместо числа в `border-radius` и `border-*-radius`. Для int-`qproperty` (например `qproperty-containerRadius` у `DockArea`) — `@cRadius.1n` (то же число без `px`: int-свойство не разбирает `8px`). Особые радиусы (кружки слайдера, счётчики, `WidgetsSwitchLayout`) остаются числами.
+- Геометрия и цвета `DockArea` задаются в `style/dock.qss` через `qproperty-*` (свойства `MEMBER`, см. «LocalProperty»): `cellSpacing` (зазор между окнами, оба режима), `gridTopMargin` (отступ сетки от верха области, по умолчанию 9 — место для hover-кнопок первого ряда; 0 — без отступа), `borderHandleWidth` (ширина полосы сплиттера в Fixed), `containerRadius`, `containerColor` и `containerBorderColor` (рамка `DockWidgetsContainer`; `transparent` у линии и без заливки - рамка не рисуется и отступа нет, вид задают QSS полосы, вкладок и `DockWidgetsContainer > QStackedWidget`, у которого `[a_strip="true"]` - полоса видна), `stripThickness`, `controlOffset`, цвета превью и кнопок. Числовые `qproperty` — без единиц.
+- Если в настройках приложения стили берутся с диска, а не из ресурсов, `QtQSSReader` следит за файлами и применяет правку QSS в рантайме (~15 с), пересборка не нужна; из ресурсов (`main.qrc`) — только после сборки.
