@@ -828,11 +828,20 @@ QToolButton#qt_menubar_ext_button {
     padding: 0px;
 }
 
+
 QMenu {
     border: none;
     margin: 0px;
+    padding: 6px;
+    border-radius: @cRadius.1;
     background: @cbg.3;
     color: @ctext.active;
+    font-size: 12px;
+}
+
+QMenu[a_popup=true] {
+    padding: 0px;
+    border-radius: 0px;
 }
 
 QMenu WidgetsTableViewBase {
@@ -841,6 +850,7 @@ QMenu WidgetsTableViewBase {
 
 QMenu::separator {
     height: 1px;
+    margin: 4px 0px 4px 0px;
     background-color: @cbg.disabled;
 }
 
@@ -850,8 +860,8 @@ QMenu::icon {
 }
 
 QMenu::item {
-    font-size: 14px;
-    padding: 8px 12px 8px 12px;
+    font-size: 12px;
+    padding: 9px 10px 9px 10px;
     background-color: @cbg.3;
     border: none;
 }

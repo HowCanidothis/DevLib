@@ -688,12 +688,6 @@ QPushButton#BtnImportEDM {
     qproperty-icon: url("@cPath/out-normal.svg");
 }
 
-QMenu#TreeBarSpacesMenu::item {
-    padding: 4px 4px 4px 4px;
-    background-color: @cbg.3;
-    border: none;
-}
-
 QMenu#TreeBarSpacesMenu::item:selected {
     background: @cbg.hover;
 }
@@ -1062,5 +1056,35 @@ TreeBar QPushButton#BtnPanelToggle {
 }
 
 TreeBar QPushButton#BtnPanelToggle:hover {
+    background: @cbg.hover;
+}
+
+/* WPSClient: Dashboard without an active template (WPSCTemplateControls::CreateEmptyState).
+   Illustration lines take the title color. */
+QFrame#DashboardEmptyState {
+    background: @cbg.1;
+}
+
+QLabel#DashboardEmptyStateTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: @ctext.active;
+}
+
+QLabel#DashboardEmptyStateHint {
+    font-size: 13px;
+    color: @ctext.label;
+}
+
+QFrame#DashboardEmptyState QPushButton#BtnEmptyStateCreate,
+QFrame#DashboardEmptyState QLabel#BtnEmptyStateBrowse {
+    padding: 8px 16px;
+    border-radius: @cRadius.1;
+    border: 1px solid @cbg.3;
+    color: @ctext.label;
+}
+
+QFrame#DashboardEmptyState QPushButton#BtnEmptyStateCreate:hover,
+QFrame#DashboardEmptyState QLabel#BtnEmptyStateBrowse:hover {
     background: @cbg.hover;
 }
