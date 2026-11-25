@@ -76,7 +76,9 @@ Measurement::Measurement(const Name& key, const FTranslationHandler& label)
         if(m_currentUnit == nullptr) {
             return 1.0;
         }
-        return m_currentUnit->FromUnitToBase(epsilon(precision)) * 0.9;
+        auto eps = m_currentUnit->FromUnitToBase(epsilon(precision));
+        auto base = m_currentUnit->FromUnitToBase(0.0);
+        return abs(eps - base) * 0.9;
     }, CurrentUnitId, CurrentPrecision);
     
     OnChanged.ConnectFrom(CONNECTION_DEBUG_LOCATION, Label.OnChanged,
