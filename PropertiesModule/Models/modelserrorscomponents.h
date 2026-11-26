@@ -393,4 +393,9 @@ private:
     const char* m_cdl;
 };
 
+#define DECLARE_ERROR_COMPONENT(TypeName) \
+    using TypeName##ErrorComponent = ModelsErrorComponent<TModelsTableWrapper<QVector<TypeName>>>; \
+    using TypeName##ErrorComponentPtr = SP<TypeName##ErrorComponent>; \
+    using TypeName##ErrorComponentPtrInitialized = SharedPointerInitialized<TypeName##ErrorComponent>;
+
 #endif // MODELSERRORSCOMPONENTS_H
